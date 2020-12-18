@@ -1,0 +1,51 @@
+{
+  "version": "0.0.1",
+  "keywords": [
+    "jbrowse",
+    "jbrowse2"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/jbrowse-plugin-my-project.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMyProject --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
+    "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMyProject",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepublishOnly": "yarn test",
+    "postinstall": "jbrowse-plugin-postinstall"
+  },
+  "jbrowse-plugin": {
+    "name": "MyProject"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "all"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@jbrowse/core": "^1.0.3"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.10.4",
+    "@jbrowse/core": "^1.0.3",
+    "@jbrowse/development-tools": "^1.0.3",
+    "@material-ui/core": "^4.9.13",
+    "@material-ui/lab": "^4.0.0-alpha.45",
+    "@types/react": "^17.0.0",
+    "mobx": "^5.0.0",
+    "mobx-react": "^6.0.0",
+    "mobx-state-tree": "3.14.1",
+    "react": "^16.8.0",
+    "rxjs": "^6.0.0",
+    "serve": "^11.3.2",
+    "tslib": "^2.0.3",
+    "typescript": "^4.1.3"
+  },
+  "private": true
+}
