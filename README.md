@@ -12,6 +12,8 @@ project.
 You can click the "Use this template" button in the repository (instructions
 [here](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template)):
 
+![screenshot showing where "Use this template" button is in the GitHub repository page](https://user-images.githubusercontent.com/25592344/102671843-eb8ae380-414c-11eb-84e5-6ebf10bd89f9.png)
+
 Or you can use the GitHub CLI:
 
 ```console
