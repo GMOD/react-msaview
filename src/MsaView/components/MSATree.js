@@ -5,7 +5,7 @@ const styles = {
   treeCanvas: { position: "relative" },
 };
 
-export default function(pluginManager: any) {
+export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");

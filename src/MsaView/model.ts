@@ -4,9 +4,9 @@ export default function(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const { types } = pluginManager.lib["mobx-state-tree"];
   const { ElementId } = jbrequire("@jbrowse/core/util/types/mst");
-  const { BaseViewModel } = jbrequire(
-    "@jbrowse/core/pluggableElementTypes/models",
-  );
+  const { BaseViewModel } = pluginManager.lib[
+    "@jbrowse/core/pluggableElementTypes/models"
+  ];
 
   return function stateModelFactory() {
     return types.compose(
@@ -27,7 +27,7 @@ export default function(pluginManager: PluginManager) {
           margin: { left: 20, top: 20 },
           hoverColumn: null,
         }))
-        .actions(self => ({
+        .actions((self: any) => ({
           setScroll(left: number, top: number) {
             self.alignScrollLeft = left;
             self.scrollTop = top;
@@ -46,7 +46,7 @@ export default function(pluginManager: PluginManager) {
             self.drawn = flag;
           },
         }))
-        .views(self => ({
+        .views((self: any) => ({
           get initialized() {
             return self.volatileWidth > 0;
           },

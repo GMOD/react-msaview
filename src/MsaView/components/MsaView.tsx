@@ -1,3 +1,4 @@
+import App from "./App";
 const opts = {
   datasets: [
     {
@@ -184,7 +185,7 @@ export default (pluginManager: any) => {
   const { jbrequire } = pluginManager;
   const { observer } = jbrequire("mobx-react");
   const React = jbrequire("react");
-  const App = jbrequire(require("./App"));
+  const AppComponent = jbrequire(App);
 
   return observer(({ model }: { model: any }) => {
     const { initialized } = model;
@@ -193,6 +194,6 @@ export default (pluginManager: any) => {
       return null;
     }
 
-    return <App {...opts} model={model} />;
+    return <AppComponent {...opts} model={model} />;
   });
 };

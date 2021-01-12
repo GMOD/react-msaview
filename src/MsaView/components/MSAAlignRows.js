@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types,react/sort-comp */
-
+import MSAAlignCanvasFactory from "./MSAAlignCanvas";
 const styles = {
   alignmentRows: {
     position: "relative",
@@ -24,11 +24,11 @@ const styles = {
   },
 };
 
-export default function(pluginManager: any) {
+export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
-  const MSAAlignCanvas = jbrequire(require("./MSAAlignCanvas"));
+  const MSAAlignCanvas = jbrequire(MSAAlignCanvasFactory);
 
   class MSAAlignRows extends React.Component {
     constructor(props) {

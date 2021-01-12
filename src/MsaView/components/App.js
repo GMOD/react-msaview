@@ -7,6 +7,7 @@ import JukesCantor from "jukes-cantor";
 import RapidNeighborJoining from "neighbor-joining";
 import { getAncestralReconstruction } from "./reconstruction";
 import colorSchemes from "./colorSchemes";
+import MSAFactory from "./MSA";
 
 const styles = {
   appBar: {
@@ -27,11 +28,11 @@ const styles = {
   },
 };
 
-export default function(pluginManager: any) {
+export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
-  const MSA = jbrequire(require("./MSA"));
+  const MSA = jbrequire(MSAFactory);
 
   class App extends React.Component {
     constructor(props) {

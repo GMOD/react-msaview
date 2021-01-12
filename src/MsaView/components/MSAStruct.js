@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 /* eslint curly:error */
-import CloseIcon from "@material-ui/icons/Close";
 import pv from "bio-pv";
 
 const styles = {
@@ -40,7 +39,7 @@ const styles = {
   structurePv: { position: "absolute", " top": "0", " left": "0" },
 };
 
-export default function(pluginManager: any) {
+export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
@@ -91,9 +90,7 @@ export default function(pluginManager: any) {
                 ))}
               </Select>
             )}
-            <div className={classes.closeButton}>
-              <CloseIcon onClick={this.handleClose.bind(this)} />
-            </div>
+            <div className={classes.closeButton}></div>
           </div>
 
           <div className={classes.structurePv} ref={this.pvDivRef} />

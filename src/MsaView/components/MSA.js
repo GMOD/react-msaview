@@ -2,6 +2,11 @@
 
 /* eslint curly: "error"*/
 
+import MSATreeFactory from "./MSATree";
+import MSAAlignNamesFactory from "./MSAAlignNames";
+import MSAAlignRowsFactory from "./MSAAlignRows";
+import MSAStructPanelFactory from "./MSAStructPanel";
+
 const styles = {
   MSA: {
     display: "flex",
@@ -17,16 +22,16 @@ const styles = {
   },
 };
 
-export default function(pluginManager: any) {
+export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
   const { observer } = jbrequire("mobx-react");
 
-  const MSATree = jbrequire(require("./MSATree"));
-  const MSAAlignNames = jbrequire(require("./MSAAlignNames"));
-  const MSAAlignRows = jbrequire(require("./MSAAlignRows"));
-  const MSAStructPanel = jbrequire(require("./MSAStructPanel"));
+  const MSATree = jbrequire(MSATreeFactory);
+  const MSAAlignNames = jbrequire(MSAAlignNamesFactory);
+  const MSAAlignRows = jbrequire(MSAAlignRowsFactory);
+  const MSAStructPanel = jbrequire(MSAStructPanelFactory);
 
   class MSA extends React.Component {
     constructor(props) {

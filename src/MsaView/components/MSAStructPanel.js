@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import pv from "bio-pv";
+import MSAStructFactory from "./MSAStruct";
 
 const styles = {
   panel: {
@@ -15,7 +16,7 @@ const styles = {
   },
 };
 
-export default function(pluginManager: any) {
+export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
@@ -23,7 +24,7 @@ export default function(pluginManager: any) {
   const { Select, MenuItem, FormControlLabel, Checkbox } = jbrequire(
     "@material-ui/core",
   );
-  const MSAStruct = jbrequire(require("./MSAStruct"));
+  const MSAStruct = jbrequire(MSAStructFactory);
 
   class MSAStructPanel extends React.Component {
     constructor(props) {
