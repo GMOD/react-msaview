@@ -1,16 +1,14 @@
 {
-  "version": "0.0.1",
-  "keywords": [
-    "jbrowse",
-    "jbrowse2"
-  ],
+  "name": "jbrowse-plugin-msaview",
+  "version": "1.0.0",
+  "description": "JBrowse 2 MsaView API plugin",
+  "repository": "github:GMOD/jbrowse-plugin-msaview",
+  "jbrowse-plugin": {
+    "name": "MsaView"
+  },
   "main": "dist/index.js",
   "module": "dist/jbrowse-plugin-msaview.esm.js",
   "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMsaView --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
     "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView",
@@ -19,15 +17,19 @@
     "prepublishOnly": "yarn test",
     "postinstall": "jbrowse-plugin-postinstall"
   },
-  "jbrowse-plugin": {
-    "name": "MsaView"
-  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "author": "Colin Diesh",
+  "license": "MIT",
+  "keywords": [
+    "jbrowse",
+    "jbrowse2"
+  ],
   "prettier": {
-    "semi": false,
-    "singleQuote": true,
     "trailingComma": "all"
   },
-  "dependencies": {},
   "peerDependencies": {
     "@jbrowse/core": "^1.0.3"
   },
