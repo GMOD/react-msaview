@@ -1,11 +1,11 @@
-import modelFactory from './model'
-import ReactComponentFactory from './components/MsaView'
-
+import model from "./model";
 export default ({ jbrequire }: { jbrequire: Function }) => {
-  const ViewType = jbrequire('@jbrowse/core/pluggableElementTypes/ViewType')
+  const modelFactory = jbrequire(model);
+  const ViewType = jbrequire("@jbrowse/core/pluggableElementTypes/ViewType");
+  const ReactComponentFactory = jbrequire(require("./components/MsaView"));
   return new ViewType({
-    name: 'MsaView',
+    name: "MsaView",
     stateModel: jbrequire(modelFactory),
     ReactComponent: jbrequire(ReactComponentFactory),
-  })
-}
+  });
+};

@@ -31,7 +31,7 @@ export default function(pluginManager: any) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
-  const MSA = jbrequire("./MSA");
+  const MSA = jbrequire(require("./MSA"));
 
   class App extends React.Component {
     constructor(props) {

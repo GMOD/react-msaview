@@ -23,10 +23,10 @@ export default function(pluginManager: any) {
   const { withStyles } = jbrequire("@material-ui/core/styles");
   const { observer } = jbrequire("mobx-react");
 
-  const MSATree = jbrequire("./MSATree");
-  const MSAAlignNames = jbrequire("./MSAAlignNames");
-  const MSAAlignRows = jbrequire("./MSAAlignRows");
-  const MSAStructPanel = jbrequire("./MSAStructPanel");
+  const MSATree = jbrequire(require("./MSATree"));
+  const MSAAlignNames = jbrequire(require("./MSAAlignNames"));
+  const MSAAlignRows = jbrequire(require("./MSAAlignRows"));
+  const MSAStructPanel = jbrequire(require("./MSAStructPanel"));
 
   class MSA extends React.Component {
     constructor(props) {

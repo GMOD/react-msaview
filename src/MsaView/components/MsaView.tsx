@@ -184,7 +184,7 @@ export default (pluginManager: any) => {
   const { jbrequire } = pluginManager;
   const { observer } = jbrequire("mobx-react");
   const React = jbrequire("react");
-  const App = jbrequire("./App");
+  const App = jbrequire(require("./App"));
 
   return observer(({ model }: { model: any }) => {
     const { initialized } = model;

@@ -28,7 +28,7 @@ export default function(pluginManager: any) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
-  const MSAAlignCanvas = jbrequire("./MSAAlignCanvas");
+  const MSAAlignCanvas = jbrequire(require("./MSAAlignCanvas"));
 
   class MSAAlignRows extends React.Component {
     constructor(props) {

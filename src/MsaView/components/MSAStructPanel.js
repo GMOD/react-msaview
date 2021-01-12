@@ -23,7 +23,7 @@ export default function(pluginManager: any) {
   const { Select, MenuItem, FormControlLabel, Checkbox } = jbrequire(
     "@material-ui/core",
   );
-  const MSAStruct = jbrequire("./MSAStruct");
+  const MSAStruct = jbrequire(require("./MSAStruct"));
 
   class MSAStructPanel extends React.Component {
     constructor(props) {
