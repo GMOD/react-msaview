@@ -5,22 +5,22 @@
     "jbrowse2"
   ],
   "main": "dist/index.js",
-  "module": "dist/jbrowse-plugin-my-project.esm.js",
+  "module": "dist/jbrowse-plugin-msaview.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
-    "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMyProject --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
-    "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMyProject",
+    "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMsaView --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
+    "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepublishOnly": "yarn test",
     "postinstall": "jbrowse-plugin-postinstall"
   },
   "jbrowse-plugin": {
-    "name": "MyProject"
+    "name": "MsaView"
   },
   "prettier": {
     "semi": false,
