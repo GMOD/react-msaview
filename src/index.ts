@@ -6,8 +6,6 @@ import {
 } from "@jbrowse/core/util";
 import MsaViewFactory from "./MsaView";
 
-console.log("here");
-
 export default class MsaViewPlugin extends Plugin {
   name = "MsaViewPlugin";
 
