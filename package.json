@@ -44,6 +44,6 @@
   },
   "private": true,
   "dependencies": {
-    "@material-ui/icons": "^4.11.2"
+    "@material-ui/icons": "4.9.1"
   }
 }
