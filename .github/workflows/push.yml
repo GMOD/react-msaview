@@ -1,0 +1,22 @@
+name: Push
+
+on: push
+
+jobs:
+  test:
+    name: Test and typecheck on node 10.x and ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install deps (with cache)
+        uses: bahmutov/npm-install@v1
+      - name: Test codebase
+        run: yarn test
+      - name: Upload coverage
+        run: bash <(curl -s https://codecov.io/bash)
+      - name: Lint
+        run: yarn lint
