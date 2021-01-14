@@ -108,7 +108,9 @@ export default function(pluginManager) {
         row < treeLayout.rowHeight.length && treeLayout.rowY[row] < bottom;
         ++row
       ) {
-        if (treeLayout.rowY[row] < top) firstRow = row;
+        if (treeLayout.rowY[row] < top) {
+          firstRow = row;
+        }
         lastRow = row;
       }
       let colX = 0;

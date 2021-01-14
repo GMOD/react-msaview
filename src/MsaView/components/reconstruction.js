@@ -22,7 +22,9 @@ export const getAncestralReconstruction = async data => {
   });
   Object.keys(nodeProfile).forEach(node => {
     ancestralRowData[node] = nodeProfile[node].map(charProb => {
-      if (charProb[gapChar] >= 0.5) return gapChar;
+      if (charProb[gapChar] >= 0.5) {
+        return gapChar;
+      }
       const chars = Object.keys(charProb)
         .filter(c => c !== gapChar)
         .sort((a, b) => charProb[a] - charProb[b]);

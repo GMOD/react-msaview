@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* eslint curly:error */
 import pv from "bio-pv";
 
 const styles = {

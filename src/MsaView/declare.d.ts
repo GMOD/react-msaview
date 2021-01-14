@@ -1,1 +1,1 @@
-declare module 'clustal-js'
+declare module "clustal-js";

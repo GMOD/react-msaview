@@ -1,7 +1,4 @@
 /* eslint-disable react/prop-types,react/sort-comp */
-
-/* eslint curly: "error"*/
-
 import MSATreeFactory from "./MSATree";
 import MSAAlignNamesFactory from "./MSAAlignNames";
 import MSAAlignRowsFactory from "./MSAAlignRows";

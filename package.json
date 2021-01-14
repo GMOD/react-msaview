@@ -44,6 +44,12 @@
   },
   "private": true,
   "dependencies": {
-    "@material-ui/icons": "4.9.1"
+    "@material-ui/icons": "4.9.1",
+    "bio-pv": "^1.8.1",
+    "jukes-cantor": "^1.0.4",
+    "neighbor-joining": "^1.0.4",
+    "newick": "^2.0.0",
+    "phylogenetic-likelihood": "^1.0.5",
+    "stockholm-js": "^1.0.10"
   }
 }

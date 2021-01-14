@@ -1,14 +1,14 @@
-/* eslint curly:error*/
 /* eslint-disable react/prop-types,react/sort-comp */
 
 import Stockholm from "stockholm-js";
-import { Newick } from "newick";
+import NewickModule from "newick";
 import JukesCantor from "jukes-cantor";
 import RapidNeighborJoining from "neighbor-joining";
 import { getAncestralReconstruction } from "./reconstruction";
 import colorSchemes from "./colorSchemes";
 import MSAFactory from "./MSA";
 
+const { Newick } = NewickModule;
 const styles = {
   appBar: {
     display: "flex",
