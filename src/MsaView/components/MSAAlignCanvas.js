@@ -140,7 +140,8 @@ export default function(pluginManager) {
                 ctx.fillText(c, 0, 0);
               } else {
                 let psum = 0;
-                c.forEach(cp => {
+                for (let i = 0; i < c.length; i++) {
+                  const cp = c[i];
                   const ci = cp[0];
                   const p = cp[1];
                   ctx.setTransform(
@@ -154,7 +155,7 @@ export default function(pluginManager) {
                   ctx.fillStyle = this.getColor(ci);
                   ctx.fillText(ci, 0, 0);
                   psum += p;
-                });
+                }
               }
             }
           }
