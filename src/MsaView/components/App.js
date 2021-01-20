@@ -7,6 +7,8 @@ import RapidNeighborJoining from "neighbor-joining";
 import { getAncestralReconstruction } from "./reconstruction";
 import colorSchemes from "./colorSchemes";
 import MSAFactory from "./MSA";
+import FolderOpenIcon from "@material-ui/icons/FolderOpen";
+import CloseIcon from "@material-ui/icons/Close";
 
 const { Newick } = NewickModule;
 const styles = {
@@ -32,6 +34,7 @@ export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
+  const { IconButton, Select, MenuItem } = jbrequire("@material-ui/core");
   const MSA = jbrequire(MSAFactory);
 
   class App extends React.Component {
@@ -129,6 +132,7 @@ export default function(pluginManager) {
 
     handleSelectFile(evt) {
       this.openFiles(evt.target.files);
+      this.setState({ showOpenIcon: false });
     }
 
     openFiles(files) {
@@ -272,19 +276,26 @@ export default function(pluginManager) {
         }
       }
       if (!(data.branches && data.rowData)) {
+        // was a Stockholm-format alignment specified?
         if (data.stockholm) {
-          // was a Stockholm-format alignment specified?
           this.unpackStockholm(data, config, data.stockholm);
-        } else if (data.stockholmjs) {
-          // was a StockholmJS object specified?
+        }
+
+        // was a StockholmJS object specified?
+        else if (data.stockholmjs) {
           this.unpackStockholmJS(data, config, data.stockholmjs);
-        } else if (data.fasta) {
-          // was a FASTA-format alignment specified?
+        }
+        // was a FASTA-format alignment specified?
+        else if (data.fasta) {
           data.rowData = this.parseFasta(data.fasta);
-        } else {
+        }
+
+        //throw
+        else {
           throw new Error("no sequence data");
         }
-        // If a Newick-format tree was specified somehow (as a separate data item, or in the Stockholm alignment) then parse it
+        // If a Newick-format tree was specified somehow (as a separate data
+        // item, or in the Stockholm alignment) then parse it
         if (data.newick || data.newickjs) {
           const NewickParser = new Newick();
           const newickTree = (data.newickjs =
@@ -737,25 +748,52 @@ export default function(pluginManager) {
 
     render() {
       const { classes, model } = this.props;
+      console.log(this.state.datasets);
       return (
         <div className="App" ref={this.divRef}>
           <div className={classes.appBar}>
-            <input
-              type="file"
-              ref={this.inputRef}
-              onChange={this.handleSelectFile.bind(this)}
-              style={{ display: "none" }}
-            />
+            <IconButton
+              onClick={() => {
+                this.setState({ showOpenIcon: true });
+              }}
+            >
+              <FolderOpenIcon />
+            </IconButton>
 
-            <div className={classes.appBarLink}>
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://github.com/ihh/abrowse"
-              >
-                GitHub
-              </a>
-            </div>
+            {this.state.showOpenIcon ? (
+              <div style={{ display: "inline" }}>
+                Open a stockholm or FASTA formatted multiple sequence alignment.
+                You can also drag and drop a file onto the main MSA area
+                <div style={{ marginLeft: 10, display: "inline" }}>
+                  <input
+                    type="file"
+                    ref={this.inputRef}
+                    onChange={this.handleSelectFile.bind(this)}
+                  />
+                </div>
+                <IconButton
+                  onClick={() => {
+                    this.setState({ showOpenIcon: false });
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <Select
+                  onChange={event => {
+                    this.setDataset(
+                      this.state.datasets.find(
+                        f => f.name === event.target.value,
+                      ),
+                    );
+                    this.setState({ showOpenIcon: false });
+                  }}
+                >
+                  {this.state.datasets.map(dataset => (
+                    <MenuItem value={dataset.name}>{dataset.name}</MenuItem>
+                  ))}
+                </Select>
+              </div>
+            ) : null}
           </div>
 
           {this.state.data && (

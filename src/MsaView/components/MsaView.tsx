@@ -1,4 +1,8 @@
 import App from "./App";
+
+// can't use public url in plugin
+import PF01601_full from "./PF01601_full.js";
+
 const opts = {
   datasets: [
     {
@@ -163,7 +167,7 @@ const opts = {
     },
     {
       name: "Corona_S2",
-      url: { stockholm: "%PUBLIC_URL%/PF01601_full.txt" },
+      auto: PF01601_full,
     },
   ],
   //  dataurl: '%PUBLIC_URL%/PF01601_full.txt',
