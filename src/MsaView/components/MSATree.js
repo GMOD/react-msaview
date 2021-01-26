@@ -145,8 +145,9 @@ export default function(pluginManager) {
       nodesWithHandles.forEach(node => {
         setAlpha(node);
         makeNodeHandlePath(node);
-        // hack: collapsed[node]===false (vs undefined) means that we are animating the open->collapsed transition
-        // so the node's descendants are visible, but the node itself is rendered as collapsed
+        // hack: collapsed[node]===false (vs undefined) means that we are
+        // animating the open->collapsed transition so the node's descendants
+        // are visible, but the node itself is rendered as collapsed
         if (
           collapsed[node] ||
           (forceDisplayNode[node] && collapsed[node] !== false)

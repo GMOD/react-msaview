@@ -27,6 +27,7 @@ const styles = {
 export default function(pluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
+  const { observer } = jbrequire("mobx-react");
   const { withStyles } = jbrequire("@material-ui/core/styles");
   const MSAAlignCanvas = jbrequire(MSAAlignCanvasFactory);
 
@@ -200,5 +201,5 @@ export default function(pluginManager) {
     }
   }
 
-  return withStyles(styles)(MSAAlignRows);
+  return withStyles(styles)(observer(MSAAlignRows));
 }

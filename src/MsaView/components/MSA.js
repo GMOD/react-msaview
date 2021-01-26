@@ -40,7 +40,6 @@ export default function(pluginManager) {
         view,
       };
 
-      this.rowsRef = React.createRef();
       this.msaRef = React.createRef();
       this.structRef = React.createRef();
     }
@@ -89,9 +88,9 @@ export default function(pluginManager) {
       const setCollapsedState = (node, parent) => {
         ancestorCollapsed[node] =
           ancestorCollapsed[parent] || collapsed[parent];
-        const kids = treeIndex.children[node];
-        if (kids) {
-          kids.forEach(child => setCollapsedState(child, node));
+        const children = treeIndex.children[node];
+        if (children) {
+          children.forEach(child => setCollapsedState(child, node));
         }
       };
       setCollapsedState(treeIndex.root);
@@ -270,6 +269,7 @@ export default function(pluginManager) {
             }}
           >
             <MSATree
+              model={model}
               config={this.props.config}
               computedTreeConfig={this.props.computedTreeConfig}
               treeIndex={this.props.treeIndex}
@@ -280,6 +280,7 @@ export default function(pluginManager) {
             />
 
             <MSAAlignNames
+              model={model}
               data={this.props.data}
               view={this.state.view}
               config={this.props.config}
@@ -294,7 +295,7 @@ export default function(pluginManager) {
             />
 
             <MSAAlignRows
-              ref={this.rowsRef}
+              model={model}
               data={this.props.data}
               view={this.state.view}
               config={this.props.config}
