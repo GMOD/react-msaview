@@ -3,6 +3,7 @@ import MSATreeFactory from "./MSATree";
 import MSAAlignNamesFactory from "./MSAAlignNames";
 import MSAAlignRowsFactory from "./MSAAlignRows";
 import MSAStructPanelFactory from "./MSAStructPanel";
+import { isGapChar } from "./util";
 
 const styles = {
   MSA: {
@@ -47,10 +48,17 @@ export default function(pluginManager) {
     // config/defaults
     initialView() {
       return {
-        collapsed: {}, // true if an internal node has been collapsed by the user
-        forceDisplayNode: {}, // force a node to be displayed even if it's flagged as collapsed. Used by animation code
-        nodeScale: {}, // height scaling factor for tree nodes / alignment rows. From 0 to 1 (undefined implies 1)
-        columnScale: {}, // height scaling factor for alignment columns. From 0 to 1 (undefined implies 1)
+        // true if an internal node has been collapsed by the user
+        collapsed: {},
+        // force a node to be displayed even if it's flagged as collapsed. Used
+        // by animation code
+        forceDisplayNode: {},
+        // height scaling factor for tree nodes / alignment rows. From 0 to 1
+        // (undefined implies 1)
+        nodeScale: {},
+        // height scaling factor for alignment columns. From 0 to 1 (undefined
+        // implies 1)
+        columnScale: {},
         disableTreeEvents: false,
         animating: false,
         structure: { openStructures: [] },
@@ -106,7 +114,7 @@ export default function(pluginManager) {
         .forEach(node => {
           if (rowDataAsArray[node]) {
             rowDataAsArray[node].forEach((c, col) => {
-              if (!this.props.isGapChar(c)) {
+              if (!isGapChar(c)) {
                 columnVisible[col] = true;
               }
             });
@@ -302,7 +310,6 @@ export default function(pluginManager) {
               computedFontConfig={this.props.computedFontConfig}
               treeIndex={this.props.treeIndex}
               alignIndex={this.props.alignIndex}
-              isGapChar={this.props.isGapChar}
               treeLayout={treeLayout}
               alignLayout={alignLayout}
               setClientSize={this.setAlignmentClientSize.bind(this)}

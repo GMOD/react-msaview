@@ -10,6 +10,8 @@ import MSAFactory from "./MSA";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 import CloseIcon from "@material-ui/icons/Close";
 
+import { isGapChar } from "./util";
+
 const { Newick } = NewickModule;
 const styles = {
   appBar: {
@@ -712,7 +714,7 @@ export default function(pluginManager) {
           if (typeof c === "string") {
             isChar[c] = true;
           }
-          const isGap = this.isGapChar(c);
+          const isGap = isGapChar(c);
           if (!isGap) {
             pos2col.push(col);
           }
@@ -731,15 +733,8 @@ export default function(pluginManager) {
       };
     }
 
-    // helpers to recognize gap characters
-    isGapChar(c) {
-      return typeof c === "string"
-        ? c === "-" || c === "."
-        : !c || Object.keys(c).length === 0;
-    }
-
     countNonGapChars(seq) {
-      return this.rowAsArray(seq).filter(c => !this.isGapChar(c)).length;
+      return this.rowAsArray(seq).filter(c => !isGapChar(c)).length;
     }
 
     rowAsArray(row) {
@@ -800,7 +795,6 @@ export default function(pluginManager) {
             <MSA
               ref={this.msaRef}
               data={this.state.data}
-              isGapChar={this.isGapChar.bind(this)}
               config={this.state.config}
               view={this.state.view}
               treeIndex={this.state.treeIndex}
