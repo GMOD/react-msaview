@@ -248,12 +248,13 @@ export default function(pluginManager) {
           Object.keys(data.url)
             .filter(key => !data[key])
             .map(async key => {
-              const url = this.makeURL(data.url[key]);
-              const res = await fetch(url);
+              const res = await fetch(data.url[key]);
               if (res.ok) {
                 data[key] = await res.text();
               } else {
-                throw new Error(`HTTP ${res.status} ${res.statusText} ${url}`);
+                throw new Error(
+                  `HTTP ${res.status} ${res.statusText} ${data.url[key]}`,
+                );
               }
             }),
         );
@@ -321,7 +322,8 @@ export default function(pluginManager) {
           traverse(newickTree);
           data.root = getName(newickTree);
         } else {
-          // no Newick tree was specified, so build a quick-and-dirty distance matrix with Jukes-Cantor, and get a tree by neighbor-joining
+          // no Newick tree was specified, so build a quick-and-dirty distance
+          // matrix with Jukes-Cantor, and get a tree by neighbor-joining
           const taxa = Object.keys(data.rowData).sort();
           const seqs = taxa.map(taxon => data.rowData[taxon]);
           console.warn(`Estimating phylogenetic tree (${taxa.length} taxa)...`);
@@ -353,13 +355,16 @@ export default function(pluginManager) {
           data.root = getName(tree);
         }
       }
-      this.guessSeqCoords(data); // this is an idempotent method; if data came from a Stockholm file, it's already been called (in order to filter out irrelevant structures)
+      // this is an idempotent method; if data came from a Stockholm file, it's
+      // already been called (in order to filter out irrelevant structures)
+      this.guessSeqCoords(data);
       return data;
     }
 
-    // Attempt to figure out start coords relative to database sequences by parsing the sequence names
-    // This allows us to align to partial structures
-    // This is pretty hacky; the user can alternatively pass these in through the data.seqCoords field
+    // Attempt to figure out start coords relative to database sequences by
+    // parsing the sequence names This allows us to align to partial structures
+    // This is pretty hacky; the user can alternatively pass these in through
+    // the data.seqCoords field
     guessSeqCoords(data) {
       if (!data.seqCoords) {
         data.seqCoords = {};
@@ -381,10 +386,6 @@ export default function(pluginManager) {
           data.seqCoords[name] = { startPos: 1, endPos: len };
         } // if we can't guess the start coord, just assume it's the full-length sequence
       });
-    }
-
-    makeURL(url) {
-      return url.replace("%PUBLIC_URL%", process.env.PUBLIC_URL);
     }
 
     unpackStockholm(data, config, stockholm) {
@@ -492,7 +493,7 @@ export default function(pluginManager) {
         this.addDatasets(this.props.stockholm, false);
       }
       if (this.props.dataurl) {
-        await fetch(this.makeURL(this.props.dataurl)).then(async res => {
+        await fetch(this.props.dataurl).then(async res => {
           if (res.ok) {
             this.addDatasets(await res.text(), false);
           }
@@ -743,7 +744,6 @@ export default function(pluginManager) {
 
     render() {
       const { classes, model } = this.props;
-      console.log(this.state.datasets);
       return (
         <div className="App" ref={this.divRef}>
           <div className={classes.appBar}>
@@ -793,6 +793,7 @@ export default function(pluginManager) {
 
           {this.state.data && (
             <MSA
+              model={model}
               ref={this.msaRef}
               data={this.state.data}
               config={this.state.config}
@@ -801,7 +802,6 @@ export default function(pluginManager) {
               alignIndex={this.state.alignIndex}
               computedTreeConfig={this.state.computedTreeConfig}
               computedFontConfig={this.state.computedFontConfig}
-              model={model}
             />
           )}
         </div>
