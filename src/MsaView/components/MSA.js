@@ -144,11 +144,14 @@ export default function(pluginManager) {
       const nodeHeight = {};
       const rowHeight = [];
       let treeHeight = 0;
-      // PERFORMANCE NOTE: the following is an O(N) scan in the number of tree nodes N, performed in every animation frame
-      // The purpose is to figure out the visibility and (if visible) scaled height of every row, for collapse/open transitions.
-      // This is then used (by MSATree) to determine which nodes are in the visible region, and should be drawn.
-      // In principle this could be optimized by taking hints from the view: we could start from a node that we know is in the visible region,
-      // and explore outwards from there.
+      // PERFORMANCE NOTE: the following is an O(N) scan in the number of tree
+      // nodes N, performed in every animation frame The purpose is to figure
+      // out the visibility and (if visible) scaled height of every row, for
+      // collapse/open transitions.  This is then used (by MSATree) to
+      // determine which nodes are in the visible region, and should be drawn.
+      // In principle this could be optimized by taking hints from the view: we
+      // could start from a node that we know is in the visible region, and
+      // explore outwards from there.
       const rowY = treeIndex.nodes.map(node => {
         const scale =
           typeof nodeScale[node] !== "undefined" ? nodeScale[node] : 1;
@@ -181,34 +184,26 @@ export default function(pluginManager) {
     // get metrics and other info about alignment font/chars, and do layout
     layoutAlignment(computedView) {
       const { alignIndex, computedFontConfig } = this.props;
-      const { genericRowHeight, charFont } = computedFontConfig;
-      const alignChars = alignIndex.chars;
-      let charWidth = 0;
+      const { genericRowHeight } = computedFontConfig;
       const charMetrics = {};
-      alignChars.forEach(c => {
-        const measureCanvas = this.create("canvas", null, null, {
-          width: genericRowHeight,
-          height: genericRowHeight,
-        });
-        const measureContext = measureCanvas.getContext("2d");
-        measureContext.font = charFont;
-        charMetrics[c] = measureContext.measureText(c);
-        charWidth = Math.max(charWidth, Math.ceil(charMetrics[c].width));
-      });
+
       const charHeight = genericRowHeight;
+      const charWidth = 15;
 
       let nextColX = 0;
       const colX = [];
       const colWidth = [];
       const computedColScale = [];
-      // PERFORMANCE NOTE: the following is an O(L) scan in the number of alignment columns L, performed in every animation frame
-      // As with the O(N) scan in layoutTree(), this could be optimized by taking hints from the view,
-      // i.e. starting from a column that is known to be in the visible region, and exploring outwards from there.
+      // PERFORMANCE NOTE: the following is an O(L) scan in the number of
+      // alignment columns L, performed in every animation frame As with the
+      // O(N) scan in layoutTree(), this could be optimized by taking hints
+      // from the view, i.e. starting from a column that is known to be in the
+      // visible region, and exploring outwards from there.
       for (let col = 0; col < alignIndex.columns; ++col) {
         colX.push(nextColX);
         if (computedView.columnVisible[col]) {
           let scale = computedView.columnScale[col];
-          if (typeof scale === "undefined") {
+          if (scale === undefined) {
             scale = 1;
           }
           computedColScale.push(scale);
@@ -232,28 +227,21 @@ export default function(pluginManager) {
       };
     }
 
-    // helper to create DOM element (for measurement purposes, or non-React components)
-    create(type, parent, styles, attrs) {
-      const element = document.createElement(type);
-      if (parent) {
-        parent.appendChild(element);
-      }
-      if (attrs) {
-        Object.keys(attrs)
-          .filter(attr => typeof attrs[attr] !== "undefined")
-          .forEach(attr => element.setAttribute(attr, attrs[attr]));
-      }
-      if (styles) {
-        element.style = styles;
-      }
-      return element;
-    }
-
     render() {
       const computedView = this.getComputedView();
       const treeLayout = this.layoutTree(computedView);
       const alignLayout = this.layoutAlignment(computedView);
-      const { classes, model } = this.props;
+      const {
+        data,
+        classes,
+        model,
+        config,
+        computedTreeConfig,
+        computedFontConfig,
+        treeIndex,
+        alignIndex,
+      } = this.props;
+      const { containerWidth: width, containerHeight: height } = config;
 
       // record the dimensions for drag handling
       this.treeHeight = treeLayout.treeHeight;
@@ -263,8 +251,8 @@ export default function(pluginManager) {
         <div
           className={classes.MSA}
           style={{
-            width: this.props.config.containerWidth,
-            height: this.props.config.containerHeight,
+            width,
+            height,
           }}
         >
           <div
@@ -272,15 +260,15 @@ export default function(pluginManager) {
             ref={this.msaRef}
             onMouseDown={this.handleMouseDown.bind(this)}
             style={{
-              width: this.props.config.containerWidth,
+              width,
               height: treeLayout.treeAlignHeight,
             }}
           >
             <MSATree
               model={model}
-              config={this.props.config}
-              computedTreeConfig={this.props.computedTreeConfig}
-              treeIndex={this.props.treeIndex}
+              config={config}
+              computedTreeConfig={computedTreeConfig}
+              treeIndex={treeIndex}
               treeLayout={treeLayout}
               computedView={computedView}
               scrollTop={this.state.scrollTop}
@@ -289,12 +277,12 @@ export default function(pluginManager) {
 
             <MSAAlignNames
               model={model}
-              data={this.props.data}
+              data={data}
               view={this.state.view}
-              config={this.props.config}
-              computedFontConfig={this.props.computedFontConfig}
-              treeIndex={this.props.treeIndex}
-              alignIndex={this.props.alignIndex}
+              config={config}
+              computedFontConfig={computedFontConfig}
+              treeIndex={treeIndex}
+              alignIndex={alignIndex}
               treeLayout={treeLayout}
               alignLayout={alignLayout}
               computedView={computedView}
@@ -304,12 +292,12 @@ export default function(pluginManager) {
 
             <MSAAlignRows
               model={model}
-              data={this.props.data}
+              data={data}
               view={this.state.view}
-              config={this.props.config}
-              computedFontConfig={this.props.computedFontConfig}
-              treeIndex={this.props.treeIndex}
-              alignIndex={this.props.alignIndex}
+              config={config}
+              computedFontConfig={computedFontConfig}
+              treeIndex={treeIndex}
+              alignIndex={alignIndex}
               treeLayout={treeLayout}
               alignLayout={alignLayout}
               setClientSize={this.setAlignmentClientSize.bind(this)}
@@ -323,7 +311,6 @@ export default function(pluginManager) {
               handleMouseLeave={() => this.delayedSetHoverColumn(null)}
               scrollLeft={model.alignScrollLeft}
               scrollTop={model.scrollTop}
-              hoverColumn={model.hoverColumn}
             />
           </div>
 
@@ -466,7 +453,10 @@ export default function(pluginManager) {
       const wasCollapsed = collapsed[node];
       const finalCollapsed = { ...collapsed };
       if (wasCollapsed) {
-        collapsed[node] = false; // when collapsed[node]=false (vs undefined), it's rendered by renderTree() as a collapsed node, but its descendants are still visible. A bit of a hack...
+        // when collapsed[node]=false (vs undefined), it's rendered by
+        // renderTree() as a collapsed node, but its descendants are still
+        // visible. A bit of a hack...
+        collapsed[node] = false;
         delete finalCollapsed[node];
       } else {
         finalCollapsed[node] = true;
@@ -499,8 +489,11 @@ export default function(pluginManager) {
         }
       }
       // Compute the current centroid of the visible-before-and-after columns
-      // Throughout the animation, we keep computing this and dynamically adjust alignScrollLeft so that it stays at the centroid of the current view
-      // This ensures that the currently visible alignment region does not shift out of view because columns way offscreen to the left have disappeared or appeared.
+      // Throughout the animation, we keep computing this and dynamically
+      // adjust alignScrollLeft so that it stays at the centroid of the current
+      // view. This ensures that the currently visible alignment region does
+      // not shift out of view because columns way offscreen to the left have
+      // disappeared or appeared.
       const centroidMinusScroll =
         this.centroidOfColumns(persistingVisibleColumns, alignLayout) -
         this.props.model.alignScrollLeft;
@@ -526,7 +519,7 @@ export default function(pluginManager) {
           newlyHiddenColumns.forEach(col => (columnScale[col] = scale));
           newlyVisibleColumns.forEach(col => (columnScale[col] = 1 - scale));
           forceDisplayNode[node] = true;
-          disableTreeEvents = true; // disable further tree events while the animated transition is ongoing
+          disableTreeEvents = true;
           animating = true;
         } else {
           treeIndex.descendants[node].forEach(desc => {
@@ -563,7 +556,8 @@ export default function(pluginManager) {
           this.setState({ view });
 
           if (framesLeft) {
-            // Note the use of collapseAnimationMaxFrameSkip to guarantee that the user sees at least one frame of the animation transition
+            // Note the use of collapseAnimationMaxFrameSkip to guarantee that
+            // the user sees at least one frame of the animation transition
             const currentTime = Date.now();
             const timeSinceLastFrame = currentTime - lastFrameTime;
             const timeToNextFrame = Math.max(

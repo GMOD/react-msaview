@@ -112,8 +112,8 @@ export default function(pluginManager) {
         data,
       } = this.props;
       const { rowData } = data;
-      const x = parseInt(evt.nativeEvent.offsetX);
-      const y = parseInt(evt.nativeEvent.offsetY);
+      const x = evt.nativeEvent.offsetX;
+      const y = evt.nativeEvent.offsetY;
       let row;
       let column;
       for (row = 0; row < treeIndex.nodes.length - 1; ++row) {
@@ -143,6 +143,7 @@ export default function(pluginManager) {
 
     render() {
       const {
+        model,
         treeLayout,
         alignLayout,
         data,
@@ -151,9 +152,9 @@ export default function(pluginManager) {
         computedFontConfig,
         scrollLeft,
         scrollTop,
-        hoverColumn,
         classes,
       } = this.props;
+      const { hoverColumn } = model;
       const { treeHeight } = treeLayout;
       const { alignWidth } = alignLayout;
 
@@ -176,7 +177,7 @@ export default function(pluginManager) {
             scrollTop={scrollTop}
           />
 
-          {this.props.hoverColumn !== null ? (
+          {hoverColumn !== null ? (
             <div
               className={classes.alignmentColumnCursor}
               style={{
@@ -186,9 +187,7 @@ export default function(pluginManager) {
                 height: treeLayout.treeHeight,
               }}
             />
-          ) : (
-            ""
-          )}
+          ) : null}
 
           <div
             className={classes.alignmentRowsBack}

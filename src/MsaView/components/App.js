@@ -43,6 +43,8 @@ export default function(pluginManager) {
     constructor(props) {
       super(props);
       const { config: propConfig = {} } = props;
+
+      console.log({ propConfig });
       const config = {
         ...this.defaultConfig(),
         ...propConfig,
@@ -375,8 +377,8 @@ export default function(pluginManager) {
         if (!data.seqCoords[name]) {
           const coordMatch = this.nameEncodedCoordRegex.exec(name);
           if (coordMatch) {
-            const startPos = parseInt(coordMatch[1]);
-            const endPos = parseInt(coordMatch[2]);
+            const startPos = +coordMatch[1];
+            const endPos = +coordMatch[2];
             if (endPos + 1 - startPos === len) {
               data.seqCoords[name] = { startPos, endPos };
             }
@@ -411,8 +413,8 @@ export default function(pluginManager) {
             if (match) {
               const pdb = match[1].toLowerCase();
               const chain = match[2];
-              const startPos = parseInt(match[3]);
-              const endPos = parseInt(match[4]);
+              const startPos = +match[3];
+              const endPos = +match[4];
               const pdbLen = endPos - startPos;
               const fullLengthMatch = seqLen === pdbLen;
               const sequenceOverlapsStructure =
@@ -745,7 +747,7 @@ export default function(pluginManager) {
     render() {
       const { classes, model } = this.props;
       return (
-        <div className="App" ref={this.divRef}>
+        <div ref={this.divRef}>
           <div className={classes.appBar}>
             <IconButton
               onClick={() => {
