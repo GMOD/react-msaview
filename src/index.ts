@@ -11,14 +11,12 @@ export default class MsaViewPlugin extends Plugin {
   name = "MsaViewPlugin";
 
   install(pluginManager: PluginManager) {
-    const { jbrequire } = pluginManager;
-    pluginManager.addViewType(() => jbrequire(MsaViewFactory));
+    pluginManager.addViewType(() => pluginManager.jbrequire(MsaViewFactory));
   }
 
   configure(pluginManager: PluginManager) {
-    const { rootModel } = pluginManager;
-    if (isAbstractMenuManager(rootModel)) {
-      rootModel.appendToSubMenu(["File", "Add"], {
+    if (isAbstractMenuManager(pluginManager.rootModel)) {
+      pluginManager.rootModel.appendToSubMenu(["File", "Add"], {
         label: "Multiple sequence alignment view",
         icon: GridOn,
         onClick: (session: AbstractSessionModel) => {
