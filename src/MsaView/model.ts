@@ -39,7 +39,6 @@ class StockholmMSA {
   }
 
   getTree() {
-    console.log(this.MSA);
     return parseNewick(this.MSA.gf.NH[0]);
   }
 }
@@ -57,7 +56,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           id: ElementId,
           type: types.literal("MsaView"),
           height: 600,
-          treeWidth: 300,
+          treeWidth: 500,
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
           data: types.optional(
@@ -166,7 +165,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 //@ts-ignore
                 .hierarchy(this.tree, d => d.branchset)
                 //@ts-ignore
-                .sum(d => (d.branchset ? 1 : 1))
+                .sum(d => (d.branchset ? 0 : 1))
                 .sort((a: any, b: any) => {
                   return (
                     a.value - b.value ||
@@ -177,7 +176,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
 
           get hierarchy() {
-            console.log(this.totalHeight, self.treeWidth);
             const cluster = d3
               .cluster()
               .size([this.totalHeight, self.treeWidth])
