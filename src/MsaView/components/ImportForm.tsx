@@ -1,4 +1,9 @@
 import PluginManager from "@jbrowse/core/PluginManager";
+
+import { smallTree, smallMSA } from "./data/seq2";
+
+import largeTree from "./data/largetree";
+
 export default function(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const { observer } = jbrequire("mobx-react");
@@ -6,10 +11,9 @@ export default function(pluginManager: PluginManager) {
   const { useState } = React;
   const { openLocation } = jbrequire("@jbrowse/core/util/io");
   const { makeStyles } = jbrequire("@material-ui/core/styles");
-  const Button = jbrequire("@material-ui/core/Button");
-  const Container = jbrequire("@material-ui/core/Container");
-  const Grid = jbrequire("@material-ui/core/Grid");
-  const Typography = jbrequire("@material-ui/core/Typography");
+  const { Button, Container, Grid, Typography, Link } = jbrequire(
+    "@material-ui/core",
+  );
   const { FileSelector } = jbrequire("@jbrowse/core/ui");
 
   const useStyles = makeStyles((theme: any) => ({
@@ -27,7 +31,7 @@ export default function(pluginManager: PluginManager) {
 
     return (
       <Container className={classes.importFormContainer}>
-        <Grid container spacing={1} justify="center" alignItems="center">
+        <Grid container spacing={10} justify="center" alignItems="center">
           <Grid item>
             <Typography>Open a MSA file</Typography>
             <FileSelector
@@ -54,6 +58,32 @@ export default function(pluginManager: PluginManager) {
             >
               Open
             </Button>
+          </Grid>
+
+          <Grid item>
+            <Typography>Examples</Typography>
+            <ul>
+              <li>
+                <Link
+                  href="#"
+                  onClick={() => {
+                    model.setData({ msa: "", tree: largeTree });
+                  }}
+                >
+                  230k COVID-19
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#"
+                  onClick={() => {
+                    model.setData({ msa: smallMSA, tree: smallTree });
+                  }}
+                >
+                  Small protein+tree
+                </Link>
+              </li>
+            </ul>
           </Grid>
         </Grid>
       </Container>

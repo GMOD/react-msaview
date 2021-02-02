@@ -2,6 +2,7 @@ import PluginManager from "@jbrowse/core/PluginManager";
 import ImportFormComponent from "./ImportForm";
 import colorSchemes from "./colorSchemes";
 import Color from "color";
+import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 
 const defaultColorScheme = "maeditor";
 const colorScheme = colorSchemes[defaultColorScheme];
@@ -11,6 +12,7 @@ export default (pluginManager: PluginManager) => {
   const React = jbrequire("react");
   const { observer } = jbrequire("mobx-react");
   const { useTheme } = jbrequire("@material-ui/core/styles");
+  const { IconButton } = jbrequire("@material-ui/core");
   const ImportForm = jbrequire(ImportFormComponent);
 
   const TreeCanvas = observer(({ model }: { model: any }) => {
@@ -33,7 +35,7 @@ export default (pluginManager: PluginManager) => {
             data: { name },
           } = node;
           return (
-            <text key={`${name}-${x}-${y}`} x={y} y={x}>
+            <text key={`${name}-${x}-${y}`} x={y} y={x + 4}>
               {name}
             </text>
           );
@@ -55,7 +57,7 @@ export default (pluginManager: PluginManager) => {
     }
 
     return (
-      <g transform={`translate(0 2)`}>
+      <g transform={`translate(0 6)`}>
         {tree.leaves().map((node: any) => {
           const {
             x,
@@ -105,6 +107,15 @@ export default (pluginManager: PluginManager) => {
 
     return (
       <div style={{ height, overflow: "auto", display: "flex" }}>
+        <div>
+          <IconButton
+            onClick={() => {
+              model.setData({ tree: "", msa: "" });
+            }}
+          >
+            <FolderOpenIcon />
+          </IconButton>
+        </div>
         <svg style={{ height: totalHeight + margin.top, width: treeWidth }}>
           <g transform={`translate(${margin.left}, ${margin.top})`}>
             <TreeCanvas model={model} />
