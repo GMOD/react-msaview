@@ -203,6 +203,8 @@ export default (pluginManager: PluginManager) => {
             <IconButton
               onClick={() => {
                 model.setData({ tree: "", msa: "" });
+                model.setTreeFilehandle(undefined);
+                model.setMSAFilehandle(undefined);
               }}
             >
               <FolderOpenIcon />

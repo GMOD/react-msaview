@@ -169,7 +169,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
 
           async setMSAFilehandle(r: any) {
-            if (r.blob) {
+            if (r?.blob) {
               const text = await openLocation(r).readFile("utf8");
               self.data.setMSA(text);
             } else {
@@ -177,7 +177,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             }
           },
           async setTreeFilehandle(r: any) {
-            if (r.blob) {
+            if (r?.blob) {
               const text = await openLocation(r).readFile("utf8");
               self.data.setTree(text);
             } else {
@@ -189,14 +189,17 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             addDisposer(
               self,
               autorun(async () => {
-                if (self.treeFilehandle) {
-                  const f = openLocation(self.treeFilehandle);
+                console.log("here1");
+                const { treeFilehandle, msaFilehandle } = self;
+                if (treeFilehandle) {
+                  const f = openLocation(treeFilehandle);
                   const result = await f.readFile("utf8");
                   self.data.setTree(result);
                 }
-                if (self.msaFilehandle) {
-                  const f = openLocation(self.msaFilehandle);
+                if (msaFilehandle) {
+                  const f = openLocation(msaFilehandle);
                   const result = await f.readFile("utf8");
+                  console.log("here", result);
                   self.data.setMSA(result);
                 }
               }),
@@ -205,7 +208,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         }))
         .views(self => ({
           get initialized() {
-            return self.data.msa || self.data.tree;
+            return (
+              self.data.msa ||
+              self.data.tree ||
+              self.msaFilehandle ||
+              self.treeFilehandle
+            );
           },
 
           get collapsed() {
@@ -213,7 +221,11 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
 
           get done() {
-            return self.volatileWidth > 0 && this.initialized;
+            return (
+              self.volatileWidth > 0 &&
+              this.initialized &&
+              (self.data.msa || self.data.tree)
+            );
           },
 
           get menuItems() {

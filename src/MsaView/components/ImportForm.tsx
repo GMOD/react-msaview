@@ -101,6 +101,19 @@ export default function(pluginManager: PluginManager) {
                   Small protein+tree
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="#"
+                  onClick={() => {
+                    model.setMSAFilehandle({
+                      uri:
+                        "https://ihh.github.io/abrowse/build/pfam-cov2.stock",
+                    });
+                  }}
+                >
+                  PFAM SARS-CoV2 multi-stockholm
+                </Link>
+              </li>
             </ul>
           </Grid>
         </Grid>
