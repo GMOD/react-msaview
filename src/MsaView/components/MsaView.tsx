@@ -103,7 +103,7 @@ export default (pluginManager: PluginManager) => {
 
   const height = 20;
   const MSA = observer(({ model }: { model: any }) => {
-    const { MSA, pxPerBp: space } = model;
+    const { MSA, pxPerBp, bgColor } = model;
     const theme = useTheme();
     if (!MSA) {
       return null;
@@ -126,16 +126,16 @@ export default (pluginManager: PluginManager) => {
             return (
               <React.Fragment key={`${name}-${index}`}>
                 <rect
-                  x={index * space}
+                  x={index * pxPerBp}
                   y={x - height}
-                  width={space}
+                  width={pxPerBp}
                   height={height}
-                  fill={color || "none"}
+                  fill={bgColor && color ? color : "none"}
                 />
                 <text
-                  x={index * space + space / 2}
+                  x={index * pxPerBp + pxPerBp / 2}
                   y={x - height / 4}
-                  fill={contrast}
+                  fill={bgColor ? contrast : color || "black"}
                   dominantBaseline="middle"
                   textAnchor="middle"
                 >
@@ -168,11 +168,18 @@ export default (pluginManager: PluginManager) => {
                 <Checkbox
                   checked={model.showBranchLen}
                   onChange={() => model.toggleBranchLen()}
-                  name="checkedB"
-                  color="primary"
                 />
               }
               label="Show branch length"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={model.bgColor}
+                  onChange={() => model.toggleBgColor()}
+                />
+              }
+              label="Color background"
             />
           </DialogContent>
         </Dialog>
@@ -181,7 +188,7 @@ export default (pluginManager: PluginManager) => {
   );
   return observer(({ model }: { model: any }) => {
     const { treeWidth, done, initialized, margin } = model;
-    const [settingsDialogVisible, setSettingsDialogVisible] = useState();
+    const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
 
     if (!initialized) {
       return <ImportForm model={model} />;

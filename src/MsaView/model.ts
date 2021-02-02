@@ -31,7 +31,8 @@ class ClustalMSA {
 class StockholmMSA {
   private MSA: any;
   constructor(text: string) {
-    this.MSA = Stockholm.parse(text);
+    const res = Stockholm.parseAll(text);
+    this.MSA = res[0];
   }
 
   getMSA() {
@@ -39,16 +40,16 @@ class StockholmMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.seqdata[name]?.split("");
+    return this.MSA?.seqdata[name]?.split("");
   }
 
   getWidth() {
-    const name = Object.keys(this.MSA.seqdata)[0];
+    const name = Object.keys(this.MSA?.seqdata)[0];
     return this.getRow(name).length;
   }
 
   getTree() {
-    return generateNodeNames(parseNewick(this.MSA.gf.NH[0]));
+    return generateNodeNames(parseNewick(this.MSA?.gf.NH[0]));
   }
 }
 
@@ -110,9 +111,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           height: 600,
           treeWidth: 400,
           pxPerBp: 16,
+          showBranchLen: true,
+          bgColor: true,
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
-          showBranchLen: true,
           data: types.optional(
             types
               .model({
@@ -128,10 +130,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   self.msa = msa;
                 },
                 toggleCollapsed(node: string) {
+                  //IMSTArray doesn't recognize that it does have includes and
                   //@ts-ignore
                   if (self.collapsed.includes(node)) {
-                    //@ts-ignore
-                    console.log(self.collapsed.remove);
                     //@ts-ignore
                     self.collapsed.remove(node);
                   } else {
@@ -154,6 +155,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
           toggleBranchLen() {
             self.showBranchLen = !self.showBranchLen;
+          },
+          toggleBgColor() {
+            self.bgColor = !self.bgColor;
           },
 
           setData(data: any) {
@@ -236,7 +240,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
 
           get tree() {
-            console.log(self.data.tree);
             return filter(
               self.data.tree
                 ? generateNodeNames(parseNewick(self.data.tree))
@@ -246,7 +249,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
 
           get root() {
-            console.log(this.tree);
             return (
               d3
                 //@ts-ignore
@@ -293,13 +295,16 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         })),
     ),
     {
-      postProcessor(snap: any) {
-        if (snap.filehandle) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { data, ...rest } = snap;
-          return rest;
+      postProcessor(snap) {
+        const result = JSON.parse(JSON.stringify(snap));
+        console.log({ result });
+        if (result.treeFilehandle) {
+          delete result.data.tree;
         }
-        return snap;
+        if (result.msaFilehandle) {
+          delete result.data.msa;
+        }
+        return result;
       },
     },
   );
