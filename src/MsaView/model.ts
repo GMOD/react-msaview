@@ -20,15 +20,26 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         type: types.literal("MsaView"),
         height: 600,
         treeWidth: 100,
-        // todo: make this from adapter
-        data: types.optional(types.string, temptreeSeq),
-        // todo: make this an object? or adapter?
-        treeData: types.optional(types.string, temptree),
+        data: types.optional(
+          types
+            .model({
+              tree: types.maybe(types.string),
+              msa: types.maybe(types.string),
+            })
+            .actions((self: any) => ({
+              setTree(tree?: string) {
+                self.tree = tree;
+              },
+              setMSA(msa?: string) {
+                self.msa = msa;
+              },
+            })),
+          { tree: temptree, msa: temptreeSeq },
+        ),
       })
       .volatile(() => ({
         error: undefined as Error | undefined,
         volatileWidth: 0,
-        drawn: false,
         margin: { left: 20, top: 20 },
       }))
       .actions((self: any) => ({
@@ -36,33 +47,35 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           self.error = error;
         },
 
-        setData(text: string) {
-          self.data = text;
+        setData(msa?: string, tree?: string) {
+          self.data.setTree(tree);
+          self.data.setMSA(msa);
+        },
+        setTree(tree?: string) {
+          self.data.tree = tree;
         },
         setWidth(width: number) {
           self.volatileWidth = width;
         },
-        setDrawn(flag: boolean) {
-          self.drawn = flag;
-        },
       }))
       .views((self: any) => ({
         get initialized() {
-          return self.volatileWidth > 0 && Boolean(self.data);
+          return self.volatileWidth > 0 && (self.data.msa || self.data.tree);
         },
+
         get menuItems() {
           return [];
         },
 
         get msa() {
-          return self.data && parse(self.data);
+          return self.data.msa && parse(self.data.msa);
         },
         get width() {
           return self.volatileWidth;
         },
 
         get newickTree() {
-          return parseNewick(self.treeData);
+          return parseNewick(self.data.tree);
         },
 
         get root() {
