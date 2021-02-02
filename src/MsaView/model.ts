@@ -48,7 +48,7 @@ class StockholmMSA {
   }
 
   getTree() {
-    return parseNewick(this.MSA.gf.NH[0]);
+    return generateNodeNames(parseNewick(this.MSA.gf.NH[0]));
   }
 }
 
@@ -65,6 +65,18 @@ function maxLength(d: any): number {
   return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
 }
 
+function generateNodeNames(tree: any, parent = "node", depth = 0, index = 0) {
+  if (tree.name === "") {
+    tree.name = `${parent}-${depth}-${index}`;
+  }
+  if (tree.branchset?.length) {
+    tree.branchset.forEach((b: any, index: number) =>
+      generateNodeNames(b, tree.name, depth + 1, index),
+    );
+  }
+
+  return tree;
+}
 function filter(tree: any, collapsed: string[]) {
   const { branchset, ...rest } = tree;
   if (collapsed.includes(tree.name)) {
@@ -100,13 +112,13 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           pxPerBp: 16,
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
-          collapsed: types.array(types.string),
           showBranchLen: true,
           data: types.optional(
             types
               .model({
                 tree: types.maybe(types.string),
                 msa: types.maybe(types.string),
+                collapsed: types.array(types.string),
               })
               .actions((self: any) => ({
                 setTree(tree?: string) {
@@ -115,8 +127,15 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 setMSA(msa?: string) {
                   self.msa = msa;
                 },
+                toggleCollapsed(node: string) {
+                  if (self.collapsed.includes(node)) {
+                    self.collapsed.remove(node);
+                  } else {
+                    self.collapsed.push(node);
+                  }
+                },
               })),
-            { tree: "", msa: "" },
+            { tree: "", msa: "", collapsed: [] },
           ),
         })
         .volatile(() => ({
@@ -127,13 +146,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         .actions((self: any) => ({
           setError(error?: Error) {
             self.error = error;
-          },
-          toggleCollapsed(node: string) {
-            if (self.collapsed.includes(node)) {
-              self.collapsed.remove(node);
-            } else {
-              self.collapsed.push(node);
-            }
           },
 
           toggleBranchLen() {
@@ -188,6 +200,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             return self.data.msa || self.data.tree;
           },
 
+          get collapsed() {
+            return self.data.collapsed;
+          },
+
           get done() {
             return self.volatileWidth > 0 && this.initialized;
           },
@@ -216,11 +232,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
 
           get tree() {
+            console.log(self.data.tree);
             return filter(
               self.data.tree
-                ? parseNewick(self.data.tree)
+                ? generateNodeNames(parseNewick(self.data.tree))
                 : this.MSA?.getTree(),
-              self.collapsed,
+              this.collapsed,
             );
           },
 

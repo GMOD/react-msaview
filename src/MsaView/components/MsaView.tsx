@@ -51,7 +51,7 @@ export default (pluginManager: PluginManager) => {
                     fill={collapsed.includes(sourceName) ? "black" : "white"}
                     stroke="black"
                     onClick={() => {
-                      model.toggleCollapsed(sourceName);
+                      model.data.toggleCollapsed(sourceName);
                     }}
                   />
                   {collapsed.includes(target.data.name) ? (
@@ -62,7 +62,7 @@ export default (pluginManager: PluginManager) => {
                       fill={collapsed.includes(targetName) ? "black" : "white"}
                       stroke="black"
                       onClick={() => {
-                        model.toggleCollapsed(targetName);
+                        model.data.toggleCollapsed(targetName);
                       }}
                     />
                   ) : null}
@@ -81,6 +81,7 @@ export default (pluginManager: PluginManager) => {
               key={`${name}-${x}-${y}`}
               x={showBranchLen ? len : y}
               y={x + 4}
+              style={{ pointerEvents: "none" }}
             >
               {name}
             </text>
