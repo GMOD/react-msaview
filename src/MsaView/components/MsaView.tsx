@@ -1,6 +1,7 @@
 import PluginManager from "@jbrowse/core/PluginManager";
 import ImportFormComponent from "./ImportForm";
 import colorSchemes from "./colorSchemes";
+import Color from "color";
 
 const defaultColorScheme = "maeditor";
 const colorScheme = colorSchemes[defaultColorScheme];
@@ -9,6 +10,7 @@ export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { observer } = jbrequire("mobx-react");
+  const { useTheme } = jbrequire("@material-ui/core/styles");
   const ImportForm = jbrequire(ImportFormComponent);
 
   const TreeCanvas = observer(({ model }: { model: any }) => {
@@ -40,45 +42,56 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
-  const space = 10;
+  const space = 16;
+  const height = 20;
   const MSA = observer(({ model }: { model: any }) => {
-    const { msa, tree, theme } = model;
+    const { msa, tree } = model;
+
+    const theme = useTheme();
+    // const session = getSession(model);
+    // const theme = createJBrowseTheme(getConf(session, "theme"));
     if (!msa) {
       return null;
     }
 
     return (
-      <>
+      <g transform={`translate(0 2)`}>
         {tree.leaves().map((node: any) => {
           const {
             x,
-            y,
             data: { name },
           } = node;
-          const ypos = y + 300;
+          // const ypos = y;
           const curr = msa.alns.find((aln: any) => aln.id === name);
+
           return curr.seq.split("").map((letter: string, index: number) => {
             const color = (colorScheme as any)[letter];
             const contrast = color
-              ? theme.palette.getContrastText(color)
-              : "none";
+              ? theme.palette.getContrastText(Color(color).hex())
+              : "black";
             return (
               <React.Fragment key={`${name}-${index}`}>
                 <rect
-                  x={ypos + index * space}
-                  y={x - space}
+                  x={index * space}
+                  y={x - height}
                   width={space}
-                  height={space}
+                  height={height}
                   fill={color || "none"}
                 />
-                <text x={ypos + index * space} y={x} fill={contrast}>
+                <text
+                  x={index * space + space / 2}
+                  y={x - height / 4}
+                  fill={contrast}
+                  dominantBaseline="middle"
+                  textAnchor="middle"
+                >
                   {letter}
                 </text>
               </React.Fragment>
             );
           });
         })}
-      </>
+      </g>
     );
   });
 
@@ -91,13 +104,16 @@ export default (pluginManager: PluginManager) => {
     }
 
     return (
-      <div style={{ height, overflow: "auto" }}>
-        <svg style={{ height: totalHeight, width: treeWidth }}>
+      <div style={{ height, overflow: "auto", display: "flex" }}>
+        <svg style={{ height: totalHeight + margin.top, width: treeWidth }}>
           <g transform={`translate(${margin.left}, ${margin.top})`}>
             <TreeCanvas model={model} />
-            <g transform={`translate(${treeWidth} 0)`}>
-              <MSA model={model} />
-            </g>
+          </g>
+        </svg>
+        <div style={{ width: 20 }} />
+        <svg style={{ height: totalHeight + margin.top, width: 1000 }}>
+          <g transform={`translate(0 ${margin.top})`}>
+            <MSA model={model} />
           </g>
         </svg>
       </div>
