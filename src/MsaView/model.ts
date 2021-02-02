@@ -77,7 +77,7 @@ function generateNodeNames(tree: any, parent = "node", depth = 0, index = 0) {
 
   return tree;
 }
-function filter(tree: any, collapsed: string[]) {
+function filter(tree: any, collapsed: any) {
   const { branchset, ...rest } = tree;
   if (collapsed.includes(tree.name)) {
     return {
@@ -120,7 +120,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 msa: types.maybe(types.string),
                 collapsed: types.array(types.string),
               })
-              .actions((self: any) => ({
+              .actions(self => ({
                 setTree(tree?: string) {
                   self.tree = tree;
                 },
@@ -128,7 +128,11 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   self.msa = msa;
                 },
                 toggleCollapsed(node: string) {
+                  //@ts-ignore
                   if (self.collapsed.includes(node)) {
+                    //@ts-ignore
+                    console.log(self.collapsed.remove);
+                    //@ts-ignore
                     self.collapsed.remove(node);
                   } else {
                     self.collapsed.push(node);
@@ -143,7 +147,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           volatileWidth: 0,
           margin: { left: 20, top: 20 },
         }))
-        .actions((self: any) => ({
+        .actions(self => ({
           setError(error?: Error) {
             self.error = error;
           },
@@ -195,7 +199,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             );
           },
         }))
-        .views((self: any) => ({
+        .views(self => ({
           get initialized() {
             return self.data.msa || self.data.tree;
           },
@@ -265,14 +269,14 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           get hierarchy() {
             const cluster = d3
               .cluster()
-              .size([this.totalHeight, self.realWidth])
+              .size([this.totalHeight, this.realWidth])
               .separation((_1: any, _2: any) => 1);
             cluster(this.root);
             setBrLength(
               this.root,
               //@ts-ignore
               (this.root.data.length = 0),
-              self.realWidth / maxLength(this.root),
+              this.realWidth / maxLength(this.root),
             );
             return this.root;
           },
