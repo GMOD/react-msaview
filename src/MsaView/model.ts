@@ -20,7 +20,7 @@ class ClustalMSA {
   }
 
   getWidth() {
-    return this.MSA.alns[0].length;
+    return this.MSA.alns[0].seq.length;
   }
 
   getTree() {
