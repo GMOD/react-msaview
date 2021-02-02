@@ -9,7 +9,6 @@ export default function(pluginManager: PluginManager) {
   const { observer } = jbrequire("mobx-react");
   const React = jbrequire("react");
   const { useState } = React;
-  const { openLocation } = jbrequire("@jbrowse/core/util/io");
   const { makeStyles } = jbrequire("@material-ui/core/styles");
   const { Button, Container, Grid, Typography, Link } = jbrequire(
     "@material-ui/core",
@@ -27,34 +26,53 @@ export default function(pluginManager: PluginManager) {
 
   return observer(({ model }: { model: any }) => {
     const classes = useStyles();
-    const [file, setFile] = useState();
+    const [msaFile, setMsaFile] = useState();
+    const [treeFile, setTreeFile] = useState();
 
     return (
       <Container className={classes.importFormContainer}>
+        <div style={{ width: "50%" }}>
+          <Typography>
+            Open an MSA file (stockholm or clustal format) and/or a tree file
+            (newick format).
+          </Typography>
+          <Typography color="error">
+            Note: you can open up just an MSA or just a tree, both are not
+            required. Some MSA files e.g. stockholm format have an embedded tree
+            also and this is fine, and opening a separate tree file is not
+            required.
+          </Typography>
+        </div>
+
         <Grid container spacing={10} justify="center" alignItems="center">
           <Grid item>
-            <Typography>Open a MSA file</Typography>
+            <Typography>MSA file or URL</Typography>
             <FileSelector
-              location={file}
-              setLocation={setFile}
+              location={msaFile}
+              setLocation={setMsaFile}
+              localFileAllowed
+            />
+            <Typography>Tree file or URL</Typography>
+            <FileSelector
+              location={treeFile}
+              setLocation={setTreeFile}
               localFileAllowed
             />
           </Grid>
 
           <Grid item>
             <Button
-              onClick={async () => {
-                try {
-                  if (file) {
-                    const data = await openLocation(file).readFile("utf8");
-                    model.setData(data);
-                  }
-                } catch (e) {
-                  model.setError(e);
+              onClick={() => {
+                if (msaFile) {
+                  model.setMSAFilehandle(msaFile);
+                }
+                if (treeFile) {
+                  model.setTreeFilehandle(treeFile);
                 }
               }}
               variant="contained"
               color="primary"
+              disabled={!msaFile && !treeFile}
             >
               Open
             </Button>
@@ -70,7 +88,7 @@ export default function(pluginManager: PluginManager) {
                     model.setData({ msa: "", tree: largeTree });
                   }}
                 >
-                  230k COVID-19
+                  230k COVID-19 samples (tree only)
                 </Link>
               </li>
               <li>

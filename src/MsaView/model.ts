@@ -1,108 +1,212 @@
 import BaseViewModel from "@jbrowse/core/pluggableElementTypes/models/BaseViewModel";
 import PluginManager from "@jbrowse/core/PluginManager";
-import { parse } from "clustal-js";
+import * as Clustal from "clustal-js";
 import * as d3 from "d3";
 import parseNewick from "./parseNewick";
+import Stockholm from "stockholm-js";
 
+class ClustalMSA {
+  private MSA: any;
+  constructor(text: string) {
+    this.MSA = Clustal.parse(text);
+  }
+
+  getMSA() {
+    return this.MSA;
+  }
+
+  getRow(name: string) {
+    return this.MSA.alns.find((aln: any) => aln.id === name).split("");
+  }
+
+  getTree() {
+    return {};
+  }
+}
+
+class StockholmMSA {
+  private MSA: any;
+  constructor(text: string) {
+    this.MSA = Stockholm.parse(text);
+  }
+
+  getMSA() {
+    return this.MSA;
+  }
+
+  getRow(name: string) {
+    return this.MSA.seqdata[name].split("");
+  }
+
+  getTree() {
+    console.log(this.MSA);
+    return parseNewick(this.MSA.gf.NH[0]);
+  }
+}
 export default function stateModelFactory(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
-  const { types } = pluginManager.lib["mobx-state-tree"];
-  const { ElementId } = jbrequire("@jbrowse/core/util/types/mst");
-  return types.compose(
-    BaseViewModel,
-    types
-      .model("MsaView", {
-        id: ElementId,
-        type: types.literal("MsaView"),
-        height: 600,
-        treeWidth: 100,
-        data: types.optional(
-          types
-            .model({
-              tree: types.maybe(types.string),
-              msa: types.maybe(types.string),
-            })
-            .actions((self: any) => ({
-              setTree(tree?: string) {
-                self.tree = tree;
-              },
-              setMSA(msa?: string) {
-                self.msa = msa;
-              },
-            })),
-          { tree: "", msa: "" },
-        ),
-      })
-      .volatile(() => ({
-        error: undefined as Error | undefined,
-        volatileWidth: 0,
-        margin: { left: 20, top: 20 },
-      }))
-      .actions((self: any) => ({
-        setError(error?: Error) {
-          self.error = error;
-        },
+  const { types, addDisposer } = pluginManager.lib["mobx-state-tree"];
+  const { FileLocation, ElementId } = jbrequire("@jbrowse/core/util/types/mst");
+  const { openLocation } = jbrequire("@jbrowse/core/util/io");
+  const { autorun } = jbrequire("mobx");
+  return types.snapshotProcessor(
+    types.compose(
+      BaseViewModel,
+      types
+        .model("MsaView", {
+          id: ElementId,
+          type: types.literal("MsaView"),
+          height: 600,
+          treeWidth: 300,
+          treeFilehandle: types.maybe(FileLocation),
+          msaFilehandle: types.maybe(FileLocation),
+          data: types.optional(
+            types
+              .model({
+                tree: types.maybe(types.string),
+                msa: types.maybe(types.string),
+              })
+              .actions((self: any) => ({
+                setTree(tree?: string) {
+                  self.tree = tree;
+                },
+                setMSA(msa?: string) {
+                  self.msa = msa;
+                },
+              })),
+            { tree: "", msa: "" },
+          ),
+        })
+        .volatile(() => ({
+          error: undefined as Error | undefined,
+          volatileWidth: 0,
+          margin: { left: 20, top: 20 },
+        }))
+        .actions((self: any) => ({
+          setError(error?: Error) {
+            self.error = error;
+          },
 
-        setData(data: any) {
-          self.data = data;
-        },
+          setData(data: any) {
+            self.data = data;
+          },
 
-        setWidth(width: number) {
-          self.volatileWidth = width;
-        },
-      }))
-      .views((self: any) => ({
-        get initialized() {
-          return self.volatileWidth > 0 && (self.data.msa || self.data.tree);
-        },
+          setWidth(width: number) {
+            self.volatileWidth = width;
+          },
 
-        get menuItems() {
-          return [];
-        },
+          async setMSAFilehandle(r: any) {
+            if (r.blob) {
+              const text = await openLocation(r).readFile("utf8");
+              self.data.setMSA(text);
+            } else {
+              self.msaFilehandle = r;
+            }
+          },
+          async setTreeFilehandle(r: any) {
+            if (r.blob) {
+              const text = await openLocation(r).readFile("utf8");
+              self.data.setTree(text);
+            } else {
+              self.treeFilehandle = r;
+            }
+          },
 
-        get msa() {
-          return self.data.msa && parse(self.data.msa);
-        },
-        get width() {
-          return self.volatileWidth;
-        },
-
-        get newickTree() {
-          return parseNewick(self.data.tree);
-        },
-
-        get root() {
-          const root = d3
-            //@ts-ignore
-            .hierarchy(this.newickTree, d => d.branchset)
-            .sum(d => (d.branchset ? 0 : 1))
-            .sort(
-              (a: any, b: any) =>
-                a.value - b.value || d3.ascending(a.data.length, b.data.length),
+          afterAttach() {
+            addDisposer(
+              self,
+              autorun(async () => {
+                if (self.treeFilehandle) {
+                  const f = openLocation(self.treeFilehandle);
+                  const result = await f.readFile("utf8");
+                  self.data.setTree(result);
+                }
+                if (self.msaFilehandle) {
+                  const f = openLocation(self.msaFilehandle);
+                  const result = await f.readFile("utf8");
+                  self.data.setMSA(result);
+                }
+              }),
             );
+          },
+        }))
+        .views((self: any) => ({
+          get initialized() {
+            return self.volatileWidth > 0 && (self.data.msa || self.data.tree);
+          },
 
-          return root;
-        },
+          get menuItems() {
+            return [];
+          },
 
-        get tree() {
-          const cluster = d3
-            .cluster()
-            .size([this.totalHeight, self.treeWidth])
-            .separation((_1: any, _2: any) => 1);
-          cluster(this.root);
-          return this.root;
-        },
+          get MSA() {
+            const text = self.data.msa;
+            if (text) {
+              if (Stockholm.sniff(text)) {
+                return new StockholmMSA(text);
+              } else {
+                return new ClustalMSA(text);
+              }
+            }
+            return null;
+          },
+          get width() {
+            return self.volatileWidth;
+          },
 
-        get nodePositions() {
-          return this.tree.leaves().map((d: any) => {
-            return { name: d.data.name, x: d.x, y: d.y };
-          });
-        },
+          get tree() {
+            return self.data.tree
+              ? parseNewick(self.data.tree)
+              : this.MSA?.getTree();
+          },
 
-        get totalHeight() {
-          return this.root.leaves().length * 20;
-        },
-      })),
+          get root() {
+            return (
+              d3
+                //@ts-ignore
+                .hierarchy(this.tree, d => d.branchset)
+                //@ts-ignore
+                .sum(d => (d.branchset ? 1 : 1))
+                .sort((a: any, b: any) => {
+                  return (
+                    a.value - b.value ||
+                    d3.ascending(a.data.length, b.data.length)
+                  );
+                })
+            );
+          },
+
+          get hierarchy() {
+            console.log(this.totalHeight, self.treeWidth);
+            const cluster = d3
+              .cluster()
+              .size([this.totalHeight, self.treeWidth])
+              .separation((_1: any, _2: any) => 1);
+            cluster(this.root);
+            return this.root;
+          },
+
+          get nodePositions() {
+            return this.hierarchy.leaves().map((d: any) => {
+              return { name: d.data.name, x: d.x, y: d.y };
+            });
+          },
+
+          get totalHeight() {
+            return this.root.leaves().length * 20;
+          },
+        })),
+    ),
+    {
+      postProcessor(snap: any) {
+        if (snap.filehandle) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { data, ...rest } = snap;
+          return rest;
+        }
+        return snap;
+      },
+    },
   );
 }
 

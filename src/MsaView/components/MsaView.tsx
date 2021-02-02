@@ -16,11 +16,11 @@ export default (pluginManager: PluginManager) => {
   const ImportForm = jbrequire(ImportFormComponent);
 
   const TreeCanvas = observer(({ model }: { model: any }) => {
-    const { tree } = model;
+    const { hierarchy } = model;
     return (
       <>
         <g fill="none" stroke="#000">
-          {tree.links().map(({ source, target }: any) => {
+          {hierarchy.links().map(({ source, target }: any) => {
             const { x: sx, y: sy } = source;
             const { x: tx, y: ty } = target;
             const path = `M${sy} ${sx}V${tx}H${ty}`;
@@ -28,7 +28,7 @@ export default (pluginManager: PluginManager) => {
           })}
         </g>
 
-        {tree.leaves().map((node: any) => {
+        {hierarchy.leaves().map((node: any) => {
           const {
             x,
             y,
@@ -47,26 +47,23 @@ export default (pluginManager: PluginManager) => {
   const space = 16;
   const height = 20;
   const MSA = observer(({ model }: { model: any }) => {
-    const { msa, tree } = model;
-
+    const { MSA } = model;
     const theme = useTheme();
-    // const session = getSession(model);
-    // const theme = createJBrowseTheme(getConf(session, "theme"));
-    if (!msa) {
+    if (!MSA) {
       return null;
     }
 
+    const { hierarchy } = model;
+
     return (
       <g transform={`translate(0 6)`}>
-        {tree.leaves().map((node: any) => {
+        {hierarchy.leaves().map((node: any) => {
           const {
             x,
             data: { name },
           } = node;
           // const ypos = y;
-          const curr = msa.alns.find((aln: any) => aln.id === name);
-
-          return curr.seq.split("").map((letter: string, index: number) => {
+          return MSA.getRow(name).map((letter: string, index: number) => {
             const color = (colorScheme as any)[letter];
             const contrast = color
               ? theme.palette.getContrastText(Color(color).hex())
@@ -98,12 +95,12 @@ export default (pluginManager: PluginManager) => {
   });
 
   return observer(({ model }: { model: any }) => {
-    const { height, initialized, margin, totalHeight } = model;
-    const treeWidth = 300;
-
+    const { treeWidth, height, initialized, margin } = model;
     if (!initialized) {
       return <ImportForm model={model} />;
     }
+
+    const { totalHeight } = model;
 
     return (
       <div style={{ height, overflow: "auto", display: "flex" }}>
