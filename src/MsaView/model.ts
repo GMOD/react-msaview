@@ -42,6 +42,20 @@ class StockholmMSA {
     return parseNewick(this.MSA.gf.NH[0]);
   }
 }
+
+function setBrLength(d: any, y0: number, k: number) {
+  d.len = (y0 += Math.max(d.data.length, 0)) * k;
+  if (d.children) {
+    d.children.forEach((d: any) => {
+      setBrLength(d, y0, k);
+    });
+  }
+}
+
+function maxLength(d: any): number {
+  return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
+}
+
 export default function stateModelFactory(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const { types, addDisposer } = pluginManager.lib["mobx-state-tree"];
@@ -56,9 +70,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           id: ElementId,
           type: types.literal("MsaView"),
           height: 600,
-          treeWidth: 500,
+          treeWidth: 400,
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
+          showBranchLen: true,
           data: types.optional(
             types
               .model({
@@ -84,6 +99,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         .actions((self: any) => ({
           setError(error?: Error) {
             self.error = error;
+          },
+
+          toggleBranchLen() {
+            self.showBranchLen = !self.showBranchLen;
           },
 
           setData(data: any) {
@@ -131,7 +150,11 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         }))
         .views((self: any) => ({
           get initialized() {
-            return self.volatileWidth > 0 && (self.data.msa || self.data.tree);
+            return self.data.msa || self.data.tree;
+          },
+
+          get done() {
+            return self.volatileWidth > 0 && this.initialized;
           },
 
           get menuItems() {
@@ -175,12 +198,22 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             );
           },
 
+          get realWidth() {
+            return self.treeWidth - 200;
+          },
+
           get hierarchy() {
             const cluster = d3
               .cluster()
-              .size([this.totalHeight, self.treeWidth])
+              .size([this.totalHeight, self.realWidth])
               .separation((_1: any, _2: any) => 1);
             cluster(this.root);
+            setBrLength(
+              this.root,
+              //@ts-ignore
+              (this.root.data.length = 0),
+              self.realWidth / maxLength(this.root),
+            );
             return this.root;
           },
 

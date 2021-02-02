@@ -12,30 +12,33 @@ export default (pluginManager: PluginManager) => {
   const React = jbrequire("react");
   const { observer } = jbrequire("mobx-react");
   const { useTheme } = jbrequire("@material-ui/core/styles");
-  const { IconButton } = jbrequire("@material-ui/core");
+  const { IconButton, Typography } = jbrequire("@material-ui/core");
   const ImportForm = jbrequire(ImportFormComponent);
 
   const TreeCanvas = observer(({ model }: { model: any }) => {
-    const { hierarchy } = model;
+    const { hierarchy, showBranchLen } = model;
     return (
       <>
         <g fill="none" stroke="#000">
           {hierarchy.links().map(({ source, target }: any) => {
-            const { x: sx, y: sy } = source;
-            const { x: tx, y: ty } = target;
+            const y = showBranchLen ? "len" : "y";
+            const { x: sx, [y]: sy } = source;
+            const { x: tx, [y]: ty } = target;
             const path = `M${sy} ${sx}V${tx}H${ty}`;
             return <path key={path} d={path} />;
           })}
         </g>
 
         {hierarchy.leaves().map((node: any) => {
-          const {
-            x,
-            y,
-            data: { name },
-          } = node;
+          const { x, y, data, len } = node;
+          const { name } = data;
+
           return (
-            <text key={`${name}-${x}-${y}`} x={y} y={x + 4}>
+            <text
+              key={`${name}-${x}-${y}`}
+              x={showBranchLen ? len : y}
+              y={x + 4}
+            >
               {name}
             </text>
           );
@@ -95,36 +98,55 @@ export default (pluginManager: PluginManager) => {
   });
 
   return observer(({ model }: { model: any }) => {
-    const { treeWidth, height, initialized, margin } = model;
+    const {
+      treeWidth,
+      done,
+      showBranchLen,
+      height,
+      initialized,
+      margin,
+    } = model;
+
     if (!initialized) {
       return <ImportForm model={model} />;
-    }
+    } else if (!done) {
+      return <Typography variant="h4">Loading...</Typography>;
+    } else {
+      const { totalHeight } = model;
 
-    const { totalHeight } = model;
-
-    return (
-      <div style={{ height, overflow: "auto", display: "flex" }}>
+      return (
         <div>
-          <IconButton
-            onClick={() => {
-              model.setData({ tree: "", msa: "" });
-            }}
-          >
-            <FolderOpenIcon />
-          </IconButton>
+          <div style={{ display: "block" }}>
+            <IconButton
+              onClick={() => {
+                model.setData({ tree: "", msa: "" });
+              }}
+            >
+              <FolderOpenIcon />
+            </IconButton>
+            <label htmlFor="showbranch">Show branch len?</label>
+            <input
+              type="checkbox"
+              checked={showBranchLen}
+              id="showbranch"
+              onChange={() => model.toggleBranchLen()}
+            />
+          </div>
+          <div style={{ height, overflow: "auto", display: "flex" }}>
+            <svg style={{ height: totalHeight + margin.top, width: treeWidth }}>
+              <g transform={`translate(${margin.left}, ${margin.top})`}>
+                <TreeCanvas model={model} />
+              </g>
+            </svg>
+            <div style={{ width: 20 }} />
+            <svg style={{ height: totalHeight + margin.top, width: 1000 }}>
+              <g transform={`translate(0 ${margin.top})`}>
+                <MSA model={model} />
+              </g>
+            </svg>
+          </div>
         </div>
-        <svg style={{ height: totalHeight + margin.top, width: treeWidth }}>
-          <g transform={`translate(${margin.left}, ${margin.top})`}>
-            <TreeCanvas model={model} />
-          </g>
-        </svg>
-        <div style={{ width: 20 }} />
-        <svg style={{ height: totalHeight + margin.top, width: 1000 }}>
-          <g transform={`translate(0 ${margin.top})`}>
-            <MSA model={model} />
-          </g>
-        </svg>
-      </div>
-    );
+      );
+    }
   });
 };
