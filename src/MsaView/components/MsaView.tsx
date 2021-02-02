@@ -47,10 +47,9 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
-  const space = 16;
   const height = 20;
   const MSA = observer(({ model }: { model: any }) => {
-    const { MSA } = model;
+    const { MSA, pxPerBp: space } = model;
     const theme = useTheme();
     if (!MSA) {
       return null;
@@ -112,7 +111,7 @@ export default (pluginManager: PluginManager) => {
     } else if (!done) {
       return <Typography variant="h4">Loading...</Typography>;
     } else {
-      const { totalHeight } = model;
+      const { totalHeight, msaWidth } = model;
 
       return (
         <div>
@@ -132,18 +131,33 @@ export default (pluginManager: PluginManager) => {
               onChange={() => model.toggleBranchLen()}
             />
           </div>
-          <div style={{ height, overflow: "auto", display: "flex" }}>
+          <div
+            style={{
+              height: totalHeight + margin.top + 25,
+              overflow: "auto",
+              display: "flex",
+            }}
+          >
             <svg style={{ height: totalHeight + margin.top, width: treeWidth }}>
               <g transform={`translate(${margin.left}, ${margin.top})`}>
                 <TreeCanvas model={model} />
               </g>
             </svg>
             <div style={{ width: 20 }} />
-            <svg style={{ height: totalHeight + margin.top, width: 1000 }}>
-              <g transform={`translate(0 ${margin.top})`}>
-                <MSA model={model} />
-              </g>
-            </svg>
+            <div
+              style={{
+                width: "100%",
+                overflow: "auto",
+              }}
+            >
+              <svg
+                style={{ height: totalHeight + margin.top, width: msaWidth }}
+              >
+                <g transform={`translate(0 ${margin.top})`}>
+                  <MSA model={model} />
+                </g>
+              </svg>
+            </div>
           </div>
         </div>
       );

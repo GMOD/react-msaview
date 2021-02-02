@@ -19,6 +19,10 @@ class ClustalMSA {
     return this.MSA.alns.find((aln: any) => aln.id === name).split("");
   }
 
+  getWidth() {
+    return this.MSA.alns[0].length;
+  }
+
   getTree() {
     return {};
   }
@@ -36,6 +40,11 @@ class StockholmMSA {
 
   getRow(name: string) {
     return this.MSA.seqdata[name].split("");
+  }
+
+  getWidth() {
+    const name = Object.keys(this.MSA.seqdata)[0];
+    return this.getRow(name).length;
   }
 
   getTree() {
@@ -71,6 +80,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           type: types.literal("MsaView"),
           height: 600,
           treeWidth: 400,
+          pxPerBp: 16,
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
           showBranchLen: true,
@@ -174,6 +184,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
           get width() {
             return self.volatileWidth;
+          },
+
+          get msaWidth() {
+            return this.MSA?.getWidth() * self.pxPerBp;
           },
 
           get tree() {
