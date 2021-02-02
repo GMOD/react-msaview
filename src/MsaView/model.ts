@@ -16,7 +16,7 @@ class ClustalMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.alns.find((aln: any) => aln.id === name)?.split("");
+    return this.MSA.alns.find((aln: any) => aln.id === name)?.seq.split("");
   }
 
   getWidth() {
