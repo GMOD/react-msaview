@@ -3,6 +3,7 @@ import ImportFormComponent from "./ImportForm";
 import colorSchemes from "./colorSchemes";
 import Color from "color";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
+import SettingsIcon from "@material-ui/icons/Settings";
 
 const defaultColorScheme = "maeditor";
 const colorScheme = colorSchemes[defaultColorScheme];
@@ -10,9 +11,18 @@ const colorScheme = colorSchemes[defaultColorScheme];
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
+  const { useState } = React;
   const { observer } = jbrequire("mobx-react");
   const { useTheme } = jbrequire("@material-ui/core/styles");
-  const { IconButton, Typography } = jbrequire("@material-ui/core");
+  const {
+    IconButton,
+    Typography,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    FormControlLabel,
+    Checkbox,
+  } = jbrequire("@material-ui/core");
   const ImportForm = jbrequire(ImportFormComponent);
 
   const TreeCanvas = observer(({ model }: { model: any }) => {
@@ -139,8 +149,39 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
+  const SettingsDialog = observer(
+    ({
+      model,
+      onClose,
+      open,
+    }: {
+      model: any;
+      onClose: Function;
+      open: boolean;
+    }) => {
+      return (
+        <Dialog onClose={() => onClose()} open={open}>
+          <DialogTitle>Settings</DialogTitle>
+          <DialogContent>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={model.showBranchLen}
+                  onChange={() => model.toggleBranchLen()}
+                  name="checkedB"
+                  color="primary"
+                />
+              }
+              label="Show branch length"
+            />
+          </DialogContent>
+        </Dialog>
+      );
+    },
+  );
   return observer(({ model }: { model: any }) => {
-    const { treeWidth, done, showBranchLen, initialized, margin } = model;
+    const { treeWidth, done, initialized, margin } = model;
+    const [settingsDialogVisible, setSettingsDialogVisible] = useState();
 
     if (!initialized) {
       return <ImportForm model={model} />;
@@ -159,12 +200,17 @@ export default (pluginManager: PluginManager) => {
             >
               <FolderOpenIcon />
             </IconButton>
-            <label htmlFor="showbranch">Show branch len?</label>
-            <input
-              type="checkbox"
-              checked={showBranchLen}
-              id="showbranch"
-              onChange={() => model.toggleBranchLen()}
+            <IconButton
+              onClick={() => {
+                setSettingsDialogVisible(true);
+              }}
+            >
+              <SettingsIcon />
+            </IconButton>
+            <SettingsDialog
+              open={settingsDialogVisible}
+              model={model}
+              onClose={() => setSettingsDialogVisible(false)}
             />
           </div>
           <div
