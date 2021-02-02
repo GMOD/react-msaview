@@ -16,17 +16,60 @@ export default (pluginManager: PluginManager) => {
   const ImportForm = jbrequire(ImportFormComponent);
 
   const TreeCanvas = observer(({ model }: { model: any }) => {
-    const { hierarchy, showBranchLen } = model;
+    const { hierarchy, showBranchLen, collapsed } = model;
+
     return (
       <>
         <g fill="none" stroke="#000">
-          {hierarchy.links().map(({ source, target }: any) => {
-            const y = showBranchLen ? "len" : "y";
-            const { x: sx, [y]: sy } = source;
-            const { x: tx, [y]: ty } = target;
-            const path = `M${sy} ${sx}V${tx}H${ty}`;
-            return <path key={path} d={path} />;
-          })}
+          <>
+            {hierarchy.links().map(({ source, target }: any) => {
+              const y = showBranchLen ? "len" : "y";
+              const { x: sx, [y]: sy } = source;
+              const { x: tx, [y]: ty } = target;
+              const path = `M${sy} ${sx}V${tx}H${ty}`;
+              return <path key={path} d={path} />;
+            })}
+            {hierarchy.links().map(({ source, target }: any, index: number) => {
+              const y = showBranchLen ? "len" : "y";
+              const {
+                x: sx,
+                [y]: sy,
+                data: { name: sourceName },
+              } = source;
+              const {
+                x: tx,
+                [y]: ty,
+                data: { name: targetName },
+              } = target;
+
+              return (
+                <React.Fragment key={`${sx},${sy}-${index}`}>
+                  <circle
+                    cx={sy}
+                    cy={sx}
+                    r={3.5}
+                    fill={collapsed.includes(sourceName) ? "black" : "white"}
+                    stroke="black"
+                    onClick={() => {
+                      model.toggleCollapsed(sourceName);
+                    }}
+                  />
+                  {collapsed.includes(target.data.name) ? (
+                    <circle
+                      cx={ty}
+                      cy={tx}
+                      r={3.5}
+                      fill={collapsed.includes(targetName) ? "black" : "white"}
+                      stroke="black"
+                      onClick={() => {
+                        model.toggleCollapsed(targetName);
+                      }}
+                    />
+                  ) : null}
+                </React.Fragment>
+              );
+            })}
+          </>
         </g>
 
         {hierarchy.leaves().map((node: any) => {
@@ -64,8 +107,7 @@ export default (pluginManager: PluginManager) => {
             x,
             data: { name },
           } = node;
-          // const ypos = y;
-          return MSA.getRow(name).map((letter: string, index: number) => {
+          return MSA.getRow(name)?.map((letter: string, index: number) => {
             const color = (colorScheme as any)[letter];
             const contrast = color
               ? theme.palette.getContrastText(Color(color).hex())
@@ -97,14 +139,7 @@ export default (pluginManager: PluginManager) => {
   });
 
   return observer(({ model }: { model: any }) => {
-    const {
-      treeWidth,
-      done,
-      showBranchLen,
-      height,
-      initialized,
-      margin,
-    } = model;
+    const { treeWidth, done, showBranchLen, initialized, margin } = model;
 
     if (!initialized) {
       return <ImportForm model={model} />;

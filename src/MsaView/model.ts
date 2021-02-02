@@ -16,7 +16,7 @@ class ClustalMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.alns.find((aln: any) => aln.id === name).split("");
+    return this.MSA.alns.find((aln: any) => aln.id === name)?.split("");
   }
 
   getWidth() {
@@ -39,7 +39,7 @@ class StockholmMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.seqdata[name].split("");
+    return this.MSA.seqdata[name]?.split("");
   }
 
   getWidth() {
@@ -65,6 +65,23 @@ function maxLength(d: any): number {
   return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
 }
 
+function filter(tree: any, collapsed: string[]) {
+  const { branchset, ...rest } = tree;
+  if (collapsed.includes(tree.name)) {
+    return {
+      ...rest,
+      // branchset: branchset.map((b: any) => ({ name: b.name })),
+    };
+  } else if (tree.branchset) {
+    return {
+      ...rest,
+      branchset: branchset.map((b: any) => filter(b, collapsed)),
+    };
+  } else {
+    return tree;
+  }
+}
+
 export default function stateModelFactory(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const { types, addDisposer } = pluginManager.lib["mobx-state-tree"];
@@ -83,6 +100,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           pxPerBp: 16,
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
+          collapsed: types.array(types.string),
           showBranchLen: true,
           data: types.optional(
             types
@@ -109,6 +127,13 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         .actions((self: any) => ({
           setError(error?: Error) {
             self.error = error;
+          },
+          toggleCollapsed(node: string) {
+            if (self.collapsed.includes(node)) {
+              self.collapsed.remove(node);
+            } else {
+              self.collapsed.push(node);
+            }
           },
 
           toggleBranchLen() {
@@ -191,12 +216,16 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
 
           get tree() {
-            return self.data.tree
-              ? parseNewick(self.data.tree)
-              : this.MSA?.getTree();
+            return filter(
+              self.data.tree
+                ? parseNewick(self.data.tree)
+                : this.MSA?.getTree(),
+              self.collapsed,
+            );
           },
 
           get root() {
+            console.log(this.tree);
             return (
               d3
                 //@ts-ignore
