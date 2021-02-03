@@ -11,7 +11,7 @@ const colorScheme = colorSchemes[defaultColorScheme];
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
-  const { useState } = React;
+  const { useEffect, useRef, useState } = React;
   const { observer } = jbrequire("mobx-react");
   const { useTheme } = jbrequire("@material-ui/core/styles");
   const {
@@ -105,48 +105,52 @@ export default (pluginManager: PluginManager) => {
   const MSA = observer(({ model }: { model: any }) => {
     const { MSA, pxPerBp, bgColor } = model;
     const theme = useTheme();
+    const ref = useRef();
     if (!MSA) {
       return null;
     }
 
     const { hierarchy } = model;
+    useEffect(() => {
+      if (!ref.current) {
+        return;
+      }
 
-    return (
-      <g transform={`translate(0 6)`}>
-        {hierarchy.leaves().map((node: any) => {
-          const {
-            x,
-            data: { name },
-          } = node;
-          return MSA.getRow(name)?.map((letter: string, index: number) => {
-            const color = (colorScheme as any)[letter];
-            const contrast = color
-              ? theme.palette.getContrastText(Color(color).hex())
-              : "black";
-            return (
-              <React.Fragment key={`${name}-${index}`}>
-                <rect
-                  x={index * pxPerBp}
-                  y={x - height}
-                  width={pxPerBp}
-                  height={height}
-                  fill={bgColor && color ? color : "none"}
-                />
-                <text
-                  x={index * pxPerBp + pxPerBp / 2}
-                  y={x - height / 4}
-                  fill={bgColor ? contrast : color || "black"}
-                  dominantBaseline="middle"
-                  textAnchor="middle"
-                >
-                  {letter}
-                </text>
-              </React.Fragment>
-            );
-          });
-        })}
-      </g>
-    );
+      const { width: w, height: h } = ref.current.getBoundingClientRect();
+
+      ref.current.width = w;
+      ref.current.height = h;
+
+      const ctx = ref.current.getContext("2d");
+      if (!ctx) {
+        return;
+      }
+      ctx.clearRect(0, 0, w, h);
+      //fudge factor
+      ctx.translate(0, 8);
+      ctx.textAlign = "center";
+
+      hierarchy.leaves().map((node: any) => {
+        const {
+          x,
+          data: { name },
+        } = node;
+        return MSA.getRow(name)?.map((letter: string, index: number) => {
+          const color = (colorScheme as any)[letter];
+          const contrast = color
+            ? theme.palette.getContrastText(Color(color).hex())
+            : "black";
+          if (bgColor) {
+            ctx.fillStyle = color || "white";
+            ctx.fillRect(index * pxPerBp, x - height, pxPerBp, height);
+          }
+          ctx.fillStyle = bgColor ? contrast : color || "black";
+          ctx.fillText(letter, index * pxPerBp + pxPerBp / 2, x - height / 4);
+        });
+      });
+    }, [MSA, bgColor, pxPerBp, hierarchy, theme.palette]);
+
+    return <canvas style={{ width: "100%", height: "100%" }} ref={ref} />;
   });
 
   const SettingsDialog = observer(
@@ -241,13 +245,15 @@ export default (pluginManager: PluginManager) => {
                 overflow: "auto",
               }}
             >
-              <svg
-                style={{ height: totalHeight + margin.top, width: msaWidth }}
+              <div
+                style={{
+                  height: totalHeight + margin.top,
+                  paddingTop: margin.top,
+                  width: msaWidth,
+                }}
               >
-                <g transform={`translate(0 ${margin.top})`}>
-                  <MSA model={model} />
-                </g>
-              </svg>
+                <MSA model={model} />
+              </div>
             </div>
           </div>
         </div>

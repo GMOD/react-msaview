@@ -189,7 +189,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             addDisposer(
               self,
               autorun(async () => {
-                console.log("here1");
                 const { treeFilehandle, msaFilehandle } = self;
                 if (treeFilehandle) {
                   const f = openLocation(treeFilehandle);
@@ -199,7 +198,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 if (msaFilehandle) {
                   const f = openLocation(msaFilehandle);
                   const result = await f.readFile("utf8");
-                  console.log("here", result);
                   self.data.setMSA(result);
                 }
               }),
@@ -309,7 +307,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
     {
       postProcessor(snap) {
         const result = JSON.parse(JSON.stringify(snap));
-        console.log({ result });
         if (result.treeFilehandle) {
           delete result.data.tree;
         }
