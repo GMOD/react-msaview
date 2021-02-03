@@ -26,84 +26,96 @@ export default (pluginManager: PluginManager) => {
   const ImportForm = jbrequire(ImportFormComponent);
 
   const TreeCanvas = observer(({ model }: { model: any }) => {
-    const { hierarchy, showBranchLen, collapsed } = model;
+    const {
+      hierarchy,
+      showBranchLen,
+      collapsed,
+      treeWidth: width,
+      totalHeight: height,
+      margin,
+    } = model;
+    const ref = useRef();
+    const h = Math.min(height, 2000);
+
+    useEffect(() => {
+      if (!ref.current) {
+        return;
+      }
+
+      const ctx = ref.current.getContext("2d");
+      if (!ctx) {
+        return;
+      }
+      ctx.translate(margin.left, margin.top);
+      ctx.clearRect(0, 0, width, h);
+      hierarchy.links().forEach(({ source, target }: any) => {
+        const y = showBranchLen ? "len" : "y";
+        const { x: sx, [y]: sy } = source;
+        const { x: tx, [y]: ty } = target;
+        ctx.beginPath();
+        ctx.moveTo(sy, sx);
+        ctx.lineTo(sy, tx);
+        ctx.lineTo(ty, tx);
+        ctx.stroke();
+      });
+      hierarchy.links().forEach(({ source, target }: any, index: number) => {
+        const y = showBranchLen ? "len" : "y";
+        const {
+          x: sx,
+          [y]: sy,
+          data: { name: sourceName },
+        } = source;
+        const {
+          x: tx,
+          [y]: ty,
+          data: { name: targetName },
+        } = target;
+
+        ctx.strokeStyle = "black";
+        ctx.fillStyle = collapsed.includes(sourceName) ? "black" : "white";
+        ctx.beginPath();
+        ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+
+        if (collapsed.includes(target.data.name)) {
+          ctx.fillStyle = collapsed.includes(targetName) ? "black" : "white";
+          ctx.beginPath();
+          ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.stroke();
+        }
+      });
+
+      ctx.fillStyle = "black";
+      hierarchy.leaves().forEach((node: any) => {
+        const { x, y, data, len } = node;
+        const { name } = data;
+        ctx.fillText(name, showBranchLen ? len : y, x + 4);
+      });
+    }, [
+      collapsed,
+      hierarchy,
+      width,
+      h,
+      margin.left,
+      margin.top,
+      showBranchLen,
+    ]);
 
     return (
-      <>
-        <g fill="none" stroke="#000">
-          <>
-            {hierarchy.links().map(({ source, target }: any) => {
-              const y = showBranchLen ? "len" : "y";
-              const { x: sx, [y]: sy } = source;
-              const { x: tx, [y]: ty } = target;
-              const path = `M${sy} ${sx}V${tx}H${ty}`;
-              return <path key={path} d={path} />;
-            })}
-            {hierarchy.links().map(({ source, target }: any, index: number) => {
-              const y = showBranchLen ? "len" : "y";
-              const {
-                x: sx,
-                [y]: sy,
-                data: { name: sourceName },
-              } = source;
-              const {
-                x: tx,
-                [y]: ty,
-                data: { name: targetName },
-              } = target;
-
-              return (
-                <React.Fragment key={`${sx},${sy}-${index}`}>
-                  <circle
-                    cx={sy}
-                    cy={sx}
-                    r={3.5}
-                    fill={collapsed.includes(sourceName) ? "black" : "white"}
-                    stroke="black"
-                    onClick={() => {
-                      model.data.toggleCollapsed(sourceName);
-                    }}
-                  />
-                  {collapsed.includes(target.data.name) ? (
-                    <circle
-                      cx={ty}
-                      cy={tx}
-                      r={3.5}
-                      fill={collapsed.includes(targetName) ? "black" : "white"}
-                      stroke="black"
-                      onClick={() => {
-                        model.data.toggleCollapsed(targetName);
-                      }}
-                    />
-                  ) : null}
-                </React.Fragment>
-              );
-            })}
-          </>
-        </g>
-
-        {hierarchy.leaves().map((node: any) => {
-          const { x, y, data, len } = node;
-          const { name } = data;
-
-          return (
-            <text
-              key={`${name}-${x}-${y}`}
-              x={showBranchLen ? len : y}
-              y={x + 4}
-              style={{ pointerEvents: "none" }}
-            >
-              {name}
-            </text>
-          );
-        })}
-      </>
+      <canvas
+        width={width}
+        height={h + margin.top}
+        style={{ width, height: h + margin.top }}
+        ref={ref}
+      />
     );
   });
 
-  const height = 20;
+  const LETTER_HEIGHT = 20;
   const MSA = observer(({ model }: { model: any }) => {
-    const { MSA, pxPerBp, bgColor } = model;
+    const { MSA, pxPerBp, bgColor, margin } = model;
     const theme = useTheme();
     const ref = useRef();
     if (!MSA) {
@@ -127,7 +139,7 @@ export default (pluginManager: PluginManager) => {
       }
       ctx.clearRect(0, 0, w, h);
       //fudge factor
-      ctx.translate(0, 8);
+      ctx.translate(0, 8 + margin.top);
       ctx.textAlign = "center";
 
       hierarchy.leaves().map((node: any) => {
@@ -142,15 +154,24 @@ export default (pluginManager: PluginManager) => {
             : "black";
           if (bgColor) {
             ctx.fillStyle = color || "white";
-            ctx.fillRect(index * pxPerBp, x - height, pxPerBp, height);
+            ctx.fillRect(
+              index * pxPerBp,
+              x - LETTER_HEIGHT,
+              pxPerBp,
+              LETTER_HEIGHT,
+            );
           }
           ctx.fillStyle = bgColor ? contrast : color || "black";
-          ctx.fillText(letter, index * pxPerBp + pxPerBp / 2, x - height / 4);
+          ctx.fillText(
+            letter,
+            index * pxPerBp + pxPerBp / 2,
+            x - LETTER_HEIGHT / 4,
+          );
         });
       });
     }, [MSA, bgColor, pxPerBp, hierarchy, theme.palette]);
 
-    return <canvas style={{ width: "100%", height: "100%" }} ref={ref} />;
+    return <canvas ref={ref} style={{ width: "100%", height: "100%" }} />;
   });
 
   const SettingsDialog = observer(
@@ -199,10 +220,10 @@ export default (pluginManager: PluginManager) => {
     } else if (!done) {
       return <Typography variant="h4">Loading...</Typography>;
     } else {
-      const { totalHeight, msaWidth } = model;
+      const { totalHeight, height, msaWidth } = model;
 
       return (
-        <div>
+        <div style={{ height, overflow: "auto" }}>
           <div style={{ display: "block" }}>
             <IconButton
               onClick={() => {
@@ -233,12 +254,7 @@ export default (pluginManager: PluginManager) => {
               display: "flex",
             }}
           >
-            <svg style={{ height: totalHeight + margin.top, width: treeWidth }}>
-              <g transform={`translate(${margin.left}, ${margin.top})`}>
-                <TreeCanvas model={model} />
-              </g>
-            </svg>
-            <div style={{ width: 20 }} />
+            <TreeCanvas model={model} />
             <div
               style={{
                 width: "100%",
@@ -248,7 +264,6 @@ export default (pluginManager: PluginManager) => {
               <div
                 style={{
                   height: totalHeight + margin.top,
-                  paddingTop: margin.top,
                   width: msaWidth,
                 }}
               >
