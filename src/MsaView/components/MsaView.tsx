@@ -206,7 +206,7 @@ export default (pluginManager: PluginManager) => {
 
     const blockSize = 1000;
 
-    const { hierarchy, totalHeight, scrollY } = model;
+    const { hierarchy, scrollY } = model;
     useEffect(() => {
       if (!ref.current) {
         return;
