@@ -95,6 +95,8 @@ function filter(tree: any, collapsed: any) {
   }
 }
 
+export const blockSize = 1000;
+
 export default function stateModelFactory(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const { types, addDisposer } = pluginManager.lib["mobx-state-tree"];
@@ -209,7 +211,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           },
         }))
         .views(self => {
-          let oldBlocks = [];
+          let oldBlocks: number[] = [];
           return {
             get initialized() {
               return (
@@ -220,20 +222,26 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               );
             },
 
-            get blocks() {
-              const multiple = 1000;
-              let result = self.scrollY + multiple / 2;
-              result -= result % multiple;
+            get offsetY() {
+              return this.blocks[0];
+            },
 
-              const blocks = [];
-              for (let i = result; i < result + 2000; i += 1000) {
-                blocks.push(i);
+            get blocks() {
+              const result =
+                -(blockSize * Math.floor(self.scrollY / blockSize)) -
+                2 * blockSize;
+              console.log({ result });
+
+              const b = [];
+              for (let i = result; i < result + blockSize * 3; i += blockSize) {
+                b.push(i);
               }
-              if (JSON.stringify(blocks) === JSON.stringify(oldBlocks)) {
+              if (JSON.stringify(b) === JSON.stringify(oldBlocks)) {
                 return oldBlocks;
               } else {
-                oldBlocks = blocks;
+                oldBlocks = b;
               }
+              return oldBlocks;
             },
 
             get collapsed() {

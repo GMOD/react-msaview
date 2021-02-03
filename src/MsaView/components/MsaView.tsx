@@ -5,6 +5,7 @@ import Color from "color";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 import SettingsIcon from "@material-ui/icons/Settings";
 import normalizeWheel from "normalize-wheel";
+import { blockSize } from "../model";
 
 const defaultColorScheme = "maeditor";
 const colorScheme = colorSchemes[defaultColorScheme];
@@ -42,18 +43,20 @@ export default (pluginManager: PluginManager) => {
         const ctx = ref.current.getContext("2d");
 
         ctx.resetTransform();
-        ctx.clearRect(0, 0, width, 1000);
+        ctx.clearRect(0, 0, width, blockSize);
         ctx.translate(0, -offset);
 
         hierarchy.links().forEach(({ source, target }: any) => {
           const y = showBranchLen ? "len" : "y";
           const { x: sx, [y]: sy } = source;
           const { x: tx, [y]: ty } = target;
-          ctx.beginPath();
-          ctx.moveTo(sy, sx);
-          ctx.lineTo(sy, tx);
-          ctx.lineTo(ty, tx);
-          ctx.stroke();
+          if (sx > offset && sx < offset + blockSize) {
+            ctx.beginPath();
+            ctx.moveTo(sy, sx);
+            ctx.lineTo(sy, tx);
+            ctx.lineTo(ty, tx);
+            ctx.stroke();
+          }
         });
         hierarchy.links().forEach(({ source, target }: any) => {
           const y = showBranchLen ? "len" : "y";
@@ -68,19 +71,23 @@ export default (pluginManager: PluginManager) => {
             data: { name: targetName },
           } = target;
 
-          ctx.strokeStyle = "black";
-          ctx.fillStyle = collapsed.includes(sourceName) ? "black" : "white";
-          ctx.beginPath();
-          ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.stroke();
-
-          if (collapsed.includes(target.data.name)) {
-            ctx.fillStyle = collapsed.includes(targetName) ? "black" : "white";
+          if (sx > offset && sx < offset + blockSize) {
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = collapsed.includes(sourceName) ? "black" : "white";
             ctx.beginPath();
-            ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
+            ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();
+
+            if (collapsed.includes(target.data.name)) {
+              ctx.fillStyle = collapsed.includes(targetName)
+                ? "black"
+                : "white";
+              ctx.beginPath();
+              ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.stroke();
+            }
           }
         });
 
@@ -88,7 +95,9 @@ export default (pluginManager: PluginManager) => {
         hierarchy.leaves().forEach((node: any) => {
           const { x, y, data, len } = node;
           const { name } = data;
-          ctx.fillText(name, showBranchLen ? len : y, x + 4);
+          if (x > offset && x < offset + blockSize) {
+            ctx.fillText(name, showBranchLen ? len : y, x + 4);
+          }
         });
       }, [collapsed, hierarchy, offset, width, showBranchLen]);
       return (
@@ -124,7 +133,7 @@ export default (pluginManager: PluginManager) => {
         if (!scheduled.current) {
           scheduled.current = true;
           requestAnimationFrame(() => {
-            model.doScrollY(delta.current);
+            model.doScrollY(-delta.current);
             delta.current = 0;
             scheduled.current = false;
           });
@@ -146,8 +155,8 @@ export default (pluginManager: PluginManager) => {
           overflow: "hidden",
         }}
       >
-        {blocks.map(block => (
-          <Block model={model} offset={block} height={1000} />
+        {model.blocks.map((block: number) => (
+          <Block key={block} model={model} offset={block} height={blockSize} />
         ))}
       </div>
     );
