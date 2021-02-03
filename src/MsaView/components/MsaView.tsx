@@ -44,16 +44,17 @@ export default (pluginManager: PluginManager) => {
         hierarchy,
         rowHeight,
         scrollY,
-        width,
+        treeWidth: width,
         showBranchLen,
         collapsed,
+        margin,
       } = model;
       useEffect(() => {
         const ctx = ref.current.getContext("2d");
 
         ctx.resetTransform();
         ctx.clearRect(0, 0, width, blockSize);
-        ctx.translate(200, -offset);
+        ctx.translate(margin.left, -offset);
 
         hierarchy.links().forEach(({ source, target }: any) => {
           const y = showBranchLen ? "len" : "y";
@@ -142,6 +143,7 @@ export default (pluginManager: PluginManager) => {
     const divRef = useRef();
     const scheduled = useRef(false);
     const delta = useRef(0);
+    const { treeWidth: width, height } = model;
 
     useEffect(() => {
       const curr = divRef.current;
@@ -172,9 +174,10 @@ export default (pluginManager: PluginManager) => {
       <div
         ref={divRef}
         style={{
-          height: "100%",
+          height,
           position: "relative",
           overflow: "hidden",
+          width,
         }}
       >
         {model.blocks.map((block: number) => (
@@ -184,32 +187,38 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
-  const MSA = observer(({ model }: { model: any }) => {
-    const { MSA, pxPerBp, bgColor, margin, rowHeight } = model;
+  const MSACanvas = observer(({ model }: { model: any }) => {
+    const {
+      MSA,
+      pxPerBp,
+      bgColor,
+      margin,
+      rowHeight,
+      width,
+      height,
+      treeWidth,
+    } = model;
     const theme = useTheme();
     const ref = useRef();
     if (!MSA) {
       return null;
     }
 
-    const { hierarchy, totalHeight } = model;
+    const blockSize = 1000;
+
+    const { hierarchy, totalHeight, scrollY } = model;
     useEffect(() => {
       if (!ref.current) {
         return;
       }
 
-      const { width: w, height: h } = ref.current.getBoundingClientRect();
-
-      ref.current.width = w;
-      ref.current.height = h;
-
       const ctx = ref.current.getContext("2d");
       if (!ctx) {
         return;
       }
-      ctx.clearRect(0, 0, w, h);
+      ctx.clearRect(0, 0, blockSize, blockSize);
       //fudge factor
-      ctx.translate(0, 8 + margin.top);
+      ctx.translate(0, rowHeight / 2);
       ctx.textAlign = "center";
 
       hierarchy.leaves().map((node: any) => {
@@ -234,9 +243,38 @@ export default (pluginManager: PluginManager) => {
           );
         });
       });
-    }, [MSA, bgColor, pxPerBp, hierarchy, margin.top, theme.palette]);
+    }, [
+      MSA,
+      bgColor,
+      rowHeight,
+      pxPerBp,
+      hierarchy,
+      margin.top,
+      theme.palette,
+    ]);
 
-    return <canvas ref={ref} style={{ width: "100%", height: "100%" }} />;
+    return (
+      <div
+        style={{
+          position: "relative",
+          height,
+          width: width - treeWidth,
+          overflow: "hidden",
+        }}
+      >
+        <canvas
+          ref={ref}
+          width={blockSize}
+          height={blockSize}
+          style={{
+            position: "absolute",
+            top: scrollY,
+            width: blockSize,
+            height: blockSize,
+          }}
+        />
+      </div>
+    );
   });
 
   const SettingsDialog = observer(
@@ -338,11 +376,12 @@ export default (pluginManager: PluginManager) => {
           </div>
           <div
             style={{
-              height: "100%",
               position: "relative",
+              display: "flex",
             }}
           >
             <TreeCanvas model={model} />
+            <MSACanvas model={model} />
           </div>
         </div>
       );
