@@ -173,8 +173,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             self.rowHeight = n;
           },
 
-          doScrollY(y: number) {
-            self.scrollY += y;
+          doScrollY(deltaY: number) {
+            self.scrollY += deltaY;
+          },
+
+          setScrollY(n: number) {
+            self.scrollY = n;
           },
           toggleBranchLen() {
             self.showBranchLen = !self.showBranchLen;

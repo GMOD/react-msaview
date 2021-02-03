@@ -2750,8 +2750,11 @@
         setRowHeight: function setRowHeight(n) {
           self.rowHeight = n;
         },
-        doScrollY: function doScrollY(y) {
-          self.scrollY += y;
+        doScrollY: function doScrollY(deltaY) {
+          self.scrollY += deltaY;
+        },
+        setScrollY: function setScrollY(n) {
+          self.scrollY = n;
         },
         toggleBranchLen: function toggleBranchLen() {
           self.showBranchLen = !self.showBranchLen;
@@ -6215,6 +6218,7 @@
             });
             model.setTreeFilehandle(undefined);
             model.setMSAFilehandle(undefined);
+            model.setScrollY(0);
           }
         }, React.createElement(FolderOpenIcon, null)), React.createElement(IconButton, {
           onClick: function onClick() {

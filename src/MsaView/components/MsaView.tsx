@@ -318,6 +318,7 @@ export default (pluginManager: PluginManager) => {
                 model.setData({ tree: "", msa: "" });
                 model.setTreeFilehandle(undefined);
                 model.setMSAFilehandle(undefined);
+                model.setScrollY(0);
               }}
             >
               <FolderOpenIcon />
