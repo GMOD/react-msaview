@@ -4,6 +4,7 @@ import colorSchemes from "./colorSchemes";
 import Color from "color";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 import SettingsIcon from "@material-ui/icons/Settings";
+import normalizeWheel from "normalize-wheel";
 
 const defaultColorScheme = "maeditor";
 const colorScheme = colorSchemes[defaultColorScheme];
@@ -31,14 +32,41 @@ export default (pluginManager: PluginManager) => {
       showBranchLen,
       collapsed,
       treeWidth: width,
-      totalHeight: height,
+      height,
+      scrollY,
       margin,
     } = model;
     const ref = useRef();
-    const h = Math.min(height, 2000);
-
+    const divRef = useRef();
+    const scheduled = useRef(false);
+    const delta = useRef(0);
+    const h = Math.min(height + margin.top, 2000);
     useEffect(() => {
-      if (!ref.current) {
+      const curr = divRef.current;
+      if (!divRef.current) {
+        return;
+      }
+      function onWheel(origEvent: WheelEvent) {
+        const event = normalizeWheel(origEvent);
+        delta.current += event.pixelY;
+
+        if (!scheduled.current) {
+          scheduled.current = true;
+          requestAnimationFrame(() => {
+            model.doScrollY(delta.current);
+            delta.current = 0;
+            scheduled.current = false;
+          });
+        }
+        origEvent.preventDefault();
+      }
+      curr.addEventListener("wheel", onWheel);
+      return () => {
+        curr.removeEventListener("wheel", onWheel);
+      };
+    }, [model]);
+    useEffect(() => {
+      if (!divRef.current) {
         return;
       }
 
@@ -46,8 +74,10 @@ export default (pluginManager: PluginManager) => {
       if (!ctx) {
         return;
       }
-      ctx.translate(margin.left, margin.top);
+
+      ctx.resetTransform();
       ctx.clearRect(0, 0, width, h);
+
       hierarchy.links().forEach(({ source, target }: any) => {
         const y = showBranchLen ? "len" : "y";
         const { x: sx, [y]: sy } = source;
@@ -104,12 +134,27 @@ export default (pluginManager: PluginManager) => {
     ]);
 
     return (
-      <canvas
-        width={width}
-        height={h + margin.top}
-        style={{ width, height: h + margin.top }}
-        ref={ref}
-      />
+      <div
+        ref={divRef}
+        style={{
+          height: "100%",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <canvas
+          width={width}
+          height={h + margin.top}
+          style={{
+            width,
+            height: h + margin.top,
+            top: scrollY,
+            left: 0,
+            position: "absolute",
+          }}
+          ref={ref}
+        />
+      </div>
     );
   });
 
@@ -169,7 +214,7 @@ export default (pluginManager: PluginManager) => {
           );
         });
       });
-    }, [MSA, bgColor, pxPerBp, hierarchy, theme.palette]);
+    }, [MSA, bgColor, pxPerBp, hierarchy, margin.top, theme.palette]);
 
     return <canvas ref={ref} style={{ width: "100%", height: "100%" }} />;
   });
@@ -212,7 +257,7 @@ export default (pluginManager: PluginManager) => {
     },
   );
   return observer(({ model }: { model: any }) => {
-    const { treeWidth, done, initialized, margin } = model;
+    const { done, initialized } = model;
     const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
 
     if (!initialized) {
@@ -220,10 +265,10 @@ export default (pluginManager: PluginManager) => {
     } else if (!done) {
       return <Typography variant="h4">Loading...</Typography>;
     } else {
-      const { totalHeight, height, msaWidth } = model;
+      const { height } = model;
 
       return (
-        <div style={{ height, overflow: "auto" }}>
+        <div style={{ height }}>
           <div style={{ display: "block" }}>
             <IconButton
               onClick={() => {
@@ -249,27 +294,11 @@ export default (pluginManager: PluginManager) => {
           </div>
           <div
             style={{
-              height: totalHeight + margin.top + 25,
-              overflow: "auto",
-              display: "flex",
+              height: "100%",
+              position: "relative",
             }}
           >
             <TreeCanvas model={model} />
-            <div
-              style={{
-                width: "100%",
-                overflow: "auto",
-              }}
-            >
-              <div
-                style={{
-                  height: totalHeight + margin.top,
-                  width: msaWidth,
-                }}
-              >
-                <MSA model={model} />
-              </div>
-            </div>
           </div>
         </div>
       );

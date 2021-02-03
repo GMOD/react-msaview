@@ -108,8 +108,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         .model("MsaView", {
           id: ElementId,
           type: types.literal("MsaView"),
-          height: 600,
+          height: 300,
           treeWidth: 400,
+          scrollY: 0,
           pxPerBp: 16,
           showBranchLen: true,
           bgColor: true,
@@ -153,6 +154,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             self.error = error;
           },
 
+          doScrollY(y: number) {
+            self.scrollY += y;
+          },
           toggleBranchLen() {
             self.showBranchLen = !self.showBranchLen;
           },
@@ -305,15 +309,18 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         })),
     ),
     {
-      postProcessor(snap) {
-        const result = JSON.parse(JSON.stringify(snap));
-        if (result.treeFilehandle) {
-          delete result.data.tree;
-        }
-        if (result.msaFilehandle) {
-          delete result.data.msa;
-        }
-        return result;
+      postProcessor(result) {
+        // if (result.treeFilehandle&& result.msaFilehandle) {
+        //   const  {...rest,data}=result
+        //   return rest
+        // } else if(result.treeFilehandle&&!result.msaFilehandle) {
+        //   const {...rest,data:{...datarest,msa}
+        // }
+        // // if (result.msaFilehandle) {
+        // //   delete result.data.msa;
+        // // }
+        const { data, ...rest } = result;
+        return rest;
       },
     },
   );

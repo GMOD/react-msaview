@@ -54,6 +54,7 @@
     "jukes-cantor": "^1.0.4",
     "neighbor-joining": "^1.0.4",
     "newick": "^2.0.0",
+    "normalize-wheel": "^1.0.1",
     "phylogenetic-likelihood": "^1.0.5",
     "stockholm-js": "^1.0.10"
   }
