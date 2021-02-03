@@ -5,7 +5,7 @@ import Color from "color";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 import SettingsIcon from "@material-ui/icons/Settings";
 import normalizeWheel from "normalize-wheel";
-import { blockSize } from "../model";
+import { blockSize, MsaViewModel } from "../model";
 
 const defaultColorScheme = "maeditor";
 const colorScheme = colorSchemes[defaultColorScheme];
@@ -35,7 +35,7 @@ export default (pluginManager: PluginManager) => {
       height,
       offset,
     }: {
-      model: any;
+      model: MsaViewModel;
       height: number;
       offset: number;
     }) => {
@@ -92,6 +92,7 @@ export default (pluginManager: PluginManager) => {
             //-5 and +5 for boundaries
             if (sx > offset - 5 && sx < offset + blockSize + 5) {
               ctx.strokeStyle = "black";
+              //@ts-ignore complains about includes...
               ctx.fillStyle = collapsed.includes(sourceName)
                 ? "black"
                 : "white";
@@ -100,10 +101,9 @@ export default (pluginManager: PluginManager) => {
               ctx.fill();
               ctx.stroke();
 
-              if (collapsed.includes(target.data.name)) {
-                ctx.fillStyle = collapsed.includes(targetName)
-                  ? "black"
-                  : "white";
+              //@ts-ignore complains about includes...
+              if (collapsed.includes(targetName)) {
+                ctx.fillStyle = "black";
                 ctx.beginPath();
                 ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
                 ctx.fill();
@@ -122,7 +122,15 @@ export default (pluginManager: PluginManager) => {
             }
           });
         }
-      }, [collapsed, rowHeight, hierarchy, offset, width, showBranchLen]);
+      }, [
+        collapsed,
+        rowHeight,
+        margin.left,
+        hierarchy,
+        offset,
+        width,
+        showBranchLen,
+      ]);
       return (
         <canvas
           width={width}
@@ -139,7 +147,7 @@ export default (pluginManager: PluginManager) => {
       );
     },
   );
-  const TreeCanvas = observer(({ model }: { model: any }) => {
+  const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
     const divRef = useRef();
     const scheduled = useRef(false);
     const delta = useRef(0);
@@ -187,7 +195,7 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
-  const MSACanvas = observer(({ model }: { model: any }) => {
+  const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
     const {
       MSA,
       pxPerBp,
@@ -283,7 +291,7 @@ export default (pluginManager: PluginManager) => {
       onClose,
       open,
     }: {
-      model: any;
+      model: MsaViewModel;
       onClose: Function;
       open: boolean;
     }) => {
@@ -337,7 +345,7 @@ export default (pluginManager: PluginManager) => {
       );
     },
   );
-  return observer(({ model }: { model: any }) => {
+  return observer(({ model }: { model: MsaViewModel }) => {
     const { done, initialized } = model;
     const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
 

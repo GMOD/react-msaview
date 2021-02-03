@@ -4,6 +4,7 @@ import * as Clustal from "clustal-js";
 import * as d3 from "d3";
 import parseNewick from "./parseNewick";
 import Stockholm from "stockholm-js";
+import { Instance } from "mobx-state-tree";
 
 class ClustalMSA {
   private MSA: any;
@@ -367,15 +368,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
       })),
     {
       postProcessor(result) {
-        // if (result.treeFilehandle&& result.msaFilehandle) {
-        //   const  {...rest,data}=result
-        //   return rest
-        // } else if(result.treeFilehandle&&!result.msaFilehandle) {
-        //   const {...rest,data:{...datarest,msa}
-        // }
-        // // if (result.msaFilehandle) {
-        // //   delete result.data.msa;
-        // // }
         const { data, ...rest } = result;
         return rest;
       },
@@ -383,5 +375,5 @@ export default function stateModelFactory(pluginManager: PluginManager) {
   );
 }
 
-// export type MsaViewStateModel = ReturnType<typeof stateModelFactory>;
-// export type MsaViewModel = Instance<MsaViewStateModel>;
+export type MsaViewStateModel = ReturnType<typeof stateModelFactory>;
+export type MsaViewModel = Instance<MsaViewStateModel>;
