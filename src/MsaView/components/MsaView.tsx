@@ -26,21 +26,92 @@ export default (pluginManager: PluginManager) => {
   } = jbrequire("@material-ui/core");
   const ImportForm = jbrequire(ImportFormComponent);
 
-  const TreeCanvas = observer(({ model }: { model: any }) => {
-    const {
-      hierarchy,
-      showBranchLen,
-      collapsed,
-      treeWidth: width,
+  const Block = observer(
+    ({
+      model,
       height,
-      scrollY,
-      margin,
-    } = model;
-    const ref = useRef();
+      offset,
+    }: {
+      model: any;
+      height: number;
+      offset: number;
+    }) => {
+      const ref = useRef();
+      const { hierarchy, scrollY, width, showBranchLen, collapsed } = model;
+      useEffect(() => {
+        const ctx = ref.current.getContext("2d");
+
+        ctx.resetTransform();
+        ctx.clearRect(0, 0, width, 1000);
+        ctx.translate(0, -offset);
+
+        hierarchy.links().forEach(({ source, target }: any) => {
+          const y = showBranchLen ? "len" : "y";
+          const { x: sx, [y]: sy } = source;
+          const { x: tx, [y]: ty } = target;
+          ctx.beginPath();
+          ctx.moveTo(sy, sx);
+          ctx.lineTo(sy, tx);
+          ctx.lineTo(ty, tx);
+          ctx.stroke();
+        });
+        hierarchy.links().forEach(({ source, target }: any) => {
+          const y = showBranchLen ? "len" : "y";
+          const {
+            x: sx,
+            [y]: sy,
+            data: { name: sourceName },
+          } = source;
+          const {
+            x: tx,
+            [y]: ty,
+            data: { name: targetName },
+          } = target;
+
+          ctx.strokeStyle = "black";
+          ctx.fillStyle = collapsed.includes(sourceName) ? "black" : "white";
+          ctx.beginPath();
+          ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.stroke();
+
+          if (collapsed.includes(target.data.name)) {
+            ctx.fillStyle = collapsed.includes(targetName) ? "black" : "white";
+            ctx.beginPath();
+            ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+          }
+        });
+
+        ctx.fillStyle = "black";
+        hierarchy.leaves().forEach((node: any) => {
+          const { x, y, data, len } = node;
+          const { name } = data;
+          ctx.fillText(name, showBranchLen ? len : y, x + 4);
+        });
+      }, [collapsed, hierarchy, offset, width, showBranchLen]);
+      return (
+        <canvas
+          width={width}
+          height={height}
+          style={{
+            width,
+            height,
+            top: scrollY + offset,
+            left: 0,
+            position: "absolute",
+          }}
+          ref={ref}
+        />
+      );
+    },
+  );
+  const TreeCanvas = observer(({ model }: { model: any }) => {
     const divRef = useRef();
     const scheduled = useRef(false);
     const delta = useRef(0);
-    const h = Math.min(height + margin.top, 2000);
+
     useEffect(() => {
       const curr = divRef.current;
       if (!divRef.current) {
@@ -65,73 +136,6 @@ export default (pluginManager: PluginManager) => {
         curr.removeEventListener("wheel", onWheel);
       };
     }, [model]);
-    useEffect(() => {
-      if (!divRef.current) {
-        return;
-      }
-
-      const ctx = ref.current.getContext("2d");
-      if (!ctx) {
-        return;
-      }
-
-      ctx.resetTransform();
-      ctx.clearRect(0, 0, width, h);
-
-      hierarchy.links().forEach(({ source, target }: any) => {
-        const y = showBranchLen ? "len" : "y";
-        const { x: sx, [y]: sy } = source;
-        const { x: tx, [y]: ty } = target;
-        ctx.beginPath();
-        ctx.moveTo(sy, sx);
-        ctx.lineTo(sy, tx);
-        ctx.lineTo(ty, tx);
-        ctx.stroke();
-      });
-      hierarchy.links().forEach(({ source, target }: any, index: number) => {
-        const y = showBranchLen ? "len" : "y";
-        const {
-          x: sx,
-          [y]: sy,
-          data: { name: sourceName },
-        } = source;
-        const {
-          x: tx,
-          [y]: ty,
-          data: { name: targetName },
-        } = target;
-
-        ctx.strokeStyle = "black";
-        ctx.fillStyle = collapsed.includes(sourceName) ? "black" : "white";
-        ctx.beginPath();
-        ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.stroke();
-
-        if (collapsed.includes(target.data.name)) {
-          ctx.fillStyle = collapsed.includes(targetName) ? "black" : "white";
-          ctx.beginPath();
-          ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.stroke();
-        }
-      });
-
-      ctx.fillStyle = "black";
-      hierarchy.leaves().forEach((node: any) => {
-        const { x, y, data, len } = node;
-        const { name } = data;
-        ctx.fillText(name, showBranchLen ? len : y, x + 4);
-      });
-    }, [
-      collapsed,
-      hierarchy,
-      width,
-      h,
-      margin.left,
-      margin.top,
-      showBranchLen,
-    ]);
 
     return (
       <div
@@ -142,18 +146,9 @@ export default (pluginManager: PluginManager) => {
           overflow: "hidden",
         }}
       >
-        <canvas
-          width={width}
-          height={h + margin.top}
-          style={{
-            width,
-            height: h + margin.top,
-            top: scrollY,
-            left: 0,
-            position: "absolute",
-          }}
-          ref={ref}
-        />
+        {blocks.map(block => (
+          <Block model={model} offset={block} height={1000} />
+        ))}
       </div>
     );
   });

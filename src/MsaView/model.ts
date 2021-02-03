@@ -208,105 +208,124 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             );
           },
         }))
-        .views(self => ({
-          get initialized() {
-            return (
-              self.data.msa ||
-              self.data.tree ||
-              self.msaFilehandle ||
-              self.treeFilehandle
-            );
-          },
+        .views(self => {
+          let oldBlocks = [];
+          return {
+            get initialized() {
+              return (
+                self.data.msa ||
+                self.data.tree ||
+                self.msaFilehandle ||
+                self.treeFilehandle
+              );
+            },
 
-          get collapsed() {
-            return self.data.collapsed;
-          },
+            get blocks() {
+              const multiple = 1000;
+              let result = self.scrollY + multiple / 2;
+              result -= result % multiple;
 
-          get done() {
-            return (
-              self.volatileWidth > 0 &&
-              this.initialized &&
-              (self.data.msa || self.data.tree)
-            );
-          },
-
-          get menuItems() {
-            return [];
-          },
-
-          get MSA() {
-            const text = self.data.msa;
-            if (text) {
-              if (Stockholm.sniff(text)) {
-                return new StockholmMSA(text);
-              } else {
-                return new ClustalMSA(text);
+              const blocks = [];
+              for (let i = result; i < result + 2000; i += 1000) {
+                blocks.push(i);
               }
-            }
-            return null;
-          },
-          get width() {
-            return self.volatileWidth;
-          },
+              if (JSON.stringify(blocks) === JSON.stringify(oldBlocks)) {
+                return oldBlocks;
+              } else {
+                oldBlocks = blocks;
+              }
+            },
 
-          get msaWidth() {
-            return this.MSA?.getWidth() * self.pxPerBp;
-          },
+            get collapsed() {
+              return self.data.collapsed;
+            },
 
-          get tree() {
-            return filter(
-              self.data.tree
-                ? generateNodeNames(parseNewick(self.data.tree))
-                : this.MSA?.getTree(),
-              this.collapsed,
-            );
-          },
+            get done() {
+              return (
+                self.volatileWidth > 0 &&
+                this.initialized &&
+                (self.data.msa || self.data.tree)
+              );
+            },
 
-          get root() {
-            return (
-              d3
+            get menuItems() {
+              return [];
+            },
+
+            get MSA() {
+              const text = self.data.msa;
+              if (text) {
+                if (Stockholm.sniff(text)) {
+                  return new StockholmMSA(text);
+                } else {
+                  return new ClustalMSA(text);
+                }
+              }
+              return null;
+            },
+            get width() {
+              return self.volatileWidth;
+            },
+
+            get msaWidth() {
+              return this.MSA?.getWidth() * self.pxPerBp;
+            },
+
+            get tree() {
+              return filter(
+                self.data.tree
+                  ? generateNodeNames(parseNewick(self.data.tree))
+                  : this.MSA?.getTree(),
+                this.collapsed,
+              );
+            },
+
+            get root() {
+              return (
+                d3
+                  //@ts-ignore
+                  .hierarchy(this.tree, d => d.branchset)
+                  //@ts-ignore
+                  .sum(d => (d.branchset ? 0 : 1))
+                  .sort((a: any, b: any) => {
+                    return (
+                      a.value - b.value ||
+                      d3.ascending(a.data.length, b.data.length)
+                    );
+                  })
+              );
+            },
+
+            get realWidth() {
+              return self.treeWidth - 200;
+            },
+
+            get hierarchy() {
+              const cluster = d3
+                .cluster()
+                .size([this.totalHeight, this.realWidth])
+                .separation((_1: any, _2: any) => 1);
+              cluster(this.root);
+              setBrLength(
+                this.root,
                 //@ts-ignore
-                .hierarchy(this.tree, d => d.branchset)
-                //@ts-ignore
-                .sum(d => (d.branchset ? 0 : 1))
-                .sort((a: any, b: any) => {
-                  return (
-                    a.value - b.value ||
-                    d3.ascending(a.data.length, b.data.length)
-                  );
-                })
-            );
-          },
+                (this.root.data.length = 0),
+                this.realWidth / maxLength(this.root),
+              );
+              return this.root;
+            },
 
-          get realWidth() {
-            return self.treeWidth - 200;
-          },
+            get nodePositions() {
+              return this.hierarchy.leaves().map((d: any) => {
+                return { name: d.data.name, x: d.x, y: d.y };
+              });
+            },
 
-          get hierarchy() {
-            const cluster = d3
-              .cluster()
-              .size([this.totalHeight, this.realWidth])
-              .separation((_1: any, _2: any) => 1);
-            cluster(this.root);
-            setBrLength(
-              this.root,
-              //@ts-ignore
-              (this.root.data.length = 0),
-              this.realWidth / maxLength(this.root),
-            );
-            return this.root;
-          },
-
-          get nodePositions() {
-            return this.hierarchy.leaves().map((d: any) => {
-              return { name: d.data.name, x: d.x, y: d.y };
-            });
-          },
-
-          get totalHeight() {
-            return this.root.leaves().length * 20;
-          },
-        })),
+            get totalHeight() {
+              return this.root.leaves().length * 20;
+            },
+          };
+        }),
     ),
     {
       postProcessor(result) {
