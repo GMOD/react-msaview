@@ -66,6 +66,19 @@ function maxLength(d: any): number {
   return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
 }
 
+function getRoot(tree: any) {
+  return (
+    d3
+      //@ts-ignore
+      .hierarchy(tree, d => d.branchset)
+      //@ts-ignore
+      .sum(d => (d.branchset ? 0 : 1))
+      .sort((a: any, b: any) => {
+        return d3.ascending(a.data.length, b.data.length);
+      })
+  );
+}
+
 function generateNodeNames(tree: any, parent = "node", depth = 0, index = 0) {
   if (tree.name === "") {
     tree.name = `${parent}-${depth}-${index}`;
@@ -110,8 +123,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         .model("MsaView", {
           id: ElementId,
           type: types.literal("MsaView"),
-          height: 300,
-          treeWidth: 400,
+          height: 680,
+          treeWidth: 600,
+          rowHeight: 20,
           scrollY: 0,
           pxPerBp: 16,
           showBranchLen: true,
@@ -154,6 +168,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         .actions(self => ({
           setError(error?: Error) {
             self.error = error;
+          },
+          setRowHeight(n: number) {
+            self.rowHeight = n;
           },
 
           doScrollY(y: number) {
@@ -212,6 +229,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         }))
         .views(self => {
           let oldBlocks: number[] = [];
+          let oldVal = 0;
           return {
             get initialized() {
               return (
@@ -230,16 +248,19 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               const result =
                 -(blockSize * Math.floor(self.scrollY / blockSize)) -
                 2 * blockSize;
-              console.log({ result });
 
               const b = [];
               for (let i = result; i < result + blockSize * 3; i += blockSize) {
                 b.push(i);
               }
-              if (JSON.stringify(b) === JSON.stringify(oldBlocks)) {
+              if (
+                JSON.stringify(b) === JSON.stringify(oldBlocks) &&
+                self.rowHeight === oldVal
+              ) {
                 return oldBlocks;
               } else {
                 oldBlocks = b;
+                oldVal = self.rowHeight;
               }
               return oldBlocks;
             },
@@ -289,19 +310,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
 
             get root() {
-              return (
-                d3
-                  //@ts-ignore
-                  .hierarchy(this.tree, d => d.branchset)
-                  //@ts-ignore
-                  .sum(d => (d.branchset ? 0 : 1))
-                  .sort((a: any, b: any) => {
-                    return (
-                      a.value - b.value ||
-                      d3.ascending(a.data.length, b.data.length)
-                    );
-                  })
-              );
+              return getRoot(this.tree);
             },
 
             get realWidth() {
@@ -309,18 +318,21 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
 
             get hierarchy() {
+              // we don't use this.root because it won't update in response to
+              // changes in realWidth/totalHeight here otherwise, needs to
+              // generate a new object
+              const root = getRoot(this.tree);
               const cluster = d3
                 .cluster()
                 .size([this.totalHeight, this.realWidth])
                 .separation((_1: any, _2: any) => 1);
-              cluster(this.root);
+              cluster(root);
               setBrLength(
-                this.root,
-                //@ts-ignore
-                (this.root.data.length = 0),
-                this.realWidth / maxLength(this.root),
+                root,
+                (root.data.length = 0),
+                this.realWidth / maxLength(root),
               );
-              return this.root;
+              return root;
             },
 
             get nodePositions() {
@@ -330,7 +342,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
 
             get totalHeight() {
-              return this.root.leaves().length * 20;
+              return this.root.leaves().length * self.rowHeight;
             },
           };
         }),

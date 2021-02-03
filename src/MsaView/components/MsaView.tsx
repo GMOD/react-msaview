@@ -23,6 +23,8 @@ export default (pluginManager: PluginManager) => {
     DialogTitle,
     DialogContent,
     FormControlLabel,
+    TextField,
+    Button,
     Checkbox,
   } = jbrequire("@material-ui/core");
   const ImportForm = jbrequire(ImportFormComponent);
@@ -38,19 +40,33 @@ export default (pluginManager: PluginManager) => {
       offset: number;
     }) => {
       const ref = useRef();
-      const { hierarchy, scrollY, width, showBranchLen, collapsed } = model;
+      const {
+        hierarchy,
+        rowHeight,
+        scrollY,
+        width,
+        showBranchLen,
+        collapsed,
+      } = model;
       useEffect(() => {
         const ctx = ref.current.getContext("2d");
 
         ctx.resetTransform();
         ctx.clearRect(0, 0, width, blockSize);
-        ctx.translate(0, -offset);
+        ctx.translate(200, -offset);
 
         hierarchy.links().forEach(({ source, target }: any) => {
           const y = showBranchLen ? "len" : "y";
           const { x: sx, [y]: sy } = source;
           const { x: tx, [y]: ty } = target;
-          if (sx > offset && sx < offset + blockSize) {
+
+          const y1 = offset;
+          const y2 = offset + blockSize;
+          const x1 = Math.min(sx, tx);
+          const x2 = Math.max(sx, tx);
+          //1d line intersection
+          //https://eli.thegreenplace.net/2008/08/15/intersection-of-1d-segments
+          if (x2 >= y1 && y2 >= x1) {
             ctx.beginPath();
             ctx.moveTo(sy, sx);
             ctx.lineTo(sy, tx);
@@ -58,48 +74,54 @@ export default (pluginManager: PluginManager) => {
             ctx.stroke();
           }
         });
-        hierarchy.links().forEach(({ source, target }: any) => {
-          const y = showBranchLen ? "len" : "y";
-          const {
-            x: sx,
-            [y]: sy,
-            data: { name: sourceName },
-          } = source;
-          const {
-            x: tx,
-            [y]: ty,
-            data: { name: targetName },
-          } = target;
+        if (rowHeight >= 10) {
+          hierarchy.links().forEach(({ source, target }: any) => {
+            const y = showBranchLen ? "len" : "y";
+            const {
+              x: sx,
+              [y]: sy,
+              data: { name: sourceName },
+            } = source;
+            const {
+              x: tx,
+              [y]: ty,
+              data: { name: targetName },
+            } = target;
 
-          if (sx > offset && sx < offset + blockSize) {
-            ctx.strokeStyle = "black";
-            ctx.fillStyle = collapsed.includes(sourceName) ? "black" : "white";
-            ctx.beginPath();
-            ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.stroke();
-
-            if (collapsed.includes(target.data.name)) {
-              ctx.fillStyle = collapsed.includes(targetName)
+            //-5 and +5 for boundaries
+            if (sx > offset - 5 && sx < offset + blockSize + 5) {
+              ctx.strokeStyle = "black";
+              ctx.fillStyle = collapsed.includes(sourceName)
                 ? "black"
                 : "white";
               ctx.beginPath();
-              ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
+              ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
               ctx.fill();
               ctx.stroke();
-            }
-          }
-        });
 
-        ctx.fillStyle = "black";
-        hierarchy.leaves().forEach((node: any) => {
-          const { x, y, data, len } = node;
-          const { name } = data;
-          if (x > offset && x < offset + blockSize) {
-            ctx.fillText(name, showBranchLen ? len : y, x + 4);
-          }
-        });
-      }, [collapsed, hierarchy, offset, width, showBranchLen]);
+              if (collapsed.includes(target.data.name)) {
+                ctx.fillStyle = collapsed.includes(targetName)
+                  ? "black"
+                  : "white";
+                ctx.beginPath();
+                ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+              }
+            }
+          });
+
+          ctx.fillStyle = "black";
+          hierarchy.leaves().forEach((node: any) => {
+            const { x, y, data, len } = node;
+            const { name } = data;
+            //-5 and +5 for boundaries
+            if (x > offset - 5 && x < offset + blockSize + 5) {
+              ctx.fillText(name, showBranchLen ? len : y, x + 4);
+            }
+          });
+        }
+      }, [collapsed, rowHeight, hierarchy, offset, width, showBranchLen]);
       return (
         <canvas
           width={width}
@@ -162,16 +184,15 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
-  const LETTER_HEIGHT = 20;
   const MSA = observer(({ model }: { model: any }) => {
-    const { MSA, pxPerBp, bgColor, margin } = model;
+    const { MSA, pxPerBp, bgColor, margin, rowHeight } = model;
     const theme = useTheme();
     const ref = useRef();
     if (!MSA) {
       return null;
     }
 
-    const { hierarchy } = model;
+    const { hierarchy, totalHeight } = model;
     useEffect(() => {
       if (!ref.current) {
         return;
@@ -203,18 +224,13 @@ export default (pluginManager: PluginManager) => {
             : "black";
           if (bgColor) {
             ctx.fillStyle = color || "white";
-            ctx.fillRect(
-              index * pxPerBp,
-              x - LETTER_HEIGHT,
-              pxPerBp,
-              LETTER_HEIGHT,
-            );
+            ctx.fillRect(index * pxPerBp, x - rowHeight, pxPerBp, rowHeight);
           }
           ctx.fillStyle = bgColor ? contrast : color || "black";
           ctx.fillText(
             letter,
             index * pxPerBp + pxPerBp / 2,
-            x - LETTER_HEIGHT / 4,
+            x - rowHeight / 4,
           );
         });
       });
@@ -233,6 +249,7 @@ export default (pluginManager: PluginManager) => {
       onClose: Function;
       open: boolean;
     }) => {
+      const [rowHeight, setRowHeight] = useState(model.rowHeight);
       return (
         <Dialog onClose={() => onClose()} open={open}>
           <DialogTitle>Settings</DialogTitle>
@@ -255,6 +272,28 @@ export default (pluginManager: PluginManager) => {
               }
               label="Color background"
             />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={model.bgColor}
+                  onChange={() => model.toggleBgColor()}
+                />
+              }
+              label="Color background"
+            />
+            <TextField
+              label="Row height"
+              value={rowHeight}
+              onChange={(event: any) => setRowHeight(event.target.value)}
+            />
+            <Button
+              onClick={() => {
+                model.setRowHeight(+rowHeight);
+                onClose();
+              }}
+            >
+              Submit
+            </Button>
           </DialogContent>
         </Dialog>
       );
