@@ -139,6 +139,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             pxPerBp: 16,
             showBranchLen: true,
             bgColor: true,
+            colorSchemeName: "maeditor",
             treeFilehandle: types.maybe(FileLocation),
             msaFilehandle: types.maybe(FileLocation),
             data: types.optional(

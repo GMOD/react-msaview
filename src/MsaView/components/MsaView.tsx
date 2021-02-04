@@ -1,17 +1,10 @@
 import PluginManager from "@jbrowse/core/PluginManager";
 import ImportFormComponent from "./ImportForm";
-import colorSchemes from "./colorSchemes";
-import Color from "color";
+import { colorSchemes, colorContrasts } from "./colorSchemes";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 import SettingsIcon from "@material-ui/icons/Settings";
 import normalizeWheel from "normalize-wheel";
 import { blockSize, MsaViewModel } from "../model";
-
-const defaultColorScheme = "maeditor";
-const colorScheme = colorSchemes[defaultColorScheme];
-
-const blockSize = 1000;
-
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
@@ -202,82 +195,114 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
-  const MSABlock = observer(({ model }: { model: MsaViewModel }) => {
-    const {
-      MSA,
-      pxPerBp,
-      bgColor,
-      margin,
-      rowHeight,
-      scrollY,
-      scrollX,
-      hierarchy,
-    } = model;
-    const ref = useRef();
-    const theme = useTheme();
-    if (!MSA) {
-      return null;
-    }
-    useEffect(() => {
-      if (!ref.current) {
-        return;
-      }
+  const MSABlock = observer(
+    ({
+      model,
+      width,
+      offset,
+    }: {
+      model: MsaViewModel;
+      width: number;
+      offset: number;
+    }) => {
+      const {
+        MSA,
+        pxPerBp,
+        bgColor,
+        margin,
+        rowHeight,
+        scrollY,
+        scrollX,
+        hierarchy,
+        colorSchemeName,
+      } = model;
+      const theme = useTheme();
+      const colorScheme = colorSchemes[colorSchemeName];
+      const colorContrast = colorContrasts(theme)[colorSchemeName];
+      const ref = useRef();
 
-      const ctx = ref.current.getContext("2d");
-      if (!ctx) {
-        return;
+      if (!MSA) {
+        return null;
       }
-      ctx.clearRect(0, 0, blockSize, blockSize);
-      ctx.translate(0, rowHeight / 2);
-      ctx.textAlign = "center";
+      useEffect(() => {
+        if (!ref.current) {
+          return;
+        }
 
-      hierarchy.leaves().map((node: any) => {
-        const {
-          x,
-          data: { name },
-        } = node;
-        return MSA.getRow(name)?.map((letter: string, index: number) => {
-          const color = (colorScheme as any)[letter];
-          const contrast = color
-            ? theme.palette.getContrastText(Color(color).hex())
-            : "black";
-          if (bgColor) {
-            ctx.fillStyle = color || "white";
-            ctx.fillRect(index * pxPerBp, x - rowHeight, pxPerBp, rowHeight);
-          }
-          ctx.fillStyle = bgColor ? contrast : color || "black";
-          ctx.fillText(
-            letter,
-            index * pxPerBp + pxPerBp / 2,
-            x - rowHeight / 4,
-          );
+        const ctx = ref.current.getContext("2d");
+        if (!ctx) {
+          return;
+        }
+        ctx.resetTransform();
+        ctx.clearRect(0, 0, blockSize, blockSize);
+        ctx.translate(-offset, rowHeight / 2);
+        ctx.textAlign = "center";
+
+        hierarchy.leaves().map((node: any) => {
+          const {
+            x: y,
+            data: { name },
+          } = node;
+          return MSA.getRow(name)?.map((letter: string, index: number) => {
+            const color = (colorScheme as any)[letter];
+            if (bgColor) {
+              const x = index * pxPerBp;
+              if (x > offset - 10 && x < offset + width + 10) {
+                ctx.fillStyle = color || "white";
+                ctx.fillRect(x, y - rowHeight, pxPerBp, rowHeight);
+              }
+            }
+          });
         });
-      });
-    }, [
-      MSA,
-      bgColor,
-      rowHeight,
-      pxPerBp,
-      hierarchy,
-      margin.top,
-      theme.palette,
-    ]);
 
-    return (
-      <canvas
-        ref={ref}
-        width={blockSize}
-        height={blockSize}
-        style={{
-          position: "absolute",
-          top: scrollY,
-          left: scrollX,
-          width: blockSize,
-          height: blockSize,
-        }}
-      />
-    );
-  });
+        if (rowHeight >= 10) {
+          hierarchy.leaves().map((node: any) => {
+            const {
+              x: y,
+              data: { name },
+            } = node;
+
+            return MSA.getRow(name)?.map((letter: string, index: number) => {
+              const color = (colorScheme as any)[letter];
+              const contrast = colorContrast[letter] || "black";
+              const x = index * pxPerBp;
+              if (x > offset - 10 && x < offset + width + 10) {
+                ctx.fillStyle = bgColor ? contrast : color || "black";
+                ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);
+              }
+            });
+          });
+        }
+      }, [
+        MSA,
+        colorContrast,
+        colorScheme,
+        bgColor,
+        rowHeight,
+        pxPerBp,
+        hierarchy,
+        offset,
+        width,
+        margin.top,
+        theme.palette,
+      ]);
+
+      return (
+        <canvas
+          ref={ref}
+          width={blockSize}
+          height={blockSize}
+          style={{
+            position: "absolute",
+            top: scrollY,
+            left: scrollX + offset,
+            width: blockSize,
+            height: blockSize,
+          }}
+        />
+      );
+    },
+  );
 
   const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
     const { MSA, width, height, treeWidth, blocksX } = model;
@@ -325,7 +350,12 @@ export default (pluginManager: PluginManager) => {
         }}
       >
         {blocksX.map(block => (
-          <MSABlock model={model} />
+          <MSABlock
+            key={block}
+            model={model}
+            offset={block}
+            width={blockSize}
+          />
         ))}
       </div>
     );

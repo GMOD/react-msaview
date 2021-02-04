@@ -1,4 +1,5 @@
-export default {
+import Color from "color";
+const unnormalizedColorSchemes = {
   clustal: {
     G: "orange",
     P: "orange",
@@ -87,3 +88,30 @@ export default {
     ".": "gray",
   },
 };
+
+export const colorSchemes = Object.fromEntries(
+  Object.entries(unnormalizedColorSchemes).map(([key, val]) => {
+    return [
+      key,
+      Object.fromEntries(
+        Object.entries(val).map(([letter, color]) => {
+          return [letter, Color(color).hex()];
+        }),
+      ),
+    ];
+  }),
+);
+
+export const colorContrasts = theme =>
+  Object.fromEntries(
+    Object.entries(colorSchemes).map(([key, val]) => {
+      return [
+        key,
+        Object.fromEntries(
+          Object.entries(val).map(([letter, color]) => {
+            return [letter, theme.palette.getContrastText(Color(color).hex())];
+          }),
+        ),
+      ];
+    }),
+  );
