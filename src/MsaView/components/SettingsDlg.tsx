@@ -58,15 +58,6 @@ export default function(pluginManager: PluginManager) {
               }
               label="Color background"
             />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={model.bgColor}
-                  onChange={() => model.toggleBgColor()}
-                />
-              }
-              label="Color background"
-            />
             <TextField
               label="Row height (px)"
               value={rowHeight}
