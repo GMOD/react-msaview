@@ -6,6 +6,8 @@ import parseNewick from "./parseNewick";
 import Stockholm from "stockholm-js";
 import { Instance } from "mobx-state-tree";
 
+let str = JSON.stringify;
+
 class ClustalMSA {
   private MSA: any;
   constructor(text: string) {
@@ -133,6 +135,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             treeWidth: 600,
             rowHeight: 20,
             scrollY: 0,
+            scrollX: 0,
             pxPerBp: 16,
             showBranchLen: true,
             bgColor: true,
@@ -182,6 +185,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setScrollY(n: number) {
               self.scrollY = n;
             },
+            setScrollX(n: number) {
+              self.scrollX = n;
+            },
+
             toggleBranchLen() {
               self.showBranchLen = !self.showBranchLen;
             },
@@ -234,8 +241,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
           }))
           .views(self => {
-            let oldBlocks: number[] = [];
-            let oldVal = 0;
+            let oldBlocksX: number[] = [];
+            let oldBlocksY: number[] = [];
+            let oldValX = 0;
+            let oldValY = 0;
             return {
               get initialized() {
                 return (
@@ -246,11 +255,27 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 );
               },
 
-              get offsetY() {
-                return this.blocks[0];
+              get blocksX() {
+                const result =
+                  -(blockSize * Math.floor(self.scrollX / blockSize)) -
+                  2 * blockSize;
+
+                const b = [];
+                for (
+                  let i = result;
+                  i < result + blockSize * 3;
+                  i += blockSize
+                ) {
+                  b.push(i);
+                }
+                if (str(b) !== str(oldBlocksX) || self.pxPerBp !== oldValX) {
+                  oldBlocksX = b;
+                  oldValX = self.pxPerBp;
+                }
+                return oldBlocksX;
               },
 
-              get blocks() {
+              get blocksY() {
                 const result =
                   -(blockSize * Math.floor(self.scrollY / blockSize)) -
                   2 * blockSize;
@@ -263,16 +288,11 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 ) {
                   b.push(i);
                 }
-                if (
-                  JSON.stringify(b) === JSON.stringify(oldBlocks) &&
-                  self.rowHeight === oldVal
-                ) {
-                  return oldBlocks;
-                } else {
-                  oldBlocks = b;
-                  oldVal = self.rowHeight;
+                if (str(b) !== str(oldBlocksY) || self.rowHeight !== oldValY) {
+                  oldBlocksY = b;
+                  oldValY = self.rowHeight;
                 }
-                return oldBlocks;
+                return oldBlocksY;
               },
 
               get collapsed() {
@@ -364,6 +384,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             self.scrollY + deltaY,
             10,
           );
+        },
+
+        doScrollX(deltaX: number) {
+          self.scrollX = clamp(-self.msaWidth + 10, self.scrollX + deltaX, 0);
         },
       })),
     {

@@ -188,7 +188,7 @@ export default (pluginManager: PluginManager) => {
           width,
         }}
       >
-        {model.blocks.map((block: number) => (
+        {model.blocksY.map((block: number) => (
           <Block key={block} model={model} offset={block} height={blockSize} />
         ))}
       </div>
@@ -205,16 +205,51 @@ export default (pluginManager: PluginManager) => {
       width,
       height,
       treeWidth,
+      scrollX,
+      scrollY,
+      blocksX,
     } = model;
     const theme = useTheme();
     const ref = useRef();
+    const divRef = useRef();
+    const scheduled = useRef(false);
+    const delta = useRef(0);
+
     if (!MSA) {
       return null;
     }
 
     const blockSize = 1000;
 
-    const { hierarchy, scrollY } = model;
+    const { hierarchy } = model;
+
+    console.log({ scrollX, blocksX });
+
+    useEffect(() => {
+      const curr = divRef.current;
+      if (!divRef.current) {
+        return;
+      }
+      function onWheel(origEvent: WheelEvent) {
+        const event = normalizeWheel(origEvent);
+        delta.current += event.pixelX;
+
+        if (!scheduled.current) {
+          scheduled.current = true;
+          requestAnimationFrame(() => {
+            model.doScrollX(-delta.current);
+            delta.current = 0;
+            scheduled.current = false;
+          });
+        }
+        origEvent.preventDefault();
+      }
+      curr.addEventListener("wheel", onWheel);
+      return () => {
+        curr.removeEventListener("wheel", onWheel);
+      };
+    }, [model]);
+
     useEffect(() => {
       if (!ref.current) {
         return;
@@ -263,6 +298,7 @@ export default (pluginManager: PluginManager) => {
 
     return (
       <div
+        ref={divRef}
         style={{
           position: "relative",
           height,
@@ -277,6 +313,7 @@ export default (pluginManager: PluginManager) => {
           style={{
             position: "absolute",
             top: scrollY,
+            left: scrollX,
             width: blockSize,
             height: blockSize,
           }}
