@@ -224,7 +224,9 @@ export default (pluginManager: PluginManager) => {
       if (!MSA) {
         return null;
       }
+
       useEffect(() => {
+        console.log({ offset });
         if (!ref.current) {
           return;
         }
@@ -275,8 +277,6 @@ export default (pluginManager: PluginManager) => {
         }
       }, [
         MSA,
-        colorContrast,
-        colorScheme,
         bgColor,
         rowHeight,
         pxPerBp,
