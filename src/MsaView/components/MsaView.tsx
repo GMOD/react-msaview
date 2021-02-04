@@ -9,7 +9,7 @@ import SettingsDlg from "./SettingsDlg";
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
-  const { useEffect, useRef, useState } = React;
+  const { useEffect, useRef, useMemo, useState } = React;
   const { observer } = jbrequire("mobx-react");
   const { useTheme } = jbrequire("@material-ui/core/styles");
   const { IconButton, Typography } = jbrequire("@material-ui/core");
@@ -210,7 +210,10 @@ export default (pluginManager: PluginManager) => {
       } = model;
       const theme = useTheme();
       const colorScheme = colorSchemes[colorSchemeName];
-      const colorContrast = colorContrasts(theme)[colorSchemeName];
+      const colorContrast = useMemo(
+        () => colorContrasts(theme)[colorSchemeName],
+        [colorSchemeName, theme],
+      );
       const ref = useRef();
 
       if (!MSA) {
@@ -268,6 +271,8 @@ export default (pluginManager: PluginManager) => {
         }
       }, [
         MSA,
+        colorScheme,
+        colorContrast,
         bgColor,
         rowHeight,
         pxPerBp,
@@ -275,7 +280,6 @@ export default (pluginManager: PluginManager) => {
         offset,
         width,
         margin.top,
-        colorSchemeName,
         theme.palette,
       ]);
 
