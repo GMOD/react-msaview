@@ -10,6 +10,8 @@ import { blockSize, MsaViewModel } from "../model";
 const defaultColorScheme = "maeditor";
 const colorScheme = colorSchemes[defaultColorScheme];
 
+const blockSize = 1000;
+
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
@@ -29,7 +31,7 @@ export default (pluginManager: PluginManager) => {
   } = jbrequire("@material-ui/core");
   const ImportForm = jbrequire(ImportFormComponent);
 
-  const Block = observer(
+  const TreeBlock = observer(
     ({
       model,
       height,
@@ -151,7 +153,7 @@ export default (pluginManager: PluginManager) => {
     const divRef = useRef();
     const scheduled = useRef(false);
     const delta = useRef(0);
-    const { treeWidth: width, height } = model;
+    const { treeWidth: width, height, blocksY } = model;
 
     useEffect(() => {
       const curr = divRef.current;
@@ -188,68 +190,34 @@ export default (pluginManager: PluginManager) => {
           width,
         }}
       >
-        {model.blocksY.map((block: number) => (
-          <Block key={block} model={model} offset={block} height={blockSize} />
+        {blocksY.map(block => (
+          <TreeBlock
+            key={block}
+            model={model}
+            offset={block}
+            height={blockSize}
+          />
         ))}
       </div>
     );
   });
 
-  const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
+  const MSABlock = observer(({ model }: { model: MsaViewModel }) => {
     const {
       MSA,
       pxPerBp,
       bgColor,
       margin,
       rowHeight,
-      width,
-      height,
-      treeWidth,
-      scrollX,
       scrollY,
-      blocksX,
+      scrollX,
+      hierarchy,
     } = model;
-    const theme = useTheme();
     const ref = useRef();
-    const divRef = useRef();
-    const scheduled = useRef(false);
-    const delta = useRef(0);
-
+    const theme = useTheme();
     if (!MSA) {
       return null;
     }
-
-    const blockSize = 1000;
-
-    const { hierarchy } = model;
-
-    console.log({ scrollX, blocksX });
-
-    useEffect(() => {
-      const curr = divRef.current;
-      if (!divRef.current) {
-        return;
-      }
-      function onWheel(origEvent: WheelEvent) {
-        const event = normalizeWheel(origEvent);
-        delta.current += event.pixelX;
-
-        if (!scheduled.current) {
-          scheduled.current = true;
-          requestAnimationFrame(() => {
-            model.doScrollX(-delta.current);
-            delta.current = 0;
-            scheduled.current = false;
-          });
-        }
-        origEvent.preventDefault();
-      }
-      curr.addEventListener("wheel", onWheel);
-      return () => {
-        curr.removeEventListener("wheel", onWheel);
-      };
-    }, [model]);
-
     useEffect(() => {
       if (!ref.current) {
         return;
@@ -260,7 +228,6 @@ export default (pluginManager: PluginManager) => {
         return;
       }
       ctx.clearRect(0, 0, blockSize, blockSize);
-      //fudge factor
       ctx.translate(0, rowHeight / 2);
       ctx.textAlign = "center";
 
@@ -297,6 +264,57 @@ export default (pluginManager: PluginManager) => {
     ]);
 
     return (
+      <canvas
+        ref={ref}
+        width={blockSize}
+        height={blockSize}
+        style={{
+          position: "absolute",
+          top: scrollY,
+          left: scrollX,
+          width: blockSize,
+          height: blockSize,
+        }}
+      />
+    );
+  });
+
+  const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
+    const { MSA, width, height, treeWidth, blocksX } = model;
+    const divRef = useRef();
+    const scheduled = useRef(false);
+    const delta = useRef(0);
+
+    if (!MSA) {
+      return null;
+    }
+
+    useEffect(() => {
+      const curr = divRef.current;
+      if (!divRef.current) {
+        return;
+      }
+      function onWheel(origEvent: WheelEvent) {
+        const event = normalizeWheel(origEvent);
+        delta.current += event.pixelX;
+
+        if (!scheduled.current) {
+          scheduled.current = true;
+          requestAnimationFrame(() => {
+            model.doScrollX(-delta.current);
+            delta.current = 0;
+            scheduled.current = false;
+          });
+        }
+        origEvent.preventDefault();
+      }
+      curr.addEventListener("wheel", onWheel);
+      return () => {
+        curr.removeEventListener("wheel", onWheel);
+      };
+    }, [model]);
+
+    return (
       <div
         ref={divRef}
         style={{
@@ -306,18 +324,9 @@ export default (pluginManager: PluginManager) => {
           overflow: "hidden",
         }}
       >
-        <canvas
-          ref={ref}
-          width={blockSize}
-          height={blockSize}
-          style={{
-            position: "absolute",
-            top: scrollY,
-            left: scrollX,
-            width: blockSize,
-            height: blockSize,
-          }}
-        />
+        {blocksX.map(block => (
+          <MSABlock model={model} />
+        ))}
       </div>
     );
   });
