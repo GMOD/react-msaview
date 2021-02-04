@@ -2,28 +2,19 @@ import PluginManager from "@jbrowse/core/PluginManager";
 import ImportFormComponent from "./ImportForm";
 import { colorSchemes, colorContrasts } from "./colorSchemes";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
-import SettingsIcon from "@material-ui/icons/Settings";
 import normalizeWheel from "normalize-wheel";
 import { blockSize, MsaViewModel } from "../model";
+import SettingsIcon from "@material-ui/icons/Settings";
+import SettingsDlg from "./SettingsDlg";
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
   const { useEffect, useRef, useState } = React;
   const { observer } = jbrequire("mobx-react");
   const { useTheme } = jbrequire("@material-ui/core/styles");
-  const {
-    IconButton,
-    Typography,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    FormControlLabel,
-    TextField,
-    MenuItem,
-    Button,
-    Checkbox,
-  } = jbrequire("@material-ui/core");
+  const { IconButton, Typography } = jbrequire("@material-ui/core");
   const ImportForm = jbrequire(ImportFormComponent);
+  const SettingsDialog = jbrequire(SettingsDlg);
 
   const TreeBlock = observer(
     ({
@@ -362,93 +353,6 @@ export default (pluginManager: PluginManager) => {
     );
   });
 
-  const SettingsDialog = observer(
-    ({
-      model,
-      onClose,
-      open,
-    }: {
-      model: MsaViewModel;
-      onClose: Function;
-      open: boolean;
-    }) => {
-      const {
-        rowHeight: rowHeightInit,
-        pxPerBp: pxPerBpInit,
-        colorSchemeName: colorSchemeNameInit,
-      } = model;
-      const [rowHeight, setRowHeight] = useState(rowHeightInit);
-      const [pxPerBp, setPxPerBp] = useState(pxPerBpInit);
-      const [colorScheme, setColorSchemeName] = useState(colorSchemeNameInit);
-      return (
-        <Dialog onClose={() => onClose()} open={open}>
-          <DialogTitle>Settings</DialogTitle>
-          <DialogContent>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={model.showBranchLen}
-                  onChange={() => model.toggleBranchLen()}
-                />
-              }
-              label="Show branch length"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={model.bgColor}
-                  onChange={() => model.toggleBgColor()}
-                />
-              }
-              label="Color background"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={model.bgColor}
-                  onChange={() => model.toggleBgColor()}
-                />
-              }
-              label="Color background"
-            />
-            <TextField
-              label="Row height (px)"
-              value={rowHeight}
-              onChange={(event: any) => setRowHeight(event.target.value)}
-            />
-            <TextField
-              label="Column width (px)"
-              value={pxPerBp}
-              onChange={(event: any) => setPxPerBp(event.target.value)}
-            />
-
-            <TextField
-              select
-              label="Color scheme"
-              value={colorScheme}
-              onChange={(event: any) => setColorSchemeName(event.target.value)}
-            >
-              {Object.keys(colorSchemes).map(option => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-            <Button
-              onClick={() => {
-                model.setRowHeight(+rowHeight);
-                model.setPxPerBp(+pxPerBp);
-                model.setColorSchemeName(colorScheme);
-                onClose();
-              }}
-            >
-              Submit
-            </Button>
-          </DialogContent>
-        </Dialog>
-      );
-    },
-  );
   return observer(({ model }: { model: MsaViewModel }) => {
     const { done, initialized } = model;
     const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
