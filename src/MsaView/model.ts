@@ -182,7 +182,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setRowHeight(n: number) {
               self.rowHeight = n;
             },
-
+            setPxPerBp(n: number) {
+              self.pxPerBp = n;
+            },
             setScrollY(n: number) {
               self.scrollY = n;
             },

@@ -257,7 +257,7 @@ export default (pluginManager: PluginManager) => {
           });
         });
 
-        if (rowHeight >= 10) {
+        if (rowHeight >= 10 && pxPerBp >= 7) {
           hierarchy.leaves().map((node: any) => {
             const {
               x: y,
@@ -284,6 +284,7 @@ export default (pluginManager: PluginManager) => {
         offset,
         width,
         margin.top,
+        colorSchemeName,
         theme.palette,
       ]);
 
@@ -372,6 +373,7 @@ export default (pluginManager: PluginManager) => {
       open: boolean;
     }) => {
       const [rowHeight, setRowHeight] = useState(model.rowHeight);
+      const [pxPerBp, setPxPerBp] = useState(model.pxPerBp);
       return (
         <Dialog onClose={() => onClose()} open={open}>
           <DialogTitle>Settings</DialogTitle>
@@ -404,13 +406,19 @@ export default (pluginManager: PluginManager) => {
               label="Color background"
             />
             <TextField
-              label="Row height"
+              label="Row height in px (MSA+Tree)"
               value={rowHeight}
               onChange={(event: any) => setRowHeight(event.target.value)}
+            />
+            <TextField
+              label="Column width in px (MSA)"
+              value={pxPerBp}
+              onChange={(event: any) => setPxPerBp(event.target.value)}
             />
             <Button
               onClick={() => {
                 model.setRowHeight(+rowHeight);
+                model.setPxPerBp(+pxPerBp);
                 onClose();
               }}
             >
