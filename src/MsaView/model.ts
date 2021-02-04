@@ -70,16 +70,12 @@ function maxLength(d: any): number {
 }
 
 function getRoot(tree: any) {
-  return (
-    d3
-      //@ts-ignore
-      .hierarchy(tree, d => d.branchset)
-      //@ts-ignore
-      .sum(d => (d.branchset ? 0 : 1))
-      .sort((a: any, b: any) => {
-        return d3.ascending(a.data.length, b.data.length);
-      })
-  );
+  return d3
+    .hierarchy(tree, d => d.branchset)
+    .sum(d => (d.branchset ? 0 : 1))
+    .sort((a: any, b: any) => {
+      return d3.ascending(a.data.length, b.data.length);
+    });
 }
 
 function generateNodeNames(tree: any, parent = "node", depth = 0, index = 0) {
