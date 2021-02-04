@@ -185,6 +185,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setPxPerBp(n: number) {
               self.pxPerBp = n;
             },
+            setColorSchemeName(name: string) {
+              self.colorSchemeName = name;
+            },
             setScrollY(n: number) {
               self.scrollY = n;
             },
@@ -261,7 +264,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               get blocksX() {
                 const result =
                   -(blockSize * Math.floor(self.scrollX / blockSize)) -
-                  2 * blockSize;
+                  blockSize;
 
                 const b = [];
                 for (

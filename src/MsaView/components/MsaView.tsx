@@ -19,6 +19,7 @@ export default (pluginManager: PluginManager) => {
     DialogContent,
     FormControlLabel,
     TextField,
+    MenuItem,
     Button,
     Checkbox,
   } = jbrequire("@material-ui/core");
@@ -226,7 +227,6 @@ export default (pluginManager: PluginManager) => {
       }
 
       useEffect(() => {
-        console.log({ offset });
         if (!ref.current) {
           return;
         }
@@ -372,8 +372,14 @@ export default (pluginManager: PluginManager) => {
       onClose: Function;
       open: boolean;
     }) => {
-      const [rowHeight, setRowHeight] = useState(model.rowHeight);
-      const [pxPerBp, setPxPerBp] = useState(model.pxPerBp);
+      const {
+        rowHeight: rowHeightInit,
+        pxPerBp: pxPerBpInit,
+        colorSchemeName: colorSchemeNameInit,
+      } = model;
+      const [rowHeight, setRowHeight] = useState(rowHeightInit);
+      const [pxPerBp, setPxPerBp] = useState(pxPerBpInit);
+      const [colorScheme, setColorSchemeName] = useState(colorSchemeNameInit);
       return (
         <Dialog onClose={() => onClose()} open={open}>
           <DialogTitle>Settings</DialogTitle>
@@ -406,19 +412,33 @@ export default (pluginManager: PluginManager) => {
               label="Color background"
             />
             <TextField
-              label="Row height in px (MSA+Tree)"
+              label="Row height (px)"
               value={rowHeight}
               onChange={(event: any) => setRowHeight(event.target.value)}
             />
             <TextField
-              label="Column width in px (MSA)"
+              label="Column width (px)"
               value={pxPerBp}
               onChange={(event: any) => setPxPerBp(event.target.value)}
             />
+
+            <TextField
+              select
+              label="Color scheme"
+              value={colorScheme}
+              onChange={(event: any) => setColorSchemeName(event.target.value)}
+            >
+              {Object.keys(colorSchemes).map(option => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
             <Button
               onClick={() => {
                 model.setRowHeight(+rowHeight);
                 model.setPxPerBp(+pxPerBp);
+                model.setColorSchemeName(colorScheme);
                 onClose();
               }}
             >
