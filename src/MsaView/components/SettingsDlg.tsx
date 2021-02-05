@@ -58,6 +58,7 @@ export default function(pluginManager: PluginManager) {
               }
               label="Color background"
             />
+            <br />
             <TextField
               label="Row height (px)"
               value={rowHeight}
@@ -68,6 +69,7 @@ export default function(pluginManager: PluginManager) {
               value={pxPerBp}
               onChange={(event: any) => setPxPerBp(event.target.value)}
             />
+            <br />
 
             <TextField
               select
@@ -81,6 +83,9 @@ export default function(pluginManager: PluginManager) {
                 </MenuItem>
               ))}
             </TextField>
+            <br />
+            <br />
+            <br />
             <Button
               onClick={() => {
                 model.setRowHeight(+rowHeight);
@@ -88,6 +93,8 @@ export default function(pluginManager: PluginManager) {
                 model.setColorSchemeName(colorScheme);
                 onClose();
               }}
+              variant="contained"
+              color="primary"
             >
               Submit
             </Button>

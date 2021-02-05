@@ -1,6 +1,7 @@
 import PluginManager from "@jbrowse/core/PluginManager";
+import Color from "color";
 import ImportFormComponent from "./ImportForm";
-import { colorSchemes, colorContrasts } from "./colorSchemes";
+import colorSchemes, { transform } from "./colorSchemes";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 import normalizeWheel from "normalize-wheel";
 import { blockSize, MsaViewModel } from "../model";
@@ -8,11 +9,11 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import SettingsDlg from "./SettingsDlg";
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
-  const React = jbrequire("react");
+  const React = pluginManager.lib["react"];
   const { useEffect, useRef, useMemo, useState } = React;
-  const { observer } = jbrequire("mobx-react");
-  const { useTheme } = jbrequire("@material-ui/core/styles");
-  const { IconButton, Typography } = jbrequire("@material-ui/core");
+  const { observer } = pluginManager.lib["mobx-react"];
+  const { useTheme } = pluginManager.lib["@material-ui/core/styles"];
+  const { IconButton, Typography } = pluginManager.lib["@material-ui/core"];
   const ImportForm = jbrequire(ImportFormComponent);
   const SettingsDialog = jbrequire(SettingsDlg);
 
@@ -26,7 +27,7 @@ export default (pluginManager: PluginManager) => {
       height: number;
       offset: number;
     }) => {
-      const ref = useRef();
+      const ref = useRef<HTMLCanvasElement>(null);
       const {
         hierarchy,
         rowHeight,
@@ -37,11 +38,14 @@ export default (pluginManager: PluginManager) => {
         margin,
       } = model;
       useEffect(() => {
+        if (!ref.current) return;
         const ctx = ref.current.getContext("2d");
+        if (!ctx) return;
 
         ctx.resetTransform();
         ctx.clearRect(0, 0, width, blockSize);
         ctx.translate(margin.left, -offset);
+        ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
 
         hierarchy.links().forEach(({ source, target }: any) => {
           const y = showBranchLen ? "len" : "y";
@@ -211,8 +215,12 @@ export default (pluginManager: PluginManager) => {
       const theme = useTheme();
       const colorScheme = colorSchemes[colorSchemeName];
       const colorContrast = useMemo(
-        () => colorContrasts(theme)[colorSchemeName],
-        [colorSchemeName, theme],
+        () =>
+          transform(colorScheme, ([letter, color]: [string, string]) => [
+            letter,
+            theme.palette.getContrastText(Color(color).hex()),
+          ]),
+        [colorScheme, theme],
       );
       const ref = useRef();
 
@@ -233,6 +241,7 @@ export default (pluginManager: PluginManager) => {
         ctx.clearRect(0, 0, blockSize, blockSize);
         ctx.translate(-offset, rowHeight / 2);
         ctx.textAlign = "center";
+        ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
 
         hierarchy.leaves().map((node: any) => {
           const {
