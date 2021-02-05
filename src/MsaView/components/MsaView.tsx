@@ -139,14 +139,14 @@ export default (pluginManager: PluginManager) => {
     },
   );
   const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
-    const divRef = useRef();
+    const divRef = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
     const delta = useRef(0);
     const { treeWidth: width, height, blocksY } = model;
 
     useEffect(() => {
       const curr = divRef.current;
-      if (!divRef.current) {
+      if (!curr) {
         return;
       }
       function onWheel(origEvent: WheelEvent) {
@@ -222,7 +222,7 @@ export default (pluginManager: PluginManager) => {
           ]),
         [colorScheme, theme],
       );
-      const ref = useRef();
+      const ref = useRef<HTMLCanvasElement>(null);
 
       if (!MSA) {
         return null;
@@ -311,7 +311,7 @@ export default (pluginManager: PluginManager) => {
 
   const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
     const { MSA, width, height, treeWidth, blocksX } = model;
-    const divRef = useRef();
+    const divRef = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
     const delta = useRef(0);
 
@@ -321,7 +321,7 @@ export default (pluginManager: PluginManager) => {
 
     useEffect(() => {
       const curr = divRef.current;
-      if (!divRef.current) {
+      if (!curr) {
         return;
       }
       function onWheel(origEvent: WheelEvent) {
