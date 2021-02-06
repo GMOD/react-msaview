@@ -42,20 +42,18 @@ export default function(pluginManager: PluginManager) {
 
         hierarchy.links().forEach(({ source, target }: any) => {
           const y = showBranchLen ? "len" : "y";
-          const { x: sx, [y]: sy } = source;
-          const { x: tx, [y]: ty } = target;
+          const { x: sy, [y]: sx } = source;
+          const { x: ty, [y]: tx } = target;
 
-          const y1 = offset;
-          const y2 = offset + blockSize;
-          const x1 = Math.min(sx, tx);
-          const x2 = Math.max(sx, tx);
+          const y1 = Math.min(sy, ty);
+          const y2 = Math.max(sy, ty);
           //1d line intersection
           //https://eli.thegreenplace.net/2008/08/15/intersection-of-1d-segments
-          if (x2 >= y1 && y2 >= x1) {
+          if (offset + blockSize >= y1 && y2 >= offset) {
             ctx.beginPath();
-            ctx.moveTo(sy, sx);
-            ctx.lineTo(sy, tx);
-            ctx.lineTo(ty, tx);
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(sx, ty);
+            ctx.lineTo(tx, ty);
             ctx.stroke();
           }
         });
@@ -63,25 +61,25 @@ export default function(pluginManager: PluginManager) {
           hierarchy.links().forEach(({ source, target }: any) => {
             const y = showBranchLen ? "len" : "y";
             const {
-              x: sx,
-              [y]: sy,
+              x: sy,
+              [y]: sx,
               data: { name: sourceName },
             } = source;
             const {
-              x: tx,
-              [y]: ty,
+              x: ty,
+              [y]: tx,
               data: { name: targetName },
             } = target;
 
             //-5 and +5 for boundaries
-            if (sx > offset - 5 && sx < offset + blockSize + 5) {
+            if (sy > offset - 5 && sy < offset + blockSize + 5) {
               ctx.strokeStyle = "black";
               //@ts-ignore complains about includes...
               ctx.fillStyle = collapsed.includes(sourceName)
                 ? "black"
                 : "white";
               ctx.beginPath();
-              ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
+              ctx.arc(sx, sy, 3.5, 0, 2 * Math.PI);
               ctx.fill();
               ctx.stroke();
 
@@ -89,7 +87,7 @@ export default function(pluginManager: PluginManager) {
               if (collapsed.includes(targetName)) {
                 ctx.fillStyle = "black";
                 ctx.beginPath();
-                ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
+                ctx.arc(tx, ty, 3.5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();
               }
@@ -98,11 +96,12 @@ export default function(pluginManager: PluginManager) {
 
           ctx.fillStyle = "black";
           hierarchy.leaves().forEach((node: any) => {
-            const { x, y, data, len } = node;
+            const { x: y, y: x, data, len } = node;
             const { name } = data;
             //-5 and +5 for boundaries
-            if (x > offset - 5 && x < offset + blockSize + 5) {
-              ctx.fillText(name, showBranchLen ? len : y, x + 4);
+            if (y > offset - 5 && y < offset + blockSize + 5) {
+              //+rowHeight/4 synchronizes with -rowHeight/4 in msa
+              ctx.fillText(name, showBranchLen ? len : x, y + rowHeight / 4);
             }
           });
         }

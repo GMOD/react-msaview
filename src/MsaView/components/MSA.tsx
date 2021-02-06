@@ -92,6 +92,7 @@ export default function(pluginManager: PluginManager) {
               const x = index * pxPerBp;
               if (x > offset - 10 && x < offset + width + 10) {
                 ctx.fillStyle = bgColor ? contrast : color || "black";
+                //-rowHeight/4 synchronizes with +rowHeight/4 in tree
                 ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);
               }
             });
