@@ -1,7 +1,17 @@
 import PluginManager from "@jbrowse/core/PluginManager";
 import { blockSize, MsaViewModel } from "../model";
 import normalizeWheel from "normalize-wheel";
+function encode(n: number) {
+  n = n + 1;
+  const r = n % 128;
+  const g = (n / 128) % 128;
+  const b = (n / 128 / 128) % 128;
+  return [r, g, b];
+}
 
+function decode(r: number, g: number, b: number) {
+  return r + g * 128 + b * 128 * 128 - 1;
+}
 export default function(pluginManager: PluginManager) {
   const { observer } = pluginManager.lib["mobx-react"];
   const React = pluginManager.lib["react"];
@@ -64,7 +74,7 @@ export default function(pluginManager: PluginManager) {
           }
         });
         if (rowHeight >= 10) {
-          hierarchy.links().forEach(({ source, target }: any) => {
+          hierarchy.links().forEach(({ source, target }: any, index) => {
             const y = showBranchLen ? "len" : "y";
             const {
               x: sy,
@@ -89,7 +99,8 @@ export default function(pluginManager: PluginManager) {
               ctx.fill();
               ctx.stroke();
 
-              clickCtx.fillStyle = "red";
+              const [r, g, b] = encode(index);
+              clickCtx.fillStyle = `rgb(${r},${g},${b})`;
               clickCtx.beginPath();
               clickCtx.arc(sx, sy, 3.5, 0, 2 * Math.PI);
               clickCtx.fill();
@@ -101,6 +112,11 @@ export default function(pluginManager: PluginManager) {
                 ctx.arc(tx, ty, 3.5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();
+
+                clickCtx.fillStyle = `rgb(${128 + r},${128 + g},${128 + b})`;
+                clickCtx.beginPath();
+                clickCtx.arc(tx, ty, 3.5, 0, 2 * Math.PI);
+                clickCtx.fill();
               }
             }
           });
@@ -109,9 +125,9 @@ export default function(pluginManager: PluginManager) {
           hierarchy.leaves().forEach((node: any) => {
             const { x: y, y: x, data, len } = node;
             const { name } = data;
-            //-5 and +5 for boundaries
+            //-5 and +5 to make sure to draw across block boundaries
             if (y > offset - 5 && y < offset + blockSize + 5) {
-              //+rowHeight/4 synchronizes with -rowHeight/4 in msa
+              //+rowHeight/4 synchronizes with -rowHeight/4 in msa (kinda weird)
               ctx.fillText(name, showBranchLen ? len : x, y + rowHeight / 4);
             }
           });
@@ -143,16 +159,34 @@ export default function(pluginManager: PluginManager) {
               if (!clickRef.current) {
                 return;
               }
-              const ctx = clickRef.current.getContext("2d");
-              if (!ctx) {
+              const clickCtx = clickRef.current.getContext("2d");
+              if (!clickCtx) {
                 return;
               }
-              const { data } = ctx.getImageData(x, y, 1, 1);
+              const { data } = clickCtx.getImageData(x, y, 1, 1);
               const r = data[0];
               const g = data[1];
               const b = data[2];
-              const a = data[3];
-              console.log(r, g, b, a);
+
+              let name;
+              if (r < 128) {
+                const val = decode(r, g, b);
+                console.log({ val, r, g, b });
+                const node = hierarchy.links()[val];
+                if (node) {
+                  name = node.source.data.name;
+                }
+              } else {
+                const val = decode(r - 128, g - 128, b - 128);
+                console.log({ r, g, b }, val);
+                const node = hierarchy.links()[val];
+                if (node) {
+                  name = node.target.data.name;
+                }
+              }
+              if (name) {
+                model.data.toggleCollapsed(name);
+              }
             }}
             ref={ref}
           />
