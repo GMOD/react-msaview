@@ -258,16 +258,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get blocksX() {
-                const result =
+                const ret =
                   -(blockSize * Math.floor(self.scrollX / blockSize)) -
                   blockSize;
 
                 const b = [];
-                for (
-                  let i = result;
-                  i < result + blockSize * 3;
-                  i += blockSize
-                ) {
+                for (let i = ret; i < ret + blockSize * 3; i += blockSize) {
                   b.push(i);
                 }
                 if (str(b) !== str(oldBlocksX) || self.pxPerBp !== oldValX) {
@@ -278,16 +274,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get blocksY() {
-                const result =
+                const ret =
                   -(blockSize * Math.floor(self.scrollY / blockSize)) -
                   2 * blockSize;
 
                 const b = [];
-                for (
-                  let i = result;
-                  i < result + blockSize * 3;
-                  i += blockSize
-                ) {
+                for (let i = ret; i < ret + blockSize * 3; i += blockSize) {
                   b.push(i);
                 }
                 if (str(b) !== str(oldBlocksY) || self.rowHeight !== oldValY) {
@@ -349,15 +341,16 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 return self.treeWidth - 200;
               },
 
+              // generates a new tree that is clustered with x,y positions
               get hierarchy() {
-                // we don't use this.root because it won't update in response to
-                // changes in realWidth/totalHeight here otherwise, needs to
-                // generate a new object
+                // note: we don't use this.root because it won't update in
+                // response to changes in realWidth/totalHeight here otherwise,
+                // needs to generate a new object
                 const root = getRoot(this.tree);
                 const cluster = d3
                   .cluster()
                   .size([this.totalHeight, this.realWidth])
-                  .separation((_1: any, _2: any) => 1);
+                  .separation(() => 1);
                 cluster(root);
                 setBrLength(
                   root,
@@ -365,12 +358,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   this.realWidth / maxLength(root),
                 );
                 return root;
-              },
-
-              get nodePositions() {
-                return this.hierarchy.leaves().map((d: any) => {
-                  return { name: d.data.name, x: d.x, y: d.y };
-                });
               },
 
               get totalHeight() {
