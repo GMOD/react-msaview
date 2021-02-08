@@ -17,6 +17,7 @@ export default function(pluginManager: PluginManager) {
       offset: number;
     }) => {
       const ref = useRef<HTMLCanvasElement>(null);
+      const clickRef = useRef<HTMLCanvasElement>(null);
       const {
         hierarchy,
         rowHeight,
@@ -27,17 +28,22 @@ export default function(pluginManager: PluginManager) {
         margin,
       } = model;
       useEffect(() => {
-        if (!ref.current) {
+        if (!ref.current || !clickRef.current) {
           return;
         }
         const ctx = ref.current.getContext("2d");
-        if (!ctx) {
+        const clickCtx = clickRef.current.getContext("2d");
+        if (!ctx || !clickCtx) {
           return;
         }
 
-        ctx.resetTransform();
-        ctx.clearRect(0, 0, width, blockSize);
-        ctx.translate(margin.left, -offset);
+        // do operations in parallel on ctx, clickCtx
+        [ctx, clickCtx].forEach(context => {
+          context.resetTransform();
+          context.clearRect(0, 0, width, blockSize);
+          context.translate(margin.left, -offset);
+        });
+
         ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
 
         hierarchy.links().forEach(({ source, target }: any) => {
@@ -83,6 +89,11 @@ export default function(pluginManager: PluginManager) {
               ctx.fill();
               ctx.stroke();
 
+              clickCtx.fillStyle = "red";
+              clickCtx.beginPath();
+              clickCtx.arc(sx, sy, 3.5, 0, 2 * Math.PI);
+              clickCtx.fill();
+
               //@ts-ignore complains about includes...
               if (collapsed.includes(targetName)) {
                 ctx.fillStyle = "black";
@@ -115,18 +126,43 @@ export default function(pluginManager: PluginManager) {
         showBranchLen,
       ]);
       return (
-        <canvas
-          width={width}
-          height={height}
-          style={{
-            width,
-            height,
-            top: scrollY + offset,
-            left: 0,
-            position: "absolute",
-          }}
-          ref={ref}
-        />
+        <>
+          <canvas
+            width={width}
+            height={height}
+            style={{
+              width,
+              height,
+              top: scrollY + offset,
+              left: 0,
+              position: "absolute",
+            }}
+            onClick={event => {
+              const x = event.nativeEvent.offsetX;
+              const y = event.nativeEvent.offsetY;
+              if (!clickRef.current) {
+                return;
+              }
+              const ctx = clickRef.current.getContext("2d");
+              if (!ctx) {
+                return;
+              }
+              const { data } = ctx.getImageData(x, y, 1, 1);
+              const r = data[0];
+              const g = data[1];
+              const b = data[2];
+              const a = data[3];
+              console.log(r, g, b, a);
+            }}
+            ref={ref}
+          />
+          <canvas
+            style={{ display: "none" }}
+            width={width}
+            height={height}
+            ref={clickRef}
+          />
+        </>
       );
     },
   );
