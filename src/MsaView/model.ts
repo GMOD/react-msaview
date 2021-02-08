@@ -73,7 +73,7 @@ function getRoot(tree: any) {
   return d3
     .hierarchy(tree, d => d.branchset)
     .sum(d => (d.branchset ? 0 : 1))
-    .sort((a: any, b: any) => {
+    .sort((a, b) => {
       return d3.ascending(a.data.length, b.data.length);
     });
 }
