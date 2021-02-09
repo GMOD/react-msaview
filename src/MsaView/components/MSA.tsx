@@ -77,7 +77,12 @@ export default function(pluginManager: PluginManager) {
             const color = (colorScheme as any)[letter];
             if (bgColor) {
               const x = i * pxPerBp;
-              if (x > offsetX - 10 && x < offsetX + width + 10) {
+              if (
+                x > offsetX - 10 &&
+                x < offsetX + width + 10 &&
+                y > offsetY - 10 &&
+                y < offsetY + blockSize + 10
+              ) {
                 ctx.fillStyle = color || "white";
                 ctx.fillRect(x, y - rowHeight, pxPerBp, rowHeight);
               }
@@ -98,7 +103,12 @@ export default function(pluginManager: PluginManager) {
               const color = (colorScheme as any)[letter];
               const contrast = colorContrast[letter] || "black";
               const x = i * pxPerBp;
-              if (x > offsetX - 10 && x < offsetX + width + 10) {
+              if (
+                x > offsetX - 10 &&
+                x < offsetX + width + 10 &&
+                y > offsetY - 10 &&
+                y < offsetY + blockSize + 10
+              ) {
                 ctx.fillStyle = bgColor ? contrast : color || "black";
                 //-rowHeight/4 synchronizes with +rowHeight/4 in tree
                 ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);

@@ -23,11 +23,11 @@ export default function(pluginManager: PluginManager) {
     ({
       model,
       height,
-      offset,
+      offsetY,
     }: {
       model: MsaViewModel;
       height: number;
-      offset: number;
+      offsetY: number;
     }) => {
       const ref = useRef<HTMLCanvasElement>(null);
       const clickRef = useRef<HTMLCanvasElement>(null);
@@ -57,7 +57,7 @@ export default function(pluginManager: PluginManager) {
         [ctx, clickCtx].forEach(context => {
           context.resetTransform();
           context.clearRect(0, 0, width, blockSize);
-          context.translate(margin.left, -offset);
+          context.translate(margin.left, -offsetY);
         });
 
         ctx.font = ctx.font.replace(
@@ -76,7 +76,7 @@ export default function(pluginManager: PluginManager) {
             //1d line intersection to check if line crosses block at all, this is
             //an optimization that allows us to skip drawing most tree links
             //outside the block
-            if (offset + blockSize >= y1 && y2 >= offset) {
+            if (offsetY + blockSize >= y1 && y2 >= offsetY) {
               ctx.beginPath();
               ctx.moveTo(sx, sy);
               ctx.lineTo(sx, ty);
@@ -96,7 +96,7 @@ export default function(pluginManager: PluginManager) {
             } = node;
 
             //-5 and +5 to make sure it gets drawn across block boundaries
-            if (y > offset - 5 && y < offset + blockSize + 5) {
+            if (y > offsetY - 5 && y < offsetY + blockSize + 5) {
               ctx.strokeStyle = "black";
               ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
               ctx.beginPath();
@@ -120,11 +120,12 @@ export default function(pluginManager: PluginManager) {
             const { x: y, y: x, data, len } = node;
             const { name } = data;
             //-5 and +5 to make sure to draw across block boundaries
-            if (y > offset - 5 && y < offset + blockSize + 5) {
-              //+rowHeight/4 synchronizes with -rowHeight/4 in msa (kinda weird)
+            if (y > offsetY - 5 && y < offsetY + blockSize + 5) {
+              //x:+d makes the text a little to the right of the node
+              //y:+rowHeight/4 synchronizes with -rowHeight/4 in msa (kinda weird)
               ctx.fillText(
                 name,
-                (showBranchLen ? len : x) + d, //offset the text
+                (showBranchLen ? len : x) + d,
                 y + rowHeight / 4,
               );
             }
@@ -136,7 +137,7 @@ export default function(pluginManager: PluginManager) {
         rowHeight,
         margin.left,
         hierarchy,
-        offset,
+        offsetY,
         width,
         showBranchLen,
         noTree,
@@ -149,7 +150,7 @@ export default function(pluginManager: PluginManager) {
             style={{
               width,
               height,
-              top: scrollY + offset,
+              top: scrollY + offsetY,
               left: 0,
               position: "absolute",
             }}
@@ -250,7 +251,7 @@ export default function(pluginManager: PluginManager) {
           <TreeBlock
             key={block}
             model={model}
-            offset={block}
+            offsetY={block}
             height={blockSize}
           />
         ))}
