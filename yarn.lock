@@ -2748,10 +2748,10 @@ clsx@^1.0.4:
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.1.1.tgz#98b3134f9abbdf23b2663491ace13c5c03a73188"
   integrity sha512-6/bPho624p3S2pMyvP5kKBPXnI3ufHLObBFCfgx+LkeR5lg2XYy2hqZqUf45ypD8COn2bhgGJSUE+l5dhNBieA==
 
-clustal-js@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/clustal-js/-/clustal-js-1.0.1.tgz#61582a076dc6801116ad8e7a5c198f17efbec912"
-  integrity sha512-hLWUj/3jWaz119cvnCP564tJv5BWTSHvqlu/KVHVHH1cPtmtk4QSFgFtTYQzPjUPhFXaHYxvu/5TWiTedxcA9A==
+clustal-js@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/clustal-js/-/clustal-js-1.0.2.tgz#9ef903c66c6ba4a3bfee03f35a624709f38a31c2"
+  integrity sha512-oGOyg+Dzuvuw3zAzJFYeboJUAMmGyx0+xl5eJi1Ov4pC54K2lqrctshmqyGPuVpCALsSTIBfH8etTgPQY4Ldlg==
 
 co@^4.6.0:
   version "4.6.0"

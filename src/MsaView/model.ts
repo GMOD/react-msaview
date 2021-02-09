@@ -315,7 +315,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get msaWidth() {
-                return this.MSA?.getWidth() * self.pxPerBp;
+                return (
+                  (this.MSA?.getWidth() - this.blanks.length) * self.pxPerBp
+                );
               },
 
               get tree() {
@@ -333,6 +335,52 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
               get realWidth() {
                 return self.treeWidth - 200;
+              },
+
+              get blanks() {
+                const nodes = this.hierarchy.leaves();
+                const blanks = [];
+                const strs = nodes
+                  .map(({ data }) => this.MSA?.getRow(data.name))
+                  .filter(f => !!f);
+
+                for (let i = 0; i < strs[0].length; i++) {
+                  let counter = 0;
+                  for (let j = 0; j < strs.length; j++) {
+                    if (strs[j][i] === "-") {
+                      counter++;
+                    }
+                  }
+                  if (counter === strs.length) {
+                    blanks.push(i);
+                  }
+                }
+                return blanks;
+              },
+
+              get columns() {
+                const nodes = this.hierarchy.leaves();
+                const rows = nodes
+                  .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
+                  .filter(f => !!f[1]);
+                const strs = rows.map(row => row[1]);
+
+                const ret: string[] = [];
+                for (let i = 0; i < strs.length; i++) {
+                  let s = "";
+                  let b = 0;
+                  for (let j = 0; j < strs[i].length; j++) {
+                    if (j === this.blanks[b]) {
+                      b++;
+                    } else {
+                      s += strs[i][j];
+                    }
+                  }
+                  ret.push(s);
+                }
+                return Object.fromEntries(
+                  rows.map((row, index) => [row[0], ret[index]]),
+                );
               },
 
               // generates a new tree that is clustered with x,y positions

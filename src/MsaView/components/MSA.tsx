@@ -24,6 +24,7 @@ export default function(pluginManager: PluginManager) {
         MSA,
         pxPerBp,
         bgColor,
+        columns,
         margin,
         rowHeight,
         scrollY,
@@ -67,16 +68,19 @@ export default function(pluginManager: PluginManager) {
             x: y,
             data: { name },
           } = node;
-          return MSA.getRow(name)?.map((letter: string, index: number) => {
+
+          const str = columns[name];
+          for (let i = 0; i < str?.length; i++) {
+            const letter = str[i];
             const color = (colorScheme as any)[letter];
             if (bgColor) {
-              const x = index * pxPerBp;
+              const x = i * pxPerBp;
               if (x > offset - 10 && x < offset + width + 10) {
                 ctx.fillStyle = color || "white";
                 ctx.fillRect(x, y - rowHeight, pxPerBp, rowHeight);
               }
             }
-          });
+          }
         });
 
         if (rowHeight >= 10 && pxPerBp >= 7) {
@@ -86,16 +90,18 @@ export default function(pluginManager: PluginManager) {
               data: { name },
             } = node;
 
-            return MSA.getRow(name)?.map((letter: string, index: number) => {
+            const str = columns[name];
+            for (let i = 0; i < str?.length; i++) {
+              const letter = str[i];
               const color = (colorScheme as any)[letter];
               const contrast = colorContrast[letter] || "black";
-              const x = index * pxPerBp;
+              const x = i * pxPerBp;
               if (x > offset - 10 && x < offset + width + 10) {
                 ctx.fillStyle = bgColor ? contrast : color || "black";
                 //-rowHeight/4 synchronizes with +rowHeight/4 in tree
                 ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);
               }
-            });
+            }
           });
         }
       }, [

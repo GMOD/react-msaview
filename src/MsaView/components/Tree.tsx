@@ -193,7 +193,6 @@ export default function(pluginManager: PluginManager) {
               const { data } = clickCtx.getImageData(x, y, 1, 1);
               const col = [data[0], data[1], data[2]];
               const name = colorMap[`${col}`];
-              // const node = hierarchy.find(node => node.data.name === name);
               if (name) {
                 model.data.toggleCollapsed(name);
               }
@@ -214,7 +213,8 @@ export default function(pluginManager: PluginManager) {
     const divRef = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
     const delta = useRef(0);
-    const { treeWidth: width, height, blocksY } = model;
+    const { columns, treeWidth: width, height, blocksY } = model;
+    console.log({ columns });
 
     useEffect(() => {
       const curr = divRef.current;
