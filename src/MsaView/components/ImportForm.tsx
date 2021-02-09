@@ -114,6 +114,19 @@ export default function(pluginManager: PluginManager) {
                   PFAM SARS-CoV2 multi-stockholm
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="#"
+                  onClick={() => {
+                    model.setMSAFilehandle({
+                      uri:
+                        "https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock",
+                    });
+                  }}
+                >
+                  Lysine stockholm file
+                </Link>
+              </li>
             </ul>
           </Grid>
         </Grid>
