@@ -127,6 +127,19 @@ export default function(pluginManager: PluginManager) {
                   Lysine stockholm file
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="#"
+                  onClick={() => {
+                    model.setMSAFilehandle({
+                      uri:
+                        "https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt",
+                    });
+                  }}
+                >
+                  PF01601 stockholm file (SARS-CoV2 spike protein)
+                </Link>
+              </li>
             </ul>
           </Grid>
         </Grid>

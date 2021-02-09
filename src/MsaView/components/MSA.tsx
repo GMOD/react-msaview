@@ -59,11 +59,15 @@ export default function(pluginManager: PluginManager) {
         if (!ctx) {
           return;
         }
+
         ctx.resetTransform();
         ctx.clearRect(0, 0, blockSize, blockSize);
         ctx.translate(-offsetX, rowHeight / 2 - offsetY);
         ctx.textAlign = "center";
-        ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
+        ctx.font = ctx.font.replace(
+          /\d+px/,
+          `${Math.max(12, rowHeight - 12)}px`,
+        );
 
         hierarchy.leaves().forEach((node: any) => {
           const {
@@ -196,16 +200,19 @@ export default function(pluginManager: PluginManager) {
           overflow: "hidden",
         }}
       >
-        {blocksX.map(blockX =>
-          blocksY.map(blockY => (
-            <MSABlock
-              key={`${blockX}-${blockY}`}
-              model={model}
-              offsetX={blockX}
-              offsetY={blockY}
-              width={blockSize}
-            />
-          )),
+        {blocksY.map(blockY =>
+          blocksX.map(blockX => {
+            const key = `${blockX}_${blockY}`;
+            return (
+              <MSABlock
+                key={key}
+                model={model}
+                offsetX={blockX}
+                offsetY={blockY}
+                width={blockSize}
+              />
+            );
+          }),
         )}
       </div>
     );
