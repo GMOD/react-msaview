@@ -1,8 +1,11 @@
 import PluginManager from "@jbrowse/core/PluginManager";
 import { blockSize, MsaViewModel } from "../model";
 import normalizeWheel from "normalize-wheel";
+
+const radius = 3.5;
+
 function encode(n: number) {
-  n = n + 1;
+  n = n * 3 + 1;
   const r = n % 128;
   const g = (n / 128) % 128;
   const b = (n / 128 / 128) % 128;
@@ -10,7 +13,7 @@ function encode(n: number) {
 }
 
 function decode(r: number, g: number, b: number) {
-  return r + g * 128 + b * 128 * 128 - 1;
+  return (r + g * 128 + b * 128 * 128 - 1) / 3;
 }
 export default function(pluginManager: PluginManager) {
   const { observer } = pluginManager.lib["mobx-react"];
@@ -53,6 +56,7 @@ export default function(pluginManager: PluginManager) {
           context.clearRect(0, 0, width, blockSize);
           context.translate(margin.left, -offset);
         });
+        clickCtx.imageSmoothingEnabled = false;
 
         ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
 
@@ -92,27 +96,23 @@ export default function(pluginManager: PluginManager) {
               ctx.strokeStyle = "black";
               ctx.fillStyle = collapsed.includes(sname) ? "black" : "white";
               ctx.beginPath();
-              ctx.arc(sx, sy, 3.5, 0, 2 * Math.PI);
+              const d = radius * 2;
+              ctx.arc(sx, sy, radius, 0, 2 * Math.PI);
               ctx.fill();
               ctx.stroke();
 
               const [r, g, b] = encode(index);
               clickCtx.fillStyle = `rgb(${r},${g},${b})`;
-              clickCtx.beginPath();
-              clickCtx.arc(sx, sy, 3.5, 0, 2 * Math.PI);
-              clickCtx.fill();
+              clickCtx.fillRect(sx - radius, sy - radius, d, d);
 
               if (collapsed.includes(tname)) {
                 ctx.fillStyle = "black";
                 ctx.beginPath();
-                ctx.arc(tx, ty, 3.5, 0, 2 * Math.PI);
+                ctx.arc(tx, ty, radius, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();
-
                 clickCtx.fillStyle = `rgb(${128 + r},${128 + g},${128 + b})`;
-                clickCtx.beginPath();
-                clickCtx.arc(tx, ty, 3.5, 0, 2 * Math.PI);
-                clickCtx.fill();
+                clickCtx.fillRect(tx - radius, ty - radius, d, d);
               }
             }
           });
@@ -148,6 +148,32 @@ export default function(pluginManager: PluginManager) {
               top: scrollY + offset,
               left: 0,
               position: "absolute",
+            }}
+            onMouseMove={event => {
+              if (!ref.current) {
+                return;
+              }
+              const x = event.nativeEvent.offsetX;
+              const y = event.nativeEvent.offsetY;
+              if (!clickRef.current) {
+                return;
+              }
+              const clickCtx = clickRef.current.getContext("2d");
+              if (!clickCtx) {
+                return;
+              }
+              const { data } = clickCtx.getImageData(x, y, 1, 1);
+              const r = data[0];
+              const g = data[1];
+              const b = data[2];
+              let val =
+                r > 128 ? decode(r - 128, g - 128, b - 128) : decode(r, g, b);
+
+              if (val > 0) {
+                ref.current.style.cursor = "pointer";
+              } else {
+                ref.current.style.cursor = "default";
+              }
             }}
             onClick={event => {
               const x = event.nativeEvent.offsetX;
