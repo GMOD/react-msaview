@@ -27,18 +27,18 @@ export default function(pluginManager: PluginManager) {
         pxPerBp,
         bgColor,
         columns,
-        margin,
         rowHeight,
         scrollY,
         scrollX,
         hierarchy,
         colorSchemeName,
       } = model;
+
       const theme = useTheme();
       const colorScheme = colorSchemes[colorSchemeName];
       const colorContrast = useMemo(
         () =>
-          transform(colorScheme, ([letter, color]: [string, string]) => [
+          transform(colorScheme, ([letter, color]) => [
             letter,
             theme.palette.getContrastText(Color(color).hex()),
           ]),
@@ -65,7 +65,7 @@ export default function(pluginManager: PluginManager) {
         ctx.textAlign = "center";
         ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
 
-        hierarchy.leaves().map((node: any) => {
+        hierarchy.leaves().forEach((node: any) => {
           const {
             x: y,
             data: { name },
@@ -91,7 +91,7 @@ export default function(pluginManager: PluginManager) {
         });
 
         if (rowHeight >= 10 && pxPerBp >= rowHeight / 2) {
-          hierarchy.leaves().map((node: any) => {
+          hierarchy.leaves().forEach((node: any) => {
             const {
               x: y,
               data: { name },
@@ -110,7 +110,7 @@ export default function(pluginManager: PluginManager) {
                 y < offsetY + blockSize + 10
               ) {
                 ctx.fillStyle = bgColor ? contrast : color || "black";
-                //-rowHeight/4 synchronizes with +rowHeight/4 in tree
+                //-rowHeight/4 matches +rowHeight/4 in tree (slightly weird)
                 ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);
               }
             }
@@ -118,6 +118,7 @@ export default function(pluginManager: PluginManager) {
         }
       }, [
         MSA,
+        columns,
         colorScheme,
         colorContrast,
         bgColor,
@@ -127,8 +128,6 @@ export default function(pluginManager: PluginManager) {
         offsetX,
         offsetY,
         width,
-        margin.top,
-        theme.palette,
       ]);
 
       return (
