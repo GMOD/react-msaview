@@ -131,6 +131,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             type: types.literal("MsaView"),
             height: 680,
             treeWidth: 600,
+            nameWidth: 200,
             rowHeight: 20,
             scrollY: 0,
             scrollX: 0,
@@ -188,6 +189,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
             setScrollX(n: number) {
               self.scrollX = n;
+            },
+            setTreeWidth(n: number) {
+              self.treeWidth = n;
+            },
+            setNameWidth(n: number) {
+              self.nameWidth = n;
             },
 
             toggleBranchLen() {
@@ -339,7 +346,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get realWidth() {
-                return self.treeWidth - 200;
+                return self.treeWidth - self.nameWidth;
               },
 
               get blanks() {

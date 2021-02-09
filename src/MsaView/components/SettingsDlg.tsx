@@ -31,10 +31,14 @@ export default function(pluginManager: PluginManager) {
       const {
         rowHeight: rowHeightInit,
         pxPerBp: pxPerBpInit,
+        nameWidth: nameWidthInit,
+        treeWidth: treeWidthInit,
         colorSchemeName: colorSchemeNameInit,
       } = model;
       const [rowHeight, setRowHeight] = useState(rowHeightInit);
       const [pxPerBp, setPxPerBp] = useState(pxPerBpInit);
+      const [nameWidth, setNameWidth] = useState(nameWidthInit);
+      const [treeWidth, setTreeWidth] = useState(treeWidthInit);
       const [colorScheme, setColorSchemeName] = useState(colorSchemeNameInit);
       return (
         <Dialog onClose={() => onClose()} open={open}>
@@ -70,6 +74,17 @@ export default function(pluginManager: PluginManager) {
               onChange={(event: any) => setPxPerBp(event.target.value)}
             />
             <br />
+            <TextField
+              label="Tree width (px)"
+              value={treeWidth}
+              onChange={(event: any) => setTreeWidth(event.target.value)}
+            />
+            <TextField
+              label="Name width (px)"
+              value={nameWidth}
+              onChange={(event: any) => setNameWidth(event.target.value)}
+            />
+            <br />
 
             <TextField
               select
@@ -90,6 +105,8 @@ export default function(pluginManager: PluginManager) {
               onClick={() => {
                 model.setRowHeight(+rowHeight);
                 model.setPxPerBp(+pxPerBp);
+                model.setTreeWidth(+treeWidth);
+                model.setNameWidth(+nameWidth);
                 model.setColorSchemeName(colorScheme);
                 onClose();
               }}

@@ -117,7 +117,7 @@ export default function(pluginManager: PluginManager) {
               //+rowHeight/4 synchronizes with -rowHeight/4 in msa (kinda weird)
               ctx.fillText(
                 name,
-                showBranchLen ? len : x + d, //offset the text
+                (showBranchLen ? len : x) + d, //offset the text
                 y + rowHeight / 4,
               );
             }
