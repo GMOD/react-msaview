@@ -4,21 +4,20 @@ import normalizeWheel from "normalize-wheel";
 
 const radius = 3.5;
 
-function encode(n: number) {
-  n = n * 3 + 1;
-  const r = n % 128;
-  const g = (n / 128) % 128;
-  const b = (n / 128 / 128) % 128;
-  return [r, g, b];
+function randomColor() {
+  return [
+    Math.floor(Math.random() * 255),
+    Math.floor(Math.random() * 255),
+    Math.floor(Math.random() * 255),
+  ];
 }
 
-function decode(r: number, g: number, b: number) {
-  return (r + g * 128 + b * 128 * 128 - 1) / 3;
-}
+type StrMap = { [key: string]: string };
+
 export default function(pluginManager: PluginManager) {
   const { observer } = pluginManager.lib["mobx-react"];
   const React = pluginManager.lib["react"];
-  const { useEffect, useRef } = React;
+  const { useEffect, useRef, useState } = React;
   const TreeBlock = observer(
     ({
       model,
@@ -31,6 +30,7 @@ export default function(pluginManager: PluginManager) {
     }) => {
       const ref = useRef<HTMLCanvasElement>(null);
       const clickRef = useRef<HTMLCanvasElement>(null);
+      const [colorMap, setColorMap] = useState<StrMap>({});
       const {
         hierarchy,
         rowHeight,
@@ -49,14 +49,13 @@ export default function(pluginManager: PluginManager) {
         if (!ctx || !clickCtx) {
           return;
         }
-
+        const colorHash: StrMap = {};
         // do operations in parallel on ctx, clickCtx
         [ctx, clickCtx].forEach(context => {
           context.resetTransform();
           context.clearRect(0, 0, width, blockSize);
           context.translate(margin.left, -offset);
         });
-        clickCtx.imageSmoothingEnabled = false;
 
         ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
 
@@ -101,7 +100,10 @@ export default function(pluginManager: PluginManager) {
               ctx.fill();
               ctx.stroke();
 
-              const [r, g, b] = encode(index);
+              const col = randomColor();
+              const [r, g, b] = col;
+              colorHash[`${col}`] = sname;
+
               clickCtx.fillStyle = `rgb(${r},${g},${b})`;
               clickCtx.fillRect(sx - radius, sy - radius, d, d);
 
@@ -111,7 +113,12 @@ export default function(pluginManager: PluginManager) {
                 ctx.arc(tx, ty, radius, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.stroke();
-                clickCtx.fillStyle = `rgb(${128 + r},${128 + g},${128 + b})`;
+
+                const col = randomColor();
+                const [r, g, b] = col;
+                colorHash[`${col}`] = tname;
+
+                clickCtx.fillStyle = `rgb(${r},${g},${b})`;
                 clickCtx.fillRect(tx - radius, ty - radius, d, d);
               }
             }
@@ -128,6 +135,7 @@ export default function(pluginManager: PluginManager) {
             }
           });
         }
+        setColorMap(colorHash);
       }, [
         collapsed,
         rowHeight,
@@ -163,13 +171,10 @@ export default function(pluginManager: PluginManager) {
                 return;
               }
               const { data } = clickCtx.getImageData(x, y, 1, 1);
-              const r = data[0];
-              const g = data[1];
-              const b = data[2];
-              let val =
-                r > 128 ? decode(r - 128, g - 128, b - 128) : decode(r, g, b);
 
-              if (val > 0) {
+              const col = [data[0], data[1], data[2]];
+              const name = colorMap[`${col}`];
+              if (name) {
                 ref.current.style.cursor = "pointer";
               } else {
                 ref.current.style.cursor = "default";
@@ -186,26 +191,9 @@ export default function(pluginManager: PluginManager) {
                 return;
               }
               const { data } = clickCtx.getImageData(x, y, 1, 1);
-              const r = data[0];
-              const g = data[1];
-              const b = data[2];
-
-              let name;
-              if (r < 128) {
-                const val = decode(r, g, b);
-                console.log({ val, r, g, b });
-                const node = hierarchy.links()[val];
-                if (node) {
-                  name = node.source.data.name;
-                }
-              } else {
-                const val = decode(r - 128, g - 128, b - 128);
-                console.log({ r, g, b }, val);
-                const node = hierarchy.links()[val];
-                if (node) {
-                  name = node.target.data.name;
-                }
-              }
+              const col = [data[0], data[1], data[2]];
+              const name = colorMap[`${col}`];
+              // const node = hierarchy.find(node => node.data.name === name);
               if (name) {
                 model.data.toggleCollapsed(name);
               }
