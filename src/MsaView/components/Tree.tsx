@@ -212,9 +212,8 @@ export default function(pluginManager: PluginManager) {
   const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
     const divRef = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
-    const delta = useRef(0);
-    const { columns, treeWidth: width, height, blocksY } = model;
-    console.log({ columns });
+    const deltaY = useRef(0);
+    const { treeWidth: width, height, blocksY } = model;
 
     useEffect(() => {
       const curr = divRef.current;
@@ -223,13 +222,13 @@ export default function(pluginManager: PluginManager) {
       }
       function onWheel(origEvent: WheelEvent) {
         const event = normalizeWheel(origEvent);
-        delta.current += event.pixelY;
+        deltaY.current += event.pixelY;
 
         if (!scheduled.current) {
           scheduled.current = true;
           requestAnimationFrame(() => {
-            model.doScrollY(-delta.current);
-            delta.current = 0;
+            model.doScrollY(-deltaY.current);
+            deltaY.current = 0;
             scheduled.current = false;
           });
         }
