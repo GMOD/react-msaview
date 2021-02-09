@@ -189,7 +189,21 @@ export default function(pluginManager: PluginManager) {
         curr.removeEventListener("wheel", onWheel);
       };
     }, [model]);
-
+    let blocks: any[] = [];
+    blocksY.forEach(blockY =>
+      blocksX.forEach(blockX => {
+        const key = `${blockX}_${blockY}`;
+        blocks.push(
+          <MSABlock
+            key={key}
+            model={model}
+            offsetX={blockX}
+            offsetY={blockY}
+            width={blockSize}
+          />,
+        );
+      }),
+    );
     return (
       <div
         ref={divRef}
@@ -200,22 +214,10 @@ export default function(pluginManager: PluginManager) {
           overflow: "hidden",
         }}
       >
-        {blocksY.map(blockY =>
-          blocksX.map(blockX => {
-            const key = `${blockX}_${blockY}`;
-            return (
-              <MSABlock
-                key={key}
-                model={model}
-                offsetX={blockX}
-                offsetY={blockY}
-                width={blockSize}
-              />
-            );
-          }),
-        )}
+        {blocks}
       </div>
     );
   });
+
   return MSACanvas;
 }
