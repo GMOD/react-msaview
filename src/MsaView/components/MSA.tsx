@@ -14,11 +14,13 @@ export default function(pluginManager: PluginManager) {
     ({
       model,
       width,
-      offset,
+      offsetX,
+      offsetY,
     }: {
       model: MsaViewModel;
       width: number;
-      offset: number;
+      offsetX: number;
+      offsetY: number;
     }) => {
       const {
         MSA,
@@ -59,7 +61,7 @@ export default function(pluginManager: PluginManager) {
         }
         ctx.resetTransform();
         ctx.clearRect(0, 0, blockSize, blockSize);
-        ctx.translate(-offset, rowHeight / 2);
+        ctx.translate(-offsetX, rowHeight / 2 - offsetY);
         ctx.textAlign = "center";
         ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
 
@@ -75,7 +77,7 @@ export default function(pluginManager: PluginManager) {
             const color = (colorScheme as any)[letter];
             if (bgColor) {
               const x = i * pxPerBp;
-              if (x > offset - 10 && x < offset + width + 10) {
+              if (x > offsetX - 10 && x < offsetX + width + 10) {
                 ctx.fillStyle = color || "white";
                 ctx.fillRect(x, y - rowHeight, pxPerBp, rowHeight);
               }
@@ -96,7 +98,7 @@ export default function(pluginManager: PluginManager) {
               const color = (colorScheme as any)[letter];
               const contrast = colorContrast[letter] || "black";
               const x = i * pxPerBp;
-              if (x > offset - 10 && x < offset + width + 10) {
+              if (x > offsetX - 10 && x < offsetX + width + 10) {
                 ctx.fillStyle = bgColor ? contrast : color || "black";
                 //-rowHeight/4 synchronizes with +rowHeight/4 in tree
                 ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);
@@ -112,7 +114,8 @@ export default function(pluginManager: PluginManager) {
         rowHeight,
         pxPerBp,
         hierarchy,
-        offset,
+        offsetX,
+        offsetY,
         width,
         margin.top,
         theme.palette,
@@ -125,8 +128,8 @@ export default function(pluginManager: PluginManager) {
           height={blockSize}
           style={{
             position: "absolute",
-            top: scrollY,
-            left: scrollX + offset,
+            top: scrollY + offsetY,
+            left: scrollX + offsetX,
             width: blockSize,
             height: blockSize,
           }}
@@ -136,7 +139,7 @@ export default function(pluginManager: PluginManager) {
   );
 
   const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
-    const { MSA, width, height, treeWidth, blocksX } = model;
+    const { MSA, width, height, treeWidth, blocksX, blocksY } = model;
     const divRef = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
     const deltaX = useRef(0);
@@ -184,14 +187,17 @@ export default function(pluginManager: PluginManager) {
           overflow: "hidden",
         }}
       >
-        {blocksX.map(block => (
-          <MSABlock
-            key={block}
-            model={model}
-            offset={block}
-            width={blockSize}
-          />
-        ))}
+        {blocksX.map(blockX =>
+          blocksY.map(blockY => (
+            <MSABlock
+              key={`${blockX}-${blockY}`}
+              model={model}
+              offsetX={blockX}
+              offsetY={blockY}
+              width={blockSize}
+            />
+          )),
+        )}
       </div>
     );
   });
