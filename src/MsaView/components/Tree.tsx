@@ -79,21 +79,18 @@ export default function(pluginManager: PluginManager) {
             const {
               x: sy,
               [y]: sx,
-              data: { name: sourceName },
+              data: { name: sname },
             } = source;
             const {
               x: ty,
               [y]: tx,
-              data: { name: targetName },
+              data: { name: tname },
             } = target;
 
             //-5 and +5 for boundaries
             if (sy > offset - 5 && sy < offset + blockSize + 5) {
               ctx.strokeStyle = "black";
-              //@ts-ignore complains about includes...
-              ctx.fillStyle = collapsed.includes(sourceName)
-                ? "black"
-                : "white";
+              ctx.fillStyle = collapsed.includes(sname) ? "black" : "white";
               ctx.beginPath();
               ctx.arc(sx, sy, 3.5, 0, 2 * Math.PI);
               ctx.fill();
@@ -105,8 +102,7 @@ export default function(pluginManager: PluginManager) {
               clickCtx.arc(sx, sy, 3.5, 0, 2 * Math.PI);
               clickCtx.fill();
 
-              //@ts-ignore complains about includes...
-              if (collapsed.includes(targetName)) {
+              if (collapsed.includes(tname)) {
                 ctx.fillStyle = "black";
                 ctx.beginPath();
                 ctx.arc(tx, ty, 3.5, 0, 2 * Math.PI);

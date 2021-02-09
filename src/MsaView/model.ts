@@ -153,10 +153,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                     self.msa = msa;
                   },
                   toggleCollapsed(node: string) {
-                    //IMSTArray doesn't recognize that it does have includes and
-                    //@ts-ignore
                     if (self.collapsed.includes(node)) {
-                      //@ts-ignore
                       self.collapsed.remove(node);
                     } else {
                       self.collapsed.push(node);
