@@ -3,6 +3,7 @@ import { blockSize, MsaViewModel } from "../model";
 import normalizeWheel from "normalize-wheel";
 
 const radius = 3.5;
+const d = radius * 2;
 
 function randomColor() {
   return [
@@ -66,8 +67,9 @@ export default function(pluginManager: PluginManager) {
 
           const y1 = Math.min(sy, ty);
           const y2 = Math.max(sy, ty);
-          //1d line intersection
-          //https://eli.thegreenplace.net/2008/08/15/intersection-of-1d-segments
+          //1d line intersection to check if line crosses block at all, this is
+          //an optimization that allows us to skip drawing most tree links
+          //outside the block
           if (offset + blockSize >= y1 && y2 >= offset) {
             ctx.beginPath();
             ctx.moveTo(sx, sy);
@@ -76,54 +78,36 @@ export default function(pluginManager: PluginManager) {
             ctx.stroke();
           }
         });
+
+        hierarchy.descendants().forEach(node => {
+          const val = showBranchLen ? "len" : "y";
+          const {
+            //@ts-ignore
+            x: y,
+            //@ts-ignore
+            [val]: x,
+            data: { name },
+          } = node;
+
+          //-5 and +5 to make sure it gets drawn across block boundaries
+          if (y > offset - 5 && y < offset + blockSize + 5) {
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+
+            const col = randomColor();
+            const [r, g, b] = col;
+            colorHash[`${col}`] = name;
+
+            clickCtx.fillStyle = `rgb(${r},${g},${b})`;
+            clickCtx.fillRect(x - radius, y - radius, d, d);
+          }
+        });
+
         if (rowHeight >= 10) {
-          hierarchy.links().forEach(({ source, target }: any, index) => {
-            const y = showBranchLen ? "len" : "y";
-            const {
-              x: sy,
-              [y]: sx,
-              data: { name: sname },
-            } = source;
-            const {
-              x: ty,
-              [y]: tx,
-              data: { name: tname },
-            } = target;
-
-            //-5 and +5 for boundaries
-            if (sy > offset - 5 && sy < offset + blockSize + 5) {
-              ctx.strokeStyle = "black";
-              ctx.fillStyle = collapsed.includes(sname) ? "black" : "white";
-              ctx.beginPath();
-              const d = radius * 2;
-              ctx.arc(sx, sy, radius, 0, 2 * Math.PI);
-              ctx.fill();
-              ctx.stroke();
-
-              const col = randomColor();
-              const [r, g, b] = col;
-              colorHash[`${col}`] = sname;
-
-              clickCtx.fillStyle = `rgb(${r},${g},${b})`;
-              clickCtx.fillRect(sx - radius, sy - radius, d, d);
-
-              if (collapsed.includes(tname)) {
-                ctx.fillStyle = "black";
-                ctx.beginPath();
-                ctx.arc(tx, ty, radius, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.stroke();
-
-                const col = randomColor();
-                const [r, g, b] = col;
-                colorHash[`${col}`] = tname;
-
-                clickCtx.fillStyle = `rgb(${r},${g},${b})`;
-                clickCtx.fillRect(tx - radius, ty - radius, d, d);
-              }
-            }
-          });
-
           ctx.fillStyle = "black";
           hierarchy.leaves().forEach((node: any) => {
             const { x: y, y: x, data, len } = node;
@@ -131,7 +115,11 @@ export default function(pluginManager: PluginManager) {
             //-5 and +5 to make sure to draw across block boundaries
             if (y > offset - 5 && y < offset + blockSize + 5) {
               //+rowHeight/4 synchronizes with -rowHeight/4 in msa (kinda weird)
-              ctx.fillText(name, showBranchLen ? len : x, y + rowHeight / 4);
+              ctx.fillText(
+                name,
+                showBranchLen ? len : x + d, //offset the text
+                y + rowHeight / 4,
+              );
             }
           });
         }

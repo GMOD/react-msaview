@@ -83,7 +83,7 @@ export default function(pluginManager: PluginManager) {
           }
         });
 
-        if (rowHeight >= 10 && pxPerBp >= 7) {
+        if (rowHeight >= 10 && pxPerBp >= rowHeight / 2) {
           hierarchy.leaves().map((node: any) => {
             const {
               x: y,
