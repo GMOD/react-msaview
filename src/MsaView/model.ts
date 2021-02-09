@@ -90,13 +90,10 @@ function generateNodeNames(tree: any, parent = "node", depth = 0, index = 0) {
 
   return tree;
 }
-function filter(tree: any, collapsed: any) {
+function filter(tree: any, collapsed: string[]) {
   const { branchset, ...rest } = tree;
   if (collapsed.includes(tree.name)) {
-    return {
-      ...rest,
-      // branchset: branchset.map((b: any) => ({ name: b.name })),
-    };
+    return rest;
   } else if (tree.branchset) {
     return {
       ...rest,
