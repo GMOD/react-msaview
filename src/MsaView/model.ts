@@ -58,7 +58,16 @@ class StockholmMSA {
   }
 
   getTree() {
-    return generateNodeNames(parseNewick(this.MSA?.gf.NH[0]));
+    const tree = this.MSA?.gf?.NH?.[0];
+    return tree
+      ? generateNodeNames(parseNewick(tree))
+      : {
+          name: "root",
+          noTree: true,
+          branchset: Object.keys(this.MSA.seqdata).map((name: any) => ({
+            name,
+          })),
+        };
   }
 }
 

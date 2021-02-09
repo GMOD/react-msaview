@@ -74,7 +74,7 @@ export default function(pluginManager: PluginManager) {
           const str = columns[name];
           for (let i = 0; i < str?.length; i++) {
             const letter = str[i];
-            const color = (colorScheme as any)[letter];
+            const color = (colorScheme as any)[letter.toUpperCase()];
             if (bgColor) {
               const x = i * pxPerBp;
               if (
@@ -100,7 +100,7 @@ export default function(pluginManager: PluginManager) {
             const str = columns[name];
             for (let i = 0; i < str?.length; i++) {
               const letter = str[i];
-              const color = (colorScheme as any)[letter];
+              const color = (colorScheme as any)[letter.toUpperCase()];
               const contrast = colorContrast[letter] || "black";
               const x = i * pxPerBp;
               if (
