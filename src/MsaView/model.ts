@@ -29,6 +29,7 @@ class ClustalMSA {
   getTree() {
     return {
       name: "root",
+      noTree: true,
       branchset: this.MSA.alns.map((aln: any) => ({
         name: aln.id,
       })),
@@ -309,6 +310,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   this.initialized &&
                   (self.data.msa || self.data.tree)
                 );
+              },
+
+              get noTree() {
+                return !!this.tree.noTree;
               },
 
               get menuItems() {

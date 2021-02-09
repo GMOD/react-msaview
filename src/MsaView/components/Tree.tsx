@@ -40,7 +40,9 @@ export default function(pluginManager: PluginManager) {
         showBranchLen,
         collapsed,
         margin,
+        noTree,
       } = model;
+
       useEffect(() => {
         if (!ref.current || !clickRef.current) {
           return;
@@ -63,52 +65,54 @@ export default function(pluginManager: PluginManager) {
           `${Math.max(12, rowHeight - 12)}px`,
         );
 
-        hierarchy.links().forEach(({ source, target }: any) => {
-          const y = showBranchLen ? "len" : "y";
-          const { x: sy, [y]: sx } = source;
-          const { x: ty, [y]: tx } = target;
+        if (!noTree) {
+          hierarchy.links().forEach(({ source, target }: any) => {
+            const y = showBranchLen ? "len" : "y";
+            const { x: sy, [y]: sx } = source;
+            const { x: ty, [y]: tx } = target;
 
-          const y1 = Math.min(sy, ty);
-          const y2 = Math.max(sy, ty);
-          //1d line intersection to check if line crosses block at all, this is
-          //an optimization that allows us to skip drawing most tree links
-          //outside the block
-          if (offset + blockSize >= y1 && y2 >= offset) {
-            ctx.beginPath();
-            ctx.moveTo(sx, sy);
-            ctx.lineTo(sx, ty);
-            ctx.lineTo(tx, ty);
-            ctx.stroke();
-          }
-        });
+            const y1 = Math.min(sy, ty);
+            const y2 = Math.max(sy, ty);
+            //1d line intersection to check if line crosses block at all, this is
+            //an optimization that allows us to skip drawing most tree links
+            //outside the block
+            if (offset + blockSize >= y1 && y2 >= offset) {
+              ctx.beginPath();
+              ctx.moveTo(sx, sy);
+              ctx.lineTo(sx, ty);
+              ctx.lineTo(tx, ty);
+              ctx.stroke();
+            }
+          });
 
-        hierarchy.descendants().forEach(node => {
-          const val = showBranchLen ? "len" : "y";
-          const {
-            //@ts-ignore
-            x: y,
-            //@ts-ignore
-            [val]: x,
-            data: { name },
-          } = node;
+          hierarchy.descendants().forEach(node => {
+            const val = showBranchLen ? "len" : "y";
+            const {
+              //@ts-ignore
+              x: y,
+              //@ts-ignore
+              [val]: x,
+              data: { name },
+            } = node;
 
-          //-5 and +5 to make sure it gets drawn across block boundaries
-          if (y > offset - 5 && y < offset + blockSize + 5) {
-            ctx.strokeStyle = "black";
-            ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.stroke();
+            //-5 and +5 to make sure it gets drawn across block boundaries
+            if (y > offset - 5 && y < offset + blockSize + 5) {
+              ctx.strokeStyle = "black";
+              ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
+              ctx.beginPath();
+              ctx.arc(x, y, radius, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.stroke();
 
-            const col = randomColor();
-            const [r, g, b] = col;
-            colorHash[`${col}`] = name;
+              const col = randomColor();
+              const [r, g, b] = col;
+              colorHash[`${col}`] = name;
 
-            clickCtx.fillStyle = `rgb(${r},${g},${b})`;
-            clickCtx.fillRect(x - radius, y - radius, d, d);
-          }
-        });
+              clickCtx.fillStyle = `rgb(${r},${g},${b})`;
+              clickCtx.fillRect(x - radius, y - radius, d, d);
+            }
+          });
+        }
 
         if (rowHeight >= 10) {
           ctx.fillStyle = "black";
@@ -135,6 +139,7 @@ export default function(pluginManager: PluginManager) {
         offset,
         width,
         showBranchLen,
+        noTree,
       ]);
       return (
         <>
