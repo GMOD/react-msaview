@@ -34,6 +34,7 @@ export default function(pluginManager: PluginManager) {
         nameWidth: nameWidthInit,
         treeWidth: treeWidthInit,
         colorSchemeName: colorSchemeNameInit,
+        noTree,
       } = model;
       const [rowHeight, setRowHeight] = useState(rowHeightInit);
       const [pxPerBp, setPxPerBp] = useState(pxPerBpInit);
@@ -74,11 +75,13 @@ export default function(pluginManager: PluginManager) {
               onChange={(event: any) => setPxPerBp(event.target.value)}
             />
             <br />
-            <TextField
-              label="Tree width (px)"
-              value={treeWidth}
-              onChange={(event: any) => setTreeWidth(event.target.value)}
-            />
+            {!noTree ? (
+              <TextField
+                label="Tree width (px)"
+                value={treeWidth}
+                onChange={(event: any) => setTreeWidth(event.target.value)}
+              />
+            ) : null}
             <TextField
               label="Name width (px)"
               value={nameWidth}
@@ -105,9 +108,11 @@ export default function(pluginManager: PluginManager) {
               onClick={() => {
                 model.setRowHeight(+rowHeight);
                 model.setPxPerBp(+pxPerBp);
-                model.setTreeWidth(+treeWidth);
                 model.setNameWidth(+nameWidth);
                 model.setColorSchemeName(colorScheme);
+                if (!noTree) {
+                  model.setTreeWidth(+treeWidth);
+                }
                 onClose();
               }}
               variant="contained"

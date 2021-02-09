@@ -144,7 +144,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             id: ElementId,
             type: types.literal("MsaView"),
             height: 680,
-            treeWidth: 600,
+            treeAreaWidth: 600,
             nameWidth: 200,
             rowHeight: 20,
             scrollY: 0,
@@ -205,7 +205,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               self.scrollX = n;
             },
             setTreeWidth(n: number) {
-              self.treeWidth = n;
+              self.treeAreaWidth = n;
             },
             setNameWidth(n: number) {
               self.nameWidth = n;
@@ -363,8 +363,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 return getRoot(this.tree);
               },
 
-              get realWidth() {
-                return self.treeWidth - self.nameWidth;
+              get treeWidthMinusNames() {
+                return self.treeAreaWidth - self.nameWidth;
+              },
+
+              get treeWidth() {
+                return this.noTree ? self.nameWidth : self.treeAreaWidth;
               },
 
               get blanks() {
@@ -418,13 +422,13 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 const root = getRoot(this.tree);
                 const cluster = d3
                   .cluster()
-                  .size([this.totalHeight, this.realWidth])
+                  .size([this.totalHeight, this.treeWidthMinusNames])
                   .separation(() => 1);
                 cluster(root);
                 setBrLength(
                   root,
                   (root.data.length = 0),
-                  this.realWidth / maxLength(root),
+                  this.treeWidthMinusNames / maxLength(root),
                 );
                 return root;
               },
