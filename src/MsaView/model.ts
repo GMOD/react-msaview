@@ -27,7 +27,10 @@ class ClustalMSA {
   }
 
   getTree() {
-    return {};
+    return {
+      name: "root",
+      branchset: this.MSA.alns.map((aln: any) => ({ name: aln.id })),
+    };
   }
 }
 
@@ -69,6 +72,8 @@ function maxLength(d: any): number {
   return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
 }
 
+// note: we don't use this.root because it won't update in response to changes
+// in realWidth/totalHeight here otherwise, needs to generate a new object
 function getRoot(tree: any) {
   return d3
     .hierarchy(tree, d => d.branchset)
@@ -385,9 +390,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
               // generates a new tree that is clustered with x,y positions
               get hierarchy() {
-                // note: we don't use this.root because it won't update in
-                // response to changes in realWidth/totalHeight here otherwise,
-                // needs to generate a new object
                 const root = getRoot(this.tree);
                 const cluster = d3
                   .cluster()

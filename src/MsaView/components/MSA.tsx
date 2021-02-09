@@ -139,7 +139,8 @@ export default function(pluginManager: PluginManager) {
     const { MSA, width, height, treeWidth, blocksX } = model;
     const divRef = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
-    const delta = useRef(0);
+    const deltaX = useRef(0);
+    const deltaY = useRef(0);
 
     if (!MSA) {
       return null;
@@ -152,13 +153,16 @@ export default function(pluginManager: PluginManager) {
       }
       function onWheel(origEvent: WheelEvent) {
         const event = normalizeWheel(origEvent);
-        delta.current += event.pixelX;
+        deltaX.current += event.pixelX;
+        deltaY.current += event.pixelY;
 
         if (!scheduled.current) {
           scheduled.current = true;
           requestAnimationFrame(() => {
-            model.doScrollX(-delta.current);
-            delta.current = 0;
+            model.doScrollX(-deltaX.current);
+            model.doScrollY(-deltaY.current);
+            deltaX.current = 0;
+            deltaY.current = 0;
             scheduled.current = false;
           });
         }
