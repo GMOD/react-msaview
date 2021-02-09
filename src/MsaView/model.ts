@@ -29,7 +29,9 @@ class ClustalMSA {
   getTree() {
     return {
       name: "root",
-      branchset: this.MSA.alns.map((aln: any) => ({ name: aln.id })),
+      branchset: this.MSA.alns.map((aln: any) => ({
+        name: aln.id,
+      })),
     };
   }
 }
@@ -60,7 +62,7 @@ class StockholmMSA {
 }
 
 function setBrLength(d: any, y0: number, k: number) {
-  d.len = (y0 += Math.max(d.data.length, 0)) * k;
+  d.len = (y0 += Math.max(d.data.length || 0, 0)) * k;
   if (d.children) {
     d.children.forEach((d: any) => {
       setBrLength(d, y0, k);
@@ -69,7 +71,9 @@ function setBrLength(d: any, y0: number, k: number) {
 }
 
 function maxLength(d: any): number {
-  return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
+  return (
+    (d.data.length || 1) + (d.children ? d3.max(d.children, maxLength) : 0)
+  );
 }
 
 // note: we don't use this.root because it won't update in response to changes
@@ -79,7 +83,7 @@ function getRoot(tree: any) {
     .hierarchy(tree, d => d.branchset)
     .sum(d => (d.branchset ? 0 : 1))
     .sort((a, b) => {
-      return d3.ascending(a.data.length, b.data.length);
+      return d3.ascending(a.data.length || 1, b.data.length || 1);
     });
 }
 

@@ -58,7 +58,10 @@ export default function(pluginManager: PluginManager) {
           context.translate(margin.left, -offset);
         });
 
-        ctx.font = ctx.font.replace(/\d+px/, `${rowHeight - 12}px`);
+        ctx.font = ctx.font.replace(
+          /\d+px/,
+          `${Math.max(12, rowHeight - 12)}px`,
+        );
 
         hierarchy.links().forEach(({ source, target }: any) => {
           const y = showBranchLen ? "len" : "y";
