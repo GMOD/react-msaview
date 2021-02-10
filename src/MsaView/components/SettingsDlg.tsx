@@ -33,14 +33,13 @@ export default function(pluginManager: PluginManager) {
         pxPerBp: pxPerBpInit,
         nameWidth: nameWidthInit,
         treeWidth: treeWidthInit,
-        colorSchemeName: colorSchemeNameInit,
+        colorSchemeName,
         noTree,
       } = model;
       const [rowHeight, setRowHeight] = useState(rowHeightInit);
       const [pxPerBp, setPxPerBp] = useState(pxPerBpInit);
       const [nameWidth, setNameWidth] = useState(nameWidthInit);
       const [treeWidth, setTreeWidth] = useState(treeWidthInit);
-      const [colorScheme, setColorSchemeName] = useState(colorSchemeNameInit);
       return (
         <Dialog onClose={() => onClose()} open={open}>
           <DialogTitle>Settings</DialogTitle>
@@ -92,8 +91,8 @@ export default function(pluginManager: PluginManager) {
             <TextField
               select
               label="Color scheme"
-              value={colorScheme}
-              onChange={event => setColorSchemeName(event.target.value)}
+              value={colorSchemeName}
+              onChange={event => model.setColorSchemeName(event.target.value)}
             >
               {Object.keys(colorSchemes).map(option => (
                 <MenuItem key={option} value={option}>
@@ -109,7 +108,6 @@ export default function(pluginManager: PluginManager) {
                 model.setRowHeight(+rowHeight);
                 model.setPxPerBp(+pxPerBp);
                 model.setNameWidth(+nameWidth);
-                model.setColorSchemeName(colorScheme);
                 if (!noTree) {
                   model.setTreeWidth(+treeWidth);
                 }

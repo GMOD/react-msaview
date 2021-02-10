@@ -66,7 +66,7 @@ export default function(pluginManager: PluginManager) {
         ctx.textAlign = "center";
         ctx.font = ctx.font.replace(
           /\d+px/,
-          `${Math.max(12, rowHeight - 12)}px`,
+          `${Math.max(8, rowHeight - 12)}px`,
         );
 
         hierarchy.leaves().forEach((node: any) => {
@@ -104,8 +104,8 @@ export default function(pluginManager: PluginManager) {
             const str = columns[name];
             for (let i = 0; i < str?.length; i++) {
               const letter = str[i];
-              const color = (colorScheme as any)[letter.toUpperCase()];
-              const contrast = colorContrast[letter] || "black";
+              const color = colorScheme[letter.toUpperCase()];
+              const contrast = colorContrast[letter.toUpperCase()] || "black";
               const x = i * pxPerBp;
               if (
                 x > offsetX - 10 &&

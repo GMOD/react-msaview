@@ -3,7 +3,9 @@ import ImportFormComponent from "./ImportForm";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 import { MsaViewModel } from "../model";
 import SettingsIcon from "@material-ui/icons/Settings";
+import InfoIcon from "@material-ui/icons/Info";
 import SettingsDlg from "./SettingsDlg";
+import AboutDlg from "./AboutDlg";
 import Tree from "./Tree";
 import MSA from "./MSA";
 
@@ -17,12 +19,14 @@ export default (pluginManager: PluginManager) => {
   ];
   const ImportForm = jbrequire(ImportFormComponent);
   const SettingsDialog = jbrequire(SettingsDlg);
+  const AboutDialog = jbrequire(AboutDlg);
   const TreeCanvas = jbrequire(Tree);
   const MSACanvas = jbrequire(MSA);
 
   return observer(({ model }: { model: MsaViewModel }) => {
     const { done, initialized } = model;
     const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
+    const [aboutDialogVisible, setAboutDialogVisible] = useState(false);
 
     if (!initialized) {
       return <ImportForm model={model} />;
@@ -53,10 +57,23 @@ export default (pluginManager: PluginManager) => {
             >
               <SettingsIcon />
             </IconButton>
+
+            <IconButton
+              onClick={() => {
+                setAboutDialogVisible(true);
+              }}
+            >
+              <InfoIcon />
+            </IconButton>
             <SettingsDialog
               open={settingsDialogVisible}
               model={model}
               onClose={() => setSettingsDialogVisible(false)}
+            />
+            <AboutDialog
+              open={aboutDialogVisible}
+              model={model}
+              onClose={() => setAboutDialogVisible(false)}
             />
             {alignmentNames.length > 0 ? (
               <Select

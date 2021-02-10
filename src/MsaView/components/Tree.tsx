@@ -62,7 +62,7 @@ export default function(pluginManager: PluginManager) {
 
         ctx.font = ctx.font.replace(
           /\d+px/,
-          `${Math.max(12, rowHeight - 12)}px`,
+          `${Math.max(8, rowHeight - 12)}px`,
         );
 
         if (!noTree) {
