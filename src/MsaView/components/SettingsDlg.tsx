@@ -40,6 +40,15 @@ export default function(pluginManager: PluginManager) {
       const [colWidth, setColWidth] = useState(colWidthInit);
       const [nameWidth, setNameWidth] = useState(nameWidthInit);
       const [treeWidth, setTreeWidth] = useState(treeWidthInit);
+
+      function error(n: number) {
+        return Number.isNaN(+n) || +n < 0;
+      }
+      const rowHeightError = error(rowHeight);
+      const colWidthError = error(colWidth);
+      const nameWidthError = error(nameWidth);
+      const treeWidthError = error(treeWidth);
+
       return (
         <Dialog onClose={() => onClose()} open={open}>
           <DialogTitle>Settings</DialogTitle>
@@ -66,11 +75,13 @@ export default function(pluginManager: PluginManager) {
             <TextField
               label="Row height (px)"
               value={rowHeight}
+              error={rowHeightError}
               onChange={event => setRowHeight(event.target.value)}
             />
             <TextField
               label="Column width (px)"
               value={colWidth}
+              error={colWidthError}
               onChange={event => setColWidth(event.target.value)}
             />
             <br />
@@ -78,12 +89,14 @@ export default function(pluginManager: PluginManager) {
               <TextField
                 label="Tree width (px)"
                 value={treeWidth}
+                error={treeWidthError}
                 onChange={event => setTreeWidth(event.target.value)}
               />
             ) : null}
             <TextField
               label="Name width (px)"
               value={nameWidth}
+              error={nameWidthError}
               onChange={event => setNameWidth(event.target.value)}
             />
             <br />
@@ -104,6 +117,12 @@ export default function(pluginManager: PluginManager) {
             <br />
             <br />
             <Button
+              disabled={
+                rowHeightError ||
+                colWidthError ||
+                nameWidthError ||
+                treeWidthError
+              }
               onClick={() => {
                 model.setRowHeight(+rowHeight);
                 model.setColWidth(+colWidth);
