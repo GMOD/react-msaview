@@ -12,7 +12,7 @@ export default (pluginManager: PluginManager) => {
   const React = pluginManager.lib["react"];
   const { useState } = React;
   const { observer } = pluginManager.lib["mobx-react"];
-  const { IconButton, Typography, MenuItem, Select } = pluginManager.lib[
+  const { IconButton, Typography, Select } = pluginManager.lib[
     "@material-ui/core"
   ];
   const ImportForm = jbrequire(ImportFormComponent);
@@ -29,7 +29,7 @@ export default (pluginManager: PluginManager) => {
     } else if (!done) {
       return <Typography variant="h4">Loading...</Typography>;
     } else {
-      const { height, currentAlignmentName, alignmentNames } = model;
+      const { height, currentAlignment, alignmentNames } = model;
 
       return (
         <div style={{ height }}>
@@ -41,6 +41,7 @@ export default (pluginManager: PluginManager) => {
                 model.setMSAFilehandle(undefined);
                 model.setScrollY(0);
                 model.setScrollX(0);
+                model.setCurrentAlignment(0);
               }}
             >
               <FolderOpenIcon />
@@ -60,15 +61,16 @@ export default (pluginManager: PluginManager) => {
             {alignmentNames.length > 0 ? (
               <Select
                 native
-                value={model.currentAlignment}
+                value={currentAlignment}
                 onChange={event => {
-                  console.log(event.target.value);
                   //@ts-ignore
                   model.setCurrentAlignment(+event.target.value);
                 }}
               >
                 {alignmentNames.map((option, index) => (
-                  <option value={index}>{option}</option>
+                  <option key={option + "-" + index} value={index}>
+                    {option}
+                  </option>
                 ))}
               </Select>
             ) : null}

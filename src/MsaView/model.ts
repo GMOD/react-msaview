@@ -60,7 +60,9 @@ class StockholmMSA {
   }
 
   alignmentNames() {
-    return this.data.map((aln: any) => aln.gf.DE?.[0]);
+    return this.data.map(
+      (aln: any, index: number) => aln.gf.DE?.[0] || `Alignment ${index + 1}`,
+    );
   }
 
   getTree() {
