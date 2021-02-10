@@ -344,7 +344,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
                 const b = [];
                 for (let i = ret; i < ret + size * 3; i += size) {
-                  b.push(i);
+                  if (i + size > 0) {
+                    b.push(i);
+                  }
                 }
                 if (str(b) !== str(oldBlocksX) || colWidth !== oldValX) {
                   oldBlocksX = b;
@@ -359,7 +361,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
                 const b = [];
                 for (let i = ret; i < ret + size * 3; i += size) {
-                  b.push(i);
+                  if (i + size > 0) {
+                    b.push(i);
+                  }
                 }
                 if (str(b) !== str(oldBlocksY) || rowHeight !== oldValY) {
                   oldBlocksY = b;
