@@ -11,7 +11,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMsaView --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
-    "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView",
+    "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView && cp distconfig.json dist/config.json",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepublishOnly": "yarn test",

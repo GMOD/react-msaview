@@ -16,7 +16,7 @@ http://localhost:3000/?config=http://localhost:9000/config.json
 
 ## Demo
 
-https://s3.amazonaws.com/jbrowse.org/code/jb2/master/index.html?config=https%3A%2F%2Fghcdn.rawgit.org%2FGMOD%2Fjbrowse-plugin-msaview%2Fd3_canvas_exp2%2Frawgit%2Fconfig.json&session=share-BVmmEYAoAv&password=SuQaN
+https://s3.amazonaws.com/jbrowse.org/code/jb2/master/index.html?config=https://unpkg.com/jbrowse-plugin-msaview/dist/config.json&session=share-BVmmEYAoAv&password=SuQaN
 
 ## Features
 

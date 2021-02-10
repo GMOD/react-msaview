@@ -1,3 +1,7 @@
+# v1.0.1
+
+- Fix for making demo config on unpkg
+
 # v1.0.0
 
 ## Features
