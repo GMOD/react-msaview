@@ -141,6 +141,19 @@ export default function(pluginManager: PluginManager) {
                   PF01601 stockholm file (SARS-CoV2 spike protein)
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="#"
+                  onClick={() => {
+                    model.setMSAFilehandle({
+                      uri:
+                        "https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa",
+                    });
+                  }}
+                >
+                  Europe COVID full genomes (LR883044.1 and 199 other sequences)
+                </Link>
+              </li>
             </ul>
           </Grid>
         </Grid>

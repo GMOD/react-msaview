@@ -68,54 +68,52 @@ export default function(pluginManager: PluginManager) {
           `${Math.max(8, rowHeight - 12)}px`,
         );
 
-        hierarchy.leaves().forEach((node: any) => {
+        const leaves = hierarchy.leaves();
+        const b = blockSize;
+
+        // slice vertical rows, e.g. tree leaves, avoid negative slice
+        const yStart = Math.max(0, Math.floor((offsetY - 10) / rowHeight));
+        const yEnd = Math.max(0, Math.floor((offsetY + b + 10) / rowHeight));
+
+        // slice horizontal visible letters, avoid negative slice
+        const xStart = Math.max(0, Math.floor((offsetX - 10) / colWidth));
+        const xEnd = Math.max(0, Math.floor((offsetX + b + 10) / colWidth));
+        const visibleLeaves = leaves.slice(yStart, yEnd);
+        visibleLeaves.forEach((node: any) => {
           const {
             x: y,
             data: { name },
           } = node;
 
-          const str = columns[name];
-          for (let i = 0; i < str?.length; i++) {
+          const str = columns[name].slice(xStart, xEnd);
+          for (let i = 0; i < str.length; i++) {
             const letter = str[i];
-            const color = (colorScheme as any)[letter.toUpperCase()];
+            const color = colorScheme[letter.toUpperCase()];
             if (bgColor) {
-              const x = i * colWidth;
-              if (
-                x > offsetX - 10 &&
-                x < offsetX + blockSize + 10 &&
-                y > offsetY - 10 &&
-                y < offsetY + blockSize + 10
-              ) {
-                ctx.fillStyle = color || "white";
-                ctx.fillRect(x, y - rowHeight, colWidth, rowHeight);
-              }
+              const x = i * colWidth + offsetX;
+              ctx.fillStyle = color || "white";
+              ctx.fillRect(x, y - rowHeight, colWidth, rowHeight);
             }
           }
         });
 
         if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-          hierarchy.leaves().forEach((node: any) => {
+          visibleLeaves.forEach((node: any) => {
             const {
               x: y,
               data: { name },
             } = node;
 
-            const str = columns[name];
-            for (let i = 0; i < str?.length; i++) {
+            const str = columns[name].slice(xStart, xEnd);
+            for (let i = 0; i < str.length; i++) {
               const letter = str[i];
               const color = colorScheme[letter.toUpperCase()];
               const contrast = colorContrast[letter.toUpperCase()] || "black";
-              const x = i * colWidth;
-              if (
-                x > offsetX - 10 &&
-                x < offsetX + blockSize + 10 &&
-                y > offsetY - 10 &&
-                y < offsetY + blockSize + 10
-              ) {
-                ctx.fillStyle = bgColor ? contrast : color || "black";
-                //-rowHeight/4 matches +rowHeight/4 in tree (slightly weird)
-                ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4);
-              }
+              const x = i * colWidth + offsetX;
+
+              //note: -rowHeight/4 matches +rowHeight/4 in tree
+              ctx.fillStyle = bgColor ? contrast : color || "black";
+              ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4);
             }
           });
         }

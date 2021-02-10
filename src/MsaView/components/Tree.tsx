@@ -123,8 +123,7 @@ export default function(pluginManager: PluginManager) {
               y > offsetY - extendBounds &&
               y < offsetY + blockSize + extendBounds
             ) {
-              //x:+d makes the text a little to the right of the node
-              //y:+rowHeight/4 synchronizes with -rowHeight/4 in msa
+              //note: +rowHeight/4 matches with -rowHeight/4 in msa
               ctx.fillText(
                 name,
                 (showBranchLen ? len : x) + d,
