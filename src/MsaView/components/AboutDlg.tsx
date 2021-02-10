@@ -72,14 +72,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <Dialog onClose={() => onClose()} open={open}>
           <DialogTitle>About this plugin</DialogTitle>
           <DialogContent>
-            <Typography variant="h5">
+            <Typography>
               JBrowse 2 MSAView plugin v1.0.0 (
               <Link href="https://github.com/gmod/jbrowse-plugin-msaview">
                 Github
               </Link>
               )
             </Typography>
-            <Typography variant="h6">Color schemes:</Typography>
 
             <ul>
               <li>
@@ -98,7 +97,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               </li>
               <li>
                 See this page for for some info on the clustal, cinema,
-                maeditor, and lesk color schemes
+                maeditor, and lesk color schemes{" "}
                 <Link href="http://www.bioinformatics.nl/~berndb/aacolour.html">
                   here
                 </Link>

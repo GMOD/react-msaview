@@ -26,7 +26,7 @@ export default function(pluginManager: PluginManager) {
 
       return (
         <Dialog onClose={() => onClose()} open={open}>
-          <DialogTitle>Settings</DialogTitle>
+          <DialogTitle>Metadata</DialogTitle>
           <DialogContent>
             <Attributes attributes={alignmentDetails} />
           </DialogContent>

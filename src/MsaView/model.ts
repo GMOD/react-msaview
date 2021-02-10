@@ -335,7 +335,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get alignmentDetails() {
-                return this.MSA?.getDetails();
+                return this.MSA?.getDetails() || {};
               },
 
               get currentAlignmentName() {
