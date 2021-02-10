@@ -152,7 +152,7 @@ export default function(pluginManager: PluginManager) {
 
   const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
     const { MSA, width, height, treeWidth, blocksX, blocksY } = model;
-    const divRef = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
     const deltaX = useRef(0);
     const deltaY = useRef(0);
@@ -162,7 +162,7 @@ export default function(pluginManager: PluginManager) {
     }
 
     useEffect(() => {
-      const curr = divRef.current;
+      const curr = ref.current;
       if (!curr) {
         return;
       }
@@ -204,7 +204,7 @@ export default function(pluginManager: PluginManager) {
     );
     return (
       <div
-        ref={divRef}
+        ref={ref}
         style={{
           position: "relative",
           height,

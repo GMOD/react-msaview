@@ -2,6 +2,7 @@ import PluginManager from "@jbrowse/core/PluginManager";
 import { MsaViewModel } from "../model";
 import normalizeWheel from "normalize-wheel";
 
+const extendBounds = 5;
 const radius = 3.5;
 const d = radius * 2;
 
@@ -14,16 +15,23 @@ function randomColor() {
 }
 
 type StrMap = { [key: string]: string };
-
+interface TooltipData {
+  name: string;
+  x: number;
+  y: number;
+}
 export default function(pluginManager: PluginManager) {
   const { observer } = pluginManager.lib["mobx-react"];
   const React = pluginManager.lib["react"];
   const { useEffect, useRef, useState } = React;
+  const { Menu, MenuItem } = pluginManager.lib["@material-ui/core"];
   const TreeBlock = observer(
     ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
       const ref = useRef<HTMLCanvasElement>(null);
+      const menuRef = useRef<HTMLDivElement>(null);
       const clickRef = useRef<HTMLCanvasElement>(null);
       const [colorMap, setColorMap] = useState<StrMap>({});
+      const [hovering, setHovering] = useState<TooltipData>();
       const {
         hierarchy,
         rowHeight,
@@ -46,17 +54,14 @@ export default function(pluginManager: PluginManager) {
           return;
         }
         const colorHash: StrMap = {};
-        // do operations in parallel on ctx, clickCtx
         [ctx, clickCtx].forEach(context => {
           context.resetTransform();
           context.clearRect(0, 0, width, blockSize);
           context.translate(margin.left, -offsetY);
         });
 
-        ctx.font = ctx.font.replace(
-          /\d+px/,
-          `${Math.max(8, rowHeight - 12)}px`,
-        );
+        const font = ctx.font;
+        ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`);
 
         if (!noTree) {
           hierarchy.links().forEach(({ source, target }: any) => {
@@ -66,8 +71,8 @@ export default function(pluginManager: PluginManager) {
 
             const y1 = Math.min(sy, ty);
             const y2 = Math.max(sy, ty);
-            //1d line intersection to check if line crosses block at all, this is
-            //an optimization that allows us to skip drawing most tree links
+            //1d line intersection to check if line crosses block at all, this
+            //is an optimization that allows us to skip drawing most tree links
             //outside the block
             if (offsetY + blockSize >= y1 && y2 >= offsetY) {
               ctx.beginPath();
@@ -88,8 +93,10 @@ export default function(pluginManager: PluginManager) {
               data: { name },
             } = node;
 
-            //-5 and +5 to make sure it gets drawn across block boundaries
-            if (y > offsetY - 5 && y < offsetY + blockSize + 5) {
+            if (
+              y > offsetY - extendBounds &&
+              y < offsetY + blockSize + extendBounds
+            ) {
               ctx.strokeStyle = "black";
               ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
               ctx.beginPath();
@@ -112,10 +119,12 @@ export default function(pluginManager: PluginManager) {
           hierarchy.leaves().forEach((node: any) => {
             const { x: y, y: x, data, len } = node;
             const { name } = data;
-            //-5 and +5 to make sure to draw across block boundaries
-            if (y > offsetY - 5 && y < offsetY + blockSize + 5) {
+            if (
+              y > offsetY - extendBounds &&
+              y < offsetY + blockSize + extendBounds
+            ) {
               //x:+d makes the text a little to the right of the node
-              //y:+rowHeight/4 synchronizes with -rowHeight/4 in msa (kinda weird)
+              //y:+rowHeight/4 synchronizes with -rowHeight/4 in msa
               ctx.fillText(
                 name,
                 (showBranchLen ? len : x) + d,
@@ -136,8 +145,56 @@ export default function(pluginManager: PluginManager) {
         noTree,
         blockSize,
       ]);
+
+      function decode(event: React.MouseEvent) {
+        const x = event.nativeEvent.offsetX;
+        const y = event.nativeEvent.offsetY;
+        if (!clickRef.current) {
+          return;
+        }
+        const clickCtx = clickRef.current.getContext("2d");
+        if (!clickCtx) {
+          return;
+        }
+        const { data } = clickCtx.getImageData(x, y, 1, 1);
+
+        const col = [data[0], data[1], data[2]];
+        return { name: colorMap[`${col}`], x, y };
+      }
+      function handleClose() {
+        setHovering(undefined);
+      }
       return (
         <>
+          <div
+            ref={menuRef}
+            style={{
+              position: "absolute",
+              left: hovering?.x || 0,
+              top: scrollY + offsetY + (hovering?.y || 0),
+            }}
+          />
+          {hovering && hovering.name ? (
+            <Menu
+              anchorEl={menuRef.current}
+              transitionDuration={0}
+              keepMounted
+              open={Boolean(menuRef.current)}
+              onClose={handleClose}
+            >
+              <MenuItem
+                dense
+                onClick={() => {
+                  model.toggleCollapsed(hovering.name);
+                  handleClose();
+                }}
+              >
+                {model.collapsed.includes(hovering.name)
+                  ? "Expand"
+                  : "Collapse"}
+              </MenuItem>
+            </Menu>
+          ) : null}
           <canvas
             width={width}
             height={blockSize}
@@ -152,40 +209,19 @@ export default function(pluginManager: PluginManager) {
               if (!ref.current) {
                 return;
               }
-              const x = event.nativeEvent.offsetX;
-              const y = event.nativeEvent.offsetY;
-              if (!clickRef.current) {
-                return;
-              }
-              const clickCtx = clickRef.current.getContext("2d");
-              if (!clickCtx) {
-                return;
-              }
-              const { data } = clickCtx.getImageData(x, y, 1, 1);
-
-              const col = [data[0], data[1], data[2]];
-              const name = colorMap[`${col}`];
-              if (name) {
-                ref.current.style.cursor = "pointer";
-              } else {
-                ref.current.style.cursor = "default";
+              const data = decode(event);
+              if (data) {
+                if (data.name) {
+                  ref.current.style.cursor = "pointer";
+                } else {
+                  ref.current.style.cursor = "default";
+                }
               }
             }}
             onClick={event => {
-              const x = event.nativeEvent.offsetX;
-              const y = event.nativeEvent.offsetY;
-              if (!clickRef.current) {
-                return;
-              }
-              const clickCtx = clickRef.current.getContext("2d");
-              if (!clickCtx) {
-                return;
-              }
-              const { data } = clickCtx.getImageData(x, y, 1, 1);
-              const col = [data[0], data[1], data[2]];
-              const name = colorMap[`${col}`];
-              if (name) {
-                model.data.toggleCollapsed(name);
+              const data = decode(event);
+              if (data && data.name) {
+                setHovering(data);
               }
             }}
             ref={ref}
@@ -201,13 +237,13 @@ export default function(pluginManager: PluginManager) {
     },
   );
   const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
-    const divRef = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
     const deltaY = useRef(0);
     const { treeWidth: width, height, blocksY } = model;
 
     useEffect(() => {
-      const curr = divRef.current;
+      const curr = ref.current;
       if (!curr) {
         return;
       }
@@ -233,7 +269,7 @@ export default function(pluginManager: PluginManager) {
 
     return (
       <div
-        ref={divRef}
+        ref={ref}
         style={{
           height,
           position: "relative",

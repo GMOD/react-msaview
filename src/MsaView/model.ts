@@ -171,12 +171,12 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             treeFilehandle: types.maybe(FileLocation),
             msaFilehandle: types.maybe(FileLocation),
             currentAlignment: 0,
+            collapsed: types.array(types.string),
             data: types.optional(
               types
                 .model({
                   tree: types.maybe(types.string),
                   msa: types.maybe(types.string),
-                  collapsed: types.array(types.string),
                 })
                 .actions(self => ({
                   setTree(tree?: string) {
@@ -185,15 +185,8 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   setMSA(msa?: string) {
                     self.msa = msa;
                   },
-                  toggleCollapsed(node: string) {
-                    if (self.collapsed.includes(node)) {
-                      self.collapsed.remove(node);
-                    } else {
-                      self.collapsed.push(node);
-                    }
-                  },
                 })),
-              { tree: "", msa: "", collapsed: [] },
+              { tree: "", msa: "" },
             ),
           })
           .volatile(() => ({
@@ -228,6 +221,13 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
             setCurrentAlignment(n: number) {
               self.currentAlignment = n;
+            },
+            toggleCollapsed(node: string) {
+              if (self.collapsed.includes(node)) {
+                self.collapsed.remove(node);
+              } else {
+                self.collapsed.push(node);
+              }
             },
             toggleBranchLen() {
               self.showBranchLen = !self.showBranchLen;
@@ -322,10 +322,6 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 return oldBlocksY;
               },
 
-              get collapsed() {
-                return self.data.collapsed;
-              },
-
               get done() {
                 return (
                   self.volatileWidth > 0 &&
@@ -377,11 +373,15 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get tree() {
+                const {
+                  data: { tree },
+                  collapsed,
+                } = self;
                 return filter(
-                  self.data.tree
-                    ? generateNodeNames(parseNewick(self.data.tree))
+                  tree
+                    ? generateNodeNames(parseNewick(tree))
                     : this.MSA?.getTree(),
-                  this.collapsed,
+                  collapsed,
                 );
               },
 
