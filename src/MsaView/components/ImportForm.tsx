@@ -2,8 +2,6 @@ import PluginManager from "@jbrowse/core/PluginManager";
 
 import { smallTree, smallMSA } from "./data/seq2";
 
-import largeTree from "./data/largetree";
-
 export default function(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const { observer } = jbrequire("mobx-react");
@@ -85,7 +83,10 @@ export default function(pluginManager: PluginManager) {
                 <Link
                   href="#"
                   onClick={() => {
-                    model.setData({ msa: "", tree: largeTree });
+                    model.setTreeFilehandle({
+                      uri:
+                        "https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh",
+                    });
                   }}
                 >
                   230k COVID-19 samples (tree only)
