@@ -1,3 +1,7 @@
+# v1.0.4
+
+- Fix running build before release
+
 # v1.0.3
 
 - Re-release

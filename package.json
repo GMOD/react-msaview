@@ -10,13 +10,14 @@
   "module": "dist/jbrowse-plugin-msaview.esm.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prebuild": "rm -rf dist",
+    "clean": "rimraf dist",
     "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMsaView --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
     "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView && cp distconfig.json dist/config.json",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepublishOnly": "yarn test",
     "postinstall": "jbrowse-plugin-postinstall",
+    "preversion": "npm run build",
     "postversion": "git push --follow-tags"
   },
   "files": [
@@ -45,6 +46,7 @@
     "mobx-react": "^6.0.0",
     "mobx-state-tree": "3.14.1",
     "react": "^17.0.1",
+    "rimraf": "^3.0.2",
     "serve": "^11.3.2",
     "tslib": "^2.0.3",
     "typescript": "^4.1.3"
