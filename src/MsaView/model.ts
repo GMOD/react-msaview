@@ -41,6 +41,52 @@ class ClustalMSA {
   }
 }
 
+type StrMap = { [key: string]: string };
+class FastaMSA {
+  private MSA: any;
+  constructor(text: string) {
+    let seq: StrMap = {};
+    let name = "";
+    let re = /^>(\S+)/;
+    text.split("\n").forEach(line => {
+      const match = re.exec(line);
+      if (match) {
+        seq[(name = match[1])] = "";
+      } else if (name) {
+        seq[name] = seq[name] + line.replace(/[ \t]/g, "");
+      }
+    });
+    this.MSA = { seqdata: seq };
+  }
+
+  getMSA() {
+    return this.MSA;
+  }
+
+  getRow(name: string) {
+    return this.MSA?.seqdata[name]?.split("");
+  }
+
+  getWidth() {
+    const name = Object.keys(this.MSA?.seqdata)[0];
+    return this.getRow(name).length;
+  }
+
+  getDetails() {
+    return {};
+  }
+
+  getTree() {
+    return {
+      name: "root",
+      noTree: true,
+      branchset: Object.keys(this.MSA.seqdata).map(name => ({
+        name,
+      })),
+    };
+  }
+}
+
 class StockholmMSA {
   private MSA: any;
   private data: any;
@@ -356,6 +402,8 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 if (text) {
                   if (Stockholm.sniff(text)) {
                     return new StockholmMSA(text, self.currentAlignment);
+                  } else if (text.startsWith(">")) {
+                    return new FastaMSA(text);
                   } else {
                     return new ClustalMSA(text);
                   }
