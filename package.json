@@ -12,6 +12,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMsaView --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
+    "prebuild": "npm run clean",
     "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView && cp distconfig.json dist/config.json",
     "test": "tsdx test",
     "lint": "tsdx lint",
