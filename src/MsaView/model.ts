@@ -164,7 +164,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             scrollY: 0,
             scrollX: 0,
             blockSize: 1000,
-            pxPerBp: 16,
+            colWidth: 16,
             showBranchLen: true,
             bgColor: true,
             colorSchemeName: "maeditor",
@@ -208,8 +208,8 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setRowHeight(n: number) {
               self.rowHeight = n;
             },
-            setPxPerBp(n: number) {
-              self.pxPerBp = n;
+            setColWidth(n: number) {
+              self.colWidth = n;
             },
             setColorSchemeName(name: string) {
               self.colorSchemeName = name;
@@ -293,16 +293,16 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get blocksX() {
-                const { scrollX, blockSize: size, pxPerBp } = self;
+                const { scrollX, blockSize: size, colWidth } = self;
                 const ret = -(size * Math.floor(scrollX / size)) - size;
 
                 const b = [];
                 for (let i = ret; i < ret + size * 3; i += size) {
                   b.push(i);
                 }
-                if (str(b) !== str(oldBlocksX) || pxPerBp !== oldValX) {
+                if (str(b) !== str(oldBlocksX) || colWidth !== oldValX) {
                   oldBlocksX = b;
-                  oldValX = pxPerBp;
+                  oldValX = colWidth;
                 }
                 return oldBlocksX;
               },
@@ -372,7 +372,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
               get msaWidth() {
                 return (
-                  (this.MSA?.getWidth() - this.blanks.length) * self.pxPerBp
+                  (this.MSA?.getWidth() - this.blanks.length) * self.colWidth
                 );
               },
 

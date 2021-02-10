@@ -22,7 +22,7 @@ export default function(pluginManager: PluginManager) {
     }) => {
       const {
         MSA,
-        pxPerBp,
+        colWidth,
         bgColor,
         columns,
         rowHeight,
@@ -79,7 +79,7 @@ export default function(pluginManager: PluginManager) {
             const letter = str[i];
             const color = (colorScheme as any)[letter.toUpperCase()];
             if (bgColor) {
-              const x = i * pxPerBp;
+              const x = i * colWidth;
               if (
                 x > offsetX - 10 &&
                 x < offsetX + blockSize + 10 &&
@@ -87,13 +87,13 @@ export default function(pluginManager: PluginManager) {
                 y < offsetY + blockSize + 10
               ) {
                 ctx.fillStyle = color || "white";
-                ctx.fillRect(x, y - rowHeight, pxPerBp, rowHeight);
+                ctx.fillRect(x, y - rowHeight, colWidth, rowHeight);
               }
             }
           }
         });
 
-        if (rowHeight >= 10 && pxPerBp >= rowHeight / 2) {
+        if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
           hierarchy.leaves().forEach((node: any) => {
             const {
               x: y,
@@ -105,7 +105,7 @@ export default function(pluginManager: PluginManager) {
               const letter = str[i];
               const color = colorScheme[letter.toUpperCase()];
               const contrast = colorContrast[letter.toUpperCase()] || "black";
-              const x = i * pxPerBp;
+              const x = i * colWidth;
               if (
                 x > offsetX - 10 &&
                 x < offsetX + blockSize + 10 &&
@@ -114,7 +114,7 @@ export default function(pluginManager: PluginManager) {
               ) {
                 ctx.fillStyle = bgColor ? contrast : color || "black";
                 //-rowHeight/4 matches +rowHeight/4 in tree (slightly weird)
-                ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);
+                ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4);
               }
             }
           });
@@ -126,7 +126,7 @@ export default function(pluginManager: PluginManager) {
         colorContrast,
         bgColor,
         rowHeight,
-        pxPerBp,
+        colWidth,
         hierarchy,
         offsetX,
         offsetY,
