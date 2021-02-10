@@ -1,6 +1,6 @@
 import PluginManager from "@jbrowse/core/PluginManager";
 import { MsaViewModel } from "../model";
-import colorSchemes from "./colorSchemes";
+import colorSchemes from "../colorSchemes";
 
 export default function(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;

@@ -1,4 +1,5 @@
 import Color from "color";
+import { transform } from "./util";
 
 const colorSchemes = {
   clustal: {
@@ -329,23 +330,9 @@ const colorSchemes = {
   },
 };
 
-export function transform<T>(
-  obj: Record<string, T>,
-  cb: (arg0: [string, T]) => [string, T],
-) {
-  return Object.fromEntries(Object.entries(obj).map(cb));
-}
-
 // turn all supplied colors to hex colors which getContrastText from mui
 // requires
-export default transform(
-  colorSchemes as Record<string, Record<string, string>>,
-  ([key, val]) => {
-    return [
-      key,
-      transform(val, ([letter, color]) => {
-        return [letter, Color(color).hex()];
-      }),
-    ];
-  },
-);
+export default transform(colorSchemes, ([key, val]) => [
+  key,
+  transform(val, ([letter, color]) => [letter, Color(color).hex()]),
+]);

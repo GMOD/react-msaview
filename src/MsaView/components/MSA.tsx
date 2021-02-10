@@ -1,7 +1,8 @@
 import PluginManager from "@jbrowse/core/PluginManager";
 import normalizeWheel from "normalize-wheel";
 import Color from "color";
-import colorSchemes, { transform } from "./colorSchemes";
+import colorSchemes from "../colorSchemes";
+import { transform } from "../util";
 import { MsaViewModel } from "../model";
 
 export default function(pluginManager: PluginManager) {
@@ -37,7 +38,7 @@ export default function(pluginManager: PluginManager) {
       const colorScheme = colorSchemes[colorSchemeName];
       const colorContrast = useMemo(
         () =>
-          transform(colorScheme, ([letter, color]) => [
+          transform(colorScheme, ([letter, color]: any) => [
             letter,
             theme.palette.getContrastText(Color(color).hex()),
           ]),
