@@ -39,9 +39,11 @@ class ClustalMSA {
 
 class StockholmMSA {
   private MSA: any;
-  constructor(text: string) {
+  private data: any;
+  constructor(text: string, currentAlignment: number) {
     const res = Stockholm.parseAll(text);
-    this.MSA = res[0];
+    this.data = res;
+    this.MSA = res[currentAlignment];
   }
 
   getMSA() {
@@ -55,6 +57,10 @@ class StockholmMSA {
   getWidth() {
     const name = Object.keys(this.MSA?.seqdata)[0];
     return this.getRow(name).length;
+  }
+
+  alignmentNames() {
+    return this.data.map((aln: any) => aln.gf.DE?.[0]);
   }
 
   getTree() {
@@ -155,6 +161,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             colorSchemeName: "maeditor",
             treeFilehandle: types.maybe(FileLocation),
             msaFilehandle: types.maybe(FileLocation),
+            currentAlignment: 0,
             data: types.optional(
               types
                 .model({
@@ -210,22 +217,21 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setNameWidth(n: number) {
               self.nameWidth = n;
             },
-
+            setCurrentAlignment(n: number) {
+              self.currentAlignment = n;
+            },
             toggleBranchLen() {
               self.showBranchLen = !self.showBranchLen;
             },
             toggleBgColor() {
               self.bgColor = !self.bgColor;
             },
-
             setData(data: any) {
               self.data = data;
             },
-
             setWidth(width: number) {
               self.volatileWidth = width;
             },
-
             async setMSAFilehandle(r: any) {
               if (r?.blob) {
                 const text = await openLocation(r).readFile("utf8");
@@ -321,6 +327,15 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 );
               },
 
+              get currentAlignmentName() {
+                return this.alignmentNames[self.currentAlignment];
+              },
+
+              get alignmentNames(): string[] {
+                //@ts-ignore
+                return this.MSA?.alignmentNames?.() || [];
+              },
+
               get noTree() {
                 return !!this.tree.noTree;
               },
@@ -333,7 +348,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 const text = self.data.msa;
                 if (text) {
                   if (Stockholm.sniff(text)) {
-                    return new StockholmMSA(text);
+                    return new StockholmMSA(text, self.currentAlignment);
                   } else {
                     return new ClustalMSA(text);
                   }

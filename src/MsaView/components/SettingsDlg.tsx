@@ -16,7 +16,7 @@ export default function(pluginManager: PluginManager) {
     FormControlLabel,
     MenuItem,
     TextField,
-  } = jbrequire("@material-ui/core");
+  } = pluginManager.lib["@material-ui/core"];
 
   return observer(
     ({
@@ -67,25 +67,25 @@ export default function(pluginManager: PluginManager) {
             <TextField
               label="Row height (px)"
               value={rowHeight}
-              onChange={(event: any) => setRowHeight(event.target.value)}
+              onChange={event => setRowHeight(event.target.value)}
             />
             <TextField
               label="Column width (px)"
               value={pxPerBp}
-              onChange={(event: any) => setPxPerBp(event.target.value)}
+              onChange={event => setPxPerBp(event.target.value)}
             />
             <br />
             {!noTree ? (
               <TextField
                 label="Tree width (px)"
                 value={treeWidth}
-                onChange={(event: any) => setTreeWidth(event.target.value)}
+                onChange={event => setTreeWidth(event.target.value)}
               />
             ) : null}
             <TextField
               label="Name width (px)"
               value={nameWidth}
-              onChange={(event: any) => setNameWidth(event.target.value)}
+              onChange={event => setNameWidth(event.target.value)}
             />
             <br />
 
@@ -93,7 +93,7 @@ export default function(pluginManager: PluginManager) {
               select
               label="Color scheme"
               value={colorScheme}
-              onChange={(event: any) => setColorSchemeName(event.target.value)}
+              onChange={event => setColorSchemeName(event.target.value)}
             >
               {Object.keys(colorSchemes).map(option => (
                 <MenuItem key={option} value={option}>

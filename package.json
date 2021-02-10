@@ -37,6 +37,7 @@
     "@babel/preset-react": "^7.10.4",
     "@jbrowse/core": "^1.0.3",
     "@jbrowse/development-tools": "^1.0.3",
+    "@material-ui/core": "^4.11.3",
     "@types/react": "^17.0.0",
     "mobx": "^5.0.0",
     "mobx-react": "^6.0.0",
