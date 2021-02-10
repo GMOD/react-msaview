@@ -1641,27 +1641,25 @@
   var BaseViewModel = unwrapExports(BaseViewModel_1);
 
   function parseVersion(line) {
-    var res = line.match(/\(?(\d+(\.\d+)+)\)?/);
+    const res = line.match(/\(?(\d+(\.\d+)+)\)?/);
     return res && res.length > 1 ? res[1] : "";
   }
   function parseHeader(info) {
-    var knownHeaders = ["CLUSTAL", "PROBCONS", "MUSCLE", "MSAPROBS", "Kalign"];
+    const knownHeaders = ["CLUSTAL", "PROBCONS", "MUSCLE", "MSAPROBS", "Kalign"];
 
-    if (!knownHeaders.find(function (l) {
-      return info.startsWith(l);
-    })) {
-      console.warn(info + " is not a known CLUSTAL header: " + knownHeaders.join(",") + ", proceeding but could indicate an issue");
+    if (!knownHeaders.find(l => info.startsWith(l))) {
+      console.warn(`${info} is not a known CLUSTAL header: ${knownHeaders.join(",")}, proceeding but could indicate an issue`);
     }
 
-    var version = parseVersion(info);
+    const version = parseVersion(info);
     return {
-      info: info,
-      version: version
+      info,
+      version
     };
   }
   function getFirstNonEmptyLine(arr) {
     // There should be two blank lines after the header line
-    var line = arr.next();
+    let line = arr.next();
 
     while (!line.done && line.value.trim() === "") {
       line = arr.next();
@@ -1670,17 +1668,17 @@
     return line.value;
   }
   function getSeqBounds(line) {
-    var fields = line.split(/\s+/);
-    var temp = line.slice(fields[0].length);
-    var s = fields[0].length + temp.indexOf(fields[1]);
-    var e = s + fields[1].length;
+    const fields = line.split(/\s+/);
+    const temp = line.slice(fields[0].length);
+    const s = fields[0].length + temp.indexOf(fields[1]);
+    const e = s + fields[1].length;
     return [s, e];
   } // Use the first block to get the sequence identifiers
 
   function parseBlock(arr) {
-    var line = getFirstNonEmptyLine(arr);
-    var block = [];
-    var consensusLine = "";
+    let line = getFirstNonEmptyLine(arr);
+    const block = [];
+    let consensusLine = "";
     if (!line) return undefined;
 
     while (line) {
@@ -1688,40 +1686,31 @@
       line = arr.next().value;
     }
 
-    var _getSeqBounds = getSeqBounds(block[0]),
-        start = _getSeqBounds[0],
-        end = _getSeqBounds[1];
+    const [start, end] = getSeqBounds(block[0]);
+    const fields = block.map(s => s.split(/\s+/));
+    const ids = fields.map(s => s[0]);
+    const seqs = block.map(s => s.slice(start, end));
+    let consensus = consensusLine.slice(start, end); // handle if the consensus trailing whitespace got trimmed
 
-    var fields = block.map(function (s) {
-      return s.split(/\s+/);
-    });
-    var ids = fields.map(function (s) {
-      return s[0];
-    });
-    var seqs = block.map(function (s) {
-      return s.slice(start, end);
-    });
-    var consensus = consensusLine.slice(start, end); // handle if the consensus trailing whitespace got trimmed
-
-    var remainder = seqs[0].length - consensus.length;
+    const remainder = seqs[0].length - consensus.length;
 
     if (remainder) {
       consensus += " ".repeat(remainder);
     }
 
     return {
-      ids: ids,
-      seqs: seqs,
-      consensus: consensus
+      ids,
+      seqs,
+      consensus
     };
   }
   function parseBlocks(arr) {
-    var block;
-    var res = parseBlock(arr);
+    let block;
+    const res = parseBlock(arr);
 
     if (res !== undefined) {
       while (block = parseBlock(arr)) {
-        for (var i = 0; i < block.seqs.length; i++) {
+        for (let i = 0; i < block.seqs.length; i++) {
           res.seqs[i] += block.seqs[i];
         }
 
@@ -1733,31 +1722,31 @@
   }
 
   function parseIter(arr) {
-    var line = getFirstNonEmptyLine(arr);
+    const line = getFirstNonEmptyLine(arr);
     if (!line) throw new Error("Empty file received");
-    var header = parseHeader(line);
-    var res = parseBlocks(arr);
+    const header = parseHeader(line);
+    const res = parseBlocks(arr);
     if (res === undefined) throw new Error("No blocks parsed");
-    var alns = res.seqs.map(function (n, index) {
-      return {
-        id: res.ids[index],
-        seq: n
-      };
-    });
-    var consensus = res.consensus;
+    const alns = res.seqs.map((n, index) => ({
+      id: res.ids[index],
+      seq: n
+    }));
+    const {
+      consensus
+    } = res;
 
     if (consensus.length != alns[0].seq.length) {
-      throw new Error("Consensus length != sequence length. Con " + consensus.length + " seq " + alns[0].seq.length);
+      throw new Error(`Consensus length != sequence length. Con ${consensus.length} seq ${alns[0].seq.length}`);
     }
 
     return {
-      consensus: consensus,
-      alns: alns,
-      header: header
+      consensus,
+      alns,
+      header
     };
   }
   function parse(contents) {
-    var iter = contents.split("\n")[Symbol.iterator]();
+    const iter = contents.split("\n")[Symbol.iterator]();
     return parseIter(iter);
   }
 
@@ -2569,7 +2558,15 @@
     }, {
       key: "getTree",
       value: function getTree() {
-        return {};
+        return {
+          name: "root",
+          noTree: true,
+          branchset: this.MSA.alns.map(function (aln) {
+            return {
+              name: aln.id
+            };
+          })
+        };
       }
     }]);
 
@@ -2577,11 +2574,12 @@
   }();
 
   var StockholmMSA = /*#__PURE__*/function () {
-    function StockholmMSA(text) {
+    function StockholmMSA(text, currentAlignment) {
       _classCallCheck(this, StockholmMSA);
 
       var res = stockholmJs.parseAll(text);
-      this.MSA = res[0];
+      this.data = res;
+      this.MSA = res[currentAlignment];
     }
 
     _createClass(StockholmMSA, [{
@@ -2605,11 +2603,29 @@
         return this.getRow(name).length;
       }
     }, {
+      key: "alignmentNames",
+      value: function alignmentNames() {
+        return this.data.map(function (aln) {
+          var _aln$gf$DE;
+
+          return (_aln$gf$DE = aln.gf.DE) === null || _aln$gf$DE === void 0 ? void 0 : _aln$gf$DE[0];
+        });
+      }
+    }, {
       key: "getTree",
       value: function getTree() {
-        var _this$MSA3;
+        var _this$MSA3, _this$MSA3$gf, _this$MSA3$gf$NH;
 
-        return generateNodeNames(parse$1((_this$MSA3 = this.MSA) === null || _this$MSA3 === void 0 ? void 0 : _this$MSA3.gf.NH[0]));
+        var tree = (_this$MSA3 = this.MSA) === null || _this$MSA3 === void 0 ? void 0 : (_this$MSA3$gf = _this$MSA3.gf) === null || _this$MSA3$gf === void 0 ? void 0 : (_this$MSA3$gf$NH = _this$MSA3$gf.NH) === null || _this$MSA3$gf$NH === void 0 ? void 0 : _this$MSA3$gf$NH[0];
+        return tree ? generateNodeNames(parse$1(tree)) : {
+          name: "root",
+          noTree: true,
+          branchset: Object.keys(this.MSA.seqdata).map(function (name) {
+            return {
+              name: name
+            };
+          })
+        };
       }
     }]);
 
@@ -2617,7 +2633,7 @@
   }();
 
   function setBrLength(d, y0, k) {
-    d.len = (y0 += Math.max(d.data.length, 0)) * k;
+    d.len = (y0 += Math.max(d.data.length || 0, 0)) * k;
 
     if (d.children) {
       d.children.forEach(function (d) {
@@ -2627,17 +2643,18 @@
   }
 
   function maxLength(d) {
-    return d.data.length + (d.children ? max(d.children, maxLength) : 0);
-  }
+    return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0);
+  } // note: we don't use this.root because it won't update in response to changes
+  // in realWidth/totalHeight here otherwise, needs to generate a new object
+
 
   function getRoot(tree) {
     return hierarchy(tree, function (d) {
       return d.branchset;
-    }) //@ts-ignore
-    .sum(function (d) {
+    }).sum(function (d) {
       return d.branchset ? 0 : 1;
     }).sort(function (a, b) {
-      return ascending(a.data.length, b.data.length);
+      return ascending(a.data.length || 1, b.data.length || 1);
     });
   }
 
@@ -2666,7 +2683,7 @@
         rest = _objectWithoutProperties(tree, ["branchset"]);
 
     if (collapsed.includes(tree.name)) {
-      return _objectSpread2({}, rest);
+      return rest;
     } else if (tree.branchset) {
       return _objectSpread2(_objectSpread2({}, rest), {}, {
         branchset: branchset.map(function (b) {
@@ -2704,7 +2721,8 @@
       id: ElementId,
       type: types.literal("MsaView"),
       height: 680,
-      treeWidth: 600,
+      treeAreaWidth: 600,
+      nameWidth: 200,
       rowHeight: 20,
       scrollY: 0,
       scrollX: 0,
@@ -2714,6 +2732,7 @@
       colorSchemeName: "maeditor",
       treeFilehandle: types.maybe(FileLocation),
       msaFilehandle: types.maybe(FileLocation),
+      currentAlignment: 0,
       data: types.optional(types.model({
         tree: types.maybe(types.string),
         msa: types.maybe(types.string),
@@ -2727,10 +2746,7 @@
             self.msa = msa;
           },
           toggleCollapsed: function toggleCollapsed(node) {
-            //IMSTArray doesn't recognize that it does have includes and
-            //@ts-ignore
             if (self.collapsed.includes(node)) {
-              //@ts-ignore
               self.collapsed.remove(node);
             } else {
               self.collapsed.push(node);
@@ -2770,6 +2786,15 @@
         },
         setScrollX: function setScrollX(n) {
           self.scrollX = n;
+        },
+        setTreeWidth: function setTreeWidth(n) {
+          self.treeAreaWidth = n;
+        },
+        setNameWidth: function setNameWidth(n) {
+          self.nameWidth = n;
+        },
+        setCurrentAlignment: function setCurrentAlignment(n) {
+          self.currentAlignment = n;
         },
         toggleBranchLen: function toggleBranchLen() {
           self.showBranchLen = !self.showBranchLen;
@@ -2904,10 +2929,10 @@
         },
 
         get blocksX() {
-          var result = -(blockSize * Math.floor(self.scrollX / blockSize)) - blockSize;
+          var ret = -(blockSize * Math.floor(self.scrollX / blockSize)) - blockSize;
           var b = [];
 
-          for (var i = result; i < result + blockSize * 3; i += blockSize) {
+          for (var i = ret; i < ret + blockSize * 3; i += blockSize) {
             b.push(i);
           }
 
@@ -2920,10 +2945,10 @@
         },
 
         get blocksY() {
-          var result = -(blockSize * Math.floor(self.scrollY / blockSize)) - 2 * blockSize;
+          var ret = -(blockSize * Math.floor(self.scrollY / blockSize)) - 2 * blockSize;
           var b = [];
 
-          for (var i = result; i < result + blockSize * 3; i += blockSize) {
+          for (var i = ret; i < ret + blockSize * 3; i += blockSize) {
             b.push(i);
           }
 
@@ -2943,6 +2968,21 @@
           return self.volatileWidth > 0 && this.initialized && (self.data.msa || self.data.tree);
         },
 
+        get currentAlignmentName() {
+          return this.alignmentNames[self.currentAlignment];
+        },
+
+        get alignmentNames() {
+          var _this$MSA4, _this$MSA4$alignmentN;
+
+          //@ts-ignore
+          return ((_this$MSA4 = this.MSA) === null || _this$MSA4 === void 0 ? void 0 : (_this$MSA4$alignmentN = _this$MSA4.alignmentNames) === null || _this$MSA4$alignmentN === void 0 ? void 0 : _this$MSA4$alignmentN.call(_this$MSA4)) || [];
+        },
+
+        get noTree() {
+          return !!this.tree.noTree;
+        },
+
         get menuItems() {
           return [];
         },
@@ -2952,7 +2992,7 @@
 
           if (text) {
             if (stockholmJs.sniff(text)) {
-              return new StockholmMSA(text);
+              return new StockholmMSA(text, self.currentAlignment);
             } else {
               return new ClustalMSA(text);
             }
@@ -2966,46 +3006,106 @@
         },
 
         get msaWidth() {
-          var _this$MSA4;
+          var _this$MSA5;
 
-          return ((_this$MSA4 = this.MSA) === null || _this$MSA4 === void 0 ? void 0 : _this$MSA4.getWidth()) * self.pxPerBp;
+          return (((_this$MSA5 = this.MSA) === null || _this$MSA5 === void 0 ? void 0 : _this$MSA5.getWidth()) - this.blanks.length) * self.pxPerBp;
         },
 
         get tree() {
-          var _this$MSA5;
+          var _this$MSA6;
 
-          return filter(self.data.tree ? generateNodeNames(parse$1(self.data.tree)) : (_this$MSA5 = this.MSA) === null || _this$MSA5 === void 0 ? void 0 : _this$MSA5.getTree(), this.collapsed);
+          return filter(self.data.tree ? generateNodeNames(parse$1(self.data.tree)) : (_this$MSA6 = this.MSA) === null || _this$MSA6 === void 0 ? void 0 : _this$MSA6.getTree(), this.collapsed);
         },
 
         get root() {
           return getRoot(this.tree);
         },
 
-        get realWidth() {
-          return self.treeWidth - 200;
+        get treeWidthMinusNames() {
+          return self.treeAreaWidth - self.nameWidth;
         },
 
+        get treeWidth() {
+          return this.noTree ? self.nameWidth : self.treeAreaWidth;
+        },
+
+        get blanks() {
+          var _this = this;
+
+          var nodes = this.hierarchy.leaves();
+          var blanks = [];
+          var strs = nodes.map(function (_ref2) {
+            var _this$MSA7;
+
+            var data = _ref2.data;
+            return (_this$MSA7 = _this.MSA) === null || _this$MSA7 === void 0 ? void 0 : _this$MSA7.getRow(data.name);
+          }).filter(function (f) {
+            return !!f;
+          });
+
+          for (var i = 0; i < strs[0].length; i++) {
+            var counter = 0;
+
+            for (var j = 0; j < strs.length; j++) {
+              if (strs[j][i] === "-") {
+                counter++;
+              }
+            }
+
+            if (counter === strs.length) {
+              blanks.push(i);
+            }
+          }
+
+          return blanks;
+        },
+
+        get columns() {
+          var _this2 = this;
+
+          var nodes = this.hierarchy.leaves();
+          var rows = nodes.map(function (_ref3) {
+            var _this2$MSA;
+
+            var data = _ref3.data;
+            return [data.name, (_this2$MSA = _this2.MSA) === null || _this2$MSA === void 0 ? void 0 : _this2$MSA.getRow(data.name)];
+          }).filter(function (f) {
+            return !!f[1];
+          });
+          var strs = rows.map(function (row) {
+            return row[1];
+          });
+          var ret = [];
+
+          for (var i = 0; i < strs.length; i++) {
+            var s = "";
+            var b = 0;
+
+            for (var j = 0; j < strs[i].length; j++) {
+              if (j === this.blanks[b]) {
+                b++;
+              } else {
+                s += strs[i][j];
+              }
+            }
+
+            ret.push(s);
+          }
+
+          return Object.fromEntries(rows.map(function (row, index) {
+            return [row[0], ret[index]];
+          }));
+        },
+
+        // generates a new tree that is clustered with x,y positions
         get hierarchy() {
-          // we don't use this.root because it won't update in response to
-          // changes in realWidth/totalHeight here otherwise, needs to
-          // generate a new object
           var root = getRoot(this.tree);
-          var cluster$1 = cluster().size([this.totalHeight, this.realWidth]).separation(function (_1, _2) {
+          var cluster$1 = cluster().size([this.totalHeight, this.treeWidthMinusNames]).separation(function () {
             return 1;
           });
           cluster$1(root);
-          setBrLength(root, root.data.length = 0, this.realWidth / maxLength(root));
+          setBrLength(root, root.data.length = 0, this.treeWidthMinusNames / maxLength(root));
           return root;
-        },
-
-        get nodePositions() {
-          return this.hierarchy.leaves().map(function (d) {
-            return {
-              name: d.data.name,
-              x: d.x,
-              y: d.y
-            };
-          });
         },
 
         get totalHeight() {
@@ -3145,9 +3245,68 @@
             uri: "https://ihh.github.io/abrowse/build/pfam-cov2.stock"
           });
         }
-      }, "PFAM SARS-CoV2 multi-stockholm"))))));
+      }, "PFAM SARS-CoV2 multi-stockholm")), React.createElement("li", null, React.createElement(Link, {
+        href: "#",
+        onClick: function onClick() {
+          model.setMSAFilehandle({
+            uri: "https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock"
+          });
+        }
+      }, "Lysine stockholm file")), React.createElement("li", null, React.createElement(Link, {
+        href: "#",
+        onClick: function onClick() {
+          model.setMSAFilehandle({
+            uri: "https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt"
+          });
+        }
+      }, "PF01601 stockholm file (SARS-CoV2 spike protein)"))))));
     });
   }
+
+  var FolderOpen = createCommonjsModule(function (module, exports) {
+
+
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = void 0;
+
+  var _react = interopRequireDefault(react);
+
+  var _createSvgIcon = interopRequireDefault(createSvgIcon_1);
+
+  var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
+    d: "M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"
+  }), 'FolderOpen');
+
+  exports.default = _default;
+  });
+
+  var FolderOpenIcon = unwrapExports(FolderOpen);
+
+  var Settings = createCommonjsModule(function (module, exports) {
+
+
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = void 0;
+
+  var _react = interopRequireDefault(react);
+
+  var _createSvgIcon = interopRequireDefault(createSvgIcon_1);
+
+  var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
+    transform: "scale(1.2, 1.2)",
+    d: "M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"
+  }), 'Settings');
+
+  exports.default = _default;
+  });
+
+  var SettingsIcon = unwrapExports(Settings);
 
   var colorName = {
   	"aliceblue": [240, 248, 255],
@@ -5249,7 +5408,7 @@
 
   var color = Color;
 
-  var unnormalizedColorSchemes = {
+  var colorSchemes = {
     clustal: {
       G: "orange",
       P: "orange",
@@ -5338,79 +5497,153 @@
       ".": "gray"
     }
   };
-  var colorSchemes = /*#__PURE__*/Object.fromEntries( /*#__PURE__*/Object.entries(unnormalizedColorSchemes).map(function (_ref) {
+  function transform(obj, cb) {
+    return Object.fromEntries(Object.entries(obj).map(cb));
+  } // turn all supplied colors to hex colors which getContrastText from mui
+  // requires
+
+  var colorSchemes$1 = /*#__PURE__*/transform(colorSchemes, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         key = _ref2[0],
         val = _ref2[1];
 
-    return [key, Object.fromEntries(Object.entries(val).map(function (_ref3) {
+    return [key, transform(val, function (_ref3) {
       var _ref4 = _slicedToArray(_ref3, 2),
           letter = _ref4[0],
           color$1 = _ref4[1];
 
       return [letter, color(color$1).hex()];
-    }))];
-  }));
-  var colorContrasts = function colorContrasts(theme) {
-    return Object.fromEntries(Object.entries(colorSchemes).map(function (_ref5) {
-      var _ref6 = _slicedToArray(_ref5, 2),
-          key = _ref6[0],
-          val = _ref6[1];
-
-      return [key, Object.fromEntries(Object.entries(val).map(function (_ref7) {
-        var _ref8 = _slicedToArray(_ref7, 2),
-            letter = _ref8[0],
-            color$1 = _ref8[1];
-
-        return [letter, theme.palette.getContrastText(color(color$1).hex())];
-      }))];
-    }));
-  };
-
-  var FolderOpen = createCommonjsModule(function (module, exports) {
-
-
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = void 0;
-
-  var _react = interopRequireDefault(react);
-
-  var _createSvgIcon = interopRequireDefault(createSvgIcon_1);
-
-  var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
-    d: "M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"
-  }), 'FolderOpen');
-
-  exports.default = _default;
+    })];
   });
 
-  var FolderOpenIcon = unwrapExports(FolderOpen);
+  function SettingsDlg (pluginManager) {
+    var jbrequire = pluginManager.jbrequire;
+    var React = jbrequire("react");
 
-  var Settings = createCommonjsModule(function (module, exports) {
+    var _jbrequire = jbrequire("mobx-react"),
+        observer = _jbrequire.observer;
 
+    var useState = React.useState;
+    var _pluginManager$lib$M = pluginManager.lib["@material-ui/core"],
+        Button = _pluginManager$lib$M.Button,
+        Checkbox = _pluginManager$lib$M.Checkbox,
+        Dialog = _pluginManager$lib$M.Dialog,
+        DialogTitle = _pluginManager$lib$M.DialogTitle,
+        DialogContent = _pluginManager$lib$M.DialogContent,
+        FormControlLabel = _pluginManager$lib$M.FormControlLabel,
+        MenuItem = _pluginManager$lib$M.MenuItem,
+        TextField = _pluginManager$lib$M.TextField;
+    return observer(function (_ref) {
+      var model = _ref.model,
+          _onClose = _ref.onClose,
+          open = _ref.open;
+      var rowHeightInit = model.rowHeight,
+          pxPerBpInit = model.pxPerBp,
+          nameWidthInit = model.nameWidth,
+          treeWidthInit = model.treeWidth,
+          colorSchemeNameInit = model.colorSchemeName,
+          noTree = model.noTree;
 
+      var _useState = useState(rowHeightInit),
+          _useState2 = _slicedToArray(_useState, 2),
+          rowHeight = _useState2[0],
+          setRowHeight = _useState2[1];
 
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = void 0;
+      var _useState3 = useState(pxPerBpInit),
+          _useState4 = _slicedToArray(_useState3, 2),
+          pxPerBp = _useState4[0],
+          setPxPerBp = _useState4[1];
 
-  var _react = interopRequireDefault(react);
+      var _useState5 = useState(nameWidthInit),
+          _useState6 = _slicedToArray(_useState5, 2),
+          nameWidth = _useState6[0],
+          setNameWidth = _useState6[1];
 
-  var _createSvgIcon = interopRequireDefault(createSvgIcon_1);
+      var _useState7 = useState(treeWidthInit),
+          _useState8 = _slicedToArray(_useState7, 2),
+          treeWidth = _useState8[0],
+          setTreeWidth = _useState8[1];
 
-  var _default = (0, _createSvgIcon.default)(_react.default.createElement("path", {
-    transform: "scale(1.2, 1.2)",
-    d: "M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"
-  }), 'Settings');
+      var _useState9 = useState(colorSchemeNameInit),
+          _useState10 = _slicedToArray(_useState9, 2),
+          colorScheme = _useState10[0],
+          setColorSchemeName = _useState10[1];
 
-  exports.default = _default;
-  });
+      return React.createElement(Dialog, {
+        onClose: function onClose() {
+          return _onClose();
+        },
+        open: open
+      }, React.createElement(DialogTitle, null, "Settings"), React.createElement(DialogContent, null, React.createElement(FormControlLabel, {
+        control: React.createElement(Checkbox, {
+          checked: model.showBranchLen,
+          onChange: function onChange() {
+            return model.toggleBranchLen();
+          }
+        }),
+        label: "Show branch length"
+      }), React.createElement(FormControlLabel, {
+        control: React.createElement(Checkbox, {
+          checked: model.bgColor,
+          onChange: function onChange() {
+            return model.toggleBgColor();
+          }
+        }),
+        label: "Color background"
+      }), React.createElement("br", null), React.createElement(TextField, {
+        label: "Row height (px)",
+        value: rowHeight,
+        onChange: function onChange(event) {
+          return setRowHeight(event.target.value);
+        }
+      }), React.createElement(TextField, {
+        label: "Column width (px)",
+        value: pxPerBp,
+        onChange: function onChange(event) {
+          return setPxPerBp(event.target.value);
+        }
+      }), React.createElement("br", null), !noTree ? React.createElement(TextField, {
+        label: "Tree width (px)",
+        value: treeWidth,
+        onChange: function onChange(event) {
+          return setTreeWidth(event.target.value);
+        }
+      }) : null, React.createElement(TextField, {
+        label: "Name width (px)",
+        value: nameWidth,
+        onChange: function onChange(event) {
+          return setNameWidth(event.target.value);
+        }
+      }), React.createElement("br", null), React.createElement(TextField, {
+        select: true,
+        label: "Color scheme",
+        value: colorScheme,
+        onChange: function onChange(event) {
+          return setColorSchemeName(event.target.value);
+        }
+      }, Object.keys(colorSchemes$1).map(function (option) {
+        return React.createElement(MenuItem, {
+          key: option,
+          value: option
+        }, option);
+      })), React.createElement("br", null), React.createElement("br", null), React.createElement("br", null), React.createElement(Button, {
+        onClick: function onClick() {
+          model.setRowHeight(+rowHeight);
+          model.setPxPerBp(+pxPerBp);
+          model.setNameWidth(+nameWidth);
+          model.setColorSchemeName(colorScheme);
 
-  var SettingsIcon = unwrapExports(Settings);
+          if (!noTree) {
+            model.setTreeWidth(+treeWidth);
+          }
+
+          _onClose();
+        },
+        variant: "contained",
+        color: "primary"
+      }, "Submit")));
+    });
+  }
 
   /**
    * Copyright 2004-present Facebook. All Rights Reserved.
@@ -5949,153 +6182,226 @@
 
   var normalizeWheel$1 = normalizeWheel_1;
 
-  var ReactComponentFactory = (function (pluginManager) {
-    var jbrequire = pluginManager.jbrequire;
-    var React = jbrequire("react");
+  var radius = 3.5;
+  var d = radius * 2;
+
+  function randomColor() {
+    return [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
+  }
+
+  function Tree (pluginManager) {
+    var observer = pluginManager.lib["mobx-react"].observer;
+    var React = pluginManager.lib["react"];
     var useEffect = React.useEffect,
         useRef = React.useRef,
         useState = React.useState;
-
-    var _jbrequire = jbrequire("mobx-react"),
-        observer = _jbrequire.observer;
-
-    var _jbrequire2 = jbrequire("@material-ui/core/styles"),
-        useTheme = _jbrequire2.useTheme;
-
-    var _jbrequire3 = jbrequire("@material-ui/core"),
-        IconButton = _jbrequire3.IconButton,
-        Typography = _jbrequire3.Typography,
-        Dialog = _jbrequire3.Dialog,
-        DialogTitle = _jbrequire3.DialogTitle,
-        DialogContent = _jbrequire3.DialogContent,
-        FormControlLabel = _jbrequire3.FormControlLabel,
-        TextField = _jbrequire3.TextField,
-        MenuItem = _jbrequire3.MenuItem,
-        Button = _jbrequire3.Button,
-        Checkbox = _jbrequire3.Checkbox;
-
-    var ImportForm = jbrequire(ImportFormComponent);
     var TreeBlock = observer(function (_ref) {
       var model = _ref.model,
           height = _ref.height,
-          offset = _ref.offset;
-      var ref = useRef();
+          offsetY = _ref.offsetY;
+      var ref = useRef(null);
+      var clickRef = useRef(null);
+
+      var _useState = useState({}),
+          _useState2 = _slicedToArray(_useState, 2),
+          colorMap = _useState2[0],
+          setColorMap = _useState2[1];
+
       var hierarchy = model.hierarchy,
           rowHeight = model.rowHeight,
           scrollY = model.scrollY,
           width = model.treeWidth,
           showBranchLen = model.showBranchLen,
           collapsed = model.collapsed,
-          margin = model.margin;
+          margin = model.margin,
+          noTree = model.noTree;
       useEffect(function () {
+        if (!ref.current || !clickRef.current) {
+          return;
+        }
+
         var ctx = ref.current.getContext("2d");
-        ctx.resetTransform();
-        ctx.clearRect(0, 0, width, blockSize);
-        ctx.translate(margin.left, -offset);
-        hierarchy.links().forEach(function (_ref2) {
-          var source = _ref2.source,
-              target = _ref2.target;
-          var y = showBranchLen ? "len" : "y";
-          var sx = source.x,
-              sy = source[y];
-          var tx = target.x,
-              ty = target[y];
-          var y1 = offset;
-          var y2 = offset + blockSize;
-          var x1 = Math.min(sx, tx);
-          var x2 = Math.max(sx, tx); //1d line intersection
-          //https://eli.thegreenplace.net/2008/08/15/intersection-of-1d-segments
+        var clickCtx = clickRef.current.getContext("2d");
 
-          if (x2 >= y1 && y2 >= x1) {
-            ctx.beginPath();
-            ctx.moveTo(sy, sx);
-            ctx.lineTo(sy, tx);
-            ctx.lineTo(ty, tx);
-            ctx.stroke();
-          }
+        if (!ctx || !clickCtx) {
+          return;
+        }
+
+        var colorHash = {}; // do operations in parallel on ctx, clickCtx
+
+        [ctx, clickCtx].forEach(function (context) {
+          context.resetTransform();
+          context.clearRect(0, 0, width, blockSize);
+          context.translate(margin.left, -offsetY);
         });
+        ctx.font = ctx.font.replace(/\d+px/, "".concat(Math.max(12, rowHeight - 12), "px"));
 
-        if (rowHeight >= 10) {
-          hierarchy.links().forEach(function (_ref3) {
-            var source = _ref3.source,
-                target = _ref3.target;
+        if (!noTree) {
+          hierarchy.links().forEach(function (_ref2) {
+            var source = _ref2.source,
+                target = _ref2.target;
             var y = showBranchLen ? "len" : "y";
-            var sx = source.x,
-                sy = source[y],
-                sourceName = source.data.name;
-            var tx = target.x,
-                ty = target[y],
-                targetName = target.data.name; //-5 and +5 for boundaries
+            var sy = source.x,
+                sx = source[y];
+            var ty = target.x,
+                tx = target[y];
+            var y1 = Math.min(sy, ty);
+            var y2 = Math.max(sy, ty); //1d line intersection to check if line crosses block at all, this is
+            //an optimization that allows us to skip drawing most tree links
+            //outside the block
 
-            if (sx > offset - 5 && sx < offset + blockSize + 5) {
-              ctx.strokeStyle = "black"; //@ts-ignore complains about includes...
-
-              ctx.fillStyle = collapsed.includes(sourceName) ? "black" : "white";
+            if (offsetY + blockSize >= y1 && y2 >= offsetY) {
               ctx.beginPath();
-              ctx.arc(sy, sx, 3.5, 0, 2 * Math.PI);
-              ctx.fill();
-              ctx.stroke(); //@ts-ignore complains about includes...
-
-              if (collapsed.includes(targetName)) {
-                ctx.fillStyle = "black";
-                ctx.beginPath();
-                ctx.arc(ty, tx, 3.5, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.stroke();
-              }
+              ctx.moveTo(sx, sy);
+              ctx.lineTo(sx, ty);
+              ctx.lineTo(tx, ty);
+              ctx.stroke();
             }
           });
-          ctx.fillStyle = "black";
-          hierarchy.leaves().forEach(function (node) {
-            var x = node.x,
-                y = node.y,
-                data = node.data,
-                len = node.len;
-            var name = data.name; //-5 and +5 for boundaries
+          hierarchy.descendants().forEach(function (node) {
+            var val = showBranchLen ? "len" : "y";
+            var y = node.x,
+                x = node[val],
+                name = node.data.name; //-5 and +5 to make sure it gets drawn across block boundaries
 
-            if (x > offset - 5 && x < offset + blockSize + 5) {
-              ctx.fillText(name, showBranchLen ? len : y, x + 4);
+            if (y > offsetY - 5 && y < offsetY + blockSize + 5) {
+              ctx.strokeStyle = "black";
+              ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
+              ctx.beginPath();
+              ctx.arc(x, y, radius, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.stroke();
+              var col = randomColor();
+
+              var _col = _slicedToArray(col, 3),
+                  r = _col[0],
+                  g = _col[1],
+                  b = _col[2];
+
+              colorHash["".concat(col)] = name;
+              clickCtx.fillStyle = "rgb(".concat(r, ",").concat(g, ",").concat(b, ")");
+              clickCtx.fillRect(x - radius, y - radius, d, d);
             }
           });
         }
-      }, [collapsed, rowHeight, margin.left, hierarchy, offset, width, showBranchLen]);
-      return React.createElement("canvas", {
+
+        if (rowHeight >= 10) {
+          ctx.fillStyle = "black";
+          hierarchy.leaves().forEach(function (node) {
+            var y = node.x,
+                x = node.y,
+                data = node.data,
+                len = node.len;
+            var name = data.name; //-5 and +5 to make sure to draw across block boundaries
+
+            if (y > offsetY - 5 && y < offsetY + blockSize + 5) {
+              //x:+d makes the text a little to the right of the node
+              //y:+rowHeight/4 synchronizes with -rowHeight/4 in msa (kinda weird)
+              ctx.fillText(name, (showBranchLen ? len : x) + d, y + rowHeight / 4);
+            }
+          });
+        }
+
+        setColorMap(colorHash);
+      }, [collapsed, rowHeight, margin.left, hierarchy, offsetY, width, showBranchLen, noTree]);
+      return React.createElement(React.Fragment, null, React.createElement("canvas", {
         width: width,
         height: height,
         style: {
           width: width,
           height: height,
-          top: scrollY + offset,
+          top: scrollY + offsetY,
           left: 0,
           position: "absolute"
         },
+        onMouseMove: function onMouseMove(event) {
+          if (!ref.current) {
+            return;
+          }
+
+          var x = event.nativeEvent.offsetX;
+          var y = event.nativeEvent.offsetY;
+
+          if (!clickRef.current) {
+            return;
+          }
+
+          var clickCtx = clickRef.current.getContext("2d");
+
+          if (!clickCtx) {
+            return;
+          }
+
+          var _clickCtx$getImageDat = clickCtx.getImageData(x, y, 1, 1),
+              data = _clickCtx$getImageDat.data;
+
+          var col = [data[0], data[1], data[2]];
+          var name = colorMap["".concat(col)];
+
+          if (name) {
+            ref.current.style.cursor = "pointer";
+          } else {
+            ref.current.style.cursor = "default";
+          }
+        },
+        onClick: function onClick(event) {
+          var x = event.nativeEvent.offsetX;
+          var y = event.nativeEvent.offsetY;
+
+          if (!clickRef.current) {
+            return;
+          }
+
+          var clickCtx = clickRef.current.getContext("2d");
+
+          if (!clickCtx) {
+            return;
+          }
+
+          var _clickCtx$getImageDat2 = clickCtx.getImageData(x, y, 1, 1),
+              data = _clickCtx$getImageDat2.data;
+
+          var col = [data[0], data[1], data[2]];
+          var name = colorMap["".concat(col)];
+
+          if (name) {
+            model.data.toggleCollapsed(name);
+          }
+        },
         ref: ref
-      });
+      }), React.createElement("canvas", {
+        style: {
+          display: "none"
+        },
+        width: width,
+        height: height,
+        ref: clickRef
+      }));
     });
-    var TreeCanvas = observer(function (_ref4) {
-      var model = _ref4.model;
-      var divRef = useRef();
+    var TreeCanvas = observer(function (_ref3) {
+      var model = _ref3.model;
+      var divRef = useRef(null);
       var scheduled = useRef(false);
-      var delta = useRef(0);
+      var deltaY = useRef(0);
       var width = model.treeWidth,
           height = model.height,
           blocksY = model.blocksY;
       useEffect(function () {
         var curr = divRef.current;
 
-        if (!divRef.current) {
+        if (!curr) {
           return;
         }
 
         function onWheel(origEvent) {
           var event = normalizeWheel$1(origEvent);
-          delta.current += event.pixelY;
+          deltaY.current += event.pixelY;
 
           if (!scheduled.current) {
             scheduled.current = true;
             requestAnimationFrame(function () {
-              model.doScrollY(-delta.current);
-              delta.current = 0;
+              model.doScrollY(-deltaY.current);
+              deltaY.current = 0;
               scheduled.current = false;
             });
           }
@@ -6120,28 +6426,47 @@
         return React.createElement(TreeBlock, {
           key: block,
           model: model,
-          offset: block,
+          offsetY: block,
           height: blockSize
         });
       }));
     });
-    var MSABlock = observer(function (_ref5) {
-      var model = _ref5.model,
-          width = _ref5.width,
-          offset = _ref5.offset;
+    return TreeCanvas;
+  }
+
+  function MSA (pluginManager) {
+    var React = pluginManager.lib["react"];
+    var useEffect = React.useEffect,
+        useRef = React.useRef,
+        useMemo = React.useMemo;
+    var observer = pluginManager.lib["mobx-react"].observer;
+    var useTheme = pluginManager.lib["@material-ui/core/styles"].useTheme;
+    var MSABlock = observer(function (_ref) {
+      var model = _ref.model,
+          width = _ref.width,
+          offsetX = _ref.offsetX,
+          offsetY = _ref.offsetY;
       var MSA = model.MSA,
           pxPerBp = model.pxPerBp,
           bgColor = model.bgColor,
-          margin = model.margin,
+          columns = model.columns,
           rowHeight = model.rowHeight,
           scrollY = model.scrollY,
           scrollX = model.scrollX,
           hierarchy = model.hierarchy,
           colorSchemeName = model.colorSchemeName;
       var theme = useTheme();
-      var colorScheme = colorSchemes[colorSchemeName];
-      var colorContrast = colorContrasts(theme)[colorSchemeName];
-      var ref = useRef();
+      var colorScheme = colorSchemes$1[colorSchemeName];
+      var colorContrast = useMemo(function () {
+        return transform(colorScheme, function (_ref2) {
+          var _ref3 = _slicedToArray(_ref2, 2),
+              letter = _ref3[0],
+              color$1 = _ref3[1];
+
+          return [letter, theme.palette.getContrastText(color(color$1).hex())];
+        });
+      }, [colorScheme, theme]);
+      var ref = useRef(null);
 
       if (!MSA) {
         return null;
@@ -6160,69 +6485,75 @@
 
         ctx.resetTransform();
         ctx.clearRect(0, 0, blockSize, blockSize);
-        ctx.translate(-offset, rowHeight / 2);
+        ctx.translate(-offsetX, rowHeight / 2 - offsetY);
         ctx.textAlign = "center";
-        hierarchy.leaves().map(function (node) {
-          var _MSA$getRow;
-
+        ctx.font = ctx.font.replace(/\d+px/, "".concat(Math.max(12, rowHeight - 12), "px"));
+        hierarchy.leaves().forEach(function (node) {
           var y = node.x,
               name = node.data.name;
-          return (_MSA$getRow = MSA.getRow(name)) === null || _MSA$getRow === void 0 ? void 0 : _MSA$getRow.map(function (letter, index) {
-            var color = colorScheme[letter];
+          var str = columns[name];
+
+          for (var i = 0; i < (str === null || str === void 0 ? void 0 : str.length); i++) {
+            var letter = str[i];
+            var color = colorScheme[letter.toUpperCase()];
 
             if (bgColor) {
-              var x = index * pxPerBp;
+              var x = i * pxPerBp;
 
-              if (x > offset - 10 && x < offset + width + 10) {
+              if (x > offsetX - 10 && x < offsetX + width + 10 && y > offsetY - 10 && y < offsetY + blockSize + 10) {
                 ctx.fillStyle = color || "white";
                 ctx.fillRect(x, y - rowHeight, pxPerBp, rowHeight);
               }
             }
-          });
+          }
         });
 
-        if (rowHeight >= 10 && pxPerBp >= 7) {
-          hierarchy.leaves().map(function (node) {
-            var _MSA$getRow2;
-
+        if (rowHeight >= 10 && pxPerBp >= rowHeight / 2) {
+          hierarchy.leaves().forEach(function (node) {
             var y = node.x,
                 name = node.data.name;
-            return (_MSA$getRow2 = MSA.getRow(name)) === null || _MSA$getRow2 === void 0 ? void 0 : _MSA$getRow2.map(function (letter, index) {
-              var color = colorScheme[letter];
-              var contrast = colorContrast[letter] || "black";
-              var x = index * pxPerBp;
+            var str = columns[name];
 
-              if (x > offset - 10 && x < offset + width + 10) {
-                ctx.fillStyle = bgColor ? contrast : color || "black";
+            for (var i = 0; i < (str === null || str === void 0 ? void 0 : str.length); i++) {
+              var letter = str[i];
+              var color = colorScheme[letter.toUpperCase()];
+              var contrast = colorContrast[letter] || "black";
+              var x = i * pxPerBp;
+
+              if (x > offsetX - 10 && x < offsetX + width + 10 && y > offsetY - 10 && y < offsetY + blockSize + 10) {
+                ctx.fillStyle = bgColor ? contrast : color || "black"; //-rowHeight/4 matches +rowHeight/4 in tree (slightly weird)
+
                 ctx.fillText(letter, x + pxPerBp / 2, y - rowHeight / 4);
               }
-            });
+            }
           });
         }
-      }, [MSA, bgColor, rowHeight, pxPerBp, hierarchy, offset, width, margin.top, colorSchemeName, theme.palette]);
+      }, [MSA, columns, colorScheme, colorContrast, bgColor, rowHeight, pxPerBp, hierarchy, offsetX, offsetY, width]);
       return React.createElement("canvas", {
         ref: ref,
         width: blockSize,
         height: blockSize,
         style: {
           position: "absolute",
-          top: scrollY,
-          left: scrollX + offset,
+          top: scrollY + offsetY,
+          left: scrollX + offsetX,
           width: blockSize,
           height: blockSize
         }
       });
     });
-    var MSACanvas = observer(function (_ref6) {
-      var model = _ref6.model;
+    var MSACanvas = observer(function (_ref4) {
+      var model = _ref4.model;
       var MSA = model.MSA,
           width = model.width,
           height = model.height,
           treeWidth = model.treeWidth,
-          blocksX = model.blocksX;
-      var divRef = useRef();
+          blocksX = model.blocksX,
+          blocksY = model.blocksY;
+      var divRef = useRef(null);
       var scheduled = useRef(false);
-      var delta = useRef(0);
+      var deltaX = useRef(0);
+      var deltaY = useRef(0);
 
       if (!MSA) {
         return null;
@@ -6231,19 +6562,22 @@
       useEffect(function () {
         var curr = divRef.current;
 
-        if (!divRef.current) {
+        if (!curr) {
           return;
         }
 
         function onWheel(origEvent) {
           var event = normalizeWheel$1(origEvent);
-          delta.current += event.pixelX;
+          deltaX.current += event.pixelX;
+          deltaY.current += event.pixelY;
 
           if (!scheduled.current) {
             scheduled.current = true;
             requestAnimationFrame(function () {
-              model.doScrollX(-delta.current);
-              delta.current = 0;
+              model.doScrollX(-deltaX.current);
+              model.doScrollY(-deltaY.current);
+              deltaX.current = 0;
+              deltaY.current = 0;
               scheduled.current = false;
             });
           }
@@ -6256,6 +6590,19 @@
           curr.removeEventListener("wheel", onWheel);
         };
       }, [model]);
+      var blocks = [];
+      blocksY.forEach(function (blockY) {
+        return blocksX.forEach(function (blockX) {
+          var key = "".concat(blockX, "_").concat(blockY);
+          blocks.push(React.createElement(MSABlock, {
+            key: key,
+            model: model,
+            offsetX: blockX,
+            offsetY: blockY,
+            width: blockSize
+          }));
+        });
+      });
       return React.createElement("div", {
         ref: divRef,
         style: {
@@ -6264,110 +6611,33 @@
           width: width - treeWidth,
           overflow: "hidden"
         }
-      }, blocksX.map(function (block) {
-        return React.createElement(MSABlock, {
-          key: block,
-          model: model,
-          offset: block,
-          width: blockSize
-        });
-      }));
+      }, blocks);
     });
-    var SettingsDialog = observer(function (_ref7) {
-      var model = _ref7.model,
-          _onClose = _ref7.onClose,
-          open = _ref7.open;
-      var rowHeightInit = model.rowHeight,
-          pxPerBpInit = model.pxPerBp,
-          colorSchemeNameInit = model.colorSchemeName;
+    return MSACanvas;
+  }
 
-      var _useState = useState(rowHeightInit),
-          _useState2 = _slicedToArray(_useState, 2),
-          rowHeight = _useState2[0],
-          setRowHeight = _useState2[1];
-
-      var _useState3 = useState(pxPerBpInit),
-          _useState4 = _slicedToArray(_useState3, 2),
-          pxPerBp = _useState4[0],
-          setPxPerBp = _useState4[1];
-
-      var _useState5 = useState(colorSchemeNameInit),
-          _useState6 = _slicedToArray(_useState5, 2),
-          colorScheme = _useState6[0],
-          setColorSchemeName = _useState6[1];
-
-      return React.createElement(Dialog, {
-        onClose: function onClose() {
-          return _onClose();
-        },
-        open: open
-      }, React.createElement(DialogTitle, null, "Settings"), React.createElement(DialogContent, null, React.createElement(FormControlLabel, {
-        control: React.createElement(Checkbox, {
-          checked: model.showBranchLen,
-          onChange: function onChange() {
-            return model.toggleBranchLen();
-          }
-        }),
-        label: "Show branch length"
-      }), React.createElement(FormControlLabel, {
-        control: React.createElement(Checkbox, {
-          checked: model.bgColor,
-          onChange: function onChange() {
-            return model.toggleBgColor();
-          }
-        }),
-        label: "Color background"
-      }), React.createElement(FormControlLabel, {
-        control: React.createElement(Checkbox, {
-          checked: model.bgColor,
-          onChange: function onChange() {
-            return model.toggleBgColor();
-          }
-        }),
-        label: "Color background"
-      }), React.createElement(TextField, {
-        label: "Row height (px)",
-        value: rowHeight,
-        onChange: function onChange(event) {
-          return setRowHeight(event.target.value);
-        }
-      }), React.createElement(TextField, {
-        label: "Column width (px)",
-        value: pxPerBp,
-        onChange: function onChange(event) {
-          return setPxPerBp(event.target.value);
-        }
-      }), React.createElement(TextField, {
-        select: true,
-        label: "Color scheme",
-        value: colorScheme,
-        onChange: function onChange(event) {
-          return setColorSchemeName(event.target.value);
-        }
-      }, Object.keys(colorSchemes).map(function (option) {
-        return React.createElement(MenuItem, {
-          key: option,
-          value: option
-        }, option);
-      })), React.createElement(Button, {
-        onClick: function onClick() {
-          model.setRowHeight(+rowHeight);
-          model.setPxPerBp(+pxPerBp);
-          model.setColorSchemeName(colorScheme);
-
-          _onClose();
-        }
-      }, "Submit")));
-    });
-    return observer(function (_ref8) {
-      var model = _ref8.model;
+  var ReactComponentFactory = (function (pluginManager) {
+    var jbrequire = pluginManager.jbrequire;
+    var React = pluginManager.lib["react"];
+    var useState = React.useState;
+    var observer = pluginManager.lib["mobx-react"].observer;
+    var _pluginManager$lib$M = pluginManager.lib["@material-ui/core"],
+        IconButton = _pluginManager$lib$M.IconButton,
+        Typography = _pluginManager$lib$M.Typography,
+        Select = _pluginManager$lib$M.Select;
+    var ImportForm = jbrequire(ImportFormComponent);
+    var SettingsDialog = jbrequire(SettingsDlg);
+    var TreeCanvas = jbrequire(Tree);
+    var MSACanvas = jbrequire(MSA);
+    return observer(function (_ref) {
+      var model = _ref.model;
       var done = model.done,
           initialized = model.initialized;
 
-      var _useState7 = useState(false),
-          _useState8 = _slicedToArray(_useState7, 2),
-          settingsDialogVisible = _useState8[0],
-          setSettingsDialogVisible = _useState8[1];
+      var _useState = useState(false),
+          _useState2 = _slicedToArray(_useState, 2),
+          settingsDialogVisible = _useState2[0],
+          setSettingsDialogVisible = _useState2[1];
 
       if (!initialized) {
         return React.createElement(ImportForm, {
@@ -6378,7 +6648,8 @@
           variant: "h4"
         }, "Loading...");
       } else {
-        var height = model.height;
+        var height = model.height,
+            alignmentNames = model.alignmentNames;
         return React.createElement("div", {
           style: {
             height: height
@@ -6396,6 +6667,7 @@
             model.setTreeFilehandle(undefined);
             model.setMSAFilehandle(undefined);
             model.setScrollY(0);
+            model.setScrollX(0);
           }
         }, React.createElement(FolderOpenIcon, null)), React.createElement(IconButton, {
           onClick: function onClick() {
@@ -6407,7 +6679,19 @@
           onClose: function onClose() {
             return setSettingsDialogVisible(false);
           }
-        })), React.createElement("div", {
+        }), alignmentNames.length > 0 ? React.createElement(Select, {
+          "native": true,
+          value: model.currentAlignment,
+          onChange: function onChange(event) {
+            console.log(event.target.value); //@ts-ignore
+
+            model.setCurrentAlignment(+event.target.value);
+          }
+        }, alignmentNames.map(function (option, index) {
+          return React.createElement("option", {
+            value: index
+          }, option);
+        })) : null), React.createElement("div", {
           style: {
             position: "relative",
             display: "flex"
