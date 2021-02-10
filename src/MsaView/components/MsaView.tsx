@@ -122,7 +122,7 @@ export default (pluginManager: PluginManager) => {
       const { height } = model;
 
       return (
-        <div style={{ height }}>
+        <div style={{ height, overflow: "hidden" }}>
           <Header model={model} />
           <div
             style={{
