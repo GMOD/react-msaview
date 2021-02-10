@@ -1,3 +1,7 @@
+# v1.0.3
+
+- Re-release
+
 # v1.0.2
 
 - Ensure clean build with prebuild rm -rf dist
