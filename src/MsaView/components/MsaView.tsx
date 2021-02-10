@@ -65,6 +65,8 @@ export default (pluginManager: PluginManager) => {
                 onChange={event => {
                   //@ts-ignore
                   model.setCurrentAlignment(+event.target.value);
+                  model.setScrollX(0);
+                  model.setScrollY(0);
                 }}
               >
                 {alignmentNames.map((option, index) => (
