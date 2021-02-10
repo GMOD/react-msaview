@@ -1,3 +1,7 @@
+# v1.0.2
+
+- Ensure clean build with prebuild rm -rf dist
+
 # v1.0.1
 
 - Fix for making demo config on unpkg
