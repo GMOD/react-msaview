@@ -1,13 +1,20 @@
 import PluginManager from "@jbrowse/core/PluginManager";
-import ImportFormComponent from "./ImportForm";
+
+//icons
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
-import { MsaViewModel } from "../model";
 import SettingsIcon from "@material-ui/icons/Settings";
 import InfoIcon from "@material-ui/icons/Info";
+import AssignmentIcon from "@material-ui/icons/Assignment";
+
+//components
 import SettingsDlg from "./SettingsDlg";
 import AboutDlg from "./AboutDlg";
+import DetailsDlg from "./DetailsDlg";
+import ImportFormComponent from "./ImportForm";
 import Tree from "./Tree";
 import MSA from "./MSA";
+
+import { MsaViewModel } from "../model";
 
 export default (pluginManager: PluginManager) => {
   const { jbrequire } = pluginManager;
@@ -20,6 +27,7 @@ export default (pluginManager: PluginManager) => {
   const ImportForm = jbrequire(ImportFormComponent);
   const SettingsDialog = jbrequire(SettingsDlg);
   const AboutDialog = jbrequire(AboutDlg);
+  const DetailsDialog = jbrequire(DetailsDlg);
   const TreeCanvas = jbrequire(Tree);
   const MSACanvas = jbrequire(MSA);
 
@@ -27,6 +35,7 @@ export default (pluginManager: PluginManager) => {
     const { done, initialized } = model;
     const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
     const [aboutDialogVisible, setAboutDialogVisible] = useState(false);
+    const [detailsDialogVisible, setDetailsDialogVisible] = useState(false);
 
     if (!initialized) {
       return <ImportForm model={model} />;
@@ -65,6 +74,14 @@ export default (pluginManager: PluginManager) => {
             >
               <InfoIcon />
             </IconButton>
+
+            <IconButton
+              onClick={() => {
+                setDetailsDialogVisible(true);
+              }}
+            >
+              <AssignmentIcon />
+            </IconButton>
             <SettingsDialog
               open={settingsDialogVisible}
               model={model}
@@ -74,6 +91,12 @@ export default (pluginManager: PluginManager) => {
               open={aboutDialogVisible}
               model={model}
               onClose={() => setAboutDialogVisible(false)}
+            />
+
+            <DetailsDialog
+              open={detailsDialogVisible}
+              model={model}
+              onClose={() => setDetailsDialogVisible(false)}
             />
             {alignmentNames.length > 0 ? (
               <Select

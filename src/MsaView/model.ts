@@ -26,6 +26,10 @@ class ClustalMSA {
     return this.MSA.alns[0].seq.length;
   }
 
+  getDetails() {
+    return this.MSA.header;
+  }
+
   getTree() {
     return {
       name: "root",
@@ -63,6 +67,10 @@ class StockholmMSA {
     return this.data.map(
       (aln: any, index: number) => aln.gf.DE?.[0] || `Alignment ${index + 1}`,
     );
+  }
+
+  getDetails() {
+    return this.MSA.gf;
   }
 
   getTree() {
@@ -327,6 +335,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   this.initialized &&
                   (self.data.msa || self.data.tree)
                 );
+              },
+
+              get alignmentDetails() {
+                return this.MSA?.getDetails();
               },
 
               get currentAlignmentName() {
