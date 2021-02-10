@@ -18,8 +18,7 @@
     "lint": "tsdx lint",
     "prepublishOnly": "yarn test",
     "postinstall": "jbrowse-plugin-postinstall",
-    "preversion": "npm run build",
-    "postversion": "git push --follow-tags"
+    "postversion": "npm run build && git push --follow-tags"
   },
   "files": [
     "dist",

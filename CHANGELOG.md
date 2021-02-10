@@ -1,3 +1,7 @@
+# v1.0.6
+
+- Use postversion to run build so that the accurate version is encoded into the release binary
+
 # v1.0.5
 
 - Add prebuild clean
