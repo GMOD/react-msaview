@@ -1,5 +1,5 @@
 import PluginManager from "@jbrowse/core/PluginManager";
-import { blockSize, MsaViewModel } from "../model";
+import { MsaViewModel } from "../model";
 import normalizeWheel from "normalize-wheel";
 
 const radius = 3.5;
@@ -20,15 +20,7 @@ export default function(pluginManager: PluginManager) {
   const React = pluginManager.lib["react"];
   const { useEffect, useRef, useState } = React;
   const TreeBlock = observer(
-    ({
-      model,
-      height,
-      offsetY,
-    }: {
-      model: MsaViewModel;
-      height: number;
-      offsetY: number;
-    }) => {
+    ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
       const ref = useRef<HTMLCanvasElement>(null);
       const clickRef = useRef<HTMLCanvasElement>(null);
       const [colorMap, setColorMap] = useState<StrMap>({});
@@ -41,6 +33,7 @@ export default function(pluginManager: PluginManager) {
         collapsed,
         margin,
         noTree,
+        blockSize,
       } = model;
 
       useEffect(() => {
@@ -141,15 +134,16 @@ export default function(pluginManager: PluginManager) {
         width,
         showBranchLen,
         noTree,
+        blockSize,
       ]);
       return (
         <>
           <canvas
             width={width}
-            height={height}
+            height={blockSize}
             style={{
               width,
-              height,
+              height: blockSize,
               top: scrollY + offsetY,
               left: 0,
               position: "absolute",
@@ -199,7 +193,7 @@ export default function(pluginManager: PluginManager) {
           <canvas
             style={{ display: "none" }}
             width={width}
-            height={height}
+            height={blockSize}
             ref={clickRef}
           />
         </>
@@ -248,12 +242,7 @@ export default function(pluginManager: PluginManager) {
         }}
       >
         {blocksY.map(block => (
-          <TreeBlock
-            key={block}
-            model={model}
-            offsetY={block}
-            height={blockSize}
-          />
+          <TreeBlock key={block} model={model} offsetY={block} />
         ))}
       </div>
     );

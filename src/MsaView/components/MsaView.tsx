@@ -31,92 +31,99 @@ export default (pluginManager: PluginManager) => {
   const TreeCanvas = jbrequire(Tree);
   const MSACanvas = jbrequire(MSA);
 
-  return observer(({ model }: { model: MsaViewModel }) => {
-    const { done, initialized } = model;
+  const Header = observer(({ model }: { model: MsaViewModel }) => {
     const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
     const [aboutDialogVisible, setAboutDialogVisible] = useState(false);
     const [detailsDialogVisible, setDetailsDialogVisible] = useState(false);
+    const { currentAlignment, alignmentNames } = model;
 
+    return (
+      <div style={{ display: "block" }}>
+        <IconButton
+          onClick={() => {
+            model.setData({ tree: "", msa: "" });
+            model.setTreeFilehandle(undefined);
+            model.setMSAFilehandle(undefined);
+            model.setScrollY(0);
+            model.setScrollX(0);
+            model.setCurrentAlignment(0);
+          }}
+        >
+          <FolderOpenIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => {
+            setSettingsDialogVisible(true);
+          }}
+        >
+          <SettingsIcon />
+        </IconButton>
+
+        <IconButton
+          onClick={() => {
+            setAboutDialogVisible(true);
+          }}
+        >
+          <InfoIcon />
+        </IconButton>
+
+        <IconButton
+          onClick={() => {
+            setDetailsDialogVisible(true);
+          }}
+        >
+          <AssignmentIcon />
+        </IconButton>
+        <SettingsDialog
+          open={settingsDialogVisible}
+          model={model}
+          onClose={() => setSettingsDialogVisible(false)}
+        />
+        <AboutDialog
+          open={aboutDialogVisible}
+          model={model}
+          onClose={() => setAboutDialogVisible(false)}
+        />
+
+        <DetailsDialog
+          open={detailsDialogVisible}
+          model={model}
+          onClose={() => setDetailsDialogVisible(false)}
+        />
+        {alignmentNames.length > 0 ? (
+          <Select
+            native
+            value={currentAlignment}
+            onChange={event => {
+              //@ts-ignore
+              model.setCurrentAlignment(+event.target.value);
+              model.setScrollX(0);
+              model.setScrollY(0);
+            }}
+          >
+            {alignmentNames.map((option, index) => (
+              <option key={option + "-" + index} value={index}>
+                {option}
+              </option>
+            ))}
+          </Select>
+        ) : null}
+      </div>
+    );
+  });
+
+  return observer(({ model }: { model: MsaViewModel }) => {
+    const { done, initialized } = model;
     if (!initialized) {
       return <ImportForm model={model} />;
     } else if (!done) {
       return <Typography variant="h4">Loading...</Typography>;
     } else {
-      const { height, currentAlignment, alignmentNames } = model;
+      const { height } = model;
 
       return (
         <div style={{ height }}>
-          <div style={{ display: "block" }}>
-            <IconButton
-              onClick={() => {
-                model.setData({ tree: "", msa: "" });
-                model.setTreeFilehandle(undefined);
-                model.setMSAFilehandle(undefined);
-                model.setScrollY(0);
-                model.setScrollX(0);
-                model.setCurrentAlignment(0);
-              }}
-            >
-              <FolderOpenIcon />
-            </IconButton>
-            <IconButton
-              onClick={() => {
-                setSettingsDialogVisible(true);
-              }}
-            >
-              <SettingsIcon />
-            </IconButton>
-
-            <IconButton
-              onClick={() => {
-                setAboutDialogVisible(true);
-              }}
-            >
-              <InfoIcon />
-            </IconButton>
-
-            <IconButton
-              onClick={() => {
-                setDetailsDialogVisible(true);
-              }}
-            >
-              <AssignmentIcon />
-            </IconButton>
-            <SettingsDialog
-              open={settingsDialogVisible}
-              model={model}
-              onClose={() => setSettingsDialogVisible(false)}
-            />
-            <AboutDialog
-              open={aboutDialogVisible}
-              model={model}
-              onClose={() => setAboutDialogVisible(false)}
-            />
-
-            <DetailsDialog
-              open={detailsDialogVisible}
-              model={model}
-              onClose={() => setDetailsDialogVisible(false)}
-            />
-            {alignmentNames.length > 0 ? (
-              <Select
-                native
-                value={currentAlignment}
-                onChange={event => {
-                  //@ts-ignore
-                  model.setCurrentAlignment(+event.target.value);
-                  model.setScrollX(0);
-                  model.setScrollY(0);
-                }}
-              >
-                {alignmentNames.map((option, index) => (
-                  <option key={option + "-" + index} value={index}>
-                    {option}
-                  </option>
-                ))}
-              </Select>
-            ) : null}
-          </div>
+          <Header model={model} />
           <div
             style={{
               position: "relative",

@@ -2,7 +2,7 @@ import PluginManager from "@jbrowse/core/PluginManager";
 import normalizeWheel from "normalize-wheel";
 import Color from "color";
 import colorSchemes, { transform } from "./colorSchemes";
-import { blockSize, MsaViewModel } from "../model";
+import { MsaViewModel } from "../model";
 
 export default function(pluginManager: PluginManager) {
   const React = pluginManager.lib["react"];
@@ -13,12 +13,10 @@ export default function(pluginManager: PluginManager) {
   const MSABlock = observer(
     ({
       model,
-      width,
       offsetX,
       offsetY,
     }: {
       model: MsaViewModel;
-      width: number;
       offsetX: number;
       offsetY: number;
     }) => {
@@ -32,6 +30,7 @@ export default function(pluginManager: PluginManager) {
         scrollX,
         hierarchy,
         colorSchemeName,
+        blockSize,
       } = model;
 
       const theme = useTheme();
@@ -83,7 +82,7 @@ export default function(pluginManager: PluginManager) {
               const x = i * pxPerBp;
               if (
                 x > offsetX - 10 &&
-                x < offsetX + width + 10 &&
+                x < offsetX + blockSize + 10 &&
                 y > offsetY - 10 &&
                 y < offsetY + blockSize + 10
               ) {
@@ -109,7 +108,7 @@ export default function(pluginManager: PluginManager) {
               const x = i * pxPerBp;
               if (
                 x > offsetX - 10 &&
-                x < offsetX + width + 10 &&
+                x < offsetX + blockSize + 10 &&
                 y > offsetY - 10 &&
                 y < offsetY + blockSize + 10
               ) {
@@ -131,7 +130,7 @@ export default function(pluginManager: PluginManager) {
         hierarchy,
         offsetX,
         offsetY,
-        width,
+        blockSize,
       ]);
 
       return (
@@ -199,7 +198,6 @@ export default function(pluginManager: PluginManager) {
             model={model}
             offsetX={blockX}
             offsetY={blockY}
-            width={blockSize}
           />,
         );
       }),

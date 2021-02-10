@@ -139,8 +139,6 @@ function filter(tree: any, collapsed: string[]) {
   }
 }
 
-export const blockSize = 1000;
-
 function clamp(min: number, num: number, max: number) {
   return Math.min(Math.max(num, min), max);
 }
@@ -165,6 +163,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             rowHeight: 20,
             scrollY: 0,
             scrollX: 0,
+            blockSize: 1000,
             pxPerBp: 16,
             showBranchLen: true,
             bgColor: true,
@@ -294,33 +293,31 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               },
 
               get blocksX() {
-                const ret =
-                  -(blockSize * Math.floor(self.scrollX / blockSize)) -
-                  blockSize;
+                const { scrollX, blockSize: size, pxPerBp } = self;
+                const ret = -(size * Math.floor(scrollX / size)) - size;
 
                 const b = [];
-                for (let i = ret; i < ret + blockSize * 3; i += blockSize) {
+                for (let i = ret; i < ret + size * 3; i += size) {
                   b.push(i);
                 }
-                if (str(b) !== str(oldBlocksX) || self.pxPerBp !== oldValX) {
+                if (str(b) !== str(oldBlocksX) || pxPerBp !== oldValX) {
                   oldBlocksX = b;
-                  oldValX = self.pxPerBp;
+                  oldValX = pxPerBp;
                 }
                 return oldBlocksX;
               },
 
               get blocksY() {
-                const ret =
-                  -(blockSize * Math.floor(self.scrollY / blockSize)) -
-                  2 * blockSize;
+                const { scrollY, blockSize: size, rowHeight } = self;
+                const ret = -(size * Math.floor(scrollY / size)) - 2 * size;
 
                 const b = [];
-                for (let i = ret; i < ret + blockSize * 3; i += blockSize) {
+                for (let i = ret; i < ret + size * 3; i += size) {
                   b.push(i);
                 }
-                if (str(b) !== str(oldBlocksY) || self.rowHeight !== oldValY) {
+                if (str(b) !== str(oldBlocksY) || rowHeight !== oldValY) {
                   oldBlocksY = b;
-                  oldValY = self.rowHeight;
+                  oldValY = rowHeight;
                 }
                 return oldBlocksY;
               },
