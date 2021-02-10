@@ -1,6 +1,6 @@
 {
   "name": "jbrowse-plugin-msaview",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "JBrowse 2 MsaView API plugin",
   "repository": "github:GMOD/jbrowse-plugin-msaview",
   "jbrowse-plugin": {
@@ -15,7 +15,8 @@
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepublishOnly": "yarn test",
-    "postinstall": "jbrowse-plugin-postinstall"
+    "postinstall": "jbrowse-plugin-postinstall",
+    "postversion": "git push --follow-tags"
   },
   "files": [
     "dist",
@@ -47,7 +48,6 @@
     "tslib": "^2.0.3",
     "typescript": "^4.1.3"
   },
-  "private": true,
   "dependencies": {
     "@material-ui/icons": "4.9.1",
     "@types/color": "^3.0.1",

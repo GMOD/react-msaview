@@ -1,22 +1,4 @@
-![Push](https://github.com/GMOD/jbrowse-plugin-msaview/workflows/Push/badge.svg)
-
-# jbrowse-plugin-msaview
-
-## Development
-
-Run jbrowse-web on port 3000, then run `yarn start` in this repo and navigate
-to
-
-http://localhost:3000/?config=http://localhost:9000/config.json
-
-## Gallery
-
-![](img/1.png)
-![](img/2.png)
-
-## Demo
-
-https://s3.amazonaws.com/jbrowse.org/code/jb2/master/index.html?config=https%3A%2F%2Fghcdn.rawgit.org%2FGMOD%2Fjbrowse-plugin-msaview%2Fd3_canvas_exp2%2Frawgit%2Fconfig.json&session=share-BVmmEYAoAv&password=SuQaN
+# v1.0.0
 
 ## Features
 
@@ -42,7 +24,3 @@ https://s3.amazonaws.com/jbrowse.org/code/jb2/master/index.html?config=https%3A%
   alignments embedded in a single file)
 - Clustal files (e.g. .aln file, uses clustal-js parser)
 - Newick (tree can be loaded separately as a .nh file)
-
-## Notes
-
-Based on https://github.com/ihh/abrowse
