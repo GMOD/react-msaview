@@ -1,3 +1,7 @@
+# v1.0.7
+
+- Move npm run build script to prepare script in package.jsom
+
 # v1.0.6
 
 - Use postversion to run build so that the accurate version is encoded into the release binary
