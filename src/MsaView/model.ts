@@ -213,6 +213,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             colWidth: 16,
             showBranchLen: true,
             bgColor: true,
+            drawNodeBubbles: true,
             colorSchemeName: "maeditor",
             treeFilehandle: types.maybe(FileLocation),
             msaFilehandle: types.maybe(FileLocation),
@@ -280,6 +281,9 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
             toggleBgColor() {
               self.bgColor = !self.bgColor;
+            },
+            toggleNodeBubbles() {
+              self.drawNodeBubbles = !self.drawNodeBubbles;
             },
             setData(data: any) {
               self.data = data;

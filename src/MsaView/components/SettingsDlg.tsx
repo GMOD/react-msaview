@@ -71,6 +71,15 @@ export default function(pluginManager: PluginManager) {
               }
               label="Color background"
             />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={model.drawNodeBubbles}
+                  onChange={() => model.toggleNodeBubbles()}
+                />
+              }
+              label="Draw node bubbles"
+            />
             <br />
             <TextField
               label="Row height (px)"

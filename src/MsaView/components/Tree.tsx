@@ -42,6 +42,7 @@ export default function(pluginManager: PluginManager) {
         margin,
         noTree,
         blockSize,
+        drawNodeBubbles,
       } = model;
 
       useEffect(() => {
@@ -83,35 +84,37 @@ export default function(pluginManager: PluginManager) {
             }
           });
 
-          hierarchy.descendants().forEach(node => {
-            const val = showBranchLen ? "len" : "y";
-            const {
-              //@ts-ignore
-              x: y,
-              //@ts-ignore
-              [val]: x,
-              data: { name },
-            } = node;
+          if (drawNodeBubbles) {
+            hierarchy.descendants().forEach(node => {
+              const val = showBranchLen ? "len" : "y";
+              const {
+                //@ts-ignore
+                x: y,
+                //@ts-ignore
+                [val]: x,
+                data: { name },
+              } = node;
 
-            if (
-              y > offsetY - extendBounds &&
-              y < offsetY + blockSize + extendBounds
-            ) {
-              ctx.strokeStyle = "black";
-              ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
-              ctx.beginPath();
-              ctx.arc(x, y, radius, 0, 2 * Math.PI);
-              ctx.fill();
-              ctx.stroke();
+              if (
+                y > offsetY - extendBounds &&
+                y < offsetY + blockSize + extendBounds
+              ) {
+                ctx.strokeStyle = "black";
+                ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
 
-              const col = randomColor();
-              const [r, g, b] = col;
-              colorHash[`${col}`] = name;
+                const col = randomColor();
+                const [r, g, b] = col;
+                colorHash[`${col}`] = name;
 
-              clickCtx.fillStyle = `rgb(${r},${g},${b})`;
-              clickCtx.fillRect(x - radius, y - radius, d, d);
-            }
-          });
+                clickCtx.fillStyle = `rgb(${r},${g},${b})`;
+                clickCtx.fillRect(x - radius, y - radius, d, d);
+              }
+            });
+          }
         }
 
         if (rowHeight >= 10) {
@@ -143,6 +146,7 @@ export default function(pluginManager: PluginManager) {
         showBranchLen,
         noTree,
         blockSize,
+        drawNodeBubbles,
       ]);
 
       function decode(event: React.MouseEvent) {
