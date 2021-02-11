@@ -10,6 +10,9 @@ export default function(pluginManager: PluginManager) {
   const { useEffect, useRef, useMemo } = React;
   const { observer } = pluginManager.lib["mobx-react"];
   const { useTheme } = pluginManager.lib["@material-ui/core/styles"];
+  const { Typography, CircularProgress } = pluginManager.lib[
+    "@material-ui/core"
+  ];
 
   const MSABlock = observer(
     ({
@@ -208,7 +211,14 @@ export default function(pluginManager: PluginManager) {
           overflow: "hidden",
         }}
       >
-        {!MSA ? <div>Loading...</div> : blocks}
+        {!MSA ? (
+          <div style={{ position: "absolute", left: "50%", top: "50%" }}>
+            <CircularProgress />
+            <Typography>Loading...</Typography>
+          </div>
+        ) : (
+          blocks
+        )}
       </div>
     );
   });
