@@ -68,12 +68,18 @@ export default function(pluginManager: PluginManager) {
         const b = blockSize;
 
         // slice vertical rows, e.g. tree leaves, avoid negative slice
-        const yStart = Math.max(0, Math.floor((offsetY - 10) / rowHeight));
-        const yEnd = Math.max(0, Math.floor((offsetY + b + 10) / rowHeight));
+        const yStart = Math.max(
+          0,
+          Math.floor((offsetY - rowHeight) / rowHeight),
+        );
+        const yEnd = Math.max(
+          0,
+          Math.ceil((offsetY + b + rowHeight) / rowHeight),
+        );
 
         // slice horizontal visible letters, avoid negative slice
-        const xStart = Math.max(0, Math.floor((offsetX - 10) / colWidth));
-        const xEnd = Math.max(0, Math.floor((offsetX + b + 10) / colWidth));
+        const xStart = Math.max(0, Math.floor(offsetX / colWidth));
+        const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth));
         const visibleLeaves = leaves.slice(yStart, yEnd);
         visibleLeaves.forEach((node: any) => {
           const {
@@ -86,7 +92,7 @@ export default function(pluginManager: PluginManager) {
             const letter = str[i];
             const color = colorScheme[letter.toUpperCase()];
             if (bgColor) {
-              const x = i * colWidth + offsetX;
+              const x = i * colWidth + offsetX - (offsetX % colWidth);
               ctx.fillStyle = color || "white";
               ctx.fillRect(x, y - rowHeight, colWidth, rowHeight);
             }
@@ -105,7 +111,7 @@ export default function(pluginManager: PluginManager) {
               const letter = str[i];
               const color = colorScheme[letter.toUpperCase()];
               const contrast = colorContrast[letter.toUpperCase()] || "black";
-              const x = i * colWidth + offsetX;
+              const x = i * colWidth + offsetX - (offsetX % colWidth);
 
               //note: -rowHeight/4 matches +rowHeight/4 in tree
               ctx.fillStyle = bgColor ? contrast : color || "black";
