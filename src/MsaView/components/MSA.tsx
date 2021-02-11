@@ -45,11 +45,6 @@ export default function(pluginManager: PluginManager) {
         [colorScheme, theme],
       );
       const ref = useRef<HTMLCanvasElement>(null);
-
-      if (!MSA) {
-        return null;
-      }
-
       useEffect(() => {
         if (!ref.current) {
           return;
@@ -155,11 +150,6 @@ export default function(pluginManager: PluginManager) {
     const scheduled = useRef(false);
     const deltaX = useRef(0);
     const deltaY = useRef(0);
-
-    if (!MSA) {
-      return null;
-    }
-
     useEffect(() => {
       const curr = ref.current;
       if (!curr) {
@@ -201,6 +191,7 @@ export default function(pluginManager: PluginManager) {
         );
       }),
     );
+
     return (
       <div
         ref={ref}
@@ -211,7 +202,7 @@ export default function(pluginManager: PluginManager) {
           overflow: "hidden",
         }}
       >
-        {blocks}
+        {!MSA ? <div>Loading...</div> : blocks}
       </div>
     );
   });

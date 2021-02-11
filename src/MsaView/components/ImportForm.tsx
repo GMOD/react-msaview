@@ -5,6 +5,7 @@ import { smallTree, smallMSA } from "./data/seq2";
 export default function(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const { observer } = jbrequire("mobx-react");
+  const { transaction } = jbrequire("mobx");
   const React = jbrequire("react");
   const { useState } = React;
   const { makeStyles } = jbrequire("@material-ui/core/styles");
@@ -152,6 +153,25 @@ export default function(pluginManager: PluginManager) {
                   }}
                 >
                   Europe COVID full genomes (LR883044.1 and 199 other sequences)
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#"
+                  onClick={() => {
+                    transaction(() => {
+                      model.setMSAFilehandle({
+                        uri:
+                          "https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa",
+                      });
+                      model.setTreeFilehandle({
+                        uri:
+                          "https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh",
+                      });
+                    });
+                  }}
+                >
+                  MAFFT+VeryFastTree(17.9k samples)
                 </Link>
               </li>
             </ul>

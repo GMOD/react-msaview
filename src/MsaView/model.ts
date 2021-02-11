@@ -287,37 +287,50 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setWidth(width: number) {
               self.volatileWidth = width;
             },
-            async setMSAFilehandle(r: any) {
+            async setMSAFilehandle(r?: typeof FileLocation) {
               if (r?.blob) {
                 const text = await openLocation(r).readFile("utf8");
-                self.data.setMSA(text);
+                this.setMSA(text);
               } else {
                 self.msaFilehandle = r;
               }
             },
-            async setTreeFilehandle(r: any) {
+            async setTreeFilehandle(r?: typeof FileLocation) {
               if (r?.blob) {
                 const text = await openLocation(r).readFile("utf8");
-                self.data.setTree(text);
+                this.setTree(text);
               } else {
                 self.treeFilehandle = r;
               }
+            },
+            setMSA(result: any) {
+              self.data.setMSA(result);
+            },
+            setTree(result: any) {
+              self.data.setTree(result);
             },
 
             afterAttach() {
               addDisposer(
                 self,
                 autorun(async () => {
-                  const { treeFilehandle, msaFilehandle } = self;
+                  const { treeFilehandle } = self;
                   if (treeFilehandle) {
                     const f = openLocation(treeFilehandle);
                     const result = await f.readFile("utf8");
-                    self.data.setTree(result);
+                    this.setTree(result);
                   }
+                }),
+              );
+              addDisposer(
+                self,
+                autorun(async () => {
+                  const { msaFilehandle } = self;
+
                   if (msaFilehandle) {
                     const f = openLocation(msaFilehandle);
                     const result = await f.readFile("utf8");
-                    self.data.setMSA(result);
+                    this.setMSA(result);
                   }
                 }),
               );
