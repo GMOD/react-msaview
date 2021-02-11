@@ -86,8 +86,8 @@ export default function(pluginManager: PluginManager) {
             data: { name },
           } = node;
 
-          const str = columns[name].slice(xStart, xEnd);
-          for (let i = 0; i < str.length; i++) {
+          const str = columns[name]?.slice(xStart, xEnd);
+          for (let i = 0; i < str?.length; i++) {
             const letter = str[i];
             const color = colorScheme[letter.toUpperCase()];
             if (bgColor) {
@@ -105,8 +105,8 @@ export default function(pluginManager: PluginManager) {
               data: { name },
             } = node;
 
-            const str = columns[name].slice(xStart, xEnd);
-            for (let i = 0; i < str.length; i++) {
+            const str = columns[name]?.slice(xStart, xEnd);
+            for (let i = 0; i < str?.length; i++) {
               const letter = str[i];
               const color = colorScheme[letter.toUpperCase()];
               const contrast = colorContrast[letter.toUpperCase()] || "black";

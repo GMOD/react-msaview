@@ -470,7 +470,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 return blanks;
               },
 
-              get columns() {
+              get columns(): Record<string, string> {
                 const nodes = this.hierarchy.leaves();
                 const rows = nodes
                   .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
