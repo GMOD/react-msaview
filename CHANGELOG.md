@@ -1,3 +1,6 @@
+- Fix for side scrolling half rendered letters in MSA
+- drawNodeBubbles option
+
 # v1.0.7
 
 - Move npm run build script to prepare script in package.jsom
