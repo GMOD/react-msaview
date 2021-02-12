@@ -1,6 +1,6 @@
 {
   "name": "jbrowse-plugin-msaview",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "JBrowse 2 MsaView API plugin",
   "repository": "github:GMOD/jbrowse-plugin-msaview",
   "jbrowse-plugin": {
