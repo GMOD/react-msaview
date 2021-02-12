@@ -1,3 +1,9 @@
+# v1.0.12
+
+- Avoid scrolling too far right
+
+# v1.0.11
+
 - Add version number from package.json to about panel
 
 # v1.0.10
