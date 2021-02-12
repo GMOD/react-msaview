@@ -1,5 +1,6 @@
 import Plugin from "@jbrowse/core/Plugin";
 import PluginManager from "@jbrowse/core/PluginManager";
+import { version } from "../package.json";
 import {
   AbstractSessionModel,
   isAbstractMenuManager,
@@ -9,6 +10,7 @@ import MsaViewFactory from "./MsaView";
 
 export default class MsaViewPlugin extends Plugin {
   name = "MsaViewPlugin";
+  version = version;
 
   install(pluginManager: PluginManager) {
     pluginManager.addViewType(() => pluginManager.jbrequire(MsaViewFactory));

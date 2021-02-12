@@ -1,5 +1,7 @@
 import PluginManager from "@jbrowse/core/PluginManager";
 
+import { version } from "../../../package.json";
+
 export default function(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
   const React = jbrequire("react");
@@ -73,7 +75,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           <DialogTitle>About this plugin</DialogTitle>
           <DialogContent>
             <Typography>
-              JBrowse 2 MSAView plugin v1.0.0 (
+              JBrowse 2 MSAView plugin v{version} (
               <Link href="https://github.com/gmod/jbrowse-plugin-msaview">
                 Github
               </Link>
