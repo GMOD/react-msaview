@@ -544,7 +544,11 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         },
 
         doScrollX(deltaX: number) {
-          self.scrollX = clamp(-self.msaWidth + 10, self.scrollX + deltaX, 0);
+          self.scrollX = clamp(
+            -self.msaWidth + (self.width - self.treeWidth - 20),
+            self.scrollX + deltaX,
+            0,
+          );
         },
       })),
     {
