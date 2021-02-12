@@ -1,3 +1,7 @@
+# v1.0.10
+
+- Fix scrolling for large MSA that loads after tree
+
 # v1.0.9
 
 - Fix for MSA loading bar when tree only is displayed
