@@ -1,3 +1,5 @@
+- Add version number from package.json to about panel
+
 # v1.0.10
 
 - Fix scrolling for large MSA that loads after tree
