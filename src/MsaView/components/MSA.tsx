@@ -209,9 +209,6 @@ export default function(pluginManager: PluginManager) {
       }),
     );
 
-    if (!MSA && !msaFilehandle) {
-      return null;
-    }
     return (
       <div
         ref={ref}
@@ -222,7 +219,7 @@ export default function(pluginManager: PluginManager) {
           overflow: "hidden",
         }}
       >
-        {!MSA ? (
+        {!MSA && !msaFilehandle ? null : !MSA ? (
           <div style={{ position: "absolute", left: "50%", top: "50%" }}>
             <CircularProgress />
             <Typography>Loading...</Typography>
