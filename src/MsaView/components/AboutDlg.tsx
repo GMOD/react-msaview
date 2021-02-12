@@ -96,8 +96,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 </Link>
               </li>
               <li>
-                See this page for for some info on the clustal, cinema,
-                maeditor, and lesk color schemes{" "}
+                See this page for some info on the clustal, cinema, maeditor,
+                and lesk color schemes{" "}
                 <Link href="http://www.bioinformatics.nl/~berndb/aacolour.html">
                   here
                 </Link>
