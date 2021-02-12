@@ -1,6 +1,6 @@
 {
   "name": "jbrowse-plugin-msaview",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "description": "JBrowse 2 MsaView API plugin",
   "repository": "github:GMOD/jbrowse-plugin-msaview",
   "jbrowse-plugin": {
@@ -10,12 +10,16 @@
   "module": "dist/jbrowse-plugin-msaview.esm.js",
   "typings": "dist/index.d.ts",
   "scripts": {
+    "clean": "rimraf dist",
     "start": "tsdx watch --verbose --noClean --format umd --name JBrowsePluginMsaView --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
-    "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView",
+    "prebuild": "npm run clean",
+    "build": "tsdx build --format cjs,esm,umd --name JBrowsePluginMsaView && cp distconfig.json dist/config.json",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepublishOnly": "yarn test",
-    "postinstall": "jbrowse-plugin-postinstall"
+    "prepare": "npm run build",
+    "postinstall": "jbrowse-plugin-postinstall",
+    "postversion": "git push --follow-tags"
   },
   "files": [
     "dist",
@@ -37,18 +41,29 @@
     "@babel/preset-react": "^7.10.4",
     "@jbrowse/core": "^1.0.3",
     "@jbrowse/development-tools": "^1.0.3",
+    "@material-ui/core": "^4.11.3",
     "@types/react": "^17.0.0",
+    "mobx": "^5.0.0",
+    "mobx-react": "^6.0.0",
+    "mobx-state-tree": "3.14.1",
+    "react": "^17.0.1",
+    "rimraf": "^3.0.2",
     "serve": "^11.3.2",
     "tslib": "^2.0.3",
     "typescript": "^4.1.3"
   },
-  "private": true,
   "dependencies": {
     "@material-ui/icons": "4.9.1",
+    "@types/color": "^3.0.1",
+    "@types/d3": "^6.3.0",
     "bio-pv": "^1.8.1",
+    "clustal-js": "^1.0.2",
+    "color": "^3.1.3",
+    "d3": "^6.5.0",
     "jukes-cantor": "^1.0.4",
     "neighbor-joining": "^1.0.4",
     "newick": "^2.0.0",
+    "normalize-wheel": "^1.0.1",
     "phylogenetic-likelihood": "^1.0.5",
     "stockholm-js": "^1.0.10"
   }
