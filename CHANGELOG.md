@@ -1,3 +1,9 @@
+# v1.0.9
+
+- Fix for MSA loading bar when tree only is displayed
+
+# v1.0.8
+
 - Fix for side scrolling half rendered letters in MSA
 - drawNodeBubbles option
 

@@ -154,7 +154,15 @@ export default function(pluginManager: PluginManager) {
   );
 
   const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
-    const { MSA, width, height, treeWidth, blocksX, blocksY } = model;
+    const {
+      MSA,
+      msaFilehandle,
+      width,
+      height,
+      treeWidth,
+      blocksX,
+      blocksY,
+    } = model;
     const ref = useRef<HTMLDivElement>(null);
     const scheduled = useRef(false);
     const deltaX = useRef(0);
@@ -201,6 +209,9 @@ export default function(pluginManager: PluginManager) {
       }),
     );
 
+    if (!MSA && !msaFilehandle) {
+      return null;
+    }
     return (
       <div
         ref={ref}
