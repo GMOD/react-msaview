@@ -1,7 +1,8 @@
 import BaseViewModel from "@jbrowse/core/pluggableElementTypes/models/BaseViewModel";
 import PluginManager from "@jbrowse/core/PluginManager";
 import * as Clustal from "clustal-js";
-import * as d3 from "d3";
+import { hierarchy, cluster } from "d3-hierarchy";
+import { ascending, max } from "d3-array";
 import parseNewick from "./parseNewick";
 import Stockholm from "stockholm-js";
 import { Instance } from "mobx-state-tree";
@@ -143,19 +144,16 @@ function setBrLength(d: any, y0: number, k: number) {
 }
 
 function maxLength(d: any): number {
-  return (
-    (d.data.length || 1) + (d.children ? d3.max(d.children, maxLength) : 0)
-  );
+  return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0);
 }
 
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
 function getRoot(tree: any) {
-  return d3
-    .hierarchy(tree, d => d.branchset)
+  return hierarchy(tree, d => d.branchset)
     .sum(d => (d.branchset ? 0 : 1))
     .sort((a, b) => {
-      return d3.ascending(a.data.length || 1, b.data.length || 1);
+      return ascending(a.data.length || 1, b.data.length || 1);
     });
 }
 
@@ -515,11 +513,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
               // generates a new tree that is clustered with x,y positions
               get hierarchy() {
                 const root = getRoot(this.tree);
-                const cluster = d3
-                  .cluster()
+                const clust = cluster()
                   .size([this.totalHeight, this.treeWidthMinusNames])
                   .separation(() => 1);
-                cluster(root);
+                clust(root);
                 setBrLength(
                   root,
                   (root.data.length = 0),
