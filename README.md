@@ -2,13 +2,6 @@
 
 # jbrowse-plugin-msaview
 
-## Development
-
-Run jbrowse-web on port 3000, then run `yarn start` in this repo and navigate
-to
-
-http://localhost:3000/?config=http://localhost:9000/config.json
-
 ## Gallery
 
 ![](img/1.png)
@@ -42,7 +35,3 @@ https://s3.amazonaws.com/jbrowse.org/code/jb2/master/index.html?config=https://u
   alignments embedded in a single file)
 - Clustal files (e.g. .aln file, uses clustal-js parser)
 - Newick (tree can be loaded separately as a .nh file)
-
-## Notes
-
-Based on https://github.com/ihh/abrowse
