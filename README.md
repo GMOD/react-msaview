@@ -15,11 +15,9 @@ https://s3.amazonaws.com/jbrowse.org/code/jb2/master/index.html?config=https://u
 
 - Vertical virtualized scrolling of phylogenetic tree
 - Vertical and horizontal virtualized scrolling of multiple sequence alignment
-  as a newick tree embedded in stockholm metadata
 - View metadata about alignment from MSA headers (e.g. stockholm)
-- Collapse subtrees with click action on branches
-- The collapse subtree action hides gaps that were introduced by that subtree
-  in the rest of the alignment
+- Collapse subtrees with click action on branches which also hides gaps that
+  were introduced by that subtree in the rest of the alignment
 - Allows "zooming out" by setting tiny rowHeight/colWidth settings
 - Allows changing color schemes, with jalview, clustal, and other color schemes
 - Allows toggling the branch length rendering for the phylogenetic tree
