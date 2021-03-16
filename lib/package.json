@@ -20,8 +20,7 @@
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
-    "react": ">=16",
-    "@material-ui/core": "^4.0.0"
+    "react": ">=16"
   },
   "husky": {
     "hooks": {
