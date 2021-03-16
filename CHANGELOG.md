@@ -1,3 +1,5 @@
+- Fix nodes with the same score being collapsed together (#21)
+
 # v1.0.12
 
 - Avoid scrolling too far right
