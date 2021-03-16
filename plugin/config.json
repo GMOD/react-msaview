@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    {
+      "name": "MsaView",
+      "url": "http://localhost:9000/dist/jbrowse-plugin-msaview.umd.development.js"
+    }
+  ]
+}
