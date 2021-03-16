@@ -1,13 +1,11 @@
-import logo from "./logo.svg";
-import "./App.css";
-import MSAView from "msaview";
+import { observer } from "mobx-react";
+import { MSAView, MSAModel } from "msaview";
 
 function App() {
-  return (
-    <div className="App">
-      <MSAView />
-    </div>
-  );
+  const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView" });
+  model.setWidth(1500);
+
+  return <MSAView model={model} />;
 }
 
-export default App;
+export default observer(App);

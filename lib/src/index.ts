@@ -1,4 +1,4 @@
 import MSAView from './components/MsaView';
+import MSAModel from './model';
 
-console.log('wow');
-export default MSAView;
+export { MSAModel, MSAView };
