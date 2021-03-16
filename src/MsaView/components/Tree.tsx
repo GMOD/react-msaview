@@ -14,9 +14,10 @@ function randomColor() {
   ];
 }
 
-type StrMap = { [key: string]: string };
+type StrMap = { [key: string]: { id: string; name: string } };
 interface TooltipData {
   name: string;
+  id: string;
   x: number;
   y: number;
 }
@@ -92,7 +93,7 @@ export default function(pluginManager: PluginManager) {
                 x: y,
                 //@ts-ignore
                 [val]: x,
-                data: { name },
+                data,
               } = node;
 
               if (
@@ -100,7 +101,7 @@ export default function(pluginManager: PluginManager) {
                 y < offsetY + blockSize + extendBounds
               ) {
                 ctx.strokeStyle = "black";
-                ctx.fillStyle = collapsed.includes(name) ? "black" : "white";
+                ctx.fillStyle = collapsed.includes(data.id) ? "black" : "white";
                 ctx.beginPath();
                 ctx.arc(x, y, radius, 0, 2 * Math.PI);
                 ctx.fill();
@@ -108,7 +109,7 @@ export default function(pluginManager: PluginManager) {
 
                 const col = randomColor();
                 const [r, g, b] = col;
-                colorHash[`${col}`] = name;
+                colorHash[`${col}`] = data;
 
                 clickCtx.fillStyle = `rgb(${r},${g},${b})`;
                 clickCtx.fillRect(x - radius, y - radius, d, d);
@@ -162,7 +163,7 @@ export default function(pluginManager: PluginManager) {
         const { data } = clickCtx.getImageData(x, y, 1, 1);
 
         const col = [data[0], data[1], data[2]];
-        return { name: colorMap[`${col}`], x, y };
+        return { ...colorMap[`${col}`], x, y };
       }
       function handleClose() {
         setHovering(undefined);
@@ -177,7 +178,7 @@ export default function(pluginManager: PluginManager) {
               top: scrollY + offsetY + (hovering?.y || 0),
             }}
           />
-          {hovering && hovering.name ? (
+          {hovering && hovering.id ? (
             <Menu
               anchorEl={menuRef.current}
               transitionDuration={0}
@@ -188,13 +189,11 @@ export default function(pluginManager: PluginManager) {
               <MenuItem
                 dense
                 onClick={() => {
-                  model.toggleCollapsed(hovering.name);
+                  model.toggleCollapsed(hovering.id);
                   handleClose();
                 }}
               >
-                {model.collapsed.includes(hovering.name)
-                  ? "Expand"
-                  : "Collapse"}
+                {model.collapsed.includes(hovering.id) ? "Expand" : "Collapse"}
               </MenuItem>
             </Menu>
           ) : null}
@@ -214,7 +213,7 @@ export default function(pluginManager: PluginManager) {
               }
               const data = decode(event);
               if (data) {
-                if (data.name) {
+                if (data.id) {
                   ref.current.style.cursor = "pointer";
                 } else {
                   ref.current.style.cursor = "default";
@@ -223,7 +222,7 @@ export default function(pluginManager: PluginManager) {
             }}
             onClick={event => {
               const data = decode(event);
-              if (data && data.name) {
+              if (data && data.id) {
                 setHovering(data);
               }
             }}

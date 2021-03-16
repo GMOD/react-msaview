@@ -123,7 +123,7 @@ class StockholmMSA {
   getTree() {
     const tree = this.MSA?.gf?.NH?.[0];
     return tree
-      ? generateNodeNames(parseNewick(tree))
+      ? generateNodeIds(parseNewick(tree))
       : {
           name: "root",
           noTree: true,
@@ -147,6 +147,19 @@ function maxLength(d: any): number {
   return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0);
 }
 
+function hashCode(str: string) {
+  let hash = 0;
+  if (str.length === 0) {
+    return hash;
+  }
+  for (let i = 0; i < str.length; i++) {
+    const chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
 function getRoot(tree: any) {
@@ -157,21 +170,19 @@ function getRoot(tree: any) {
     });
 }
 
-function generateNodeNames(tree: any, parent = "node", depth = 0, index = 0) {
-  if (tree.name === "") {
-    tree.name = `${parent}-${depth}-${index}`;
-  }
+function generateNodeIds(tree: any, parent = "node", depth = 0, index = 0) {
+  tree.id = hashCode(`${parent}-${depth}-${index}`);
   if (tree.branchset?.length) {
     tree.branchset.forEach((b: any, index: number) =>
-      generateNodeNames(b, tree.name, depth + 1, index),
+      generateNodeIds(b, tree.id, depth + 1, index),
     );
   }
 
   return tree;
 }
-function filter(tree: any, collapsed: string[]) {
+function filter(tree: any, collapsed: number[]) {
   const { branchset, ...rest } = tree;
-  if (collapsed.includes(tree.name)) {
+  if (collapsed.includes(tree.id)) {
     return rest;
   } else if (tree.branchset) {
     return {
@@ -216,7 +227,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             treeFilehandle: types.maybe(FileLocation),
             msaFilehandle: types.maybe(FileLocation),
             currentAlignment: 0,
-            collapsed: types.array(types.string),
+            collapsed: types.array(types.number),
             data: types.optional(
               types
                 .model({
@@ -267,7 +278,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setCurrentAlignment(n: number) {
               self.currentAlignment = n;
             },
-            toggleCollapsed(node: string) {
+            toggleCollapsed(node: number) {
               if (self.collapsed.includes(node)) {
                 self.collapsed.remove(node);
               } else {
@@ -446,7 +457,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 } = self;
                 return filter(
                   tree
-                    ? generateNodeNames(parseNewick(tree))
+                    ? generateNodeIds(parseNewick(tree))
                     : this.MSA?.getTree(),
                   collapsed,
                 );
