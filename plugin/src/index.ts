@@ -14,26 +14,26 @@ export default class MsaViewPlugin extends Plugin {
   version = version;
 
   install(pluginManager: PluginManager) {
-    //pluginManager.addViewType(
-    //  () =>
-    //    new ViewType({
-    //      name: "MsaView",
-    //      //@ts-ignore
-    //      stateModel: MSAModel,
-    //      ReactComponent: MSAView,
-    //    }),
-    //);
+    pluginManager.addViewType(
+      () =>
+        new ViewType({
+          name: "MsaView",
+          //@ts-ignore
+          stateModel: MSAModel,
+          ReactComponent: MSAView,
+        }),
+    );
   }
 
   configure(pluginManager: PluginManager) {
-    // if (isAbstractMenuManager(pluginManager.rootModel)) {
-    //   pluginManager.rootModel.appendToSubMenu(["File", "Add"], {
-    //     label: "Multiple sequence alignment view",
-    //     icon: GridOn,
-    //     onClick: (session: AbstractSessionModel) => {
-    //       session.addView("MsaView", {});
-    //     },
-    //   });
-    // }
+    if (isAbstractMenuManager(pluginManager.rootModel)) {
+      pluginManager.rootModel.appendToSubMenu(["File", "Add"], {
+        label: "Multiple sequence alignment view",
+        icon: GridOn,
+        onClick: (session: AbstractSessionModel) => {
+          session.addView("MsaView", {});
+        },
+      });
+    }
   }
 }
