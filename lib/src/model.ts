@@ -1,11 +1,11 @@
-import BaseViewModel from "@jbrowse/core/pluggableElementTypes/models/BaseViewModel";
-import PluginManager from "@jbrowse/core/PluginManager";
-import * as Clustal from "clustal-js";
-import { hierarchy, cluster } from "d3-hierarchy";
-import { ascending, max } from "d3-array";
-import parseNewick from "./parseNewick";
-import Stockholm from "stockholm-js";
-import { Instance } from "mobx-state-tree";
+import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel';
+import PluginManager from '@jbrowse/core/PluginManager';
+import * as Clustal from 'clustal-js';
+import { hierarchy, cluster } from 'd3-hierarchy';
+import { ascending, max } from 'd3-array';
+import parseNewick from './parseNewick';
+import Stockholm from 'stockholm-js';
+import { Instance } from 'mobx-state-tree';
 
 let str = JSON.stringify;
 
@@ -20,7 +20,7 @@ class ClustalMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.alns.find((aln: any) => aln.id === name)?.seq.split("");
+    return this.MSA.alns.find((aln: any) => aln.id === name)?.seq.split('');
   }
 
   getWidth() {
@@ -33,7 +33,7 @@ class ClustalMSA {
 
   getTree() {
     return {
-      name: "root",
+      name: 'root',
       noTree: true,
       branchset: this.MSA.alns.map((aln: any) => ({
         name: aln.id,
@@ -47,14 +47,14 @@ class FastaMSA {
   private MSA: any;
   constructor(text: string) {
     let seq: StrMap = {};
-    let name = "";
+    let name = '';
     let re = /^>(\S+)/;
-    text.split("\n").forEach(line => {
+    text.split('\n').forEach(line => {
       const match = re.exec(line);
       if (match) {
-        seq[(name = match[1])] = "";
+        seq[(name = match[1])] = '';
       } else if (name) {
-        seq[name] = seq[name] + line.replace(/[ \t]/g, "");
+        seq[name] = seq[name] + line.replace(/[ \t]/g, '');
       }
     });
     this.MSA = { seqdata: seq };
@@ -65,7 +65,7 @@ class FastaMSA {
   }
 
   getRow(name: string) {
-    return this.MSA?.seqdata[name]?.split("");
+    return this.MSA?.seqdata[name]?.split('');
   }
 
   getWidth() {
@@ -79,7 +79,7 @@ class FastaMSA {
 
   getTree() {
     return {
-      name: "root",
+      name: 'root',
       noTree: true,
       branchset: Object.keys(this.MSA.seqdata).map(name => ({
         name,
@@ -102,7 +102,7 @@ class StockholmMSA {
   }
 
   getRow(name: string) {
-    return this.MSA?.seqdata[name]?.split("");
+    return this.MSA?.seqdata[name]?.split('');
   }
 
   getWidth() {
@@ -112,7 +112,7 @@ class StockholmMSA {
 
   alignmentNames() {
     return this.data.map(
-      (aln: any, index: number) => aln.gf.DE?.[0] || `Alignment ${index + 1}`,
+      (aln: any, index: number) => aln.gf.DE?.[0] || `Alignment ${index + 1}`
     );
   }
 
@@ -125,7 +125,7 @@ class StockholmMSA {
     return tree
       ? generateNodeIds(parseNewick(tree))
       : {
-          name: "root",
+          name: 'root',
           noTree: true,
           branchset: Object.keys(this.MSA.seqdata).map((name: any) => ({
             name,
@@ -147,19 +147,6 @@ function maxLength(d: any): number {
   return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0);
 }
 
-function hashCode(str: string) {
-  let hash = 0;
-  if (str.length === 0) {
-    return hash;
-  }
-  for (let i = 0; i < str.length; i++) {
-    const chr = str.charCodeAt(i);
-    hash = (hash << 5) - hash + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-}
-
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
 function getRoot(tree: any) {
@@ -170,17 +157,17 @@ function getRoot(tree: any) {
     });
 }
 
-function generateNodeIds(tree: any, parent = "node", depth = 0, index = 0) {
-  tree.id = hashCode(`${parent}-${depth}-${index}`);
+function generateNodeIds(tree: any, parent = 'node', depth = 0, index = 0) {
+  tree.id = `${parent}-${depth}-${index}`;
   if (tree.branchset?.length) {
     tree.branchset.forEach((b: any, index: number) =>
-      generateNodeIds(b, tree.id, depth + 1, index),
+      generateNodeIds(b, tree.id, depth + 1, index)
     );
   }
 
   return tree;
 }
-function filter(tree: any, collapsed: number[]) {
+function filter(tree: any, collapsed: string[]) {
   const { branchset, ...rest } = tree;
   if (collapsed.includes(tree.id)) {
     return rest;
@@ -200,18 +187,18 @@ function clamp(min: number, num: number, max: number) {
 
 export default function stateModelFactory(pluginManager: PluginManager) {
   const { jbrequire } = pluginManager;
-  const { types, addDisposer } = pluginManager.lib["mobx-state-tree"];
-  const { FileLocation, ElementId } = jbrequire("@jbrowse/core/util/types/mst");
-  const { openLocation } = jbrequire("@jbrowse/core/util/io");
-  const { autorun } = jbrequire("mobx");
+  const { types, addDisposer } = pluginManager.lib['mobx-state-tree'];
+  const { FileLocation, ElementId } = jbrequire('@jbrowse/core/util/types/mst');
+  const { openLocation } = jbrequire('@jbrowse/core/util/io');
+  const { autorun } = jbrequire('mobx');
   return types.snapshotProcessor(
     types
       .compose(
         BaseViewModel,
         types
-          .model("MsaView", {
+          .model('MsaView', {
             id: ElementId,
-            type: types.literal("MsaView"),
+            type: types.literal('MsaView'),
             height: 680,
             treeAreaWidth: 600,
             nameWidth: 200,
@@ -223,11 +210,11 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             showBranchLen: true,
             bgColor: true,
             drawNodeBubbles: true,
-            colorSchemeName: "maeditor",
+            colorSchemeName: 'maeditor',
             treeFilehandle: types.maybe(FileLocation),
             msaFilehandle: types.maybe(FileLocation),
             currentAlignment: 0,
-            collapsed: types.array(types.number),
+            collapsed: types.array(types.string),
             data: types.optional(
               types
                 .model({
@@ -242,7 +229,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                     self.msa = msa;
                   },
                 })),
-              { tree: "", msa: "" },
+              { tree: '', msa: '' }
             ),
           })
           .volatile(() => ({
@@ -278,7 +265,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             setCurrentAlignment(n: number) {
               self.currentAlignment = n;
             },
-            toggleCollapsed(node: number) {
+            toggleCollapsed(node: string) {
               if (self.collapsed.includes(node)) {
                 self.collapsed.remove(node);
               } else {
@@ -302,7 +289,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
             async setMSAFilehandle(r?: typeof FileLocation) {
               if (r?.blob) {
-                const text = await openLocation(r).readFile("utf8");
+                const text = await openLocation(r).readFile('utf8');
                 this.setMSA(text);
               } else {
                 self.msaFilehandle = r;
@@ -310,7 +297,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
             },
             async setTreeFilehandle(r?: typeof FileLocation) {
               if (r?.blob) {
-                const text = await openLocation(r).readFile("utf8");
+                const text = await openLocation(r).readFile('utf8');
                 this.setTree(text);
               } else {
                 self.treeFilehandle = r;
@@ -330,10 +317,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   const { treeFilehandle } = self;
                   if (treeFilehandle) {
                     const f = openLocation(treeFilehandle);
-                    const result = await f.readFile("utf8");
+                    const result = await f.readFile('utf8');
                     this.setTree(result);
                   }
-                }),
+                })
               );
               addDisposer(
                 self,
@@ -342,10 +329,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
                   if (msaFilehandle) {
                     const f = openLocation(msaFilehandle);
-                    const result = await f.readFile("utf8");
+                    const result = await f.readFile('utf8');
                     this.setMSA(result);
                   }
-                }),
+                })
               );
             },
           }))
@@ -432,7 +419,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 if (text) {
                   if (Stockholm.sniff(text)) {
                     return new StockholmMSA(text, self.currentAlignment);
-                  } else if (text.startsWith(">")) {
+                  } else if (text.startsWith('>')) {
                     return new FastaMSA(text);
                   } else {
                     return new ClustalMSA(text);
@@ -459,7 +446,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   tree
                     ? generateNodeIds(parseNewick(tree))
                     : this.MSA?.getTree(),
-                  collapsed,
+                  collapsed
                 );
               },
 
@@ -485,7 +472,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 for (let i = 0; i < strs[0].length; i++) {
                   let counter = 0;
                   for (let j = 0; j < strs.length; j++) {
-                    if (strs[j][i] === "-") {
+                    if (strs[j][i] === '-') {
                       counter++;
                     }
                   }
@@ -505,7 +492,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
                 const ret: string[] = [];
                 for (let i = 0; i < strs.length; i++) {
-                  let s = "";
+                  let s = '';
                   let b = 0;
                   for (let j = 0; j < strs[i].length; j++) {
                     if (j === this.blanks[b]) {
@@ -517,7 +504,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                   ret.push(s);
                 }
                 return Object.fromEntries(
-                  rows.map((row, index) => [row[0], ret[index]]),
+                  rows.map((row, index) => [row[0], ret[index]])
                 );
               },
 
@@ -531,7 +518,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 setBrLength(
                   root,
                   (root.data.length = 0),
-                  this.treeWidthMinusNames / maxLength(root),
+                  this.treeWidthMinusNames / maxLength(root)
                 );
                 return root;
               },
@@ -540,14 +527,14 @@ export default function stateModelFactory(pluginManager: PluginManager) {
                 return this.root.leaves().length * self.rowHeight;
               },
             };
-          }),
+          })
       )
       .actions(self => ({
         doScrollY(deltaY: number) {
           self.scrollY = clamp(
             -self.totalHeight + 10,
             self.scrollY + deltaY,
-            10,
+            10
           );
         },
 
@@ -555,7 +542,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           self.scrollX = clamp(
             -self.msaWidth + (self.width - self.treeWidth - 20),
             self.scrollX + deltaX,
-            0,
+            0
           );
         },
       })),
@@ -564,7 +551,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
         const { data, ...rest } = result;
         return rest;
       },
-    },
+    }
   );
 }
 
