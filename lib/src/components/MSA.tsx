@@ -6,7 +6,6 @@ import { MsaViewModel } from '../model';
 
 import React, { useEffect, useRef, useMemo } from 'react';
 import { observer } from 'mobx-react';
-import { useTheme } from '@material-ui/core/styles';
 import { Typography, CircularProgress } from '@material-ui/core';
 
 const MSABlock = observer(
@@ -32,15 +31,15 @@ const MSABlock = observer(
       blockSize,
     } = model;
 
-    const theme = useTheme();
     const colorScheme = colorSchemes[colorSchemeName];
     const colorContrast = useMemo(
       () =>
         transform(colorScheme, ([letter, color]: any) => [
           letter,
-          theme.palette.getContrastText(Color(color).hex()),
+          'black',
+          // theme.palette.getContrastText(Color(color).hex()),
         ]),
-      [colorScheme, theme]
+      [colorScheme]
     );
     const ref = useRef<HTMLCanvasElement>(null);
     useEffect(() => {

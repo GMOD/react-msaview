@@ -3,21 +3,22 @@ import { smallTree, smallMSA } from './data/seq2';
 import { observer } from 'mobx-react';
 import { transaction } from 'mobx';
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+// import { makeStyles } from '@material-ui/core/styles';
 import { Button, Container, Grid, Typography, Link } from '@material-ui/core';
 import { FileSelector } from '@jbrowse/core/ui';
 
-const useStyles = makeStyles((theme: any) => ({
-  importFormContainer: {
-    padding: theme.spacing(2),
-  },
-  importFormEntry: {
-    minWidth: 180,
-  },
-}));
+// const useStyles = makeStyles((theme: any) => ({
+//   importFormContainer: {
+//     padding: theme.spacing(2),
+//   },
+//   importFormEntry: {
+//     minWidth: 180,
+//   },
+// }));
 
 export default observer(({ model }: { model: any }) => {
-  const classes = useStyles();
+  const classes = {} as any;
+  // const classes = useStyles();
   const [msaFile, setMsaFile] = useState();
   const [treeFile, setTreeFile] = useState();
 
