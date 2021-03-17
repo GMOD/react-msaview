@@ -1,4 +1,5 @@
 - Fix nodes with the same score being collapsed together (#21)
+- Rename to react-msaview, split out from jbrowse plugin
 
 # v1.0.12
 
