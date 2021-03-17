@@ -4,7 +4,6 @@ import {
   AbstractSessionModel,
   isAbstractMenuManager,
 } from "@jbrowse/core/util";
-import GridOn from "@material-ui/icons/GridOn";
 import { MSAModel, MSAView } from "msaview";
 import ViewType from "@jbrowse/core/pluggableElementTypes/ViewType";
 
@@ -28,7 +27,6 @@ export default class MsaViewPlugin {
     if (isAbstractMenuManager(pluginManager.rootModel)) {
       pluginManager.rootModel.appendToSubMenu(["File", "Add"], {
         label: "Multiple sequence alignment view",
-        icon: GridOn,
         onClick: (session: AbstractSessionModel) => {
           session.addView("MsaView", {});
         },
