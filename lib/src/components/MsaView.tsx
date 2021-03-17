@@ -100,14 +100,11 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
 export default observer(({ model }: { model: MsaViewModel }) => {
   const { done, initialized } = model;
 
-  console.log(done, initialized);
   if (!initialized) {
     return <ImportForm model={model} />;
   } else if (!done) {
-    console.log('wthyyy', done, initialized);
     return <Typography variant="h4">Loading...</Typography>;
   } else {
-    console.log('wthyyy');
     const { height } = model;
 
     return (
