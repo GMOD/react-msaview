@@ -35,14 +35,14 @@
   },
   "name": "react-msaview",
   "author": "Colin",
-  "module": "dist/msaview.esm.js",
+  "module": "dist/react-msaview.esm.js",
   "size-limit": [
     {
-      "path": "dist/msaview.cjs.production.min.js",
+      "path": "dist/react-msaview.cjs.production.min.js",
       "limit": "10 KB"
     },
     {
-      "path": "dist/msaview.esm.js",
+      "path": "dist/react-msaview.esm.js",
       "limit": "10 KB"
     }
   ],
