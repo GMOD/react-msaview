@@ -1,5 +1,13 @@
 # react-msaview
 
+Demo app https://gmod.github.io/react-msaview
+
+This repo also supports https://github.com/GMOD/jbrowse-plugin-msaview which is a jbrowse 2 plugin for viewing MSAs
+
+This repo is a yarn monorepo with a "example" directory hosting a create-react-app which is what the github pages link above shows
+
+It then has the "lib" directory which is published as react-msaview on NPM
+
 ## Features
 
 - Vertical virtualized scrolling of phylogenetic tree
