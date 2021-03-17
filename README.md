@@ -1,15 +1,4 @@
-![Push](https://github.com/GMOD/jbrowse-plugin-msaview/workflows/Push/badge.svg)
-
-# jbrowse-plugin-msaview
-
-## Gallery
-
-![](img/1.png)
-![](img/2.png)
-
-## Demo
-
-https://s3.amazonaws.com/jbrowse.org/code/jb2/master/index.html?config=https://unpkg.com/jbrowse-plugin-msaview/dist/config.json&session=share-BVmmEYAoAv&password=SuQaN
+# react-msaview
 
 ## Features
 
