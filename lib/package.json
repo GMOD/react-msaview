@@ -33,7 +33,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "msaview",
+  "name": "react-msaview",
   "author": "Colin",
   "module": "dist/msaview.esm.js",
   "size-limit": [
@@ -57,5 +57,11 @@
     "tsdx": "^0.14.1",
     "tslib": "^2.1.0",
     "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "@types/color": "^3.0.1",
+    "@types/d3": "^6.3.0",
+    "color": "^3.1.3",
+    "d3-hierarchy": "^2.0.0"
   }
 }
