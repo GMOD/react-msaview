@@ -2,11 +2,20 @@
 
 ## Development
 
-Run jbrowse-web on port 3000, then run `yarn start` in this repo and navigate
-to
+cd lib
+yarn start
 
-http://localhost:3000/?config=http://localhost:9000/config.json
+Then also in another terminal
+
+cd app
+yarn start
+
+The app will run a simple instance of create-react-app
 
 ## Notes
 
 Based on work originally from https://github.com/ihh/abrowse
+
+Also based on work with Open Genome Informatics GSoC student Shreya Srivastava
+
+https://www.npmjs.com/package/phylo-react
