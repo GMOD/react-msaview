@@ -10,6 +10,25 @@ import MSACanvas from './MSACanvas'
 import Header from './Header'
 export default observer(({ model }: { model: MsaViewModel }) => {
   const { done, initialized } = model
+  const [mouseDown, setMouseDown] = useState(false);
+  useEffect(() => {
+    if (mouseDown) {
+      const listener = (event: MouseEvent) => {
+        console.log(event);
+        model.setTreeWidth(model.treeAreaWidth + event.movementX);
+      };
+      const listener2 = () => {
+        setMouseDown(false);
+      };
+      document.addEventListener('mousemove', listener);
+      document.addEventListener('mouseup', listener2);
+      return () => {
+        document.removeEventListener('mousemove', listener);
+        document.removeEventListener('mouseup', listener2);
+      };
+    }
+    return () => {};
+  }, [mouseDown]);
 
   if (!initialized) {
     return <ImportForm model={model} />
@@ -28,6 +47,16 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           }}
         >
           <TreeCanvas model={model} />
+          <div
+            onMouseDown={() => {
+              console.log('here');
+              setMouseDown(true);
+            }}
+            style={{
+              cursor: 'ew-resize',
+              border: '1px solid rgba(100,100,100,0.5)',
+            }}
+          />
           <MSACanvas model={model} />
         </div>
       </div>
