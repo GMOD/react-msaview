@@ -16,7 +16,7 @@ function LicenseDialog({
 }) {
   return (
     <Dialog onClose={() => onClose()} open={open}>
-      <DialogTitle>Settings</DialogTitle>
+      <DialogTitle>Biotite License</DialogTitle>
       <DialogContent>
         <pre style={{ height: 100, overflow: "auto" }}>
           {`
