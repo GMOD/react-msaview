@@ -1,21 +1,17 @@
+import React, { useState } from 'react';
+import { IconButton, Select } from '@material-ui/core';
+import { MsaViewModel } from '../model';
+import { observer } from 'mobx-react';
+
+import SettingsDialog from './SettingsDlg';
+import AboutDialog from './AboutDlg';
+import DetailsDialog from './DetailsDlg';
+
 //icons
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import SettingsIcon from '@material-ui/icons/Settings';
 import InfoIcon from '@material-ui/icons/Info';
 import AssignmentIcon from '@material-ui/icons/Assignment';
-
-//components
-import SettingsDialog from './SettingsDlg';
-import AboutDialog from './AboutDlg';
-import DetailsDialog from './DetailsDlg';
-import ImportForm from './ImportForm';
-import TreeCanvas from './Tree';
-import MSACanvas from './MSA';
-
-import { MsaViewModel } from '../model';
-import React, { useState } from 'react';
-import { observer } from 'mobx-react';
-import { IconButton, Typography, Select } from '@material-ui/core';
 
 const Header = observer(({ model }: { model: MsaViewModel }) => {
   const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
@@ -97,29 +93,4 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
   );
 });
 
-export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, initialized } = model;
-
-  if (!initialized) {
-    return <ImportForm model={model} />;
-  } else if (!done) {
-    return <Typography variant="h4">Loading...</Typography>;
-  } else {
-    const { height } = model;
-
-    return (
-      <div style={{ height, overflow: 'hidden' }}>
-        <Header model={model} />
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-          }}
-        >
-          <TreeCanvas model={model} />
-          <MSACanvas model={model} />
-        </div>
-      </div>
-    );
-  }
-});
+export default Header;

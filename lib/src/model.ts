@@ -91,6 +91,8 @@ class FastaMSA {
   }
 }
 
+console.log('test');
+
 class StockholmMSA {
   private MSA: any;
   private data: any;
