@@ -14,7 +14,6 @@ export default observer(({ model }: { model: MsaViewModel }) => {
   useEffect(() => {
     if (mouseDown) {
       const listener = (event: MouseEvent) => {
-        console.log(event);
         model.setTreeWidth(model.treeAreaWidth + event.movementX);
       };
       const listener2 = () => {
@@ -49,7 +48,6 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <TreeCanvas model={model} />
           <div
             onMouseDown={() => {
-              console.log('here');
               setMouseDown(true);
             }}
             style={{
