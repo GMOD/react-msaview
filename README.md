@@ -30,3 +30,11 @@ It then has the "lib" directory which is published as react-msaview on NPM
   alignments embedded in a single file)
 - Clustal files (e.g. .aln file, uses clustal-js parser)
 - Newick (tree can be loaded separately as a .nh file)
+
+## Developers
+
+To begin run git clone the repo and run `yarn && yarn start`
+
+This will actually in parallel start the code in the lib directory (containing
+the npm package named react-msaview) and the app directory (containing a
+create-react-app demo app)
