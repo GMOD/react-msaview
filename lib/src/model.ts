@@ -4,8 +4,9 @@ import { hierarchy, cluster, HierarchyNode } from "d3-hierarchy";
 import { ascending, max } from "d3-array";
 import parseNewick from "./parseNewick";
 import Stockholm from "stockholm-js";
-import { Instance, types, addDisposer } from "mobx-state-tree";
+import { Instance, cast, types, addDisposer } from "mobx-state-tree";
 import { FileLocation, ElementId } from "@jbrowse/core/util/types/mst";
+import { FileLocation as FileLocationType } from "@jbrowse/core/util/types";
 
 import { openLocation } from "@jbrowse/core/util/io";
 import { autorun } from "mobx";
@@ -288,38 +289,30 @@ const model = types.snapshotProcessor(
           toggleNodeBubbles() {
             self.drawNodeBubbles = !self.drawNodeBubbles;
           },
-          setData(data: any) {
-            self.data = data;
+          setData(data: { tree: string; msa: string }) {
+            self.data = cast(data);
           },
           setWidth(width: number) {
             self.volatileWidth = width;
           },
-          async setMSAFilehandle(r?: typeof FileLocation) {
-            //@ts-ignore
-            if (r?.blob) {
-              //@ts-ignore
-              const text = await openLocation(r).readFile("utf8");
-              this.setMSA(text);
+          async setMSAFilehandle(r?: FileLocationType) {
+            if (r !== undefined && "blobId" in r) {
+              this.setMSA((await openLocation(r).readFile("utf8")) as string);
             } else {
-              //@ts-ignore
               self.msaFilehandle = r;
             }
           },
-          async setTreeFilehandle(r?: typeof FileLocation) {
-            //@ts-ignore
-            if (r?.blob) {
-              //@ts-ignore
-              const text = await openLocation(r).readFile("utf8");
-              this.setTree(text);
+          async setTreeFilehandle(r?: FileLocationType) {
+            if (r !== undefined && "blobId" in r) {
+              this.setTree((await openLocation(r).readFile("utf8")) as string);
             } else {
-              //@ts-ignore
               self.treeFilehandle = r;
             }
           },
-          setMSA(result: any) {
+          setMSA(result: string) {
             self.data.setMSA(result);
           },
-          setTree(result: any) {
+          setTree(result: string) {
             self.data.setTree(result);
           },
 
