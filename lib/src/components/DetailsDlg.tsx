@@ -1,9 +1,9 @@
-import { MsaViewModel } from '../model';
+import { MsaViewModel } from "../model";
 
-import React from 'react';
-import { observer } from 'mobx-react';
-import { Dialog, DialogTitle, DialogContent } from '@material-ui/core';
-import { Attributes } from '@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail';
+import React from "react";
+import { observer } from "mobx-react";
+import { Dialog, DialogTitle, DialogContent } from "@material-ui/core";
+import { Attributes } from "@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail";
 
 export default observer(
   ({
@@ -12,7 +12,7 @@ export default observer(
     open,
   }: {
     model: MsaViewModel;
-    onClose: Function;
+    onClose: () => void;
     open: boolean;
   }) => {
     const { alignmentDetails } = model;

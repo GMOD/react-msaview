@@ -1,13 +1,14 @@
-import normalizeWheel from 'normalize-wheel';
-import Color from 'color';
-import colorSchemes from '../colorSchemes';
-import { transform } from '../util';
-import { MsaViewModel } from '../model';
+import normalizeWheel from "normalize-wheel";
+import Color from "color";
+import colorSchemes from "../colorSchemes";
+import { transform } from "../util";
+import { MsaViewModel } from "../model";
 
-import React, { useEffect, useRef, useMemo } from 'react';
-import { observer } from 'mobx-react';
-import { Typography, CircularProgress } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
+import React, { useEffect, useRef, useMemo } from "react";
+import { observer } from "mobx-react";
+import { Typography, CircularProgress } from "@material-ui/core";
+import { useTheme } from "@material-ui/core/styles";
+import { HierarchyNode } from "d3-hierarchy";
 
 const MSABlock = observer(
   ({
@@ -36,7 +37,7 @@ const MSABlock = observer(
     const colorScheme = colorSchemes[colorSchemeName];
     const colorContrast = useMemo(
       () =>
-        transform(colorScheme, ([letter, color]: any) => [
+        transform(colorScheme, ([letter, color]) => [
           letter,
           theme.palette.getContrastText(Color(color).hex()),
         ]),
@@ -48,7 +49,7 @@ const MSABlock = observer(
         return;
       }
 
-      const ctx = ref.current.getContext('2d');
+      const ctx = ref.current.getContext("2d");
       if (!ctx) {
         return;
       }
@@ -56,7 +57,7 @@ const MSABlock = observer(
       ctx.resetTransform();
       ctx.clearRect(0, 0, blockSize, blockSize);
       ctx.translate(-offsetX, rowHeight / 2 - offsetY);
-      ctx.textAlign = 'center';
+      ctx.textAlign = "center";
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 12)}px`);
 
       const leaves = hierarchy.leaves();
@@ -73,7 +74,7 @@ const MSABlock = observer(
       const xStart = Math.max(0, Math.floor(offsetX / colWidth));
       const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth));
       const visibleLeaves = leaves.slice(yStart, yEnd);
-      visibleLeaves.forEach((node: any) => {
+      visibleLeaves.forEach((node: HierarchyNode<any>) => {
         const {
           x: y,
           data: { name },
@@ -85,14 +86,14 @@ const MSABlock = observer(
           const color = colorScheme[letter.toUpperCase()];
           if (bgColor) {
             const x = i * colWidth + offsetX - (offsetX % colWidth);
-            ctx.fillStyle = color || 'white';
+            ctx.fillStyle = color || "white";
             ctx.fillRect(x, y - rowHeight, colWidth, rowHeight);
           }
         }
       });
 
       if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-        visibleLeaves.forEach((node: any) => {
+        visibleLeaves.forEach((node: HierarchyNode<any>) => {
           const {
             x: y,
             data: { name },
@@ -102,11 +103,11 @@ const MSABlock = observer(
           for (let i = 0; i < str?.length; i++) {
             const letter = str[i];
             const color = colorScheme[letter.toUpperCase()];
-            const contrast = colorContrast[letter.toUpperCase()] || 'black';
+            const contrast = colorContrast[letter.toUpperCase()] || "black";
             const x = i * colWidth + offsetX - (offsetX % colWidth);
 
             //note: -rowHeight/4 matches +rowHeight/4 in tree
-            ctx.fillStyle = bgColor ? contrast : color || 'black';
+            ctx.fillStyle = bgColor ? contrast : color || "black";
             ctx.fillText(
               letter,
               Math.floor(x + colWidth / 2),
@@ -135,7 +136,7 @@ const MSABlock = observer(
         width={blockSize}
         height={blockSize}
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: scrollY + offsetY,
           left: scrollX + offsetX,
           width: blockSize,
@@ -182,38 +183,45 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
       }
       origEvent.preventDefault();
     }
-    curr.addEventListener('wheel', onWheel);
+    curr.addEventListener("wheel", onWheel);
     return () => {
-      curr.removeEventListener('wheel', onWheel);
+      curr.removeEventListener("wheel", onWheel);
     };
   }, [model]);
-  let blocks: any[] = [];
-  blocksY.forEach(blockY =>
-    blocksX.forEach(blockX => {
-      const key = `${blockX}_${blockY}`;
-      blocks.push(
-        <MSABlock key={key} model={model} offsetX={blockX} offsetY={blockY} />
-      );
-    })
-  );
 
   return (
     <div
       ref={ref}
       style={{
-        position: 'relative',
+        position: "relative",
         height,
         width: width - treeWidth,
-        overflow: 'hidden',
+        overflow: "hidden",
       }}
     >
       {!MSA && !msaFilehandle ? null : !MSA ? (
-        <div style={{ position: 'absolute', left: '50%', top: '50%' }}>
+        <div style={{ position: "absolute", left: "50%", top: "50%" }}>
           <CircularProgress />
           <Typography>Loading...</Typography>
         </div>
       ) : (
-        blocks
+        <>
+          {blocksY
+            .map((blockY) =>
+              blocksX.map((blockX) => {
+                const key = `${blockX}_${blockY}`;
+                return (
+                  <MSABlock
+                    key={key}
+                    model={model}
+                    offsetX={blockX}
+                    offsetY={blockY}
+                  />
+                );
+              })
+            )
+            .flat()}
+        </>
       )}
     </div>
   );

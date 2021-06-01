@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { IconButton, Select } from '@material-ui/core';
-import { MsaViewModel } from '../model';
-import { observer } from 'mobx-react';
+import React, { useState } from "react";
+import { IconButton, Select } from "@material-ui/core";
+import { MsaViewModel } from "../model";
+import { observer } from "mobx-react";
 
-import SettingsDialog from './SettingsDlg';
-import AboutDialog from './AboutDlg';
-import DetailsDialog from './DetailsDlg';
+import SettingsDialog from "./SettingsDlg";
+import AboutDialog from "./AboutDlg";
+import DetailsDialog from "./DetailsDlg";
 
 //icons
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
-import SettingsIcon from '@material-ui/icons/Settings';
-import InfoIcon from '@material-ui/icons/Info';
-import AssignmentIcon from '@material-ui/icons/Assignment';
+import FolderOpenIcon from "@material-ui/icons/FolderOpen";
+import SettingsIcon from "@material-ui/icons/Settings";
+import InfoIcon from "@material-ui/icons/Info";
+import AssignmentIcon from "@material-ui/icons/Assignment";
 
 const Header = observer(({ model }: { model: MsaViewModel }) => {
   const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
@@ -20,10 +20,10 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
   const { currentAlignment, alignmentNames } = model;
 
   return (
-    <div style={{ display: 'block' }}>
+    <div style={{ display: "block" }}>
       <IconButton
         onClick={() => {
-          model.setData({ tree: '', msa: '' });
+          model.setData({ tree: "", msa: "" });
           model.setTreeFilehandle(undefined);
           model.setMSAFilehandle(undefined);
           model.setScrollY(0);
@@ -75,15 +75,14 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         <Select
           native
           value={currentAlignment}
-          onChange={event => {
-            //@ts-ignore
-            model.setCurrentAlignment(+event.target.value);
+          onChange={(event) => {
+            model.setCurrentAlignment(+(event.target.value as string));
             model.setScrollX(0);
             model.setScrollY(0);
           }}
         >
           {alignmentNames.map((option, index) => (
-            <option key={option + '-' + index} value={index}>
+            <option key={option + "-" + index} value={index}>
               {option}
             </option>
           ))}

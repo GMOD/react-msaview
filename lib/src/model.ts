@@ -12,7 +12,7 @@ import { openLocation } from "@jbrowse/core/util/io";
 import { autorun } from "mobx";
 
 class ClustalMSA {
-  private MSA: { header: {}; alns: { id: string; seq: string }[] };
+  private MSA: { header: unknown; alns: { id: string; seq: string }[] };
   constructor(text: string) {
     this.MSA = Clustal.parse(text);
   }
@@ -143,7 +143,11 @@ class StockholmMSA {
   }
 }
 
-function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
+function setBrLength(
+  d: HierarchyNode<{ length: number; len: number }>,
+  y0: number,
+  k: number
+) {
   d.data.len = (y0 += Math.max(d.data.length || 0, 0)) * k;
   if (d.children) {
     d.children.forEach((d) => {
@@ -152,13 +156,13 @@ function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   }
 }
 
-function maxLength(d: HierarchyNode<any>): number {
-  return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0);
+function maxLength(d: HierarchyNode<{ length: number }>): number {
+  return (d.data.length || 1) + (max(d.children || [], maxLength) || 0);
 }
 
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
-function getRoot(tree: HierarchyNode<any>) {
+function getRoot(tree: HierarchyNode<{ length: number }>) {
   return hierarchy(tree, (d) => d.branchset)
     .sum((d) => (d.branchset ? 0 : 1))
     .sort((a, b) => {
@@ -554,6 +558,7 @@ const model = types.snapshotProcessor(
     })),
   {
     postProcessor(result) {
+      //eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { data, ...rest } = result;
       return rest;
     },

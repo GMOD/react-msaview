@@ -1,30 +1,19 @@
-import { smallTree, smallMSA } from './data/seq2';
+import React, { useState } from "react";
+import { Button, Container, Grid, Typography, Link } from "@material-ui/core";
+import { observer } from "mobx-react";
+import { transaction } from "mobx";
+import { FileSelector } from "@jbrowse/core/ui";
+import { FileLocation } from "@jbrowse/core/util/types";
+import { MsaViewModel } from "../model";
+import { smallTree, smallMSA } from "./data/seq2";
 
-import { observer } from 'mobx-react';
-import { transaction } from 'mobx';
-import React, { useState } from 'react';
-// import { makeStyles } from '@material-ui/core/styles';
-import { Button, Container, Grid, Typography, Link } from '@material-ui/core';
-import { FileSelector } from '@jbrowse/core/ui';
-
-// const useStyles = makeStyles((theme: any) => ({
-//   importFormContainer: {
-//     padding: theme.spacing(2),
-//   },
-//   importFormEntry: {
-//     minWidth: 180,
-//   },
-// }));
-
-export default observer(({ model }: { model: any }) => {
-  const classes = {} as any;
-  // const classes = useStyles();
-  const [msaFile, setMsaFile] = useState();
-  const [treeFile, setTreeFile] = useState();
+export default observer(({ model }: { model: MsaViewModel }) => {
+  const [msaFile, setMsaFile] = useState<FileLocation>();
+  const [treeFile, setTreeFile] = useState<FileLocation>();
 
   return (
-    <Container className={classes.importFormContainer}>
-      <div style={{ width: '50%' }}>
+    <Container>
+      <div style={{ width: "50%" }}>
         <Typography>
           Open an MSA file (stockholm or clustal format) and/or a tree file
           (newick format).
@@ -40,19 +29,9 @@ export default observer(({ model }: { model: any }) => {
       <Grid container spacing={10} justify="center" alignItems="center">
         <Grid item>
           <Typography>MSA file or URL</Typography>
-          <FileSelector
-            location={msaFile}
-            //@ts-ignore
-            setLocation={setMsaFile}
-            localFileAllowed
-          />
+          <FileSelector location={msaFile} setLocation={setMsaFile} />
           <Typography>Tree file or URL</Typography>
-          <FileSelector
-            location={treeFile}
-            //@ts-ignore
-            setLocation={setTreeFile}
-            localFileAllowed
-          />
+          <FileSelector location={treeFile} setLocation={setTreeFile} />
         </Grid>
 
         <Grid item>
@@ -82,7 +61,7 @@ export default observer(({ model }: { model: any }) => {
                 onClick={() => {
                   model.setTreeFilehandle({
                     uri:
-                      'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
+                      "https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh",
                   });
                 }}
               >
@@ -104,7 +83,7 @@ export default observer(({ model }: { model: any }) => {
                 href="#"
                 onClick={() => {
                   model.setMSAFilehandle({
-                    uri: 'https://ihh.github.io/abrowse/build/pfam-cov2.stock',
+                    uri: "https://ihh.github.io/abrowse/build/pfam-cov2.stock",
                   });
                 }}
               >
@@ -117,7 +96,7 @@ export default observer(({ model }: { model: any }) => {
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri:
-                      'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
+                      "https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock",
                   });
                 }}
               >
@@ -130,7 +109,7 @@ export default observer(({ model }: { model: any }) => {
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri:
-                      'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
+                      "https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt",
                   });
                 }}
               >
@@ -143,7 +122,7 @@ export default observer(({ model }: { model: any }) => {
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri:
-                      'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
+                      "https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa",
                   });
                 }}
               >
@@ -157,11 +136,11 @@ export default observer(({ model }: { model: any }) => {
                   transaction(() => {
                     model.setMSAFilehandle({
                       uri:
-                        'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
+                        "https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa",
                     });
                     model.setTreeFilehandle({
                       uri:
-                        'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
+                        "https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh",
                     });
                   });
                 }}
