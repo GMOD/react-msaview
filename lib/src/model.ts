@@ -91,8 +91,6 @@ class FastaMSA {
   }
 }
 
-console.log('test');
-
 class StockholmMSA {
   private MSA: any;
   private data: any;
@@ -132,7 +130,7 @@ class StockholmMSA {
       : {
           name: 'root',
           noTree: true,
-          branchset: Object.keys(this.MSA.seqdata).map((name: any) => ({
+          branchset: Object.keys(this.MSA.seqdata).map(name => ({
             name,
           })),
         };

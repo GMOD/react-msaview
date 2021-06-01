@@ -1,5 +1,5 @@
 import { observer } from "mobx-react";
-import { MSAView, MSAModel } from "msaview";
+import { MSAView, MSAModel } from "react-msaview";
 import { createJBrowseTheme } from "@jbrowse/core/ui/theme";
 
 import { ThemeProvider } from "@material-ui/core/styles";
