@@ -1,9 +1,9 @@
-import { MsaViewModel } from '../model';
-import normalizeWheel from 'normalize-wheel';
+import { MsaViewModel } from "../model";
+import normalizeWheel from "normalize-wheel";
 
-import { observer } from 'mobx-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { Menu, MenuItem } from '@material-ui/core';
+import { observer } from "mobx-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Menu, MenuItem } from "@material-ui/core";
 const extendBounds = 5;
 const radius = 3.5;
 const d = radius * 2;
@@ -47,13 +47,13 @@ const TreeBlock = observer(
       if (!ref.current || !clickRef.current) {
         return;
       }
-      const ctx = ref.current.getContext('2d');
-      const clickCtx = clickRef.current.getContext('2d');
+      const ctx = ref.current.getContext("2d");
+      const clickCtx = clickRef.current.getContext("2d");
       if (!ctx || !clickCtx) {
         return;
       }
       const colorHash: StrMap = {};
-      [ctx, clickCtx].forEach(context => {
+      [ctx, clickCtx].forEach((context) => {
         context.resetTransform();
         context.clearRect(0, 0, width, blockSize);
         context.translate(margin.left, -offsetY);
@@ -63,10 +63,19 @@ const TreeBlock = observer(
       ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`);
 
       if (!noTree) {
-        hierarchy.links().forEach(({ source, target }: any) => {
-          const y = showBranchLen ? 'len' : 'y';
-          const { x: sy, [y]: sx } = source;
-          const { x: ty, [y]: tx } = target;
+        hierarchy.links().forEach(({ source, target }) => {
+          const {
+            x: sy,
+            y: sx,
+            data: { len: slen },
+          } = source;
+          const {
+            x: ty,
+            y: tx,
+            data: { len: tlen },
+          } = target;
+          const seffx = showBranchLen ? slen : sx;
+          const teffx = showBranchLen ? tlen : tx;
 
           const y1 = Math.min(sy, ty);
           const y2 = Math.max(sy, ty);
@@ -75,32 +84,27 @@ const TreeBlock = observer(
           //outside the block
           if (offsetY + blockSize >= y1 && y2 >= offsetY) {
             ctx.beginPath();
-            ctx.moveTo(sx, sy);
-            ctx.lineTo(sx, ty);
-            ctx.lineTo(tx, ty);
+            ctx.moveTo(seffx, sy);
+            ctx.lineTo(seffx, ty);
+            ctx.lineTo(teffx, ty);
             ctx.stroke();
           }
         });
 
         if (drawNodeBubbles) {
-          hierarchy.descendants().forEach(node => {
-            const val = showBranchLen ? 'len' : 'y';
-            const {
-              //@ts-ignore
-              x: y,
-              //@ts-ignore
-              [val]: x,
-              data,
-            } = node;
+          hierarchy.descendants().forEach((node) => {
+            const { x: y, y: x, data } = node;
+            const { len, id } = data;
+            const effx = showBranchLen ? len : x;
 
             if (
               y > offsetY - extendBounds &&
               y < offsetY + blockSize + extendBounds
             ) {
-              ctx.strokeStyle = 'black';
-              ctx.fillStyle = collapsed.includes(data.id) ? 'black' : 'white';
+              ctx.strokeStyle = "black";
+              ctx.fillStyle = collapsed.includes(id) ? "black" : "white";
               ctx.beginPath();
-              ctx.arc(x, y, radius, 0, 2 * Math.PI);
+              ctx.arc(effx, y, radius, 0, 2 * Math.PI);
               ctx.fill();
               ctx.stroke();
 
@@ -109,17 +113,17 @@ const TreeBlock = observer(
               colorHash[`${col}`] = data;
 
               clickCtx.fillStyle = `rgb(${r},${g},${b})`;
-              clickCtx.fillRect(x - radius, y - radius, d, d);
+              clickCtx.fillRect(effx - radius, y - radius, d, d);
             }
           });
         }
       }
 
       if (rowHeight >= 10) {
-        ctx.fillStyle = 'black';
-        hierarchy.leaves().forEach((node: any) => {
-          const { x: y, y: x, data, len } = node;
-          const { name } = data;
+        ctx.fillStyle = "black";
+        hierarchy.leaves().forEach((node) => {
+          const { x: y, y: x, data } = node;
+          const { name, len } = data;
           if (
             y > offsetY - extendBounds &&
             y < offsetY + blockSize + extendBounds
@@ -153,7 +157,7 @@ const TreeBlock = observer(
       if (!clickRef.current) {
         return;
       }
-      const clickCtx = clickRef.current.getContext('2d');
+      const clickCtx = clickRef.current.getContext("2d");
       if (!clickCtx) {
         return;
       }
@@ -170,7 +174,7 @@ const TreeBlock = observer(
         <div
           ref={menuRef}
           style={{
-            position: 'absolute',
+            position: "absolute",
             left: hovering?.x || 0,
             top: scrollY + offsetY + (hovering?.y || 0),
           }}
@@ -190,7 +194,7 @@ const TreeBlock = observer(
                 handleClose();
               }}
             >
-              {model.collapsed.includes(hovering.id) ? 'Expand' : 'Collapse'}
+              {model.collapsed.includes(hovering.id) ? "Expand" : "Collapse"}
             </MenuItem>
           </Menu>
         ) : null}
@@ -202,22 +206,22 @@ const TreeBlock = observer(
             height: blockSize,
             top: scrollY + offsetY,
             left: 0,
-            position: 'absolute',
+            position: "absolute",
           }}
-          onMouseMove={event => {
+          onMouseMove={(event) => {
             if (!ref.current) {
               return;
             }
             const data = decode(event);
             if (data) {
               if (data.id) {
-                ref.current.style.cursor = 'pointer';
+                ref.current.style.cursor = "pointer";
               } else {
-                ref.current.style.cursor = 'default';
+                ref.current.style.cursor = "default";
               }
             }
           }}
-          onClick={event => {
+          onClick={(event) => {
             const data = decode(event);
             if (data && data.id) {
               setHovering(data);
@@ -226,7 +230,7 @@ const TreeBlock = observer(
           ref={ref}
         />
         <canvas
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           width={width}
           height={blockSize}
           ref={clickRef}
@@ -260,9 +264,9 @@ const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
       }
       origEvent.preventDefault();
     }
-    curr.addEventListener('wheel', onWheel);
+    curr.addEventListener("wheel", onWheel);
     return () => {
-      curr.removeEventListener('wheel', onWheel);
+      curr.removeEventListener("wheel", onWheel);
     };
   }, [model]);
 
@@ -271,12 +275,12 @@ const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
       ref={ref}
       style={{
         height,
-        position: 'relative',
-        overflow: 'hidden',
+        position: "relative",
+        overflow: "hidden",
         width,
       }}
     >
-      {blocksY.map(block => (
+      {blocksY.map((block) => (
         <TreeBlock key={block} model={model} offsetY={block} />
       ))}
     </div>
