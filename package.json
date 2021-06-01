@@ -7,7 +7,7 @@
   "scripts": {
     "lib": "cd lib; npm run start",
     "app": "cd app; npm run start",
-    "start": "concurrently \"yarn lib\"  \"echo Compiling lib... && wait-on http://localhost:9000/dist/react-msaview.cjs.development.js && echo TSDX finished && yarn app\""
+    "start": "concurrently \"yarn lib\"  \"echo Compiling lib... && wait-on lib/dist/index.js && echo TSDX finished && yarn app\""
   },
   "devDependencies": {
     "concurrently": "^6.2.0",

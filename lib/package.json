@@ -4,37 +4,26 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch --onFirstSuccess \"yarn serve --cors --listen 9000 .\"",
-    "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean",
+    "start": "yarn build:js --watch",
+    "build": "yarn build:types && npm run build:js",
+    "build:types": "tsc",
+    "build:js": "babel src --out-dir dist --extensions \".ts,.tsx,.js\" --source-maps inline",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
-    "react": ">=16",
-    "react-dom": ">=16",
+    "@jbrowse/core": ">=1.3.0",
     "@material-ui/core": ">=4.11.3",
-    "@jbrowse/core": ">=1.2.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
-  },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "name": "react-msaview",
   "author": "Colin",
@@ -50,16 +39,20 @@
     }
   ],
   "devDependencies": {
+    "@babel/cli": "^7.14.3",
+    "@babel/preset-env": "^7.14.4",
+    "@babel/preset-react": "^7.13.13",
+    "@babel/preset-typescript": "^7.13.0",
     "@size-limit/preset-small-lib": "^4.10.1",
-    "@types/react": "^17.0.3",
-    "@types/react-dom": "^17.0.2",
     "@types/color": "^3.0.1",
     "@types/d3": "^6.3.0",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.2",
+    "eslint-config-react-app": "^6.0.0",
     "husky": "^5.1.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "size-limit": "^4.10.1",
-    "tsdx": "^0.14.1",
     "tslib": "^2.1.0",
     "typescript": "^4.2.3"
   },
