@@ -492,6 +492,10 @@ const model = types.snapshotProcessor(
               return this.noTree ? self.nameWidth : self.treeAreaWidth
             },
 
+            get msaAreaWidth() {
+              return this.width - this.treeWidth
+            },
+
             get blanks() {
               const nodes = this.hierarchy.leaves()
               const blanks = []

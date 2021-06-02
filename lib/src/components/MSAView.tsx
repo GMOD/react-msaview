@@ -7,6 +7,8 @@ import { Typography } from '@material-ui/core'
 import ImportForm from './ImportForm'
 import TreeCanvas from './TreeCanvas'
 import MSACanvas from './MSACanvas'
+import Ruler from './Ruler'
+import TreeRuler from './TreeRuler'
 import Header from './Header'
 export default observer(({ model }: { model: MsaViewModel }) => {
   const { done, initialized } = model
@@ -61,36 +63,41 @@ export default observer(({ model }: { model: MsaViewModel }) => {
     return (
       <div style={{ height, overflow: 'hidden' }}>
         <Header model={model} />
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-          }}
-        >
-          <TreeCanvas model={model} />
-          <div>
-            <div
-              onMouseDown={() => {
-                setCropMouseDown(true)
-              }}
-              style={{
-                cursor: 'ew-resize',
-                height: '50%',
-                border: '3px solid rgba(40,200,40)',
-              }}
-            />
-            <div
-              onMouseDown={() => {
-                setMouseDown(true)
-              }}
-              style={{
-                cursor: 'ew-resize',
-                height: '50%',
-                border: '3px solid rgba(200,40,40)',
-              }}
-            />
+        <div>
+          <div style={{ display: 'flex', height: 20 }}>
+            <TreeRuler model={model} />
+            <Ruler model={model} />
           </div>
-          <MSACanvas model={model} />
+          <div
+            style={{
+              display: 'flex',
+            }}
+          >
+            <TreeCanvas model={model} />
+            <div>
+              <div
+                onMouseDown={() => {
+                  setCropMouseDown(true)
+                }}
+                style={{
+                  cursor: 'ew-resize',
+                  height: '50%',
+                  border: '3px solid rgba(40,200,40)',
+                }}
+              />
+              <div
+                onMouseDown={() => {
+                  setMouseDown(true)
+                }}
+                style={{
+                  cursor: 'ew-resize',
+                  height: '50%',
+                  border: '3px solid rgba(200,40,40)',
+                }}
+              />
+            </div>
+            <MSACanvas model={model} />
+          </div>
         </div>
       </div>
     )

@@ -204,22 +204,18 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
           <Typography>Loading...</Typography>
         </div>
       ) : (
-        <>
-          {blocksY
-            .map((blockY) =>
-              blocksX.map((blockX) => {
-                return (
-                  <MSABlock
-                    key={`${blockX}_${blockY}`}
-                    model={model}
-                    offsetX={blockX}
-                    offsetY={blockY}
-                  />
-                )
-              }),
-            )
-            .flat()}
-        </>
+        blocksY
+          .map((by) =>
+            blocksX.map((bx) => (
+              <MSABlock
+                key={`${bx}_${by}`}
+                model={model}
+                offsetX={bx}
+                offsetY={by}
+              />
+            )),
+          )
+          .flat()
       )}
     </div>
   )
