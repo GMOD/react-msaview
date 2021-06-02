@@ -1,18 +1,19 @@
-import BaseViewModel from "@jbrowse/core/pluggableElementTypes/models/BaseViewModel";
-import * as Clustal from "clustal-js";
-import { hierarchy, cluster, HierarchyNode } from "d3-hierarchy";
-import { ascending, max } from "d3-array";
-import parseNewick from "./parseNewick";
-import Stockholm from "stockholm-js";
-import { Instance, cast, types, addDisposer } from "mobx-state-tree";
-import { FileLocation, ElementId } from "@jbrowse/core/util/types/mst";
-import { FileLocation as FileLocationType } from "@jbrowse/core/util/types";
+import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel';
+import * as Clustal from 'clustal-js';
+import { hierarchy, cluster } from 'd3-hierarchy';
+import { ascending, max } from 'd3-array';
+import parseNewick from './parseNewick';
+import Stockholm from 'stockholm-js';
+import { Instance, types, addDisposer } from 'mobx-state-tree';
+import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst';
 
-import { openLocation } from "@jbrowse/core/util/io";
-import { autorun } from "mobx";
+import { openLocation } from '@jbrowse/core/util/io';
+import { autorun } from 'mobx';
+
+let str = JSON.stringify;
 
 class ClustalMSA {
-  private MSA: { header: unknown; alns: { id: string; seq: string }[] };
+  private MSA: any;
   constructor(text: string) {
     this.MSA = Clustal.parse(text);
   }
@@ -22,7 +23,7 @@ class ClustalMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.alns.find((aln) => aln.id === name)?.seq.split("");
+    return this.MSA.alns.find((aln: any) => aln.id === name)?.seq.split('');
   }
 
   getWidth() {
@@ -35,9 +36,9 @@ class ClustalMSA {
 
   getTree() {
     return {
-      name: "root",
+      name: 'root',
       noTree: true,
-      branchset: this.MSA.alns.map((aln) => ({
+      branchset: this.MSA.alns.map((aln: any) => ({
         name: aln.id,
       })),
     };
@@ -46,17 +47,17 @@ class ClustalMSA {
 
 type StrMap = { [key: string]: string };
 class FastaMSA {
-  private MSA: { seqdata: { [key: string]: string } };
+  private MSA: any;
   constructor(text: string) {
-    const seq: StrMap = {};
-    let name = "";
-    const re = /^>(\S+)/;
-    text.split("\n").forEach((line) => {
+    let seq: StrMap = {};
+    let name = '';
+    let re = /^>(\S+)/;
+    text.split('\n').forEach(line => {
       const match = re.exec(line);
       if (match) {
-        seq[(name = match[1])] = "";
+        seq[(name = match[1])] = '';
       } else if (name) {
-        seq[name] = seq[name] + line.replace(/[ \t]/g, "");
+        seq[name] = seq[name] + line.replace(/[ \t]/g, '');
       }
     });
     this.MSA = { seqdata: seq };
@@ -67,7 +68,7 @@ class FastaMSA {
   }
 
   getRow(name: string) {
-    return this.MSA?.seqdata[name]?.split("");
+    return this.MSA?.seqdata[name]?.split('');
   }
 
   getWidth() {
@@ -81,25 +82,18 @@ class FastaMSA {
 
   getTree() {
     return {
-      name: "root",
+      name: 'root',
       noTree: true,
-      branchset: Object.keys(this.MSA.seqdata).map((name) => ({
+      branchset: Object.keys(this.MSA.seqdata).map(name => ({
         name,
       })),
     };
   }
 }
-type StockholmEntry = {
-  gf: {
-    DE?: string[];
-    NH?: string[];
-  };
-  seqdata: { [key: string]: string };
-};
-class StockholmMSA {
-  private data: StockholmEntry[];
-  private MSA: StockholmEntry;
 
+class StockholmMSA {
+  private MSA: any;
+  private data: any;
   constructor(text: string, currentAlignment: number) {
     const res = Stockholm.parseAll(text);
     this.data = res;
@@ -111,7 +105,7 @@ class StockholmMSA {
   }
 
   getRow(name: string) {
-    return this.MSA?.seqdata[name]?.split("");
+    return this.MSA?.seqdata[name]?.split('');
   }
 
   getWidth() {
@@ -121,7 +115,7 @@ class StockholmMSA {
 
   alignmentNames() {
     return this.data.map(
-      (aln, index) => aln.gf.DE?.[0] || `Alignment ${index + 1}`
+      (aln: any, index: number) => aln.gf.DE?.[0] || `Alignment ${index + 1}`
     );
   }
 
@@ -134,65 +128,56 @@ class StockholmMSA {
     return tree
       ? generateNodeIds(parseNewick(tree))
       : {
-          name: "root",
+          name: 'root',
           noTree: true,
-          branchset: Object.keys(this.MSA.seqdata).map((name) => ({
+          branchset: Object.keys(this.MSA.seqdata).map(name => ({
             name,
           })),
         };
   }
 }
 
-function setBrLength(
-  d: HierarchyNode<{ length: number; len: number }>,
-  y0: number,
-  k: number
-) {
-  d.data.len = (y0 += Math.max(d.data.length || 0, 0)) * k;
+function setBrLength(d: any, y0: number, k: number) {
+  d.len = (y0 += Math.max(d.data.length || 0, 0)) * k;
   if (d.children) {
-    d.children.forEach((d) => {
+    d.children.forEach((d: any) => {
       setBrLength(d, y0, k);
     });
   }
 }
 
-function maxLength(d: HierarchyNode<{ length: number }>): number {
-  return (d.data.length || 1) + (max(d.children || [], maxLength) || 0);
+function maxLength(d: any): number {
+  return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0);
 }
 
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
-function getRoot(tree: HierarchyNode<{ length: number }>) {
-  return hierarchy(tree, (d) => d.branchset)
-    .sum((d) => (d.branchset ? 0 : 1))
+function getRoot(tree: any) {
+  return hierarchy(tree, d => d.branchset)
+    .sum(d => (d.branchset ? 0 : 1))
     .sort((a, b) => {
       return ascending(a.data.length || 1, b.data.length || 1);
     });
 }
 
-function generateNodeIds(
-  tree: ReturnType<typeof parseNewick>,
-  parent = "node",
-  depth = 0,
-  index = 0
-) {
-  const id = `${parent}-${depth}-${index}`;
+function generateNodeIds(tree: any, parent = 'node', depth = 0, index = 0) {
+  tree.id = `${parent}-${depth}-${index}`;
   if (tree.branchset?.length) {
-    tree.branchset.forEach((b, index) =>
-      generateNodeIds(b, id, depth + 1, index)
+    tree.branchset.forEach((b: any, index: number) =>
+      generateNodeIds(b, tree.id, depth + 1, index)
     );
   }
 
-  return { id, ...tree };
+  return tree;
 }
-function filter(tree: HierarchyNode<any>, collapsed: string[]) {
-  const { id = "", branchset, ...rest } = tree;
-  if (collapsed.includes(id)) {
+function filter(tree: any, collapsed: string[]) {
+  const { branchset, ...rest } = tree;
+  if (collapsed.includes(tree.id)) {
     return rest;
   } else if (tree.branchset) {
     return {
       ...rest,
-      branchset: branchset.map((b) => filter(b, collapsed)),
+      branchset: branchset.map((b: any) => filter(b, collapsed)),
     };
   } else {
     return tree;
@@ -208,9 +193,9 @@ const model = types.snapshotProcessor(
     .compose(
       BaseViewModel,
       types
-        .model("MsaView", {
+        .model('MsaView', {
           id: ElementId,
-          type: types.literal("MsaView"),
+          type: types.literal('MsaView'),
           height: 680,
           treeAreaWidth: 600,
           nameWidth: 200,
@@ -222,7 +207,7 @@ const model = types.snapshotProcessor(
           showBranchLen: true,
           bgColor: true,
           drawNodeBubbles: true,
-          colorSchemeName: "maeditor",
+          colorSchemeName: 'maeditor',
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
           currentAlignment: 0,
@@ -233,7 +218,7 @@ const model = types.snapshotProcessor(
                 tree: types.maybe(types.string),
                 msa: types.maybe(types.string),
               })
-              .actions((self) => ({
+              .actions(self => ({
                 setTree(tree?: string) {
                   self.tree = tree;
                 },
@@ -241,7 +226,7 @@ const model = types.snapshotProcessor(
                   self.msa = msa;
                 },
               })),
-            { tree: "", msa: "" }
+            { tree: '', msa: '' }
           ),
         })
         .volatile(() => ({
@@ -249,7 +234,7 @@ const model = types.snapshotProcessor(
           volatileWidth: 0,
           margin: { left: 20, top: 20 },
         }))
-        .actions((self) => ({
+        .actions(self => ({
           setError(error?: Error) {
             self.error = error;
           },
@@ -293,30 +278,38 @@ const model = types.snapshotProcessor(
           toggleNodeBubbles() {
             self.drawNodeBubbles = !self.drawNodeBubbles;
           },
-          setData(data: { tree: string; msa: string }) {
-            self.data = cast(data);
+          setData(data: any) {
+            self.data = data;
           },
           setWidth(width: number) {
             self.volatileWidth = width;
           },
-          async setMSAFilehandle(r?: FileLocationType) {
-            if (r !== undefined && "blobId" in r) {
-              this.setMSA((await openLocation(r).readFile("utf8")) as string);
+          async setMSAFilehandle(r?: typeof FileLocation) {
+            //@ts-ignore
+            if (r?.blob) {
+              //@ts-ignore
+              const text = await openLocation(r).readFile('utf8');
+              this.setMSA(text);
             } else {
+              //@ts-ignore
               self.msaFilehandle = r;
             }
           },
-          async setTreeFilehandle(r?: FileLocationType) {
-            if (r !== undefined && "blobId" in r) {
-              this.setTree((await openLocation(r).readFile("utf8")) as string);
+          async setTreeFilehandle(r?: typeof FileLocation) {
+            //@ts-ignore
+            if (r?.blob) {
+              //@ts-ignore
+              const text = await openLocation(r).readFile('utf8');
+              this.setTree(text);
             } else {
+              //@ts-ignore
               self.treeFilehandle = r;
             }
           },
-          setMSA(result: string) {
+          setMSA(result: any) {
             self.data.setMSA(result);
           },
-          setTree(result: string) {
+          setTree(result: any) {
             self.data.setTree(result);
           },
 
@@ -327,7 +320,7 @@ const model = types.snapshotProcessor(
                 const { treeFilehandle } = self;
                 if (treeFilehandle) {
                   const f = openLocation(treeFilehandle);
-                  const result = await f.readFile("utf8");
+                  const result = await f.readFile('utf8');
                   this.setTree(result);
                 }
               })
@@ -339,14 +332,14 @@ const model = types.snapshotProcessor(
 
                 if (msaFilehandle) {
                   const f = openLocation(msaFilehandle);
-                  const result = await f.readFile("utf8");
+                  const result = await f.readFile('utf8');
                   this.setMSA(result);
                 }
               })
             );
           },
         }))
-        .views((self) => {
+        .views(self => {
           let oldBlocksX: number[] = [];
           let oldBlocksY: number[] = [];
           let oldValX = 0;
@@ -371,10 +364,7 @@ const model = types.snapshotProcessor(
                   b.push(i);
                 }
               }
-              if (
-                JSON.stringify(b) !== JSON.stringify(oldBlocksX) ||
-                colWidth !== oldValX
-              ) {
+              if (str(b) !== str(oldBlocksX) || colWidth !== oldValX) {
                 oldBlocksX = b;
                 oldValX = colWidth;
               }
@@ -391,10 +381,7 @@ const model = types.snapshotProcessor(
                   b.push(i);
                 }
               }
-              if (
-                JSON.stringify(b) !== JSON.stringify(oldBlocksY) ||
-                rowHeight !== oldValY
-              ) {
+              if (str(b) !== str(oldBlocksY) || rowHeight !== oldValY) {
                 oldBlocksY = b;
                 oldValY = rowHeight;
               }
@@ -435,7 +422,7 @@ const model = types.snapshotProcessor(
               if (text) {
                 if (Stockholm.sniff(text)) {
                   return new StockholmMSA(text, self.currentAlignment);
-                } else if (text.startsWith(">")) {
+                } else if (text.startsWith('>')) {
                   return new FastaMSA(text);
                 } else {
                   return new ClustalMSA(text);
@@ -481,12 +468,12 @@ const model = types.snapshotProcessor(
               const blanks = [];
               const strs = nodes
                 .map(({ data }) => this.MSA?.getRow(data.name))
-                .filter((f) => !!f);
+                .filter(f => !!f);
 
               for (let i = 0; i < strs?.[0].length; i++) {
                 let counter = 0;
                 for (let j = 0; j < strs.length; j++) {
-                  if (strs[j][i] === "-") {
+                  if (strs[j][i] === '-') {
                     counter++;
                   }
                 }
@@ -501,12 +488,12 @@ const model = types.snapshotProcessor(
               const nodes = this.hierarchy.leaves();
               const rows = nodes
                 .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
-                .filter((f) => !!f[1]);
-              const strs = rows.map((row) => row[1]);
+                .filter(f => !!f[1]);
+              const strs = rows.map(row => row[1]);
 
               const ret: string[] = [];
               for (let i = 0; i < strs.length; i++) {
-                let s = "";
+                let s = '';
                 let b = 0;
                 for (let j = 0; j < strs[i].length; j++) {
                   if (j === this.blanks[b]) {
@@ -543,7 +530,7 @@ const model = types.snapshotProcessor(
           };
         })
     )
-    .actions((self) => ({
+    .actions(self => ({
       doScrollY(deltaY: number) {
         self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 10);
       },
@@ -558,7 +545,6 @@ const model = types.snapshotProcessor(
     })),
   {
     postProcessor(result) {
-      //eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { data, ...rest } = result;
       return rest;
     },
