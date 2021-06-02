@@ -1,8 +1,5 @@
-import { MsaViewModel } from "../model";
-import colorSchemes from "../colorSchemes";
-
-import React, { useState } from "react";
-import { observer } from "mobx-react";
+import React, { useState } from 'react'
+import { observer } from 'mobx-react'
 import {
   Button,
   Checkbox,
@@ -12,7 +9,10 @@ import {
   FormControlLabel,
   MenuItem,
   TextField,
-} from "@material-ui/core";
+} from '@material-ui/core'
+
+import { MsaViewModel } from '../model'
+import colorSchemes from '../colorSchemes'
 
 export default observer(
   ({
@@ -20,9 +20,9 @@ export default observer(
     onClose,
     open,
   }: {
-    model: MsaViewModel;
-    onClose: () => void;
-    open: boolean;
+    model: MsaViewModel
+    onClose: () => void
+    open: boolean
   }) => {
     const {
       rowHeight: rowHeightInit,
@@ -31,19 +31,19 @@ export default observer(
       treeWidth: treeWidthInit,
       colorSchemeName,
       noTree,
-    } = model;
-    const [rowHeight, setRowHeight] = useState("" + rowHeightInit);
-    const [colWidth, setColWidth] = useState("" + colWidthInit);
-    const [nameWidth, setNameWidth] = useState("" + nameWidthInit);
-    const [treeWidth, setTreeWidth] = useState("" + treeWidthInit);
+    } = model
+    const [rowHeight, setRowHeight] = useState('' + rowHeightInit)
+    const [colWidth, setColWidth] = useState('' + colWidthInit)
+    const [nameWidth, setNameWidth] = useState('' + nameWidthInit)
+    const [treeWidth, setTreeWidth] = useState('' + treeWidthInit)
 
     function error(n: string) {
-      return Number.isNaN(+n) || +n < 0;
+      return Number.isNaN(+n) || +n < 0
     }
-    const rowHeightError = error(rowHeight);
-    const colWidthError = error(colWidth);
-    const nameWidthError = error(nameWidth);
-    const treeWidthError = error(treeWidth);
+    const rowHeightError = error(rowHeight)
+    const colWidthError = error(colWidth)
+    const nameWidthError = error(nameWidth)
+    const treeWidthError = error(treeWidth)
 
     return (
       <Dialog onClose={() => onClose()} open={open}>
@@ -129,13 +129,13 @@ export default observer(
               treeWidthError
             }
             onClick={() => {
-              model.setRowHeight(+rowHeight);
-              model.setColWidth(+colWidth);
-              model.setNameWidth(+nameWidth);
+              model.setRowHeight(+rowHeight)
+              model.setColWidth(+colWidth)
+              model.setNameWidth(+nameWidth)
               if (!noTree) {
-                model.setTreeWidth(+treeWidth);
+                model.setTreeWidth(+treeWidth)
               }
-              onClose();
+              onClose()
             }}
             variant="contained"
             color="primary"
@@ -144,6 +144,6 @@ export default observer(
           </Button>
         </DialogContent>
       </Dialog>
-    );
-  }
-);
+    )
+  },
+)

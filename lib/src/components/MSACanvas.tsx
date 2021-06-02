@@ -1,13 +1,12 @@
+import React, { useEffect, useRef, useMemo } from 'react'
+import { Typography, CircularProgress, useTheme } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import Color from 'color'
+import { observer } from 'mobx-react'
+
 import colorSchemes from '../colorSchemes'
 import { transform } from '../util'
 import { MsaViewModel } from '../model'
-
-import React, { useEffect, useRef, useMemo } from 'react'
-import { observer } from 'mobx-react'
-import { Typography, CircularProgress } from '@material-ui/core'
-import { useTheme } from '@material-ui/core/styles'
 
 const MSABlock = observer(
   ({
