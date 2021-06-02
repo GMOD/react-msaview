@@ -2,15 +2,24 @@
 
 ## Development
 
-cd lib
-yarn start
+To modify the codebase
 
-Then also in another terminal
+- git clone the repo
+- run `yarn && yarn start` in the root of the monorepo
 
-cd app
-yarn start
+## Updating the github pages website
 
-The app will run a simple instance of create-react-app
+To release a new version to the website
+
+- run `yarn deploy` in the root of the monorepo
+
+## Releasing a new version of `react-msaview` to NPM
+
+To release a new version to NPM
+
+- cd lib
+- update CHANGELOG.md
+- yarn publish
 
 ## Notes
 
