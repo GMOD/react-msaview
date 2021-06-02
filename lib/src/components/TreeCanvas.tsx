@@ -34,7 +34,7 @@ const TreeBlock = observer(
       hierarchy,
       rowHeight,
       scrollY,
-      treeWidth: width,
+      treeWidth,
       showBranchLen,
       collapsed,
       margin,
@@ -55,7 +55,7 @@ const TreeBlock = observer(
       const colorHash: StrMap = {}
       ;[ctx, clickCtx].forEach((context) => {
         context.resetTransform()
-        context.clearRect(0, 0, width, blockSize)
+        context.clearRect(0, 0, treeWidth, blockSize)
         context.translate(margin.left, -offsetY)
       })
 
@@ -122,9 +122,12 @@ const TreeBlock = observer(
         ctx.fillStyle = 'black'
         hierarchy.leaves().forEach((node) => {
           const {
+            //@ts-ignore
             x: y,
+            //@ts-ignore
             y: x,
             data: { name },
+            //@ts-ignore
             len,
           } = node
           if (
@@ -143,7 +146,7 @@ const TreeBlock = observer(
       margin.left,
       hierarchy,
       offsetY,
-      width,
+      treeWidth,
       showBranchLen,
       noTree,
       blockSize,
@@ -198,10 +201,10 @@ const TreeBlock = observer(
           </Menu>
         ) : null}
         <canvas
-          width={width}
+          width={treeWidth}
           height={blockSize}
           style={{
-            width,
+            width: treeWidth,
             height: blockSize,
             top: scrollY + offsetY,
             left: 0,
@@ -230,7 +233,7 @@ const TreeBlock = observer(
         />
         <canvas
           style={{ display: 'none' }}
-          width={width}
+          width={treeWidth}
           height={blockSize}
           ref={clickRef}
         />
@@ -242,7 +245,7 @@ const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
   const ref = useRef<HTMLDivElement>(null)
   const scheduled = useRef(false)
   const deltaY = useRef(0)
-  const { treeWidth: width, height, blocksY } = model
+  const { treeWidth, height, blocksY } = model
 
   useEffect(() => {
     const curr = ref.current
@@ -276,7 +279,7 @@ const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
         height,
         position: 'relative',
         overflow: 'hidden',
-        width,
+        width: treeWidth,
       }}
     >
       {blocksY.map((block) => (

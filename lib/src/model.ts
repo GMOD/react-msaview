@@ -43,11 +43,9 @@ class ClustalMSA {
 
   getTree() {
     return {
-      name: 'root',
+      id: 'root',
       noTree: true,
-      branchset: this.MSA.alns.map((aln) => ({
-        name: aln.id,
-      })),
+      branchset: this.MSA.alns,
     }
   }
 }
@@ -93,10 +91,10 @@ class FastaMSA {
 
   getTree() {
     return {
-      name: 'root',
+      id: 'root',
       noTree: true,
       branchset: Object.keys(this.MSA.seqdata).map((name) => ({
-        name,
+        id: name,
       })),
     }
   }
@@ -147,16 +145,17 @@ class StockholmMSA {
     return tree
       ? generateNodeIds(parseNewick(tree))
       : {
-          name: 'root',
+          id: 'root',
           noTree: true,
           branchset: Object.keys(this.MSA.seqdata).map((name) => ({
-            name,
+            id: name,
           })),
         }
   }
 }
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
+  //@ts-ignore
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
   if (d.children) {
     d.children.forEach((d) => {
@@ -171,7 +170,7 @@ function maxLength(d: HierarchyNode<any>): number {
 
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
-function getRoot(tree: HierarchyNode<any>) {
+function getRoot(tree: any) {
   return hierarchy(tree, (d) => d.branchset)
     .sum((d) => (d.branchset ? 0 : 1))
     .sort((a, b) => {
@@ -179,24 +178,28 @@ function getRoot(tree: HierarchyNode<any>) {
     })
 }
 
-function generateNodeIds(tree: any, parent = 'node', depth = 0, index = 0) {
-  tree.id = `${parent}-${depth}-${index}`
-  if (tree.branchset?.length) {
-    tree.branchset.forEach((b: any, index: number) =>
-      generateNodeIds(b, tree.id, depth + 1, index),
-    )
-  }
+type Node = { branchset?: Node[] }
+type NodeWithIds = { id: string; branchset?: NodeWithIds[]; noTree?: boolean }
 
-  return tree
+function generateNodeIds(tree: Node, parent = 'node', depth = 0): NodeWithIds {
+  const id = `${parent}-${depth}`
+
+  return {
+    ...tree,
+    id,
+    branchset: tree.branchset?.map((b, i) =>
+      generateNodeIds(b, id + '-' + i, depth + 1),
+    ),
+  }
 }
-function filter(tree: any, collapsed: string[]) {
+function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
   const { branchset, ...rest } = tree
   if (collapsed.includes(tree.id)) {
     return rest
-  } else if (tree.branchset) {
+  } else if (branchset) {
     return {
       ...rest,
-      branchset: branchset.map((b: any) => filter(b, collapsed)),
+      branchset: branchset.map((b) => filter(b, collapsed)),
     }
   } else {
     return tree
@@ -459,7 +462,10 @@ const model = types.snapshotProcessor(
             },
 
             get msaWidth() {
-              return (this.MSA?.getWidth() - this.blanks.length) * self.colWidth
+              return (
+                ((this.MSA?.getWidth() || 0) - this.blanks.length) *
+                self.colWidth
+              )
             },
 
             get tree() {
@@ -467,10 +473,11 @@ const model = types.snapshotProcessor(
                 data: { tree },
                 collapsed,
               } = self
-              return filter(
-                tree ? generateNodeIds(parseNewick(tree)) : this.MSA?.getTree(),
-                collapsed,
-              )
+              const t = tree
+                ? generateNodeIds(parseNewick(tree))
+                : this.MSA?.getTree()
+
+              return t ? filter(t, collapsed) : { noTree: true }
             },
 
             get root() {
@@ -488,11 +495,14 @@ const model = types.snapshotProcessor(
             get blanks() {
               const nodes = this.hierarchy.leaves()
               const blanks = []
+
+              // filter type guard
+              // https://www.benmvp.com/blog/filtering-undefined-elements-from-array-typescript/
               const strs = nodes
                 .map(({ data }) => this.MSA?.getRow(data.name))
-                .filter((f) => !!f)
+                .filter((item): item is string[] => !!item)
 
-              for (let i = 0; i < strs?.[0].length; i++) {
+              for (let i = 0; i < strs[0].length; i++) {
                 let counter = 0
                 for (let j = 0; j < strs.length; j++) {
                   if (strs[j][i] === '-') {
