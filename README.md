@@ -1,12 +1,17 @@
 # react-msaview
 
-Demo app https://gmod.github.io/react-msaview
+## Demo
 
-This repo also supports https://github.com/GMOD/jbrowse-plugin-msaview which is a jbrowse 2 plugin for viewing MSAs
+See https://gmod.github.io/react-msaview
 
-This repo is a yarn monorepo with a "example" directory hosting a create-react-app which is what the github pages link above shows
+This page is a deployment of the `app` directory in this repo, which uses the
+`react-msaview` NPM package as a minimal example app
 
-It then has the "lib" directory which is published as react-msaview on NPM
+## Screenshot
+
+![](img/1.png)
+
+![](img/2.png)
 
 ## Features
 
@@ -69,3 +74,11 @@ function App() {
 }
 
 ```
+
+## Notes
+
+This repo also supports https://github.com/GMOD/jbrowse-plugin-msaview which is
+a jbrowse 2 plugin for viewing MSAs
+
+This repo also builds on abrowse (https://github.com/ihh/abrowse) and
+phylo-react (https://www.npmjs.com/package/phylo-react)
