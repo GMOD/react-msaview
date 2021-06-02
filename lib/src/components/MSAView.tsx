@@ -12,6 +12,8 @@ export default observer(({ model }: { model: MsaViewModel }) => {
   const { done, initialized } = model
   const [mouseDown, setMouseDown] = useState(false)
   const [cropMouseDown, setCropMouseDown] = useState(false)
+
+  // this has the effect of making the tree smaller
   useEffect(() => {
     if (mouseDown) {
       const listener = (event: MouseEvent) =>
@@ -28,10 +30,14 @@ export default observer(({ model }: { model: MsaViewModel }) => {
     }
     return () => {}
   }, [mouseDown])
+
+  // this has the effect of just "cropping" the tree area
   useEffect(() => {
     if (cropMouseDown) {
-      const listener = (event: MouseEvent) =>
+      const listener = (event: MouseEvent) => {
         model.setNameWidth(model.nameWidth + event.movementX)
+        model.setTreeWidth(model.treeAreaWidth + event.movementX)
+      }
 
       const listener2 = () => setCropMouseDown(false)
 
