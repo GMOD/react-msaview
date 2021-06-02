@@ -94,13 +94,14 @@ const TreeBlock = observer(
               [val]: x,
               data,
             } = node
+            const { id = '', name = '' } = data
 
             if (
               y > offsetY - extendBounds &&
               y < offsetY + blockSize + extendBounds
             ) {
               ctx.strokeStyle = 'black'
-              ctx.fillStyle = collapsed.includes(data.id) ? 'black' : 'white'
+              ctx.fillStyle = collapsed.includes(id) ? 'black' : 'white'
               ctx.beginPath()
               ctx.arc(x, y, radius, 0, 2 * Math.PI)
               ctx.fill()
@@ -108,7 +109,7 @@ const TreeBlock = observer(
 
               const col = randomColor()
               const [r, g, b] = col
-              colorHash[`${col}`] = data
+              colorHash[`${col}`] = { id, name }
 
               clickCtx.fillStyle = `rgb(${r},${g},${b})`
               clickCtx.fillRect(x - radius, y - radius, d, d)
@@ -120,8 +121,12 @@ const TreeBlock = observer(
       if (rowHeight >= 10) {
         ctx.fillStyle = 'black'
         hierarchy.leaves().forEach((node) => {
-          const { x: y, y: x, data, len } = node
-          const { name } = data
+          const {
+            x: y,
+            y: x,
+            data: { name },
+            len,
+          } = node
           if (
             y > offsetY - extendBounds &&
             y < offsetY + blockSize + extendBounds

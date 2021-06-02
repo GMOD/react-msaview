@@ -12,7 +12,11 @@ import { openLocation } from '@jbrowse/core/util/io'
 import { autorun } from 'mobx'
 
 class ClustalMSA {
-  private MSA: { header: unknown; alns: { id: string; seq: string }[] }
+  private MSA: {
+    header: Record<string, any>
+    alns: { id: string; seq: string }[]
+  }
+
   constructor(text: string) {
     this.MSA = Clustal.parse(text)
   }
