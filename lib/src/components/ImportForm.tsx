@@ -1,29 +1,17 @@
-import { smallTree, smallMSA } from './data/seq2';
+import React, { useState } from 'react'
+import { Button, Container, Grid, Typography, Link } from '@material-ui/core'
+import { observer } from 'mobx-react'
+import { transaction } from 'mobx'
+import { FileSelector } from '@jbrowse/core/ui'
+import { MsaViewModel } from '../model'
+import { smallTree, smallMSA } from './data/seq2'
 
-import { observer } from 'mobx-react';
-import { transaction } from 'mobx';
-import React, { useState } from 'react';
-// import { makeStyles } from '@material-ui/core/styles';
-import { Button, Container, Grid, Typography, Link } from '@material-ui/core';
-import { FileSelector } from '@jbrowse/core/ui';
-
-// const useStyles = makeStyles((theme: any) => ({
-//   importFormContainer: {
-//     padding: theme.spacing(2),
-//   },
-//   importFormEntry: {
-//     minWidth: 180,
-//   },
-// }));
-
-export default observer(({ model }: { model: any }) => {
-  const classes = {} as any;
-  // const classes = useStyles();
-  const [msaFile, setMsaFile] = useState();
-  const [treeFile, setTreeFile] = useState();
+export default observer(({ model }: { model: MsaViewModel }) => {
+  const [msaFile, setMsaFile] = useState()
+  const [treeFile, setTreeFile] = useState()
 
   return (
-    <Container className={classes.importFormContainer}>
+    <Container>
       <div style={{ width: '50%' }}>
         <Typography>
           Open an MSA file (stockholm or clustal format) and/or a tree file
@@ -59,10 +47,10 @@ export default observer(({ model }: { model: any }) => {
           <Button
             onClick={() => {
               if (msaFile) {
-                model.setMSAFilehandle(msaFile);
+                model.setMSAFilehandle(msaFile)
               }
               if (treeFile) {
-                model.setTreeFilehandle(treeFile);
+                model.setTreeFilehandle(treeFile)
               }
             }}
             variant="contained"
@@ -83,7 +71,7 @@ export default observer(({ model }: { model: any }) => {
                   model.setTreeFilehandle({
                     uri:
                       'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
-                  });
+                  })
                 }}
               >
                 230k COVID-19 samples (tree only)
@@ -93,7 +81,7 @@ export default observer(({ model }: { model: any }) => {
               <Link
                 href="#"
                 onClick={() => {
-                  model.setData({ msa: smallMSA, tree: smallTree });
+                  model.setData({ msa: smallMSA, tree: smallTree })
                 }}
               >
                 Small protein+tree
@@ -105,7 +93,7 @@ export default observer(({ model }: { model: any }) => {
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri: 'https://ihh.github.io/abrowse/build/pfam-cov2.stock',
-                  });
+                  })
                 }}
               >
                 PFAM SARS-CoV2 multi-stockholm
@@ -118,7 +106,7 @@ export default observer(({ model }: { model: any }) => {
                   model.setMSAFilehandle({
                     uri:
                       'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
-                  });
+                  })
                 }}
               >
                 Lysine stockholm file
@@ -131,7 +119,7 @@ export default observer(({ model }: { model: any }) => {
                   model.setMSAFilehandle({
                     uri:
                       'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
-                  });
+                  })
                 }}
               >
                 PF01601 stockholm file (SARS-CoV2 spike protein)
@@ -144,7 +132,7 @@ export default observer(({ model }: { model: any }) => {
                   model.setMSAFilehandle({
                     uri:
                       'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
-                  });
+                  })
                 }}
               >
                 Europe COVID full genomes (LR883044.1 and 199 other sequences)
@@ -158,12 +146,12 @@ export default observer(({ model }: { model: any }) => {
                     model.setMSAFilehandle({
                       uri:
                         'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
-                    });
+                    })
                     model.setTreeFilehandle({
                       uri:
                         'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
-                    });
-                  });
+                    })
+                  })
                 }}
               >
                 MAFFT+VeryFastTree(17.9k samples)
@@ -173,5 +161,5 @@ export default observer(({ model }: { model: any }) => {
         </Grid>
       </Grid>
     </Container>
-  );
-});
+  )
+})

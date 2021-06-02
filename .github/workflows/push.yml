@@ -16,3 +16,5 @@ jobs:
         uses: bahmutov/npm-install@v1
       - name: Lint
         run: cd lib && yarn lint
+      - name: TSC
+        run: cd lib && yarn tsc

@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   Typography,
   Link,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
 function LicenseDialog({
   onClose,
   open,
 }: {
-  onClose: Function;
+  onClose: () => void;
   open: boolean;
 }) {
   return (
     <Dialog onClose={() => onClose()} open={open}>
       <DialogTitle>Settings</DialogTitle>
       <DialogContent>
-        <pre style={{ height: 100, overflow: 'auto' }}>
+        <pre style={{ height: 100, overflow: "auto" }}>
           {`
 Copyright 2017 - 2020, The Biotite contributors
 All rights reserved.
@@ -57,7 +57,7 @@ export default function AboutDialog({
   onClose,
   open,
 }: {
-  onClose: Function;
+  onClose: () => void;
   open: boolean;
 }) {
   const [dlgOpen, setDlgOpen] = useState(false);
@@ -77,26 +77,26 @@ export default function AboutDialog({
 
           <ul>
             <li>
-              We use some color schemes from the{' '}
-              <Link href="https://github.com/biotite-dev/biotite">biotite</Link>{' '}
-              project, and their license is reproduced{' '}
+              We use some color schemes from the{" "}
+              <Link href="https://github.com/biotite-dev/biotite">biotite</Link>{" "}
+              project, and their license is reproduced{" "}
               <Link onClick={() => setDlgOpen(true)}>here</Link>
             </li>
             <li>
-              See this page for some information on jalview colorings{' '}
+              See this page for some information on jalview colorings{" "}
               <Link href="https://www.jalview.org/help/html/colourSchemes/">
                 here
               </Link>
             </li>
             <li>
               See this page for some info on the clustal, cinema, maeditor, and
-              lesk color schemes{' '}
+              lesk color schemes{" "}
               <Link href="http://www.bioinformatics.nl/~berndb/aacolour.html">
                 here
               </Link>
             </li>
             <li>
-              See this paper about the flower color scheme{' '}
+              See this paper about the flower color scheme{" "}
               <Link href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7245768/">
                 here
               </Link>
