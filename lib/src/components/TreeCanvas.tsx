@@ -1,9 +1,9 @@
-import { MsaViewModel } from "../model";
-import normalizeWheel from "normalize-wheel";
-
-import { observer } from "mobx-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Menu, MenuItem } from "@material-ui/core";
+import normalizeWheel from "normalize-wheel";
+import { observer } from "mobx-react";
+import { MsaViewModel } from "../model";
+
 const extendBounds = 5;
 const radius = 3.5;
 const d = radius * 2;
