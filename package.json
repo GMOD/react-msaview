@@ -9,7 +9,9 @@
     "app": "cd app; npm run start",
     "start": "concurrently \"yarn lib\"  \"echo Compiling lib... && wait-on lib/dist/index.js && echo Build finished && yarn app\"",
     "predeploy": "cd lib; npm run build",
-    "deploy": "cd app; npm run deploy"
+    "deploy": "cd app; npm run deploy",
+    "predopublish": "cd lib; yarn build",
+    "dopublish": "cd lib; yarn publish"
   },
   "devDependencies": {
     "concurrently": "^6.2.0",
