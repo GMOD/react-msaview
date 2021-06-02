@@ -1,3 +1,10 @@
+# v1.1.0
+
+- Internal refactoring for better lint, tsc, no more tsdx in favor of more
+  basic usage of babel to build codebase
+- Add draghandles to make the tree area smaller, one crops the area, one makes
+  the tree proportionally smaller
+
 # v1.0.15
 
 - Remove some console logs
