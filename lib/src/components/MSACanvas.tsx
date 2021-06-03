@@ -133,6 +133,11 @@ const MSABlock = observer(
       <canvas
         ref={ref}
         width={blockSize}
+        onMouseMove={(event) => {
+          const mouseX =
+            event.clientX - ref.current.getBoundingClientRect().left
+          model.setMousePos(Math.floor((mouseX + offsetX) / colWidth) + 1)
+        }}
         height={blockSize}
         style={{
           position: 'absolute',
@@ -147,15 +152,8 @@ const MSABlock = observer(
 )
 
 const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
-  const {
-    MSA,
-    msaFilehandle,
-    width,
-    height,
-    treeWidth,
-    blocksX,
-    blocksY,
-  } = model
+  const { MSA, msaFilehandle, width, height, treeWidth, blocksX, blocksY } =
+    model
   const ref = useRef<HTMLDivElement>(null)
   const scheduled = useRef(false)
   const deltaX = useRef(0)

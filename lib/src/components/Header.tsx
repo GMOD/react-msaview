@@ -1,41 +1,41 @@
-import React, { useState } from 'react';
-import { IconButton, Select } from '@material-ui/core';
-import { MsaViewModel } from '../model';
-import { observer } from 'mobx-react';
+import React, { useState } from 'react'
+import { IconButton, Select } from '@material-ui/core'
+import { MsaViewModel } from '../model'
+import { observer } from 'mobx-react'
 
-import SettingsDialog from './SettingsDlg';
-import AboutDialog from './AboutDlg';
-import DetailsDialog from './DetailsDlg';
+import SettingsDialog from './SettingsDlg'
+import AboutDialog from './AboutDlg'
+import DetailsDialog from './DetailsDlg'
 
 //icons
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
-import SettingsIcon from '@material-ui/icons/Settings';
-import InfoIcon from '@material-ui/icons/Info';
-import AssignmentIcon from '@material-ui/icons/Assignment';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen'
+import SettingsIcon from '@material-ui/icons/Settings'
+import InfoIcon from '@material-ui/icons/Info'
+import AssignmentIcon from '@material-ui/icons/Assignment'
 
 const Header = observer(({ model }: { model: MsaViewModel }) => {
-  const [settingsDialogVisible, setSettingsDialogVisible] = useState(false);
-  const [aboutDialogVisible, setAboutDialogVisible] = useState(false);
-  const [detailsDialogVisible, setDetailsDialogVisible] = useState(false);
-  const { currentAlignment, alignmentNames } = model;
+  const [settingsDialogVisible, setSettingsDialogVisible] = useState(false)
+  const [aboutDialogVisible, setAboutDialogVisible] = useState(false)
+  const [detailsDialogVisible, setDetailsDialogVisible] = useState(false)
+  const { currentAlignment, alignmentNames } = model
 
   return (
     <div style={{ display: 'block' }}>
       <IconButton
         onClick={() => {
-          model.setData({ tree: '', msa: '' });
-          model.setTreeFilehandle(undefined);
-          model.setMSAFilehandle(undefined);
-          model.setScrollY(0);
-          model.setScrollX(0);
-          model.setCurrentAlignment(0);
+          model.setData({ tree: '', msa: '' })
+          model.setTreeFilehandle(undefined)
+          model.setMSAFilehandle(undefined)
+          model.setScrollY(0)
+          model.setScrollX(0)
+          model.setCurrentAlignment(0)
         }}
       >
         <FolderOpenIcon />
       </IconButton>
       <IconButton
         onClick={() => {
-          setSettingsDialogVisible(true);
+          setSettingsDialogVisible(true)
         }}
       >
         <SettingsIcon />
@@ -43,7 +43,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
 
       <IconButton
         onClick={() => {
-          setAboutDialogVisible(true);
+          setAboutDialogVisible(true)
         }}
       >
         <InfoIcon />
@@ -51,7 +51,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
 
       <IconButton
         onClick={() => {
-          setDetailsDialogVisible(true);
+          setDetailsDialogVisible(true)
         }}
       >
         <AssignmentIcon />
@@ -75,11 +75,11 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         <Select
           native
           value={currentAlignment}
-          onChange={event => {
+          onChange={(event) => {
             //@ts-ignore
-            model.setCurrentAlignment(+event.target.value);
-            model.setScrollX(0);
-            model.setScrollY(0);
+            model.setCurrentAlignment(+event.target.value)
+            model.setScrollX(0)
+            model.setScrollY(0)
           }}
         >
           {alignmentNames.map((option, index) => (
@@ -90,7 +90,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         </Select>
       ) : null}
     </div>
-  );
-});
+  )
+})
 
-export default Header;
+export default Header

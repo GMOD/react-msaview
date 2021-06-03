@@ -69,8 +69,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setTreeFilehandle({
-                    uri:
-                      'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
+                    uri: 'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
                   })
                 }}
               >
@@ -104,8 +103,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setMSAFilehandle({
-                    uri:
-                      'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
+                    uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
                   })
                 }}
               >
@@ -117,8 +115,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setMSAFilehandle({
-                    uri:
-                      'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
+                    uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
                   })
                 }}
               >
@@ -130,8 +127,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setMSAFilehandle({
-                    uri:
-                      'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
+                    uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
                   })
                 }}
               >
@@ -144,12 +140,10 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 onClick={() => {
                   transaction(() => {
                     model.setMSAFilehandle({
-                      uri:
-                        'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
+                      uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
                     })
                     model.setTreeFilehandle({
-                      uri:
-                        'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
+                      uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
                     })
                   })
                 }}
