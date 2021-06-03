@@ -16,6 +16,8 @@ function randomColor() {
   ]
 }
 
+const padding = 600
+
 type StrMap = { [key: string]: { id: string; name: string } }
 interface TooltipData {
   name: string
@@ -55,7 +57,7 @@ const TreeBlock = observer(
       const colorHash: StrMap = {}
       ;[ctx, clickCtx].forEach((context) => {
         context.resetTransform()
-        context.clearRect(0, 0, treeWidth, blockSize)
+        context.clearRect(0, 0, treeWidth + padding, blockSize)
         context.translate(margin.left, -offsetY)
       })
 
@@ -201,10 +203,10 @@ const TreeBlock = observer(
           </Menu>
         ) : null}
         <canvas
-          width={treeWidth}
+          width={treeWidth + padding}
           height={blockSize}
           style={{
-            width: treeWidth,
+            width: treeWidth + padding,
             height: blockSize,
             top: scrollY + offsetY,
             left: 0,
@@ -233,7 +235,7 @@ const TreeBlock = observer(
         />
         <canvas
           style={{ display: 'none' }}
-          width={treeWidth}
+          width={treeWidth + padding}
           height={blockSize}
           ref={clickRef}
         />
@@ -279,7 +281,7 @@ const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
         height,
         position: 'relative',
         overflow: 'hidden',
-        width: treeWidth,
+        width: treeWidth + padding,
       }}
     >
       {blocksY.map((block) => (

@@ -169,7 +169,6 @@ function RulerBlock({
 const Ruler = observer(({ model }: { model: MsaViewModel }) => {
   const { colWidth, msaAreaWidth, scrollX, blocksX, blockSize } = model
   const offsetX = blocksX[0]
-  console.log({ blockSize })
 
   return (
     <div

@@ -1,3 +1,12 @@
+# v1.1.1
+
+- Add drag handle
+- Add basic ruler
+
+# v1.1.0
+
+- Botched release process, please ignore
+
 # v1.0.15
 
 - Remove some console logs
