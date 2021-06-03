@@ -1,158 +1,18 @@
-import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
-import * as Clustal from 'clustal-js'
+import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending, max } from 'd3-array'
-import parseNewick from './parseNewick'
-import Stockholm from 'stockholm-js'
-import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
-
 import { openLocation } from '@jbrowse/core/util/io'
 import { autorun } from 'mobx'
+import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
-class ClustalMSA {
-  private MSA: {
-    header: Record<string, any>
-    alns: { id: string; seq: string }[]
-  }
-
-  constructor(text: string) {
-    this.MSA = Clustal.parse(text)
-  }
-
-  getMSA() {
-    return this.MSA
-  }
-
-  getRow(name: string) {
-    return this.MSA.alns.find((aln) => aln.id === name)?.seq.split('')
-  }
-
-  getWidth() {
-    return this.MSA.alns[0].seq.length
-  }
-
-  getDetails() {
-    return this.MSA.header
-  }
-
-  get alignmentNames() {
-    return []
-  }
-
-  getTree() {
-    return {
-      id: 'root',
-      noTree: true,
-      branchset: this.MSA.alns,
-    }
-  }
-}
-
-type StrMap = { [key: string]: string }
-class FastaMSA {
-  private MSA: { seqdata: { [key: string]: string } }
-  constructor(text: string) {
-    const seq: StrMap = {}
-    let name = ''
-    const re = /^>(\S+)/
-    text.split('\n').forEach((line) => {
-      const match = re.exec(line)
-      if (match) {
-        seq[(name = match[1])] = ''
-      } else if (name) {
-        seq[name] = seq[name] + line.replace(/[ \t]/g, '')
-      }
-    })
-    this.MSA = { seqdata: seq }
-  }
-
-  getMSA() {
-    return this.MSA
-  }
-
-  getRow(name: string) {
-    return this.MSA?.seqdata[name]?.split('')
-  }
-
-  getWidth() {
-    const name = Object.keys(this.MSA?.seqdata)[0]
-    return this.getRow(name).length
-  }
-
-  get alignmentNames() {
-    return []
-  }
-
-  getDetails() {
-    return {}
-  }
-
-  getTree() {
-    return {
-      id: 'root',
-      noTree: true,
-      branchset: Object.keys(this.MSA.seqdata).map((name) => ({
-        id: name,
-      })),
-    }
-  }
-}
-type StockholmEntry = {
-  gf: {
-    DE?: string[]
-    NH?: string[]
-  }
-  seqdata: { [key: string]: string }
-}
-
-class StockholmMSA {
-  private data: StockholmEntry[]
-  private MSA: StockholmEntry
-
-  constructor(text: string, currentAlignment: number) {
-    const res = Stockholm.parseAll(text)
-    this.data = res
-    this.MSA = res[currentAlignment]
-  }
-
-  getMSA() {
-    return this.MSA
-  }
-
-  getRow(name: string) {
-    return this.MSA?.seqdata[name]?.split('')
-  }
-
-  getWidth() {
-    const name = Object.keys(this.MSA?.seqdata)[0]
-    return this.getRow(name).length
-  }
-
-  get alignmentNames() {
-    return this.data.map(
-      (aln, index) => aln.gf.DE?.[0] || `Alignment ${index + 1}`,
-    )
-  }
-
-  getDetails() {
-    return this.MSA.gf
-  }
-
-  getTree() {
-    const tree = this.MSA?.gf?.NH?.[0]
-    return tree
-      ? generateNodeIds(parseNewick(tree))
-      : {
-          id: 'root',
-          noTree: true,
-          branchset: Object.keys(this.MSA.seqdata).map((name) => ({
-            id: name,
-          })),
-        }
-  }
-}
+import Stockholm from 'stockholm-js'
+import ClustalMSA from './parsers/ClustalMSA'
+import StockholmMSA from './parsers/StockholmMSA'
+import FastaMSA from './parsers/FastaMSA'
+import parseNewick from './parseNewick'
+import { generateNodeIds, NodeWithIds } from './util'
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   //@ts-ignore
@@ -178,20 +38,6 @@ function getRoot(tree: any) {
     })
 }
 
-type Node = { branchset?: Node[] }
-type NodeWithIds = { id: string; branchset?: NodeWithIds[]; noTree?: boolean }
-
-function generateNodeIds(tree: Node, parent = 'node', depth = 0): NodeWithIds {
-  const id = `${parent}-${depth}`
-
-  return {
-    ...tree,
-    id,
-    branchset: tree.branchset?.map((b, i) =>
-      generateNodeIds(b, id + '-' + i, depth + 1),
-    ),
-  }
-}
 function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
   const { branchset, ...rest } = tree
   if (collapsed.includes(tree.id)) {
@@ -220,15 +66,18 @@ const model = types.snapshotProcessor(
           type: types.literal('MsaView'),
           height: 680,
           treeAreaWidth: 600,
+          treeWidth: 600,
           nameWidth: 200,
           rowHeight: 20,
           scrollY: 0,
           scrollX: 0,
           blockSize: 1000,
+          mousePos: types.maybe(types.number),
           colWidth: 16,
           showBranchLen: true,
           bgColor: true,
           drawNodeBubbles: true,
+          dragHandleType: 'crop',
           colorSchemeName: 'maeditor',
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
@@ -260,6 +109,9 @@ const model = types.snapshotProcessor(
           setError(error?: Error) {
             self.error = error
           },
+          setMousePos(pos?: number) {
+            self.mousePos = pos
+          },
           setRowHeight(n: number) {
             self.rowHeight = n
           },
@@ -275,14 +127,20 @@ const model = types.snapshotProcessor(
           setScrollX(n: number) {
             self.scrollX = n
           },
-          setTreeWidth(n: number) {
+          setTreeAreaWidth(n: number) {
             self.treeAreaWidth = n
+          },
+          setTreeWidth(n: number) {
+            self.treeWidth = n
           },
           setNameWidth(n: number) {
             self.nameWidth = n
           },
           setCurrentAlignment(n: number) {
             self.currentAlignment = n
+          },
+          setDragHandleType(str: string) {
+            self.dragHandleType = str
           },
           toggleCollapsed(node: string) {
             if (self.collapsed.includes(node)) {
@@ -484,16 +342,8 @@ const model = types.snapshotProcessor(
               return getRoot(this.tree)
             },
 
-            get treeWidthMinusNames() {
-              return self.treeAreaWidth - self.nameWidth
-            },
-
-            get treeWidth() {
-              return this.noTree ? self.nameWidth : self.treeAreaWidth
-            },
-
             get msaAreaWidth() {
-              return this.width - this.treeWidth
+              return this.width - self.treeWidth
             },
 
             get blanks() {
@@ -549,13 +399,13 @@ const model = types.snapshotProcessor(
             get hierarchy() {
               const root = getRoot(this.tree)
               const clust = cluster()
-                .size([this.totalHeight, this.treeWidthMinusNames])
+                .size([this.totalHeight, self.treeWidth])
                 .separation(() => 1)
               clust(root)
               setBrLength(
                 root,
                 (root.data.length = 0),
-                this.treeWidthMinusNames / maxLength(root),
+                self.treeWidth / maxLength(root),
               )
               return root
             },

@@ -76,7 +76,7 @@ export default observer(
             }
             label="Draw node bubbles"
           />
-          <br />
+
           <TextField
             label="Row height (px)"
             value={rowHeight}

@@ -60,7 +60,7 @@ export function makeTicks(
   }
 
   if (bpPerPx < 0) {
-    ;[minBase, maxBase] = [maxBase, minBase]
+    [minBase, maxBase] = [maxBase, minBase]
   }
 
   // add 20px additional on the right and left to allow us to draw the ends
@@ -129,7 +129,7 @@ function RulerBlock({
   return (
     <>
       {ticks.map((tick) => {
-        const x = (reversed ? end - tick.base : tick.base - start) / bpPerPx + 3
+        const x = (reversed ? end - tick.base : tick.base - start) / bpPerPx
         return (
           <line
             key={tick.base}
@@ -149,8 +149,7 @@ function RulerBlock({
       {ticks
         .filter((tick) => tick.type === 'major')
         .map((tick) => {
-          const x =
-            (reversed ? end - tick.base : tick.base - start) / bpPerPx + 3
+          const x = (reversed ? end - tick.base : tick.base - start) / bpPerPx
           return (
             <text
               x={x}

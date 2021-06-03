@@ -10,35 +10,18 @@ import MSACanvas from './MSACanvas'
 import Ruler from './Ruler'
 import TreeRuler from './TreeRuler'
 import Header from './Header'
+
+const resizeHandleWidth = 5
+
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, initialized } = model
-  const [mouseDown, setMouseDown] = useState(false)
+  const { done, initialized, treeAreaWidth } = model
   const [cropMouseDown, setCropMouseDown] = useState(false)
-
-  // this has the effect of making the tree smaller
-  useEffect(() => {
-    if (mouseDown) {
-      const listener = (event: MouseEvent) =>
-        model.setTreeWidth(model.treeAreaWidth + event.movementX)
-
-      const listener2 = () => setMouseDown(false)
-
-      document.addEventListener('mousemove', listener)
-      document.addEventListener('mouseup', listener2)
-      return () => {
-        document.removeEventListener('mousemove', listener)
-        document.removeEventListener('mouseup', listener2)
-      }
-    }
-    return () => {}
-  }, [mouseDown])
 
   // this has the effect of just "cropping" the tree area
   useEffect(() => {
     if (cropMouseDown) {
       const listener = (event: MouseEvent) => {
-        model.setNameWidth(model.nameWidth + event.movementX)
-        model.setTreeWidth(model.treeAreaWidth + event.movementX)
+        model.setTreeAreaWidth(model.treeAreaWidth + event.movementX)
       }
 
       const listener2 = () => setCropMouseDown(false)
@@ -65,7 +48,11 @@ export default observer(({ model }: { model: MsaViewModel }) => {
         <Header model={model} />
         <div>
           <div style={{ display: 'flex', height: 20 }}>
-            <TreeRuler model={model} />
+            <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+              <TreeRuler model={model} />
+            </div>
+
+            <div style={{ width: resizeHandleWidth }}></div>
             <Ruler model={model} />
           </div>
           <div
@@ -73,7 +60,9 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               display: 'flex',
             }}
           >
-            <TreeCanvas model={model} />
+            <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+              <TreeCanvas model={model} />
+            </div>
             <div>
               <div
                 onMouseDown={() => {
@@ -81,20 +70,25 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 }}
                 style={{
                   cursor: 'ew-resize',
-                  height: '50%',
-                  border: '3px solid rgba(40,200,40)',
+                  height: '100%',
+                  width: resizeHandleWidth,
+                  background: `rgba(200,200,200)`,
+                  position: 'relative',
                 }}
-              />
-              <div
-                onMouseDown={() => {
-                  setMouseDown(true)
-                }}
-                style={{
-                  cursor: 'ew-resize',
-                  height: '50%',
-                  border: '3px solid rgba(200,40,40)',
-                }}
-              />
+              >
+                <div
+                  style={{
+                    overflow: 'hidden',
+                    position: 'absolute',
+                    top: '49%',
+                    height: 19,
+                    width: 1,
+                    left: resizeHandleWidth / 2 - 0.5,
+                    background: 'grey',
+                    zIndex: 20,
+                  }}
+                />
+              </div>
             </div>
             <MSACanvas model={model} />
           </div>

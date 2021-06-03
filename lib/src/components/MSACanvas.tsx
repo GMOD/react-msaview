@@ -134,6 +134,9 @@ const MSABlock = observer(
         ref={ref}
         width={blockSize}
         onMouseMove={(event) => {
+          if (!ref.current) {
+            return
+          }
           const mouseX =
             event.clientX - ref.current.getBoundingClientRect().left
           model.setMousePos(Math.floor((mouseX + offsetX) / colWidth) + 1)
@@ -152,8 +155,15 @@ const MSABlock = observer(
 )
 
 const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
-  const { MSA, msaFilehandle, width, height, treeWidth, blocksX, blocksY } =
-    model
+  const {
+    MSA,
+    msaFilehandle,
+    width,
+    height,
+    treeWidth,
+    blocksX,
+    blocksY,
+  } = model
   const ref = useRef<HTMLDivElement>(null)
   const scheduled = useRef(false)
   const deltaX = useRef(0)
