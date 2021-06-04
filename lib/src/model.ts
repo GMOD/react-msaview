@@ -72,7 +72,8 @@ const model = types.snapshotProcessor(
           scrollY: 0,
           scrollX: 0,
           blockSize: 1000,
-          mousePos: types.maybe(types.number),
+          mouseRow: types.maybe(types.number),
+          mouseCol: types.maybe(types.number),
           colWidth: 16,
           showBranchLen: true,
           bgColor: true,
@@ -109,8 +110,9 @@ const model = types.snapshotProcessor(
           setError(error?: Error) {
             self.error = error
           },
-          setMousePos(pos?: number) {
-            self.mousePos = pos
+          setMousePos(col?: number, row?: number) {
+            self.mouseCol = col
+            self.mouseRow = row
           },
           setRowHeight(n: number) {
             self.rowHeight = n
@@ -338,6 +340,16 @@ const model = types.snapshotProcessor(
               return t ? filter(t, collapsed) : { noTree: true }
             },
 
+            get rowNames() {
+              return this.hierarchy.leaves().map((node) => node.data.name)
+            },
+
+            get mouseOverRowName() {
+              return self.mouseRow !== undefined
+                ? this.rowNames[self.mouseRow]
+                : undefined
+            },
+
             get root() {
               return getRoot(this.tree)
             },
@@ -347,12 +359,9 @@ const model = types.snapshotProcessor(
             },
 
             get blanks() {
-              const nodes = this.hierarchy.leaves()
               const blanks = []
-
-              // filter type guard
-              // https://www.benmvp.com/blog/filtering-undefined-elements-from-array-typescript/
-              const strs = nodes
+              const strs = this.hierarchy
+                .leaves()
                 .map(({ data }) => this.MSA?.getRow(data.name))
                 .filter((item): item is string[] => !!item)
 
@@ -371,8 +380,8 @@ const model = types.snapshotProcessor(
             },
 
             get columns(): Record<string, string> {
-              const nodes = this.hierarchy.leaves()
-              const rows = nodes
+              const rows = this.hierarchy
+                .leaves()
                 .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
                 .filter((f) => !!f[1])
               const strs = rows.map((row) => row[1])

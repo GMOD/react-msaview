@@ -137,10 +137,15 @@ const MSABlock = observer(
           if (!ref.current) {
             return
           }
-          const mouseX =
-            event.clientX - ref.current.getBoundingClientRect().left
-          model.setMousePos(Math.floor((mouseX + offsetX) / colWidth) + 1)
+          const { left, top } = ref.current.getBoundingClientRect()
+          const mouseX = event.clientX - left
+          const mouseY = event.clientY - top
+          model.setMousePos(
+            Math.floor((mouseX + offsetX) / colWidth) + 1,
+            Math.floor((mouseY + offsetY) / rowHeight),
+          )
         }}
+        onMouseLeave={() => model.setMousePos()}
         height={blockSize}
         style={{
           position: 'absolute',

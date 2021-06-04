@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { IconButton, Select } from '@material-ui/core'
+import { IconButton, Select, Typography } from '@material-ui/core'
 import { MsaViewModel } from '../model'
 import { observer } from 'mobx-react'
 
@@ -76,8 +76,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           native
           value={currentAlignment}
           onChange={(event) => {
-            //@ts-ignore
-            model.setCurrentAlignment(+event.target.value)
+            model.setCurrentAlignment(+(event.target.value as string))
             model.setScrollX(0)
             model.setScrollY(0)
           }}
@@ -89,6 +88,12 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           ))}
         </Select>
       ) : null}
+      <Typography display="inline">
+        Row name: {model.mouseOverRowName}
+      </Typography>
+      <span style={{ marginLeft: 10 }} />
+
+      <Typography display="inline">Position: {model.mouseCol}</Typography>
     </div>
   )
 })
