@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Typography, CircularProgress, useTheme } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import Color from 'color'
@@ -157,9 +157,14 @@ const MSABlock = observer(
 const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
   const { MSA, msaFilehandle, height, msaAreaWidth, blocksX, blocksY } = model
   const ref = useRef<HTMLDivElement>(null)
+  // wheel
   const scheduled = useRef(false)
   const deltaX = useRef(0)
   const deltaY = useRef(0)
+  // mouse click-and-drag scrolling
+  const prevX = useRef<number>(0)
+  const prevY = useRef<number>(0)
+  const [mouseDragging, setMouseDragging] = useState(false)
   useEffect(() => {
     const curr = ref.current
     if (!curr) {
@@ -188,9 +193,81 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
     }
   }, [model])
 
+  function mouseDown(event: React.MouseEvent) {
+    // check if clicking a draggable element or a resize handle
+    const target = event.target as HTMLElement
+    if (target.draggable || target.dataset.resizer) {
+      return
+    }
+
+    // otherwise do click and drag scroll
+    if (event.button === 0) {
+      prevX.current = event.clientX
+      prevY.current = event.clientY
+      setMouseDragging(true)
+    }
+  }
+
+  // this local mouseup is used in addition to the global because sometimes
+  // the global add/remove are not called in time, resulting in issue #533
+  function mouseUp(event: React.MouseEvent) {
+    event.preventDefault()
+    setMouseDragging(false)
+  }
+
+  function mouseLeave(event: React.MouseEvent) {
+    event.preventDefault()
+  }
+
+  useEffect(() => {
+    let cleanup = () => {}
+
+    function globalMouseMove(event: MouseEvent) {
+      event.preventDefault()
+      const currX = event.clientX
+      const currY = event.clientY
+      const distanceX = currX - prevX.current
+      const distanceY = currY - prevY.current
+      if (distanceX || distanceY) {
+        // use rAF to make it so multiple event handlers aren't fired per-frame
+        // see https://calendar.perfplanet.com/2013/the-runtime-performance-checklist/
+        if (!scheduled.current) {
+          scheduled.current = true
+          window.requestAnimationFrame(() => {
+            model.doScrollX(distanceX)
+            model.doScrollY(distanceY)
+            scheduled.current = false
+            prevX.current = event.clientX
+            prevY.current = event.clientY
+          })
+        }
+      }
+    }
+
+    function globalMouseUp() {
+      prevX.current = 0
+      if (mouseDragging) {
+        setMouseDragging(false)
+      }
+    }
+
+    if (mouseDragging) {
+      window.addEventListener('mousemove', globalMouseMove, true)
+      window.addEventListener('mouseup', globalMouseUp, true)
+      cleanup = () => {
+        window.removeEventListener('mousemove', globalMouseMove, true)
+        window.removeEventListener('mouseup', globalMouseUp, true)
+      }
+    }
+    return cleanup
+  }, [model, mouseDragging])
+
   return (
     <div
       ref={ref}
+      onMouseDown={mouseDown}
+      onMouseUp={mouseUp}
+      onMouseLeave={mouseLeave}
       style={{
         position: 'relative',
         height,
