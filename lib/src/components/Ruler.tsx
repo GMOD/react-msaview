@@ -167,10 +167,10 @@ function RulerBlock({
   )
 }
 const Ruler = observer(({ model }: { model: MsaViewModel }) => {
-  const { colWidth, msaAreaWidth, scrollX, blocksX, blockSize } = model
+  const { MSA, colWidth, msaAreaWidth, scrollX, blocksX, blockSize } = model
   const offsetX = blocksX[0]
 
-  return (
+  return !MSA ? null : (
     <div
       style={{
         position: 'relative',
