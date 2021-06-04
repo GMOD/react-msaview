@@ -1,3 +1,7 @@
+# v1.1.3
+
+- Add click and drag scrolling behavior
+
 # v1.1.2
 
 - Fix scrolling of area width
