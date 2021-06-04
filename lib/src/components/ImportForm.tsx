@@ -3,12 +3,13 @@ import { Button, Container, Grid, Typography, Link } from '@material-ui/core'
 import { observer } from 'mobx-react'
 import { transaction } from 'mobx'
 import { FileSelector } from '@jbrowse/core/ui'
+import { FileLocation } from '@jbrowse/core/util/types'
 import { MsaViewModel } from '../model'
 import { smallTree, smallMSA } from './data/seq2'
 
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const [msaFile, setMsaFile] = useState()
-  const [treeFile, setTreeFile] = useState()
+  const [msaFile, setMsaFile] = useState<FileLocation>()
+  const [treeFile, setTreeFile] = useState<FileLocation>()
 
   return (
     <Container>
@@ -28,19 +29,9 @@ export default observer(({ model }: { model: MsaViewModel }) => {
       <Grid container spacing={10} justify="center" alignItems="center">
         <Grid item>
           <Typography>MSA file or URL</Typography>
-          <FileSelector
-            location={msaFile}
-            //@ts-ignore
-            setLocation={setMsaFile}
-            localFileAllowed
-          />
+          <FileSelector location={msaFile} setLocation={setMsaFile} />
           <Typography>Tree file or URL</Typography>
-          <FileSelector
-            location={treeFile}
-            //@ts-ignore
-            setLocation={setTreeFile}
-            localFileAllowed
-          />
+          <FileSelector location={treeFile} setLocation={setTreeFile} />
         </Grid>
 
         <Grid item>
@@ -69,7 +60,8 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setTreeFilehandle({
-                    uri: 'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
+                    uri:
+                      'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
                   })
                 }}
               >
@@ -103,7 +95,8 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setMSAFilehandle({
-                    uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
+                    uri:
+                      'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
                   })
                 }}
               >
@@ -115,7 +108,8 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setMSAFilehandle({
-                    uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
+                    uri:
+                      'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
                   })
                 }}
               >
@@ -127,7 +121,8 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 href="#"
                 onClick={() => {
                   model.setMSAFilehandle({
-                    uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
+                    uri:
+                      'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
                   })
                 }}
               >
@@ -140,10 +135,12 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 onClick={() => {
                   transaction(() => {
                     model.setMSAFilehandle({
-                      uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
+                      uri:
+                        'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
                     })
                     model.setTreeFilehandle({
-                      uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
+                      uri:
+                        'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
                     })
                   })
                 }}
