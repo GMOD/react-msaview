@@ -77,29 +77,39 @@ export default function AboutDialog({
 
           <ul>
             <li>
-              We use some color schemes from the{' '}
-              <Link href="https://github.com/biotite-dev/biotite">biotite</Link>{' '}
-              project, and their license is reproduced{' '}
-              <Link onClick={() => setDlgOpen(true)}>here</Link>
+              <Typography>
+                We use some color schemes from the{' '}
+                <Link href="https://github.com/biotite-dev/biotite">
+                  biotite
+                </Link>{' '}
+                project, and their license is reproduced{' '}
+                <Link onClick={() => setDlgOpen(true)}>here</Link>
+              </Typography>
             </li>
             <li>
-              See this page for some information on jalview colorings{' '}
-              <Link href="https://www.jalview.org/help/html/colourSchemes/">
-                here
-              </Link>
+              <Typography>
+                See this page for some information on jalview colorings{' '}
+                <Link href="https://www.jalview.org/help/html/colourSchemes/">
+                  here
+                </Link>
+              </Typography>
             </li>
             <li>
-              See this page for some info on the clustal, cinema, maeditor, and
-              lesk color schemes{' '}
-              <Link href="http://www.bioinformatics.nl/~berndb/aacolour.html">
-                here
-              </Link>
+              <Typography>
+                See this page for some info on the clustal, cinema, maeditor,
+                and lesk color schemes{' '}
+                <Link href="http://www.bioinformatics.nl/~berndb/aacolour.html">
+                  here
+                </Link>
+              </Typography>
             </li>
             <li>
-              See this paper about the flower color scheme{' '}
-              <Link href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7245768/">
-                here
-              </Link>
+              <Typography>
+                See this paper about the flower color scheme{' '}
+                <Link href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7245768/">
+                  here
+                </Link>
+              </Typography>
             </li>
           </ul>
         </DialogContent>

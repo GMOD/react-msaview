@@ -7,6 +7,17 @@ import { FileLocation } from '@jbrowse/core/util/types'
 import { MsaViewModel } from '../model'
 import { smallTree, smallMSA } from './data/seq2'
 
+const Li = ({
+  onClick,
+  children,
+}: {
+  onClick: () => void
+  children: React.ReactNode
+}) => (
+  <Link onClick={onClick} href="#">
+    <Typography>{children}</Typography>
+  </Link>
+)
 export default observer(({ model }: { model: MsaViewModel }) => {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
@@ -56,8 +67,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <Typography>Examples</Typography>
           <ul>
             <li>
-              <Link
-                href="#"
+              <Li
                 onClick={() => {
                   model.setTreeFilehandle({
                     uri:
@@ -66,21 +76,19 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 }}
               >
                 230k COVID-19 samples (tree only)
-              </Link>
+              </Li>
             </li>
             <li>
-              <Link
-                href="#"
+              <Li
                 onClick={() => {
                   model.setData({ msa: smallMSA, tree: smallTree })
                 }}
               >
                 Small protein+tree
-              </Link>
+              </Li>
             </li>
             <li>
-              <Link
-                href="#"
+              <Li
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri: 'https://ihh.github.io/abrowse/build/pfam-cov2.stock',
@@ -88,11 +96,10 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 }}
               >
                 PFAM SARS-CoV2 multi-stockholm
-              </Link>
+              </Li>
             </li>
             <li>
-              <Link
-                href="#"
+              <Li
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri:
@@ -101,11 +108,10 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 }}
               >
                 Lysine stockholm file
-              </Link>
+              </Li>
             </li>
             <li>
-              <Link
-                href="#"
+              <Li
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri:
@@ -114,11 +120,10 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 }}
               >
                 PF01601 stockholm file (SARS-CoV2 spike protein)
-              </Link>
+              </Li>
             </li>
             <li>
-              <Link
-                href="#"
+              <Li
                 onClick={() => {
                   model.setMSAFilehandle({
                     uri:
@@ -127,11 +132,10 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 }}
               >
                 Europe COVID full genomes (LR883044.1 and 199 other sequences)
-              </Link>
+              </Li>
             </li>
             <li>
-              <Link
-                href="#"
+              <Li
                 onClick={() => {
                   transaction(() => {
                     model.setMSAFilehandle({
@@ -146,7 +150,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 }}
               >
                 MAFFT+VeryFastTree(17.9k samples)
-              </Link>
+              </Li>
             </li>
           </ul>
         </Grid>
