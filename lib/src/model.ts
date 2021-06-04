@@ -77,8 +77,8 @@ const model = types.snapshotProcessor(
           colWidth: 16,
           showBranchLen: true,
           bgColor: true,
+          drawTree: false,
           drawNodeBubbles: true,
-          dragHandleType: 'crop',
           colorSchemeName: 'maeditor',
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
@@ -141,8 +141,8 @@ const model = types.snapshotProcessor(
           setCurrentAlignment(n: number) {
             self.currentAlignment = n
           },
-          setDragHandleType(str: string) {
-            self.dragHandleType = str
+          toggleDrawTree() {
+            self.drawTree = !self.drawTree
           },
           toggleCollapsed(node: string) {
             if (self.collapsed.includes(node)) {
@@ -337,6 +337,16 @@ const model = types.snapshotProcessor(
                 ? generateNodeIds(parseNewick(tree))
                 : this.MSA?.getTree()
 
+              if (!self.drawTree) {
+                return {
+                  id: 'root',
+                  noTree: true,
+                  branchset: this.MSA?.getNames().map((name) => ({
+                    id: name,
+                    name,
+                  })),
+                }
+              }
               return t ? filter(t, collapsed) : { noTree: true }
             },
 

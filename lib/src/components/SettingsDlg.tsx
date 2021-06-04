@@ -76,6 +76,15 @@ export default observer(
             }
             label="Draw node bubbles"
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={model.drawTree}
+                onChange={() => model.toggleDrawTree()}
+              />
+            }
+            label="Draw tree (if available)"
+          />
 
           <TextField
             label="Row height (px)"
