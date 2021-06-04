@@ -18,7 +18,8 @@
     "build:types": "tsc",
     "build:js": "babel src --out-dir dist --extensions \".ts,.tsx,.js\" --source-maps inline",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "postversion": "git push --follow-tags"
   },
   "peerDependencies": {
     "@jbrowse/core": ">=1.3.0",
