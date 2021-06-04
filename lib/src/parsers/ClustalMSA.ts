@@ -33,7 +33,7 @@ export default class ClustalMSA {
     return {
       id: 'root',
       noTree: true,
-      branchset: this.MSA.alns,
+      branchset: this.MSA.alns.map((aln) => ({ id: aln.id, name: aln.id })),
     }
   }
 }

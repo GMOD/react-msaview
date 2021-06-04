@@ -43,6 +43,7 @@ export default class FastaMSA {
       noTree: true,
       branchset: Object.keys(this.MSA.seqdata).map((name) => ({
         id: name,
+        name,
       })),
     }
   }

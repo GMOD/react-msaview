@@ -356,7 +356,7 @@ const model = types.snapshotProcessor(
                 .map(({ data }) => this.MSA?.getRow(data.name))
                 .filter((item): item is string[] => !!item)
 
-              for (let i = 0; i < strs[0].length; i++) {
+              for (let i = 0; i < strs[0]?.length; i++) {
                 let counter = 0
                 for (let j = 0; j < strs.length; j++) {
                   if (strs[j][i] === '-') {
