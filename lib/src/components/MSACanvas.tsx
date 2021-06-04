@@ -155,15 +155,7 @@ const MSABlock = observer(
 )
 
 const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
-  const {
-    MSA,
-    msaFilehandle,
-    width,
-    height,
-    treeWidth,
-    blocksX,
-    blocksY,
-  } = model
+  const { MSA, msaFilehandle, height, msaAreaWidth, blocksX, blocksY } = model
   const ref = useRef<HTMLDivElement>(null)
   const scheduled = useRef(false)
   const deltaX = useRef(0)
@@ -202,7 +194,7 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
       style={{
         position: 'relative',
         height,
-        width: width - treeWidth,
+        width: msaAreaWidth,
         overflow: 'hidden',
       }}
     >

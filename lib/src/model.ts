@@ -319,7 +319,7 @@ const model = types.snapshotProcessor(
               return self.volatileWidth
             },
 
-            get msaWidth() {
+            get numColumns() {
               return (
                 ((this.MSA?.getWidth() || 0) - this.blanks.length) *
                 self.colWidth
@@ -343,7 +343,7 @@ const model = types.snapshotProcessor(
             },
 
             get msaAreaWidth() {
-              return this.width - self.treeWidth
+              return this.width - self.treeAreaWidth
             },
 
             get blanks() {
@@ -423,7 +423,7 @@ const model = types.snapshotProcessor(
 
       doScrollX(deltaX: number) {
         self.scrollX = clamp(
-          -self.msaWidth + (self.width - self.treeWidth - 20),
+          -self.numColumns + (self.msaAreaWidth - 20),
           self.scrollX + deltaX,
           0,
         )

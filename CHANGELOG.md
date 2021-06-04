@@ -1,3 +1,7 @@
+# v1.1.2
+
+- Fix scrolling of area width
+
 # v1.1.1
 
 - Add drag handle

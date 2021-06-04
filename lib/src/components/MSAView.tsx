@@ -80,8 +80,8 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                   style={{
                     overflow: 'hidden',
                     position: 'absolute',
-                    top: '49%',
-                    height: 19,
+                    top: '20%',
+                    height: '60%',
                     width: 1,
                     left: resizeHandleWidth / 2 - 0.5,
                     background: 'grey',
