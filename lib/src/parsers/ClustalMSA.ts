@@ -44,4 +44,11 @@ export default class ClustalMSA {
       branchset: this.getNames().map((name) => ({ id: name, name })),
     }
   }
+
+  get seqConsensus() {
+    return undefined
+  }
+  get symbolicConsensus() {
+    return undefined
+  }
 }

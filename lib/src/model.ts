@@ -5,6 +5,7 @@ import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
 import { autorun } from 'mobx'
+import Color from 'color'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
 import Stockholm from 'stockholm-js'
@@ -12,7 +13,9 @@ import ClustalMSA from './parsers/ClustalMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
-import { generateNodeIds, NodeWithIds } from './util'
+import colorSchemes from './colorSchemes'
+
+import { generateNodeIds, transform, NodeWithIds } from './util'
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   //@ts-ignore
@@ -33,9 +36,7 @@ function maxLength(d: HierarchyNode<any>): number {
 function getRoot(tree: any) {
   return hierarchy(tree, (d) => d.branchset)
     .sum((d) => (d.branchset ? 0 : 1))
-    .sort((a, b) => {
-      return ascending(a.data.length || 1, b.data.length || 1)
-    })
+    .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 }
 
 function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
@@ -309,6 +310,18 @@ const model = types.snapshotProcessor(
               return this.initialized && (self.data.msa || self.data.tree)
             },
 
+      get colorScheme() {
+        return colorSchemes[self.colorSchemeName]
+      },
+
+      colorContrast(theme: any) {
+        return transform(this.colorScheme, ([letter, color]) => [
+          letter,
+          theme.palette.getContrastText(Color(color).hex()),
+        ])
+      },
+
+
             get alignmentDetails() {
               return this.MSA?.getDetails() || {}
             },
@@ -476,6 +489,13 @@ const model = types.snapshotProcessor(
             get totalHeight() {
               return this.root.leaves().length * self.rowHeight
             },
+      get symbolicConsensus() {
+        return this.MSA?.symbolicConsensus
+      },
+
+      get seqConsensus() {
+        return this.MSA?.seqConsensus
+      },
           }
         }),
     )

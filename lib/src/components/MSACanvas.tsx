@@ -27,21 +27,14 @@ const MSABlock = observer(
       scrollY,
       scrollX,
       hierarchy,
-      colorSchemeName,
+      colorScheme,
       blockSize,
       mouseCol,
     } = model
     const theme = useTheme()
 
-    const colorScheme = colorSchemes[colorSchemeName]
-    const colorContrast = useMemo(
-      () =>
-        transform(colorScheme, ([letter, color]) => [
-          letter,
-          theme.palette.getContrastText(Color(color).hex()),
-        ]),
-      [colorScheme, theme.palette],
-    )
+    const colorContrast = model.colorContrast(theme)
+
     const ref = useRef<HTMLCanvasElement>(null)
     const mouseoverRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {

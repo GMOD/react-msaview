@@ -11,6 +11,10 @@ type StockholmEntry = {
     AC: Record<string, string>
     DR: Record<string, string>
   }
+  gc?: {
+    SS_cons?: string
+    seq_cons?: string
+  }
   seqdata: { [key: string]: string }
 }
 
@@ -26,6 +30,12 @@ export default class StockholmMSA {
 
   getMSA() {
     return this.MSA
+  }
+  get seqConsensus() {
+    return this.MSA.gc?.seq_cons
+  }
+  get symbolicConsensus() {
+    return this.MSA.gc?.SS_cons
   }
 
   getRow(name: string) {
