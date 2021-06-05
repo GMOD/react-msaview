@@ -78,7 +78,7 @@ const model = types.snapshotProcessor(
           colWidth: 16,
           showBranchLen: true,
           bgColor: true,
-          drawTree: false,
+          drawTree: true,
           drawNodeBubbles: true,
           colorSchemeName: 'maeditor',
           treeFilehandle: types.maybe(FileLocation),
@@ -341,21 +341,13 @@ const model = types.snapshotProcessor(
                 ? generateNodeIds(parseNewick(tree))
                 : this.MSA?.getTree()
 
-              if (!self.drawTree) {
-                return {
-                  id: 'root',
-                  noTree: true,
-                  branchset: this.MSA?.getNames().map((name) => ({
-                    id: name,
-                    name,
-                  })),
-                }
-              }
               return t ? filter(t, collapsed) : { noTree: true }
             },
 
-            get rowNames() {
-              return this.hierarchy.leaves().map((node) => node.data.name)
+            get rowNames(): string[] {
+              return this.hierarchy
+                .leaves()
+                .map((node: { data: { name: string } }) => node.data.name)
             },
 
             get mouseOverRowName() {

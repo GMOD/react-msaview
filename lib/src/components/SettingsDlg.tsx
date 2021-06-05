@@ -92,7 +92,7 @@ export default observer(
                 onChange={() => model.toggleLabelsAlignRight()}
               />
             }
-            label="Labels align right"
+            label="Labels align right (note: labels may draw over tree, but can adjust tree width or tree area width in UI)"
           />
 
           <TextField
