@@ -40,6 +40,7 @@ const TreeBlock = observer(
       showBranchLen,
       collapsed,
       margin,
+      labelsAlignRight,
       noTree,
       blockSize,
       drawNodeBubbles,
@@ -122,6 +123,10 @@ const TreeBlock = observer(
 
       if (rowHeight >= 10) {
         ctx.fillStyle = 'black'
+
+        if (labelsAlignRight) {
+          ctx.textAlign = 'end'
+        }
         hierarchy.leaves().forEach((node) => {
           const {
             //@ts-ignore
@@ -153,6 +158,7 @@ const TreeBlock = observer(
       noTree,
       blockSize,
       drawNodeBubbles,
+      labelsAlignRight,
     ])
 
     function decode(event: React.MouseEvent) {

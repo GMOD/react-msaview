@@ -34,7 +34,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
       }
     }
     return () => {}
-  }, [cropMouseDown])
+  }, [cropMouseDown, model])
 
   if (!initialized) {
     return <ImportForm model={model} />

@@ -85,6 +85,15 @@ export default observer(
             }
             label="Draw tree (if available)"
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={model.labelsAlignRight}
+                onChange={() => model.toggleLabelsAlignRight()}
+              />
+            }
+            label="Labels align right"
+          />
 
           <TextField
             label="Row height (px)"

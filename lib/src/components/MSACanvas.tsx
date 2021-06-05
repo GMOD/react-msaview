@@ -39,7 +39,7 @@ const MSABlock = observer(
           letter,
           theme.palette.getContrastText(Color(color).hex()),
         ]),
-      [colorScheme],
+      [colorScheme, theme.palette],
     )
     const ref = useRef<HTMLCanvasElement>(null)
     useEffect(() => {

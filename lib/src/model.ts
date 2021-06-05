@@ -74,6 +74,7 @@ const model = types.snapshotProcessor(
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
+          labelsAlignRight: false,
           colWidth: 16,
           showBranchLen: true,
           bgColor: true,
@@ -140,6 +141,9 @@ const model = types.snapshotProcessor(
           },
           setCurrentAlignment(n: number) {
             self.currentAlignment = n
+          },
+          toggleLabelsAlignRight() {
+            self.labelsAlignRight = !self.labelsAlignRight
           },
           toggleDrawTree() {
             self.drawTree = !self.drawTree
