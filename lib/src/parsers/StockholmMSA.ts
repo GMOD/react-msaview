@@ -44,7 +44,11 @@ export default class StockholmMSA {
   }
 
   getDetails() {
-    return this.MSA.gf
+    return {
+      General: this.MSA.gf,
+      Accessions: this.MSA.gs?.AC,
+      Dbxref: this.MSA.gs?.DR,
+    }
   }
 
   getNames() {

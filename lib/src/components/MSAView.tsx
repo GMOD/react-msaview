@@ -8,6 +8,7 @@ import ImportForm from './ImportForm'
 import TreeCanvas from './TreeCanvas'
 import MSACanvas from './MSACanvas'
 import Ruler from './Ruler'
+import Annotations from './Annotations'
 import TreeRuler from './TreeRuler'
 import Header from './Header'
 
@@ -52,6 +53,15 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <div style={{ width: resizeHandleWidth }}></div>
           <Ruler model={model} />
         </div>
+
+          <div style={{ display: 'flex', height: 20 }}>
+            <div style={{ overflow: 'hidden', width: treeAreaWidth }} />
+            <div style={{ width: resizeHandleWidth }}></div>
+            <Annotations model={model} />
+          </div>
+          <div
+
+
         <div
           style={{
             display: 'flex',
