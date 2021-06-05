@@ -20,6 +20,10 @@ export default class FastaMSA {
     return this.MSA
   }
 
+  getNames() {
+    return Object.keys(this.MSA.seqdata)
+  }
+
   getRow(name: string) {
     return this.MSA?.seqdata[name]?.split('')
   }
@@ -41,7 +45,7 @@ export default class FastaMSA {
     return {
       id: 'root',
       noTree: true,
-      branchset: Object.keys(this.MSA.seqdata).map((name) => ({
+      branchset: this.getNames().map((name) => ({
         id: name,
         name,
       })),

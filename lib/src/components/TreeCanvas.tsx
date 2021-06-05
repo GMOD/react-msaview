@@ -40,9 +40,12 @@ const TreeBlock = observer(
       showBranchLen,
       collapsed,
       margin,
+      labelsAlignRight,
       noTree,
       blockSize,
       drawNodeBubbles,
+      drawTree,
+      treeAreaWidth,
     } = model
 
     useEffect(() => {
@@ -64,7 +67,7 @@ const TreeBlock = observer(
       const font = ctx.font
       ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
 
-      if (!noTree) {
+      if (!noTree && drawTree) {
         hierarchy.links().forEach(({ source, target }) => {
           const y = showBranchLen ? 'len' : 'y'
           //@ts-ignore
@@ -122,6 +125,13 @@ const TreeBlock = observer(
 
       if (rowHeight >= 10) {
         ctx.fillStyle = 'black'
+
+        if (labelsAlignRight) {
+          ctx.textAlign = 'end'
+          ctx.setLineDash([3, 5])
+        } else {
+          ctx.textAlign = 'start'
+        }
         hierarchy.leaves().forEach((node) => {
           const {
             //@ts-ignore
@@ -137,9 +147,24 @@ const TreeBlock = observer(
             y < offsetY + blockSize + extendBounds
           ) {
             //note: +rowHeight/4 matches with -rowHeight/4 in msa
-            ctx.fillText(name, (showBranchLen ? len : x) + d, y + rowHeight / 4)
+            const yp = y + rowHeight / 4
+            const xp = showBranchLen ? len : x
+            if (!drawTree && !labelsAlignRight) {
+              ctx.fillText(name, 0, yp)
+            } else if (labelsAlignRight) {
+              if (drawTree) {
+                const { width } = ctx.measureText(name)
+                ctx.moveTo(xp + radius + 2, y)
+                ctx.lineTo(treeAreaWidth - 30 - width, y)
+                ctx.stroke()
+              }
+              ctx.fillText(name, treeAreaWidth - 30, yp)
+            } else {
+              ctx.fillText(name, xp + d, yp)
+            }
           }
         })
+        ctx.setLineDash([])
       }
       setColorMap(colorHash)
     }, [
@@ -153,6 +178,9 @@ const TreeBlock = observer(
       noTree,
       blockSize,
       drawNodeBubbles,
+      drawTree,
+      labelsAlignRight,
+      treeAreaWidth,
     ])
 
     function decode(event: React.MouseEvent) {

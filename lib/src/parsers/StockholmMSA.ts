@@ -43,6 +43,10 @@ export default class StockholmMSA {
     return this.MSA.gf
   }
 
+  getNames() {
+    return Object.keys(this.MSA.seqdata)
+  }
+
   getTree() {
     const tree = this.MSA?.gf?.NH?.[0]
     return tree
@@ -50,7 +54,7 @@ export default class StockholmMSA {
       : {
           id: 'root',
           noTree: true,
-          branchset: Object.keys(this.MSA.seqdata).map((name) => ({
+          branchset: this.getNames().map((name) => ({
             id: name,
             name,
           })),

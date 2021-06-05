@@ -74,11 +74,12 @@ const model = types.snapshotProcessor(
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
+          labelsAlignRight: false,
           colWidth: 16,
           showBranchLen: true,
           bgColor: true,
+          drawTree: true,
           drawNodeBubbles: true,
-          dragHandleType: 'crop',
           colorSchemeName: 'maeditor',
           treeFilehandle: types.maybe(FileLocation),
           msaFilehandle: types.maybe(FileLocation),
@@ -141,8 +142,11 @@ const model = types.snapshotProcessor(
           setCurrentAlignment(n: number) {
             self.currentAlignment = n
           },
-          setDragHandleType(str: string) {
-            self.dragHandleType = str
+          toggleLabelsAlignRight() {
+            self.labelsAlignRight = !self.labelsAlignRight
+          },
+          toggleDrawTree() {
+            self.drawTree = !self.drawTree
           },
           toggleCollapsed(node: string) {
             if (self.collapsed.includes(node)) {
@@ -340,8 +344,10 @@ const model = types.snapshotProcessor(
               return t ? filter(t, collapsed) : { noTree: true }
             },
 
-            get rowNames() {
-              return this.hierarchy.leaves().map((node) => node.data.name)
+            get rowNames(): string[] {
+              return this.hierarchy
+                .leaves()
+                .map((node: { data: { name: string } }) => node.data.name)
             },
 
             get mouseOverRowName() {

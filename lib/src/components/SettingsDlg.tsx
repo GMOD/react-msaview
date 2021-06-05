@@ -76,6 +76,24 @@ export default observer(
             }
             label="Draw node bubbles"
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={model.drawTree}
+                onChange={() => model.toggleDrawTree()}
+              />
+            }
+            label="Draw tree (if available)"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={model.labelsAlignRight}
+                onChange={() => model.toggleLabelsAlignRight()}
+              />
+            }
+            label="Labels align right (note: labels may draw over tree, but can adjust tree width or tree area width in UI)"
+          />
 
           <TextField
             label="Row height (px)"

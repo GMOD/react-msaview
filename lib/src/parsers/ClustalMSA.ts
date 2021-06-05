@@ -25,6 +25,10 @@ export default class ClustalMSA {
     return this.MSA.header
   }
 
+  getNames() {
+    return this.MSA.alns.map((aln) => aln.id)
+  }
+
   get alignmentNames() {
     return []
   }
@@ -33,7 +37,7 @@ export default class ClustalMSA {
     return {
       id: 'root',
       noTree: true,
-      branchset: this.MSA.alns.map((aln) => ({ id: aln.id, name: aln.id })),
+      branchset: this.getNames().map((name) => ({ id: name, name })),
     }
   }
 }
