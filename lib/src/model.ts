@@ -73,6 +73,12 @@ const model = types.snapshotProcessor(
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
+          selected: types.array(
+            types.model({
+              id: types.identifier,
+              range: types.maybe(types.string),
+            }),
+          ),
           labelsAlignRight: false,
           colWidth: 16,
           showBranchLen: true,
@@ -105,9 +111,16 @@ const model = types.snapshotProcessor(
           error: undefined as Error | undefined,
           volatileWidth: 0,
           margin: { left: 20, top: 20 },
-          pdbSelection: true,
         }))
         .actions((self) => ({
+          toggleSelection(elt: { id: string }) {
+            const r = self.selected.find((node) => node.id === elt.id)
+            if (r) {
+              self.selected.remove(r)
+            } else {
+              self.selected.push(elt)
+            }
+          },
           setError(error?: Error) {
             self.error = error
           },

@@ -18,7 +18,7 @@ function randomColor() {
 
 const padding = 600
 
-type StrMap = { [key: string]: { id: string; name: string } }
+type ClickMap = { [key: string]: { id: string; name: string } }
 interface TooltipData {
   name: string
   id: string
@@ -28,10 +28,14 @@ interface TooltipData {
 const TreeBlock = observer(
   ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
     const ref = useRef<HTMLCanvasElement>(null)
-    const menuRef = useRef<HTMLDivElement>(null)
+    const collapseBranchMenuRef = useRef<HTMLDivElement>(null)
+    const toggleNodeMenuRef = useRef<HTMLDivElement>(null)
     const clickRef = useRef<HTMLCanvasElement>(null)
-    const [colorMap, setColorMap] = useState<StrMap>({})
-    const [hovering, setHovering] = useState<TooltipData>()
+    const [collapsedClickMap, setCollapsedClickMap] = useState<ClickMap>({})
+    const [nameClickMap, setNameClickMap] = useState<ClickMap>({})
+    const [collapseBranchMenu, setCollapseBranchMenu] = useState<TooltipData>()
+    const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
+
     const {
       hierarchy,
       rowHeight,
@@ -57,7 +61,8 @@ const TreeBlock = observer(
       if (!ctx || !clickCtx) {
         return
       }
-      const colorHash: StrMap = {}
+      const tempCollapsedClickMap: ClickMap = {}
+      const tempNameClickMap: ClickMap = {}
       ;[ctx, clickCtx].forEach((context) => {
         context.resetTransform()
         context.clearRect(0, 0, treeWidth + padding, blockSize)
@@ -113,10 +118,8 @@ const TreeBlock = observer(
               ctx.stroke()
 
               const col = randomColor()
-              const [r, g, b] = col
-              colorHash[`${col}`] = { id, name }
-
-              clickCtx.fillStyle = `rgb(${r},${g},${b})`
+              tempCollapsedClickMap[`${col}`] = { id, name }
+              clickCtx.fillStyle = `rgb(${col})`
               clickCtx.fillRect(x - radius, y - radius, d, d)
             }
           })
@@ -149,8 +152,17 @@ const TreeBlock = observer(
             //note: +rowHeight/4 matches with -rowHeight/4 in msa
             const yp = y + rowHeight / 4
             const xp = showBranchLen ? len : x
+
+            const col = randomColor()
+            tempNameClickMap[`${col}`] = { id: name, name }
+            clickCtx.fillStyle = `rgb(${col})`
+
+            const { width } = ctx.measureText(name)
+            const height = ctx.measureText('M').width // use an 'em' for height
+
             if (!drawTree && !labelsAlignRight) {
               ctx.fillText(name, 0, yp)
+              clickCtx.fillRect(0, yp - height, width, height)
             } else if (labelsAlignRight) {
               if (drawTree) {
                 const { width } = ctx.measureText(name)
@@ -159,14 +171,17 @@ const TreeBlock = observer(
                 ctx.stroke()
               }
               ctx.fillText(name, treeAreaWidth - 30, yp)
+              clickCtx.fillRect(treeAreaWidth - 30, yp - height, width, height)
             } else {
               ctx.fillText(name, xp + d, yp)
+              clickCtx.fillRect(xp + d, yp - height, width, height)
             }
           }
         })
         ctx.setLineDash([])
       }
-      setColorMap(colorHash)
+      setCollapsedClickMap(tempCollapsedClickMap)
+      setNameClickMap(tempNameClickMap)
     }, [
       collapsed,
       rowHeight,
@@ -183,7 +198,7 @@ const TreeBlock = observer(
       treeAreaWidth,
     ])
 
-    function decode(event: React.MouseEvent) {
+    function hoverCollapsedClickMap(event: React.MouseEvent) {
       const x = event.nativeEvent.offsetX
       const y = event.nativeEvent.offsetY
       if (!clickRef.current) {
@@ -194,42 +209,92 @@ const TreeBlock = observer(
         return
       }
       const { data } = clickCtx.getImageData(x, y, 1, 1)
-
-      const col = [data[0], data[1], data[2]]
-      return { ...colorMap[`${col}`], x, y }
+      return { ...collapsedClickMap[`${[data[0], data[1], data[2]]}`], x, y }
     }
-    function handleClose() {
-      setHovering(undefined)
+
+    function hoverNameClickMap(event: React.MouseEvent) {
+      const x = event.nativeEvent.offsetX
+      const y = event.nativeEvent.offsetY
+      if (!clickRef.current) {
+        return
+      }
+      const clickCtx = clickRef.current.getContext('2d')
+      if (!clickCtx) {
+        return
+      }
+
+      const { data } = clickCtx.getImageData(x, y, 1, 1)
+      return { ...nameClickMap[`${[data[0], data[1], data[2]]}`], x, y }
+    }
+    function handleCloseBranchMenu() {
+      setCollapseBranchMenu(undefined)
+    }
+
+    function handleCloseToggleMenu() {
+      setToggleNodeMenu(undefined)
     }
     return (
       <>
         <div
-          ref={menuRef}
+          ref={collapseBranchMenuRef}
           style={{
             position: 'absolute',
-            left: hovering?.x || 0,
-            top: scrollY + offsetY + (hovering?.y || 0),
+            left: collapseBranchMenu?.x || 0,
+            top: scrollY + offsetY + (collapseBranchMenu?.y || 0),
           }}
         />
-        {hovering && hovering.id ? (
+        <div
+          ref={toggleNodeMenuRef}
+          style={{
+            position: 'absolute',
+            left: toggleNodeMenu?.x || 0,
+            top: scrollY + offsetY + (toggleNodeMenu?.y || 0),
+          }}
+        />
+
+        {collapseBranchMenu?.id ? (
           <Menu
-            anchorEl={menuRef.current}
+            anchorEl={collapseBranchMenuRef.current}
             transitionDuration={0}
             keepMounted
-            open={Boolean(menuRef.current)}
-            onClose={handleClose}
+            open={Boolean(collapseBranchMenuRef.current)}
+            onClose={handleCloseBranchMenu}
           >
             <MenuItem
               dense
               onClick={() => {
-                model.toggleCollapsed(hovering.id)
-                handleClose()
+                model.toggleCollapsed(collapseBranchMenu.id)
+                handleCloseBranchMenu()
               }}
             >
-              {model.collapsed.includes(hovering.id) ? 'Expand' : 'Collapse'}
+              {model.collapsed.includes(collapseBranchMenu.id)
+                ? 'Expand'
+                : 'Collapse'}
             </MenuItem>
           </Menu>
         ) : null}
+        {toggleNodeMenu?.id ? (
+          <Menu
+            anchorEl={toggleNodeMenuRef.current}
+            transitionDuration={0}
+            keepMounted
+            open={Boolean(toggleNodeMenuRef.current)}
+            onClose={handleCloseToggleMenu}
+          >
+            <MenuItem
+              dense
+              onClick={() => {
+                model.toggleSelection(toggleNodeMenu)
+                handleCloseToggleMenu()
+              }}
+            >
+              {model.selected.find((node) => node.id === toggleNodeMenu.id)
+                ? 'Remove from selection'
+                : 'Add to selection'}
+            </MenuItem>
+          </Menu>
+        ) : null}
+
         <canvas
           width={treeWidth + padding}
           height={blockSize}
@@ -244,19 +309,21 @@ const TreeBlock = observer(
             if (!ref.current) {
               return
             }
-            const data = decode(event)
-            if (data) {
-              if (data.id) {
-                ref.current.style.cursor = 'pointer'
-              } else {
-                ref.current.style.cursor = 'default'
-              }
+            if (hoverCollapsedClickMap(event) || hoverNameClickMap(event)) {
+              ref.current.style.cursor = 'pointer'
+            } else {
+              ref.current.style.cursor = 'default'
             }
           }}
           onClick={(event) => {
-            const data = decode(event)
-            if (data && data.id) {
-              setHovering(data)
+            const data = hoverCollapsedClickMap(event)
+            if (data?.id) {
+              setCollapseBranchMenu(data)
+            }
+
+            const data2 = hoverNameClickMap(event)
+            if (data2?.id) {
+              setToggleNodeMenu(data2)
             }
           }}
           ref={ref}

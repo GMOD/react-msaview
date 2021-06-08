@@ -11,29 +11,23 @@ DatasourceRegistry.add(
 
 import { ThemeProvider } from "@material-ui/core/styles";
 
+const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView" });
+model.setWidth(1800);
+
 function App() {
   const theme = createJBrowseTheme();
-  const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView" });
   const ref = useRef();
-  model.setWidth(1800);
-  const { pdbSelection } = model;
-  console.log(model.pdbSelection);
+  const { selected } = model;
+  console.log(JSON.stringify(selected), selected.toJS());
 
   useEffect(() => {
     // Create NGL Stage object
     var stage = new Stage("viewport");
 
     // Handle window resizing
-    window.addEventListener(
-      "resize",
-      function (event) {
-        stage.handleResize();
-      },
-      false
-    );
+    window.addEventListener("resize", (event) => stage.handleResize());
 
     // Code for example: interactive/hover-tooltip
-
     // create tooltip element and add to document body
     var tooltip = document.createElement("div");
     Object.assign(tooltip.style, {
@@ -48,8 +42,13 @@ function App() {
     });
     document.body.appendChild(tooltip);
 
-    // load a structure file
-    stage.loadFile("data://1blu.mmtf", { defaultRepresentation: true });
+    selected.forEach((selection) => {
+      console.log(selected.id);
+      // load a structure file
+      stage.loadFile(`data://${selection.id}.mmtf`, {
+        defaultRepresentation: true,
+      });
+    });
 
     // remove default hoverPick mouse action
     stage.mouseControls.remove("hoverPick");
@@ -68,7 +67,7 @@ function App() {
         tooltip.style.display = "none";
       }
     });
-  }, []);
+  }, [JSON.stringify(selected)]);
 
   return (
     <ThemeProvider theme={theme}>
