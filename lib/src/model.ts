@@ -64,10 +64,9 @@ const model = types.snapshotProcessor(
         .model('MsaView', {
           id: ElementId,
           type: types.literal('MsaView'),
-          height: 680,
-          treeAreaWidth: 400,
-          treeWidth: 400,
-          nameWidth: 200,
+          height: types.optional(types.number, 680),
+          treeAreaWidth: types.optional(types.number, 400),
+          treeWidth: types.optional(types.number, 300),
           rowHeight: 20,
           scrollY: 0,
           scrollX: 0,
@@ -106,6 +105,7 @@ const model = types.snapshotProcessor(
           error: undefined as Error | undefined,
           volatileWidth: 0,
           margin: { left: 20, top: 20 },
+          pdbSelection: true,
         }))
         .actions((self) => ({
           setError(error?: Error) {
@@ -135,9 +135,6 @@ const model = types.snapshotProcessor(
           },
           setTreeWidth(n: number) {
             self.treeWidth = n
-          },
-          setNameWidth(n: number) {
-            self.nameWidth = n
           },
           setCurrentAlignment(n: number) {
             self.currentAlignment = n
