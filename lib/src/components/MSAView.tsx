@@ -8,14 +8,13 @@ import ImportForm from './ImportForm'
 import TreeCanvas from './TreeCanvas'
 import MSACanvas from './MSACanvas'
 import Ruler from './Ruler'
-import Annotations from './Annotations'
 import TreeRuler from './TreeRuler'
 import Header from './Header'
 
 const resizeHandleWidth = 5
 
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, initialized, treeAreaWidth, height } = model
+  const { done, initialized, treeAreaWidth, height,tracks } = model
   const [cropMouseDown, setCropMouseDown] = useState(false)
 
   // this has the effect of just "cropping" the tree area
@@ -54,12 +53,28 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <Ruler model={model} />
         </div>
 
-          <div style={{ display: 'flex', height: 20 }}>
-            <div style={{ overflow: 'hidden', width: treeAreaWidth }} />
-            <div style={{ width: resizeHandleWidth }}></div>
-            <Annotations model={model} />
-          </div>
-          <div
+          {tracks.map((track) => {
+            return (
+              <div
+                key={track.id}
+                style={{ display: 'flex', height: rowHeight }}
+              >
+                <div
+                  style={{
+                    font: `${rowHeight - 16} sans-serif`,
+                    textAlign: 'right',
+                    overflow: 'hidden',
+                    width: treeAreaWidth - 20,
+                  }}
+                >
+                  {track.name}
+                </div>
+                <div style={{ width: 20 }} />
+                <div style={{ width: resizeHandleWidth }} />
+                <track.ReactComponent model={model} />
+              </div>
+            )
+          })}
 
 
         <div

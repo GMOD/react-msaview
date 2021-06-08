@@ -59,7 +59,7 @@ export default class FastaMSA {
   get seqConsensus() {
     return undefined
   }
-  get symbolicConsensus() {
+  get secondaryStructureConsensus() {
     return undefined
   }
 }

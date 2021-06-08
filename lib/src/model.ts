@@ -15,6 +15,8 @@ import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 
+import Annotations from './components/Annotations'
+
 import { generateNodeIds, transform, NodeWithIds } from './util'
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
@@ -309,6 +311,23 @@ const model = types.snapshotProcessor(
             get done() {
               return this.initialized && (self.data.msa || self.data.tree)
             },
+
+     get tracks() {
+        return [
+          {
+            id: 'annotation',
+            name: 'Annotation',
+            ReactComponent: Annotations,
+            data: self.seqConsensus,
+          },
+          {
+            id: 'annotation2',
+            name: 'Annotation',
+            ReactComponent: Annotations,
+            data: self.conse,
+          },
+        ]
+      },
 
       get colorScheme() {
         return colorSchemes[self.colorSchemeName]

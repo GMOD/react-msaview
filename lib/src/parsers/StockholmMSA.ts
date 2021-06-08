@@ -34,7 +34,7 @@ export default class StockholmMSA {
   get seqConsensus() {
     return this.MSA.gc?.seq_cons
   }
-  get symbolicConsensus() {
+  get secondaryStructureConsensus() {
     return this.MSA.gc?.SS_cons
   }
 

@@ -48,7 +48,7 @@ export default class ClustalMSA {
   get seqConsensus() {
     return undefined
   }
-  get symbolicConsensus() {
+  get secondaryStructureConsensus() {
     return undefined
   }
 }
