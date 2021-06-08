@@ -501,7 +501,7 @@ const model = types.snapshotProcessor(
     )
     .actions((self) => ({
       doScrollY(deltaY: number) {
-        self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 10)
+        self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 0)
       },
 
       doScrollX(deltaX: number) {
