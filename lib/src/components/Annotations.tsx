@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useMemo, useEffect } from 'react'
 import { useTheme } from '@material-ui/core'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
@@ -10,13 +10,16 @@ const AnnotationBlock = observer(
       scrollX,
       seqConsensus,
       bgColor,
-      rowHeight,
       colorScheme,
       colWidth,
+      rowHeight,
     } = model
     const theme = useTheme()
     const ref = useRef<HTMLCanvasElement>(null)
-    const colorContrast = model.colorContrast(theme)
+    const colorContrast = useMemo(() => model.colorContrast(theme), [
+      model,
+      theme,
+    ])
     useEffect(() => {
       if (!ref.current) {
         return
@@ -29,7 +32,7 @@ const AnnotationBlock = observer(
 
       // this logic is very similar to MSACanvas
       ctx.resetTransform()
-      ctx.clearRect(0, 0, blockSize, 20)
+      ctx.clearRect(0, 0, blockSize, rowHeight)
       ctx.translate(-offsetX, 0)
       ctx.textAlign = 'center'
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 12)}px`)
@@ -62,25 +65,25 @@ const AnnotationBlock = observer(
     return (
       <canvas
         ref={ref}
-        height={20}
+        height={rowHeight}
         width={blockSize}
         style={{
           position: 'absolute',
           left: scrollX + offsetX,
           width: blockSize,
-          height: 20,
+          height: rowHeight,
         }}
       />
     )
   },
 )
 const AnnotationTrack = observer(({ model }: { model: MsaViewModel }) => {
-  const { blocksX, msaAreaWidth } = model
+  const { blocksX, msaAreaWidth, rowHeight } = model
   return (
     <div
       style={{
         position: 'relative',
-        height: 20,
+        height: rowHeight,
         width: msaAreaWidth,
         overflow: 'hidden',
       }}
