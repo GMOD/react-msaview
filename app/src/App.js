@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from "react";
 import { observer } from "mobx-react";
+import { onSnapshot } from "mobx-state-tree";
 import { MSAView, MSAModel } from "react-msaview";
 import { createJBrowseTheme } from "@jbrowse/core/ui/theme";
-import { Matrix4, Stage, StaticDatasource, DatasourceRegistry } from "ngl";
+import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
 
 DatasourceRegistry.add(
   "data",
@@ -11,7 +12,14 @@ DatasourceRegistry.add(
 
 import { ThemeProvider } from "@material-ui/core/styles";
 
-const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView" });
+const urlParams = new URLSearchParams(window.location.search);
+const val = urlParams.get("data");
+console.log({ val: JSON.parse(val) });
+
+const model = MSAModel.create({
+  type: "MsaView",
+  ...JSON.parse(val),
+});
 model.setWidth(1800);
 
 function App() {
@@ -60,6 +68,18 @@ function App() {
       });
     })();
   }, [JSON.stringify(selected)]);
+
+  useEffect(() => {
+    let date = +Date.now();
+    onSnapshot(model, (snap) => {
+      if (+Date.now() - date > 500) {
+        const url = new URL(window.document.URL);
+        url.searchParams.set("data", JSON.stringify(snap));
+        window.history.replaceState(null, "", url.toString());
+        date = +Date.now();
+      }
+    });
+  }, [model]);
 
   return (
     <ThemeProvider theme={theme}>
