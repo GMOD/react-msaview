@@ -43,8 +43,6 @@ function App() {
     document.body.appendChild(tooltip);
 
     selected.forEach((selection) => {
-      console.log(selected.id);
-      // load a structure file
       stage.loadFile(`data://${selection.id}.mmtf`, {
         defaultRepresentation: true,
       });
