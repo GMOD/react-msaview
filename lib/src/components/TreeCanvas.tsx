@@ -50,6 +50,7 @@ const TreeBlock = observer(
       drawNodeBubbles,
       drawTree,
       treeAreaWidth,
+      structures,
     } = model
 
     useEffect(() => {
@@ -127,8 +128,6 @@ const TreeBlock = observer(
       }
 
       if (rowHeight >= 10) {
-        ctx.fillStyle = 'black'
-
         if (labelsAlignRight) {
           ctx.textAlign = 'end'
           ctx.setLineDash([3, 5])
@@ -160,9 +159,15 @@ const TreeBlock = observer(
             const { width } = ctx.measureText(name)
             const height = ctx.measureText('M').width // use an 'em' for height
 
+            const hasStructure = structures[name]
+            ctx.fillStyle = hasStructure ? 'blue' : 'black'
+
             if (!drawTree && !labelsAlignRight) {
               ctx.fillText(name, 0, yp)
-              clickCtx.fillRect(0, yp - height, width, height)
+
+              if (hasStructure) {
+                clickCtx.fillRect(0, yp - height, width, height)
+              }
             } else if (labelsAlignRight) {
               if (drawTree) {
                 const { width } = ctx.measureText(name)
@@ -171,10 +176,19 @@ const TreeBlock = observer(
                 ctx.stroke()
               }
               ctx.fillText(name, treeAreaWidth - 30, yp)
-              clickCtx.fillRect(treeAreaWidth - 30, yp - height, width, height)
+              if (hasStructure) {
+                clickCtx.fillRect(
+                  treeAreaWidth - 30,
+                  yp - height,
+                  width,
+                  height,
+                )
+              }
             } else {
               ctx.fillText(name, xp + d, yp)
-              clickCtx.fillRect(xp + d, yp - height, width, height)
+              if (hasStructure) {
+                clickCtx.fillRect(xp + d, yp - height, width, height)
+              }
             }
           }
         })
@@ -209,7 +223,11 @@ const TreeBlock = observer(
         return
       }
       const { data } = clickCtx.getImageData(x, y, 1, 1)
-      return { ...collapsedClickMap[`${[data[0], data[1], data[2]]}`], x, y }
+      const entry = collapsedClickMap[`${[data[0], data[1], data[2]]}`]
+      if (!entry) {
+        return
+      }
+      return { ...entry, x, y }
     }
 
     function hoverNameClickMap(event: React.MouseEvent) {
@@ -224,7 +242,12 @@ const TreeBlock = observer(
       }
 
       const { data } = clickCtx.getImageData(x, y, 1, 1)
-      return { ...nameClickMap[`${[data[0], data[1], data[2]]}`], x, y }
+      const entry = nameClickMap[`${[data[0], data[1], data[2]]}`]
+      if (!entry) {
+        return
+      }
+
+      return { ...entry, x, y }
     }
     function handleCloseBranchMenu() {
       setCollapseBranchMenu(undefined)
@@ -281,17 +304,20 @@ const TreeBlock = observer(
             open={Boolean(toggleNodeMenuRef.current)}
             onClose={handleCloseToggleMenu}
           >
-            <MenuItem
-              dense
-              onClick={() => {
-                model.toggleSelection(toggleNodeMenu)
-                handleCloseToggleMenu()
-              }}
-            >
-              {model.selected.find((node) => node.id === toggleNodeMenu.id)
-                ? 'Remove from selection'
-                : 'Add to selection'}
-            </MenuItem>
+            {structures[toggleNodeMenu.id]?.map((entry) => (
+              <MenuItem
+                key={entry}
+                dense
+                onClick={() => {
+                  model.toggleSelection({ id: entry.pdb })
+                  handleCloseToggleMenu()
+                }}
+              >
+                {model.selected.find((node) => node.id === toggleNodeMenu.id)
+                  ? `Remove ${entry.pdb} from selection`
+                  : `Add ${entry.pdb} to selection`}
+              </MenuItem>
+            ))}
           </Menu>
         ) : null}
 
@@ -309,6 +335,7 @@ const TreeBlock = observer(
             if (!ref.current) {
               return
             }
+
             if (hoverCollapsedClickMap(event) || hoverNameClickMap(event)) {
               ref.current.style.cursor = 'pointer'
             } else {

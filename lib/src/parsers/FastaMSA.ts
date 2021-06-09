@@ -33,6 +33,10 @@ export default class FastaMSA {
     return this.getRow(name).length
   }
 
+  getStructures() {
+    return {}
+  }
+
   get alignmentNames() {
     return []
   }

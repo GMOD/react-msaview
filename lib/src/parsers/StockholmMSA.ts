@@ -57,17 +57,23 @@ export default class StockholmMSA {
     /* PFAM format for embedding PDB IDs in Stockholm files */
     const pdbRegex = /PDB; +(\S+) +(\S); ([0-9]+)-([0-9]+)/
     const ent = this.MSA
-    const vals = Object.values(ent.gs.DR)
-      .map((dr) => pdbRegex.exec(dr))
-      .filter((f) => !!f)
-      .map((match) => {
+    return Object.entries(ent.gs.DR)
+      .map(([id, dr]) => [id, pdbRegex.exec(dr)])
+      .filter(([id, f]) => !!f)
+      .map(([id, match]) => {
         const pdb = match[1].toLowerCase()
         const chain = match[2]
         const startPos = +match[3]
         const endPos = +match[4]
-        return { pdb, chain, startPos, endPos }
+        return { id, pdb, chain, startPos, endPos }
       })
-    console.log({ vals })
+      .reduce((a, { id, ...rest }) => {
+        if (!a[id]) {
+          a[id] = []
+        }
+        a[id].push(rest)
+        return a
+      }, {})
   }
 
   getTree() {

@@ -29,6 +29,10 @@ export default class ClustalMSA {
     return this.MSA.alns.map((aln) => aln.id)
   }
 
+  getStructures() {
+    return {}
+  }
+
   get alignmentNames() {
     return []
   }

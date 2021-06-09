@@ -73,6 +73,7 @@ const model = types.snapshotProcessor(
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
+          mouseoveredColumn: types.maybe(types.number),
           selected: types.array(
             types.model({
               id: types.identifier,
@@ -113,6 +114,9 @@ const model = types.snapshotProcessor(
           margin: { left: 20, top: 20 },
         }))
         .actions((self) => ({
+          setMouseoveredColumn(n: number, chain: string, file: string) {
+            self.mouseoveredColumn = n
+          },
           toggleSelection(elt: { id: string }) {
             const r = self.selected.find((node) => node.id === elt.id)
             if (r) {
@@ -368,6 +372,10 @@ const model = types.snapshotProcessor(
 
             get root() {
               return getRoot(this.tree)
+            },
+
+            get structures(): { [key: string]: { id: string } } | undefined {
+              return this.MSA?.getStructures()
             },
 
             get msaAreaWidth() {
