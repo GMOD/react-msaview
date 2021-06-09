@@ -172,10 +172,10 @@ const TreeBlock = observer(
               if (drawTree) {
                 const { width } = ctx.measureText(name)
                 ctx.moveTo(xp + radius + 2, y)
-                ctx.lineTo(treeAreaWidth - 30 - width, y)
+                ctx.lineTo(treeAreaWidth - margin.left * 2 - width - 2, y)
                 ctx.stroke()
               }
-              ctx.fillText(name, treeAreaWidth - 30, yp)
+              ctx.fillText(name, treeAreaWidth - margin.left * 2, yp)
               if (hasStructure) {
                 clickCtx.fillRect(
                   treeAreaWidth - 30 - width,
