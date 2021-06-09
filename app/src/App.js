@@ -20,6 +20,7 @@ const model = MSAModel.create({
   type: "MsaView",
   ...JSON.parse(val),
 });
+
 model.setWidth(window.innerWidth);
 
 function App() {
@@ -36,7 +37,10 @@ function App() {
       var stage = new Stage("viewport");
 
       // Handle window resizing
-      window.addEventListener("resize", (event) => stage.handleResize());
+      window.addEventListener("resize", (event) => {
+        stage.handleResize();
+        model.setWidth(window.innerWidth);
+      });
 
       // Code for example: interactive/hover-tooltip
       // create tooltip element and add to document body

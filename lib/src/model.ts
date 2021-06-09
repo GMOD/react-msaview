@@ -448,7 +448,7 @@ const model = types.snapshotProcessor(
 
       doScrollX(deltaX: number) {
         self.scrollX = clamp(
-          -self.numColumns + (self.msaAreaWidth - 20),
+          -self.numColumns + (self.msaAreaWidth - 100),
           self.scrollX + deltaX,
           0,
         )
