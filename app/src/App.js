@@ -4,6 +4,7 @@ import { onSnapshot } from "mobx-state-tree";
 import { MSAView, MSAModel } from "react-msaview";
 import { createJBrowseTheme } from "@jbrowse/core/ui/theme";
 import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
+import { throttle } from "lodash";
 
 DatasourceRegistry.add(
   "data",
@@ -14,13 +15,12 @@ import { ThemeProvider } from "@material-ui/core/styles";
 
 const urlParams = new URLSearchParams(window.location.search);
 const val = urlParams.get("data");
-console.log({ val: JSON.parse(val) });
 
 const model = MSAModel.create({
   type: "MsaView",
   ...JSON.parse(val),
 });
-model.setWidth(1800);
+model.setWidth(window.innerWidth);
 
 function App() {
   const theme = createJBrowseTheme();
@@ -70,15 +70,14 @@ function App() {
   }, [JSON.stringify(selected)]);
 
   useEffect(() => {
-    let date = +Date.now();
-    onSnapshot(model, (snap) => {
-      if (+Date.now() - date > 500) {
+    onSnapshot(
+      model,
+      throttle((snap) => {
         const url = new URL(window.document.URL);
         url.searchParams.set("data", JSON.stringify(snap));
         window.history.replaceState(null, "", url.toString());
-        date = +Date.now();
-      }
-    });
+      }, 500)
+    );
   }, [model]);
 
   return (

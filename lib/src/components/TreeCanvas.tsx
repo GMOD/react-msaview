@@ -178,7 +178,7 @@ const TreeBlock = observer(
               ctx.fillText(name, treeAreaWidth - 30, yp)
               if (hasStructure) {
                 clickCtx.fillRect(
-                  treeAreaWidth - 30,
+                  treeAreaWidth - 30 - width,
                   yp - height,
                   width,
                   height,

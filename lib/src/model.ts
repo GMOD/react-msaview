@@ -110,7 +110,6 @@ const model = types.snapshotProcessor(
         })
         .volatile(() => ({
           error: undefined as Error | undefined,
-          volatileWidth: 0,
           margin: { left: 20, top: 20 },
         }))
         .actions((self) => ({
@@ -180,9 +179,6 @@ const model = types.snapshotProcessor(
           },
           setData(data: { msa: string; tree: string }) {
             self.data = cast(data)
-          },
-          setWidth(width: number) {
-            self.volatileWidth = width
           },
           async setMSAFilehandle(msaFilehandle?: FileLocationType) {
             if (msaFilehandle && 'blobId' in msaFilehandle) {
@@ -295,11 +291,7 @@ const model = types.snapshotProcessor(
             },
 
             get done() {
-              return (
-                self.volatileWidth > 0 &&
-                this.initialized &&
-                (self.data.msa || self.data.tree)
-              )
+              return this.initialized && (self.data.msa || self.data.tree)
             },
 
             get alignmentDetails() {
@@ -334,9 +326,6 @@ const model = types.snapshotProcessor(
                 }
               }
               return null
-            },
-            get width() {
-              return self.volatileWidth
             },
 
             get numColumns() {
