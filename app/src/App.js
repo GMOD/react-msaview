@@ -43,7 +43,7 @@ function App() {
 
       const res = await Promise.all(
         selected.map((selection) =>
-          stage.loadFile(`data://${selection.id}.pdb`)
+          stage.loadFile(`data://${selection.pdb}.pdb`)
         )
       );
 

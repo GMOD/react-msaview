@@ -309,11 +309,17 @@ const TreeBlock = observer(
                 key={entry}
                 dense
                 onClick={() => {
-                  model.toggleSelection({ id: entry.pdb })
+                  model.toggleSelection({
+                    pdb: entry.pdb,
+                    id: toggleNodeMenu.id,
+                  })
                   handleCloseToggleMenu()
                 }}
               >
-                {model.selected.find((node) => node.id === toggleNodeMenu.id)
+                {model.selected.find((node) => {
+                  console.log({ node }, toggleNodeMenu.id)
+                  return node.id === toggleNodeMenu.id
+                })
                   ? `Remove ${entry.pdb} from selection`
                   : `Add ${entry.pdb} to selection`}
               </MenuItem>

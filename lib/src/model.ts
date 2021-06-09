@@ -77,6 +77,7 @@ const model = types.snapshotProcessor(
           selected: types.array(
             types.model({
               id: types.identifier,
+              pdb: types.maybe(types.string),
               range: types.maybe(types.string),
             }),
           ),
@@ -116,7 +117,8 @@ const model = types.snapshotProcessor(
           setMouseoveredColumn(n: number, chain: string, file: string) {
             self.mouseoveredColumn = n
           },
-          toggleSelection(elt: { id: string }) {
+          toggleSelection(elt: { id: string; pdb?: string }) {
+            console.log({ elt })
             const r = self.selected.find((node) => node.id === elt.id)
             if (r) {
               self.selected.remove(r)
