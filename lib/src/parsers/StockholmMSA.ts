@@ -56,7 +56,7 @@ export default class StockholmMSA {
   getStructures() {
     const pdbRegex = /PDB; +(\S+) +(\S); ([0-9]+)-([0-9]+)/
     const ent = this.MSA
-    return Object.entries(ent.gs.DR)
+    return Object.entries(ent.gs?.DR || {})
       .map(([id, dr]) => [id, pdbRegex.exec(dr)])
       .filter((item): item is [string, RegExpExecArray] => !!item[1])
       .map(([id, match]: [string, RegExpExecArray]) => {
