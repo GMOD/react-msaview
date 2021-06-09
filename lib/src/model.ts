@@ -365,11 +365,12 @@ const model = types.snapshotProcessor(
               return getRoot(this.tree)
             },
 
-            get structures(): { [key: string]: { id: string }[] } {
+            get structures(): { [key: string]: { pdb: string }[] } {
               return this.MSA?.getStructures() || {}
             },
 
             get msaAreaWidth() {
+              //@ts-ignore
               return self.width - self.treeAreaWidth
             },
 

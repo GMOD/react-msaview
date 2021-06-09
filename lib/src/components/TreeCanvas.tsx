@@ -210,6 +210,7 @@ const TreeBlock = observer(
       drawTree,
       labelsAlignRight,
       treeAreaWidth,
+      structures,
     ])
 
     function hoverCollapsedClickMap(event: React.MouseEvent) {
@@ -306,7 +307,7 @@ const TreeBlock = observer(
           >
             {structures[toggleNodeMenu.id]?.map((entry) => (
               <MenuItem
-                key={entry}
+                key={JSON.stringify(entry)}
                 dense
                 onClick={() => {
                   model.toggleSelection({

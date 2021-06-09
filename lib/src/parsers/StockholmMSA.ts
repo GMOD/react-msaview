@@ -54,26 +54,26 @@ export default class StockholmMSA {
   getSeqCoords() {}
 
   getStructures() {
-    /* PFAM format for embedding PDB IDs in Stockholm files */
     const pdbRegex = /PDB; +(\S+) +(\S); ([0-9]+)-([0-9]+)/
     const ent = this.MSA
     return Object.entries(ent.gs.DR)
       .map(([id, dr]) => [id, pdbRegex.exec(dr)])
-      .filter(([id, f]) => !!f)
-      .map(([id, match]) => {
+      .filter((item): item is [string, RegExpExecArray] => !!item[1])
+      .map(([id, match]: [string, RegExpExecArray]) => {
         const pdb = match[1].toLowerCase()
         const chain = match[2]
         const startPos = +match[3]
         const endPos = +match[4]
         return { id, pdb, chain, startPos, endPos }
       })
-      .reduce((a, { id, ...rest }) => {
+      .reduce((a, b) => {
+        const { id, ...rest } = b
         if (!a[id]) {
           a[id] = []
         }
         a[id].push(rest)
         return a
-      }, {})
+      }, {} as Record<string, { pdb: string; chain: string; startPos: number; endPos: number }[]>)
   }
 
   getTree() {
