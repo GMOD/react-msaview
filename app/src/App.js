@@ -18,6 +18,7 @@ const val = urlParams.get("data");
 
 const model = MSAModel.create({
   type: "MsaView",
+  height: 550,
   ...JSON.parse(val),
 });
 
