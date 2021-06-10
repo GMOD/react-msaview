@@ -114,11 +114,7 @@ const model = types.snapshotProcessor(
           margin: { left: 20, top: 20 },
         }))
         .actions((self) => ({
-          setMouseoveredColumn(n: number, chain: string, file: string) {
-            self.mouseoveredColumn = n
-          },
           toggleSelection(elt: { id: string; pdb?: string }) {
-            console.log({ elt })
             const r = self.selected.find((node) => node.id === elt.id)
             if (r) {
               self.selected.remove(r)
@@ -369,6 +365,21 @@ const model = types.snapshotProcessor(
               return this.MSA?.getStructures() || {}
             },
 
+            get inverseStructures() {
+              return Object.fromEntries(
+                Object.entries(this.structures)
+                  .map(([key, val]) => {
+                    return val.map(({ pdb }) => [
+                      pdb,
+                      {
+                        id: key,
+                      },
+                    ])
+                  })
+                  .flat(),
+              )
+            },
+
             get msaAreaWidth() {
               //@ts-ignore
               return self.width - self.treeAreaWidth
@@ -452,6 +463,20 @@ const model = types.snapshotProcessor(
           self.scrollX + deltaX,
           0,
         )
+      },
+      setMouseoveredColumn(n: number, chain: string, file: string) {
+        let j = 0
+        const { id } = self.inverseStructures[file.slice(0, -4)] || {}
+        const row = self.MSA?.getRow(id)
+        if (row) {
+          for (let i = 0; i < row.length && j < n; i++) {
+            if (row[i] !== '-') {
+              j++
+            }
+          }
+        }
+
+        self.mouseCol = j
       },
     })),
   {
