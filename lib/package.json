@@ -13,6 +13,7 @@
     "lint": "eslint src",
     "clean": "rimraf dist",
     "prestart": "npm run clean",
+    "prebuild": "npm run clean",
     "start": "yarn build:js --watch",
     "build": "yarn build:types && npm run build:js",
     "build:types": "tsc",

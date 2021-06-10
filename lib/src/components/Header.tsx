@@ -56,21 +56,24 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       >
         <AssignmentIcon />
       </IconButton>
-      <SettingsDialog
-        open={settingsDialogVisible}
-        model={model}
-        onClose={() => setSettingsDialogVisible(false)}
-      />
-      <AboutDialog
-        open={aboutDialogVisible}
-        onClose={() => setAboutDialogVisible(false)}
-      />
+      {settingsDialogVisible ? (
+        <SettingsDialog
+          open
+          model={model}
+          onClose={() => setSettingsDialogVisible(false)}
+        />
+      ) : null}
+      {aboutDialogVisible ? (
+        <AboutDialog open onClose={() => setAboutDialogVisible(false)} />
+      ) : null}
 
-      <DetailsDialog
-        open={detailsDialogVisible}
-        model={model}
-        onClose={() => setDetailsDialogVisible(false)}
-      />
+      {detailsDialogVisible ? (
+        <DetailsDialog
+          open
+          model={model}
+          onClose={() => setDetailsDialogVisible(false)}
+        />
+      ) : null}
       {alignmentNames.length > 0 ? (
         <Select
           native

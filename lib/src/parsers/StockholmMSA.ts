@@ -7,6 +7,10 @@ type StockholmEntry = {
     DE?: string[]
     NH?: string[]
   }
+  gs: {
+    AC: Record<string, string>
+    DR: Record<string, string>
+  }
   seqdata: { [key: string]: string }
 }
 
@@ -45,6 +49,31 @@ export default class StockholmMSA {
 
   getNames() {
     return Object.keys(this.MSA.seqdata)
+  }
+
+  getSeqCoords() {}
+
+  getStructures() {
+    const pdbRegex = /PDB; +(\S+) +(\S); ([0-9]+)-([0-9]+)/
+    const ent = this.MSA
+    return Object.entries(ent.gs?.DR || {})
+      .map(([id, dr]) => [id, pdbRegex.exec(dr)])
+      .filter((item): item is [string, RegExpExecArray] => !!item[1])
+      .map(([id, match]: [string, RegExpExecArray]) => {
+        const pdb = match[1].toLowerCase()
+        const chain = match[2]
+        const startPos = +match[3]
+        const endPos = +match[4]
+        return { id, pdb, chain, startPos, endPos }
+      })
+      .reduce((a, b) => {
+        const { id, ...rest } = b
+        if (!a[id]) {
+          a[id] = []
+        }
+        a[id].push(rest)
+        return a
+      }, {} as Record<string, { pdb: string; chain: string; startPos: number; endPos: number }[]>)
   }
 
   getTree() {

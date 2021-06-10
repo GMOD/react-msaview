@@ -64,16 +64,23 @@ const model = types.snapshotProcessor(
         .model('MsaView', {
           id: ElementId,
           type: types.literal('MsaView'),
-          height: 680,
-          treeAreaWidth: 400,
-          treeWidth: 400,
-          nameWidth: 200,
+          height: types.optional(types.number, 680),
+          treeAreaWidth: types.optional(types.number, 400),
+          treeWidth: types.optional(types.number, 300),
           rowHeight: 20,
           scrollY: 0,
           scrollX: 0,
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
+          mouseoveredColumn: types.maybe(types.number),
+          selected: types.array(
+            types.model({
+              id: types.identifier,
+              pdb: types.maybe(types.string),
+              range: types.maybe(types.string),
+            }),
+          ),
           labelsAlignRight: false,
           colWidth: 16,
           showBranchLen: true,
@@ -104,10 +111,20 @@ const model = types.snapshotProcessor(
         })
         .volatile(() => ({
           error: undefined as Error | undefined,
-          volatileWidth: 0,
           margin: { left: 20, top: 20 },
         }))
         .actions((self) => ({
+          toggleSelection(elt: { id: string; pdb?: string }) {
+            const r = self.selected.find((node) => node.id === elt.id)
+            if (r) {
+              self.selected.remove(r)
+            } else {
+              self.selected.push(elt)
+            }
+          },
+          clearSelection() {
+            self.selected = []
+          },
           setError(error?: Error) {
             self.error = error
           },
@@ -136,9 +153,6 @@ const model = types.snapshotProcessor(
           setTreeWidth(n: number) {
             self.treeWidth = n
           },
-          setNameWidth(n: number) {
-            self.nameWidth = n
-          },
           setCurrentAlignment(n: number) {
             self.currentAlignment = n
           },
@@ -166,9 +180,6 @@ const model = types.snapshotProcessor(
           },
           setData(data: { msa: string; tree: string }) {
             self.data = cast(data)
-          },
-          setWidth(width: number) {
-            self.volatileWidth = width
           },
           async setMSAFilehandle(msaFilehandle?: FileLocationType) {
             if (msaFilehandle && 'blobId' in msaFilehandle) {
@@ -281,11 +292,7 @@ const model = types.snapshotProcessor(
             },
 
             get done() {
-              return (
-                self.volatileWidth > 0 &&
-                this.initialized &&
-                (self.data.msa || self.data.tree)
-              )
+              return this.initialized && (self.data.msa || self.data.tree)
             },
 
             get alignmentDetails() {
@@ -320,9 +327,6 @@ const model = types.snapshotProcessor(
                 }
               }
               return null
-            },
-            get width() {
-              return self.volatileWidth
             },
 
             get numColumns() {
@@ -360,8 +364,28 @@ const model = types.snapshotProcessor(
               return getRoot(this.tree)
             },
 
+            get structures(): { [key: string]: { pdb: string }[] } {
+              return this.MSA?.getStructures() || {}
+            },
+
+            get inverseStructures() {
+              return Object.fromEntries(
+                Object.entries(this.structures)
+                  .map(([key, val]) => {
+                    return val.map(({ pdb }) => [
+                      pdb,
+                      {
+                        id: key,
+                      },
+                    ])
+                  })
+                  .flat(),
+              )
+            },
+
             get msaAreaWidth() {
-              return this.width - self.treeAreaWidth
+              //@ts-ignore
+              return self.width - self.treeAreaWidth
             },
 
             get blanks() {
@@ -438,10 +462,24 @@ const model = types.snapshotProcessor(
 
       doScrollX(deltaX: number) {
         self.scrollX = clamp(
-          -self.numColumns + (self.msaAreaWidth - 20),
+          -self.numColumns + (self.msaAreaWidth - 100),
           self.scrollX + deltaX,
           0,
         )
+      },
+      setMouseoveredColumn(n: number, chain: string, file: string) {
+        let j = 0
+        const { id } = self.inverseStructures[file.slice(0, -4)] || {}
+        const row = self.MSA?.getRow(id)
+        if (row) {
+          for (let i = 0; i < row.length && j < n; i++) {
+            if (row[i] !== '-') {
+              j++
+            }
+          }
+        }
+
+        self.mouseCol = j
       },
     })),
   {

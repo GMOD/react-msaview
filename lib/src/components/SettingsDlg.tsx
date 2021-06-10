@@ -27,14 +27,12 @@ export default observer(
     const {
       rowHeight: rowHeightInit,
       colWidth: colWidthInit,
-      nameWidth: nameWidthInit,
       treeWidth: treeWidthInit,
       colorSchemeName,
       noTree,
     } = model
     const [rowHeight, setRowHeight] = useState('' + rowHeightInit)
     const [colWidth, setColWidth] = useState('' + colWidthInit)
-    const [nameWidth, setNameWidth] = useState('' + nameWidthInit)
     const [treeWidth, setTreeWidth] = useState('' + treeWidthInit)
 
     function error(n: string) {
@@ -42,7 +40,6 @@ export default observer(
     }
     const rowHeightError = error(rowHeight)
     const colWidthError = error(colWidth)
-    const nameWidthError = error(nameWidth)
     const treeWidthError = error(treeWidth)
 
     return (
@@ -116,12 +113,7 @@ export default observer(
               onChange={(event) => setTreeWidth(event.target.value)}
             />
           ) : null}
-          <TextField
-            label="Name width (px)"
-            value={nameWidth}
-            error={nameWidthError}
-            onChange={(event) => setNameWidth(event.target.value)}
-          />
+
           <br />
 
           <TextField
@@ -140,16 +132,10 @@ export default observer(
           <br />
           <br />
           <Button
-            disabled={
-              rowHeightError ||
-              colWidthError ||
-              nameWidthError ||
-              treeWidthError
-            }
+            disabled={rowHeightError || colWidthError || treeWidthError}
             onClick={() => {
               model.setRowHeight(+rowHeight)
               model.setColWidth(+colWidth)
-              model.setNameWidth(+nameWidth)
               if (!noTree) {
                 model.setTreeWidth(+treeWidth)
               }
