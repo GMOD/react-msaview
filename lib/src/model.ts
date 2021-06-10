@@ -122,6 +122,9 @@ const model = types.snapshotProcessor(
               self.selected.push(elt)
             }
           },
+          clearSelection() {
+            self.selected = []
+          },
           setError(error?: Error) {
             self.error = error
           },

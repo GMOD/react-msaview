@@ -92,7 +92,16 @@ function App() {
           <MSAView model={model} />
         </div>
         {model.selected.length ? (
-          <div id="viewport" ref={ref} style={{ width: 600, height: 400 }} />
+          <div>
+            <button
+              onClick={() => {
+                model.clearSelection();
+              }}
+            >
+              Clear
+            </button>
+            <div id="viewport" ref={ref} style={{ width: 600, height: 400 }} />
+          </div>
         ) : null}
       </div>
     </ThemeProvider>
