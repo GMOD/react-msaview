@@ -123,6 +123,7 @@ const model = types.snapshotProcessor(
             }
           },
           clearSelection() {
+            //@ts-ignore
             self.selected = []
           },
           setError(error?: Error) {
