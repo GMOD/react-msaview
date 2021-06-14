@@ -1,84 +1,90 @@
-# v1.1.3
+# CHANGELOG
+
+## v1.2.0
+
+Add ability to integrate with a 3D viewer based on "selections"
+
+## v1.1.3
 
 - Add click and drag scrolling behavior
 
-# v1.1.2
+## v1.1.2
 
 - Fix scrolling of area width
 
-# v1.1.1
+## v1.1.1
 
 - Add drag handle
 - Add basic ruler
 
-# v1.1.0
+## v1.1.0
 
 - Botched release process, please ignore
 
-# v1.0.15
+## v1.0.15
 
 - Remove some console logs
 
-# v1.0.14
+## v1.0.14
 
 - Rename to react-msaview, split out from jbrowse plugin
 
-# v1.0.13
+## v1.0.13
 
 - Fix nodes with the same score being collapsed together (#21)
 
-# v1.0.12
+## v1.0.12
 
 - Avoid scrolling too far right
 
-# v1.0.11
+## v1.0.11
 
 - Add version number from package.json to about panel
 
-# v1.0.10
+## v1.0.10
 
 - Fix scrolling for large MSA that loads after tree
 
-# v1.0.9
+## v1.0.9
 
 - Fix for MSA loading bar when tree only is displayed
 
-# v1.0.8
+## v1.0.8
 
 - Fix for side scrolling half rendered letters in MSA
 - drawNodeBubbles option
 
-# v1.0.7
+## v1.0.7
 
 - Move npm run build script to prepare script in package.jsom
 
-# v1.0.6
+## v1.0.6
 
 - Use postversion to run build so that the accurate version is encoded into the release binary
 
-# v1.0.5
+## v1.0.5
 
 - Add prebuild clean
 
-# v1.0.4
+## v1.0.4
 
 - Fix running build before release
 
-# v1.0.3
+## v1.0.3
 
 - Re-release
 
-# v1.0.2
+## v1.0.2
 
 - Ensure clean build with prebuild rm -rf dist
 
-# v1.0.1
+## v1.0.1
 
 - Fix for making demo config on unpkg
 
-# v1.0.0
+## v1.0.0
 
-## Features
+### Features
 
 - Vertical virtualized scrolling of phylogenetic tree
 - Vertical and horizontal virtualized scrolling of multiple sequence alignment
@@ -94,7 +100,7 @@
   links to files to automatically open your results
 - The tree or the MSA panel can be loaded separately from each other
 
-## File format supports
+### File format supports
 
 - FASTA formatted for MSA (e.g. gaps already inserted)
 - Stockholm files (e.g. .stock file, with or without embedded newick tree, uses
