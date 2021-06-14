@@ -150,8 +150,6 @@ const MSABlock = observer(
         mouseCol < (offsetX + blockSize) / colWidth
       ) {
         const x = (mouseCol - 1) * colWidth
-
-        console.log(x)
         ctx.fillStyle = 'rgba(100,100,100,0.5)'
         ctx.fillRect(x, 0, colWidth, 1000)
       }

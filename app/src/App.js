@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { Button, Select, MenuItem } from "@material-ui/core";
 import { observer } from "mobx-react";
 import { onSnapshot } from "mobx-state-tree";
 import { MSAView, MSAModel } from "react-msaview";
@@ -24,10 +25,12 @@ const model = MSAModel.create({
 
 model.setWidth(window.innerWidth);
 
-function App() {
-  const theme = createJBrowseTheme();
+const ProteinPanel = observer(({ model }) => {
   const ref = useRef();
-  const { selected } = model;
+  const [type, setType] = useState("cartoon");
+  const [res, setRes] = useState([]);
+  const [stage, setStage] = useState();
+  const { selected, mouseCol } = model;
 
   useEffect(() => {
     if (!selected.length) {
@@ -36,9 +39,10 @@ function App() {
     (async () => {
       // Create NGL Stage object
       var stage = new Stage("viewport");
+      setStage(stage);
 
       // Handle window resizing
-      window.addEventListener("resize", (event) => {
+      window.addEventListener("resize", () => {
         stage.handleResize();
         model.setWidth(window.innerWidth);
       });
@@ -51,19 +55,11 @@ function App() {
           stage.loadFile(`data://${selection.pdb}.pdb`)
         )
       );
+      setRes(res);
 
-      res.forEach((elt) => elt.addRepresentation("cartoon"));
-
-      stage.autoView();
-
-      // remove default hoverPick mouse action
-      // stage.mouseControls.remove("hoverPick");
-
-      // listen to `hovered` signal to move tooltip around and change its text
       stage.signals.hovered.add(function (pickingProxy) {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           var atom = pickingProxy.atom || pickingProxy.closestBondAtom;
-          var mp = pickingProxy.mouse.position;
           model.setMouseoveredColumn(
             atom.resno,
             atom.chainname,
@@ -75,6 +71,23 @@ function App() {
   }, [JSON.stringify(selected)]);
 
   useEffect(() => {
+    res?.forEach((elt) => {
+      elt.removeAllRepresentations();
+      elt.addRepresentation(type);
+    });
+    stage?.autoView();
+  }, [type, res]);
+
+  useEffect(() => {
+    if (mouseCol !== undefined) {
+      res.forEach((elt) => {
+        elt.addRepresentation("label", { sele: `@${mouseCol}` });
+        stage.autoView();
+      });
+    }
+  }, [res, mouseCol]);
+
+  useEffect(() => {
     onSnapshot(
       model,
       throttle((snap) => {
@@ -84,28 +97,36 @@ function App() {
       }, 500)
     );
   }, [model]);
+  return model.selected.length ? (
+    <div>
+      <Button onClick={() => model.clearSelection()} variant="contained">
+        Clear
+      </Button>
+      <Select value={type} onChange={(event) => setType(event.target.value)}>
+        <MenuItem value={"cartoon"}>cartoon</MenuItem>
+        <MenuItem value={"ball+stick"}>ball+stick</MenuItem>
+      </Select>
+      <div id="viewport" ref={ref} style={{ width: 600, height: 400 }} />
+    </div>
+  ) : null;
+});
 
+function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <div>
-        <div style={{ border: "1px solid black", margin: 20 }}>
-          <MSAView model={model} />
-        </div>
-        {model.selected.length ? (
-          <div>
-            <button
-              onClick={() => {
-                model.clearSelection();
-              }}
-            >
-              Clear
-            </button>
-            <div id="viewport" ref={ref} style={{ width: 600, height: 400 }} />
-          </div>
-        ) : null}
+    <div>
+      <div style={{ border: "1px solid black", margin: 20 }}>
+        <MSAView model={model} />
       </div>
-    </ThemeProvider>
+      <ProteinPanel model={model} />
+    </div>
   );
 }
 
-export default observer(App);
+export default () => {
+  const theme = createJBrowseTheme();
+  return (
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
+  );
+};

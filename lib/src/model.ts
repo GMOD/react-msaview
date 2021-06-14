@@ -470,17 +470,18 @@ const model = types.snapshotProcessor(
       },
       setMouseoveredColumn(n: number, chain: string, file: string) {
         let j = 0
+        let i = 0
         const { id } = self.inverseStructures[file.slice(0, -4)] || {}
         const row = self.MSA?.getRow(id)
         if (row) {
-          for (let i = 0; i < row.length && j < n; i++) {
+          for (i = 0; i < row.length && j < n; i++) {
             if (row[i] !== '-') {
               j++
             }
           }
         }
 
-        self.mouseCol = j
+        self.mouseCol = i
       },
     })),
   {
