@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import { Button, Select, MenuItem } from "@material-ui/core";
 import { observer } from "mobx-react";
 import { onSnapshot } from "mobx-state-tree";
@@ -40,22 +40,34 @@ window.addEventListener("resize", () => {
 });
 
 const ProteinPanel = observer(({ model }) => {
-  const ref = useRef();
   const tooltipRef = useRef();
   const [type, setType] = useState("cartoon");
   const [res, setRes] = useState([]);
-  const [stage, setStage] = useState();
   const [annotation, setAnnotation] = useState();
+  const [stage, setStage] = useState();
   const { selected, mouseCol } = model;
 
+  const stageElementRef = useCallback((element) => {
+    if (element) {
+      const currentStage = new Stage(element);
+      setStage(currentStage);
+    }
+  }, []);
+
   useEffect(() => {
-    if (!selected.length) {
+    return () => {
+      if (stage) {
+        stage.dispose();
+      }
+    };
+  }, [stage]);
+
+  useEffect(() => {
+    if (!selected.length || !stage) {
       return;
     }
     (async () => {
       // Create NGL Stage object
-      var stage = new Stage("viewport");
-      setStage(stage);
 
       // Handle window resizing
       window.addEventListener("resize", () => {
@@ -80,7 +92,7 @@ const ProteinPanel = observer(({ model }) => {
         }
       });
     })();
-  }, [JSON.stringify(selected)]);
+  }, [JSON.stringify(selected), stage]);
 
   useEffect(() => {
     res?.forEach((elt) => {
@@ -147,7 +159,11 @@ const ProteinPanel = observer(({ model }) => {
           fontFamily: "sans-serif",
         }}
       />
-      <div id="viewport" ref={ref} style={{ width: 600, height: 400 }} />
+      <div
+        id="viewport"
+        ref={stageElementRef}
+        style={{ width: 600, height: 400 }}
+      />
     </div>
   ) : null;
 });
