@@ -84,8 +84,7 @@ export const ProteinPanel = observer(({ model }) => {
       elm.style.padding = "8px";
 
       annots.push(elt.addAnnotation(ap.positionToVector3(), elm));
-
-      // elt.autoView();
+      stage.viewer.requestRender();
     });
     setAnnotation(annots);
   }, [model, mouseCol]);
