@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Menu, MenuItem } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
+import copy from 'copy-to-clipboard'
 import { MsaViewModel } from '../model'
 
 const extendBounds = 5
@@ -325,6 +326,15 @@ const TreeBlock = observer(
                   : `Add ${entry.pdb} to selection`}
               </MenuItem>
             ))}
+            <MenuItem
+              dense
+              onClick={() => {
+                copy(toggleNodeMenu.id)
+                handleCloseToggleMenu()
+              }}
+            >
+              Copy name to clipboard
+            </MenuItem>
           </Menu>
         ) : null}
 

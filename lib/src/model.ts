@@ -64,7 +64,7 @@ const model = types.snapshotProcessor(
         .model('MsaView', {
           id: ElementId,
           type: types.literal('MsaView'),
-          height: types.optional(types.number, 680),
+          height: types.optional(types.number, 550),
           treeAreaWidth: types.optional(types.number, 400),
           treeWidth: types.optional(types.number, 300),
           rowHeight: 20,
@@ -117,7 +117,10 @@ const model = types.snapshotProcessor(
           margin: { left: 20, top: 20 },
         }))
         .actions((self) => ({
-          toggleSelection(elt: { id: string; pdb?: string }) {
+          toggleSelection(elt: {
+            id: string
+            pdb: { startPos: number; endPos: number; pdb: string }
+          }) {
             const r = self.selected.find((node) => node.id === elt.id)
             if (r) {
               self.selected.remove(r)
@@ -364,15 +367,19 @@ const model = types.snapshotProcessor(
                 : undefined
             },
 
-            getMouseOverResidue(rowIdx: number) {
-              console.log(self.structures)
+            getMouseOverResidue(rowName: string) {
+              return this.columns[rowName]
             },
 
             get root() {
               return getRoot(this.tree)
             },
 
-            get structures(): { [key: string]: { pdb: string }[] } {
+            get structures(): {
+              [key: string]: {
+                pdb: { pdb: string; startPos: number; endPos: number }
+              }[]
+            } {
               return this.MSA?.getStructures() || {}
             },
 
