@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Menu, MenuItem } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
+import copy from 'copy-to-clipboard'
 import { MsaViewModel } from '../model'
 
 const extendBounds = 5
@@ -305,26 +306,49 @@ const TreeBlock = observer(
             open={Boolean(toggleNodeMenuRef.current)}
             onClose={handleCloseToggleMenu}
           >
-            {structures[toggleNodeMenu.id]?.map((entry) => (
-              <MenuItem
-                key={JSON.stringify(entry)}
-                dense
-                onClick={() => {
-                  model.toggleSelection({
-                    pdb: entry.pdb,
-                    id: toggleNodeMenu.id,
-                  })
-                  handleCloseToggleMenu()
-                }}
-              >
-                {model.selected.find((node) => {
-                  console.log({ node }, toggleNodeMenu.id)
-                  return node.id === toggleNodeMenu.id
-                })
-                  ? `Remove ${entry.pdb} from selection`
-                  : `Add ${entry.pdb} to selection`}
-              </MenuItem>
-            ))}
+            {structures[toggleNodeMenu.id]?.map((entry) => {
+              const found = model.selectedStructures.find(
+                (node) => node.id === toggleNodeMenu.id,
+              )
+              return !found ? (
+                <MenuItem
+                  key={JSON.stringify(entry)}
+                  dense
+                  onClick={() => {
+                    model.addStructureToSelection({
+                      structure: entry,
+                      id: toggleNodeMenu.id,
+                    })
+                    handleCloseToggleMenu()
+                  }}
+                >
+                  Add {entry.pdb} selection
+                </MenuItem>
+              ) : (
+                <MenuItem
+                  key={JSON.stringify(entry)}
+                  dense
+                  onClick={() => {
+                    model.removeStructureFromSelection({
+                      structure: entry,
+                      id: toggleNodeMenu.id,
+                    })
+                    handleCloseToggleMenu()
+                  }}
+                >
+                  Remove {entry.pdb} selection
+                </MenuItem>
+              )
+            })}
+            <MenuItem
+              dense
+              onClick={() => {
+                copy(toggleNodeMenu.id)
+                handleCloseToggleMenu()
+              }}
+            >
+              Copy name to clipboard
+            </MenuItem>
           </Menu>
         ) : null}
 

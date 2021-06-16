@@ -1,4 +1,4 @@
-import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
+import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
@@ -55,7 +55,15 @@ function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
 function clamp(min: number, num: number, max: number) {
   return Math.min(Math.max(num, min), max)
 }
-
+const StructureModel = types.model({
+  id: types.identifier,
+  structure: types.model({
+    pdb: types.string,
+    startPos: types.number,
+    endPos: types.number,
+  }),
+  range: types.maybe(types.string),
+})
 const model = types.snapshotProcessor(
   types
     .compose(
@@ -64,7 +72,7 @@ const model = types.snapshotProcessor(
         .model('MsaView', {
           id: ElementId,
           type: types.literal('MsaView'),
-          height: types.optional(types.number, 680),
+          height: types.optional(types.number, 550),
           treeAreaWidth: types.optional(types.number, 400),
           treeWidth: types.optional(types.number, 300),
           rowHeight: 20,
@@ -73,14 +81,7 @@ const model = types.snapshotProcessor(
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
-          mouseoveredColumn: types.maybe(types.number),
-          selected: types.array(
-            types.model({
-              id: types.identifier,
-              pdb: types.maybe(types.string),
-              range: types.maybe(types.string),
-            }),
-          ),
+          selectedStructures: types.array(StructureModel),
           labelsAlignRight: false,
           colWidth: 16,
           showBranchLen: true,
@@ -114,17 +115,29 @@ const model = types.snapshotProcessor(
           margin: { left: 20, top: 20 },
         }))
         .actions((self) => ({
-          toggleSelection(elt: { id: string; pdb?: string }) {
-            const r = self.selected.find((node) => node.id === elt.id)
+          addStructureToSelection(elt: SnapshotIn<typeof StructureModel>) {
+            self.selectedStructures.push(elt)
+          },
+          removeStructureFromSelection(elt: SnapshotIn<typeof StructureModel>) {
+            const r = self.selectedStructures.find((node) => node.id === elt.id)
             if (r) {
-              self.selected.remove(r)
-            } else {
-              self.selected.push(elt)
+              self.selectedStructures.remove(r)
             }
           },
-          clearSelection() {
+          toggleStructureSelection(elt: {
+            id: string
+            structure: { startPos: number; endPos: number; pdb: string }
+          }) {
+            const r = self.selectedStructures.find((node) => node.id === elt.id)
+            if (r) {
+              self.selectedStructures.remove(r)
+            } else {
+              self.selectedStructures.push(elt)
+            }
+          },
+          clearSelectedStructures() {
             //@ts-ignore
-            self.selected = []
+            self.selectedStructures = []
           },
           setError(error?: Error) {
             self.error = error
@@ -361,11 +374,21 @@ const model = types.snapshotProcessor(
                 : undefined
             },
 
+            getMouseOverResidue(rowName: string) {
+              return this.columns[rowName]
+            },
+
             get root() {
               return getRoot(this.tree)
             },
 
-            get structures(): { [key: string]: { pdb: string }[] } {
+            get structures(): {
+              [key: string]: {
+                pdb: string
+                startPos: number
+                endPos: number
+              }[]
+            } {
               return this.MSA?.getStructures() || {}
             },
 
@@ -373,8 +396,8 @@ const model = types.snapshotProcessor(
               return Object.fromEntries(
                 Object.entries(this.structures)
                   .map(([key, val]) => {
-                    return val.map(({ pdb }) => [
-                      pdb,
+                    return val.map((pdbEntry) => [
+                      pdbEntry.pdb,
                       {
                         id: key,
                       },
@@ -473,15 +496,17 @@ const model = types.snapshotProcessor(
         let i = 0
         const { id } = self.inverseStructures[file.slice(0, -4)] || {}
         const row = self.MSA?.getRow(id)
+
         if (row) {
           for (i = 0; i < row.length && j < n; i++) {
             if (row[i] !== '-') {
               j++
             }
           }
+          self.mouseCol = j + 1
+        } else {
+          self.mouseCol = undefined
         }
-
-        self.mouseCol = i
       },
     })),
   {
