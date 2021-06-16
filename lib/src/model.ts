@@ -1,4 +1,4 @@
-import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
+import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
@@ -55,7 +55,15 @@ function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
 function clamp(min: number, num: number, max: number) {
   return Math.min(Math.max(num, min), max)
 }
-
+const StructureModel = types.model({
+  id: types.identifier,
+  structure: types.model({
+    pdb: types.string,
+    startPos: types.number,
+    endPos: types.number,
+  }),
+  range: types.maybe(types.string),
+})
 const model = types.snapshotProcessor(
   types
     .compose(
@@ -73,17 +81,7 @@ const model = types.snapshotProcessor(
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
-          selected: types.array(
-            types.model({
-              id: types.identifier,
-              pdb: types.model({
-                pdb: types.string,
-                startPos: types.number,
-                endPos: types.number,
-              }),
-              range: types.maybe(types.string),
-            }),
-          ),
+          selectedStructures: types.array(StructureModel),
           labelsAlignRight: false,
           colWidth: 16,
           showBranchLen: true,
@@ -117,20 +115,29 @@ const model = types.snapshotProcessor(
           margin: { left: 20, top: 20 },
         }))
         .actions((self) => ({
-          toggleSelection(elt: {
-            id: string
-            pdb: { startPos: number; endPos: number; pdb: string }
-          }) {
-            const r = self.selected.find((node) => node.id === elt.id)
+          addStructureToSelection(elt: SnapshotIn<typeof StructureModel>) {
+            self.selectedStructures.push(elt)
+          },
+          removeStructureFromSelection(elt: SnapshotIn<typeof StructureModel>) {
+            const r = self.selectedStructures.find((node) => node.id === elt.id)
             if (r) {
-              self.selected.remove(r)
-            } else {
-              self.selected.push(elt)
+              self.selectedStructures.remove(r)
             }
           },
-          clearSelection() {
+          toggleStructureSelection(elt: {
+            id: string
+            structure: { startPos: number; endPos: number; pdb: string }
+          }) {
+            const r = self.selectedStructures.find((node) => node.id === elt.id)
+            if (r) {
+              self.selectedStructures.remove(r)
+            } else {
+              self.selectedStructures.push(elt)
+            }
+          },
+          clearSelectedStructures() {
             //@ts-ignore
-            self.selected = []
+            self.selectedStructures = []
           },
           setError(error?: Error) {
             self.error = error
@@ -377,7 +384,9 @@ const model = types.snapshotProcessor(
 
             get structures(): {
               [key: string]: {
-                pdb: { pdb: string; startPos: number; endPos: number }
+                pdb: string
+                startPos: number
+                endPos: number
               }[]
             } {
               return this.MSA?.getStructures() || {}

@@ -15,7 +15,9 @@ export const ProteinPanel = observer(({ model }) => {
   const [stage, setStage] = useState();
   const [isMouseHovering, setMouseHovering] = useState(false);
   const { msaview, nglSelection } = model;
-  const { selected, mouseCol } = msaview;
+  const { selectedStructures, mouseCol } = msaview;
+
+  console.log(msaview.getMouseOverResidue(3));
 
   const stageElementRef = useCallback((element) => {
     if (element) {
@@ -33,7 +35,7 @@ export const ProteinPanel = observer(({ model }) => {
   }, [stage]);
 
   useEffect(() => {
-    if (!selected.length || !stage) {
+    if (!selectedStructures.length || !stage) {
       return;
     }
     (async () => {
@@ -43,8 +45,8 @@ export const ProteinPanel = observer(({ model }) => {
       });
 
       const res = await Promise.all(
-        selected.map((selection) => {
-          return stage.loadFile(`data://${selection.pdb.pdb}.pdb`);
+        selectedStructures.map((selection) => {
+          return stage.loadFile(`data://${selection.structure.pdb}.pdb`);
         })
       );
       setRes(res);
@@ -53,14 +55,14 @@ export const ProteinPanel = observer(({ model }) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
           msaview.setMouseoveredColumn(
-            atom.resno - selected[0].pdb.startPos,
+            atom.resno - selectedStructures[0].structure.startPos,
             atom.chainname,
             pickingProxy.picker.structure.name
           );
         }
       });
     })();
-  }, [JSON.stringify(selected), stage]);
+  }, [JSON.stringify(selectedStructures), stage]);
 
   useEffect(() => {
     if (stage) {
@@ -80,7 +82,7 @@ export const ProteinPanel = observer(({ model }) => {
           elt.removeAnnotation(annotation[index]);
         }
         if (mouseCol !== undefined) {
-          const { startPos } = selected[0].pdb;
+          const { startPos } = selectedStructures[0].structure;
 
           let k;
           const rn = elt.structure.residueStore.count;
@@ -108,10 +110,10 @@ export const ProteinPanel = observer(({ model }) => {
     }
   }, [model, mouseCol, isMouseHovering]);
 
-  return selected.length ? (
+  return selectedStructures.length ? (
     <div style={{ padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Button onClick={() => model.clearSelection()} variant="contained">
+        <Button onClick={() => msaview.clearSelection()} variant="contained">
           Clear
         </Button>
 
