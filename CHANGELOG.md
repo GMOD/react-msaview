@@ -2,7 +2,9 @@
 
 ## v1.2.0
 
-Add ability to integrate with a 3D viewer based on "selections"
+- Add ability to integrate with a 3D viewer based on "selecting" a structure
+- Add easy ability to copy a node name from the tree to the clipboard
+- Add demo integration with the NGL (https://nglviewer.github.io/) library in the app folder
 
 ## v1.1.3
 
