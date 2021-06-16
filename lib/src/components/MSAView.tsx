@@ -68,7 +68,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               </div>
               <div style={{ width: 20 }} />
               <div style={{ width: resizeHandleWidth }} />
-              <track.ReactComponent model={model} />
+              <track.ReactComponent model={model} data={track.data} />
             </div>
           )
         })}

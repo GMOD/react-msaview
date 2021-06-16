@@ -4,22 +4,30 @@ import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
 
 const AnnotationBlock = observer(
-  ({ model, offsetX }: { model: MsaViewModel; offsetX: number }) => {
+  ({
+    data,
+    model,
+    offsetX,
+  }: {
+    data: string
+    model: MsaViewModel
+    offsetX: number
+  }) => {
     const {
       blockSize,
       scrollX,
-      seqConsensus,
       bgColor,
       colorScheme,
       colWidth,
       rowHeight,
     } = model
+
     const theme = useTheme()
     const ref = useRef<HTMLCanvasElement>(null)
-    const colorContrast = useMemo(
-      () => model.colorContrast(theme),
-      [model, theme],
-    )
+    const colorContrast = useMemo(() => model.colorContrast(theme), [
+      model,
+      theme,
+    ])
     useEffect(() => {
       if (!ref.current) {
         return
@@ -40,7 +48,7 @@ const AnnotationBlock = observer(
       const b = blockSize
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
       const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
-      const str = seqConsensus?.slice(xStart, xEnd)
+      const str = data?.slice(xStart, xEnd)
       for (let i = 0; str && i < str.length; i++) {
         const letter = str[i]
         const color = colorScheme[letter.toUpperCase()]
@@ -58,7 +66,7 @@ const AnnotationBlock = observer(
       colWidth,
       rowHeight,
       offsetX,
-      seqConsensus,
+      data,
       colorScheme,
       colorContrast,
     ])
@@ -77,22 +85,24 @@ const AnnotationBlock = observer(
     )
   },
 )
-const AnnotationTrack = observer(({ model }: { model: MsaViewModel }) => {
-  const { blocksX, msaAreaWidth, rowHeight } = model
-  return (
-    <div
-      style={{
-        position: 'relative',
-        height: rowHeight,
-        width: msaAreaWidth,
-        overflow: 'hidden',
-      }}
-    >
-      {blocksX.map((bx) => (
-        <AnnotationBlock key={bx} model={model} offsetX={bx} />
-      ))}
-    </div>
-  )
-})
+const AnnotationTrack = observer(
+  ({ data, model }: { data: string; model: MsaViewModel }) => {
+    const { blocksX, msaAreaWidth, rowHeight } = model
+    return (
+      <div
+        style={{
+          position: 'relative',
+          height: rowHeight,
+          width: msaAreaWidth,
+          overflow: 'hidden',
+        }}
+      >
+        {blocksX.map((bx) => (
+          <AnnotationBlock key={bx} data={data} model={model} offsetX={bx} />
+        ))}
+      </div>
+    )
+  },
+)
 
 export default AnnotationTrack
