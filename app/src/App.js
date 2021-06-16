@@ -1,6 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react";
-import { onSnapshot } from "mobx-state-tree";
+import { types, onSnapshot } from "mobx-state-tree";
 import { MSAView, MSAModel } from "react-msaview";
 import { createJBrowseTheme } from "@jbrowse/core/ui/theme";
 import { ThemeProvider } from "@material-ui/core/styles";
@@ -11,13 +11,19 @@ import { ProteinPanel } from "./ProteinPanel";
 const urlParams = new URLSearchParams(window.location.search);
 const val = urlParams.get("data");
 
-const global = MSAModel.create({
-  type: "MsaView",
-  height: 550,
-  ...JSON.parse(val),
-});
+const global = types
+  .model({
+    msaview: MSAModel,
+    nglSelection: types.optional(types.string, ""),
+  })
+  .actions((self) => ({
+    setNGLSelection(sel) {
+      self.nglSelection = sel;
+    },
+  }))
+  .create(val ? JSON.parse(val) : { msaview: { type: "MsaView" } });
 
-global.setWidth(window.innerWidth);
+global.msaview.setWidth(window.innerWidth);
 
 onSnapshot(
   global,
@@ -30,14 +36,15 @@ onSnapshot(
 
 // Handle window resizing
 window.addEventListener("resize", () => {
-  global.setWidth(window.innerWidth);
+  global.msaview.setWidth(window.innerWidth);
 });
 
 const App = observer(({ model }) => {
+  const { msaview } = model;
   return (
     <div>
       <div style={{ border: "1px solid black", margin: 20 }}>
-        <MSAView model={model} />
+        <MSAView model={msaview} />
       </div>
       <ProteinPanel model={model} />
     </div>

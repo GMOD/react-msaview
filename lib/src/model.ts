@@ -487,9 +487,10 @@ const model = types.snapshotProcessor(
               j++
             }
           }
+          self.mouseCol = j + 1
+        } else {
+          self.mouseCol = undefined
         }
-
-        self.mouseCol = i + 1
       },
     })),
   {

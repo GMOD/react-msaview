@@ -14,8 +14,8 @@ export const ProteinPanel = observer(({ model }) => {
   const [annotation, setAnnotation] = useState();
   const [stage, setStage] = useState();
   const [isMouseHovering, setMouseHovering] = useState(false);
-  const [selectionValue, setSelectionValue] = useState("");
-  const { selected, mouseCol } = model;
+  const { msaview, nglSelection } = model;
+  const { selected, mouseCol } = msaview;
 
   const stageElementRef = useCallback((element) => {
     if (element) {
@@ -52,8 +52,7 @@ export const ProteinPanel = observer(({ model }) => {
       stage.signals.hovered.add((pickingProxy) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
-          console.log(atom.resno, selected[0].pdb.startPos);
-          model.setMouseoveredColumn(
+          msaview.setMouseoveredColumn(
             atom.resno - selected[0].pdb.startPos,
             atom.chainname,
             pickingProxy.picker.structure.name
@@ -67,11 +66,11 @@ export const ProteinPanel = observer(({ model }) => {
     if (stage) {
       res.forEach((elt) => {
         elt.removeAllRepresentations();
-        elt.addRepresentation(type, { sele: selectionValue });
+        elt.addRepresentation(type, { sele: nglSelection });
       });
       stage.autoView();
     }
-  }, [type, res, stage, selectionValue]);
+  }, [type, res, stage, nglSelection]);
 
   useEffect(() => {
     if (!isMouseHovering) {
@@ -109,7 +108,7 @@ export const ProteinPanel = observer(({ model }) => {
     }
   }, [model, mouseCol, isMouseHovering]);
 
-  return model.selected.length ? (
+  return selected.length ? (
     <div style={{ padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center" }}>
         <Button onClick={() => model.clearSelection()} variant="contained">
@@ -125,8 +124,8 @@ export const ProteinPanel = observer(({ model }) => {
         <TextField
           variant="outlined"
           label="Selection"
-          value={selectionValue}
-          onChange={(event) => setSelectionValue(event.target.value)}
+          value={nglSelection}
+          onChange={(event) => model.setNGLSelection(event.target.value)}
         />
       </div>
 
