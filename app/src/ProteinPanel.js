@@ -61,29 +61,75 @@ export const ProteinPanel = observer(({ model }) => {
   }, [JSON.stringify(selected), stage]);
 
   useEffect(() => {
-    res?.forEach((elt) => {
-      elt.removeAllRepresentations();
-      elt.addRepresentation(type);
-    });
-    stage?.autoView();
-  }, [type, res]);
+    if (stage) {
+      res.forEach((elt) => {
+        elt.removeAllRepresentations();
+        elt.addRepresentation(type, { sele: "21-37" });
+      });
+      stage.autoView();
+    }
+  }, [type, res, stage]);
 
   useEffect(() => {
     const annots = [];
-    res?.forEach((elt, index) => {
+    res.forEach((elt, index) => {
       if (annotation) {
         elt.removeAnnotation(annotation[index]);
       }
-      const cp = elt.structure.getResidueProxy(mouseCol);
-      const ap = elt.structure.getAtomProxy();
-      ap.index = cp.atomOffset;
-      const elm = document.createElement("div");
-      elm.innerText = "hello";
-      elm.style.color = "black";
-      elm.style.backgroundColor = "red";
-      elm.style.padding = "8px";
+      if (mouseCol !== undefined) {
+        const { startPos, endPos } = selected[0].pdb;
+        // console.log(mouseCol, selected[0].pdb.startPos, selected[0].pdb.endPos);
+        // let r = "";
+        // elt.structure.eachResidue((ent) => {
+        //   r += ent.getResname1();
+        // });
+        let k;
+        const rn = elt.structure.residueStore.count;
+        const rp = elt.structure.getResidueProxy();
+        for (let i = 0; i < rn; ++i) {
+          rp.index = i;
+          if (rp.resno === mouseCol + startPos - 1) {
+            k = rp;
+            break;
+          }
+        }
 
-      annots.push(elt.addAnnotation(ap.positionToVector3(), elm));
+        // console.log({ e: elt.structure });
+        // console.log("bef", res.resname, startPos + mouseCol - 1, mouseCol);
+        // res.resno = 21;
+        // console.log("af", res.resname);
+        // elt.structure.eachResidue((r) => {
+        //   console.log(r.index, r.resno, r.resname);
+        // });
+        // console.log(
+        //   elt,
+        //   res.resname,
+        //   res.resno,
+        //   res.qualifiedName(),
+        //   startPos + mouseCol - 3
+        // );
+        // console.log(index, "l2", elt.structure.getSequence().join(""));
+        // for (let i = 0; i < 50; i++) {
+        //   console.log(
+        //     i,
+        //     selected[0].pdb.startPos,
+        //     selected[0].pdb.endPos,
+        //     elt.structure.getResidueProxy(i).qualifiedName()
+        //   );
+        // }
+        // const cp = elt.structure.getResidueProxy(
+        //   (mouseCol || 0) + selected[0].pdb.startPos
+        // );
+        //
+        if (k) {
+          const ap = elt.structure.getAtomProxy();
+          ap.index = k.atomOffset;
+
+          annots.push(
+            elt.addAnnotation(ap.positionToVector3(), cp.qualifiedName())
+          );
+        }
+      }
       stage.viewer.requestRender();
     });
     setAnnotation(annots);
@@ -99,11 +145,7 @@ export const ProteinPanel = observer(({ model }) => {
         <MenuItem value={"ball+stick"}>ball+stick</MenuItem>
       </Select>
 
-      <div
-        id="viewport"
-        ref={stageElementRef}
-        style={{ width: 600, height: 400 }}
-      />
+      <div ref={stageElementRef} style={{ width: 600, height: 400 }} />
     </div>
   ) : null;
 });

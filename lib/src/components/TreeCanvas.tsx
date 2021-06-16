@@ -311,7 +311,7 @@ const TreeBlock = observer(
                 dense
                 onClick={() => {
                   model.toggleSelection({
-                    pdb: entry.pdb,
+                    pdb: entry,
                     id: toggleNodeMenu.id,
                   })
                   handleCloseToggleMenu()

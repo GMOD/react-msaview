@@ -73,11 +73,14 @@ const model = types.snapshotProcessor(
           blockSize: 1000,
           mouseRow: types.maybe(types.number),
           mouseCol: types.maybe(types.number),
-          mouseoveredColumn: types.maybe(types.number),
           selected: types.array(
             types.model({
               id: types.identifier,
-              pdb: types.maybe(types.string),
+              pdb: types.model({
+                pdb: types.string,
+                startPos: types.number,
+                endPos: types.number,
+              }),
               range: types.maybe(types.string),
             }),
           ),
@@ -361,6 +364,10 @@ const model = types.snapshotProcessor(
                 : undefined
             },
 
+            getMouseOverResidue(rowIdx: number) {
+              console.log(self.structures)
+            },
+
             get root() {
               return getRoot(this.tree)
             },
@@ -373,8 +380,8 @@ const model = types.snapshotProcessor(
               return Object.fromEntries(
                 Object.entries(this.structures)
                   .map(([key, val]) => {
-                    return val.map(({ pdb }) => [
-                      pdb,
+                    return val.map((pdbEntry) => [
+                      pdbEntry,
                       {
                         id: key,
                       },
