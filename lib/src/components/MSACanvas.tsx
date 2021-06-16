@@ -1,11 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Typography, CircularProgress, useTheme } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
-import Color from 'color'
 import { observer } from 'mobx-react'
-
-import colorSchemes from '../colorSchemes'
-import { transform } from '../util'
 import { MsaViewModel } from '../model'
 
 const MSABlock = observer(
@@ -33,10 +29,10 @@ const MSABlock = observer(
     } = model
     const theme = useTheme()
 
-    const colorContrast = useMemo(() => model.colorContrast(theme), [
-      model,
-      theme,
-    ])
+    const colorContrast = useMemo(
+      () => model.colorContrast(theme),
+      [model, theme],
+    )
 
     const ref = useRef<HTMLCanvasElement>(null)
     const mouseoverRef = useRef<HTMLCanvasElement>(null)

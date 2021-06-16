@@ -312,34 +312,33 @@ const model = types.snapshotProcessor(
               return this.initialized && (self.data.msa || self.data.tree)
             },
 
-     get tracks() {
-        return [
-          {
-            id: 'annotation',
-            name: 'Annotation',
-            ReactComponent: Annotations,
-            data: self.seqConsensus,
-          },
-          {
-            id: 'annotation2',
-            name: 'Annotation',
-            ReactComponent: Annotations,
-            data: self.conse,
-          },
-        ]
-      },
+            get tracks() {
+              return [
+                {
+                  id: 'annotation',
+                  name: 'Annotation',
+                  ReactComponent: Annotations,
+                  data: self.seqConsensus,
+                },
+                {
+                  id: 'annotation2',
+                  name: 'Annotation',
+                  ReactComponent: Annotations,
+                  data: self.conse,
+                },
+              ]
+            },
 
-      get colorScheme() {
-        return colorSchemes[self.colorSchemeName]
-      },
+            get colorScheme() {
+              return colorSchemes[self.colorSchemeName]
+            },
 
-      colorContrast(theme: any) {
-        return transform(this.colorScheme, ([letter, color]) => [
-          letter,
-          theme.palette.getContrastText(Color(color).hex()),
-        ])
-      },
-
+            colorContrast(theme: any) {
+              return transform(this.colorScheme, ([letter, color]) => [
+                letter,
+                theme.palette.getContrastText(Color(color).hex()),
+              ])
+            },
 
             get alignmentDetails() {
               return this.MSA?.getDetails() || {}
@@ -508,13 +507,13 @@ const model = types.snapshotProcessor(
             get totalHeight() {
               return this.root.leaves().length * self.rowHeight
             },
-      get symbolicConsensus() {
-        return this.MSA?.symbolicConsensus
-      },
+            get symbolicConsensus() {
+              return this.MSA?.symbolicConsensus
+            },
 
-      get seqConsensus() {
-        return this.MSA?.seqConsensus
-      },
+            get seqConsensus() {
+              return this.MSA?.seqConsensus
+            },
           }
         }),
     )

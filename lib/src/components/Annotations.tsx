@@ -16,10 +16,10 @@ const AnnotationBlock = observer(
     } = model
     const theme = useTheme()
     const ref = useRef<HTMLCanvasElement>(null)
-    const colorContrast = useMemo(() => model.colorContrast(theme), [
-      model,
-      theme,
-    ])
+    const colorContrast = useMemo(
+      () => model.colorContrast(theme),
+      [model, theme],
+    )
     useEffect(() => {
       if (!ref.current) {
         return
