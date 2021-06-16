@@ -381,7 +381,7 @@ const model = types.snapshotProcessor(
                 Object.entries(this.structures)
                   .map(([key, val]) => {
                     return val.map((pdbEntry) => [
-                      pdbEntry,
+                      pdbEntry.pdb,
                       {
                         id: key,
                       },
@@ -480,6 +480,7 @@ const model = types.snapshotProcessor(
         let i = 0
         const { id } = self.inverseStructures[file.slice(0, -4)] || {}
         const row = self.MSA?.getRow(id)
+
         if (row) {
           for (i = 0; i < row.length && j < n; i++) {
             if (row[i] !== '-') {
@@ -488,7 +489,7 @@ const model = types.snapshotProcessor(
           }
         }
 
-        self.mouseCol = i
+        self.mouseCol = i + 1
       },
     })),
   {

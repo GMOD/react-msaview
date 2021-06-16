@@ -13,6 +13,7 @@ export const ProteinPanel = observer(({ model }) => {
   const [res, setRes] = useState([]);
   const [annotation, setAnnotation] = useState();
   const [stage, setStage] = useState();
+  const [isMouseHovering, setMouseHovering] = useState(false);
   const [selectionValue, setSelectionValue] = useState("");
   const { selected, mouseCol } = model;
 
@@ -51,8 +52,9 @@ export const ProteinPanel = observer(({ model }) => {
       stage.signals.hovered.add((pickingProxy) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
+          console.log(atom.resno, selected[0].pdb.startPos);
           model.setMouseoveredColumn(
-            atom.resno + selected[0].pdb.startPos,
+            atom.resno - selected[0].pdb.startPos,
             atom.chainname,
             pickingProxy.picker.structure.name
           );
@@ -72,38 +74,40 @@ export const ProteinPanel = observer(({ model }) => {
   }, [type, res, stage, selectionValue]);
 
   useEffect(() => {
-    const annots = [];
-    res.forEach((elt, index) => {
-      if (annotation) {
-        elt.removeAnnotation(annotation[index]);
-      }
-      if (mouseCol !== undefined) {
-        const { startPos } = selected[0].pdb;
+    if (!isMouseHovering) {
+      const annots = [];
+      res.forEach((elt, index) => {
+        if (annotation) {
+          elt.removeAnnotation(annotation[index]);
+        }
+        if (mouseCol !== undefined) {
+          const { startPos } = selected[0].pdb;
 
-        let k;
-        const rn = elt.structure.residueStore.count;
-        const rp = elt.structure.getResidueProxy();
-        for (let i = 0; i < rn; ++i) {
-          rp.index = i;
-          if (rp.resno === mouseCol + startPos - 1) {
-            k = rp;
-            break;
+          let k;
+          const rn = elt.structure.residueStore.count;
+          const rp = elt.structure.getResidueProxy();
+          for (let i = 0; i < rn; ++i) {
+            rp.index = i;
+            if (rp.resno === mouseCol + startPos - 1) {
+              k = rp;
+              break;
+            }
+          }
+
+          if (k) {
+            const ap = elt.structure.getAtomProxy();
+            ap.index = k.atomOffset;
+
+            annots.push(
+              elt.addAnnotation(ap.positionToVector3(), k.qualifiedName())
+            );
           }
         }
-
-        if (k) {
-          const ap = elt.structure.getAtomProxy();
-          ap.index = k.atomOffset;
-
-          annots.push(
-            elt.addAnnotation(ap.positionToVector3(), k.qualifiedName())
-          );
-        }
-      }
-      stage.viewer.requestRender();
-    });
-    setAnnotation(annots);
-  }, [model, mouseCol]);
+        stage.viewer.requestRender();
+      });
+      setAnnotation(annots);
+    }
+  }, [model, mouseCol, isMouseHovering]);
 
   return model.selected.length ? (
     <div style={{ padding: 20 }}>
@@ -126,7 +130,12 @@ export const ProteinPanel = observer(({ model }) => {
         />
       </div>
 
-      <div ref={stageElementRef} style={{ width: 600, height: 400 }} />
+      <div
+        ref={stageElementRef}
+        style={{ width: 600, height: 400 }}
+        onMouseEnter={() => setMouseHovering(true)}
+        onMouseLeave={() => setMouseHovering(false)}
+      />
     </div>
   ) : null;
 });
