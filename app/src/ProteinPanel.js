@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { observer } from "mobx-react";
 import { Button, Select, MenuItem } from "@material-ui/core";
-import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
+import { Stage, Selection, StaticDatasource, DatasourceRegistry } from "ngl";
 
 DatasourceRegistry.add(
   "data",
@@ -41,17 +41,18 @@ export const ProteinPanel = observer(({ model }) => {
       });
 
       const res = await Promise.all(
-        selected.map((selection) =>
-          stage.loadFile(`data://${selection.pdb}.pdb`)
-        )
+        selected.map((selection) => {
+          return stage.loadFile(`data://${selection.pdb.pdb}.pdb`);
+        })
       );
       setRes(res);
 
       stage.signals.hovered.add((pickingProxy) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
+          console.log(selected[0].pdb.startPos);
           model.setMouseoveredColumn(
-            atom.resno,
+            atom.resno + selected[0].pdb.startPos,
             atom.chainname,
             pickingProxy.picker.structure.name
           );
@@ -77,12 +78,8 @@ export const ProteinPanel = observer(({ model }) => {
         elt.removeAnnotation(annotation[index]);
       }
       if (mouseCol !== undefined) {
-        const { startPos, endPos } = selected[0].pdb;
-        // console.log(mouseCol, selected[0].pdb.startPos, selected[0].pdb.endPos);
-        // let r = "";
-        // elt.structure.eachResidue((ent) => {
-        //   r += ent.getResname1();
-        // });
+        const { startPos } = selected[0].pdb;
+
         let k;
         const rn = elt.structure.residueStore.count;
         const rp = elt.structure.getResidueProxy();
@@ -94,39 +91,12 @@ export const ProteinPanel = observer(({ model }) => {
           }
         }
 
-        // console.log({ e: elt.structure });
-        // console.log("bef", res.resname, startPos + mouseCol - 1, mouseCol);
-        // res.resno = 21;
-        // console.log("af", res.resname);
-        // elt.structure.eachResidue((r) => {
-        //   console.log(r.index, r.resno, r.resname);
-        // });
-        // console.log(
-        //   elt,
-        //   res.resname,
-        //   res.resno,
-        //   res.qualifiedName(),
-        //   startPos + mouseCol - 3
-        // );
-        // console.log(index, "l2", elt.structure.getSequence().join(""));
-        // for (let i = 0; i < 50; i++) {
-        //   console.log(
-        //     i,
-        //     selected[0].pdb.startPos,
-        //     selected[0].pdb.endPos,
-        //     elt.structure.getResidueProxy(i).qualifiedName()
-        //   );
-        // }
-        // const cp = elt.structure.getResidueProxy(
-        //   (mouseCol || 0) + selected[0].pdb.startPos
-        // );
-        //
         if (k) {
           const ap = elt.structure.getAtomProxy();
           ap.index = k.atomOffset;
 
           annots.push(
-            elt.addAnnotation(ap.positionToVector3(), cp.qualifiedName())
+            elt.addAnnotation(ap.positionToVector3(), k.qualifiedName())
           );
         }
       }
