@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { observer } from "mobx-react";
-import { Button, Select, MenuItem } from "@material-ui/core";
-import { Stage, Selection, StaticDatasource, DatasourceRegistry } from "ngl";
+import { Button, Select, MenuItem, TextField, Grid } from "@material-ui/core";
+import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
 
 DatasourceRegistry.add(
   "data",
@@ -13,6 +13,7 @@ export const ProteinPanel = observer(({ model }) => {
   const [res, setRes] = useState([]);
   const [annotation, setAnnotation] = useState();
   const [stage, setStage] = useState();
+  const [selectionValue, setSelectionValue] = useState("");
   const { selected, mouseCol } = model;
 
   const stageElementRef = useCallback((element) => {
@@ -50,7 +51,6 @@ export const ProteinPanel = observer(({ model }) => {
       stage.signals.hovered.add((pickingProxy) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
-          console.log(selected[0].pdb.startPos);
           model.setMouseoveredColumn(
             atom.resno + selected[0].pdb.startPos,
             atom.chainname,
@@ -65,11 +65,11 @@ export const ProteinPanel = observer(({ model }) => {
     if (stage) {
       res.forEach((elt) => {
         elt.removeAllRepresentations();
-        elt.addRepresentation(type, { sele: "21-37" });
+        elt.addRepresentation(type, { sele: selectionValue });
       });
       stage.autoView();
     }
-  }, [type, res, stage]);
+  }, [type, res, stage, selectionValue]);
 
   useEffect(() => {
     const annots = [];
@@ -106,14 +106,25 @@ export const ProteinPanel = observer(({ model }) => {
   }, [model, mouseCol]);
 
   return model.selected.length ? (
-    <div>
-      <Button onClick={() => model.clearSelection()} variant="contained">
-        Clear
-      </Button>
-      <Select value={type} onChange={(event) => setType(event.target.value)}>
-        <MenuItem value={"cartoon"}>cartoon</MenuItem>
-        <MenuItem value={"ball+stick"}>ball+stick</MenuItem>
-      </Select>
+    <div style={{ padding: 20 }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Button onClick={() => model.clearSelection()} variant="contained">
+          Clear
+        </Button>
+
+        <div style={{ width: 20 }} />
+        <Select value={type} onChange={(event) => setType(event.target.value)}>
+          <MenuItem value={"cartoon"}>cartoon</MenuItem>
+          <MenuItem value={"ball+stick"}>ball+stick</MenuItem>
+        </Select>
+        <div style={{ width: 20 }} />
+        <TextField
+          variant="outlined"
+          label="Selection"
+          value={selectionValue}
+          onChange={(event) => setSelectionValue(event.target.value)}
+        />
+      </div>
 
       <div ref={stageElementRef} style={{ width: 600, height: 400 }} />
     </div>
