@@ -2,16 +2,17 @@ import React, { useCallback, useState, useEffect } from "react";
 import { observer } from "mobx-react";
 import { Button, Select, MenuItem, TextField } from "@material-ui/core";
 import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
+import { AppModel } from "./model";
 
 DatasourceRegistry.add(
   "data",
   new StaticDatasource("https://files.rcsb.org/download/")
 );
 
-export const ProteinPanel = observer(({ model }) => {
+export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
   const [type, setType] = useState("cartoon");
-  const [res, setRes] = useState([]);
-  const [annotation, setAnnotation] = useState();
+  const [res, setRes] = useState<any[]>([]);
+  const [annotation, setAnnotation] = useState<any[]>();
   const [stage, setStage] = useState();
   const [isMouseHovering, setMouseHovering] = useState(false);
   const { msaview, nglSelection } = model;
@@ -28,29 +29,33 @@ export const ProteinPanel = observer(({ model }) => {
 
   useEffect(() => {
     return () => {
-      if (stage) {
+      if (stage !== null) {
+        //@ts-ignore
         stage.dispose();
       }
     };
   }, [stage]);
 
   useEffect(() => {
-    if (!selectedStructures.length || !stage) {
-      return;
-    }
     (async () => {
+      if (!selectedStructures.length || !stage) {
+        return;
+      }
       // Handle window resizing
       window.addEventListener("resize", () => {
+        //@ts-ignore not sure why complaining here
         stage.handleResize();
       });
 
       const res = await Promise.all(
         selectedStructures.map((selection) => {
+          //@ts-ignore not sure why complaining here
           return stage.loadFile(`data://${selection.structure.pdb}.pdb`);
         })
       );
       setRes(res);
 
+      //@ts-ignore
       stage.signals.hovered.add((pickingProxy) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
@@ -70,15 +75,17 @@ export const ProteinPanel = observer(({ model }) => {
         elt.removeAllRepresentations();
         elt.addRepresentation(type, { sele: nglSelection });
       });
+      //@ts-ignore
       stage.autoView();
     }
   }, [type, res, stage, nglSelection]);
 
   useEffect(() => {
     if (!isMouseHovering) {
-      const annots = [];
+      const annots: any[] = [];
       res.forEach((elt, index) => {
         if (annotation) {
+          //@ts-ignore
           elt.removeAnnotation(annotation[index]);
         }
         if (mouseCol !== undefined) {
@@ -104,6 +111,8 @@ export const ProteinPanel = observer(({ model }) => {
             );
           }
         }
+
+        //@ts-ignore
         stage.viewer.requestRender();
       });
       setAnnotation(annots);
@@ -113,12 +122,18 @@ export const ProteinPanel = observer(({ model }) => {
   return selectedStructures.length ? (
     <div style={{ padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Button onClick={() => msaview.clearSelection()} variant="contained">
+        <Button
+          onClick={() => msaview.clearSelectedStructures()}
+          variant="contained"
+        >
           Clear
         </Button>
 
         <div style={{ width: 20 }} />
-        <Select value={type} onChange={(event) => setType(event.target.value)}>
+        <Select
+          value={type}
+          onChange={(event) => setType(event.target.value as string)}
+        >
           <MenuItem value={"cartoon"}>cartoon</MenuItem>
           <MenuItem value={"ball+stick"}>ball+stick</MenuItem>
         </Select>
