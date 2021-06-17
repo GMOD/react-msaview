@@ -1,4 +1,6 @@
 import MSAView from './components/MSAView'
-import MSAModel from './model'
+import MSAModel, { MsaViewModel } from './model'
 
 export { MSAModel, MSAView }
+
+export type { MsaViewModel }

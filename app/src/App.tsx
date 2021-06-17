@@ -1,6 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react";
-import { types, onSnapshot } from "mobx-state-tree";
+import { types, onSnapshot, Instance } from "mobx-state-tree";
 import { MSAView, MSAModel } from "react-msaview";
 import { createJBrowseTheme } from "@jbrowse/core/ui/theme";
 import { ThemeProvider } from "@material-ui/core/styles";
@@ -17,13 +17,15 @@ const global = types
     nglSelection: types.optional(types.string, ""),
   })
   .actions((self) => ({
-    setNGLSelection(sel) {
+    setNGLSelection(sel: any) {
       self.nglSelection = sel;
     },
   }))
   .create(val ? JSON.parse(val) : { msaview: { type: "MsaView" } });
 
 global.msaview.setWidth(window.innerWidth);
+
+type AppModel = Instance<typeof global>;
 
 onSnapshot(
   global,
@@ -39,7 +41,7 @@ window.addEventListener("resize", () => {
   global.msaview.setWidth(window.innerWidth);
 });
 
-const App = observer(({ model }) => {
+const App = observer(({ model }: { model: AppModel }) => {
   const { msaview } = model;
   return (
     <div>
@@ -51,7 +53,7 @@ const App = observer(({ model }) => {
   );
 });
 
-export default () => {
+const MainApp = () => {
   const theme = createJBrowseTheme();
   return (
     <ThemeProvider theme={theme}>
@@ -59,3 +61,5 @@ export default () => {
     </ThemeProvider>
   );
 };
+
+export default MainApp;

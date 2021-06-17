@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { observer } from "mobx-react";
-import { Button, Select, MenuItem, TextField, Grid } from "@material-ui/core";
+import { Button, Select, MenuItem, TextField } from "@material-ui/core";
 import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
 
 DatasourceRegistry.add(
@@ -17,7 +17,7 @@ export const ProteinPanel = observer(({ model }) => {
   const { msaview, nglSelection } = model;
   const { selectedStructures, mouseCol } = msaview;
 
-  console.log(msaview.getMouseOverResidue(3));
+  const serializedStructures = JSON.stringify(selectedStructures);
 
   const stageElementRef = useCallback((element) => {
     if (element) {
