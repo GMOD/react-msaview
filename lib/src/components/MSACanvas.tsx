@@ -29,10 +29,10 @@ const MSABlock = observer(
     } = model
     const theme = useTheme()
 
-    const colorContrast = useMemo(
-      () => model.colorContrast(theme),
-      [model, theme],
-    )
+    const colorContrast = useMemo(() => model.colorContrast(theme), [
+      model,
+      theme,
+    ])
 
     const ref = useRef<HTMLCanvasElement>(null)
     const mouseoverRef = useRef<HTMLCanvasElement>(null)
