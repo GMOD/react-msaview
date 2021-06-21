@@ -315,6 +315,7 @@ const TreeBlock = observer(
                   key={JSON.stringify(entry)}
                   dense
                   onClick={() => {
+                    console.log({ toggleNodeMenu })
                     model.addStructureToSelection({
                       structure: entry,
                       id: toggleNodeMenu.id,

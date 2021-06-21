@@ -13,12 +13,10 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
   const [type, setType] = useState("cartoon");
   const [res, setRes] = useState<any[]>([]);
   const [annotation, setAnnotation] = useState<any[]>();
-  const [stage, setStage] = useState();
+  const [stage, setStage] = useState<any>();
   const [isMouseHovering, setMouseHovering] = useState(false);
   const { msaview, nglSelection } = model;
   const { selectedStructures, mouseCol } = msaview;
-
-  const serializedStructures = JSON.stringify(selectedStructures);
 
   const stageElementRef = useCallback((element) => {
     if (element) {
@@ -29,8 +27,7 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
 
   useEffect(() => {
     return () => {
-      if (stage !== null) {
-        //@ts-ignore
+      if (stage) {
         stage.dispose();
       }
     };
@@ -43,20 +40,17 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
       }
       // Handle window resizing
       window.addEventListener("resize", () => {
-        //@ts-ignore not sure why complaining here
         stage.handleResize();
       });
 
       const res = await Promise.all(
         selectedStructures.map((selection) => {
-          //@ts-ignore not sure why complaining here
           return stage.loadFile(`data://${selection.structure.pdb}.pdb`);
         })
       );
       setRes(res);
 
-      //@ts-ignore
-      stage.signals.hovered.add((pickingProxy) => {
+      stage.signals.hovered.add((pickingProxy: any) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
           msaview.setMouseoveredColumn(
@@ -75,7 +69,6 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
         elt.removeAllRepresentations();
         elt.addRepresentation(type, { sele: nglSelection });
       });
-      //@ts-ignore
       stage.autoView();
     }
   }, [type, res, stage, nglSelection]);
@@ -85,10 +78,9 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
       const annots: any[] = [];
       res.forEach((elt, index) => {
         if (annotation) {
-          //@ts-ignore
           elt.removeAnnotation(annotation[index]);
         }
-        if (mouseCol !== undefined) {
+        if (mouseCol !== undefined && selectedStructures.length) {
           const { startPos } = selectedStructures[0].structure;
 
           let k;
@@ -112,12 +104,11 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
           }
         }
 
-        //@ts-ignore
         stage.viewer.requestRender();
       });
       setAnnotation(annots);
     }
-  }, [model, mouseCol, isMouseHovering]);
+  }, [model, mouseCol, isMouseHovering, JSON.stringify(selectedStructures)]);
 
   return selectedStructures.length ? (
     <div style={{ padding: 20 }}>
