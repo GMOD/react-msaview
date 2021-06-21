@@ -1,114 +1,188 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { observer } from "mobx-react";
 import { Button, Select, MenuItem, TextField } from "@material-ui/core";
-import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
+import { StaticDatasource, DatasourceRegistry } from "ngl";
 import { AppModel } from "./model";
+import { Stage, Component, useComponent, useStage } from "react-ngl";
 
 DatasourceRegistry.add(
   "data",
   new StaticDatasource("https://files.rcsb.org/download/")
 );
 
-export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
-  const [type, setType] = useState("cartoon");
-  const [res, setRes] = useState<any[]>([]);
-  const [annotation, setAnnotation] = useState<any[]>();
-  const [stage, setStage] = useState<any>();
-  const [isMouseHovering, setMouseHovering] = useState(false);
-  const { msaview, nglSelection } = model;
-  const { selectedStructures, mouseCol } = msaview;
+const ProteinComponent = observer(({ model }: { model: AppModel }) => {
+  const component = useComponent();
+  const stage = useStage();
 
-  const stageElementRef = useCallback((element) => {
-    if (element) {
-      const currentStage = new Stage(element);
-      setStage(currentStage);
+  const [annotation, setAnnotation] = useState<any>([]);
+  const { mouseCol, selectedStructures } = model.msaview;
+
+  useEffect(() => {
+    //if (!isMouseHovering) {
+    let annots: any;
+    if (annotation) {
+      component.removeAnnotation(annotation);
     }
+    if (mouseCol !== undefined && selectedStructures.length) {
+      const { startPos } = selectedStructures[0].structure;
+
+      let k;
+      const rn = component.structure.residueStore.count;
+      const rp = component.structure.getResidueProxy();
+      for (let i = 0; i < rn; ++i) {
+        rp.index = i;
+        if (rp.resno === mouseCol + startPos - 1) {
+          k = rp;
+          break;
+        }
+      }
+
+      if (k) {
+        const ap = component.structure.getAtomProxy();
+        ap.index = k.atomOffset;
+
+        annots = component.addAnnotation(
+          ap.positionToVector3(),
+          k.qualifiedName()
+        );
+      }
+    }
+
+    stage.viewer.requestRender();
+    setAnnotation(annots);
+    //}
+  }, [model, mouseCol, JSON.stringify(selectedStructures)]);
+
+  return <></>;
+});
+
+const ProteinElement = observer(({ model }: { model: AppModel }) => {
+  const stage = useStage();
+  const myListener = useCallback(() => {}, []);
+
+  const reprList = useMemo(() => {
+    return [{ type: "cartoon" }] as any;
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (stage) {
-        stage.dispose();
-      }
-    };
-  }, [stage]);
+    stage.signals.hovered.add(myListener);
+    return () => stage.signals.hovered.remove(myListener);
+  }, [myListener, stage.signals.hovered]);
 
-  useEffect(() => {
-    (async () => {
-      if (!selectedStructures.length || !stage) {
-        return;
-      }
-      // Handle window resizing
-      window.addEventListener("resize", () => {
-        stage.handleResize();
-      });
+  return (
+    <Component path="rcsb://4hhb" reprList={reprList}>
+      <ProteinComponent model={model} />
+    </Component>
+  );
+});
 
-      const res = await Promise.all(
-        selectedStructures.map((selection) => {
-          return stage.loadFile(`data://${selection.structure.pdb}.pdb`);
-        })
-      );
-      setRes(res);
+export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
+  const [type, setType] = useState("cartoon");
+  const { msaview, nglSelection } = model;
+  const { selectedStructures } = msaview;
 
-      stage.signals.hovered.add((pickingProxy: any) => {
-        if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
-          const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
-          msaview.setMouseoveredColumn(
-            atom.resno - selectedStructures[0].structure.startPos,
-            atom.chainname,
-            pickingProxy.picker.structure.name
-          );
-        }
-      });
-    })();
-  }, [JSON.stringify(selectedStructures), stage]);
+  // const stageElementRef = useCallback((element) => {
+  //   if (element) {
+  //     const currentStage = new Stage(element);
+  //     setStage(currentStage);
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    if (stage) {
-      res.forEach((elt) => {
-        elt.removeAllRepresentations();
-        elt.addRepresentation(type, { sele: nglSelection });
-      });
-      stage.autoView();
-    }
-  }, [type, res, stage, nglSelection]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (stage) {
+  //       stage.dispose();
+  //     }
+  //   };
+  // }, [stage]);
 
-  useEffect(() => {
-    if (!isMouseHovering) {
-      const annots: any[] = [];
-      res.forEach((elt, index) => {
-        if (annotation) {
-          elt.removeAnnotation(annotation[index]);
-        }
-        if (mouseCol !== undefined && selectedStructures.length) {
-          const { startPos } = selectedStructures[0].structure;
+  // useEffect(() => {
+  //   // Handle window resizing
+  //   window.addEventListener("resize", () => {
+  //     if (stage) {
+  //       stage.handleResize();
+  //     }
+  //   });
+  // }, [stage]);
 
-          let k;
-          const rn = elt.structure.residueStore.count;
-          const rp = elt.structure.getResidueProxy();
-          for (let i = 0; i < rn; ++i) {
-            rp.index = i;
-            if (rp.resno === mouseCol + startPos - 1) {
-              k = rp;
-              break;
-            }
-          }
+  // useEffect(() => {
+  //   (async () => {
+  //     if (!selectedStructures.length || !stage) {
+  //       return;
+  //     }
 
-          if (k) {
-            const ap = elt.structure.getAtomProxy();
-            ap.index = k.atomOffset;
+  //     const res = await Promise.all(
+  //       selectedStructures.map((selection) =>
+  //         stage.loadFile(`data://${selection.structure.pdb}.pdb`)
+  //       )
+  //     );
 
-            annots.push(
-              elt.addAnnotation(ap.positionToVector3(), k.qualifiedName())
-            );
-          }
-        }
+  //     stage.signals.hovered.add((pickingProxy: any) => {
+  //       if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
+  //         const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
+  //         msaview.setMouseoveredColumn(
+  //           atom.resno - selectedStructures[0].structure.startPos,
+  //           atom.chainname,
+  //           pickingProxy.picker.structure.name
+  //         );
+  //       }
+  //     });
+  //     setRes(res);
+  //   })();
+  // }, [JSON.stringify(selectedStructures), stage]);
 
-        stage.viewer.requestRender();
-      });
-      setAnnotation(annots);
-    }
-  }, [model, mouseCol, isMouseHovering, JSON.stringify(selectedStructures)]);
+  // useEffect(() => {
+  //   if (stage) {
+  //     res.forEach((elt) => {
+  //       elt.removeAllRepresentations();
+  //       elt.addRepresentation(type, { sele: nglSelection });
+  //     });
+  //     stage.autoView();
+  //   }
+  // }, [type, res, stage, nglSelection]);
+
+  // useEffect(() => {
+  //   if (!isMouseHovering) {
+  //     const annots: any[] = [];
+  //     res.forEach((elt, index) => {
+  //       if (annotation) {
+  //         elt.removeAnnotation(annotation[index]);
+  //       }
+  //       if (mouseCol !== undefined && selectedStructures.length) {
+  //         const { startPos } = selectedStructures[0].structure;
+
+  //         let k;
+  //         const rn = elt.structure.residueStore.count;
+  //         const rp = elt.structure.getResidueProxy();
+  //         for (let i = 0; i < rn; ++i) {
+  //           rp.index = i;
+  //           if (rp.resno === mouseCol + startPos - 1) {
+  //             k = rp;
+  //             break;
+  //           }
+  //         }
+
+  //         if (k) {
+  //           const ap = elt.structure.getAtomProxy();
+  //           ap.index = k.atomOffset;
+
+  //           annots.push(
+  //             elt.addAnnotation(ap.positionToVector3(), k.qualifiedName())
+  //           );
+  //         }
+  //       }
+
+  //       stage.viewer.requestRender();
+  //     });
+  //     setAnnotation(annots);
+  //   }
+  // }, [
+  //   model,
+  //   mouseCol,
+  //   isMouseHovering,
+  //   res,
+  //   JSON.stringify(selectedStructures),
+  // ]);
 
   return selectedStructures.length ? (
     <div style={{ padding: 20 }}>
@@ -136,13 +210,9 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
           onChange={(event) => model.setNGLSelection(event.target.value)}
         />
       </div>
-
-      <div
-        ref={stageElementRef}
-        style={{ width: 600, height: 400 }}
-        onMouseEnter={() => setMouseHovering(true)}
-        onMouseLeave={() => setMouseHovering(false)}
-      />
+      <Stage width="600px" height="400px">
+        <ProteinElement model={model} />
+      </Stage>
     </div>
   ) : null;
 });
