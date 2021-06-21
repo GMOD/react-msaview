@@ -107,8 +107,16 @@ export default class StockholmMSA {
 
   get tracks() {
     return [
-      { id: 'seqConsensus', data: this.seqConsensus },
-      { id: 'secondaryStruct', data: this.secondaryStructureConsensus },
+      {
+        id: 'seqConsensus',
+        name: 'Sequence consensus',
+        data: this.seqConsensus,
+      },
+      {
+        id: 'secondaryStruct',
+        name: 'Secondary-structure',
+        data: this.secondaryStructureConsensus,
+      },
     ]
   }
 }

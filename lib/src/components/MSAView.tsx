@@ -20,7 +20,7 @@ const Track = observer(
       <div key={track.id} style={{ display: 'flex', height: rowHeight }}>
         <TrackLabel model={model} name={track.name} />
         <div style={{ width: resizeHandleWidth }} />
-        <track.ReactComponent model={model} data={track.data} />
+        <track.ReactComponent model={model} {...track} />
       </div>
     )
   },

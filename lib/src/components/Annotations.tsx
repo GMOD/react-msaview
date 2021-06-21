@@ -92,7 +92,15 @@ const AnnotationBlock = observer(
   },
 )
 const AnnotationTrack = observer(
-  ({ data, model }: { data: string | undefined; model: MsaViewModel }) => {
+  ({
+    data,
+    model,
+    customColorScheme,
+  }: {
+    customColorScheme: Record<string, string>
+    data: string | undefined
+    model: MsaViewModel
+  }) => {
     const { blocksX, msaAreaWidth, rowHeight } = model
     return (
       <div
@@ -104,7 +112,13 @@ const AnnotationTrack = observer(
         }}
       >
         {blocksX.map((bx) => (
-          <AnnotationBlock key={bx} data={data} model={model} offsetX={bx} />
+          <AnnotationBlock
+            customColorScheme={customColorScheme}
+            key={bx}
+            data={data}
+            model={model}
+            offsetX={bx}
+          />
         ))}
       </div>
     )

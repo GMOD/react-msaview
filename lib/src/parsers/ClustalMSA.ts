@@ -54,12 +54,13 @@ export default class ClustalMSA {
       ? [
           {
             id: 'seqConsensus',
+            name: 'Sequence consensus',
             data: this.seqConsensus,
             customColorScheme: {
-              '*': 'green',
-              ':': 'yellow',
-              '.': 'orange',
-              ' ': 'red',
+              '*': 'white',
+              ':': 'grey',
+              '.': 'darkgrey',
+              ' ': 'black',
             },
           },
         ]
