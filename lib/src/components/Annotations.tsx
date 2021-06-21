@@ -9,7 +9,7 @@ const AnnotationBlock = observer(
     model,
     offsetX,
   }: {
-    data: string
+    data: string | undefined
     model: MsaViewModel
     offsetX: number
   }) => {
@@ -86,7 +86,7 @@ const AnnotationBlock = observer(
   },
 )
 const AnnotationTrack = observer(
-  ({ data, model }: { data: string; model: MsaViewModel }) => {
+  ({ data, model }: { data: string | undefined; model: MsaViewModel }) => {
     const { blocksX, msaAreaWidth, rowHeight } = model
     return (
       <div

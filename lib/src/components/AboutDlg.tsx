@@ -6,7 +6,7 @@ import {
   Typography,
   Link,
 } from '@material-ui/core'
-import { version } from '../../package.json'
+import { version } from './package.json'
 
 function LicenseDialog({
   onClose,
