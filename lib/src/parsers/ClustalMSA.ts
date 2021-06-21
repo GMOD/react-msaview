@@ -1,6 +1,10 @@
 import { parse } from 'clustal-js'
 export default class ClustalMSA {
-  private MSA: ReturnType<typeof parse>
+  private MSA: {
+    header: Record<string, any>
+    consensus?: string
+    alns: { id: string; seq: string }[]
+  }
 
   constructor(text: string) {
     this.MSA = parse(text)

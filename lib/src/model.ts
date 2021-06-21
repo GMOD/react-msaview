@@ -528,9 +528,13 @@ const model = types.snapshotProcessor(
         return self.MSA?.seqConsensus
       },
 
-      get tracks() {
+      get tracks(): {
+        id: string
+        name: string
+        customColorScheme?: Record<string, string>
+      }[] {
         return (
-          this.MSA?.tracks.map((track) => ({
+          self.MSA?.tracks.map((track: any) => ({
             ...track,
             ReactComponent: AnnotationTrack,
           })) || []

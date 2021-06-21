@@ -62,4 +62,8 @@ export default class FastaMSA {
   get secondaryStructureConsensus() {
     return undefined
   }
+
+  get tracks() {
+    return []
+  }
 }

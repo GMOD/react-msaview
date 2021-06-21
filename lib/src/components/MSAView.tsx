@@ -114,7 +114,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <Ruler model={model} />
         </div>
 
-        {tracks.map((track) => {
+        {tracks?.map((track) => {
           return <Track key={track.id} model={model} track={track} />
         })}
 
