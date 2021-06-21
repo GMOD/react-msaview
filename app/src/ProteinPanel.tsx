@@ -10,76 +10,93 @@ DatasourceRegistry.add(
   new StaticDatasource("https://files.rcsb.org/download/")
 );
 
-const ProteinComponent = observer(({ model }: { model: AppModel }) => {
-  const component = useComponent();
-  const stage = useStage();
+const ProteinComponent = observer(
+  ({
+    model,
+    isMouseHovering,
+  }: {
+    model: AppModel;
+    isMouseHovering: boolean;
+  }) => {
+    const component = useComponent();
+    const stage = useStage();
 
-  const [annotation, setAnnotation] = useState<any>([]);
-  const { mouseCol, selectedStructures } = model.msaview;
+    const [annotation, setAnnotation] = useState<any>([]);
+    const { mouseCol, selectedStructures } = model.msaview;
 
-  useEffect(() => {
-    //if (!isMouseHovering) {
-    let annots: any;
-    if (annotation) {
-      component.removeAnnotation(annotation);
-    }
-    if (mouseCol !== undefined && selectedStructures.length) {
-      const { startPos } = selectedStructures[0].structure;
-
-      let k;
-      const rn = component.structure.residueStore.count;
-      const rp = component.structure.getResidueProxy();
-      for (let i = 0; i < rn; ++i) {
-        rp.index = i;
-        if (rp.resno === mouseCol + startPos - 1) {
-          k = rp;
-          break;
+    useEffect(() => {
+      if (!isMouseHovering) {
+        let annots: any;
+        if (annotation) {
+          component.removeAnnotation(annotation);
         }
+        if (mouseCol !== undefined && selectedStructures.length) {
+          const { startPos } = selectedStructures[0].structure;
+
+          let k;
+          const rn = component.structure.residueStore.count;
+          const rp = component.structure.getResidueProxy();
+          for (let i = 0; i < rn; ++i) {
+            rp.index = i;
+            if (rp.resno === mouseCol + startPos - 1) {
+              k = rp;
+              break;
+            }
+          }
+
+          if (k) {
+            const ap = component.structure.getAtomProxy();
+            ap.index = k.atomOffset;
+
+            annots = component.addAnnotation(
+              ap.positionToVector3(),
+              k.qualifiedName()
+            );
+          }
+        }
+
+        stage.viewer.requestRender();
+        setAnnotation(annots);
       }
+    }, [model, mouseCol, isMouseHovering, JSON.stringify(selectedStructures)]);
 
-      if (k) {
-        const ap = component.structure.getAtomProxy();
-        ap.index = k.atomOffset;
+    return <></>;
+  }
+);
 
-        annots = component.addAnnotation(
-          ap.positionToVector3(),
-          k.qualifiedName()
-        );
-      }
-    }
+const ProteinElement = observer(
+  ({
+    model,
+    isMouseHovering,
+  }: {
+    model: AppModel;
+    isMouseHovering: boolean;
+  }) => {
+    const stage = useStage();
+    const myListener = useCallback(() => {}, []);
 
-    stage.viewer.requestRender();
-    setAnnotation(annots);
-    //}
-  }, [model, mouseCol, JSON.stringify(selectedStructures)]);
+    const reprList = useMemo(() => {
+      return [{ type: "cartoon" }] as any;
+    }, []);
 
-  return <></>;
-});
+    useEffect(() => {
+      stage.signals.hovered.add(myListener);
+      return () => stage.signals.hovered.remove(myListener);
+    }, [myListener, stage.signals.hovered]);
 
-const ProteinElement = observer(({ model }: { model: AppModel }) => {
-  const stage = useStage();
-  const myListener = useCallback(() => {}, []);
-
-  const reprList = useMemo(() => {
-    return [{ type: "cartoon" }] as any;
-  }, []);
-
-  useEffect(() => {
-    stage.signals.hovered.add(myListener);
-    return () => stage.signals.hovered.remove(myListener);
-  }, [myListener, stage.signals.hovered]);
-
-  return (
-    <Component path="rcsb://4hhb" reprList={reprList}>
-      <ProteinComponent model={model} />
-    </Component>
-  );
-});
+    return (
+      <Component path="rcsb://4hhb" reprList={reprList}>
+        <ProteinComponent model={model} isMouseHovering={isMouseHovering} />
+      </Component>
+    );
+  }
+);
 
 export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
   const [type, setType] = useState("cartoon");
   const { msaview, nglSelection } = model;
   const { selectedStructures } = msaview;
+  const [isMouseHovering, setMouseHovering] = useState(false);
 
   // const stageElementRef = useCallback((element) => {
   //   if (element) {
@@ -141,49 +158,6 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
   //   }
   // }, [type, res, stage, nglSelection]);
 
-  // useEffect(() => {
-  //   if (!isMouseHovering) {
-  //     const annots: any[] = [];
-  //     res.forEach((elt, index) => {
-  //       if (annotation) {
-  //         elt.removeAnnotation(annotation[index]);
-  //       }
-  //       if (mouseCol !== undefined && selectedStructures.length) {
-  //         const { startPos } = selectedStructures[0].structure;
-
-  //         let k;
-  //         const rn = elt.structure.residueStore.count;
-  //         const rp = elt.structure.getResidueProxy();
-  //         for (let i = 0; i < rn; ++i) {
-  //           rp.index = i;
-  //           if (rp.resno === mouseCol + startPos - 1) {
-  //             k = rp;
-  //             break;
-  //           }
-  //         }
-
-  //         if (k) {
-  //           const ap = elt.structure.getAtomProxy();
-  //           ap.index = k.atomOffset;
-
-  //           annots.push(
-  //             elt.addAnnotation(ap.positionToVector3(), k.qualifiedName())
-  //           );
-  //         }
-  //       }
-
-  //       stage.viewer.requestRender();
-  //     });
-  //     setAnnotation(annots);
-  //   }
-  // }, [
-  //   model,
-  //   mouseCol,
-  //   isMouseHovering,
-  //   res,
-  //   JSON.stringify(selectedStructures),
-  // ]);
-
   return selectedStructures.length ? (
     <div style={{ padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center" }}>
@@ -210,9 +184,14 @@ export const ProteinPanel = observer(({ model }: { model: AppModel }) => {
           onChange={(event) => model.setNGLSelection(event.target.value)}
         />
       </div>
-      <Stage width="600px" height="400px">
-        <ProteinElement model={model} />
-      </Stage>
+      <div
+        onMouseOver={() => setMouseHovering(true)}
+        onMouseLeave={() => setMouseHovering(false)}
+      >
+        <Stage width="600px" height="400px">
+          <ProteinElement model={model} isMouseHovering={isMouseHovering} />
+        </Stage>
+      </div>
     </div>
   ) : null;
 });
