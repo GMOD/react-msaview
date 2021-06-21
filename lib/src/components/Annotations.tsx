@@ -62,8 +62,10 @@ const AnnotationBlock = observer(
           const x = i * colWidth + offsetX - (offsetX % colWidth)
           ctx.fillStyle = color || 'white'
           ctx.fillRect(x, 0, colWidth, rowHeight)
-          ctx.fillStyle = colorContrast[letter.toUpperCase()] || 'black'
-          ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
+          if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
+            ctx.fillStyle = colorContrast[letter.toUpperCase()] || 'black'
+            ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
+          }
         }
       }
     }, [
