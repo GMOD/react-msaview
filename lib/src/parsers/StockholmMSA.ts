@@ -31,12 +31,6 @@ export default class StockholmMSA {
   getMSA() {
     return this.MSA
   }
-  get seqConsensus() {
-    return this.MSA.gc?.seq_cons
-  }
-  get secondaryStructureConsensus() {
-    return this.MSA.gc?.SS_cons
-  }
 
   getRow(name: string) {
     return this.MSA?.seqdata[name]?.split('')
@@ -102,5 +96,19 @@ export default class StockholmMSA {
             name,
           })),
         }
+  }
+
+  get seqConsensus() {
+    return this.MSA.gc?.seq_cons
+  }
+  get secondaryStructureConsensus() {
+    return this.MSA.gc?.SS_cons
+  }
+
+  get tracks() {
+    return [
+      { id: 'seqConsensus', data: this.seqConsensus },
+      { id: 'secondaryStruct', data: this.secondaryStructureConsensus },
+    ]
   }
 }

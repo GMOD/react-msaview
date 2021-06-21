@@ -196,7 +196,7 @@ const model = types.snapshotProcessor(
       toggleNodeBubbles() {
         self.drawNodeBubbles = !self.drawNodeBubbles
       },
-      setData(data: { msa: string; tree: string }) {
+      setData(data: { msa?: string; tree?: string }) {
         self.data = cast(data)
       },
       async setMSAFilehandle(msaFilehandle?: FileLocationType) {

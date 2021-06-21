@@ -8,20 +8,23 @@ const AnnotationBlock = observer(
     data,
     model,
     offsetX,
+    customColorScheme,
   }: {
     data: string | undefined
     model: MsaViewModel
     offsetX: number
+    customColorScheme: Record<string, string>
   }) => {
     const {
       blockSize,
       scrollX,
       bgColor,
-      colorScheme,
+      colorScheme: modelColorScheme,
       colWidth,
       rowHeight,
     } = model
 
+    const colorScheme = customColorScheme || modelColorScheme
     const theme = useTheme()
     const ref = useRef<HTMLCanvasElement>(null)
     const colorContrast = useMemo(() => model.colorContrast(theme), [
@@ -43,7 +46,10 @@ const AnnotationBlock = observer(
       ctx.clearRect(0, 0, blockSize, rowHeight)
       ctx.translate(-offsetX, 0)
       ctx.textAlign = 'center'
-      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 12)}px`)
+      ctx.font = ctx.font.replace(
+        /\d+px/,
+        `${Math.max(8, rowHeight - 12)}px bold`,
+      )
 
       const b = blockSize
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
@@ -56,7 +62,7 @@ const AnnotationBlock = observer(
           const x = i * colWidth + offsetX - (offsetX % colWidth)
           ctx.fillStyle = color || 'white'
           ctx.fillRect(x, 0, colWidth, rowHeight)
-          ctx.fillStyle = colorContrast[letter.toUpperCase()]
+          ctx.fillStyle = colorContrast[letter.toUpperCase()] || 'black'
           ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
         }
       }
