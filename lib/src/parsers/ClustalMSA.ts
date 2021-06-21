@@ -1,12 +1,13 @@
-import * as Clustal from 'clustal-js'
+import { parse } from 'clustal-js'
 export default class ClustalMSA {
   private MSA: {
     header: Record<string, any>
+    consensus?: string
     alns: { id: string; seq: string }[]
   }
 
   constructor(text: string) {
-    this.MSA = Clustal.parse(text)
+    this.MSA = parse(text)
   }
 
   getMSA() {
@@ -43,5 +44,30 @@ export default class ClustalMSA {
       noTree: true,
       branchset: this.getNames().map((name) => ({ id: name, name })),
     }
+  }
+
+  get seqConsensus() {
+    return this.MSA.consensus
+  }
+  get secondaryStructureConsensus() {
+    return undefined
+  }
+
+  get tracks() {
+    return this.seqConsensus
+      ? [
+          {
+            id: 'seqConsensus',
+            name: 'Sequence consensus',
+            data: this.seqConsensus,
+            customColorScheme: {
+              '*': 'white',
+              ':': 'grey',
+              '.': 'darkgrey',
+              ' ': 'black',
+            },
+          },
+        ]
+      : []
   }
 }

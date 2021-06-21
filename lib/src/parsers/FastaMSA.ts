@@ -55,4 +55,15 @@ export default class FastaMSA {
       })),
     }
   }
+
+  get seqConsensus() {
+    return undefined
+  }
+  get secondaryStructureConsensus() {
+    return undefined
+  }
+
+  get tracks() {
+    return []
+  }
 }

@@ -1,11 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Typography, CircularProgress, useTheme } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
-import Color from 'color'
 import { observer } from 'mobx-react'
-
-import colorSchemes from '../colorSchemes'
-import { transform } from '../util'
 import { MsaViewModel } from '../model'
 
 const MSABlock = observer(
@@ -27,21 +23,17 @@ const MSABlock = observer(
       scrollY,
       scrollX,
       hierarchy,
-      colorSchemeName,
+      colorScheme,
       blockSize,
       mouseCol,
     } = model
     const theme = useTheme()
 
-    const colorScheme = colorSchemes[colorSchemeName]
-    const colorContrast = useMemo(
-      () =>
-        transform(colorScheme, ([letter, color]) => [
-          letter,
-          theme.palette.getContrastText(Color(color).hex()),
-        ]),
-      [colorScheme, theme.palette],
-    )
+    const colorContrast = useMemo(() => model.colorContrast(theme), [
+      model,
+      theme,
+    ])
+
     const ref = useRef<HTMLCanvasElement>(null)
     const mouseoverRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {

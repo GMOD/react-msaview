@@ -11,6 +11,10 @@ type StockholmEntry = {
     AC: Record<string, string>
     DR: Record<string, string>
   }
+  gc?: {
+    SS_cons?: string
+    seq_cons?: string
+  }
   seqdata: { [key: string]: string }
 }
 
@@ -44,7 +48,11 @@ export default class StockholmMSA {
   }
 
   getDetails() {
-    return this.MSA.gf
+    return {
+      General: this.MSA.gf,
+      Accessions: this.MSA.gs?.AC,
+      Dbxref: this.MSA.gs?.DR,
+    }
   }
 
   getNames() {
@@ -88,5 +96,27 @@ export default class StockholmMSA {
             name,
           })),
         }
+  }
+
+  get seqConsensus() {
+    return this.MSA.gc?.seq_cons
+  }
+  get secondaryStructureConsensus() {
+    return this.MSA.gc?.SS_cons
+  }
+
+  get tracks() {
+    return [
+      {
+        id: 'seqConsensus',
+        name: 'Sequence consensus',
+        data: this.seqConsensus,
+      },
+      {
+        id: 'secondaryStruct',
+        name: 'Secondary-structure',
+        data: this.secondaryStructureConsensus,
+      },
+    ]
   }
 }

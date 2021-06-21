@@ -5,7 +5,7 @@ import { transaction } from 'mobx'
 import { FileSelector } from '@jbrowse/core/ui'
 import { FileLocation } from '@jbrowse/core/util/types'
 import { MsaViewModel } from '../model'
-import { smallTree, smallMSA } from './data/seq2'
+import { smallTree, smallMSA, smallMSAOnly } from './data/seq2'
 
 const Li = ({
   onClick,
@@ -84,7 +84,16 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                   model.setData({ msa: smallMSA, tree: smallTree })
                 }}
               >
-                Small protein+tree
+                Small protein MSA+tree
+              </Li>
+            </li>
+            <li>
+              <Li
+                onClick={() => {
+                  model.setData({ msa: smallMSAOnly })
+                }}
+              >
+                Small MSA only
               </Li>
             </li>
             <li>

@@ -10,9 +10,18 @@ import DetailsDialog from './DetailsDlg'
 //icons
 import FolderOpenIcon from '@material-ui/icons/FolderOpen'
 import SettingsIcon from '@material-ui/icons/Settings'
-import InfoIcon from '@material-ui/icons/Info'
+import HelpIcon from '@material-ui/icons/Help'
 import AssignmentIcon from '@material-ui/icons/Assignment'
-
+const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
+  const { mouseOverRowName, mouseCol } = model
+  return (
+    <>
+      <Typography display="inline">Row name: {mouseOverRowName}</Typography>
+      <span style={{ marginLeft: 10 }} />
+      <Typography display="inline">Position: {mouseCol}</Typography>
+    </>
+  )
+})
 const Header = observer(({ model }: { model: MsaViewModel }) => {
   const [settingsDialogVisible, setSettingsDialogVisible] = useState(false)
   const [aboutDialogVisible, setAboutDialogVisible] = useState(false)
@@ -20,7 +29,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
   const { currentAlignment, alignmentNames } = model
 
   return (
-    <div style={{ display: 'block' }}>
+    <div style={{ display: 'flex' }}>
       <IconButton
         onClick={() => {
           model.setData({ tree: '', msa: '' })
@@ -39,14 +48,6 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         }}
       >
         <SettingsIcon />
-      </IconButton>
-
-      <IconButton
-        onClick={() => {
-          setAboutDialogVisible(true)
-        }}
-      >
-        <InfoIcon />
       </IconButton>
 
       <IconButton
@@ -91,12 +92,17 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           ))}
         </Select>
       ) : null}
-      <Typography display="inline">
-        Row name: {model.mouseOverRowName}
-      </Typography>
-      <span style={{ marginLeft: 10 }} />
 
-      <Typography display="inline">Position: {model.mouseCol}</Typography>
+      <InfoArea model={model} />
+
+      <div style={{ flex: 1 }} />
+      <IconButton
+        onClick={() => {
+          setAboutDialogVisible(true)
+        }}
+      >
+        <HelpIcon />
+      </IconButton>
     </div>
   )
 })
