@@ -95,7 +95,7 @@ const ResizeHandle = observer(({ model }: { model: MsaViewModel }) => {
 })
 
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, initialized, treeAreaWidth, height, tracks } = model
+  const { done, error, initialized, treeAreaWidth, height, tracks } = model
 
   return !initialized ? (
     <ImportForm model={model} />

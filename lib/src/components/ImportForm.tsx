@@ -21,10 +21,16 @@ const Li = ({
 export default observer(({ model }: { model: MsaViewModel }) => {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
+  const { error } = model
 
   return (
     <Container>
       <div style={{ width: '50%' }}>
+        {error ? (
+          <div style={{ padding: 20 }}>
+            <Typography color="error">Error: {`${error}`}</Typography>
+          </div>
+        ) : null}
         <Typography>
           Open an MSA file (stockholm or clustal format) and/or a tree file
           (newick format).
