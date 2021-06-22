@@ -46,10 +46,7 @@ const AnnotationBlock = observer(
       ctx.clearRect(0, 0, blockSize, rowHeight)
       ctx.translate(-offsetX, 0)
       ctx.textAlign = 'center'
-      ctx.font = ctx.font.replace(
-        /\d+px/,
-        `${Math.max(8, rowHeight - 12)}px bold`,
-      )
+      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 12)}px`)
 
       const b = blockSize
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))

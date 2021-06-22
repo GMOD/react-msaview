@@ -112,11 +112,16 @@ export default class StockholmMSA {
         id: 'seqConsensus',
         name: 'Sequence consensus',
         data: this.seqConsensus,
+        customColorScheme: {},
       },
       {
         id: 'secondaryStruct',
         name: 'Secondary-structure',
         data: this.secondaryStructureConsensus,
+        customColorScheme: {
+          '>': 'pink',
+          '<': 'lightblue',
+        },
       },
     ]
   }
