@@ -15,10 +15,12 @@ const resizeHandleWidth = 5
 
 const Track = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
-    const { rowHeight } = model
+    const { rowHeight, treeAreaWidth } = model
     return (
       <div key={track.id} style={{ display: 'flex', height: rowHeight }}>
-        <TrackLabel model={model} name={track.name} />
+        <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+          <TrackLabel model={model} name={track.name} />
+        </div>
         <div style={{ width: resizeHandleWidth }} />
         <track.ReactComponent model={model} {...track} />
       </div>
@@ -43,14 +45,19 @@ const TrackLabel = observer(
       ctx.textAlign = 'right'
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 7)}px`)
       ctx.fillStyle = 'black'
-      ctx.fillText(name, width, rowHeight - rowHeight / 8)
+      ctx.fillText(name, width - 20, rowHeight - rowHeight / 8)
     }, [name, width, treeAreaWidth, rowHeight])
     return (
       <canvas
         ref={ref}
         width={width}
         height={rowHeight}
-        style={{ width, height: rowHeight, overflow: 'hidden' }}
+        style={{
+          width,
+          height: rowHeight,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
       />
     )
   },
@@ -95,7 +102,7 @@ const ResizeHandle = observer(({ model }: { model: MsaViewModel }) => {
 })
 
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, error, initialized, treeAreaWidth, height, tracks } = model
+  const { done, initialized, treeAreaWidth, height, tracks } = model
 
   return !initialized ? (
     <ImportForm model={model} />
@@ -118,11 +125,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           return <Track key={track.id} model={model} track={track} />
         })}
 
-        <div
-          style={{
-            display: 'flex',
-          }}
-        >
+        <div style={{ display: 'flex' }}>
           <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
             <TreeCanvas model={model} />
           </div>

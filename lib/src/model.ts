@@ -196,26 +196,15 @@ const model = types.snapshotProcessor(
         self.drawNodeBubbles = !self.drawNodeBubbles
       },
       setData(data: { msa?: string; tree?: string }) {
-        self.error = undefined
         self.data = cast(data)
       },
       async setMSAFilehandle(msaFilehandle?: FileLocationType) {
-        if (msaFilehandle && 'blobId' in msaFilehandle) {
-          this.setMSA(
-            (await openLocation(msaFilehandle).readFile('utf8')) as string,
-          )
-        } else {
-          self.msaFilehandle = msaFilehandle
-        }
+        self.error = undefined
+        self.msaFilehandle = msaFilehandle
       },
       async setTreeFilehandle(treeFilehandle?: FileLocationType) {
-        if (treeFilehandle && 'blobId' in treeFilehandle) {
-          this.setTree(
-            (await openLocation(treeFilehandle).readFile('utf8')) as string,
-          )
-        } else {
-          self.treeFilehandle = treeFilehandle
-        }
+        self.error = undefined
+        self.treeFilehandle = treeFilehandle
       },
       setMSA(result: string) {
         self.data.setMSA(result)

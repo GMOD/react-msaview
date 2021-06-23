@@ -130,8 +130,8 @@ const TreeBlock = observer(
 
       if (rowHeight >= 10) {
         if (labelsAlignRight) {
-          ctx.textAlign = 'end'
-          ctx.setLineDash([3, 5])
+          ctx.textAlign = 'right'
+          ctx.setLineDash([1, 3])
         } else {
           ctx.textAlign = 'start'
         }
