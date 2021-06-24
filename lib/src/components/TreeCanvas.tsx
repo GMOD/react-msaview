@@ -285,6 +285,9 @@ const TreeBlock = observer(
             open={Boolean(collapseBranchMenuRef.current)}
             onClose={handleCloseBranchMenu}
           >
+            <MenuItem dense disabled>
+              {collapseBranchMenu.name}
+            </MenuItem>
             <MenuItem
               dense
               onClick={() => {

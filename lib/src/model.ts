@@ -143,6 +143,7 @@ const model = types.snapshotProcessor(
         self.selectedStructures = []
       },
       setError(error?: Error) {
+        console.error(error)
         self.error = error
       },
       setMousePos(col?: number, row?: number) {
@@ -204,7 +205,14 @@ const model = types.snapshotProcessor(
       },
       async setTreeFilehandle(treeFilehandle?: FileLocationType) {
         self.error = undefined
-        self.treeFilehandle = treeFilehandle
+
+        if (treeFilehandle && 'blobId' in treeFilehandle) {
+          this.setTree(
+            (await openLocation(treeFilehandle).readFile('utf8')) as string,
+          )
+        } else {
+          self.treeFilehandle = treeFilehandle
+        }
       },
       setMSA(result: string) {
         self.data.setMSA(result)
@@ -553,7 +561,9 @@ const model = types.snapshotProcessor(
   {
     postProcessor(result) {
       const { data, ...rest } = result
-      return rest
+      if (result.treeFilehandle) delete data.tree
+      if (result.msaFilehandle) delete data.msa
+      return { data, ...rest }
     },
   },
 )
