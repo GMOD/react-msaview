@@ -136,6 +136,7 @@ const MSABlock = observer(
       ctx.resetTransform()
       ctx.clearRect(0, 0, blockSize, blockSize)
       ctx.translate(-offsetX, -offsetY)
+
       if (
         mouseCol &&
         mouseCol > offsetX / colWidth &&
@@ -143,7 +144,7 @@ const MSABlock = observer(
       ) {
         const x = (mouseCol - 1) * colWidth
         ctx.fillStyle = 'rgba(100,100,100,0.5)'
-        ctx.fillRect(x, 0, colWidth, 1000)
+        ctx.fillRect(x, offsetY, colWidth, offsetY + blockSize)
       }
     }, [mouseCol, blockSize, colWidth, offsetX, offsetY, rowHeight])
 
@@ -194,7 +195,7 @@ const MSABlock = observer(
 )
 
 const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
-  const { MSA, msaFilehandle, height, msaAreaWidth, blocksX, blocksY } = model
+  const { MSA, msaFilehandle, height, msaAreaWidth, blocks2d } = model
   const ref = useRef<HTMLDivElement>(null)
   // wheel
   const scheduled = useRef(false)
@@ -320,18 +321,14 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
           <Typography>Loading...</Typography>
         </div>
       ) : (
-        blocksY
-          .map((by) =>
-            blocksX.map((bx) => (
-              <MSABlock
-                key={`${bx}_${by}`}
-                model={model}
-                offsetX={bx}
-                offsetY={by}
-              />
-            )),
-          )
-          .flat()
+        blocks2d.map(([bx, by]) => (
+          <MSABlock
+            key={`${bx}_${by}`}
+            model={model}
+            offsetX={bx}
+            offsetY={by}
+          />
+        ))
       )}
     </div>
   )

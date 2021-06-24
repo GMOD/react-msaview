@@ -54,7 +54,7 @@ export default class ClustalMSA {
   }
 
   get tracks() {
-    return this.seqConsensus
+    return this.seqConsensus?.trim()
       ? [
           {
             id: 'seqConsensus',
