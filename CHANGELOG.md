@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.1
+
+- Fix blocks not displaying properly in the v1.2.0 release
+
 ## v1.2.0
 
 - Add ability to integrate with a 3D viewer based on "selecting" a structure
