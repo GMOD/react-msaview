@@ -26,7 +26,6 @@ export default class StockholmMSA {
     const res = Stockholm.parseAll(text)
     this.data = res
     this.MSA = res[currentAlignment]
-    console.log(this.MSA)
   }
 
   getMSA() {
