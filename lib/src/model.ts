@@ -320,7 +320,7 @@ const model = types.snapshotProcessor(
     .views((self) => ({
       get blocks2d() {
         return self.blocksY
-          .map((bx) => self.blocksY.map((by) => [bx, by]))
+          .map((by) => self.blocksX.map((bx) => [bx, by]))
           .flat()
       },
       get done() {
