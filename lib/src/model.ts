@@ -560,10 +560,18 @@ const model = types.snapshotProcessor(
 
   {
     postProcessor(result) {
-      const { data, ...rest } = result
-      if (result.treeFilehandle) delete data.tree
-      if (result.msaFilehandle) delete data.msa
-      return { data, ...rest }
+      const {
+        data: { tree, msa },
+        ...rest
+      } = result
+      return {
+        data: {
+          //https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/
+          ...(!result.treeFilehandle && { tree }),
+          ...(!result.msaFilehandle && { msa }),
+        },
+        ...rest,
+      }
     },
   },
 )
