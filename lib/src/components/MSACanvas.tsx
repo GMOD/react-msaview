@@ -29,10 +29,10 @@ const MSABlock = observer(
     } = model
     const theme = useTheme()
 
-    const colorContrast = useMemo(() => model.colorContrast(theme), [
-      model,
-      theme,
-    ])
+    const colorContrast = useMemo(
+      () => model.colorContrast(theme),
+      [model, theme],
+    )
 
     const ref = useRef<HTMLCanvasElement>(null)
     const mouseoverRef = useRef<HTMLCanvasElement>(null)
@@ -50,7 +50,7 @@ const MSABlock = observer(
       ctx.clearRect(0, 0, blockSize, blockSize)
       ctx.translate(-offsetX, rowHeight / 2 - offsetY)
       ctx.textAlign = 'center'
-      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 12)}px`)
+      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
 
       const leaves = hierarchy.leaves()
       const b = blockSize
