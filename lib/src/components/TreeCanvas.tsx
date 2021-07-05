@@ -170,7 +170,7 @@ const TreeBlock = observer(
                 clickCtx.fillRect(0, yp - height, width, height)
               }
             } else if (labelsAlignRight) {
-              if (drawTree) {
+              if (drawTree && !noTree) {
                 const { width } = ctx.measureText(name)
                 ctx.moveTo(xp + radius + 2, y)
                 ctx.lineTo(treeAreaWidth - margin.left * 2 - width - 2, y)

@@ -27,10 +27,10 @@ const AnnotationBlock = observer(
     const colorScheme = customColorScheme || modelColorScheme
     const theme = useTheme()
     const ref = useRef<HTMLCanvasElement>(null)
-    const colorContrast = useMemo(() => model.colorContrast(theme), [
-      model,
-      theme,
-    ])
+    const colorContrast = useMemo(
+      () => model.colorContrast(theme),
+      [model, theme],
+    )
     useEffect(() => {
       if (!ref.current) {
         return
@@ -46,7 +46,7 @@ const AnnotationBlock = observer(
       ctx.clearRect(0, 0, blockSize, rowHeight)
       ctx.translate(-offsetX, 0)
       ctx.textAlign = 'center'
-      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 12)}px`)
+      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
 
       const b = blockSize
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
