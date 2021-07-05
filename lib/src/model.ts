@@ -444,13 +444,22 @@ const MSAModel = types
       return blanks
     },
 
-    get columns(): Record<string, string> {
-      const rows = this.hierarchy
+    get rows() {
+      return this.hierarchy
         .leaves()
         .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
         .filter((f) => !!f[1])
-      const strs = rows.map((row) => row[1])
+    },
 
+    get columns(): Record<string, string> {
+      const rows = this.rows
+      const cols = this.columns2d
+
+      return Object.fromEntries(rows.map((row, index) => [row[0], cols[index]]))
+    },
+
+    get columns2d() {
+      const strs = this.rows.map((r) => r[1])
       const ret: string[] = []
       for (let i = 0; i < strs.length; i++) {
         let s = ''
@@ -464,7 +473,7 @@ const MSAModel = types
         }
         ret.push(s)
       }
-      return Object.fromEntries(rows.map((row, index) => [row[0], ret[index]]))
+      return ret
     },
 
     // generates a new tree that is clustered with x,y positions
@@ -525,17 +534,37 @@ const MSAModel = types
       return self.MSA?.seqConsensus
     },
 
+    get conservation() {
+      const m = self.columns2d
+
+      if (m.length) {
+        for (let i = 0; i < m[0].length; i++) {
+          const col = []
+          for (let j = 0; j < m.length; j++) {
+            col.push(m[j][i])
+          }
+        }
+      }
+      return ['a']
+    },
+
     get tracks(): {
       id: string
       name: string
       customColorScheme?: Record<string, string>
     }[] {
-      return (
+      const adapterTracks =
         self.MSA?.tracks.map((track: any) => ({
           ...track,
           ReactComponent: AnnotationTrack,
         })) || []
-      )
+      return [
+        ...adapterTracks,
+        // {
+        //   ReactComponent: AnnotationTrack,
+        //   data: this.conservation,
+        // },
+      ]
     },
   }))
 
