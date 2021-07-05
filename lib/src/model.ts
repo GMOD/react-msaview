@@ -444,7 +444,7 @@ const MSAModel = types
       return blanks
     },
 
-    get rows() {
+    get rows(): string[][] {
       return this.hierarchy
         .leaves()
         .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])

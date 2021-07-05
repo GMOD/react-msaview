@@ -6,8 +6,10 @@ import { observer } from 'mobx-react'
 import SettingsDialog from './SettingsDlg'
 import AboutDialog from './AboutDlg'
 import DetailsDialog from './DetailsDlg'
+import AddTrackDialog from './AddTrackDlg'
 
 //icons
+import AddIcon from '@material-ui/icons/Add'
 import FolderOpenIcon from '@material-ui/icons/FolderOpen'
 import SettingsIcon from '@material-ui/icons/Settings'
 import HelpIcon from '@material-ui/icons/Help'
@@ -25,6 +27,7 @@ const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
 })
 
 const Header = observer(({ model }: { model: MsaViewModel }) => {
+  const [addTrackDialogVisible, setAddTrackDialogVisible] = useState(false)
   const [settingsDialogVisible, setSettingsDialogVisible] = useState(false)
   const [aboutDialogVisible, setAboutDialogVisible] = useState(false)
   const [detailsDialogVisible, setDetailsDialogVisible] = useState(false)
@@ -52,6 +55,10 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         <AssignmentIcon />
       </IconButton>
 
+      <IconButton onClick={() => setAddTrackDialogVisible(true)}>
+        <AddIcon />
+      </IconButton>
+
       {settingsDialogVisible ? (
         <SettingsDialog
           open
@@ -69,6 +76,14 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           open
           model={model}
           onClose={() => setDetailsDialogVisible(false)}
+        />
+      ) : null}
+
+      {addTrackDialogVisible ? (
+        <AddTrackDialog
+          open
+          model={model}
+          onClose={() => setAddTrackDialogVisible(false)}
         />
       ) : null}
 
