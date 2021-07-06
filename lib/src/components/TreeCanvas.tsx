@@ -35,8 +35,6 @@ const TreeBlock = observer(
     const collapseBranchMenuRef = useRef<HTMLDivElement>(null)
     const toggleNodeMenuRef = useRef<HTMLDivElement>(null)
     const mouseoverRef = useRef<HTMLCanvasElement>(null)
-    const [collapsedClickMap, setCollapsedClickMap] = useState<ClickMap>({})
-    const [nameClickMap, setNameClickMap] = useState<ClickMap>({})
     const [collapseBranchMenu, setCollapseBranchMenu] = useState<TooltipData>()
     const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
     const [hoverElt, setHoverElt] = useState<any>()
@@ -205,8 +203,6 @@ const TreeBlock = observer(
         })
         ctx.setLineDash([])
       }
-      setCollapsedClickMap(tempCollapsedClickMap)
-      setNameClickMap(tempNameClickMap)
     }, [
       collapsed,
       rowHeight,
