@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   Dialog,
+  DialogActions,
   DialogTitle,
   DialogContent,
   FormControlLabel,
@@ -128,24 +129,23 @@ export default observer(
               </MenuItem>
             ))}
           </TextField>
-          <br />
-          <br />
-          <br />
-          <Button
-            disabled={rowHeightError || colWidthError || treeWidthError}
-            onClick={() => {
-              model.setRowHeight(+rowHeight)
-              model.setColWidth(+colWidth)
-              if (!noTree) {
-                model.setTreeWidth(+treeWidth)
-              }
-              onClose()
-            }}
-            variant="contained"
-            color="primary"
-          >
-            Submit
-          </Button>
+          <DialogActions>
+            <Button
+              disabled={rowHeightError || colWidthError || treeWidthError}
+              onClick={() => {
+                model.setRowHeight(+rowHeight)
+                model.setColWidth(+colWidth)
+                if (!noTree) {
+                  model.setTreeWidth(+treeWidth)
+                }
+                onClose()
+              }}
+              variant="contained"
+              color="primary"
+            >
+              Submit
+            </Button>
+          </DialogActions>
         </DialogContent>
       </Dialog>
     )
