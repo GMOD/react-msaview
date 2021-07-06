@@ -3,39 +3,39 @@ import { Menu, MenuItem } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 import copy from 'copy-to-clipboard'
+import RBush from 'rbush'
 import { MsaViewModel } from '../model'
 
 const extendBounds = 5
 const radius = 3.5
 const d = radius * 2
 
-function randomColor() {
-  return [
-    Math.floor(Math.random() * 255),
-    Math.floor(Math.random() * 255),
-    Math.floor(Math.random() * 255),
-  ]
-}
-
 const padding = 600
 
-type ClickMap = { [key: string]: { id: string; name: string } }
 interface TooltipData {
   name: string
   id: string
   x: number
   y: number
 }
+
+interface ClickEntry {
+  name: string
+  id: string
+  branch?: boolean
+  minX: number
+  maxX: number
+  minY: number
+  maxY: number
+}
 const TreeBlock = observer(
   ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
     const ref = useRef<HTMLCanvasElement>(null)
-    const collapseBranchMenuRef = useRef<HTMLDivElement>(null)
-    const toggleNodeMenuRef = useRef<HTMLDivElement>(null)
-    const clickRef = useRef<HTMLCanvasElement>(null)
-    const [collapsedClickMap, setCollapsedClickMap] = useState<ClickMap>({})
-    const [nameClickMap, setNameClickMap] = useState<ClickMap>({})
-    const [collapseBranchMenu, setCollapseBranchMenu] = useState<TooltipData>()
+    const clickMap = useRef(new RBush<ClickEntry>())
+    const mouseoverRef = useRef<HTMLCanvasElement>(null)
+    const [branchMenu, setBranchMenu] = useState<TooltipData>()
     const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
+    const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
     const {
       hierarchy,
@@ -55,21 +55,19 @@ const TreeBlock = observer(
     } = model
 
     useEffect(() => {
-      if (!ref.current || !clickRef.current) {
+      clickMap.current.clear()
+
+      if (!ref.current) {
         return
       }
       const ctx = ref.current.getContext('2d')
-      const clickCtx = clickRef.current.getContext('2d')
-      if (!ctx || !clickCtx) {
+      if (!ctx) {
         return
       }
-      const tempCollapsedClickMap: ClickMap = {}
-      const tempNameClickMap: ClickMap = {}
-      ;[ctx, clickCtx].forEach((context) => {
-        context.resetTransform()
-        context.clearRect(0, 0, treeWidth + padding, blockSize)
-        context.translate(margin.left, -offsetY)
-      })
+
+      ctx.resetTransform()
+      ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+      ctx.translate(margin.left, -offsetY)
 
       const font = ctx.font
       ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
@@ -84,8 +82,8 @@ const TreeBlock = observer(
 
           const y1 = Math.min(sy, ty)
           const y2 = Math.max(sy, ty)
-          //1d line intersection to check if line crosses block at all, this
-          //is an optimization that allows us to skip drawing most tree links
+          //1d line intersection to check if line crosses block at all, this is
+          //an optimization that allows us to skip drawing most tree links
           //outside the block
           if (offsetY + blockSize >= y1 && y2 >= offsetY) {
             ctx.beginPath()
@@ -119,10 +117,15 @@ const TreeBlock = observer(
               ctx.fill()
               ctx.stroke()
 
-              const col = randomColor()
-              tempCollapsedClickMap[`${col}`] = { id, name }
-              clickCtx.fillStyle = `rgb(${col})`
-              clickCtx.fillRect(x - radius, y - radius, d, d)
+              clickMap.current.insert({
+                minX: x - radius,
+                maxX: x - radius + d,
+                minY: y - radius,
+                maxY: y - radius + d,
+                branch: true,
+                id,
+                name,
+              })
             }
           })
         }
@@ -141,10 +144,11 @@ const TreeBlock = observer(
             x: y,
             //@ts-ignore
             y: x,
-            data: { name },
+            data: { name, id },
             //@ts-ignore
             len,
           } = node
+
           if (
             y > offsetY - extendBounds &&
             y < offsetY + blockSize + extendBounds
@@ -152,10 +156,6 @@ const TreeBlock = observer(
             //note: +rowHeight/4 matches with -rowHeight/4 in msa
             const yp = y + rowHeight / 4
             const xp = showBranchLen ? len : x
-
-            const col = randomColor()
-            tempNameClickMap[`${col}`] = { id: name, name }
-            clickCtx.fillStyle = `rgb(${col})`
 
             const { width } = ctx.measureText(name)
             const height = ctx.measureText('M').width // use an 'em' for height
@@ -165,10 +165,14 @@ const TreeBlock = observer(
 
             if (!drawTree && !labelsAlignRight) {
               ctx.fillText(name, 0, yp)
-
-              if (hasStructure) {
-                clickCtx.fillRect(0, yp - height, width, height)
-              }
+              clickMap.current.insert({
+                minX: 0,
+                maxX: width,
+                minY: yp - height,
+                maxY: yp,
+                name,
+                id,
+              })
             } else if (labelsAlignRight) {
               if (drawTree && !noTree) {
                 const { width } = ctx.measureText(name)
@@ -177,26 +181,29 @@ const TreeBlock = observer(
                 ctx.stroke()
               }
               ctx.fillText(name, treeAreaWidth - margin.left * 2, yp)
-              if (hasStructure) {
-                clickCtx.fillRect(
-                  treeAreaWidth - 30 - width,
-                  yp - height,
-                  width,
-                  height,
-                )
-              }
+              clickMap.current.insert({
+                minX: treeAreaWidth - 30 - width,
+                maxX: treeAreaWidth - 30,
+                minY: yp - height,
+                maxY: yp,
+                name,
+                id,
+              })
             } else {
               ctx.fillText(name, xp + d, yp)
-              if (hasStructure) {
-                clickCtx.fillRect(xp + d, yp - height, width, height)
-              }
+              clickMap.current.insert({
+                minX: xp + d,
+                maxX: xp + d + width,
+                minY: yp - height,
+                maxY: yp,
+                name,
+                id,
+              })
             }
           }
         })
         ctx.setLineDash([])
       }
-      setCollapsedClickMap(tempCollapsedClickMap)
-      setNameClickMap(tempNameClickMap)
     }, [
       collapsed,
       rowHeight,
@@ -214,105 +221,116 @@ const TreeBlock = observer(
       structures,
     ])
 
-    function hoverCollapsedClickMap(event: React.MouseEvent) {
-      const x = event.nativeEvent.offsetX
+    useEffect(() => {
+      const canvas = mouseoverRef.current
+      if (!canvas) {
+        return
+      }
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        return
+      }
+
+      ctx.resetTransform()
+      ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+      ctx.translate(margin.left, -offsetY)
+
+      if (hoverElt) {
+        const { minX, maxX, minY, maxY } = hoverElt
+
+        ctx.fillStyle = 'rgba(0,0,0,0.1)'
+        ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
+      }
+    }, [hoverElt, margin.left, offsetY, blockSize, treeWidth])
+
+    function hoverBranchClickMap(event: React.MouseEvent) {
+      const x = event.nativeEvent.offsetX - margin.left
       const y = event.nativeEvent.offsetY
-      if (!clickRef.current) {
-        return
-      }
-      const clickCtx = clickRef.current.getContext('2d')
-      if (!clickCtx) {
-        return
-      }
-      const { data } = clickCtx.getImageData(x, y, 1, 1)
-      const entry = collapsedClickMap[`${[data[0], data[1], data[2]]}`]
-      if (!entry) {
-        return
-      }
-      return { ...entry, x, y }
+
+      const [entry] = clickMap.current.search({
+        minX: x,
+        maxX: x + 1,
+        minY: y,
+        maxY: y + 1,
+      })
+
+      return entry && entry.branch
+        ? { ...entry, x: event.clientX, y: event.clientY }
+        : undefined
     }
 
     function hoverNameClickMap(event: React.MouseEvent) {
-      const x = event.nativeEvent.offsetX
+      const x = event.nativeEvent.offsetX - margin.left
       const y = event.nativeEvent.offsetY
-      if (!clickRef.current) {
-        return
-      }
-      const clickCtx = clickRef.current.getContext('2d')
-      if (!clickCtx) {
-        return
-      }
+      const [entry] = clickMap.current.search({
+        minX: x,
+        maxX: x + 1,
+        minY: y,
+        maxY: y + 1,
+      })
 
-      const { data } = clickCtx.getImageData(x, y, 1, 1)
-      const entry = nameClickMap[`${[data[0], data[1], data[2]]}`]
-      if (!entry) {
-        return
-      }
-
-      return { ...entry, x, y }
+      return entry && !entry.branch
+        ? { ...entry, x: event.clientX, y: event.clientY }
+        : undefined
     }
+
     function handleCloseBranchMenu() {
-      setCollapseBranchMenu(undefined)
+      setBranchMenu(undefined)
     }
 
     function handleCloseToggleMenu() {
       setToggleNodeMenu(undefined)
     }
+
     return (
       <>
-        <div
-          ref={collapseBranchMenuRef}
-          style={{
-            position: 'absolute',
-            left: collapseBranchMenu?.x || 0,
-            top: scrollY + offsetY + (collapseBranchMenu?.y || 0),
-          }}
-        />
-        <div
-          ref={toggleNodeMenuRef}
-          style={{
-            position: 'absolute',
-            left: toggleNodeMenu?.x || 0,
-            top: scrollY + offsetY + (toggleNodeMenu?.y || 0),
-          }}
-        />
-
-        {collapseBranchMenu?.id ? (
+        {branchMenu?.id ? (
           <Menu
-            anchorEl={collapseBranchMenuRef.current}
+            anchorReference="anchorPosition"
+            anchorPosition={{
+              left: branchMenu.x,
+              top: branchMenu.y,
+            }}
             transitionDuration={0}
             keepMounted
-            open={Boolean(collapseBranchMenuRef.current)}
+            open={Boolean(branchMenu)}
             onClose={handleCloseBranchMenu}
           >
             <MenuItem dense disabled>
-              {collapseBranchMenu.name}
+              {branchMenu.name}
             </MenuItem>
             <MenuItem
               dense
               onClick={() => {
-                model.toggleCollapsed(collapseBranchMenu.id)
+                model.toggleCollapsed(branchMenu.id)
                 handleCloseBranchMenu()
               }}
             >
-              {model.collapsed.includes(collapseBranchMenu.id)
-                ? 'Expand'
-                : 'Collapse'}
+              {model.collapsed.includes(branchMenu.id) ? 'Expand' : 'Collapse'}
             </MenuItem>
           </Menu>
         ) : null}
+
         {toggleNodeMenu?.id ? (
           <Menu
-            anchorEl={toggleNodeMenuRef.current}
+            anchorReference="anchorPosition"
+            anchorPosition={{
+              top: toggleNodeMenu.y,
+              left: toggleNodeMenu.x,
+            }}
             transitionDuration={0}
             keepMounted
-            open={Boolean(toggleNodeMenuRef.current)}
+            open={Boolean(toggleNodeMenu)}
             onClose={handleCloseToggleMenu}
           >
-            {structures[toggleNodeMenu.id]?.map((entry) => {
+            <MenuItem dense disabled>
+              {toggleNodeMenu.name}
+            </MenuItem>
+            {structures[toggleNodeMenu.name]?.map((entry) => {
               const found = model.selectedStructures.find(
-                (node) => node.id === toggleNodeMenu.id,
+                (node) => node.id === toggleNodeMenu.name,
               )
+
               return !found ? (
                 <MenuItem
                   key={JSON.stringify(entry)}
@@ -320,7 +338,7 @@ const TreeBlock = observer(
                   onClick={() => {
                     model.addStructureToSelection({
                       structure: entry,
-                      id: toggleNodeMenu.id,
+                      id: toggleNodeMenu.name,
                     })
                     handleCloseToggleMenu()
                   }}
@@ -370,30 +388,45 @@ const TreeBlock = observer(
               return
             }
 
-            if (hoverCollapsedClickMap(event) || hoverNameClickMap(event)) {
+            const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
+
+            if (ret) {
               ref.current.style.cursor = 'pointer'
             } else {
               ref.current.style.cursor = 'default'
             }
+
+            setHoverElt(hoverNameClickMap(event))
           }}
           onClick={(event) => {
-            const data = hoverCollapsedClickMap(event)
+            const { clientX: x, clientY: y } = event
+
+            const data = hoverBranchClickMap(event)
+
             if (data?.id) {
-              setCollapseBranchMenu(data)
+              setBranchMenu({ ...data, x, y })
             }
 
             const data2 = hoverNameClickMap(event)
             if (data2?.id) {
-              setToggleNodeMenu(data2)
+              setToggleNodeMenu({ ...data2, x, y })
             }
           }}
           ref={ref}
         />
         <canvas
-          style={{ display: 'none' }}
+          style={{
+            width: treeWidth + padding,
+            height: blockSize,
+            top: scrollY + offsetY,
+            left: 0,
+            position: 'absolute',
+            pointerEvents: 'none',
+            zIndex: 100,
+          }}
           width={treeWidth + padding}
           height={blockSize}
-          ref={clickRef}
+          ref={mouseoverRef}
         />
       </>
     )
