@@ -400,18 +400,10 @@ const MSAModel = types
     },
 
     get inverseStructures() {
-      return Object.fromEntries(
-        Object.entries(this.structures)
-          .map(([key, val]) => {
-            return val.map((pdbEntry) => [
-              pdbEntry.pdb,
-              {
-                id: key,
-              },
-            ])
-          })
-          .flat(),
-      )
+      const map = Object.entries(this.structures)
+        .map(([key, val]) => val.map((pdbEntry) => [pdbEntry.pdb, { id: key }]))
+        .flat()
+      return Object.fromEntries(map)
     },
 
     get msaAreaWidth() {
