@@ -1,3 +1,4 @@
+import Color from 'color'
 export function transform<T>(
   obj: Record<string, T>,
   cb: (arg0: [string, T]) => [string, T],
@@ -26,4 +27,14 @@ export function generateNodeIds(
       generateNodeIds(b, id + '-' + i, depth + 1),
     ),
   }
+}
+
+export function colorContrast(
+  colorScheme: { [key: string]: string },
+  theme: any,
+) {
+  return transform(colorScheme, ([letter, color]) => [
+    letter,
+    theme.palette.getContrastText(Color(color).hex()),
+  ])
 }

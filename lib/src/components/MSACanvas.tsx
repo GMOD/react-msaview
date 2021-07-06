@@ -3,6 +3,7 @@ import { Typography, CircularProgress, useTheme } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
+import { colorContrast } from '../util'
 
 const MSABlock = observer(
   ({
@@ -29,9 +30,9 @@ const MSABlock = observer(
     } = model
     const theme = useTheme()
 
-    const colorContrast = useMemo(
-      () => model.colorContrast(theme),
-      [model, theme],
+    const contrastScheme = useMemo(
+      () => colorContrast(colorScheme, theme),
+      [colorScheme, theme],
     )
 
     const ref = useRef<HTMLCanvasElement>(null)
@@ -96,7 +97,7 @@ const MSABlock = observer(
           for (let i = 0; i < str?.length; i++) {
             const letter = str[i]
             const color = colorScheme[letter.toUpperCase()]
-            const contrast = colorContrast[letter.toUpperCase()] || 'black'
+            const contrast = contrastScheme[letter.toUpperCase()] || 'black'
             const x = i * colWidth + offsetX - (offsetX % colWidth)
 
             //note: -rowHeight/4 matches +rowHeight/4 in tree
@@ -113,7 +114,7 @@ const MSABlock = observer(
       MSA,
       columns,
       colorScheme,
-      colorContrast,
+      contrastScheme,
       bgColor,
       rowHeight,
       colWidth,

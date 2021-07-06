@@ -321,13 +321,6 @@ const MSAModel = types
       return colorSchemes[self.colorSchemeName]
     },
 
-    colorContrast(theme: any) {
-      return transform(this.colorScheme, ([letter, color]) => [
-        letter,
-        theme.palette.getContrastText(Color(color).hex()),
-      ])
-    },
-
     get alignmentDetails() {
       return this.MSA?.getDetails() || {}
     },

@@ -2,6 +2,7 @@ import React, { useRef, useMemo, useEffect } from 'react'
 import { useTheme } from '@material-ui/core'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
+import { colorContrast } from '../util'
 
 const AnnotationBlock = observer(
   ({
@@ -27,9 +28,9 @@ const AnnotationBlock = observer(
     const colorScheme = customColorScheme || modelColorScheme
     const theme = useTheme()
     const ref = useRef<HTMLCanvasElement>(null)
-    const colorContrast = useMemo(
-      () => model.colorContrast(theme),
-      [model, theme],
+    const contrastScheme = useMemo(
+      () => colorContrast(colorScheme, theme),
+      [colorScheme, theme],
     )
     useEffect(() => {
       if (!ref.current) {
@@ -60,7 +61,7 @@ const AnnotationBlock = observer(
           ctx.fillStyle = color || 'white'
           ctx.fillRect(x, 0, colWidth, rowHeight)
           if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-            ctx.fillStyle = colorContrast[letter.toUpperCase()] || 'black'
+            ctx.fillStyle = contrastScheme[letter.toUpperCase()] || 'black'
             ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
           }
         }
