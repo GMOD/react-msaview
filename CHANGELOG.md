@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.2.2
+
+- Improve the clickmap for tree nodes
+- Create template for adding annotation tracks
+- Fix colormap for secondary structure tracks from stockholm files
+
 ## v1.2.1
 
 - Fix blocks not displaying properly in the v1.2.0 release
