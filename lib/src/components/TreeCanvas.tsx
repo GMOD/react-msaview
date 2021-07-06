@@ -19,14 +19,23 @@ interface TooltipData {
   y: number
 }
 
+interface ClickEntry {
+  name: string
+  id: string
+  branch?: boolean
+  minX: number
+  maxX: number
+  minY: number
+  maxY: number
+}
 const TreeBlock = observer(
   ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
     const ref = useRef<HTMLCanvasElement>(null)
-    const clickMap = useRef(new RBush())
+    const clickMap = useRef(new RBush<ClickEntry>())
     const mouseoverRef = useRef<HTMLCanvasElement>(null)
     const [branchMenu, setBranchMenu] = useState<TooltipData>()
     const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
-    const [hoverElt, setHoverElt] = useState<any>()
+    const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
     const {
       hierarchy,

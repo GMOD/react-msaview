@@ -5,7 +5,6 @@ import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
 import { autorun } from 'mobx'
-import Color from 'color'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
 import Stockholm from 'stockholm-js'
@@ -15,7 +14,7 @@ import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 
-import { generateNodeIds, transform, NodeWithIds } from './util'
+import { generateNodeIds, NodeWithIds } from './util'
 import AnnotationTrack from './components/Annotations'
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
