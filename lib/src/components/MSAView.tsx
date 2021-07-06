@@ -63,7 +63,7 @@ const TrackLabel = observer(
   },
 )
 
-const ResizeHandle = observer(({ model }: { model: MsaViewModel }) => {
+const VerticalResizeHandle = observer(({ model }: { model: MsaViewModel }) => {
   const [cropMouseDown, setCropMouseDown] = useState(false)
 
   // this has the effect of just "cropping" the tree area
@@ -101,38 +101,85 @@ const ResizeHandle = observer(({ model }: { model: MsaViewModel }) => {
   )
 })
 
+const HorizontalResizeHandle = observer(
+  ({ model }: { model: MsaViewModel }) => {
+    const [cropMouseDown, setCropMouseDown] = useState(false)
+
+    // this has the effect of just "cropping" the tree area
+    useEffect(() => {
+      if (cropMouseDown) {
+        const listener = (event: MouseEvent) => {
+          model.setHeight(model.height + event.movementY)
+        }
+
+        const listener2 = () => setCropMouseDown(false)
+
+        document.addEventListener('mousemove', listener)
+        document.addEventListener('mouseup', listener2)
+        return () => {
+          document.removeEventListener('mousemove', listener)
+          document.removeEventListener('mouseup', listener2)
+        }
+      }
+      return () => {}
+    }, [cropMouseDown, model])
+
+    return (
+      <div>
+        <div
+          onMouseDown={() => setCropMouseDown(true)}
+          style={{
+            cursor: 'ns-resize',
+            width: '100%',
+            height: resizeHandleWidth,
+            background: `rgba(200,200,200)`,
+            position: 'relative',
+          }}
+        />
+      </div>
+    )
+  },
+)
+
 export default observer(({ model }: { model: MsaViewModel }) => {
   const { done, initialized, treeAreaWidth, height, tracks } = model
 
-  return !initialized ? (
-    <ImportForm model={model} />
-  ) : !done ? (
-    <Typography variant="h4">Loading...</Typography>
-  ) : (
-    <div style={{ height, overflow: 'hidden' }}>
-      <Header model={model} />
-      <div>
-        <div style={{ display: 'flex', height: 20 }}>
-          <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
-            <TreeRuler model={model} />
+  return (
+    <div>
+      {!initialized ? (
+        <ImportForm model={model} />
+      ) : !done ? (
+        <Typography variant="h4">Loading...</Typography>
+      ) : (
+        <div>
+          <div style={{ height, overflow: 'hidden' }}>
+            <Header model={model} />
+            <div>
+              <div style={{ display: 'flex', height: 20 }}>
+                <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+                  <TreeRuler model={model} />
+                </div>
+
+                <div style={{ width: resizeHandleWidth }}></div>
+                <Ruler model={model} />
+              </div>
+
+              {tracks?.map((track) => {
+                return <Track key={track.id} model={model} track={track} />
+              })}
+
+              <div style={{ display: 'flex' }}>
+                <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+                  <TreeCanvas model={model} />
+                </div>
+                <VerticalResizeHandle model={model} />
+                <MSACanvas model={model} />
+              </div>
+            </div>
           </div>
-
-          <div style={{ width: resizeHandleWidth }}></div>
-          <Ruler model={model} />
+          <HorizontalResizeHandle model={model} />
         </div>
-
-        {tracks?.map((track) => {
-          return <Track key={track.id} model={model} track={track} />
-        })}
-
-        <div style={{ display: 'flex' }}>
-          <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
-            <TreeCanvas model={model} />
-          </div>
-          <ResizeHandle model={model} />
-          <MSACanvas model={model} />
-        </div>
-      </div>
+      )}
     </div>
   )
 })

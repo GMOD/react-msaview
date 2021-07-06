@@ -114,6 +114,9 @@ const MSAModel = types
     margin: { left: 20, top: 20 },
   }))
   .actions((self) => ({
+    setHeight(height: number) {
+      self.height = height
+    },
     addStructureToSelection(elt: SnapshotIn<typeof StructureModel>) {
       self.selectedStructures.push(elt)
     },
