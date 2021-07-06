@@ -3,6 +3,7 @@ import { Menu, MenuItem } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 import copy from 'copy-to-clipboard'
+import RBush from 'rbush'
 import { MsaViewModel } from '../model'
 
 const extendBounds = 5
@@ -26,16 +27,19 @@ interface TooltipData {
   x: number
   y: number
 }
+
 const TreeBlock = observer(
   ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
     const ref = useRef<HTMLCanvasElement>(null)
+    const clickMap = useRef(new RBush())
     const collapseBranchMenuRef = useRef<HTMLDivElement>(null)
     const toggleNodeMenuRef = useRef<HTMLDivElement>(null)
-    const clickRef = useRef<HTMLCanvasElement>(null)
+    const mouseoverRef = useRef<HTMLCanvasElement>(null)
     const [collapsedClickMap, setCollapsedClickMap] = useState<ClickMap>({})
     const [nameClickMap, setNameClickMap] = useState<ClickMap>({})
     const [collapseBranchMenu, setCollapseBranchMenu] = useState<TooltipData>()
     const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
+    const [hoverElt, setHoverElt] = useState<any>()
 
     const {
       hierarchy,
@@ -55,21 +59,21 @@ const TreeBlock = observer(
     } = model
 
     useEffect(() => {
-      if (!ref.current || !clickRef.current) {
+      clickMap.current.clear()
+
+      if (!ref.current) {
         return
       }
       const ctx = ref.current.getContext('2d')
-      const clickCtx = clickRef.current.getContext('2d')
-      if (!ctx || !clickCtx) {
+      if (!ctx) {
         return
       }
+
       const tempCollapsedClickMap: ClickMap = {}
       const tempNameClickMap: ClickMap = {}
-      ;[ctx, clickCtx].forEach((context) => {
-        context.resetTransform()
-        context.clearRect(0, 0, treeWidth + padding, blockSize)
-        context.translate(margin.left, -offsetY)
-      })
+      ctx.resetTransform()
+      ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+      ctx.translate(margin.left, -offsetY)
 
       const font = ctx.font
       ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
@@ -84,8 +88,8 @@ const TreeBlock = observer(
 
           const y1 = Math.min(sy, ty)
           const y2 = Math.max(sy, ty)
-          //1d line intersection to check if line crosses block at all, this
-          //is an optimization that allows us to skip drawing most tree links
+          //1d line intersection to check if line crosses block at all, this is
+          //an optimization that allows us to skip drawing most tree links
           //outside the block
           if (offsetY + blockSize >= y1 && y2 >= offsetY) {
             ctx.beginPath()
@@ -119,10 +123,14 @@ const TreeBlock = observer(
               ctx.fill()
               ctx.stroke()
 
-              const col = randomColor()
-              tempCollapsedClickMap[`${col}`] = { id, name }
-              clickCtx.fillStyle = `rgb(${col})`
-              clickCtx.fillRect(x - radius, y - radius, d, d)
+              clickMap.current.insert({
+                minX: x - radius,
+                maxX: x - radius + d,
+                minY: y - radius,
+                maxY: y - radius + d,
+                id,
+                name,
+              })
             }
           })
         }
@@ -155,7 +163,6 @@ const TreeBlock = observer(
 
             const col = randomColor()
             tempNameClickMap[`${col}`] = { id: name, name }
-            clickCtx.fillStyle = `rgb(${col})`
 
             const { width } = ctx.measureText(name)
             const height = ctx.measureText('M').width // use an 'em' for height
@@ -165,10 +172,12 @@ const TreeBlock = observer(
 
             if (!drawTree && !labelsAlignRight) {
               ctx.fillText(name, 0, yp)
-
-              if (hasStructure) {
-                clickCtx.fillRect(0, yp - height, width, height)
-              }
+              clickMap.current.insert({
+                minX: 0,
+                maxX: width,
+                minY: yp - height,
+                maxY: yp,
+              })
             } else if (labelsAlignRight) {
               if (drawTree && !noTree) {
                 const { width } = ctx.measureText(name)
@@ -177,19 +186,20 @@ const TreeBlock = observer(
                 ctx.stroke()
               }
               ctx.fillText(name, treeAreaWidth - margin.left * 2, yp)
-              if (hasStructure) {
-                clickCtx.fillRect(
-                  treeAreaWidth - 30 - width,
-                  yp - height,
-                  width,
-                  height,
-                )
-              }
+              clickMap.current.insert({
+                minX: treeAreaWidth - 30 - width,
+                maxX: treeAreaWidth - 30,
+                minY: yp - height,
+                maxY: yp,
+              })
             } else {
               ctx.fillText(name, xp + d, yp)
-              if (hasStructure) {
-                clickCtx.fillRect(xp + d, yp - height, width, height)
-              }
+              clickMap.current.insert({
+                minX: xp + d,
+                maxX: xp + d + width,
+                minY: yp - height,
+                maxY: yp,
+              })
             }
           }
         })
@@ -214,43 +224,54 @@ const TreeBlock = observer(
       structures,
     ])
 
+    useEffect(() => {
+      const canvas = mouseoverRef.current
+      if (!canvas) {
+        return
+      }
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        return
+      }
+
+      ctx.resetTransform()
+      ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+      ctx.translate(margin.left / 2, -offsetY)
+
+      if (hoverElt) {
+        const { minX, maxX, minY, maxY } = hoverElt
+
+        ctx.fillStyle = 'rgba(0,0,0,0.1)'
+        ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
+      }
+    }, [hoverElt, margin.left, offsetY, blockSize, treeWidth])
+
     function hoverCollapsedClickMap(event: React.MouseEvent) {
       const x = event.nativeEvent.offsetX
       const y = event.nativeEvent.offsetY
-      if (!clickRef.current) {
-        return
-      }
-      const clickCtx = clickRef.current.getContext('2d')
-      if (!clickCtx) {
-        return
-      }
-      const { data } = clickCtx.getImageData(x, y, 1, 1)
-      const entry = collapsedClickMap[`${[data[0], data[1], data[2]]}`]
-      if (!entry) {
-        return
-      }
-      return { ...entry, x, y }
+      const entry = clickMap.current.search({
+        minX: x,
+        maxX: x + 1,
+        minY: y,
+        maxY: y + 1,
+      })
+
+      return entry.length ? { ...entry[0], x, y } : undefined
     }
 
     function hoverNameClickMap(event: React.MouseEvent) {
       const x = event.nativeEvent.offsetX
       const y = event.nativeEvent.offsetY
-      if (!clickRef.current) {
-        return
-      }
-      const clickCtx = clickRef.current.getContext('2d')
-      if (!clickCtx) {
-        return
-      }
+      const entry = clickMap.current.search({
+        minX: x,
+        maxX: x + 1,
+        minY: y,
+        maxY: y + 1,
+      })
 
-      const { data } = clickCtx.getImageData(x, y, 1, 1)
-      const entry = nameClickMap[`${[data[0], data[1], data[2]]}`]
-      if (!entry) {
-        return
-      }
-
-      return { ...entry, x, y }
+      return entry.length ? { ...entry[0], x, y } : undefined
     }
+
     function handleCloseBranchMenu() {
       setCollapseBranchMenu(undefined)
     }
@@ -301,6 +322,7 @@ const TreeBlock = observer(
             </MenuItem>
           </Menu>
         ) : null}
+
         {toggleNodeMenu?.id ? (
           <Menu
             anchorEl={toggleNodeMenuRef.current}
@@ -370,11 +392,15 @@ const TreeBlock = observer(
               return
             }
 
-            if (hoverCollapsedClickMap(event) || hoverNameClickMap(event)) {
+            const ret =
+              hoverNameClickMap(event) || hoverCollapsedClickMap(event)
+            if (ret) {
               ref.current.style.cursor = 'pointer'
             } else {
               ref.current.style.cursor = 'default'
             }
+
+            setHoverElt(hoverNameClickMap(event))
           }}
           onClick={(event) => {
             const data = hoverCollapsedClickMap(event)
@@ -390,10 +416,18 @@ const TreeBlock = observer(
           ref={ref}
         />
         <canvas
-          style={{ display: 'none' }}
+          style={{
+            width: treeWidth + padding,
+            height: blockSize,
+            top: scrollY + offsetY,
+            left: 0,
+            position: 'absolute',
+            pointerEvents: 'none',
+            zIndex: 100,
+          }}
           width={treeWidth + padding}
           height={blockSize}
-          ref={clickRef}
+          ref={mouseoverRef}
         />
       </>
     )
