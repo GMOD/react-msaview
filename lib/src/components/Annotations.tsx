@@ -72,9 +72,9 @@ const AnnotationBlock = observer(
       colWidth,
       rowHeight,
       offsetX,
-      data,
+      contrastScheme,
       colorScheme,
-      colorContrast,
+      data,
     ])
     return (
       <canvas

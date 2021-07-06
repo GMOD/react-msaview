@@ -102,11 +102,7 @@ const MSABlock = observer(
 
             //note: -rowHeight/4 matches +rowHeight/4 in tree
             ctx.fillStyle = bgColor ? contrast : color || 'black'
-            ctx.fillText(
-              letter,
-              Math.floor(x + colWidth / 2),
-              Math.floor(y - rowHeight / 4),
-            )
+            ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
           }
         })
       }

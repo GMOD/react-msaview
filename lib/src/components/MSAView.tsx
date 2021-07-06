@@ -43,9 +43,9 @@ const TrackLabel = observer(
       ctx.resetTransform()
       ctx.clearRect(0, 0, treeAreaWidth, rowHeight)
       ctx.textAlign = 'right'
-      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 7)}px`)
+      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
       ctx.fillStyle = 'black'
-      ctx.fillText(name, width - 20, rowHeight - rowHeight / 8)
+      ctx.fillText(name, width - 20, rowHeight - rowHeight / 4)
     }, [name, width, treeAreaWidth, rowHeight])
     return (
       <canvas
