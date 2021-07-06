@@ -250,8 +250,8 @@ const TreeBlock = observer(
       const [entry] = clickMap.current.search({
         minX: x,
         maxX: x + 1,
-        minY: y,
-        maxY: y + 1,
+        minY: y + offsetY,
+        maxY: y + 1 + offsetY,
       })
 
       return entry && entry.branch
@@ -265,8 +265,8 @@ const TreeBlock = observer(
       const [entry] = clickMap.current.search({
         minX: x,
         maxX: x + 1,
-        minY: y,
-        maxY: y + 1,
+        minY: y + offsetY,
+        maxY: y + 1 + offsetY,
       })
 
       return entry && !entry.branch
