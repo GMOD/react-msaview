@@ -120,6 +120,7 @@ const MSAModel = types
     rowHeight: 20,
     scrollY: 0,
     scrollX: 0,
+    resizeHandleWidth: 5,
     blockSize: 1000,
     mouseRow: types.maybe(types.number),
     mouseCol: types.maybe(types.number),
