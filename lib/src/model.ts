@@ -14,6 +14,8 @@ import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 
+import gff from '@gmod/gff'
+
 import { generateNodeIds, NodeWithIds } from './util'
 import AnnotationTrack from './components/Annotations'
 
@@ -88,18 +90,20 @@ const UniprotTrack = types
       addDisposer(
         self,
         autorun(async () => {
-          const { accession } = self
-          const url = `https://www.uniprot.org/uniprot/${accession}.gff`
-          const response = await fetch(url)
-          if (!response.ok) {
-            self.setError(
-              new Error(
+          try {
+            const { accession } = self
+            const url = `https://www.uniprot.org/uniprot/${accession}.gff`
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(
                 `HTTP ${response.status} ${response.statusText} fetching ${url}`,
-              ),
-            )
+              )
+            }
+            const text = await response.text()
+            self.setData(gff.parseStringSync(text))
+          } catch (e) {
+            self.setError(e)
           }
-          const text = await response.text()
-          self.setData(text)
         }),
       )
     },
@@ -614,7 +618,9 @@ const MSAModel = types
       const domainTracks = self.uniprotTracks.map((track) => ({
         ReactComponent: AnnotationTrack,
         data: track.data,
+        name: track.accession,
       }))
+
       return [
         ...adapterTracks,
         ...domainTracks,
