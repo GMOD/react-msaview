@@ -112,8 +112,14 @@ const MSAModel = types
   .volatile(() => ({
     error: undefined as Error | undefined,
     margin: { left: 20, top: 20 },
+    DialogComponent: undefined as any,
+    DialogProps: undefined as any,
   }))
   .actions((self) => ({
+    setDialogComponent(dlg, props) {
+      self.DialogComponent = dlg
+      self.DialogProps = props
+    },
     setHeight(height: number) {
       self.height = height
     },
@@ -323,6 +329,11 @@ const MSAModel = types
 
     get alignmentDetails() {
       return this.MSA?.getDetails() || {}
+    },
+
+    getRowDetails(name: string) {
+      //@ts-ignore
+      return this.MSA?.getRowDetails(name)
     },
 
     get currentAlignmentName() {

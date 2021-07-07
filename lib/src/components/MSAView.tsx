@@ -181,6 +181,15 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <HorizontalResizeHandle model={model} />
         </div>
       )}
+
+      {model.DialogComponent ? (
+        <model.DialogComponent
+          {...(model.DialogProps || {})}
+          onClose={() => {
+            model.setDialogComponent(undefined, undefined)
+          }}
+        />
+      ) : null}
     </div>
   )
 })

@@ -55,6 +55,14 @@ export default class StockholmMSA {
     }
   }
 
+  getRowDetails(rowName: string) {
+    return {
+      name: rowName,
+      accession: this.MSA.gs?.AC[rowName],
+      dbxref: this.MSA.gs?.DR[rowName],
+    }
+  }
+
   getNames() {
     return Object.keys(this.MSA.seqdata)
   }
