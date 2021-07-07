@@ -66,6 +66,50 @@ const StructureModel = types.model({
   range: types.maybe(types.string),
 })
 
+const UniprotTrack = types
+  .model({
+    accession: types.string,
+    name: types.string,
+  })
+  .volatile(() => ({
+    error: undefined as Error | undefined,
+    data: undefined as string | undefined,
+  }))
+  .actions((self) => ({
+    setError(error: Error) {
+      self.error = error
+    },
+    setData(data: string) {
+      self.data = data
+    },
+  }))
+  .actions((self) => ({
+    afterCreate() {
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { accession } = self
+          const url = `https://www.uniprot.org/uniprot/${accession}.gff`
+          const response = await fetch(url)
+          if (!response.ok) {
+            self.setError(
+              new Error(
+                `HTTP ${response.status} ${response.statusText} fetching ${url}`,
+              ),
+            )
+          }
+          const text = await response.text()
+          self.setData(text)
+        }),
+      )
+    },
+  }))
+  .views((self) => ({
+    get loading() {
+      return !self.data
+    },
+  }))
+
 const MSAModel = types
   .model('MsaView', {
     id: ElementId,
@@ -92,6 +136,7 @@ const MSAModel = types
     msaFilehandle: types.maybe(FileLocation),
     currentAlignment: 0,
     collapsed: types.array(types.string),
+    uniprotTracks: types.array(UniprotTrack),
     data: types.optional(
       types
         .model({
@@ -112,11 +157,14 @@ const MSAModel = types
   .volatile(() => ({
     error: undefined as Error | undefined,
     margin: { left: 20, top: 20 },
-    DialogComponent: undefined as any,
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    DialogComponent: undefined as undefined | React.FC<any>,
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogProps: undefined as any,
   }))
   .actions((self) => ({
-    setDialogComponent(dlg, props) {
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setDialogComponent(dlg: React.FC<any> | undefined, props: any) {
       self.DialogComponent = dlg
       self.DialogProps = props
     },
@@ -495,6 +543,10 @@ const MSAModel = types
     },
   }))
   .actions((self) => ({
+    async addUniprotTrack(node: { name: string; accession: string }) {
+      self.uniprotTracks.push(node)
+    },
+
     doScrollY(deltaY: number) {
       self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 0)
     },
@@ -557,8 +609,14 @@ const MSAModel = types
           ...track,
           ReactComponent: AnnotationTrack,
         })) || []
+
+      const domainTracks = self.uniprotTracks.map((track) => ({
+        ReactComponent: AnnotationTrack,
+        data: track.data,
+      }))
       return [
         ...adapterTracks,
+        ...domainTracks,
         // {
         //   ReactComponent: AnnotationTrack,
         //   data: this.conservation,

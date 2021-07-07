@@ -30,19 +30,125 @@ interface ClickEntry {
   maxY: number
 }
 
-const TreeMenu = observer(({ node, onClose, model }: any) => {
-  const [moreInfo, setMoreInfo] = useState<any>()
-  const { structures } = model
-  const currentAccession = node
-    ? model.getRowDetails(node)?.accession
-    : undefined
-  return (
-    <>
+const TreeMenu = observer(
+  ({
+    node,
+    onClose,
+    model,
+  }: {
+    node: { x: number; y: number; name: string }
+    model: MsaViewModel
+    onClose: () => void
+  }) => {
+    const { structures } = model
+    const nodeDetails = node ? model.getRowDetails(node.name) : undefined
+
+    return (
+      <>
+        <Menu
+          anchorReference="anchorPosition"
+          anchorPosition={{
+            top: node.y,
+            left: node.x,
+          }}
+          transitionDuration={0}
+          keepMounted
+          open={Boolean(node)}
+          onClose={onClose}
+        >
+          <MenuItem dense disabled>
+            {node.name}
+          </MenuItem>
+
+          {structures[node.name]?.map((entry) => {
+            const found = model.selectedStructures.find(
+              (n) => n.id === node.name,
+            )
+
+            return !found ? (
+              <MenuItem
+                key={JSON.stringify(entry)}
+                dense
+                onClick={() => {
+                  model.addStructureToSelection({
+                    structure: entry,
+                    id: node.name,
+                  })
+                  onClose()
+                }}
+              >
+                Add {entry.pdb} selection
+              </MenuItem>
+            ) : (
+              <MenuItem
+                key={JSON.stringify(entry)}
+                dense
+                onClick={() => {
+                  model.removeStructureFromSelection({
+                    structure: entry,
+                    id: node.id,
+                  })
+                  onClose()
+                }}
+              >
+                Remove {entry.pdb} selection
+              </MenuItem>
+            )
+          })}
+          <MenuItem
+            dense
+            onClick={() => {
+              copy(node.name)
+              onClose()
+            }}
+          >
+            Copy name to clipboard
+          </MenuItem>
+          <MenuItem
+            dense
+            onClick={() => {
+              model.setDialogComponent(MoreInfoDlg, {
+                info: model.getRowDetails(node.name),
+              })
+              onClose()
+            }}
+          >
+            More info
+          </MenuItem>
+          {nodeDetails.accession?.map((accession: string) => (
+            <MenuItem
+              dense
+              key={accession}
+              onClick={() => {
+                model.addUniprotTrack({ name: nodeDetails.name, accession })
+                onClose()
+              }}
+            >
+              Open UniProt track ({accession})
+            </MenuItem>
+          ))}
+        </Menu>
+      </>
+    )
+  },
+)
+
+const TreeBranchMenu = observer(
+  ({
+    node,
+    model,
+    onClose,
+  }: {
+    node: { x: number; y: number; name: string; id: string }
+    model: MsaViewModel
+    onClose: () => void
+  }) => {
+    return (
       <Menu
         anchorReference="anchorPosition"
         anchorPosition={{
-          top: node.y,
           left: node.x,
+          top: node.y,
         }}
         transitionDuration={0}
         keepMounted
@@ -52,72 +158,20 @@ const TreeMenu = observer(({ node, onClose, model }: any) => {
         <MenuItem dense disabled>
           {node.name}
         </MenuItem>
-        {structures[node.name]?.map((entry) => {
-          const found = model.selectedStructures.find((n) => n.id === node.name)
-
-          return !found ? (
-            <MenuItem
-              key={JSON.stringify(entry)}
-              dense
-              onClick={() => {
-                model.addStructureToSelection({
-                  structure: entry,
-                  id: node.name,
-                })
-                onClose()
-              }}
-            >
-              Add {entry.pdb} selection
-            </MenuItem>
-          ) : (
-            <MenuItem
-              key={JSON.stringify(entry)}
-              dense
-              onClick={() => {
-                model.removeStructureFromSelection({
-                  structure: entry,
-                  id: node.id,
-                })
-                onClose()
-              }}
-            >
-              Remove {entry.pdb} selection
-            </MenuItem>
-          )
-        })}
         <MenuItem
           dense
           onClick={() => {
-            copy(node.name)
+            model.toggleCollapsed(node.id)
             onClose()
           }}
         >
-          Copy name to clipboard
+          {model.collapsed.includes(node.id) ? 'Expand' : 'Collapse'}
         </MenuItem>
-        <MenuItem
-          dense
-          onClick={() => {
-            model.setDialogComponent(MoreInfoDlg, { info: node })
-            onClose()
-          }}
-        >
-          More info
-        </MenuItem>
-        {currentAccession ? (
-          <MenuItem
-            dense
-            onClick={() => {
-              model.addTrack(currentAccession)
-              onClose()
-            }}
-          >
-            Open {currentAccession} annotations from UniProt
-          </MenuItem>
-        ) : null}
       </Menu>
-    </>
-  )
-})
+    )
+  },
+)
+
 const TreeBlock = observer(
   ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
     const ref = useRef<HTMLCanvasElement>(null)
@@ -366,48 +420,21 @@ const TreeBlock = observer(
         : undefined
     }
 
-    function handleCloseBranchMenu() {
-      setBranchMenu(undefined)
-    }
-
-    function handleCloseToggleMenu() {
-      setToggleNodeMenu(undefined)
-    }
-
     return (
       <>
         {branchMenu?.id ? (
-          <Menu
-            anchorReference="anchorPosition"
-            anchorPosition={{
-              left: branchMenu.x,
-              top: branchMenu.y,
-            }}
-            transitionDuration={0}
-            keepMounted
-            open={Boolean(branchMenu)}
-            onClose={handleCloseBranchMenu}
-          >
-            <MenuItem dense disabled>
-              {branchMenu.name}
-            </MenuItem>
-            <MenuItem
-              dense
-              onClick={() => {
-                model.toggleCollapsed(branchMenu.id)
-                handleCloseBranchMenu()
-              }}
-            >
-              {model.collapsed.includes(branchMenu.id) ? 'Expand' : 'Collapse'}
-            </MenuItem>
-          </Menu>
+          <TreeBranchMenu
+            node={branchMenu}
+            model={model}
+            onClose={() => setBranchMenu(undefined)}
+          />
         ) : null}
 
         {toggleNodeMenu?.id ? (
           <TreeMenu
             node={toggleNodeMenu}
             model={model}
-            onClose={() => handleCloseToggleMenu()}
+            onClose={() => setToggleNodeMenu()}
           />
         ) : null}
 
