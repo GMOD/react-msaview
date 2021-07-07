@@ -366,7 +366,7 @@ const TreeBlock = observer(
             <MenuItem
               dense
               onClick={() => {
-                copy(toggleNodeMenu.id)
+                copy(toggleNodeMenu.name)
                 handleCloseToggleMenu()
               }}
             >
