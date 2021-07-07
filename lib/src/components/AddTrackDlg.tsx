@@ -44,7 +44,7 @@ export default observer(
             }}
           >
             {options.map((option, index) => (
-              <MenuItem key={option + '-' + index} value={option}>
+              <MenuItem key={`${option}-${index}`} value={option}>
                 {option}
               </MenuItem>
             ))}

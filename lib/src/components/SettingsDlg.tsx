@@ -32,9 +32,9 @@ export default observer(
       colorSchemeName,
       noTree,
     } = model
-    const [rowHeight, setRowHeight] = useState('' + rowHeightInit)
-    const [colWidth, setColWidth] = useState('' + colWidthInit)
-    const [treeWidth, setTreeWidth] = useState('' + treeWidthInit)
+    const [rowHeight, setRowHeight] = useState(`${rowHeightInit}`)
+    const [colWidth, setColWidth] = useState(`${colWidthInit}`)
+    const [treeWidth, setTreeWidth] = useState(`${treeWidthInit}`)
 
     function error(n: string) {
       return Number.isNaN(+n) || +n < 0

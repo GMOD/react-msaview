@@ -24,7 +24,7 @@ export function generateNodeIds(
     ...tree,
     id,
     branchset: tree.branchset?.map((b, i) =>
-      generateNodeIds(b, id + '-' + i, depth + 1),
+      generateNodeIds(b, `${id}-${i}`, depth + 1),
     ),
   }
 }

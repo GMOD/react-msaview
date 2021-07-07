@@ -98,7 +98,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           }}
         >
           {alignmentNames.map((option, index) => (
-            <option key={option + '-' + index} value={index}>
+            <option key={`${option}-${index}`} value={index}>
               {option}
             </option>
           ))}
