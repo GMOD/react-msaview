@@ -23,6 +23,7 @@ const AnnotationBlock = observer(
       colorScheme: modelColorScheme,
       colWidth,
       rowHeight,
+      highResScaleFactor,
     } = model
 
     const colorScheme = customColorScheme || modelColorScheme
@@ -44,6 +45,7 @@ const AnnotationBlock = observer(
 
       // this logic is very similar to MSACanvas
       ctx.resetTransform()
+      ctx.scale(highResScaleFactor, highResScaleFactor)
       ctx.clearRect(0, 0, blockSize, rowHeight)
       ctx.translate(-offsetX, 0)
       ctx.textAlign = 'center'
@@ -79,8 +81,8 @@ const AnnotationBlock = observer(
     return (
       <canvas
         ref={ref}
-        height={rowHeight}
-        width={blockSize}
+        height={rowHeight * highResScaleFactor}
+        width={blockSize * highResScaleFactor}
         style={{
           position: 'absolute',
           left: scrollX + offsetX,

@@ -52,6 +52,7 @@ const TreeBlock = observer(
       drawTree,
       treeAreaWidth,
       structures,
+      highResScaleFactor,
     } = model
 
     useEffect(() => {
@@ -66,6 +67,7 @@ const TreeBlock = observer(
       }
 
       ctx.resetTransform()
+      ctx.scale(highResScaleFactor, highResScaleFactor)
       ctx.clearRect(0, 0, treeWidth + padding, blockSize)
       ctx.translate(margin.left, -offsetY)
 
@@ -374,8 +376,8 @@ const TreeBlock = observer(
         ) : null}
 
         <canvas
-          width={treeWidth + padding}
-          height={blockSize}
+          width={(treeWidth + padding) * highResScaleFactor}
+          height={blockSize * highResScaleFactor}
           style={{
             width: treeWidth + padding,
             height: blockSize,

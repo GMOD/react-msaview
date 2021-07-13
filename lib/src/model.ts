@@ -86,6 +86,7 @@ const MSAModel = types
     bgColor: true,
     drawTree: true,
     drawNodeBubbles: true,
+    highResScaleFactor: 2,
     colorSchemeName: 'maeditor',
     treeFilehandle: types.maybe(FileLocation),
     msaFilehandle: types.maybe(FileLocation),

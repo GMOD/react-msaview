@@ -27,6 +27,7 @@ const MSABlock = observer(
       colorScheme,
       blockSize,
       mouseCol,
+      highResScaleFactor,
     } = model
     const theme = useTheme()
 
@@ -48,6 +49,7 @@ const MSABlock = observer(
       }
 
       ctx.resetTransform()
+      ctx.scale(highResScaleFactor, highResScaleFactor)
       ctx.clearRect(0, 0, blockSize, blockSize)
       ctx.translate(-offsetX, rowHeight / 2 - offsetY)
       ctx.textAlign = 'center'
@@ -162,8 +164,8 @@ const MSABlock = observer(
             )
           }}
           onMouseLeave={() => model.setMousePos()}
-          width={blockSize}
-          height={blockSize}
+          width={blockSize * highResScaleFactor}
+          height={blockSize * highResScaleFactor}
           style={{
             position: 'absolute',
             top: scrollY + offsetY,
