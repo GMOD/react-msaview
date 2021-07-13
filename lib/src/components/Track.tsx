@@ -5,7 +5,7 @@ import { MsaViewModel } from '../model'
 export const TrackLabel = observer(
   ({ name, model }: { model: MsaViewModel; name: string }) => {
     const ref = useRef<HTMLCanvasElement>(null)
-    const { rowHeight, treeAreaWidth } = model
+    const { rowHeight, treeAreaWidth, highResScaleFactor } = model
     const width = treeAreaWidth
 
     useEffect(() => {
@@ -15,6 +15,7 @@ export const TrackLabel = observer(
       if (!ctx) return
 
       ctx.resetTransform()
+      ctx.scale(highResScaleFactor, highResScaleFactor)
       ctx.clearRect(0, 0, treeAreaWidth, rowHeight)
       ctx.textAlign = 'right'
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
@@ -24,8 +25,8 @@ export const TrackLabel = observer(
     return (
       <canvas
         ref={ref}
-        width={width}
-        height={rowHeight}
+        width={width * highResScaleFactor}
+        height={rowHeight * highResScaleFactor}
         style={{
           width,
           height: rowHeight,
