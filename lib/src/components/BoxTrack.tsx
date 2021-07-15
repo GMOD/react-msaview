@@ -26,8 +26,6 @@ const AnnotationBlock = observer(
       highResScaleFactor,
     } = model
 
-    console.log({ data })
-
     const colorScheme = customColorScheme || modelColorScheme
     const theme = useTheme()
     const ref = useRef<HTMLCanvasElement>(null)
@@ -56,20 +54,20 @@ const AnnotationBlock = observer(
       const b = blockSize
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
       const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
-      const str = data?.slice(xStart, xEnd)
-      for (let i = 0; str && i < str.length; i++) {
-        const letter = str[i]
-        const color = colorScheme[letter.toUpperCase()]
-        if (bgColor) {
-          const x = i * colWidth + offsetX - (offsetX % colWidth)
-          ctx.fillStyle = color || 'white'
-          ctx.fillRect(x, 0, colWidth, rowHeight)
-          if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-            ctx.fillStyle = contrastScheme[letter.toUpperCase()] || 'black'
-            ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
-          }
-        }
-      }
+      // const str = data?.slice(xStart, xEnd)
+      // for (let i = 0; str && i < str.length; i++) {
+      //   const letter = str[i]
+      //   const color = colorScheme[letter.toUpperCase()]
+      //   if (bgColor) {
+      //     const x = i * colWidth + offsetX - (offsetX % colWidth)
+      //     ctx.fillStyle = color || 'white'
+      //     ctx.fillRect(x, 0, colWidth, rowHeight)
+      //     if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
+      //       ctx.fillStyle = contrastScheme[letter.toUpperCase()] || 'black'
+      //       ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
+      //     }
+      //   }
+      // }
     }, [
       bgColor,
       blockSize,
@@ -81,7 +79,7 @@ const AnnotationBlock = observer(
       highResScaleFactor,
       data,
     ])
-    return (
+    return !data ? null : (
       <canvas
         ref={ref}
         height={rowHeight * highResScaleFactor}
@@ -116,7 +114,7 @@ const AnnotationTrack = observer(
           overflow: 'hidden',
         }}
       >
-        {blocksX.map((bx) => (
+        {blocksX.map(bx => (
           <AnnotationBlock
             customColorScheme={customColorScheme}
             key={bx}

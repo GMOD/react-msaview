@@ -24,7 +24,7 @@ function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   //@ts-ignore
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
   if (d.children) {
-    d.children.forEach((d) => {
+    d.children.forEach(d => {
       setBrLength(d, y0, k)
     })
   }
@@ -37,8 +37,8 @@ function maxLength(d: HierarchyNode<any>): number {
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
 function getRoot(tree: any) {
-  return hierarchy(tree, (d) => d.branchset)
-    .sum((d) => (d.branchset ? 0 : 1))
+  return hierarchy(tree, d => d.branchset)
+    .sum(d => (d.branchset ? 0 : 1))
     .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 }
 
@@ -49,7 +49,7 @@ function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
   } else if (branchset) {
     return {
       ...rest,
-      branchset: branchset.map((b) => filter(b, collapsed)),
+      branchset: branchset.map(b => filter(b, collapsed)),
     }
   } else {
     return tree
@@ -78,7 +78,7 @@ const UniprotTrack = types
     error: undefined as Error | undefined,
     data: undefined as any | undefined,
   }))
-  .actions((self) => ({
+  .actions(self => ({
     setError(error: Error) {
       self.error = error
     },
@@ -86,7 +86,7 @@ const UniprotTrack = types
       self.data = data
     },
   }))
-  .actions((self) => ({
+  .actions(self => ({
     afterCreate() {
       addDisposer(
         self,
@@ -110,7 +110,7 @@ const UniprotTrack = types
       )
     },
   }))
-  .views((self) => ({
+  .views(self => ({
     get loading() {
       return !self.data
     },
@@ -150,7 +150,7 @@ const MSAModel = types
           tree: types.maybe(types.string),
           msa: types.maybe(types.string),
         })
-        .actions((self) => ({
+        .actions(self => ({
           setTree(tree?: string) {
             self.tree = tree
           },
@@ -169,7 +169,7 @@ const MSAModel = types
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogProps: undefined as any,
   }))
-  .actions((self) => ({
+  .actions(self => ({
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     setDialogComponent(dlg: React.FC<any> | undefined, props: any) {
       self.DialogComponent = dlg
@@ -182,7 +182,7 @@ const MSAModel = types
       self.selectedStructures.push(elt)
     },
     removeStructureFromSelection(elt: SnapshotIn<typeof StructureModel>) {
-      const r = self.selectedStructures.find((node) => node.id === elt.id)
+      const r = self.selectedStructures.find(node => node.id === elt.id)
       if (r) {
         self.selectedStructures.remove(r)
       }
@@ -191,7 +191,7 @@ const MSAModel = types
       id: string
       structure: { startPos: number; endPos: number; pdb: string }
     }) {
-      const r = self.selectedStructures.find((node) => node.id === elt.id)
+      const r = self.selectedStructures.find(node => node.id === elt.id)
       if (r) {
         self.selectedStructures.remove(r)
       } else {
@@ -313,7 +313,7 @@ const MSAModel = types
       )
     },
   }))
-  .views((self) => {
+  .views(self => {
     let oldBlocksX: number[] = []
     let oldBlocksY: number[] = []
     let oldValX = 0
@@ -370,9 +370,9 @@ const MSAModel = types
       },
     }
   })
-  .views((self) => ({
+  .views(self => ({
     get blocks2d() {
-      return self.blocksY.map((by) => self.blocksX.map((bx) => [bx, by])).flat()
+      return self.blocksY.map(by => self.blocksX.map(bx => [bx, by])).flat()
     },
     get done() {
       return self.initialized && (self.data.msa || self.data.tree)
@@ -467,7 +467,7 @@ const MSAModel = types
 
     get inverseStructures() {
       const map = Object.entries(this.structures)
-        .map(([key, val]) => val.map((pdbEntry) => [pdbEntry.pdb, { id: key }]))
+        .map(([key, val]) => val.map(pdbEntry => [pdbEntry.pdb, { id: key }]))
         .flat()
       return Object.fromEntries(map)
     },
@@ -502,7 +502,7 @@ const MSAModel = types
       return this.hierarchy
         .leaves()
         .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
-        .filter((f) => !!f[1])
+        .filter(f => !!f[1])
     },
 
     get columns(): Record<string, string> {
@@ -513,7 +513,7 @@ const MSAModel = types
     },
 
     get columns2d() {
-      const strs = this.rows.map((r) => r[1])
+      const strs = this.rows.map(r => r[1])
       const ret: string[] = []
       for (let i = 0; i < strs.length; i++) {
         let s = ''
@@ -549,8 +549,8 @@ const MSAModel = types
       return this.root.leaves().length * self.rowHeight
     },
   }))
-  .actions((self) => ({
-    async addUniprotTrack(node: { name: string; accession: string }) {
+  .actions(self => ({
+    addUniprotTrack(node: { name: string; accession: string }) {
       self.uniprotTracks.push(node)
     },
 
@@ -583,7 +583,7 @@ const MSAModel = types
       }
     },
   }))
-  .views((self) => ({
+  .views(self => ({
     get secondaryStructureConsensus() {
       return self.MSA?.secondaryStructureConsensus
     },
@@ -606,21 +606,18 @@ const MSAModel = types
       return ['a']
     },
 
-    get tracks(): {
-      id: string
-      name: string
-      customColorScheme?: Record<string, string>
-    }[] {
+    get tracks() {
       const adapterTracks =
-        self.MSA?.tracks.map((track: any) => ({
+        self.MSA?.tracks.map(track => ({
           ...track,
           ReactComponent: TextTrack,
         })) || []
 
-      const domainTracks = self.uniprotTracks.map((track) => ({
+      const domainTracks = self.uniprotTracks.map(track => ({
         ReactComponent: BoxTrack,
         data: track.data,
         name: track.accession,
+        id: track.accession,
       }))
 
       return [...adapterTracks, ...domainTracks]

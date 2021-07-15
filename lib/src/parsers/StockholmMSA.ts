@@ -99,7 +99,7 @@ export default class StockholmMSA {
       : {
           id: 'root',
           noTree: true,
-          branchset: this.getNames().map((name) => ({
+          branchset: this.getNames().map(name => ({
             id: name,
             name,
           })),

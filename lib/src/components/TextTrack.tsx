@@ -114,7 +114,7 @@ const AnnotationTrack = observer(
           overflow: 'hidden',
         }}
       >
-        {blocksX.map((bx) => (
+        {blocksX.map(bx => (
           <AnnotationBlock
             customColorScheme={customColorScheme}
             key={bx}

@@ -15,7 +15,7 @@ export default class ClustalMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.alns.find((aln) => aln.id === name)?.seq.split('')
+    return this.MSA.alns.find(aln => aln.id === name)?.seq.split('')
   }
 
   getWidth() {
@@ -27,7 +27,7 @@ export default class ClustalMSA {
   }
 
   getNames() {
-    return this.MSA.alns.map((aln) => aln.id)
+    return this.MSA.alns.map(aln => aln.id)
   }
 
   getStructures() {
@@ -42,7 +42,7 @@ export default class ClustalMSA {
     return {
       id: 'root',
       noTree: true,
-      branchset: this.getNames().map((name) => ({ id: name, name })),
+      branchset: this.getNames().map(name => ({ id: name, name })),
     }
   }
 

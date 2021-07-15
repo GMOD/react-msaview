@@ -91,7 +91,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         <Select
           native
           value={currentAlignment}
-          onChange={(event) => {
+          onChange={event => {
             model.setCurrentAlignment(+(event.target.value as string))
             model.setScrollX(0)
             model.setScrollY(0)

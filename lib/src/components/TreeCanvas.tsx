@@ -59,12 +59,20 @@ const TreeMenu = observer(
             {node.name}
           </MenuItem>
 
-          {structures[node.name]?.map((entry) => {
-            const found = model.selectedStructures.find(
-              (n) => n.id === node.name,
-            )
+          <MenuItem
+            dense
+            onClick={() => {
+              model.setDialogComponent(MoreInfoDlg, {
+                info: model.getRowDetails(node.name),
+              })
+              onClose()
+            }}
+          >
+            More info...
+          </MenuItem>
 
-            return !found ? (
+          {structures[node.name]?.map(entry => {
+            return !model.selectedStructures.find(n => n.id === node.name) ? (
               <MenuItem
                 key={JSON.stringify(entry)}
                 dense
@@ -76,7 +84,7 @@ const TreeMenu = observer(
                   onClose()
                 }}
               >
-                Add {entry.pdb} selection
+                Add PDB to selection ({entry.pdb})
               </MenuItem>
             ) : (
               <MenuItem
@@ -90,22 +98,11 @@ const TreeMenu = observer(
                   onClose()
                 }}
               >
-                Remove {entry.pdb} selection
+                Remove PDB from selection ({entry.pdb})
               </MenuItem>
             )
           })}
 
-          <MenuItem
-            dense
-            onClick={() => {
-              model.setDialogComponent(MoreInfoDlg, {
-                info: model.getRowDetails(node.name),
-              })
-              onClose()
-            }}
-          >
-            More info
-          </MenuItem>
           {nodeDetails.accession?.map((accession: string) => (
             <MenuItem
               dense
@@ -232,7 +229,7 @@ const TreeBlock = observer(
         })
 
         if (drawNodeBubbles) {
-          hierarchy.descendants().forEach((node) => {
+          hierarchy.descendants().forEach(node => {
             const val = showBranchLen ? 'len' : 'y'
             const {
               //@ts-ignore
@@ -275,7 +272,7 @@ const TreeBlock = observer(
         } else {
           ctx.textAlign = 'start'
         }
-        hierarchy.leaves().forEach((node) => {
+        hierarchy.leaves().forEach(node => {
           const {
             //@ts-ignore
             x: y,
@@ -439,7 +436,7 @@ const TreeBlock = observer(
             left: 0,
             position: 'absolute',
           }}
-          onMouseMove={(event) => {
+          onMouseMove={event => {
             if (!ref.current) {
               return
             }
@@ -454,7 +451,7 @@ const TreeBlock = observer(
 
             setHoverElt(hoverNameClickMap(event))
           }}
-          onClick={(event) => {
+          onClick={event => {
             const { clientX: x, clientY: y } = event
 
             const data = hoverBranchClickMap(event)
@@ -597,7 +594,7 @@ const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
         width: treeWidth + padding,
       }}
     >
-      {blocksY.map((block) => (
+      {blocksY.map(block => (
         <TreeBlock key={block} model={model} offsetY={block} />
       ))}
     </div>

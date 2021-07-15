@@ -44,9 +44,9 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 <Ruler model={model} />
               </div>
 
-              {tracks?.map((track) => {
-                return <Track key={track.id} model={model} track={track} />
-              })}
+              {tracks?.map(track => (
+                <Track key={track.id} model={model} track={track} />
+              ))}
 
               <div style={{ display: 'flex' }}>
                 <div style={{ overflow: 'hidden', width: treeAreaWidth }}>

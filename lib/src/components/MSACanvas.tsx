@@ -66,7 +66,7 @@ const MSABlock = observer(
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
       const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
       const visibleLeaves = leaves.slice(yStart, yEnd)
-      visibleLeaves.forEach((node) => {
+      visibleLeaves.forEach(node => {
         const {
           //@ts-ignore
           x: y,
@@ -87,7 +87,7 @@ const MSABlock = observer(
       })
 
       if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-        visibleLeaves.forEach((node) => {
+        visibleLeaves.forEach(node => {
           const {
             //@ts-ignore
             x: y,
@@ -151,7 +151,7 @@ const MSABlock = observer(
       <div style={{ position: 'relative' }}>
         <canvas
           ref={ref}
-          onMouseMove={(event) => {
+          onMouseMove={event => {
             if (!ref.current) {
               return
             }
