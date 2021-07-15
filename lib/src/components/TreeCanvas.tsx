@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Menu, MenuItem } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
-import copy from 'copy-to-clipboard'
 import RBush from 'rbush'
 import { MsaViewModel } from '../model'
 import MoreInfoDlg from './MoreInfoDlg'
@@ -95,15 +94,7 @@ const TreeMenu = observer(
               </MenuItem>
             )
           })}
-          <MenuItem
-            dense
-            onClick={() => {
-              copy(node.name)
-              onClose()
-            }}
-          >
-            Copy name to clipboard
-          </MenuItem>
+
           <MenuItem
             dense
             onClick={() => {

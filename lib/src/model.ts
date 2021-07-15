@@ -75,7 +75,7 @@ const UniprotTrack = types
   })
   .volatile(() => ({
     error: undefined as Error | undefined,
-    data: undefined as string | undefined,
+    data: undefined as any | undefined,
   }))
   .actions((self) => ({
     setError(error: Error) {
@@ -100,7 +100,8 @@ const UniprotTrack = types
               )
             }
             const text = await response.text()
-            self.setData(gff.parseStringSync(text))
+            const result = gff.parseStringSync(text)
+            self.setData(result)
           } catch (e) {
             self.setError(e)
           }
