@@ -1,7 +1,7 @@
 import RBush from 'rbush'
 
 export default class Layout {
-  private rectangles: Map<
+  public rectangles: Map<
     string,
     {
       minY: number
@@ -9,6 +9,7 @@ export default class Layout {
       minX: number
       maxX: number
       id: string
+      data: any
     }
   >
 
@@ -34,13 +35,14 @@ export default class Layout {
 
   /**
    * @returns top position for the rect, or Null if laying
-   *  out the rect would exceed maxHeight
+   *  out the rect would exceed maxHeighe
    */
   addRect(
     id: string,
     left: number,
     right: number,
     height: number,
+    data: any,
   ): number | null {
     // add to rbush
     const existingRecord = this.rectangles.get(id)
@@ -58,7 +60,7 @@ export default class Layout {
       }) &&
       currHeight <= this.maxHeight
     ) {
-      currHeight += 3
+      currHeight += 1
     }
 
     const record = {
@@ -67,6 +69,7 @@ export default class Layout {
       maxX: right,
       maxY: currHeight + height,
       id,
+      data,
     }
     this.rbush.insert(record)
     this.rectangles.set(id, record)

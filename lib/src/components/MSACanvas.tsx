@@ -110,6 +110,7 @@ const MSABlock = observer(
       }
     }, [
       MSA,
+      highResScaleFactor,
       columns,
       colorScheme,
       contrastScheme,

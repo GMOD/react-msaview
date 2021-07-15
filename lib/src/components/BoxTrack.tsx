@@ -1,11 +1,8 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useMemo, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
-import RBush from 'rbush'
+import Layout from '../layout'
 
-function getLayout(data) {
-  const rbush = new RBush()
-}
 const AnnotationBlock = observer(
   ({
     track,
@@ -16,17 +13,19 @@ const AnnotationBlock = observer(
     model: MsaViewModel
     offsetX: number
   }) => {
-    const {
-      blockSize,
-      colorScheme: modelColorScheme,
-      colWidth,
-      rowHeight,
-      highResScaleFactor,
-      scrollX,
-    } = model
-    const { customColorScheme, rowName, data } = track
+    const { blockSize, colWidth, rowHeight, highResScaleFactor, scrollX } =
+      model
+    const { rowName, height, data } = track
+    const layout = useMemo(() => {
+      const temp = new Layout()
+      data?.forEach(([feature], index) => {
+        const s = model.bpToPx(rowName, feature.start)
+        const e = model.bpToPx(rowName, feature.end)
+        temp.addRect(index, s, e, rowHeight * 0.75, feature)
+      })
+      return temp
+    }, [rowHeight, data, rowName, model])
 
-    const colorScheme = customColorScheme || modelColorScheme
     const ref = useRef<HTMLCanvasElement>(null)
     const labelRef = useRef<HTMLCanvasElement>(null)
 
@@ -40,7 +39,6 @@ const AnnotationBlock = observer(
         return
       }
 
-      // this logic is very similar to MSACanvas
       ctx.resetTransform()
       ctx.scale(highResScaleFactor, highResScaleFactor)
       ctx.clearRect(0, 0, blockSize, rowHeight)
@@ -50,21 +48,21 @@ const AnnotationBlock = observer(
 
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
       ctx.fillStyle = 'goldenrod'
-      data.forEach(([feature]) => {
-        const s = model.bpToPx(rowName, feature.start)
-        const e = model.bpToPx(rowName, feature.end)
+      layout.rectangles.forEach(value => {
+        const { minX, maxX, minY, maxY } = value
 
-        const x1 = (s - xStart) * colWidth + offsetX - (offsetX % colWidth)
-        const x2 = (e - xStart) * colWidth + offsetX - (offsetX % colWidth)
+        const x1 = (minX - xStart) * colWidth + offsetX - (offsetX % colWidth)
+        const x2 = (maxX - xStart) * colWidth + offsetX - (offsetX % colWidth)
 
         if (x2 - x1 > 0) {
-          ctx.fillRect(x1, 0, x2 - x1, rowHeight / 2)
+          ctx.fillRect(x1, minY, x2 - x1, maxY - minY)
         }
       })
     }, [
       rowName,
       blockSize,
       colWidth,
+      layout.rectangles,
       model,
       rowHeight,
       offsetX,
@@ -91,20 +89,20 @@ const AnnotationBlock = observer(
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
 
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
-      data.forEach(([feature]) => {
-        const note = feature.attributes.Note?.[0]
-        const s = model.bpToPx(rowName, feature.start)
-        const e = model.bpToPx(rowName, feature.end)
+      ctx.fillStyle = 'black'
+      ctx.textAlign = 'left'
+      layout.rectangles.forEach(value => {
+        const { minX, maxX, maxY, data: feature } = value
 
-        const x1 = (s - xStart) * colWidth + offsetX - (offsetX % colWidth)
-        const x2 = (e - xStart) * colWidth + offsetX - (offsetX % colWidth)
+        const x1 = (minX - xStart) * colWidth + offsetX - (offsetX % colWidth)
+        const x2 = (maxX - xStart) * colWidth + offsetX - (offsetX % colWidth)
 
         if (x2 - x1 > 0) {
-          ctx.fillStyle = 'black'
+          const note = feature.attributes?.Note?.[0]
           ctx.fillText(
             `${feature.type}${note ? ` - ${note}` : ''}`,
             Math.max(scrollX - offsetX, x1),
-            rowHeight,
+            maxY,
           )
         }
       })
@@ -113,6 +111,7 @@ const AnnotationBlock = observer(
       colWidth,
       scrollX,
       highResScaleFactor,
+      layout.rectangles,
       offsetX,
       rowName,
       data,
@@ -124,24 +123,24 @@ const AnnotationBlock = observer(
       <>
         <canvas
           ref={ref}
-          height={rowHeight * highResScaleFactor}
+          height={height * highResScaleFactor}
           width={blockSize * highResScaleFactor}
           style={{
             position: 'absolute',
             left: scrollX + offsetX,
             width: blockSize,
-            height: rowHeight,
+            height,
           }}
         />
         <canvas
           ref={labelRef}
-          height={rowHeight * highResScaleFactor}
+          height={height * highResScaleFactor}
           width={blockSize * highResScaleFactor}
           style={{
             position: 'absolute',
             left: scrollX + offsetX,
             width: blockSize,
-            height: rowHeight,
+            height,
           }}
         />
       </>
@@ -150,12 +149,13 @@ const AnnotationBlock = observer(
 )
 const AnnotationTrack = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
-    const { blocksX, msaAreaWidth, rowHeight } = model
+    const { blocksX, msaAreaWidth } = model
+    const { height } = track
     return (
       <div
         style={{
           position: 'relative',
-          height: rowHeight,
+          height,
           width: msaAreaWidth,
           overflow: 'hidden',
         }}
