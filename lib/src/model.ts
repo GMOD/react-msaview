@@ -17,7 +17,8 @@ import colorSchemes from './colorSchemes'
 import gff from '@gmod/gff'
 
 import { generateNodeIds, NodeWithIds } from './util'
-import AnnotationTrack from './components/Annotations'
+import TextTrack from './components/TextTrack'
+import BoxTrack from './components/BoxTrack'
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   //@ts-ignore
@@ -613,23 +614,16 @@ const MSAModel = types
       const adapterTracks =
         self.MSA?.tracks.map((track: any) => ({
           ...track,
-          ReactComponent: AnnotationTrack,
+          ReactComponent: TextTrack,
         })) || []
 
       const domainTracks = self.uniprotTracks.map((track) => ({
-        ReactComponent: AnnotationTrack,
+        ReactComponent: BoxTrack,
         data: track.data,
         name: track.accession,
       }))
 
-      return [
-        ...adapterTracks,
-        ...domainTracks,
-        // {
-        //   ReactComponent: AnnotationTrack,
-        //   data: this.conservation,
-        // },
-      ]
+      return [...adapterTracks, ...domainTracks]
     },
   }))
 

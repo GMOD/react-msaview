@@ -76,6 +76,7 @@ const AnnotationBlock = observer(
       offsetX,
       contrastScheme,
       colorScheme,
+      highResScaleFactor,
       data,
     ])
     return (
