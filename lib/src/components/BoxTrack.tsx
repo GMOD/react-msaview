@@ -6,15 +6,13 @@ import { colorContrast } from '../util'
 
 const AnnotationBlock = observer(
   ({
-    data,
+    track,
     model,
     offsetX,
-    customColorScheme,
   }: {
-    data: string | undefined
+    track: any
     model: MsaViewModel
     offsetX: number
-    customColorScheme: Record<string, string>
   }) => {
     const {
       blockSize,
@@ -25,6 +23,7 @@ const AnnotationBlock = observer(
       rowHeight,
       highResScaleFactor,
     } = model
+    const { customColorScheme, rowName, data } = track
 
     const colorScheme = customColorScheme || modelColorScheme
     const theme = useTheme()
@@ -33,6 +32,7 @@ const AnnotationBlock = observer(
       () => colorContrast(colorScheme, theme),
       [colorScheme, theme],
     )
+
     useEffect(() => {
       if (!ref.current) {
         return
@@ -53,25 +53,30 @@ const AnnotationBlock = observer(
 
       const b = blockSize
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
-      const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
-      // const str = data?.slice(xStart, xEnd)
-      // for (let i = 0; str && i < str.length; i++) {
-      //   const letter = str[i]
-      //   const color = colorScheme[letter.toUpperCase()]
-      //   if (bgColor) {
-      //     const x = i * colWidth + offsetX - (offsetX % colWidth)
-      //     ctx.fillStyle = color || 'white'
-      //     ctx.fillRect(x, 0, colWidth, rowHeight)
-      //     if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-      //       ctx.fillStyle = contrastScheme[letter.toUpperCase()] || 'black'
-      //       ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
-      //     }
-      //   }
-      // }
+      data.slice(0, 10).forEach(([feature]) => {
+        const s = model.bpToPx(rowName, feature.start)
+        const e = model.bpToPx(rowName, feature.end)
+
+        const x1 = (s - xStart) * colWidth + offsetX - (offsetX % colWidth)
+        const x2 = (e - xStart) * colWidth + offsetX - (offsetX % colWidth)
+
+        if (x2 - x1 > 0) {
+          ctx.fillStyle = 'red'
+          ctx.fillRect(x1, 0, x2 - x1, rowHeight / 2)
+          ctx.fillStyle = 'black'
+          ctx.fillText(
+            `${feature.type} - ${feature.attributes.Note[0]}`,
+            x1,
+            rowHeight,
+          )
+        }
+      })
     }, [
       bgColor,
+      rowName,
       blockSize,
       colWidth,
+      model,
       rowHeight,
       offsetX,
       contrastScheme,
@@ -95,15 +100,7 @@ const AnnotationBlock = observer(
   },
 )
 const AnnotationTrack = observer(
-  ({
-    data,
-    model,
-    customColorScheme,
-  }: {
-    customColorScheme: Record<string, string>
-    data: string | undefined
-    model: MsaViewModel
-  }) => {
+  ({ model, track }: { model: MsaViewModel; track: any }) => {
     const { blocksX, msaAreaWidth, rowHeight } = model
     return (
       <div
@@ -115,13 +112,7 @@ const AnnotationTrack = observer(
         }}
       >
         {blocksX.map(bx => (
-          <AnnotationBlock
-            customColorScheme={customColorScheme}
-            key={bx}
-            data={data}
-            model={model}
-            offsetX={bx}
-          />
+          <AnnotationBlock track={track} key={bx} model={model} offsetX={bx} />
         ))}
       </div>
     )

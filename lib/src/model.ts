@@ -59,6 +59,7 @@ function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
 function clamp(min: number, num: number, max: number) {
   return Math.min(Math.max(num, min), max)
 }
+
 const StructureModel = types.model({
   id: types.identifier,
   structure: types.model({
@@ -388,7 +389,12 @@ const MSAModel = types
 
     getRowDetails(name: string) {
       //@ts-ignore
-      return this.MSA?.getRowDetails(name)
+      const details = this.MSA?.getRowDetails(name)
+      const matches = name.match(/\S+\/(\d+)-(\d+)/)
+      return {
+        ...details,
+        ...(matches && { range: { start: +matches[1], end: +matches[2] } }),
+      }
     },
 
     get currentAlignmentName() {
@@ -618,9 +624,36 @@ const MSAModel = types
         data: track.data,
         name: track.accession,
         id: track.accession,
+        rowName: track.name,
       }))
 
       return [...adapterTracks, ...domainTracks]
+    },
+
+    bpToPx(rowName: string, position: number) {
+      const index = self.rowNames.indexOf(rowName)
+      const [, row] = self.rows[index]
+      const blanks = self.blanks
+      const details = self.getRowDetails(rowName)
+      const offset = details.range?.start || 0
+      const current = position - offset
+      if (current < 0) {
+        return 0
+      }
+
+      let i = 0
+      let j = 0
+      for (; i < row.length; i++) {
+        if (row[i] !== '-') {
+          j++
+          if (blanks.indexOf(i) === -1) {
+            if (j === current) {
+              return i
+            }
+          }
+        }
+      }
+      return i
     },
   }))
 
@@ -630,6 +663,9 @@ const model = types.snapshotProcessor(types.compose(BaseViewModel, MSAModel), {
       data: { tree, msa },
       ...rest
     } = result
+
+    // remove the MSA/tree data from the tree if the filehandle available in
+    // which case it can be reloaded on refresh
     return {
       data: {
         //https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/

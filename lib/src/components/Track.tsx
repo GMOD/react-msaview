@@ -47,7 +47,7 @@ const Track = observer(
           <TrackLabel model={model} name={track.name} />
         </div>
         <div style={{ width: resizeHandleWidth }} />
-        <track.ReactComponent model={model} {...track} />
+        <track.ReactComponent model={model} track={track} />
       </div>
     )
   },

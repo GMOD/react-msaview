@@ -14,15 +14,21 @@ import Track from './Track'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 
+const RulerArea = observer(({ model }: { model: MsaViewModel }) => {
+  const { resizeHandleWidth, treeAreaWidth } = model
+  return (
+    <div style={{ display: 'flex', height: 20 }}>
+      <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+        <TreeRuler model={model} />
+      </div>
+
+      <div style={{ width: resizeHandleWidth }}></div>
+      <Ruler model={model} />
+    </div>
+  )
+})
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const {
-    done,
-    initialized,
-    resizeHandleWidth,
-    treeAreaWidth,
-    height,
-    tracks,
-  } = model
+  const { done, initialized, treeAreaWidth, height, tracks } = model
 
   return (
     <div>
@@ -35,14 +41,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <div style={{ height, overflow: 'hidden' }}>
             <Header model={model} />
             <div>
-              <div style={{ display: 'flex', height: 20 }}>
-                <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
-                  <TreeRuler model={model} />
-                </div>
-
-                <div style={{ width: resizeHandleWidth }}></div>
-                <Ruler model={model} />
-              </div>
+              <RulerArea model={model} />
 
               {tracks?.map(track => (
                 <Track key={track.id} model={model} track={track} />
