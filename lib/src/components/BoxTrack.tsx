@@ -1,7 +1,11 @@
 import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
+import RBush from 'rbush'
 
+function getLayout(data) {
+  const rbush = new RBush()
+}
 const AnnotationBlock = observer(
   ({
     track,
