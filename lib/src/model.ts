@@ -144,7 +144,7 @@ const MSAModel = types
     msaFilehandle: types.maybe(FileLocation),
     currentAlignment: 0,
     collapsed: types.array(types.string),
-    uniprotTracks: types.array(UniprotTrack),
+    boxTracks: types.array(UniprotTrack),
     data: types.optional(
       types
         .model({
@@ -557,7 +557,7 @@ const MSAModel = types
   }))
   .actions(self => ({
     addUniprotTrack(node: { name: string; accession: string }) {
-      self.uniprotTracks.push(node)
+      self.boxTracks.push(node)
     },
 
     doScrollY(deltaY: number) {
@@ -617,14 +617,16 @@ const MSAModel = types
         self.MSA?.tracks.map(track => ({
           ...track,
           ReactComponent: TextTrack,
+          height: self.rowHeight,
         })) || []
 
-      const domainTracks = self.uniprotTracks.map(track => ({
+      const domainTracks = self.boxTracks.map(track => ({
         ReactComponent: BoxTrack,
         data: track.data,
         name: track.accession,
         id: track.accession,
         rowName: track.name,
+        height: 100,
       }))
 
       return [...adapterTracks, ...domainTracks]
@@ -648,7 +650,7 @@ const MSAModel = types
           j++
           if (blanks.indexOf(i) === -1) {
             if (j === current) {
-              return i
+              break
             }
           }
         }

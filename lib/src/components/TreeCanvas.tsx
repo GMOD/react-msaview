@@ -41,7 +41,6 @@ const TreeMenu = observer(
   }) => {
     const { structures } = model
     const nodeDetails = node ? model.getRowDetails(node.name) : undefined
-    console.log({ nodeDetails })
 
     return (
       <>
@@ -104,7 +103,7 @@ const TreeMenu = observer(
             )
           })}
 
-          {nodeDetails.accession?.map(accession => (
+          {nodeDetails.accession?.map((accession: string) => (
             <MenuItem
               dense
               key={accession}

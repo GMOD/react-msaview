@@ -3,10 +3,10 @@ import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
 
 export const TrackLabel = observer(
-  ({ name, model }: { model: MsaViewModel; name: string }) => {
+  ({ model, track }: { model: MsaViewModel; track: any }) => {
     const ref = useRef<HTMLCanvasElement>(null)
-    const { rowHeight, treeAreaWidth, highResScaleFactor } = model
-    const width = treeAreaWidth
+    const { rowHeight, treeAreaWidth: width, highResScaleFactor } = model
+    const { height, name } = track
 
     useEffect(() => {
       const canvas = ref.current
@@ -16,20 +16,20 @@ export const TrackLabel = observer(
 
       ctx.resetTransform()
       ctx.scale(highResScaleFactor, highResScaleFactor)
-      ctx.clearRect(0, 0, treeAreaWidth, rowHeight)
+      ctx.clearRect(0, 0, width, height)
       ctx.textAlign = 'right'
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
       ctx.fillStyle = 'black'
       ctx.fillText(name, width - 20, rowHeight - rowHeight / 4)
-    }, [name, width, treeAreaWidth, rowHeight])
+    }, [name, width, rowHeight, height, highResScaleFactor])
     return (
       <canvas
         ref={ref}
         width={width * highResScaleFactor}
-        height={rowHeight * highResScaleFactor}
+        height={height * highResScaleFactor}
         style={{
           width,
-          height: rowHeight,
+          height,
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -40,11 +40,12 @@ export const TrackLabel = observer(
 
 const Track = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
-    const { rowHeight, treeAreaWidth, resizeHandleWidth } = model
+    const { treeAreaWidth: width, resizeHandleWidth } = model
+    const { height } = track
     return (
-      <div key={track.id} style={{ display: 'flex', height: rowHeight }}>
-        <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
-          <TrackLabel model={model} name={track.name} />
+      <div key={track.id} style={{ display: 'flex', height }}>
+        <div style={{ overflow: 'hidden', width }}>
+          <TrackLabel model={model} track={track} />
         </div>
         <div style={{ width: resizeHandleWidth }} />
         <track.ReactComponent model={model} track={track} />
