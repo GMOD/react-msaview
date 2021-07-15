@@ -86,7 +86,7 @@ const TreeMenu = observer(
                 onClick={() => {
                   model.removeStructureFromSelection({
                     structure: entry,
-                    id: node.id,
+                    id: node.name,
                   })
                   onClose()
                 }}
@@ -434,7 +434,7 @@ const TreeBlock = observer(
           <TreeMenu
             node={toggleNodeMenu}
             model={model}
-            onClose={() => setToggleNodeMenu()}
+            onClose={() => setToggleNodeMenu(undefined)}
           />
         ) : null}
 
