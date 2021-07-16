@@ -662,8 +662,7 @@ const MSAModel = types
       let i = 0
 
       for (; i < row.length; i++) {
-        if (row[i] === '-') {
-        } else if (j++ === current) {
+        if (row[i] !== '-' && j++ === current) {
           break
         }
       }

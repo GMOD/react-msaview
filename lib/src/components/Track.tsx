@@ -41,7 +41,7 @@ export const TrackLabel = observer(
 
 const Track = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
-    const { treeAreaWidth: width, resizeHandleWidth } = model
+    const { resizeHandleWidth } = model
     const { height } = track
     return (
       <div key={track.id} style={{ display: 'flex', height }}>
