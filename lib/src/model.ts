@@ -612,22 +612,36 @@ const MSAModel = types
       return ['a']
     },
 
-    get tracks() {
-      const adapterTracks =
-        self.MSA?.tracks.map(track => ({
-          ...track,
-          ReactComponent: TextTrack,
-          height: self.rowHeight,
-        })) || []
+    get tracks(): {
+      id: string
+      name: string
+      ReactComponent: React.FC<any>
+      height: number
+    }[] {
+      const adapterTracks = self.MSA
+        ? self.MSA.tracks.map(track => ({
+            ...track,
+            ReactComponent: TextTrack,
+            height: self.rowHeight,
+          }))
+        : ([] as {
+            id: string
+            name: string
+            ReactComponent: React.FC<any>
+            height: number
+          }[])
 
-      const domainTracks = self.boxTracks.map(track => ({
-        ReactComponent: BoxTrack,
-        data: track.data,
-        name: track.accession,
-        id: track.accession,
-        rowName: track.name,
-        height: 100,
-      }))
+      const domainTracks = self.boxTracks
+        .map(track => ({
+          ReactComponent: BoxTrack,
+          data: track.data,
+          name: track.accession,
+          id: track.accession,
+          rowName: track.name,
+          height: 100,
+        }))
+        // filter out tracks that are associated with hidden rows
+        .filter(track => !!self.rows.find(row => row[0] === track.rowName))
 
       return [...adapterTracks, ...domainTracks]
     },

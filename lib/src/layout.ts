@@ -9,7 +9,7 @@ export default class Layout {
       minX: number
       maxX: number
       id: string
-      data: any
+      data: unknown
     }
   >
 
@@ -42,7 +42,7 @@ export default class Layout {
     left: number,
     right: number,
     height: number,
-    data: any,
+    data: unknown,
   ): number | null {
     // add to rbush
     const existingRecord = this.rectangles.get(id)
@@ -75,27 +75,6 @@ export default class Layout {
     this.rectangles.set(id, record)
     this.pTotalHeight = Math.max(this.pTotalHeight, currHeight)
     return currHeight
-  }
-
-  hasSeen(id: string): boolean {
-    return this.rectangles.has(id)
-  }
-
-  getByCoord(x: number, y: number) {
-    const rect = { minX: x, minY: y, maxX: x + 1, maxY: y + 1 }
-    return this.rbush.collides(rect)
-      ? this.rbush.search(rect)[0].name
-      : undefined
-  }
-
-  getByID(id: string) {
-    const rect = this.rectangles.get(id)
-    if (rect) {
-      const { minX, maxX, minY, maxY } = rect
-      return [minX, minY, maxX, maxY]
-    }
-
-    return undefined
   }
 
   get totalHeight() {

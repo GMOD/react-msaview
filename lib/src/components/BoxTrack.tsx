@@ -18,10 +18,10 @@ const AnnotationBlock = observer(
     const { rowName, height, data } = track
     const layout = useMemo(() => {
       const temp = new Layout()
-      data?.forEach(([feature], index) => {
+      data?.forEach(([feature]: any, index: number) => {
         const s = model.bpToPx(rowName, feature.start)
         const e = model.bpToPx(rowName, feature.end)
-        temp.addRect(index, s, e, rowHeight, feature)
+        temp.addRect(`${index}`, s, e, rowHeight, feature)
       })
       return temp
     }, [rowHeight, data, rowName, model])
@@ -91,7 +91,8 @@ const AnnotationBlock = observer(
       ctx.fillStyle = 'black'
       ctx.textAlign = 'left'
       layout.rectangles.forEach(value => {
-        const { minX, maxX, maxY, minY, data: feature } = value
+        const { minX, maxX, maxY, minY } = value
+        const feature = value.data as any
 
         const x1 = minX * colWidth
         const x2 = maxX * colWidth
