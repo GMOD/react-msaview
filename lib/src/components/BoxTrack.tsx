@@ -13,18 +13,24 @@ const AnnotationBlock = observer(
     model: MsaViewModel
     offsetX: number
   }) => {
-    const { blockSize, colWidth, rowHeight, highResScaleFactor, scrollX } =
-      model
+    const {
+      blockSize,
+      colWidth,
+      blanks,
+      rowHeight,
+      highResScaleFactor,
+      scrollX,
+    } = model
     const { rowName, height, data } = track
     const layout = useMemo(() => {
       const temp = new Layout()
       data?.forEach(([feature]: any, index: number) => {
-        const s = model.bpToPx(rowName, feature.start)
+        const s = model.bpToPx(rowName, feature.start - 1)
         const e = model.bpToPx(rowName, feature.end)
         temp.addRect(`${index}`, s, e, rowHeight, feature)
       })
       return temp
-    }, [rowHeight, data, rowName, model])
+    }, [rowHeight, data, rowName, model, blanks])
 
     const ref = useRef<HTMLCanvasElement>(null)
     const labelRef = useRef<HTMLCanvasElement>(null)

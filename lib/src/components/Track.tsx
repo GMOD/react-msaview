@@ -20,7 +20,8 @@ export const TrackLabel = observer(
       ctx.textAlign = 'right'
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
       ctx.fillStyle = 'black'
-      ctx.fillText(name, width - 20, rowHeight - rowHeight / 4)
+      ctx.textBaseline = 'hanging'
+      ctx.fillText(name, width - 20, 0)
     }, [name, width, rowHeight, height, highResScaleFactor])
     return (
       <canvas
@@ -44,9 +45,7 @@ const Track = observer(
     const { height } = track
     return (
       <div key={track.id} style={{ display: 'flex', height }}>
-        <div style={{ overflow: 'hidden', width }}>
-          <TrackLabel model={model} track={track} />
-        </div>
+        <TrackLabel model={model} track={track} />
         <div style={{ width: resizeHandleWidth }} />
         <track.ReactComponent model={model} track={track} />
       </div>

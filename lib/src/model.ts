@@ -647,26 +647,30 @@ const MSAModel = types
     },
 
     bpToPx(rowName: string, position: number) {
-      const index = self.rowNames.indexOf(rowName)
-      const [, row] = self.rows[index]
-      const blanks = self.blanks
+      const { rowNames, rows, blanks } = self
+      const index = rowNames.indexOf(rowName)
+      const [, row] = rows[index]
       const details = self.getRowDetails(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
+
       if (current < 0) {
         return 0
       }
 
-      let i = 0
       let j = 0
+      let i = 0
+
       for (; i < row.length; i++) {
-        if (row[i] !== '-') {
-          j++
-          if (blanks.indexOf(i) === -1) {
-            if (j === current) {
-              break
-            }
-          }
+        if (row[i] === '-') {
+        } else if (j++ === current) {
+          break
+        }
+      }
+
+      for (let k = 0; k < row.length; k++) {
+        if (blanks.indexOf(k) !== -1) {
+          i--
         }
       }
       return i
