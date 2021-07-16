@@ -21,7 +21,7 @@ const AnnotationBlock = observer(
       data?.forEach(([feature], index) => {
         const s = model.bpToPx(rowName, feature.start)
         const e = model.bpToPx(rowName, feature.end)
-        temp.addRect(index, s, e, rowHeight * 0.75, feature)
+        temp.addRect(index, s, e, rowHeight, feature)
       })
       return temp
     }, [rowHeight, data, rowName, model])
@@ -55,7 +55,7 @@ const AnnotationBlock = observer(
         const x2 = (maxX - xStart) * colWidth + offsetX - (offsetX % colWidth)
 
         if (x2 - x1 > 0) {
-          ctx.fillRect(x1, minY, x2 - x1, maxY - minY)
+          ctx.fillRect(x1, minY, x2 - x1, (maxY - minY) / 2)
         }
       })
     }, [
@@ -91,7 +91,7 @@ const AnnotationBlock = observer(
       ctx.fillStyle = 'black'
       ctx.textAlign = 'left'
       layout.rectangles.forEach(value => {
-        const { minX, maxX, maxY, data: feature } = value
+        const { minX, maxX, maxY, minY, data: feature } = value
 
         const x1 = minX * colWidth
         const x2 = maxX * colWidth
@@ -101,7 +101,7 @@ const AnnotationBlock = observer(
           ctx.fillText(
             `${feature.type}${note ? ` - ${note}` : ''}`,
             Math.max(Math.min(-scrollX, x2), x1),
-            maxY + rowHeight / 2,
+            minY + (maxY - minY),
           )
         }
       })
