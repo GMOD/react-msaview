@@ -128,7 +128,7 @@ function RulerBlock({
   const ticks = makeTicks(start, end, bpPerPx, major, minor)
   return (
     <>
-      {ticks.map((tick) => {
+      {ticks.map(tick => {
         const x = (reversed ? end - tick.base : tick.base - start) / bpPerPx
         return (
           <line
@@ -147,8 +147,8 @@ function RulerBlock({
         )
       })}
       {ticks
-        .filter((tick) => tick.type === 'major')
-        .map((tick) => {
+        .filter(tick => tick.type === 'major')
+        .map(tick => {
           const x = (reversed ? end - tick.base : tick.base - start) / bpPerPx
           return (
             <text

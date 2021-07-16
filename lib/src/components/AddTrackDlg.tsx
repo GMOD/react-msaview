@@ -24,7 +24,7 @@ export default observer(
     onClose: () => void
     open: boolean
   }) => {
-    const options = model.rows.map((r) => r[0])
+    const options = model.rows.map(r => r[0])
     const [trackFile, setTrackFile] = useState<FileLocation>()
     const [currentOption, setCurrentOption] = useState('')
 
@@ -39,7 +39,7 @@ export default observer(
             select
             helperText="Which row does this track apply to?"
             value={currentOption}
-            onChange={(event) => {
+            onChange={event => {
               setCurrentOption(event.target.value)
             }}
           >

@@ -55,6 +55,14 @@ export default class StockholmMSA {
     }
   }
 
+  getRowDetails(rowName: string) {
+    return {
+      name: rowName,
+      accession: this.MSA.gs?.AC[rowName],
+      dbxref: this.MSA.gs?.DR[rowName],
+    }
+  }
+
   getNames() {
     return Object.keys(this.MSA.seqdata)
   }
@@ -91,7 +99,7 @@ export default class StockholmMSA {
       : {
           id: 'root',
           noTree: true,
-          branchset: this.getNames().map((name) => ({
+          branchset: this.getNames().map(name => ({
             id: name,
             name,
           })),

@@ -5,7 +5,7 @@ export default class FastaMSA {
     const seq: StrMap = {}
     let name = ''
     const re = /^>(\S+)/
-    text.split('\n').forEach((line) => {
+    text.split('\n').forEach(line => {
       const match = re.exec(line)
       if (match) {
         seq[(name = match[1])] = ''
@@ -49,7 +49,7 @@ export default class FastaMSA {
     return {
       id: 'root',
       noTree: true,
-      branchset: this.getNames().map((name) => ({
+      branchset: this.getNames().map(name => ({
         id: name,
         name,
       })),

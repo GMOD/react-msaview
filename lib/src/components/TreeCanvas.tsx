@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Menu, MenuItem } from '@material-ui/core'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
-import copy from 'copy-to-clipboard'
 import RBush from 'rbush'
 import { MsaViewModel } from '../model'
+import MoreInfoDlg from './MoreInfoDlg'
 
 const extendBounds = 5
 const radius = 3.5
@@ -28,6 +28,138 @@ interface ClickEntry {
   minY: number
   maxY: number
 }
+
+const TreeMenu = observer(
+  ({
+    node,
+    onClose,
+    model,
+  }: {
+    node: { x: number; y: number; name: string }
+    model: MsaViewModel
+    onClose: () => void
+  }) => {
+    const { structures } = model
+    const nodeDetails = node ? model.getRowDetails(node.name) : undefined
+
+    return (
+      <>
+        <Menu
+          anchorReference="anchorPosition"
+          anchorPosition={{
+            top: node.y,
+            left: node.x,
+          }}
+          transitionDuration={0}
+          keepMounted
+          open={Boolean(node)}
+          onClose={onClose}
+        >
+          <MenuItem dense disabled>
+            {node.name}
+          </MenuItem>
+
+          <MenuItem
+            dense
+            onClick={() => {
+              model.setDialogComponent(MoreInfoDlg, {
+                info: model.getRowDetails(node.name),
+              })
+              onClose()
+            }}
+          >
+            More info...
+          </MenuItem>
+
+          {structures[node.name]?.map(entry => {
+            return !model.selectedStructures.find(n => n.id === node.name) ? (
+              <MenuItem
+                key={JSON.stringify(entry)}
+                dense
+                onClick={() => {
+                  model.addStructureToSelection({
+                    structure: entry,
+                    id: node.name,
+                  })
+                  onClose()
+                }}
+              >
+                Add PDB to selection ({entry.pdb})
+              </MenuItem>
+            ) : (
+              <MenuItem
+                key={JSON.stringify(entry)}
+                dense
+                onClick={() => {
+                  model.removeStructureFromSelection({
+                    structure: entry,
+                    id: node.name,
+                  })
+                  onClose()
+                }}
+              >
+                Remove PDB from selection ({entry.pdb})
+              </MenuItem>
+            )
+          })}
+
+          {nodeDetails.accession?.map((accession: string) => (
+            <MenuItem
+              dense
+              key={accession}
+              onClick={() => {
+                model.addUniprotTrack({ name: nodeDetails.name, accession })
+                onClose()
+              }}
+            >
+              Open UniProt track ({accession})
+            </MenuItem>
+          ))}
+        </Menu>
+      </>
+    )
+  },
+)
+
+const TreeBranchMenu = observer(
+  ({
+    node,
+    model,
+    onClose,
+  }: {
+    node: { x: number; y: number; name: string; id: string }
+    model: MsaViewModel
+    onClose: () => void
+  }) => {
+    return (
+      <Menu
+        anchorReference="anchorPosition"
+        anchorPosition={{
+          left: node.x,
+          top: node.y,
+        }}
+        transitionDuration={0}
+        keepMounted
+        open={Boolean(node)}
+        onClose={onClose}
+      >
+        <MenuItem dense disabled>
+          {node.name}
+        </MenuItem>
+        <MenuItem
+          dense
+          onClick={() => {
+            model.toggleCollapsed(node.id)
+            onClose()
+          }}
+        >
+          {model.collapsed.includes(node.id) ? 'Expand' : 'Collapse'}
+        </MenuItem>
+      </Menu>
+    )
+  },
+)
+
 const TreeBlock = observer(
   ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
     const ref = useRef<HTMLCanvasElement>(null)
@@ -97,7 +229,7 @@ const TreeBlock = observer(
         })
 
         if (drawNodeBubbles) {
-          hierarchy.descendants().forEach((node) => {
+          hierarchy.descendants().forEach(node => {
             const val = showBranchLen ? 'len' : 'y'
             const {
               //@ts-ignore
@@ -140,7 +272,7 @@ const TreeBlock = observer(
         } else {
           ctx.textAlign = 'start'
         }
-        hierarchy.leaves().forEach((node) => {
+        hierarchy.leaves().forEach(node => {
           const {
             //@ts-ignore
             x: y,
@@ -276,103 +408,22 @@ const TreeBlock = observer(
         : undefined
     }
 
-    function handleCloseBranchMenu() {
-      setBranchMenu(undefined)
-    }
-
-    function handleCloseToggleMenu() {
-      setToggleNodeMenu(undefined)
-    }
-
     return (
       <>
         {branchMenu?.id ? (
-          <Menu
-            anchorReference="anchorPosition"
-            anchorPosition={{
-              left: branchMenu.x,
-              top: branchMenu.y,
-            }}
-            transitionDuration={0}
-            keepMounted
-            open={Boolean(branchMenu)}
-            onClose={handleCloseBranchMenu}
-          >
-            <MenuItem dense disabled>
-              {branchMenu.name}
-            </MenuItem>
-            <MenuItem
-              dense
-              onClick={() => {
-                model.toggleCollapsed(branchMenu.id)
-                handleCloseBranchMenu()
-              }}
-            >
-              {model.collapsed.includes(branchMenu.id) ? 'Expand' : 'Collapse'}
-            </MenuItem>
-          </Menu>
+          <TreeBranchMenu
+            node={branchMenu}
+            model={model}
+            onClose={() => setBranchMenu(undefined)}
+          />
         ) : null}
 
         {toggleNodeMenu?.id ? (
-          <Menu
-            anchorReference="anchorPosition"
-            anchorPosition={{
-              top: toggleNodeMenu.y,
-              left: toggleNodeMenu.x,
-            }}
-            transitionDuration={0}
-            keepMounted
-            open={Boolean(toggleNodeMenu)}
-            onClose={handleCloseToggleMenu}
-          >
-            <MenuItem dense disabled>
-              {toggleNodeMenu.name}
-            </MenuItem>
-            {structures[toggleNodeMenu.name]?.map((entry) => {
-              const found = model.selectedStructures.find(
-                (node) => node.id === toggleNodeMenu.name,
-              )
-
-              return !found ? (
-                <MenuItem
-                  key={JSON.stringify(entry)}
-                  dense
-                  onClick={() => {
-                    model.addStructureToSelection({
-                      structure: entry,
-                      id: toggleNodeMenu.name,
-                    })
-                    handleCloseToggleMenu()
-                  }}
-                >
-                  Add {entry.pdb} selection
-                </MenuItem>
-              ) : (
-                <MenuItem
-                  key={JSON.stringify(entry)}
-                  dense
-                  onClick={() => {
-                    model.removeStructureFromSelection({
-                      structure: entry,
-                      id: toggleNodeMenu.id,
-                    })
-                    handleCloseToggleMenu()
-                  }}
-                >
-                  Remove {entry.pdb} selection
-                </MenuItem>
-              )
-            })}
-            <MenuItem
-              dense
-              onClick={() => {
-                copy(toggleNodeMenu.id)
-                handleCloseToggleMenu()
-              }}
-            >
-              Copy name to clipboard
-            </MenuItem>
-          </Menu>
+          <TreeMenu
+            node={toggleNodeMenu}
+            model={model}
+            onClose={() => setToggleNodeMenu(undefined)}
+          />
         ) : null}
 
         <canvas
@@ -385,7 +436,7 @@ const TreeBlock = observer(
             left: 0,
             position: 'absolute',
           }}
-          onMouseMove={(event) => {
+          onMouseMove={event => {
             if (!ref.current) {
               return
             }
@@ -400,11 +451,10 @@ const TreeBlock = observer(
 
             setHoverElt(hoverNameClickMap(event))
           }}
-          onClick={(event) => {
+          onClick={event => {
             const { clientX: x, clientY: y } = event
 
             const data = hoverBranchClickMap(event)
-
             if (data?.id) {
               setBranchMenu({ ...data, x, y })
             }
@@ -544,7 +594,7 @@ const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
         width: treeWidth + padding,
       }}
     >
-      {blocksY.map((block) => (
+      {blocksY.map(block => (
         <TreeBlock key={block} model={model} offsetY={block} />
       ))}
     </div>

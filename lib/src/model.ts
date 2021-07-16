@@ -14,14 +14,17 @@ import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 
+import gff from '@gmod/gff'
+
 import { generateNodeIds, NodeWithIds } from './util'
-import AnnotationTrack from './components/Annotations'
+import TextTrack from './components/TextTrack'
+import BoxTrack from './components/BoxTrack'
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   //@ts-ignore
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
   if (d.children) {
-    d.children.forEach((d) => {
+    d.children.forEach(d => {
       setBrLength(d, y0, k)
     })
   }
@@ -34,8 +37,8 @@ function maxLength(d: HierarchyNode<any>): number {
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
 function getRoot(tree: any) {
-  return hierarchy(tree, (d) => d.branchset)
-    .sum((d) => (d.branchset ? 0 : 1))
+  return hierarchy(tree, d => d.branchset)
+    .sum(d => (d.branchset ? 0 : 1))
     .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 }
 
@@ -46,7 +49,7 @@ function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
   } else if (branchset) {
     return {
       ...rest,
-      branchset: branchset.map((b) => filter(b, collapsed)),
+      branchset: branchset.map(b => filter(b, collapsed)),
     }
   } else {
     return tree
@@ -56,6 +59,7 @@ function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
 function clamp(min: number, num: number, max: number) {
   return Math.min(Math.max(num, min), max)
 }
+
 const StructureModel = types.model({
   id: types.identifier,
   structure: types.model({
@@ -65,6 +69,53 @@ const StructureModel = types.model({
   }),
   range: types.maybe(types.string),
 })
+
+const UniprotTrack = types
+  .model({
+    accession: types.string,
+    name: types.string,
+  })
+  .volatile(() => ({
+    error: undefined as Error | undefined,
+    data: undefined as any | undefined,
+  }))
+  .actions(self => ({
+    setError(error: Error) {
+      self.error = error
+    },
+    setData(data: string) {
+      self.data = data
+    },
+  }))
+  .actions(self => ({
+    afterCreate() {
+      addDisposer(
+        self,
+        autorun(async () => {
+          try {
+            const { accession } = self
+            const url = `https://www.uniprot.org/uniprot/${accession}.gff`
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(
+                `HTTP ${response.status} ${response.statusText} fetching ${url}`,
+              )
+            }
+            const text = await response.text()
+            const result = gff.parseStringSync(text)
+            self.setData(result)
+          } catch (e) {
+            self.setError(e)
+          }
+        }),
+      )
+    },
+  }))
+  .views(self => ({
+    get loading() {
+      return !self.data
+    },
+  }))
 
 const MSAModel = types
   .model('MsaView', {
@@ -76,6 +127,7 @@ const MSAModel = types
     rowHeight: 20,
     scrollY: 0,
     scrollX: 0,
+    resizeHandleWidth: 5,
     blockSize: 1000,
     mouseRow: types.maybe(types.number),
     mouseCol: types.maybe(types.number),
@@ -92,13 +144,14 @@ const MSAModel = types
     msaFilehandle: types.maybe(FileLocation),
     currentAlignment: 0,
     collapsed: types.array(types.string),
+    boxTracks: types.array(UniprotTrack),
     data: types.optional(
       types
         .model({
           tree: types.maybe(types.string),
           msa: types.maybe(types.string),
         })
-        .actions((self) => ({
+        .actions(self => ({
           setTree(tree?: string) {
             self.tree = tree
           },
@@ -112,8 +165,17 @@ const MSAModel = types
   .volatile(() => ({
     error: undefined as Error | undefined,
     margin: { left: 20, top: 20 },
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    DialogComponent: undefined as undefined | React.FC<any>,
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    DialogProps: undefined as any,
   }))
-  .actions((self) => ({
+  .actions(self => ({
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setDialogComponent(dlg: React.FC<any> | undefined, props: any) {
+      self.DialogComponent = dlg
+      self.DialogProps = props
+    },
     setHeight(height: number) {
       self.height = height
     },
@@ -121,7 +183,7 @@ const MSAModel = types
       self.selectedStructures.push(elt)
     },
     removeStructureFromSelection(elt: SnapshotIn<typeof StructureModel>) {
-      const r = self.selectedStructures.find((node) => node.id === elt.id)
+      const r = self.selectedStructures.find(node => node.id === elt.id)
       if (r) {
         self.selectedStructures.remove(r)
       }
@@ -130,7 +192,7 @@ const MSAModel = types
       id: string
       structure: { startPos: number; endPos: number; pdb: string }
     }) {
-      const r = self.selectedStructures.find((node) => node.id === elt.id)
+      const r = self.selectedStructures.find(node => node.id === elt.id)
       if (r) {
         self.selectedStructures.remove(r)
       } else {
@@ -252,7 +314,7 @@ const MSAModel = types
       )
     },
   }))
-  .views((self) => {
+  .views(self => {
     let oldBlocksX: number[] = []
     let oldBlocksY: number[] = []
     let oldValX = 0
@@ -309,9 +371,9 @@ const MSAModel = types
       },
     }
   })
-  .views((self) => ({
+  .views(self => ({
     get blocks2d() {
-      return self.blocksY.map((by) => self.blocksX.map((bx) => [bx, by])).flat()
+      return self.blocksY.map(by => self.blocksX.map(bx => [bx, by])).flat()
     },
     get done() {
       return self.initialized && (self.data.msa || self.data.tree)
@@ -323,6 +385,16 @@ const MSAModel = types
 
     get alignmentDetails() {
       return this.MSA?.getDetails() || {}
+    },
+
+    getRowDetails(name: string) {
+      //@ts-ignore
+      const details = this.MSA?.getRowDetails(name)
+      const matches = name.match(/\S+\/(\d+)-(\d+)/)
+      return {
+        ...details,
+        ...(matches && { range: { start: +matches[1], end: +matches[2] } }),
+      }
     },
 
     get currentAlignmentName() {
@@ -401,7 +473,7 @@ const MSAModel = types
 
     get inverseStructures() {
       const map = Object.entries(this.structures)
-        .map(([key, val]) => val.map((pdbEntry) => [pdbEntry.pdb, { id: key }]))
+        .map(([key, val]) => val.map(pdbEntry => [pdbEntry.pdb, { id: key }]))
         .flat()
       return Object.fromEntries(map)
     },
@@ -436,7 +508,7 @@ const MSAModel = types
       return this.hierarchy
         .leaves()
         .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
-        .filter((f) => !!f[1])
+        .filter(f => !!f[1])
     },
 
     get columns(): Record<string, string> {
@@ -447,7 +519,7 @@ const MSAModel = types
     },
 
     get columns2d() {
-      const strs = this.rows.map((r) => r[1])
+      const strs = this.rows.map(r => r[1])
       const ret: string[] = []
       for (let i = 0; i < strs.length; i++) {
         let s = ''
@@ -483,7 +555,11 @@ const MSAModel = types
       return this.root.leaves().length * self.rowHeight
     },
   }))
-  .actions((self) => ({
+  .actions(self => ({
+    addUniprotTrack(node: { name: string; accession: string }) {
+      self.boxTracks.push(node)
+    },
+
     doScrollY(deltaY: number) {
       self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 0)
     },
@@ -513,7 +589,7 @@ const MSAModel = types
       }
     },
   }))
-  .views((self) => ({
+  .views(self => ({
     get secondaryStructureConsensus() {
       return self.MSA?.secondaryStructureConsensus
     },
@@ -539,20 +615,64 @@ const MSAModel = types
     get tracks(): {
       id: string
       name: string
-      customColorScheme?: Record<string, string>
+      ReactComponent: React.FC<any>
+      height: number
     }[] {
-      const adapterTracks =
-        self.MSA?.tracks.map((track: any) => ({
-          ...track,
-          ReactComponent: AnnotationTrack,
-        })) || []
-      return [
-        ...adapterTracks,
-        // {
-        //   ReactComponent: AnnotationTrack,
-        //   data: this.conservation,
-        // },
-      ]
+      const adapterTracks = self.MSA
+        ? self.MSA.tracks.map(track => ({
+            ...track,
+            ReactComponent: TextTrack,
+            height: self.rowHeight,
+          }))
+        : ([] as {
+            id: string
+            name: string
+            ReactComponent: React.FC<any>
+            height: number
+          }[])
+
+      const domainTracks = self.boxTracks
+        .map(track => ({
+          ReactComponent: BoxTrack,
+          data: track.data,
+          name: track.accession,
+          id: track.accession,
+          rowName: track.name,
+          height: 100,
+        }))
+        // filter out tracks that are associated with hidden rows
+        .filter(track => !!self.rows.find(row => row[0] === track.rowName))
+
+      return [...adapterTracks, ...domainTracks]
+    },
+
+    bpToPx(rowName: string, position: number) {
+      const { rowNames, rows, blanks } = self
+      const index = rowNames.indexOf(rowName)
+      const [, row] = rows[index]
+      const details = self.getRowDetails(rowName)
+      const offset = details.range?.start || 0
+      const current = position - offset
+
+      if (current < 0) {
+        return 0
+      }
+
+      let j = 0
+      let i = 0
+
+      for (; i < row.length; i++) {
+        if (row[i] !== '-' && j++ === current) {
+          break
+        }
+      }
+
+      for (let k = 0; k < row.length; k++) {
+        if (blanks.indexOf(k) !== -1) {
+          i--
+        }
+      }
+      return i
     },
   }))
 
@@ -562,6 +682,9 @@ const model = types.snapshotProcessor(types.compose(BaseViewModel, MSAModel), {
       data: { tree, msa },
       ...rest
     } = result
+
+    // remove the MSA/tree data from the tree if the filehandle available in
+    // which case it can be reloaded on refresh
     return {
       data: {
         //https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/

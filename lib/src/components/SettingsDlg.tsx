@@ -97,13 +97,13 @@ export default observer(
             label="Row height (px)"
             value={rowHeight}
             error={rowHeightError}
-            onChange={(event) => setRowHeight(event.target.value)}
+            onChange={event => setRowHeight(event.target.value)}
           />
           <TextField
             label="Column width (px)"
             value={colWidth}
             error={colWidthError}
-            onChange={(event) => setColWidth(event.target.value)}
+            onChange={event => setColWidth(event.target.value)}
           />
           <br />
           {!noTree ? (
@@ -111,7 +111,7 @@ export default observer(
               label="Tree width (px)"
               value={treeWidth}
               error={treeWidthError}
-              onChange={(event) => setTreeWidth(event.target.value)}
+              onChange={event => setTreeWidth(event.target.value)}
             />
           ) : null}
 
@@ -121,9 +121,9 @@ export default observer(
             select
             label="Color scheme"
             value={colorSchemeName}
-            onChange={(event) => model.setColorSchemeName(event.target.value)}
+            onChange={event => model.setColorSchemeName(event.target.value)}
           >
-            {Object.keys(colorSchemes).map((option) => (
+            {Object.keys(colorSchemes).map(option => (
               <MenuItem key={option} value={option}>
                 {option}
               </MenuItem>

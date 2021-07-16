@@ -6,15 +6,13 @@ import { colorContrast } from '../util'
 
 const AnnotationBlock = observer(
   ({
-    data,
+    track,
     model,
     offsetX,
-    customColorScheme,
   }: {
-    data: string | undefined
+    track: any
     model: MsaViewModel
     offsetX: number
-    customColorScheme: Record<string, string>
   }) => {
     const {
       blockSize,
@@ -25,6 +23,7 @@ const AnnotationBlock = observer(
       rowHeight,
       highResScaleFactor,
     } = model
+    const { customColorScheme, data } = track
 
     const colorScheme = customColorScheme || modelColorScheme
     const theme = useTheme()
@@ -76,6 +75,7 @@ const AnnotationBlock = observer(
       offsetX,
       contrastScheme,
       colorScheme,
+      highResScaleFactor,
       data,
     ])
     return (
@@ -94,15 +94,7 @@ const AnnotationBlock = observer(
   },
 )
 const AnnotationTrack = observer(
-  ({
-    data,
-    model,
-    customColorScheme,
-  }: {
-    customColorScheme: Record<string, string>
-    data: string | undefined
-    model: MsaViewModel
-  }) => {
+  ({ track, model }: { track: any; model: MsaViewModel }) => {
     const { blocksX, msaAreaWidth, rowHeight } = model
     return (
       <div
@@ -113,14 +105,8 @@ const AnnotationTrack = observer(
           overflow: 'hidden',
         }}
       >
-        {blocksX.map((bx) => (
-          <AnnotationBlock
-            customColorScheme={customColorScheme}
-            key={bx}
-            data={data}
-            model={model}
-            offsetX={bx}
-          />
+        {blocksX.map(bx => (
+          <AnnotationBlock key={bx} track={track} model={model} offsetX={bx} />
         ))}
       </div>
     )
