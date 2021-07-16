@@ -47,7 +47,7 @@ const AnnotationBlock = observer(
 
       ctx.resetTransform()
       ctx.scale(highResScaleFactor, highResScaleFactor)
-      ctx.clearRect(0, 0, blockSize, rowHeight)
+      ctx.clearRect(0, 0, blockSize, height)
       ctx.translate(-offsetX, 0)
       ctx.textAlign = 'center'
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
@@ -71,9 +71,11 @@ const AnnotationBlock = observer(
       layout.rectangles,
       model,
       rowHeight,
+      height,
       offsetX,
       highResScaleFactor,
       data,
+      blanks,
     ])
 
     useEffect(() => {
@@ -124,6 +126,7 @@ const AnnotationBlock = observer(
       data,
       model,
       rowHeight,
+      blanks,
     ])
 
     return !data ? null : (

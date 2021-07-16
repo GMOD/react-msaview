@@ -668,7 +668,7 @@ const MSAModel = types
       }
 
       for (let k = 0; k < row.length; k++) {
-        if (blanks.indexOf(k) !== -1) {
+        if (blanks.indexOf(k) !== -1 && k < i) {
           i--
         }
       }
