@@ -6,11 +6,9 @@ import { observer } from 'mobx-react'
 import SettingsDialog from './SettingsDlg'
 import AboutDialog from './AboutDlg'
 import DetailsDialog from './DetailsDlg'
-import AddTrackDialog from './AddTrackDlg'
 import TracklistDialog from './TracklistDlg'
 
 //icons
-import AddIcon from '@material-ui/icons/Add'
 import FolderOpenIcon from '@material-ui/icons/FolderOpen'
 import SettingsIcon from '@material-ui/icons/Settings'
 import HelpIcon from '@material-ui/icons/Help'
@@ -29,7 +27,6 @@ const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
 })
 
 const Header = observer(({ model }: { model: MsaViewModel }) => {
-  const [addTrackDialogVisible, setAddTrackDialogVisible] = useState(false)
   const [settingsDialogVisible, setSettingsDialogVisible] = useState(false)
   const [aboutDialogVisible, setAboutDialogVisible] = useState(false)
   const [detailsDialogVisible, setDetailsDialogVisible] = useState(false)
@@ -53,19 +50,12 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       <IconButton onClick={() => setSettingsDialogVisible(true)}>
         <SettingsIcon />
       </IconButton>
-
       <IconButton onClick={() => setDetailsDialogVisible(true)}>
         <AssignmentIcon />
       </IconButton>
-
       <IconButton onClick={() => setTracklistDialogVisible(true)}>
         <ListIcon />
       </IconButton>
-
-      <IconButton onClick={() => setAddTrackDialogVisible(true)}>
-        <AddIcon />
-      </IconButton>
-
       {settingsDialogVisible ? (
         <SettingsDialog
           open
@@ -73,24 +63,14 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           onClose={() => setSettingsDialogVisible(false)}
         />
       ) : null}
-
       {aboutDialogVisible ? (
         <AboutDialog open onClose={() => setAboutDialogVisible(false)} />
       ) : null}
-
       {detailsDialogVisible ? (
         <DetailsDialog
           open
           model={model}
           onClose={() => setDetailsDialogVisible(false)}
-        />
-      ) : null}
-
-      {addTrackDialogVisible ? (
-        <AddTrackDialog
-          open
-          model={model}
-          onClose={() => setAddTrackDialogVisible(false)}
         />
       ) : null}
 
@@ -101,7 +81,6 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           onClose={() => setTracklistDialogVisible(false)}
         />
       ) : null}
-
       {alignmentNames.length > 0 ? (
         <Select
           native
@@ -119,9 +98,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           ))}
         </Select>
       ) : null}
-
       <InfoArea model={model} />
-
       <div style={{ flex: 1 }} />
       <IconButton onClick={() => setAboutDialogVisible(true)}>
         <HelpIcon />
