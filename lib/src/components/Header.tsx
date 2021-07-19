@@ -7,6 +7,7 @@ import SettingsDialog from './SettingsDlg'
 import AboutDialog from './AboutDlg'
 import DetailsDialog from './DetailsDlg'
 import AddTrackDialog from './AddTrackDlg'
+import TracklistDialog from './TracklistDlg'
 
 //icons
 import AddIcon from '@material-ui/icons/Add'
@@ -14,6 +15,7 @@ import FolderOpenIcon from '@material-ui/icons/FolderOpen'
 import SettingsIcon from '@material-ui/icons/Settings'
 import HelpIcon from '@material-ui/icons/Help'
 import AssignmentIcon from '@material-ui/icons/Assignment'
+import ListIcon from '@material-ui/icons/List'
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
@@ -31,6 +33,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
   const [settingsDialogVisible, setSettingsDialogVisible] = useState(false)
   const [aboutDialogVisible, setAboutDialogVisible] = useState(false)
   const [detailsDialogVisible, setDetailsDialogVisible] = useState(false)
+  const [tracklistDialogVisible, setTracklistDialogVisible] = useState(false)
   const { currentAlignment, alignmentNames } = model
 
   return (
@@ -53,6 +56,10 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
 
       <IconButton onClick={() => setDetailsDialogVisible(true)}>
         <AssignmentIcon />
+      </IconButton>
+
+      <IconButton onClick={() => setTracklistDialogVisible(true)}>
+        <ListIcon />
       </IconButton>
 
       <IconButton onClick={() => setAddTrackDialogVisible(true)}>
@@ -84,6 +91,14 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           open
           model={model}
           onClose={() => setAddTrackDialogVisible(false)}
+        />
+      ) : null}
+
+      {tracklistDialogVisible ? (
+        <TracklistDialog
+          open
+          model={model}
+          onClose={() => setTracklistDialogVisible(false)}
         />
       ) : null}
 
