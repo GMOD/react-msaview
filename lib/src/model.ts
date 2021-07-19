@@ -145,6 +145,7 @@ const MSAModel = types
     currentAlignment: 0,
     collapsed: types.array(types.string),
     boxTracks: types.array(UniprotTrack),
+    turnedOffTracks: types.map(types.boolean),
     data: types.optional(
       types
         .model({
@@ -588,6 +589,14 @@ const MSAModel = types
         self.mouseCol = undefined
       }
     },
+
+    toggleTrack(t: any) {
+      if (self.turnedOffTracks.has(t.id)) {
+        self.turnedOffTracks.delete(t.id)
+      } else {
+        self.turnedOffTracks.set(t.id, true)
+      }
+    },
   }))
   .views(self => ({
     get secondaryStructureConsensus() {
@@ -644,6 +653,10 @@ const MSAModel = types
         .filter(track => !!self.rows.find(row => row[0] === track.rowName))
 
       return [...adapterTracks, ...domainTracks]
+    },
+
+    get turnedOnTracks() {
+      return this.tracks.filter(f => !self.turnedOffTracks.has(f.id))
     },
 
     bpToPx(rowName: string, position: number) {

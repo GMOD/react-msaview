@@ -1,40 +1,54 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
+import { IconButton, Menu, MenuItem } from '@material-ui/core'
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 
 export const TrackLabel = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
-    const ref = useRef<HTMLCanvasElement>(null)
-    const { rowHeight, treeAreaWidth: width, highResScaleFactor } = model
+    const [anchorEl, setAnchorEl] = useState<Element>()
+    const { rowHeight, treeAreaWidth: width } = model
     const { height, name } = track
 
-    useEffect(() => {
-      const canvas = ref.current
-      if (!canvas) return
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-
-      ctx.resetTransform()
-      ctx.scale(highResScaleFactor, highResScaleFactor)
-      ctx.clearRect(0, 0, width, height)
-      ctx.textAlign = 'right'
-      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
-      ctx.fillStyle = 'black'
-      ctx.textBaseline = 'hanging'
-      ctx.fillText(name, width - 20, 0)
-    }, [name, width, rowHeight, height, highResScaleFactor])
     return (
-      <canvas
-        ref={ref}
-        width={width * highResScaleFactor}
-        height={height * highResScaleFactor}
+      <div
         style={{
           width,
           height,
-          position: 'relative',
-          overflow: 'hidden',
+          textAlign: 'right',
+          fontSize: Math.max(8, rowHeight - 8),
         }}
-      />
+      >
+        {name}
+        <IconButton
+          onClick={event => {
+            setAnchorEl(event.target as Element)
+          }}
+        >
+          <ArrowDropDownIcon />
+        </IconButton>
+
+        {anchorEl ? (
+          <Menu
+            anchorEl={anchorEl}
+            transitionDuration={0}
+            open
+            onClose={() => {
+              setAnchorEl(undefined)
+            }}
+          >
+            <MenuItem
+              dense
+              onClick={() => {
+                model.toggleTrack(track)
+                setAnchorEl(undefined)
+              }}
+            >
+              Close
+            </MenuItem>
+          </Menu>
+        ) : null}
+      </div>
     )
   },
 )

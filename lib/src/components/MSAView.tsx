@@ -28,7 +28,7 @@ const RulerArea = observer(({ model }: { model: MsaViewModel }) => {
   )
 })
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, initialized, treeAreaWidth, height, tracks } = model
+  const { done, initialized, treeAreaWidth, height, turnedOnTracks } = model
 
   return (
     <div>
@@ -43,7 +43,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
             <div>
               <RulerArea model={model} />
 
-              {tracks?.map(track => (
+              {turnedOnTracks?.map(track => (
                 <Track key={track.id} model={model} track={track} />
               ))}
 
