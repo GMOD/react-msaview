@@ -50,9 +50,8 @@ const AnnotationBlock = observer(
       ctx.textAlign = 'center'
       ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
 
-      const b = blockSize
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
-      const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
+      const xEnd = Math.max(0, Math.ceil((offsetX + blockSize) / colWidth))
       const str = data?.slice(xStart, xEnd)
       for (let i = 0; str && i < str.length; i++) {
         const letter = str[i]
@@ -63,7 +62,7 @@ const AnnotationBlock = observer(
           ctx.fillRect(x, 0, colWidth, rowHeight)
           if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
             ctx.fillStyle = contrastScheme[letter.toUpperCase()] || 'black'
-            ctx.fillText(letter, x + colWidth / 2, rowHeight / 2)
+            ctx.fillText(letter, x + colWidth / 2, rowHeight / 2 + 1) //+1 to avoid cutoff at height:10
           }
         }
       }

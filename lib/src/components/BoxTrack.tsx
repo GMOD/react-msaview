@@ -34,6 +34,7 @@ const AnnotationBlock = observer(
 
     const ref = useRef<HTMLCanvasElement>(null)
     const labelRef = useRef<HTMLCanvasElement>(null)
+    const mouseoverRef = useRef<HTMLCanvasElement>(null)
 
     useEffect(() => {
       if (!ref.current) {
@@ -144,6 +145,17 @@ const AnnotationBlock = observer(
         />
         <canvas
           ref={labelRef}
+          height={height * highResScaleFactor}
+          width={blockSize * highResScaleFactor}
+          style={{
+            position: 'absolute',
+            left: scrollX + offsetX,
+            width: blockSize,
+            height,
+          }}
+        />
+        <canvas
+          ref={mouseoverRef}
           height={height * highResScaleFactor}
           width={blockSize * highResScaleFactor}
           style={{
