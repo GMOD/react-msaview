@@ -20,6 +20,19 @@ import { generateNodeIds, NodeWithIds } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
 
+function skipBlanks(blanks: number[], arg: string) {
+  let s = ''
+  let b = 0
+  for (let j = 0; j < arg.length; j++) {
+    if (j === blanks[b]) {
+      b++
+    } else {
+      s += arg[j]
+    }
+  }
+  return s
+}
+
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   //@ts-ignore
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
@@ -523,16 +536,7 @@ const MSAModel = types
       const strs = this.rows.map(r => r[1])
       const ret: string[] = []
       for (let i = 0; i < strs.length; i++) {
-        let s = ''
-        let b = 0
-        for (let j = 0; j < strs[i].length; j++) {
-          if (j === this.blanks[b]) {
-            b++
-          } else {
-            s += strs[i][j]
-          }
-        }
-        ret.push(s)
+        ret.push(skipBlanks(this.blanks, strs[i]))
       }
       return ret
     },
@@ -627,12 +631,17 @@ const MSAModel = types
       ReactComponent: React.FC<any>
       height: number
     }[] {
+      const blanks = self.blanks
       const adapterTracks = self.MSA
-        ? self.MSA.tracks.map(track => ({
-            ...track,
-            ReactComponent: TextTrack,
-            height: self.rowHeight,
-          }))
+        ? self.MSA.tracks.map(track => {
+            const data = track.data ? skipBlanks(blanks, track.data) : undefined
+            return {
+              ...track,
+              data,
+              ReactComponent: TextTrack,
+              height: self.rowHeight,
+            }
+          })
         : ([] as {
             id: string
             name: string
