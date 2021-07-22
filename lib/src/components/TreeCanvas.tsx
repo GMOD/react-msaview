@@ -120,6 +120,12 @@ const TreeMenu = observer(
     )
   },
 )
+interface Node {
+  x: number
+  y: number
+  name: string
+  id: string
+}
 
 const TreeBranchMenu = observer(
   ({
@@ -127,7 +133,7 @@ const TreeBranchMenu = observer(
     model,
     onClose,
   }: {
-    node: { x: number; y: number; name: string; id: string }
+    node: Node
     model: MsaViewModel
     onClose: () => void
   }) => {
@@ -153,7 +159,22 @@ const TreeBranchMenu = observer(
             onClose()
           }}
         >
-          {model.collapsed.includes(node.id) ? 'Expand' : 'Collapse'}
+          {model.collapsed.includes(node.id)
+            ? 'Expand this node'
+            : 'Collapse this node'}
+        </MenuItem>
+        <MenuItem
+          dense
+          onClick={() => {
+            model.showOnly === node.id
+              ? model.setShowOnly(undefined)
+              : model.setShowOnly(node.id)
+            onClose()
+          }}
+        >
+          {model.showOnly === node.id
+            ? 'Disable show only this node'
+            : 'Show only this node'}
         </MenuItem>
       </Menu>
     )

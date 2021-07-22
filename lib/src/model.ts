@@ -47,26 +47,40 @@ function maxLength(d: HierarchyNode<any>): number {
   return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0)
 }
 
-// note: we don't use this.root because it won't update in response to changes
-// in realWidth/totalHeight here otherwise, needs to generate a new object
-function getRoot(tree: any) {
-  return hierarchy(tree, d => d.branchset)
-    .sum(d => (d.branchset ? 0 : 1))
-    .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
+// Collapse the node and all it's children, from
+// https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
+function collapse(d: HierarchyNode<any>) {
+  if (d.children) {
+    //@ts-ignore
+    d._children = d.children
+    //@ts-ignore
+    d._children.forEach(collapse)
+    //@ts-ignore
+    d.children = null
+  }
 }
 
-function filter(tree: NodeWithIds, collapsed: string[]): NodeWithIds {
-  const { branchset, ...rest } = tree
-  if (collapsed.includes(tree.id)) {
-    return rest
-  } else if (branchset) {
-    return {
-      ...rest,
-      branchset: branchset.map(b => filter(b, collapsed)),
+// note: we don't use this.root because it won't update in response to changes
+// in realWidth/totalHeight here otherwise, needs to generate a new object
+function getRoot(tree: any, collapsed: string[], showOnly?: string) {
+  const hier = hierarchy(tree, d => d.branchset)
+    .sum(d => (d.branchset ? 0 : 1))
+    .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
+  if (showOnly) {
+    const res = hier.find(node => node.data.id === showOnly)
+    if (!res) {
+      throw new Error('Show only this node: node not found')
     }
-  } else {
-    return tree
+    return res
   }
+
+  if (collapsed.length) {
+    collapsed
+      .map(collapsedId => hier.find(node => node.data.id === collapsedId))
+      .filter((f): f is HierarchyNode<any> => !!f)
+      .map(node => collapse(node))
+  }
+  return hier
 }
 
 function clamp(min: number, num: number, max: number) {
@@ -157,6 +171,7 @@ const MSAModel = types
     msaFilehandle: types.maybe(FileLocation),
     currentAlignment: 0,
     collapsed: types.array(types.string),
+    showOnly: types.maybe(types.string),
     boxTracks: types.array(UniprotTrack),
     turnedOffTracks: types.map(types.boolean),
     data: types.optional(
@@ -261,6 +276,9 @@ const MSAModel = types
       } else {
         self.collapsed.push(node)
       }
+    },
+    setShowOnly(node: string | undefined) {
+      self.showOnly = node
     },
     toggleBranchLen() {
       self.showBranchLen = !self.showBranchLen
@@ -446,13 +464,11 @@ const MSAModel = types
     },
 
     get tree() {
-      const {
-        data: { tree },
-        collapsed,
-      } = self
-      const t = tree ? generateNodeIds(parseNewick(tree)) : this.MSA?.getTree()
+      const t = self.data.tree
+        ? generateNodeIds(parseNewick(self.data.tree))
+        : this.MSA?.getTree()
 
-      return t ? filter(t, collapsed) : { noTree: true }
+      return t || { noTree: true }
     },
 
     get rowNames(): string[] {
@@ -472,7 +488,7 @@ const MSAModel = types
     },
 
     get root() {
-      return getRoot(this.tree)
+      return getRoot(this.tree, self.collapsed, self.showOnly)
     },
 
     get structures(): {
@@ -543,7 +559,7 @@ const MSAModel = types
 
     // generates a new tree that is clustered with x,y positions
     get hierarchy() {
-      const root = getRoot(this.tree)
+      const root = getRoot(this.tree, self.collapsed, self.showOnly)
       const clust = cluster()
         .size([this.totalHeight, self.treeWidth])
         .separation(() => 1)
