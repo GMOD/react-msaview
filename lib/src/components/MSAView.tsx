@@ -18,7 +18,7 @@ const RulerArea = observer(({ model }: { model: MsaViewModel }) => {
   const { resizeHandleWidth, treeAreaWidth } = model
   return (
     <div style={{ display: 'flex', height: 20 }}>
-      <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+      <div style={{ flexShrink: 0, width: treeAreaWidth }}>
         <TreeRuler model={model} />
       </div>
 
@@ -48,7 +48,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               ))}
 
               <div style={{ display: 'flex' }}>
-                <div style={{ overflow: 'hidden', width: treeAreaWidth }}>
+                <div style={{ flexShrink: 0, width: treeAreaWidth }}>
                   <TreeCanvas model={model} />
                 </div>
                 <VerticalResizeHandle model={model} />

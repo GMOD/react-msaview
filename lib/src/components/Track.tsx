@@ -17,6 +17,7 @@ export const TrackLabel = observer(
         style={{
           width,
           height,
+          flexShrink: 0,
           textAlign: 'right',
           fontSize: Math.max(8, rowHeight - 8),
         }}
@@ -89,7 +90,7 @@ const Track = observer(
     return (
       <div key={track.id} style={{ display: 'flex', height }}>
         <TrackLabel model={model} track={track} />
-        <div style={{ width: resizeHandleWidth }} />
+        <div style={{ width: resizeHandleWidth, flexShrink: 0 }} />
         <div ref={ref}>
           <track.ReactComponent model={model} track={track} />
         </div>
