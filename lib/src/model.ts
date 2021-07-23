@@ -63,7 +63,7 @@ function collapse(d: HierarchyNode<any>) {
 // note: we don't use this.root because it won't update in response to changes
 // in realWidth/totalHeight here otherwise, needs to generate a new object
 function getRoot(tree: any, collapsed: string[], showOnly?: string) {
-  const hier = hierarchy(tree, d => d.branchset)
+  let hier = hierarchy(tree, d => d.branchset)
     .sum(d => (d.branchset ? 0 : 1))
     .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
   if (showOnly) {
@@ -71,7 +71,7 @@ function getRoot(tree: any, collapsed: string[], showOnly?: string) {
     if (!res) {
       throw new Error('Show only this node: node not found')
     }
-    return res
+    hier = res
   }
 
   if (collapsed.length) {
