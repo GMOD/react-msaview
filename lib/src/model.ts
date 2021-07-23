@@ -441,20 +441,13 @@ const MSAModel = types
     },
 
     get tree() {
-      const t = self.data.tree
+      return self.data.tree
         ? generateNodeIds(parseNewick(self.data.tree))
-        : this.MSA?.getTree()
-
-      return (
-        t || {
-          noTree: true,
-          branchset: [],
-        }
-      )
+        : this.MSA?.getTree() || ({ noTree: true } as any)
     },
 
     get rowNames(): string[] {
-      return this.hierarchy.leaves().map(node => node.data.name)
+      return this.hierarchy.leaves().map((node: any) => node.data.name)
     },
 
     get mouseOverRowName() {
@@ -468,11 +461,13 @@ const MSAModel = types
     },
 
     get root() {
-      let hier = hierarchy(this.tree, d => d.branchset)
-        .sum(d => (d.branchset ? 0 : 1))
-        .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
+      let hier = hierarchy(this.tree, (d: any) => d.branchset)
+        .sum((d: any) => (d.branchset ? 0 : 1))
+        .sort((a: any, b: any) =>
+          ascending(a.data.length || 1, b.data.length || 1),
+        )
       if (self.showOnly) {
-        const res = hier.find(node => node.data.id === self.showOnly)
+        const res = hier.find((node: any) => node.data.id === self.showOnly)
         if (res) {
           hier = res
         }
@@ -480,9 +475,11 @@ const MSAModel = types
 
       if (self.collapsed.length) {
         self.collapsed
-          .map(collapsedId => hier.find(node => node.data.id === collapsedId))
+          .map(collapsedId =>
+            hier.find((node: any) => node.data.id === collapsedId),
+          )
           .filter(f => !!f)
-          .map(node => collapse(node))
+          .map((node: any) => collapse(node))
       }
       return hier
     },
@@ -513,7 +510,7 @@ const MSAModel = types
       const blanks = []
       const strs = this.hierarchy
         .leaves()
-        .map(({ data }) => this.MSA?.getRow(data.name))
+        .map(({ data }: any) => this.MSA?.getRow(data.name))
         .filter((item): item is string[] => !!item)
 
       for (let i = 0; i < strs[0]?.length; i++) {
@@ -533,7 +530,7 @@ const MSAModel = types
     get rows(): string[][] {
       return this.hierarchy
         .leaves()
-        .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
+        .map(({ data }: any) => [data.name, this.MSA?.getRow(data.name)])
         .filter(f => !!f[1])
     },
 
@@ -562,6 +559,7 @@ const MSAModel = types
       clust(root)
       setBrLength(
         root,
+        //@ts-ignore
         (root.data.length = 0),
         self.treeWidth / maxLength(root),
       )

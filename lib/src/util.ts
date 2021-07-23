@@ -9,7 +9,7 @@ export function transform<T>(
 export type Node = { branchset?: Node[] }
 export type NodeWithIds = {
   id: string
-  branchset?: NodeWithIds[]
+  branchset: NodeWithIds[]
   noTree?: boolean
 }
 
@@ -23,9 +23,10 @@ export function generateNodeIds(
   return {
     ...tree,
     id,
-    branchset: tree.branchset?.map((b, i) =>
-      generateNodeIds(b, `${id}-${i}`, depth + 1),
-    ),
+    branchset:
+      tree.branchset?.map((b, i) =>
+        generateNodeIds(b, `${id}-${i}`, depth + 1),
+      ) || [],
   }
 }
 
