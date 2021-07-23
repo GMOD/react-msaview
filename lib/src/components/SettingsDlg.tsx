@@ -29,12 +29,14 @@ export default observer(
       rowHeight: rowHeightInit,
       colWidth: colWidthInit,
       treeWidth: treeWidthInit,
+      // hideTree: hideTreeInit,
       colorSchemeName,
       noTree,
     } = model
     const [rowHeight, setRowHeight] = useState(`${rowHeightInit}`)
     const [colWidth, setColWidth] = useState(`${colWidthInit}`)
     const [treeWidth, setTreeWidth] = useState(`${treeWidthInit}`)
+    // const [hideTree, setHideTree] = useState(`${hideTreeInit}`)
 
     function error(n: string) {
       return Number.isNaN(+n) || +n < 0
