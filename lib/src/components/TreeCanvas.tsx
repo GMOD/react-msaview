@@ -339,8 +339,8 @@ const TreeBlock = observer(
               }
               ctx.fillText(name, offset, yp)
               clickMap.current.insert({
-                minX: treeAreaWidth - 30 - width,
-                maxX: treeAreaWidth - 30,
+                minX: treeAreaWidth - margin.left - width,
+                maxX: treeAreaWidth - margin.left,
                 minY: yp - height,
                 maxY: yp,
                 name,
