@@ -3,14 +3,22 @@ import normalizeWheel from 'normalize-wheel'
 
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
-import { IconButton, Menu, MenuItem } from '@material-ui/core'
+import { IconButton, Menu, MenuItem, makeStyles } from '@material-ui/core'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+
+const useStyles = makeStyles(() => ({
+  button: {
+    padding: 0,
+  },
+}))
 
 export const TrackLabel = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
     const [anchorEl, setAnchorEl] = useState<Element>()
     const { rowHeight, treeAreaWidth: width } = model
     const { height, name } = track
+    const classes = useStyles()
+    const trackLabelHeight = Math.max(8, rowHeight - 8)
 
     return (
       <div
@@ -19,11 +27,13 @@ export const TrackLabel = observer(
           height,
           flexShrink: 0,
           textAlign: 'right',
-          fontSize: Math.max(8, rowHeight - 8),
+          fontSize: trackLabelHeight,
         }}
       >
         {name}
         <IconButton
+          className={classes.button}
+          style={{ width: trackLabelHeight, height: trackLabelHeight }}
           onClick={event => {
             setAnchorEl(event.target as Element)
           }}

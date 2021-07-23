@@ -16,7 +16,7 @@ import colorSchemes from './colorSchemes'
 
 import gff from '@gmod/gff'
 
-import { generateNodeIds, NodeWithIds } from './util'
+import { generateNodeIds } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
 
@@ -58,29 +58,6 @@ function collapse(d: HierarchyNode<any>) {
     //@ts-ignore
     d.children = null
   }
-}
-
-// note: we don't use this.root because it won't update in response to changes
-// in realWidth/totalHeight here otherwise, needs to generate a new object
-function getRoot(tree: any, collapsed: string[], showOnly?: string) {
-  let hier = hierarchy(tree, d => d.branchset)
-    .sum(d => (d.branchset ? 0 : 1))
-    .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
-  if (showOnly) {
-    const res = hier.find(node => node.data.id === showOnly)
-    if (!res) {
-      throw new Error('Show only this node: node not found')
-    }
-    hier = res
-  }
-
-  if (collapsed.length) {
-    collapsed
-      .map(collapsedId => hier.find(node => node.data.id === collapsedId))
-      .filter((f): f is HierarchyNode<any> => !!f)
-      .map(node => collapse(node))
-  }
-  return hier
 }
 
 function clamp(min: number, num: number, max: number) {
@@ -468,13 +445,16 @@ const MSAModel = types
         ? generateNodeIds(parseNewick(self.data.tree))
         : this.MSA?.getTree()
 
-      return t || { noTree: true }
+      return (
+        t || {
+          noTree: true,
+          branchset: [],
+        }
+      )
     },
 
     get rowNames(): string[] {
-      return this.hierarchy
-        .leaves()
-        .map((node: { data: { name: string } }) => node.data.name)
+      return this.hierarchy.leaves().map(node => node.data.name)
     },
 
     get mouseOverRowName() {
@@ -488,7 +468,23 @@ const MSAModel = types
     },
 
     get root() {
-      return getRoot(this.tree, self.collapsed, self.showOnly)
+      let hier = hierarchy(this.tree, d => d.branchset)
+        .sum(d => (d.branchset ? 0 : 1))
+        .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
+      if (self.showOnly) {
+        const res = hier.find(node => node.data.id === self.showOnly)
+        if (res) {
+          hier = res
+        }
+      }
+
+      if (self.collapsed.length) {
+        self.collapsed
+          .map(collapsedId => hier.find(node => node.data.id === collapsedId))
+          .filter(f => !!f)
+          .map(node => collapse(node))
+      }
+      return hier
     },
 
     get structures(): {
@@ -559,7 +555,7 @@ const MSAModel = types
 
     // generates a new tree that is clustered with x,y positions
     get hierarchy() {
-      const root = getRoot(this.tree, self.collapsed, self.showOnly)
+      const root = this.root
       const clust = cluster()
         .size([this.totalHeight, self.treeWidth])
         .separation(() => 1)

@@ -329,13 +329,15 @@ const TreeBlock = observer(
                 id,
               })
             } else if (labelsAlignRight) {
+              const smallPadding = 2
+              const offset = treeAreaWidth - smallPadding - margin.left
               if (drawTree && !noTree) {
                 const { width } = ctx.measureText(name)
                 ctx.moveTo(xp + radius + 2, y)
-                ctx.lineTo(treeAreaWidth - margin.left * 2 - width - 2, y)
+                ctx.lineTo(offset - smallPadding - width, y)
                 ctx.stroke()
               }
-              ctx.fillText(name, treeAreaWidth - margin.left * 2, yp)
+              ctx.fillText(name, offset, yp)
               clickMap.current.insert({
                 minX: treeAreaWidth - 30 - width,
                 maxX: treeAreaWidth - 30,
