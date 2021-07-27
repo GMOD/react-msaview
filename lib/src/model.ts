@@ -1,4 +1,11 @@
-import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
+import {
+  Instance,
+  cast,
+  types,
+  addDisposer,
+  getSnapshot,
+  SnapshotIn,
+} from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
@@ -36,11 +43,9 @@ function skipBlanks(blanks: number[], arg: string) {
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   //@ts-ignore
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
-  if (d.children) {
-    d.children.forEach(d => {
-      setBrLength(d, y0, k)
-    })
-  }
+  d.children?.forEach(d => {
+    setBrLength(d, y0, k)
+  })
 }
 
 function maxLength(d: HierarchyNode<any>): number {
@@ -572,6 +577,16 @@ const MSAModel = types
   }))
   .actions(self => ({
     addUniprotTrack(node: { name: string; accession: string }) {
+      if (
+        self.boxTracks.find(t => {
+          return t.name === node.name
+        })
+      ) {
+        if (self.turnedOffTracks.has(node.accession)) {
+          this.toggleTrack({ id: node.accession })
+        }
+        return
+      }
       self.boxTracks.push(node)
     },
 
@@ -604,7 +619,7 @@ const MSAModel = types
       }
     },
 
-    toggleTrack(t: any) {
+    toggleTrack(t: { id: string }) {
       if (self.turnedOffTracks.has(t.id)) {
         self.turnedOffTracks.delete(t.id)
       } else {
