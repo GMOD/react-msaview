@@ -3,8 +3,9 @@
 ## v1.2.2
 
 - Improve the clickmap for tree nodes
-- Create template for adding annotation tracks
+- Create template for adding annotation tracks, including feature-style glyphs from genome browsers
 - Fix colormap for secondary structure tracks from stockholm files
+- Add ability to download tracks from uniprot
 
 ## v1.2.1
 
