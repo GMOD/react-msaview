@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.2.3
+
+- Add "Get info" about tracks
+- Fix coordinate shifting on collapsed nodes with box tracks using bpToPx
+
 ## v1.2.2
 
 - Improve the clickmap for tree nodes
