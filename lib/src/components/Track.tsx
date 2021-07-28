@@ -5,6 +5,7 @@ import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
 import { IconButton, Menu, MenuItem, makeStyles } from '@material-ui/core'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+import TrackInfoDialog from './TrackInfoDlg'
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -15,6 +16,7 @@ const useStyles = makeStyles(() => ({
 export const TrackLabel = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
     const [anchorEl, setAnchorEl] = useState<Element>()
+    const [trackInfoDlgOpen, setTrackInfoDlgOpen] = useState(false)
     const { rowHeight, treeAreaWidth: width } = model
     const { height, name } = track
     const classes = useStyles()
@@ -62,13 +64,19 @@ export const TrackLabel = observer(
             <MenuItem
               dense
               onClick={() => {
-                console.log(track.data)
+                setTrackInfoDlgOpen(true)
                 setAnchorEl(undefined)
               }}
             >
               Get info
             </MenuItem>
           </Menu>
+        ) : null}
+        {trackInfoDlgOpen ? (
+          <TrackInfoDialog
+            model={track}
+            onClose={() => setTrackInfoDlgOpen(false)}
+          />
         ) : null}
       </div>
     )
