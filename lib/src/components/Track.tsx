@@ -18,7 +18,10 @@ export const TrackLabel = observer(
     const [anchorEl, setAnchorEl] = useState<Element>()
     const [trackInfoDlgOpen, setTrackInfoDlgOpen] = useState(false)
     const { rowHeight, treeAreaWidth: width } = model
-    const { height, name } = track
+    const {
+      height,
+      model: { name },
+    } = track
     const classes = useStyles()
     const trackLabelHeight = Math.max(8, rowHeight - 8)
 
@@ -74,7 +77,7 @@ export const TrackLabel = observer(
         ) : null}
         {trackInfoDlgOpen ? (
           <TrackInfoDialog
-            model={track}
+            model={track.model}
             onClose={() => setTrackInfoDlgOpen(false)}
           />
         ) : null}
@@ -86,7 +89,9 @@ export const TrackLabel = observer(
 const Track = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
     const { resizeHandleWidth } = model
-    const { height } = track
+    const {
+      model: { height },
+    } = track
     const ref = useRef<HTMLDivElement>(null)
     const scheduled = useRef(false)
     const deltaX = useRef(0)

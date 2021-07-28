@@ -34,20 +34,23 @@ export default observer(
           </Typography>
 
           <FormGroup>
-            {tracks.map(track => (
-              <FormControlLabel
-                key={track.id}
-                control={
-                  <Checkbox
-                    checked={!model.turnedOffTracks.has(track.id)}
-                    onChange={() => {
-                      model.toggleTrack(track)
-                    }}
-                  />
-                }
-                label={track.name}
-              />
-            ))}
+            {tracks.map(track => {
+              console.log({ m: track.model })
+              return (
+                <FormControlLabel
+                  key={track.model.id}
+                  control={
+                    <Checkbox
+                      checked={!model.turnedOffTracks.has(model.id)}
+                      onChange={() => {
+                        model.toggleTrack(model)
+                      }}
+                    />
+                  }
+                  label={track.model.name}
+                />
+              )
+            })}
           </FormGroup>
           <DialogActions>
             <Button

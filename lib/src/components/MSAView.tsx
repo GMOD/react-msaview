@@ -44,7 +44,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               <RulerArea model={model} />
 
               {turnedOnTracks?.map(track => (
-                <Track key={track.id} model={model} track={track} />
+                <Track key={track.model.id} model={model} track={track} />
               ))}
 
               <div style={{ display: 'flex' }}>

@@ -21,13 +21,15 @@ const AnnotationBlock = observer(
       highResScaleFactor,
       scrollX,
     } = model
-    const { name, data, height, features, associatedRowName } = track
+    const {
+      model: { height, features, associatedRowName },
+    } = track
 
     const layout = useMemo(() => {
       const temp = new Layout()
       features?.forEach(([feature]: any, index: number) => {
-        const s = model.bpToPx(name, feature.start - 1)
-        const e = model.bpToPx(name, feature.end)
+        const s = model.bpToPx(associatedRowName, feature.start - 1)
+        const e = model.bpToPx(associatedRowName, feature.end)
         temp.addRect(`${index}`, s, e, rowHeight, feature)
       })
       return temp
@@ -130,7 +132,7 @@ const AnnotationBlock = observer(
       blanks,
     ])
 
-    return !data ? null : (
+    return !features ? null : (
       <>
         <canvas
           ref={ref}
@@ -172,7 +174,9 @@ const AnnotationBlock = observer(
 const AnnotationTrack = observer(
   ({ model, track }: { model: MsaViewModel; track: any }) => {
     const { blocksX, msaAreaWidth } = model
-    const { height } = track
+    const {
+      model: { height },
+    } = track
     return (
       <div
         style={{

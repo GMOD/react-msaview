@@ -23,7 +23,9 @@ const AnnotationBlock = observer(
       rowHeight,
       highResScaleFactor,
     } = model
-    const { customColorScheme, data } = track
+    const {
+      model: { customColorScheme, data },
+    } = track
 
     const colorScheme = customColorScheme || modelColorScheme
     const theme = useTheme()
