@@ -21,16 +21,17 @@ const AnnotationBlock = observer(
       highResScaleFactor,
       scrollX,
     } = model
-    const { rowName, height, data } = track
+    const { name, data, height, features, associatedRowName } = track
+
     const layout = useMemo(() => {
       const temp = new Layout()
-      data?.forEach(([feature]: any, index: number) => {
-        const s = model.bpToPx(rowName, feature.start - 1)
-        const e = model.bpToPx(rowName, feature.end)
+      features?.forEach(([feature]: any, index: number) => {
+        const s = model.bpToPx(name, feature.start - 1)
+        const e = model.bpToPx(name, feature.end)
         temp.addRect(`${index}`, s, e, rowHeight, feature)
       })
       return temp
-    }, [rowHeight, data, rowName, model, blanks])
+    }, [rowHeight, features, associatedRowName, model, blanks])
 
     const ref = useRef<HTMLCanvasElement>(null)
     const labelRef = useRef<HTMLCanvasElement>(null)
@@ -66,7 +67,7 @@ const AnnotationBlock = observer(
         }
       })
     }, [
-      rowName,
+      associatedRowName,
       blockSize,
       colWidth,
       layout.rectangles,
@@ -75,7 +76,7 @@ const AnnotationBlock = observer(
       height,
       offsetX,
       highResScaleFactor,
-      data,
+      features,
       blanks,
     ])
 
@@ -123,8 +124,7 @@ const AnnotationBlock = observer(
       height,
       layout.rectangles,
       offsetX,
-      rowName,
-      data,
+      features,
       model,
       rowHeight,
       blanks,

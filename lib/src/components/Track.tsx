@@ -59,6 +59,15 @@ export const TrackLabel = observer(
             >
               Close
             </MenuItem>
+            <MenuItem
+              dense
+              onClick={() => {
+                console.log(track.data)
+                setAnchorEl(undefined)
+              }}
+            >
+              Get info
+            </MenuItem>
           </Menu>
         ) : null}
       </div>

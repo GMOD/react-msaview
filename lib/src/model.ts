@@ -1,11 +1,4 @@
-import {
-  Instance,
-  cast,
-  types,
-  addDisposer,
-  getSnapshot,
-  SnapshotIn,
-} from 'mobx-state-tree'
+import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
@@ -26,6 +19,12 @@ import gff from '@gmod/gff'
 import { generateNodeIds } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
+
+interface BasicTrack {
+  model: { name: string }
+  ReactComponent: React.FC<any>
+  height: number
+}
 
 function skipBlanks(blanks: number[], arg: string) {
   let s = ''
@@ -83,10 +82,13 @@ const UniprotTrack = types
   .model({
     accession: types.string,
     name: types.string,
+    associatedRowName: types.string,
+    height: types.optional(types.number, 100),
   })
   .volatile(() => ({
     error: undefined as Error | undefined,
     data: undefined as any | undefined,
+    ReactComponent: BoxTrack,
   }))
   .actions(self => ({
     setError(error: Error) {
@@ -111,8 +113,7 @@ const UniprotTrack = types
               )
             }
             const text = await response.text()
-            const result = gff.parseStringSync(text)
-            self.setData(result)
+            self.setData(text)
           } catch (e) {
             self.setError(e)
           }
@@ -123,6 +124,10 @@ const UniprotTrack = types
   .views(self => ({
     get loading() {
       return !self.data
+    },
+
+    get features() {
+      return gff.parseStringSync(self.data)
     },
   }))
 
@@ -577,17 +582,14 @@ const MSAModel = types
   }))
   .actions(self => ({
     addUniprotTrack(node: { name: string; accession: string }) {
-      if (
-        self.boxTracks.find(t => {
-          return t.name === node.name
-        })
-      ) {
+      if (self.boxTracks.find(t => t.name === node.name)) {
         if (self.turnedOffTracks.has(node.accession)) {
           this.toggleTrack({ id: node.accession })
         }
-        return
+      } else {
+        console.log(node)
+        self.boxTracks.push({ ...node, associatedRowName: node.name })
       }
-      self.boxTracks.push(node)
     },
 
     doScrollY(deltaY: number) {
@@ -650,43 +652,25 @@ const MSAModel = types
       return ['a']
     },
 
-    get tracks(): {
-      id: string
-      name: string
-      ReactComponent: React.FC<any>
-      height: number
-    }[] {
+    get tracks(): BasicTrack[] {
       const blanks = self.blanks
       const adapterTracks = self.MSA
         ? self.MSA.tracks.map(track => {
-            const data = track.data ? skipBlanks(blanks, track.data) : undefined
+            const { data } = track
             return {
               ...track,
-              data,
+              data: data ? skipBlanks(blanks, data) : undefined,
               ReactComponent: TextTrack,
               height: self.rowHeight,
             }
           })
-        : ([] as {
-            id: string
-            name: string
-            ReactComponent: React.FC<any>
-            height: number
-          }[])
+        : ([] as BasicTrack[])
 
-      const domainTracks = self.boxTracks
-        .map(track => ({
-          ReactComponent: BoxTrack,
-          data: track.data,
-          name: track.accession,
-          id: track.accession,
-          rowName: track.name,
-          height: 100,
-        }))
+      const boxTracks = self.boxTracks
         // filter out tracks that are associated with hidden rows
-        .filter(track => !!self.rows.find(row => row[0] === track.rowName))
+        .filter(track => !!self.rows.find(row => row[0] === track.name))
 
-      return [...adapterTracks, ...domainTracks]
+      return [...adapterTracks, ...boxTracks]
     },
 
     get turnedOnTracks() {
