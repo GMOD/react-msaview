@@ -694,6 +694,7 @@ const MSAModel = types
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
       const [, row] = rows[index]
+      // console.log({ row, blanks })
       const details = self.getRowDetails(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
@@ -711,14 +712,14 @@ const MSAModel = types
         }
       }
 
+      let count = 0
       for (let k = 0; k < row.length; k++) {
-        if (blanks.indexOf(k) !== -1 && k < i) {
-          // console.log('here?')
-          i--
+        if (blanks.indexOf(k) !== -1 && k < i + 1) {
+          count++
         }
       }
-      // console.log('wtf', position, i)
-      return i
+
+      return i - count
     },
   }))
 
