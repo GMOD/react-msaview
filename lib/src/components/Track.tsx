@@ -58,7 +58,7 @@ export const TrackLabel = observer(
             <MenuItem
               dense
               onClick={() => {
-                model.toggleTrack(track)
+                model.toggleTrack(track.model.id)
                 setAnchorEl(undefined)
               }}
             >

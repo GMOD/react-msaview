@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.4
+
+- Fix some model identifiers
+
 ## v1.2.3
 
 - Add "Get info" about tracks

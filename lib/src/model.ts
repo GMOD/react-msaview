@@ -588,7 +588,7 @@ const MSAModel = types
     addUniprotTrack(node: { name: string; accession: string }) {
       if (self.boxTracks.find(t => t.name === node.name)) {
         if (self.turnedOffTracks.has(node.accession)) {
-          this.toggleTrack({ id: node.accession })
+          this.toggleTrack(node.accession)
         }
       } else {
         self.boxTracks.push({
@@ -628,11 +628,11 @@ const MSAModel = types
       }
     },
 
-    toggleTrack(t: { id: string }) {
-      if (self.turnedOffTracks.has(t.id)) {
-        self.turnedOffTracks.delete(t.id)
+    toggleTrack(id: string) {
+      if (self.turnedOffTracks.has(id)) {
+        self.turnedOffTracks.delete(id)
       } else {
-        self.turnedOffTracks.set(t.id, true)
+        self.turnedOffTracks.set(id, true)
       }
     },
   }))
@@ -687,7 +687,7 @@ const MSAModel = types
     },
 
     get turnedOnTracks() {
-      return this.tracks.filter(f => !self.turnedOffTracks.has(f.id))
+      return this.tracks.filter(f => !self.turnedOffTracks.has(f.model.id))
     },
 
     bpToPx(rowName: string, position: number) {

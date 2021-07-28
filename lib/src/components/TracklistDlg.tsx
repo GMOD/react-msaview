@@ -35,15 +35,14 @@ export default observer(
 
           <FormGroup>
             {tracks.map(track => {
-              console.log({ m: track.model })
               return (
                 <FormControlLabel
                   key={track.model.id}
                   control={
                     <Checkbox
-                      checked={!model.turnedOffTracks.has(model.id)}
+                      checked={!model.turnedOffTracks.has(track.model.id)}
                       onChange={() => {
-                        model.toggleTrack(model)
+                        model.toggleTrack(track.model.id)
                       }}
                     />
                   }
