@@ -587,8 +587,8 @@ const MSAModel = types
   .actions(self => ({
     addUniprotTrack(node: { name: string; accession: string }) {
       if (self.boxTracks.find(t => t.name === node.name)) {
-        if (self.turnedOffTracks.has(node.accession)) {
-          this.toggleTrack(node.accession)
+        if (self.turnedOffTracks.has(node.name)) {
+          this.toggleTrack(node.name)
         }
       } else {
         self.boxTracks.push({
