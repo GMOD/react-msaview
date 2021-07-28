@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## v1.2.5
+
+- Make the mouseover cross annotation tracks
+
 ## v1.2.4
 
-- Fix some model identifiers
+- Fix inability to close tracks due to some confusion about model IDs
 
 ## v1.2.3
 

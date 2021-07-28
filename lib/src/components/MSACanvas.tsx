@@ -26,7 +26,6 @@ const MSABlock = observer(
       hierarchy,
       colorScheme,
       blockSize,
-      mouseCol,
       highResScaleFactor,
     } = model
     const theme = useTheme()
@@ -37,7 +36,6 @@ const MSABlock = observer(
     )
 
     const ref = useRef<HTMLCanvasElement>(null)
-    const mouseoverRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
       if (!ref.current) {
         return
@@ -122,74 +120,32 @@ const MSABlock = observer(
       offsetY,
       blockSize,
     ])
-
-    useEffect(() => {
-      if (!mouseoverRef.current) {
-        return
-      }
-
-      const ctx = mouseoverRef.current.getContext('2d')
-      if (!ctx) {
-        return
-      }
-
-      ctx.resetTransform()
-      ctx.clearRect(0, 0, blockSize, blockSize)
-      ctx.translate(-offsetX, -offsetY)
-
-      if (
-        mouseCol &&
-        mouseCol > offsetX / colWidth &&
-        mouseCol < (offsetX + blockSize) / colWidth + 1
-      ) {
-        const x = (mouseCol - 1) * colWidth
-        ctx.fillStyle = 'rgba(100,100,100,0.5)'
-        ctx.fillRect(x, offsetY, colWidth, offsetY + blockSize)
-      }
-    }, [mouseCol, blockSize, colWidth, offsetX, offsetY, rowHeight])
-
     return (
-      <div style={{ position: 'relative' }}>
-        <canvas
-          ref={ref}
-          onMouseMove={event => {
-            if (!ref.current) {
-              return
-            }
-            const { left, top } = ref.current.getBoundingClientRect()
-            const mouseX = event.clientX - left
-            const mouseY = event.clientY - top
-            model.setMousePos(
-              Math.floor((mouseX + offsetX) / colWidth) + 1,
-              Math.floor((mouseY + offsetY) / rowHeight),
-            )
-          }}
-          onMouseLeave={() => model.setMousePos()}
-          width={blockSize * highResScaleFactor}
-          height={blockSize * highResScaleFactor}
-          style={{
-            position: 'absolute',
-            top: scrollY + offsetY,
-            left: scrollX + offsetX,
-            width: blockSize,
-            height: blockSize,
-          }}
-        />
-        <canvas
-          ref={mouseoverRef}
-          width={blockSize}
-          height={blockSize}
-          style={{
-            position: 'absolute',
-            top: scrollY + offsetY,
-            left: scrollX + offsetX,
-            width: blockSize,
-            height: blockSize,
-            zIndex: 1000,
-            pointerEvents: 'none',
-          }}
-        />
-      </div>
+      <canvas
+        ref={ref}
+        onMouseMove={event => {
+          if (!ref.current) {
+            return
+          }
+          const { left, top } = ref.current.getBoundingClientRect()
+          const mouseX = event.clientX - left
+          const mouseY = event.clientY - top
+          model.setMousePos(
+            Math.floor((mouseX + offsetX) / colWidth) + 1,
+            Math.floor((mouseY + offsetY) / rowHeight),
+          )
+        }}
+        onMouseLeave={() => model.setMousePos()}
+        width={blockSize * highResScaleFactor}
+        height={blockSize * highResScaleFactor}
+        style={{
+          position: 'absolute',
+          top: scrollY + offsetY,
+          left: scrollX + offsetX,
+          width: blockSize,
+          height: blockSize,
+        }}
+      />
     )
   },
 )
