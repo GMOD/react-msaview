@@ -5,6 +5,119 @@ import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
 import { colorContrast } from '../util'
 
+//from http://www.jalview.org/help/html/colourSchemes/clustal.html
+function getColor(s: any, model: MsaViewModel, row: number, col: number) {
+  const total = Object.values(s).reduce((a, b) => a + b, 0) as number
+  const l = model.columns[row][col]
+  const WLVIMAFCHP = s.W + s.L + s.V + s.I + s.M + s.A + s.F + s.C + s.H + s.P
+
+  const KR = s.K + s.R
+  const QE = s.Q + s.E
+  const ED = s.E + s.D
+  const TS = s.T + s.S
+  if (WLVIMAFCHP / total > 0.6) {
+    if (
+      l === 'A' ||
+      l === 'I' ||
+      l === 'L' ||
+      l === 'M' ||
+      l === 'F' ||
+      l === 'W' ||
+      l === 'V' ||
+      l === 'C'
+    ) {
+      return '#88d'
+    }
+  }
+
+  if (
+    (l === 'K' || l === 'R') &&
+    (KR / total > 0.6 ||
+      s.K / total > 0.8 ||
+      s.R / total > 0.8 ||
+      s.Q / total > 0.8)
+  ) {
+    return '#d88'
+  }
+
+  if (
+    l === 'E' &&
+    (KR / total > 0.6 ||
+      QE / total > 0.5 ||
+      s.E / total > 0.8 ||
+      s.Q / total > 0.8 ||
+      s.D / total > 0.8)
+  ) {
+    return 'rgb(192, 72, 192)'
+  }
+
+  if (
+    l === 'D' &&
+    (KR / total > 0.6 ||
+      ED / total > 0.5 ||
+      s.K / total > 0.8 ||
+      s.R / total > 0.8 ||
+      s.Q / total > 0.8)
+  ) {
+    return 'rgb(192, 72, 192)'
+  }
+
+  if (l === 'N' && (s.N / total > 0.5 || s.Y / total > 0.85)) {
+    return '#8f8'
+  }
+  if (
+    l === 'Q' &&
+    (KR / total > 0.6 ||
+      QE / total > 0.6 ||
+      s.Q / total > 0.85 ||
+      s.E / total > 0.85 ||
+      s.K / total > 0.85 ||
+      s.R / total > 0.85)
+  ) {
+    return '#8f8'
+  }
+
+  if (
+    (l === 'S' || l === 'T') &&
+    (WLVIMAFCHP / total > 0.6 ||
+      TS / total > 0.5 ||
+      s.S / total > 0.85 ||
+      s.T / total > 0.85)
+  ) {
+    return '#8f8'
+  }
+
+  if (l === 'C' && s.C / total > 0.85) {
+    return 'rgb(240, 128, 128)'
+  }
+
+  if (l === 'G' && s.G / total > 0) {
+    return 'rgb(240, 144, 72)'
+  }
+  if (l === 'P' && s.P / total > 0) {
+    return 'rgb(192, 192, 0)'
+  }
+
+  if (
+    (l === 'H' || l === 'Y') &&
+    (WLVIMAFCHP / total > 0.6 ||
+      s.W > 0.85 ||
+      s.Y > 0.85 ||
+      s.A > 0.85 ||
+      s.C > 0.85 ||
+      s.P > 0.85 ||
+      s.Q > 0.85 ||
+      s.F > 0.85 ||
+      s.H > 0.85 ||
+      s.I > 0.85 ||
+      s.L > 0.85 ||
+      s.M > 0.85 ||
+      s.V > 0.85)
+  ) {
+    return 'rgb(21, 164, 164)'
+  }
+  return undefined
+}
 const MSABlock = observer(
   ({
     model,
@@ -64,6 +177,7 @@ const MSABlock = observer(
       const xStart = Math.max(0, Math.floor(offsetX / colWidth))
       const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
       const visibleLeaves = leaves.slice(yStart, yEnd)
+      const stats = model.colStats
       visibleLeaves.forEach(node => {
         const {
           //@ts-ignore
@@ -75,7 +189,7 @@ const MSABlock = observer(
         const str = columns[name]?.slice(xStart, xEnd)
         for (let i = 0; i < str?.length; i++) {
           const letter = str[i]
-          const color = colorScheme[letter.toUpperCase()]
+          const color = getColor(stats[xStart + i], model, name, xStart + i)
           if (bgColor) {
             const x = i * colWidth + offsetX - (offsetX % colWidth)
             ctx.fillStyle = color || 'white'
@@ -97,7 +211,7 @@ const MSABlock = observer(
           for (let i = 0; i < str?.length; i++) {
             const letter = str[i]
             const color = colorScheme[letter.toUpperCase()]
-            const contrast = contrastScheme[letter.toUpperCase()] || 'black'
+            const contrast = 'black' //contrastScheme[letter.toUpperCase()] || 'black'
             const x = i * colWidth + offsetX - (offsetX % colWidth)
 
             //note: -rowHeight/4 matches +rowHeight/4 in tree
