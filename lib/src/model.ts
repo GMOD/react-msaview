@@ -4,7 +4,7 @@ import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { autorun } from 'mobx'
+import { trace, autorun } from 'mobx'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
 import Stockholm from 'stockholm-js'
@@ -589,6 +589,23 @@ const MSAModel = types
         ret.push(skipBlanks(this.blanks, strs[i]))
       }
       return ret
+    },
+
+    get colStats() {
+      console.log('here')
+      const r = []
+      const m = this.columns2d
+      for (let i = 0; i < m.length; i++) {
+        for (let j = 0; j < m[i].length; j++) {
+          const l = r[j] || {}
+          if (!l[m[i][j]]) {
+            l[m[i][j]] = 0
+          }
+          l[m[i][j]]++
+          r[j] = l
+        }
+      }
+      return r
     },
 
     // generates a new tree that is clustered with x,y positions
