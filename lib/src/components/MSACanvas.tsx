@@ -5,16 +5,43 @@ import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
 import { colorContrast } from '../util'
 
-//from http://www.jalview.org/help/html/colourSchemes/clustal.html
-function getColor(s: any, model: MsaViewModel, row: number, col: number) {
-  const total = Object.values(s).reduce((a, b) => a + b, 0) as number
+// info http://www.jalview.org/help/html/colourSchemes/clustal.html
+function getColor(
+  s: { [key: string]: number },
+  model: MsaViewModel,
+  row: number,
+  col: number,
+) {
+  const total = Object.values(s).reduce((a, b) => a + b, 0)
   const l = model.columns[row][col]
-  const WLVIMAFCHP = s.W + s.L + s.V + s.I + s.M + s.A + s.F + s.C + s.H + s.P
+  const {
+    W = 0,
+    L = 0,
+    V = 0,
+    I = 0,
+    M = 0,
+    A = 0,
+    F = 0,
+    C = 0,
+    H = 0,
+    P = 0,
+    R = 0,
+    K = 0,
+    Q = 0,
+    E = 0,
+    D = 0,
+    T = 0,
+    S = 0,
+    G = 0,
+    Y = 0,
+    N = 0,
+  } = s
+  const WLVIMAFCHP = W + L + V + I + M + A + F + C + H + P
 
-  const KR = s.K + s.R
-  const QE = s.Q + s.E
-  const ED = s.E + s.D
-  const TS = s.T + s.S
+  const KR = K + R
+  const QE = Q + E
+  const ED = E + D
+  const TS = T + S
   if (WLVIMAFCHP / total > 0.6) {
     if (
       l === 'A' ||
@@ -32,10 +59,7 @@ function getColor(s: any, model: MsaViewModel, row: number, col: number) {
 
   if (
     (l === 'K' || l === 'R') &&
-    (KR / total > 0.6 ||
-      s.K / total > 0.8 ||
-      s.R / total > 0.8 ||
-      s.Q / total > 0.8)
+    (KR / total > 0.6 || K / total > 0.8 || R / total > 0.8 || Q / total > 0.8)
   ) {
     return '#d88'
   }
@@ -44,9 +68,9 @@ function getColor(s: any, model: MsaViewModel, row: number, col: number) {
     l === 'E' &&
     (KR / total > 0.6 ||
       QE / total > 0.5 ||
-      s.E / total > 0.8 ||
-      s.Q / total > 0.8 ||
-      s.D / total > 0.8)
+      E / total > 0.8 ||
+      Q / total > 0.8 ||
+      D / total > 0.8)
   ) {
     return 'rgb(192, 72, 192)'
   }
@@ -55,24 +79,24 @@ function getColor(s: any, model: MsaViewModel, row: number, col: number) {
     l === 'D' &&
     (KR / total > 0.6 ||
       ED / total > 0.5 ||
-      s.K / total > 0.8 ||
-      s.R / total > 0.8 ||
-      s.Q / total > 0.8)
+      K / total > 0.8 ||
+      R / total > 0.8 ||
+      Q / total > 0.8)
   ) {
     return 'rgb(192, 72, 192)'
   }
 
-  if (l === 'N' && (s.N / total > 0.5 || s.Y / total > 0.85)) {
+  if (l === 'N' && (N / total > 0.5 || Y / total > 0.85)) {
     return '#8f8'
   }
   if (
     l === 'Q' &&
     (KR / total > 0.6 ||
       QE / total > 0.6 ||
-      s.Q / total > 0.85 ||
-      s.E / total > 0.85 ||
-      s.K / total > 0.85 ||
-      s.R / total > 0.85)
+      Q / total > 0.85 ||
+      E / total > 0.85 ||
+      K / total > 0.85 ||
+      R / total > 0.85)
   ) {
     return '#8f8'
   }
@@ -81,38 +105,38 @@ function getColor(s: any, model: MsaViewModel, row: number, col: number) {
     (l === 'S' || l === 'T') &&
     (WLVIMAFCHP / total > 0.6 ||
       TS / total > 0.5 ||
-      s.S / total > 0.85 ||
-      s.T / total > 0.85)
+      S / total > 0.85 ||
+      T / total > 0.85)
   ) {
     return '#8f8'
   }
 
-  if (l === 'C' && s.C / total > 0.85) {
+  if (l === 'C' && C / total > 0.85) {
     return 'rgb(240, 128, 128)'
   }
 
-  if (l === 'G' && s.G / total > 0) {
+  if (l === 'G' && G / total > 0) {
     return 'rgb(240, 144, 72)'
   }
-  if (l === 'P' && s.P / total > 0) {
+  if (l === 'P' && P / total > 0) {
     return 'rgb(192, 192, 0)'
   }
 
   if (
     (l === 'H' || l === 'Y') &&
     (WLVIMAFCHP / total > 0.6 ||
-      s.W > 0.85 ||
-      s.Y > 0.85 ||
-      s.A > 0.85 ||
-      s.C > 0.85 ||
-      s.P > 0.85 ||
-      s.Q > 0.85 ||
-      s.F > 0.85 ||
-      s.H > 0.85 ||
-      s.I > 0.85 ||
-      s.L > 0.85 ||
-      s.M > 0.85 ||
-      s.V > 0.85)
+      W > 0.85 ||
+      Y > 0.85 ||
+      A > 0.85 ||
+      C > 0.85 ||
+      P > 0.85 ||
+      Q > 0.85 ||
+      F > 0.85 ||
+      H > 0.85 ||
+      I > 0.85 ||
+      L > 0.85 ||
+      M > 0.85 ||
+      V > 0.85)
   ) {
     return 'rgb(21, 164, 164)'
   }

@@ -592,8 +592,7 @@ const MSAModel = types
     },
 
     get colStats() {
-      console.log('here')
-      const r = []
+      const r = [] as { [key: string]: number }[]
       const m = this.columns2d
       for (let i = 0; i < m.length; i++) {
         for (let j = 0; j < m[i].length; j++) {
