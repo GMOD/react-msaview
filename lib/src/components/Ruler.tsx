@@ -229,7 +229,8 @@ const Ruler = observer(({ model }: { model: MsaViewModel }) => {
         if (!ref.current) {
           return
         }
-        if (event.button === 0) {
+        // have to wait for dialog to go away, so !annotPos
+        if (event.button === 0 && !annotPos) {
           const elt = ref.current.getBoundingClientRect()
           setMouseDownPos(event.clientX - elt.left)
           setMouseCurrPos(event.clientX - elt.left)

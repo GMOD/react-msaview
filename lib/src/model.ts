@@ -1,4 +1,11 @@
-import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
+import {
+  Instance,
+  cast,
+  types,
+  addDisposer,
+  getSnapshot,
+  SnapshotIn,
+} from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
@@ -20,15 +27,32 @@ import { generateNodeIds } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
 
-interface BasicTrack {
-  ReactComponent: React.FC<any>
-  model: {
-    id: string
-    name: string
-    associatedRowName?: string
-    height: number
-  }
+interface BasicTrackModel {
+  id: string
+  name: string
+  associatedRowName?: string
+  height: number
 }
+
+export interface TextTrackModel extends BasicTrackModel {
+  customColorScheme?: { [key: string]: string }
+  data: string
+}
+
+export interface BoxTrackModel extends BasicTrackModel {
+  features: { start: number; end: number }[]
+}
+export interface TextTrack {
+  ReactComponent: React.FC<any>
+  model: TextTrackModel
+}
+
+export interface BoxTrack {
+  ReactComponent: React.FC<any>
+  model: BoxTrackModel
+}
+
+type BasicTrack = BoxTrack | TextTrack
 
 function skipBlanks(blanks: number[], arg: string) {
   let s = ''
@@ -131,7 +155,7 @@ const UniprotTrack = types
     },
 
     get features() {
-      return gff.parseStringSync(self.data)
+      return gff.parseStringSync(self.data).map((f: any) => f[0])
     },
   }))
 
@@ -675,7 +699,7 @@ const MSAModel = types
                 ...track,
                 data: data ? skipBlanks(blanks, data) : undefined,
                 height: self.rowHeight,
-              },
+              } as TextTrackModel,
               ReactComponent: TextTrack,
             }
           })
@@ -685,22 +709,36 @@ const MSAModel = types
         // filter out tracks that are associated with hidden rows
         .filter(track => !!self.rows.find(row => row[0] === track.name))
         .map(track => ({
-          model: track,
+          model: track as BoxTrackModel,
           ReactComponent: BoxTrack,
         }))
 
-      return [...adapterTracks, ...boxTracks]
+      const annotationTracks =
+        self.annotatedRegions.length > 0
+          ? [
+              {
+                model: {
+                  features: self.annotatedRegions,
+                  height: 100,
+                  id: 'annotations',
+                  name: 'User-created annotations',
+                } as BoxTrackModel,
+                ReactComponent: BoxTrack,
+              },
+            ]
+          : ([] as BasicTrack[])
+
+      return [...adapterTracks, ...boxTracks, ...annotationTracks]
     },
 
     get turnedOnTracks() {
       return this.tracks.filter(f => !self.turnedOffTracks.has(f.model.id))
     },
 
-    bpToPx(rowName: string, position: number) {
+    bpToPxForRow(rowName: string, position: number) {
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
       const [, row] = rows[index]
-      // console.log({ row, blanks })
       const details = self.getRowDetails(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
@@ -744,16 +782,14 @@ const MSAModel = types
     },
 
     getRealPos(pos: number) {
-      let realPos = 0
-      let curr = 0
-      for (let i = 0; i < pos; i++) {
-        while (i === self.blanks[curr]) {
-          curr++
-          realPos++
+      let j = 0
+      for (let i = 0, k = 0; i < pos; i++, j++) {
+        while (j === self.blanks[k]) {
+          k++
+          j++
         }
-        realPos++
       }
-      return realPos
+      return j
     },
   }))
 

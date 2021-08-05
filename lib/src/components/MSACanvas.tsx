@@ -189,7 +189,6 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
     }
   }, [model])
 
-  function mouseDown(event: React.MouseEvent)
   useEffect(() => {
     let cleanup = () => {}
 

@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useEffect } from 'react'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../model'
+import { getSnapshot } from 'mobx-state-tree'
+import { BoxTrack, MsaViewModel } from '../model'
 import Layout from '../layout'
 
 const AnnotationBlock = observer(
@@ -9,7 +10,7 @@ const AnnotationBlock = observer(
     model,
     offsetX,
   }: {
-    track: any
+    track: BoxTrack
     model: MsaViewModel
     offsetX: number
   }) => {
@@ -27,13 +28,27 @@ const AnnotationBlock = observer(
 
     const layout = useMemo(() => {
       const temp = new Layout()
-      features?.forEach(([feature]: any, index: number) => {
-        const s = model.bpToPx(associatedRowName, feature.start - 1)
-        const e = model.bpToPx(associatedRowName, feature.end)
-        temp.addRect(`${index}`, s, e, rowHeight, feature)
+
+      features?.forEach((feature, index) => {
+        const { start, end } = feature
+        if (associatedRowName) {
+          const s = model.bpToPxForRow(associatedRowName, start - 1)
+          const e = model.bpToPxForRow(associatedRowName, end)
+          temp.addRect(`${index}`, s, e, rowHeight, feature)
+        } else {
+          console.log({ start, end, feature })
+          temp.addRect(`${index}`, start, end, rowHeight, feature)
+        }
       })
       return temp
-    }, [rowHeight, features, associatedRowName, model, blanks])
+    }, [
+      rowHeight,
+      features,
+      getSnapshot(features),
+      associatedRowName,
+      model,
+      blanks,
+    ])
 
     const ref = useRef<HTMLCanvasElement>(null)
     const labelRef = useRef<HTMLCanvasElement>(null)
