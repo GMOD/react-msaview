@@ -165,6 +165,12 @@ const MSAModel = types
     showOnly: types.maybe(types.string),
     boxTracks: types.array(UniprotTrack),
     turnedOffTracks: types.map(types.boolean),
+    annotatedRegions: types.array(
+      types.model({
+        start: types.number,
+        end: types.number,
+      }),
+    ),
     data: types.optional(
       types
         .model({
@@ -720,6 +726,34 @@ const MSAModel = types
       }
 
       return i - count
+    },
+  }))
+  .actions(self => ({
+    addAnnotation(start: number, end: number) {
+      self.annotatedRegions.push({
+        start,
+        end,
+      })
+    },
+
+    addRelativeAnnotation(start: number, end: number) {
+      self.annotatedRegions.push({
+        start: this.getRealPos(start),
+        end: this.getRealPos(end),
+      })
+    },
+
+    getRealPos(pos: number) {
+      let realPos = 0
+      let curr = 0
+      for (let i = 0; i < pos; i++) {
+        while (i === self.blanks[curr]) {
+          curr++
+          realPos++
+        }
+        realPos++
+      }
+      return realPos
     },
   }))
 

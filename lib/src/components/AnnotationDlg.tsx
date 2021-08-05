@@ -15,6 +15,7 @@ export default observer(
   ({
     onClose,
     data,
+    model,
   }: {
     model: MsaViewModel
     onClose: () => void
@@ -26,13 +27,14 @@ export default observer(
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>
           <Typography>
-            Do you want to add an annotation to the MSA at {left}..{right}
+            Do you want to add an annotation to the MSA at {left}..{right} (real
+            position {model.getRealPos(left)}..{model.getRealPos(right)})
           </Typography>
 
           <DialogActions>
             <Button
               onClick={() => {
-                // model.addAnnotation(left, right)
+                model.addAnnotation(left, right)
                 onClose()
               }}
               variant="contained"
