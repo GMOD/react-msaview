@@ -165,7 +165,15 @@ function RulerBlock({
 }
 
 const Ruler = observer(({ model }: { model: MsaViewModel }) => {
-  const { MSA, colWidth, msaAreaWidth, scrollX, blocksX, blockSize } = model
+  const {
+    MSA,
+    colWidth,
+    msaAreaWidth,
+    resizeHandleWidth,
+    scrollX,
+    blocksX,
+    blockSize,
+  } = model
   const ref = useRef<HTMLDivElement>(null)
   const offsetX = blocksX[0]
 
@@ -185,7 +193,7 @@ const Ruler = observer(({ model }: { model: MsaViewModel }) => {
         style={{
           width: blocksX.length * blockSize,
           position: 'absolute',
-          left: scrollX + offsetX,
+          left: scrollX + offsetX + resizeHandleWidth,
           pointerEvents: 'none',
         }}
       >

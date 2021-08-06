@@ -101,7 +101,6 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                     <TreeRuler model={model} />
                   </div>
 
-                  <div style={{ width: resizeHandleWidth }}></div>
                   <Rubberband
                     model={model}
                     ControlComponent={<Ruler model={model} />}

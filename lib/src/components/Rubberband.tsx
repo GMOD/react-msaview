@@ -60,7 +60,12 @@ const VerticalGuide = observer(
     const classes = useStyles()
     return (
       <>
-        <Tooltip open placement="top" title={`${model.pxToBp(coordX)}`} arrow>
+        <Tooltip
+          open
+          placement="top"
+          title={`${model.pxToBp(coordX) + 1}`}
+          arrow
+        >
           <div
             style={{
               left: coordX + treeAreaWidth,
@@ -171,20 +176,6 @@ function Rubberband({
     model.clearAnnotPos()
   }
 
-  function zoomToRegion() {
-    if (startX === undefined || anchorPosition === undefined) {
-      return
-    }
-    let leftPx = startX
-    let rightPx = anchorPosition.offsetX
-    if (rightPx < leftPx) {
-      [leftPx, rightPx] = [rightPx, leftPx]
-    }
-    const leftOffset = model.pxToBp(leftPx)
-    const rightOffset = model.pxToBp(rightPx)
-    model.moveTo(leftOffset, rightOffset)
-  }
-
   function handleClose() {
     setAnchorPosition(undefined)
     setStartX(undefined)
@@ -257,7 +248,7 @@ function Rubberband({
             keepMounted
             disableRestoreFocus
           >
-            <Typography>{leftBpOffset}</Typography>
+            <Typography>{leftBpOffset + 1}</Typography>
           </Popover>
           <Popover
             className={classes.popover}
@@ -277,7 +268,7 @@ function Rubberband({
             keepMounted
             disableRestoreFocus
           >
-            <Typography>{rightBpOffset}</Typography>
+            <Typography>{rightBpOffset + 1}</Typography>
           </Popover>
         </>
       ) : null}

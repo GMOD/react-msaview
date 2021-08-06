@@ -755,7 +755,7 @@ const MSAModel = types
     },
 
     pxToBp(coord: number) {
-      return Math.floor((coord - self.scrollX) / self.colWidth) + 1
+      return Math.floor((coord - self.scrollX) / self.colWidth)
     },
 
     bpToPx(rowName: string, position: number) {
