@@ -3,7 +3,6 @@ import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import { Typography } from '@material-ui/core'
 
-// local components
 import ImportForm from './ImportForm'
 import Rubberband from './Rubberband'
 import TreeCanvas from './TreeCanvas'
@@ -12,6 +11,7 @@ import Ruler from './Ruler'
 import TreeRuler from './TreeRuler'
 import Header from './Header'
 import Track from './Track'
+import AnnotationDialog from './AnnotationDlg'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
@@ -132,6 +132,14 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           onClose={() => {
             model.setDialogComponent(undefined, undefined)
           }}
+        />
+      ) : null}
+
+      {model.annotPos ? (
+        <AnnotationDialog
+          data={model.annotPos}
+          model={model}
+          onClose={() => model.clearAnnotPos()}
         />
       ) : null}
     </div>

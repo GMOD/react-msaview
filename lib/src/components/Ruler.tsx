@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
-import AnnotationDialog from './AnnotationDlg'
 
 /**
  * Given a scale ( bp/px ) and minimum distances (px) between major and minor
@@ -168,51 +167,7 @@ function RulerBlock({
 const Ruler = observer(({ model }: { model: MsaViewModel }) => {
   const { MSA, colWidth, msaAreaWidth, scrollX, blocksX, blockSize } = model
   const ref = useRef<HTMLDivElement>(null)
-  const [mouseCurrPos, setMouseCurrPos] = useState<number>()
-  const [mouseDownPos, setMouseDownPos] = useState<number>()
-  const [annotPos, setAnnotPos] = useState<{ left: number; right: number }>()
   const offsetX = blocksX[0]
-
-  useEffect(() => {
-    let cleanup = () => {}
-
-    function globalMouseMove(event: MouseEvent) {
-      event.preventDefault()
-      if (!ref.current) {
-        return
-      }
-      const elt = ref.current.getBoundingClientRect()
-      setMouseCurrPos(event.clientX - elt.left)
-    }
-
-    function globalMouseUp() {
-      if (mouseDownPos !== undefined) {
-        const right = Math.max(mouseCurrPos || 0, mouseDownPos || 0)
-        const left = Math.min(mouseCurrPos || 0, mouseDownPos || 0)
-
-        setAnnotPos({
-          left: Math.floor((left - scrollX) / colWidth) + 1,
-          right: Math.floor((right - scrollX) / colWidth) + 1,
-        })
-        setMouseDownPos(undefined)
-        setMouseCurrPos(undefined)
-      }
-    }
-
-    if (mouseDownPos !== undefined) {
-      window.addEventListener('mousemove', globalMouseMove, true)
-      window.addEventListener('mouseup', globalMouseUp, true)
-      cleanup = () => {
-        window.removeEventListener('mousemove', globalMouseMove, true)
-        window.removeEventListener('mouseup', globalMouseUp, true)
-      }
-    }
-    return cleanup
-  }, [model, mouseCurrPos, mouseDownPos, colWidth, offsetX, scrollX])
-
-  const right = Math.max(mouseCurrPos || 0, mouseDownPos || 0)
-  const left = Math.min(mouseCurrPos || 0, mouseDownPos || 0)
-  const width = right - left
 
   return !MSA ? null : (
     <div
@@ -225,29 +180,7 @@ const Ruler = observer(({ model }: { model: MsaViewModel }) => {
         height: 20,
         background: '#ccc',
       }}
-      onMouseDown={event => {
-        if (!ref.current) {
-          return
-        }
-        // have to wait for dialog to go away, so !annotPos
-        if (event.button === 0 && !annotPos) {
-          const elt = ref.current.getBoundingClientRect()
-          setMouseDownPos(event.clientX - elt.left)
-          setMouseCurrPos(event.clientX - elt.left)
-        }
-      }}
     >
-      {mouseDownPos !== undefined ? (
-        <div
-          style={{
-            left,
-            width,
-            height: '100%',
-            position: 'absolute',
-            background: 'rgba(255,128,128,0.7)',
-          }}
-        />
-      ) : null}
       <svg
         style={{
           width: blocksX.length * blockSize,
@@ -263,14 +196,6 @@ const Ruler = observer(({ model }: { model: MsaViewModel }) => {
           bpPerPx={1 / colWidth}
         />
       </svg>
-
-      {annotPos ? (
-        <AnnotationDialog
-          data={annotPos}
-          model={model}
-          onClose={() => setAnnotPos(undefined)}
-        />
-      ) : null}
     </div>
   )
 })

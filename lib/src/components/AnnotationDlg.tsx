@@ -110,6 +110,13 @@ export default observer(
             >
               Submit
             </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => onClose()}
+            >
+              Cancel
+            </Button>
           </DialogActions>
         </DialogContent>
       </Dialog>

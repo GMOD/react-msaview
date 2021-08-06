@@ -8,7 +8,7 @@ import {
   makeStyles,
   alpha,
 } from '@material-ui/core'
-import ZoomInIcon from '@material-ui/icons/ZoomIn'
+import AssignmentIcon from '@material-ui/icons/Assignment'
 
 // import { stringify } from '@jbrowse/core/util'
 import { Menu } from '@jbrowse/core/ui'
@@ -168,7 +168,7 @@ function Rubberband({
 
   function mouseOut() {
     setGuideX(undefined)
-    model.setOffsets(undefined, undefined)
+    model.clearAnnotPos()
   }
 
   function zoomToRegion() {
@@ -191,21 +191,11 @@ function Rubberband({
     setCurrentX(undefined)
   }
 
-  function handleMenuItemClick(_: unknown, callback: () => void) {
+  //eslint-disable-next-line @typescript-eslint/ban-types
+  function handleMenuItemClick(_: unknown, callback: Function) {
     callback()
     handleClose()
   }
-
-  const menuItems = [
-    {
-      label: 'Zoom to region',
-      icon: ZoomInIcon,
-      onClick: () => {
-        zoomToRegion()
-        handleClose()
-      },
-    },
-  ]
 
   if (startX === undefined) {
     return (
@@ -234,6 +224,17 @@ function Rubberband({
   const leftBpOffset = model.pxToBp(left)
   const rightBpOffset = model.pxToBp(left + width)
   const numOfBpSelected = Math.ceil(width / model.colWidth)
+
+  const menuItems = [
+    {
+      label: 'Create annotation',
+      icon: AssignmentIcon,
+      onClick: () => {
+        model.setOffsets(leftBpOffset, rightBpOffset)
+        handleClose()
+      },
+    },
+  ]
   return (
     <>
       {rubberbandRef.current ? (

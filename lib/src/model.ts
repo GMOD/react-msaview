@@ -213,6 +213,9 @@ const MSAModel = types
     DialogComponent: undefined as undefined | React.FC<any>,
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogProps: undefined as any,
+
+    // annotations
+    annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -755,8 +758,6 @@ const MSAModel = types
       return Math.floor((coord - self.scrollX) / self.colWidth) + 1
     },
 
-    setOffsets() {},
-
     bpToPx(rowName: string, position: number) {
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
@@ -810,6 +811,17 @@ const MSAModel = types
         }
       }
       return j
+    },
+
+    setOffsets(left: number, right: number) {
+      self.annotPos = {
+        left,
+        right,
+      }
+    },
+
+    clearAnnotPos() {
+      self.annotPos = undefined
     },
   }))
 
