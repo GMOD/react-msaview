@@ -3,6 +3,7 @@
 ## v1.2.5
 
 - Make the mouseover cross annotation tracks
+- Allow click and drag on ruler to create basic annotations
 
 ## v1.2.4
 
