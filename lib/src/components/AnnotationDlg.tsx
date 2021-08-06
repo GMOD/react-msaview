@@ -60,6 +60,7 @@ export default observer(
     onClose: () => void
     data: { left: number; right: number }
   }) => {
+    const { blanks } = model
     const { left, right } = data
     const [rows, setRows] = useState([['Name', '']])
     return (
@@ -67,8 +68,12 @@ export default observer(
         <DialogTitle>Create new region annotation</DialogTitle>
         <DialogContent>
           <Typography>
-            Do you want to add an annotation to the MSA at {left}..{right} (real
-            position {model.getRealPos(left)}..{model.getRealPos(right)})
+            Do you want to add an annotation to the MSA at {left}..{right}{' '}
+            {blanks.length
+              ? ` (position without blanks ${model.getRealPos(
+                  left,
+                )}..${model.getRealPos(right)})`
+              : ''}
           </Typography>
           {rows.map(([key, val], index) => (
             <Row
