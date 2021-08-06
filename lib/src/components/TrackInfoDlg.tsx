@@ -24,7 +24,7 @@ const TrackInfoDialog = observer(
     const [label, setLabel] = useState('Copy to clipboard')
     const classes = useStyles()
     return (
-      <Dialog open onClose={onClose} fullWidth>
+      <Dialog open onClose={onClose} fullWidth maxWidth="lg">
         <DialogTitle>Track info - {model.name}</DialogTitle>
 
         <DialogContent>

@@ -64,7 +64,7 @@ export default observer(
     const [rows, setRows] = useState([['Name', '']])
     return (
       <Dialog onClose={() => onClose()} open>
-        <DialogTitle>Settings</DialogTitle>
+        <DialogTitle>Create new region annotation</DialogTitle>
         <DialogContent>
           <Typography>
             Do you want to add an annotation to the MSA at {left}..{right} (real
@@ -72,7 +72,7 @@ export default observer(
           </Typography>
           {rows.map(([key, val], index) => (
             <Row
-              key={key}
+              key={index}
               name={key}
               value={val}
               setValue={newValue => {
