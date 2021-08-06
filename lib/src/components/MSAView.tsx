@@ -3,31 +3,18 @@ import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import { Typography } from '@material-ui/core'
 
-// local components
 import ImportForm from './ImportForm'
+import Rubberband from './Rubberband'
 import TreeCanvas from './TreeCanvas'
 import MSACanvas from './MSACanvas'
 import Ruler from './Ruler'
 import TreeRuler from './TreeRuler'
 import Header from './Header'
 import Track from './Track'
+import AnnotationDialog from './AnnotationDlg'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
-
-const RulerArea = observer(({ model }: { model: MsaViewModel }) => {
-  const { resizeHandleWidth, treeAreaWidth } = model
-  return (
-    <div style={{ display: 'flex', height: 20 }}>
-      <div style={{ flexShrink: 0, width: treeAreaWidth }}>
-        <TreeRuler model={model} />
-      </div>
-
-      <div style={{ width: resizeHandleWidth }}></div>
-      <Ruler model={model} />
-    </div>
-  )
-})
 
 const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -60,7 +47,15 @@ const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
       ctx.fillStyle = 'rgba(100,100,100,0.5)'
       ctx.fillRect(x, 0, colWidth, height)
     }
-  }, [mouseCol, colWidth, scrollX])
+  }, [
+    mouseCol,
+    colWidth,
+    scrollX,
+    height,
+    resizeHandleWidth,
+    treeAreaWidth,
+    width,
+  ])
 
   return (
     <canvas
@@ -80,7 +75,14 @@ const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
   )
 })
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, initialized, treeAreaWidth, height, turnedOnTracks } = model
+  const {
+    done,
+    initialized,
+    treeAreaWidth,
+    height,
+    resizeHandleWidth,
+    turnedOnTracks,
+  } = model
 
   return (
     <div>
@@ -93,9 +95,18 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <div style={{ height, overflow: 'hidden' }}>
             <Header model={model} />
             <div>
-              <RulerArea model={model} />
-
               <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex' }}>
+                  <div style={{ flexShrink: 0, width: treeAreaWidth }}>
+                    <TreeRuler model={model} />
+                  </div>
+
+                  <div style={{ width: resizeHandleWidth }}></div>
+                  <Rubberband
+                    model={model}
+                    ControlComponent={<Ruler model={model} />}
+                  />
+                </div>
                 {turnedOnTracks?.map(track => (
                   <Track key={track.model.id} model={model} track={track} />
                 ))}
@@ -121,6 +132,14 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           onClose={() => {
             model.setDialogComponent(undefined, undefined)
           }}
+        />
+      ) : null}
+
+      {model.annotPos ? (
+        <AnnotationDialog
+          data={model.annotPos}
+          model={model}
+          onClose={() => model.clearAnnotPos()}
         />
       ) : null}
     </div>

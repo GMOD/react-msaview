@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useEffect } from 'react'
 import { useTheme } from '@material-ui/core'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../model'
+import { MsaViewModel, TextTrack } from '../model'
 import { colorContrast } from '../util'
 
 const AnnotationBlock = observer(
@@ -10,7 +10,7 @@ const AnnotationBlock = observer(
     model,
     offsetX,
   }: {
-    track: any
+    track: TextTrack
     model: MsaViewModel
     offsetX: number
   }) => {

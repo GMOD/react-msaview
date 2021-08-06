@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useEffect } from 'react'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../model'
+import { getSnapshot, isStateTreeNode } from 'mobx-state-tree'
+import { BoxTrack, MsaViewModel } from '../model'
 import Layout from '../layout'
 
 const AnnotationBlock = observer(
@@ -9,7 +10,7 @@ const AnnotationBlock = observer(
     model,
     offsetX,
   }: {
-    track: any
+    track: BoxTrack
     model: MsaViewModel
     offsetX: number
   }) => {
@@ -27,13 +28,25 @@ const AnnotationBlock = observer(
 
     const layout = useMemo(() => {
       const temp = new Layout()
-      features?.forEach(([feature]: any, index: number) => {
-        const s = model.bpToPx(associatedRowName, feature.start - 1)
-        const e = model.bpToPx(associatedRowName, feature.end)
-        temp.addRect(`${index}`, s, e, rowHeight, feature)
+
+      features?.forEach((feature, index) => {
+        const { start, end } = feature
+        if (associatedRowName) {
+          const s = model.bpToPx(associatedRowName, start - 1)
+          const e = model.bpToPx(associatedRowName, end)
+          temp.addRect(`${index}`, s, e, rowHeight, feature)
+        } else {
+          temp.addRect(`${index}`, start, end, rowHeight, feature)
+        }
       })
       return temp
-    }, [rowHeight, features, associatedRowName, model, blanks])
+    }, [
+      rowHeight,
+      isStateTreeNode(features) ? getSnapshot(features) : features,
+      associatedRowName,
+      model,
+      blanks,
+    ])
 
     const ref = useRef<HTMLCanvasElement>(null)
     const labelRef = useRef<HTMLCanvasElement>(null)
@@ -111,8 +124,10 @@ const AnnotationBlock = observer(
 
         if (x2 - x1 > 0) {
           const note = feature.attributes?.Note?.[0]
+          const name = feature.attributes?.Name?.[0]
+          const type = feature.type
           ctx.fillText(
-            `${feature.type}${note ? ` - ${note}` : ''}`,
+            [type, name, note].filter(f => !!f).join(' - '),
             Math.max(Math.min(-scrollX, x2), x1),
             minY + (maxY - minY),
           )

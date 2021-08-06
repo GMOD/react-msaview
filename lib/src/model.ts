@@ -20,15 +20,32 @@ import { generateNodeIds } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
 
-interface BasicTrack {
-  ReactComponent: React.FC<any>
-  model: {
-    id: string
-    name: string
-    associatedRowName?: string
-    height: number
-  }
+interface BasicTrackModel {
+  id: string
+  name: string
+  associatedRowName?: string
+  height: number
 }
+
+export interface TextTrackModel extends BasicTrackModel {
+  customColorScheme?: { [key: string]: string }
+  data: string
+}
+
+export interface BoxTrackModel extends BasicTrackModel {
+  features: { start: number; end: number }[]
+}
+export interface TextTrack {
+  ReactComponent: React.FC<any>
+  model: TextTrackModel
+}
+
+export interface BoxTrack {
+  ReactComponent: React.FC<any>
+  model: BoxTrackModel
+}
+
+type BasicTrack = BoxTrack | TextTrack
 
 function skipBlanks(blanks: number[], arg: string) {
   let s = ''
@@ -131,7 +148,7 @@ const UniprotTrack = types
     },
 
     get features() {
-      return gff.parseStringSync(self.data)
+      return gff.parseStringSync(self.data).map((f: any) => f[0])
     },
   }))
 
@@ -165,6 +182,13 @@ const MSAModel = types
     showOnly: types.maybe(types.string),
     boxTracks: types.array(UniprotTrack),
     turnedOffTracks: types.map(types.boolean),
+    annotatedRegions: types.array(
+      types.model({
+        start: types.number,
+        end: types.number,
+        attributes: types.frozen(),
+      }),
+    ),
     data: types.optional(
       types
         .model({
@@ -189,6 +213,9 @@ const MSAModel = types
     DialogComponent: undefined as undefined | React.FC<any>,
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogProps: undefined as any,
+
+    // annotations
+    annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -587,8 +614,8 @@ const MSAModel = types
   .actions(self => ({
     addUniprotTrack(node: { name: string; accession: string }) {
       if (self.boxTracks.find(t => t.name === node.name)) {
-        if (self.turnedOffTracks.has(node.accession)) {
-          this.toggleTrack(node.accession)
+        if (self.turnedOffTracks.has(node.name)) {
+          this.toggleTrack(node.name)
         }
       } else {
         self.boxTracks.push({
@@ -669,7 +696,7 @@ const MSAModel = types
                 ...track,
                 data: data ? skipBlanks(blanks, data) : undefined,
                 height: self.rowHeight,
-              },
+              } as TextTrackModel,
               ReactComponent: TextTrack,
             }
           })
@@ -679,22 +706,62 @@ const MSAModel = types
         // filter out tracks that are associated with hidden rows
         .filter(track => !!self.rows.find(row => row[0] === track.name))
         .map(track => ({
-          model: track,
+          model: track as BoxTrackModel,
           ReactComponent: BoxTrack,
         }))
 
-      return [...adapterTracks, ...boxTracks]
+      const annotationTracks =
+        self.annotatedRegions.length > 0
+          ? [
+              {
+                model: {
+                  features: self.annotatedRegions,
+                  height: 100,
+                  id: 'annotations',
+                  name: 'User-created annotations',
+                  data: self.annotatedRegions
+                    .map(region => {
+                      const attrs = region.attributes
+                        ? Object.entries(region.attributes)
+                            ?.map(
+                              ([key, val]: any) => `${key}=${val.join(',')}`,
+                            )
+                            .join(';')
+                        : '.'
+                      return [
+                        'MSA_refcoord',
+                        '.',
+                        '.',
+                        region.start,
+                        region.end,
+                        '.',
+                        '.',
+                        '.',
+                        attrs,
+                      ].join('\t')
+                    })
+                    .join('\n'),
+                } as BoxTrackModel,
+                ReactComponent: BoxTrack,
+              },
+            ]
+          : ([] as BasicTrack[])
+
+      return [...adapterTracks, ...boxTracks, ...annotationTracks]
     },
 
     get turnedOnTracks() {
       return this.tracks.filter(f => !self.turnedOffTracks.has(f.model.id))
     },
 
+    pxToBp(coord: number) {
+      return Math.floor((coord - self.scrollX) / self.colWidth) + 1
+    },
+
     bpToPx(rowName: string, position: number) {
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
       const [, row] = rows[index]
-      // console.log({ row, blanks })
       const details = self.getRowDetails(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
@@ -720,6 +787,41 @@ const MSAModel = types
       }
 
       return i - count
+    },
+  }))
+  .actions(self => ({
+    addRelativeAnnotation(
+      start: number,
+      end: number,
+      attributes: { [key: string]: string[] },
+    ) {
+      self.annotatedRegions.push({
+        start: this.getRealPos(start),
+        end: this.getRealPos(end),
+        attributes,
+      })
+    },
+
+    getRealPos(pos: number) {
+      let j = 0
+      for (let i = 0, k = 0; i < pos; i++, j++) {
+        while (j === self.blanks[k]) {
+          k++
+          j++
+        }
+      }
+      return j
+    },
+
+    setOffsets(left: number, right: number) {
+      self.annotPos = {
+        left,
+        right,
+      }
+    },
+
+    clearAnnotPos() {
+      self.annotPos = undefined
     },
   }))
 

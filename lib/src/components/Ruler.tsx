@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
@@ -63,8 +63,8 @@ export function makeTicks(
     [minBase, maxBase] = [maxBase, minBase]
   }
 
-  // add 20px additional on the right and left to allow us to draw the ends
-  // of labels that lie a little outside our region
+  // add 20px additional on the right and left to allow us to draw the ends of
+  // labels that lie a little outside our region
   minBase -= Math.abs(20 * bpPerPx)
   maxBase += Math.abs(20 * bpPerPx) + 1
 
@@ -97,15 +97,12 @@ function mathPower(num: number): string {
 const useStyles = makeStyles((/* theme */) => ({
   majorTickLabel: {
     fontSize: '11px',
-    // fill: theme.palette.text.primary,
   },
   majorTick: {
     stroke: '#555',
-    // stroke: theme.palette.text.secondary,
   },
   minorTick: {
     stroke: '#999',
-    // stroke: theme.palette.text.hint,
   },
 }))
 
@@ -166,17 +163,22 @@ function RulerBlock({
     </>
   )
 }
+
 const Ruler = observer(({ model }: { model: MsaViewModel }) => {
   const { MSA, colWidth, msaAreaWidth, scrollX, blocksX, blockSize } = model
+  const ref = useRef<HTMLDivElement>(null)
   const offsetX = blocksX[0]
 
   return !MSA ? null : (
     <div
+      ref={ref}
       style={{
         position: 'relative',
         width: msaAreaWidth,
+        cursor: 'crosshair',
         overflow: 'hidden',
         height: 20,
+        background: '#ccc',
       }}
     >
       <svg
@@ -184,6 +186,7 @@ const Ruler = observer(({ model }: { model: MsaViewModel }) => {
           width: blocksX.length * blockSize,
           position: 'absolute',
           left: scrollX + offsetX,
+          pointerEvents: 'none',
         }}
       >
         <RulerBlock

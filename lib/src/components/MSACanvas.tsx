@@ -189,32 +189,6 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
     }
   }, [model])
 
-  function mouseDown(event: React.MouseEvent) {
-    // check if clicking a draggable element or a resize handle
-    const target = event.target as HTMLElement
-    if (target.draggable || target.dataset.resizer) {
-      return
-    }
-
-    // otherwise do click and drag scroll
-    if (event.button === 0) {
-      prevX.current = event.clientX
-      prevY.current = event.clientY
-      setMouseDragging(true)
-    }
-  }
-
-  // this local mouseup is used in addition to the global because sometimes
-  // the global add/remove are not called in time, resulting in issue #533
-  function mouseUp(event: React.MouseEvent) {
-    event.preventDefault()
-    setMouseDragging(false)
-  }
-
-  function mouseLeave(event: React.MouseEvent) {
-    event.preventDefault()
-  }
-
   useEffect(() => {
     let cleanup = () => {}
 
@@ -261,9 +235,27 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
   return (
     <div
       ref={ref}
-      onMouseDown={mouseDown}
-      onMouseUp={mouseUp}
-      onMouseLeave={mouseLeave}
+      onMouseDown={event => {
+        // check if clicking a draggable element or a resize handle
+        const target = event.target as HTMLElement
+        if (target.draggable || target.dataset.resizer) {
+          return
+        }
+
+        // otherwise do click and drag scroll
+        if (event.button === 0) {
+          prevX.current = event.clientX
+          prevY.current = event.clientY
+          setMouseDragging(true)
+        }
+      }}
+      onMouseUp={event => {
+        event.preventDefault()
+        setMouseDragging(false)
+      }}
+      onMouseLeave={event => {
+        event.preventDefault()
+      }}
       style={{
         position: 'relative',
         height,
