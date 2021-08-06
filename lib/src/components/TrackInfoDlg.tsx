@@ -7,21 +7,22 @@ import {
   DialogActions,
   DialogTitle,
   DialogContent,
-  TextField,
   makeStyles,
 } from '@material-ui/core'
 
-const useStyles = makeStyles(() => ({
-  textAreaFont: {
-    fontFamily: 'Courier New',
-    wordBreak: 'break-all',
+const useStyles = makeStyles(theme => ({
+  textArea: {
+    padding: theme.spacing(2),
+    overflow: 'auto',
+    background: '#ddd',
+    wordBreak: 'break-word',
   },
 }))
 
 const TrackInfoDialog = observer(
   ({ model, onClose }: { model: any; onClose: () => void }) => {
-    const classes = useStyles()
     const [label, setLabel] = useState('Copy to clipboard')
+    const classes = useStyles()
     return (
       <Dialog open onClose={onClose} fullWidth>
         <DialogTitle>Track info - {model.name}</DialogTitle>
@@ -40,18 +41,7 @@ const TrackInfoDialog = observer(
           >
             {label}
           </Button>
-          <TextField
-            multiline
-            defaultValue={model.data}
-            variant="filled"
-            fullWidth
-            InputProps={{
-              readOnly: true,
-              classes: {
-                input: classes.textAreaFont,
-              },
-            }}
-          />
+          <pre className={classes.textArea}>{model.data}</pre>
         </DialogContent>
         <DialogActions>
           <Button variant="contained" onClick={onClose} color="secondary">

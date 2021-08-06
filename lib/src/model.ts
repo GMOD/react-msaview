@@ -1,11 +1,4 @@
-import {
-  Instance,
-  cast,
-  types,
-  addDisposer,
-  getSnapshot,
-  SnapshotIn,
-} from 'mobx-state-tree'
+import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
@@ -723,6 +716,26 @@ const MSAModel = types
                   height: 100,
                   id: 'annotations',
                   name: 'User-created annotations',
+                  data: self.annotatedRegions
+                    .map(region => {
+                      const attrs = region.attributes
+                        ? Object.entries(region.attributes)
+                            ?.map(([key, val]) => `${key}=${val.join(',')}`)
+                            .join(';')
+                        : '.'
+                      return [
+                        'MSA_refcoord',
+                        '.',
+                        '.',
+                        region.start,
+                        region.end,
+                        '.',
+                        '.',
+                        '.',
+                        attrs,
+                      ].join('\t')
+                    })
+                    .join('\n'),
                 } as BoxTrackModel,
                 ReactComponent: BoxTrack,
               },
