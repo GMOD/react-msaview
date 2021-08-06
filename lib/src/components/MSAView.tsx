@@ -60,7 +60,15 @@ const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
       ctx.fillStyle = 'rgba(100,100,100,0.5)'
       ctx.fillRect(x, 0, colWidth, height)
     }
-  }, [mouseCol, colWidth, scrollX])
+  }, [
+    mouseCol,
+    colWidth,
+    scrollX,
+    height,
+    resizeHandleWidth,
+    treeAreaWidth,
+    width,
+  ])
 
   return (
     <canvas

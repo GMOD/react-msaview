@@ -720,7 +720,9 @@ const MSAModel = types
                     .map(region => {
                       const attrs = region.attributes
                         ? Object.entries(region.attributes)
-                            ?.map(([key, val]) => `${key}=${val.join(',')}`)
+                            ?.map(
+                              ([key, val]: any) => `${key}=${val.join(',')}`,
+                            )
                             .join(';')
                         : '.'
                       return [
