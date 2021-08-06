@@ -5,6 +5,7 @@ import { Typography } from '@material-ui/core'
 
 // local components
 import ImportForm from './ImportForm'
+import Rubberband from './Rubberband'
 import TreeCanvas from './TreeCanvas'
 import MSACanvas from './MSACanvas'
 import Ruler from './Ruler'
@@ -14,20 +15,6 @@ import Track from './Track'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
-
-const RulerArea = observer(({ model }: { model: MsaViewModel }) => {
-  const { resizeHandleWidth, treeAreaWidth } = model
-  return (
-    <div style={{ display: 'flex', height: 20 }}>
-      <div style={{ flexShrink: 0, width: treeAreaWidth }}>
-        <TreeRuler model={model} />
-      </div>
-
-      <div style={{ width: resizeHandleWidth }}></div>
-      <Ruler model={model} />
-    </div>
-  )
-})
 
 const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -88,7 +75,14 @@ const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
   )
 })
 export default observer(({ model }: { model: MsaViewModel }) => {
-  const { done, initialized, treeAreaWidth, height, turnedOnTracks } = model
+  const {
+    done,
+    initialized,
+    treeAreaWidth,
+    height,
+    resizeHandleWidth,
+    turnedOnTracks,
+  } = model
 
   return (
     <div>
@@ -101,9 +95,18 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <div style={{ height, overflow: 'hidden' }}>
             <Header model={model} />
             <div>
-              <RulerArea model={model} />
-
               <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex' }}>
+                  <div style={{ flexShrink: 0, width: treeAreaWidth }}>
+                    <TreeRuler model={model} />
+                  </div>
+
+                  <div style={{ width: resizeHandleWidth }}></div>
+                  <Rubberband
+                    model={model}
+                    ControlComponent={<Ruler model={model} />}
+                  />
+                </div>
                 {turnedOnTracks?.map(track => (
                   <Track key={track.model.id} model={model} track={track} />
                 ))}

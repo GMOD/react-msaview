@@ -751,7 +751,13 @@ const MSAModel = types
       return this.tracks.filter(f => !self.turnedOffTracks.has(f.model.id))
     },
 
-    bpToPxForRow(rowName: string, position: number) {
+    pxToBp(coord: number) {
+      return Math.floor((coord - self.scrollX) / self.colWidth) + 1
+    },
+
+    setOffsets() {},
+
+    bpToPx(rowName: string, position: number) {
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
       const [, row] = rows[index]

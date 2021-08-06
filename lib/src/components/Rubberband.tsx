@@ -8,10 +8,9 @@ import {
   makeStyles,
   alpha,
 } from '@material-ui/core'
-import MenuOpenIcon from '@material-ui/icons/MenuOpen'
 import ZoomInIcon from '@material-ui/icons/ZoomIn'
 
-import { stringify } from '@jbrowse/core/util'
+// import { stringify } from '@jbrowse/core/util'
 import { Menu } from '@jbrowse/core/ui'
 
 const useStyles = makeStyles(theme => {
@@ -19,7 +18,7 @@ const useStyles = makeStyles(theme => {
     ? alpha(theme.palette.tertiary.main, 0.7)
     : alpha(theme.palette.primary.main, 0.7)
   return {
-    rubberBand: {
+    rubberband: {
       height: '100%',
       background,
       position: 'absolute',
@@ -27,12 +26,12 @@ const useStyles = makeStyles(theme => {
       textAlign: 'center',
       overflow: 'hidden',
     },
-    rubberBandControl: {
+    rubberbandControl: {
       cursor: 'crosshair',
       width: '100%',
       minHeight: 8,
     },
-    rubberBandText: {
+    rubberbandText: {
       color: theme.palette.tertiary
         ? theme.palette.tertiary.contrastText
         : theme.palette.primary.contrastText,
@@ -57,22 +56,27 @@ const useStyles = makeStyles(theme => {
 
 const VerticalGuide = observer(
   ({ model, coordX }: { model: any; coordX: number }) => {
+    const { treeAreaWidth } = model
     const classes = useStyles()
     return (
-      <Tooltip
-        open
-        placement="top"
-        title={stringify(model.pxToBp(coordX))}
-        arrow
-      >
+      <>
+        <Tooltip open placement="top" title={`${model.pxToBp(coordX)}`} arrow>
+          <div
+            style={{
+              left: coordX + treeAreaWidth,
+              position: 'absolute',
+              height: 1,
+            }}
+          />
+        </Tooltip>
         <div
           className={classes.guide}
           style={{
-            left: coordX,
+            left: coordX + treeAreaWidth,
             background: 'red',
           }}
         />
-      </Tooltip>
+      </>
     )
   },
 )
@@ -84,6 +88,7 @@ function Rubberband({
   model: any
   ControlComponent?: React.ReactElement
 }) {
+  const { treeAreaWidth } = model
   const [startX, setStartX] = useState<number>()
   const [currentX, setCurrentX] = useState<number>()
 
@@ -96,7 +101,7 @@ function Rubberband({
   }>()
   const [guideX, setGuideX] = useState<number | undefined>()
   const controlsRef = useRef<HTMLDivElement>(null)
-  const rubberBandRef = useRef(null)
+  const rubberbandRef = useRef(null)
   const classes = useStyles()
   const mouseDragging = startX !== undefined && anchorPosition === undefined
 
@@ -144,7 +149,7 @@ function Rubberband({
     ) {
       handleClose()
     }
-  }, [mouseDragging, currentX, startX, model.bpPerPx])
+  }, [mouseDragging, currentX, startX, model.colWidth])
 
   function mouseDown(event: React.MouseEvent<HTMLDivElement>) {
     event.preventDefault()
@@ -180,30 +185,13 @@ function Rubberband({
     model.moveTo(leftOffset, rightOffset)
   }
 
-  function getSequence() {
-    if (startX === undefined || anchorPosition === undefined) {
-      return
-    }
-    let leftPx = startX
-    let rightPx = anchorPosition.offsetX
-    // handles clicking and draging to the left
-    if (rightPx < leftPx) {
-      [leftPx, rightPx] = [rightPx, leftPx]
-    }
-    const leftOffset = model.pxToBp(leftPx)
-    const rightOffset = model.pxToBp(rightPx)
-    model.setOffsets(leftOffset, rightOffset)
-  }
-
   function handleClose() {
     setAnchorPosition(undefined)
     setStartX(undefined)
     setCurrentX(undefined)
   }
 
-  const open = Boolean(anchorPosition)
-
-  function handleMenuItemClick(_: unknown, callback: Function) {
+  function handleMenuItemClick(_: unknown, callback: () => void) {
     callback()
     handleClose()
   }
@@ -217,18 +205,6 @@ function Rubberband({
         handleClose()
       },
     },
-    {
-      label: 'Get sequence',
-      disabled:
-        currentX !== undefined &&
-        startX !== undefined &&
-        Math.abs(currentX - startX) * model.bpPerPx > 500_000_000,
-      icon: MenuOpenIcon,
-      onClick: () => {
-        getSequence()
-        handleClose()
-      },
-    },
   ]
 
   if (startX === undefined) {
@@ -238,8 +214,8 @@ function Rubberband({
           <VerticalGuide model={model} coordX={guideX} />
         ) : null}
         <div
-          data-testid="rubberBand_controls"
-          className={classes.rubberBandControl}
+          data-testid="rubberband_controls"
+          className={classes.rubberbandControl}
           role="presentation"
           ref={controlsRef}
           onMouseDown={mouseDown}
@@ -252,16 +228,15 @@ function Rubberband({
     )
   }
 
-  /* Calculating Pixels for Mouse Dragging */
   const right = anchorPosition ? anchorPosition.offsetX : currentX || 0
   const left = right < startX ? right : startX
   const width = Math.abs(right - startX)
   const leftBpOffset = model.pxToBp(left)
   const rightBpOffset = model.pxToBp(left + width)
-  const numOfBpSelected = Math.ceil(width * model.bpPerPx)
+  const numOfBpSelected = Math.ceil(width / model.colWidth)
   return (
     <>
-      {rubberBandRef.current ? (
+      {rubberbandRef.current ? (
         <>
           <Popover
             className={classes.popover}
@@ -269,7 +244,7 @@ function Rubberband({
               paper: classes.paper,
             }}
             open
-            anchorEl={rubberBandRef.current}
+            anchorEl={rubberbandRef.current}
             anchorOrigin={{
               vertical: 'top',
               horizontal: 'left',
@@ -281,7 +256,7 @@ function Rubberband({
             keepMounted
             disableRestoreFocus
           >
-            <Typography>{stringify(leftBpOffset)}</Typography>
+            <Typography>{leftBpOffset}</Typography>
           </Popover>
           <Popover
             className={classes.popover}
@@ -289,7 +264,7 @@ function Rubberband({
               paper: classes.paper,
             }}
             open
-            anchorEl={rubberBandRef.current}
+            anchorEl={rubberbandRef.current}
             anchorOrigin={{
               vertical: 'top',
               horizontal: 'right',
@@ -301,22 +276,22 @@ function Rubberband({
             keepMounted
             disableRestoreFocus
           >
-            <Typography>{stringify(rightBpOffset)}</Typography>
+            <Typography>{rightBpOffset}</Typography>
           </Popover>
         </>
       ) : null}
       <div
-        ref={rubberBandRef}
-        className={classes.rubberBand}
-        style={{ left, width }}
+        ref={rubberbandRef}
+        className={classes.rubberband}
+        style={{ left: left + treeAreaWidth, width }}
       >
-        <Typography variant="h6" className={classes.rubberBandText}>
+        <Typography variant="h6" className={classes.rubberbandText}>
           {numOfBpSelected.toLocaleString('en-US')} bp
         </Typography>
       </div>
       <div
-        data-testid="rubberBand_controls"
-        className={classes.rubberBandControl}
+        data-testid="rubberband_controls"
+        className={classes.rubberbandControl}
         role="presentation"
         ref={controlsRef}
         onMouseDown={mouseDown}
@@ -333,7 +308,7 @@ function Rubberband({
             top: anchorPosition.clientY,
           }}
           onMenuItemClick={handleMenuItemClick}
-          open={open}
+          open={Boolean(anchorPosition)}
           onClose={handleClose}
           menuItems={menuItems}
         />
