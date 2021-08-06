@@ -12,6 +12,15 @@ import {
 
 import { MsaViewModel } from '../model'
 
+const specialFromEntries = (val: string[][]) => {
+  const ret = {} as { [key: string]: string[] }
+  val.forEach(([key, val]) => {
+    if (!ret[key]) ret[key] = [] as string[]
+    ret[key].push(val)
+  })
+  return ret
+}
+
 const Row = observer(
   ({
     name,
@@ -40,6 +49,7 @@ const Row = observer(
     )
   },
 )
+
 export default observer(
   ({
     onClose,
@@ -51,7 +61,7 @@ export default observer(
     data: { left: number; right: number }
   }) => {
     const { left, right } = data
-    const [rows, setRows] = useState([['name', '']])
+    const [rows, setRows] = useState([['Name', '']])
     return (
       <Dialog onClose={() => onClose()} open>
         <DialogTitle>Settings</DialogTitle>
@@ -91,7 +101,7 @@ export default observer(
                 model.addRelativeAnnotation(
                   left,
                   right,
-                  Object.fromEntries(rows),
+                  specialFromEntries(rows),
                 )
                 onClose()
               }}

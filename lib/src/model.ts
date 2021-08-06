@@ -193,6 +193,7 @@ const MSAModel = types
       types.model({
         start: types.number,
         end: types.number,
+        attributes: types.frozen(),
       }),
     ),
     data: types.optional(
@@ -767,17 +768,15 @@ const MSAModel = types
     },
   }))
   .actions(self => ({
-    addAnnotation(start: number, end: number) {
-      self.annotatedRegions.push({
-        start,
-        end,
-      })
-    },
-
-    addRelativeAnnotation(start: number, end: number) {
+    addRelativeAnnotation(
+      start: number,
+      end: number,
+      attributes: { [key: string]: string[] },
+    ) {
       self.annotatedRegions.push({
         start: this.getRealPos(start),
         end: this.getRealPos(end),
+        attributes,
       })
     },
 
