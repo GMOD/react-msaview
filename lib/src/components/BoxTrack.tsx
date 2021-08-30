@@ -25,28 +25,20 @@ const AnnotationBlock = observer(
     const {
       model: { height, features, associatedRowName },
     } = track
+    const feats = isStateTreeNode(features) ? getSnapshot(features) : features
 
     const layout = useMemo(() => {
       const temp = new Layout()
 
-      features?.forEach((feature, index) => {
+      feats?.forEach((feature, index) => {
         const { start, end } = feature
-        if (associatedRowName) {
-          const s = model.bpToPx(associatedRowName, start - 1)
-          const e = model.bpToPx(associatedRowName, end)
-          temp.addRect(`${index}`, s, e, rowHeight, feature)
-        } else {
-          temp.addRect(`${index}`, start, end, rowHeight, feature)
-        }
+        console.log({ associatedRowName })
+        const s = model.bpToPx(associatedRowName, start - 1)
+        const e = model.bpToPx(associatedRowName, end)
+        temp.addRect(`${index}`, s, e, rowHeight, feature)
       })
       return temp
-    }, [
-      rowHeight,
-      isStateTreeNode(features) ? getSnapshot(features) : features,
-      associatedRowName,
-      model,
-      blanks,
-    ])
+    }, [rowHeight, feats, associatedRowName, model, blanks])
 
     const ref = useRef<HTMLCanvasElement>(null)
     const labelRef = useRef<HTMLCanvasElement>(null)

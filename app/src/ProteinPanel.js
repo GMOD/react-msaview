@@ -62,7 +62,7 @@ export const ProteinPanel = observer(({ model }) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
           msaview.setMouseoveredColumn(
-            atom.resno - structures[0].structure.startPos,
+            atom.resno - structures[0]?.structure.startPos,
             atom.chainname,
             pickingProxy.picker.structure.name
           );
@@ -82,16 +82,18 @@ export const ProteinPanel = observer(({ model }) => {
   }, [type, res, stage, nglSelection]);
 
   useEffect(() => {
-    if (!isMouseHovering) {
+    if (structures.length && !isMouseHovering) {
       res.forEach((elt, index) => {
         if (annotations.current.length) {
           elt.removeAnnotation(annotations.current[index]);
         }
         annotations.current = [];
         if (mouseCol !== undefined) {
-          const { startPos } = structures[0].structure;
-
-          const offset = getOffset(elt.structure, mouseCol, startPos);
+          const offset = getOffset(
+            elt.structure,
+            mouseCol,
+            structures[0].structure.startPos
+          );
           if (offset) {
             const ap = elt.structure.getAtomProxy();
             ap.index = offset.atomOffset;

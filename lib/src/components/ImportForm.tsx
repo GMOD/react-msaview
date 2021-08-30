@@ -53,7 +53,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
         </Typography>
       </div>
 
-      <Grid container spacing={10} justify="center" alignItems="center">
+      <Grid container spacing={10} justifyContent="center" alignItems="center">
         <Grid item>
           <Typography>MSA file or URL</Typography>
           <FileSelector location={msaFile} setLocation={setMsaFile} />
