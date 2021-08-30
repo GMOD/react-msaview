@@ -32,10 +32,15 @@ const AnnotationBlock = observer(
 
       feats?.forEach((feature, index) => {
         const { start, end } = feature
-        console.log({ associatedRowName })
-        const s = model.bpToPx(associatedRowName, start - 1)
-        const e = model.bpToPx(associatedRowName, end)
-        temp.addRect(`${index}`, s, e, rowHeight, feature)
+        if (associatedRowName) {
+          const s = model.rowSpecificBpToPx(associatedRowName, start - 1)
+          const e = model.rowSpecificBpToPx(associatedRowName, end)
+          temp.addRect(`${index}`, s, e, rowHeight, feature)
+        } else {
+          const s = model.globalBpToPx(start - 1)
+          const e = model.globalBpToPx(end)
+          temp.addRect(`${index}`, s, e, rowHeight, feature)
+        }
       })
       return temp
     }, [rowHeight, feats, associatedRowName, model, blanks])

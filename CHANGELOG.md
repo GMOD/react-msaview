@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.6
+
+- Fix collapsing of annotations
+
 ## v1.2.5
 
 - Make the mouseover cross annotation tracks

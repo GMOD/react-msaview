@@ -758,10 +758,10 @@ const MSAModel = types
       return Math.floor((coord - self.scrollX) / self.colWidth)
     },
 
-    bpToPx(rowName: string, position: number) {
+    rowSpecificBpToPx(rowName: string, position: number) {
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
-      const [, row] = rows[index]
+      const row = rows[index][1]
       const details = self.getRowDetails(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
@@ -787,6 +787,16 @@ const MSAModel = types
       }
 
       return i - count
+    },
+    globalBpToPx(position: number) {
+      let count = 0
+      for (let k = 0; k < self.rows[0][1].length; k++) {
+        if (self.blanks.indexOf(k) !== -1 && k < position + 1) {
+          count++
+        }
+      }
+
+      return position - count
     },
   }))
   .actions(self => ({
