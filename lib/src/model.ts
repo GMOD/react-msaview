@@ -186,7 +186,7 @@ const MSAModel = types
       types.model({
         start: types.number,
         end: types.number,
-        attributes: types.frozen(),
+        attributes: types.frozen<Record<string, string[]>>(),
       }),
     ),
     data: types.optional(
@@ -723,9 +723,7 @@ const MSAModel = types
                     .map(region => {
                       const attrs = region.attributes
                         ? Object.entries(region.attributes)
-                            ?.map(
-                              ([key, val]: any) => `${key}=${val.join(',')}`,
-                            )
+                            .map(([k, v]) => `${k}=${v.join(',')}`)
                             .join(';')
                         : '.'
                       return [

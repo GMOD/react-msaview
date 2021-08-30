@@ -6,10 +6,11 @@ import {
   DialogActions,
   DialogTitle,
   DialogContent,
+  IconButton,
   TextField,
   Typography,
 } from '@material-ui/core'
-
+import DeleteIcon from '@material-ui/icons/Delete'
 import { MsaViewModel } from '../model'
 
 const specialFromEntries = (val: string[][]) => {
@@ -18,7 +19,6 @@ const specialFromEntries = (val: string[][]) => {
     if (!ret[key]) ret[key] = [] as string[]
     ret[key].push(val)
   })
-  console.log({ ret })
   return ret
 }
 
@@ -28,14 +28,19 @@ const Row = observer(
     value,
     setValue,
     setName,
+    onDelete,
   }: {
     name: string
     value: string
     setValue: (arg: string) => void
     setName: (arg: string) => void
+    onDelete: () => void
   }) => {
     return (
       <div>
+        <IconButton onClick={onDelete} style={{ margin: 10 }}>
+          <DeleteIcon />
+        </IconButton>
         <TextField
           value={name}
           onChange={event => setName(event.target.value)}
@@ -63,7 +68,11 @@ export default observer(
   }) => {
     const { blanks } = model
     const { left, right } = data
-    const [rows, setRows] = useState([['Name', '']])
+    const [rows, setRows] = useState([
+      ['Name', ''],
+      ['ID', ''],
+      ['Note', ''],
+    ])
     return (
       <Dialog onClose={() => onClose()} open>
         <DialogTitle>Create new region annotation</DialogTitle>
@@ -90,6 +99,10 @@ export default observer(
                 const newRows = [...rows]
                 newRows[index][0] = newName
                 setRows(newRows)
+              }}
+              onDelete={() => {
+                rows.splice(index, 1)
+                setRows([...rows])
               }}
             />
           ))}
