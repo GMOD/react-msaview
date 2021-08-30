@@ -1,4 +1,5 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
+import { getSnapshot } from "mobx-state-tree";
 import { observer } from "mobx-react";
 import { Button, Select, MenuItem, TextField } from "@material-ui/core";
 import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
@@ -8,14 +9,26 @@ DatasourceRegistry.add(
   new StaticDatasource("https://files.rcsb.org/download/")
 );
 
+function getOffset(structure, mouseCol, startPos) {
+  const rn = structure.residueStore.count;
+  const rp = structure.getResidueProxy();
+  for (let i = 0; i < rn; ++i) {
+    rp.index = i;
+    if (rp.resno === mouseCol + startPos - 1) {
+      return rp;
+    }
+  }
+}
+
 export const ProteinPanel = observer(({ model }) => {
+  const annotations = useRef([]);
   const [type, setType] = useState("cartoon");
   const [res, setRes] = useState([]);
-  const [annotation, setAnnotation] = useState();
   const [stage, setStage] = useState();
   const [isMouseHovering, setMouseHovering] = useState(false);
   const { msaview, nglSelection } = model;
   const { selectedStructures, mouseCol } = msaview;
+  const structures = getSnapshot(selectedStructures);
 
   const stageElementRef = useCallback((element) => {
     if (element) {
@@ -25,15 +38,11 @@ export const ProteinPanel = observer(({ model }) => {
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (stage) {
-        stage.dispose();
-      }
-    };
+    return () => stage?.dispose();
   }, [stage]);
 
   useEffect(() => {
-    if (!selectedStructures.length || !stage) {
+    if (!structures.length || !stage) {
       return;
     }
     (async () => {
@@ -43,7 +52,7 @@ export const ProteinPanel = observer(({ model }) => {
       });
 
       const res = await Promise.all(
-        selectedStructures.map((selection) => {
+        structures.map((selection) => {
           return stage.loadFile(`data://${selection.structure.pdb}.pdb`);
         })
       );
@@ -53,14 +62,14 @@ export const ProteinPanel = observer(({ model }) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom;
           msaview.setMouseoveredColumn(
-            atom.resno - selectedStructures[0].structure.startPos,
+            atom.resno - structures[0].structure.startPos,
             atom.chainname,
             pickingProxy.picker.structure.name
           );
         }
       });
     })();
-  }, [JSON.stringify(selectedStructures), stage]);
+  }, [msaview, structures, stage]);
 
   useEffect(() => {
     if (stage) {
@@ -74,44 +83,36 @@ export const ProteinPanel = observer(({ model }) => {
 
   useEffect(() => {
     if (!isMouseHovering) {
-      const annots = [];
       res.forEach((elt, index) => {
-        if (annotation) {
-          elt.removeAnnotation(annotation[index]);
+        if (annotations.current.length) {
+          elt.removeAnnotation(annotations.current[index]);
         }
+        annotations.current = [];
         if (mouseCol !== undefined) {
-          const { startPos } = selectedStructures[0].structure;
+          const { startPos } = structures[0].structure;
 
-          let k;
-          const rn = elt.structure.residueStore.count;
-          const rp = elt.structure.getResidueProxy();
-          for (let i = 0; i < rn; ++i) {
-            rp.index = i;
-            if (rp.resno === mouseCol + startPos - 1) {
-              k = rp;
-              break;
-            }
-          }
-
-          if (k) {
+          const offset = getOffset(elt.structure, mouseCol, startPos);
+          if (offset) {
             const ap = elt.structure.getAtomProxy();
-            ap.index = k.atomOffset;
+            ap.index = offset.atomOffset;
 
-            annots.push(
-              elt.addAnnotation(ap.positionToVector3(), k.qualifiedName())
+            annotations.current.push(
+              elt.addAnnotation(ap.positionToVector3(), offset.qualifiedName())
             );
           }
         }
         stage.viewer.requestRender();
       });
-      setAnnotation(annots);
     }
-  }, [model, mouseCol, isMouseHovering]);
+  }, [model, mouseCol, structures, stage?.viewer, res, isMouseHovering]);
 
   return selectedStructures.length ? (
     <div style={{ padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Button onClick={() => msaview.clearSelection()} variant="contained">
+        <Button
+          onClick={() => msaview.clearSelectedStructures()}
+          variant="contained"
+        >
           Clear
         </Button>
 

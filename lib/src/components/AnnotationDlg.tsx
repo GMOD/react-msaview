@@ -18,6 +18,7 @@ const specialFromEntries = (val: string[][]) => {
     if (!ret[key]) ret[key] = [] as string[]
     ret[key].push(val)
   })
+  console.log({ ret })
   return ret
 }
 
