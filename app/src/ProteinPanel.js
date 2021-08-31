@@ -9,12 +9,13 @@ DatasourceRegistry.add(
   new StaticDatasource("https://files.rcsb.org/download/")
 );
 
-function getOffset(structure, mouseCol, startPos) {
+function getOffset(model, rowName, structure, mouseCol, startPos) {
   const rn = structure.residueStore.count;
   const rp = structure.getResidueProxy();
+  const pos = model.msaview.relativePxToBp(rowName, mouseCol);
   for (let i = 0; i < rn; ++i) {
     rp.index = i;
-    if (rp.resno === mouseCol + startPos - 1) {
+    if (rp.resno === pos + startPos - 1) {
       return rp;
     }
   }
@@ -90,6 +91,8 @@ export const ProteinPanel = observer(({ model }) => {
         annotations.current = [];
         if (mouseCol !== undefined) {
           const offset = getOffset(
+            model,
+            structures[index].id,
             elt.structure,
             mouseCol,
             structures[0].structure.startPos

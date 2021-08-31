@@ -3,7 +3,10 @@ import { observer } from 'mobx-react'
 import { getSnapshot, isStateTreeNode } from 'mobx-state-tree'
 import { BoxTrack, MsaViewModel } from '../model'
 import Layout from '../layout'
-
+interface Feat {
+  start: number
+  end: number
+}
 const AnnotationBlock = observer(
   ({
     track,
@@ -25,7 +28,10 @@ const AnnotationBlock = observer(
     const {
       model: { height, features, associatedRowName },
     } = track
-    const feats = isStateTreeNode(features) ? getSnapshot(features) : features
+
+    const feats: Feat[] = isStateTreeNode(features)
+      ? getSnapshot(features)
+      : features
 
     const layout = useMemo(() => {
       const temp = new Layout()
