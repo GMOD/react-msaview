@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Typography, CircularProgress, useTheme } from '@material-ui/core'
-import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
+import normalizeWheel from 'normalize-wheel'
+
+// locals
 import { MsaViewModel } from '../model'
 import { colorContrast } from '../util'
+import { getClustalXColor } from '../colorSchemes'
 
 const MSABlock = observer(
   ({
@@ -25,8 +28,10 @@ const MSABlock = observer(
       scrollX,
       hierarchy,
       colorScheme,
+      colorSchemeName,
       blockSize,
       highResScaleFactor,
+      colStats,
     } = model
     const theme = useTheme()
 
@@ -75,7 +80,10 @@ const MSABlock = observer(
         const str = columns[name]?.slice(xStart, xEnd)
         for (let i = 0; i < str?.length; i++) {
           const letter = str[i]
-          const color = colorScheme[letter.toUpperCase()]
+          const color =
+            colorSchemeName !== 'clustalx_protein_dynamic'
+              ? colorScheme[letter.toUpperCase()]
+              : getClustalXColor(colStats[xStart + i], model, name, xStart + i)
           if (bgColor) {
             const x = i * colWidth + offsetX - (offsetX % colWidth)
             ctx.fillStyle = color || 'white'
