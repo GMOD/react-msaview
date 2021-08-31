@@ -752,6 +752,7 @@ const MSAModel = types
       return this.tracks.filter(f => !self.turnedOffTracks.has(f.model.id))
     },
 
+    // returns coordinate in the current relative coordinate scheme
     pxToBp(coord: number) {
       return Math.floor((coord - self.scrollX) / self.colWidth)
     },
@@ -796,21 +797,24 @@ const MSAModel = types
 
       return position - count
     },
-  }))
-  .actions(self => ({
-    addRelativeAnnotation(
-      start: number,
-      end: number,
-      attributes: { [key: string]: string[] },
-    ) {
-      self.annotatedRegions.push({
-        start: this.getRealPos(start),
-        end: this.getRealPos(end),
-        attributes,
-      })
+
+    relativePxToBp(rowName: string, position: number) {
+      const { rowNames, rows } = self
+      const index = rowNames.indexOf(rowName)
+      const row = rows[index][1]
+
+      let k = 0
+      for (let i = 0; i < position; i++) {
+        if (row[i] !== '-') {
+          k++
+        } else if (k >= position) {
+          break
+        }
+      }
+      return k
     },
 
-    getRealPos(pos: number) {
+    getPos(pos: number) {
       let j = 0
       for (let i = 0, k = 0; i < pos; i++, j++) {
         while (j === self.blanks[k]) {
@@ -820,12 +824,22 @@ const MSAModel = types
       }
       return j
     },
+  }))
+  .actions(self => ({
+    addAnnotation(
+      start: number,
+      end: number,
+      attributes: { [key: string]: string[] },
+    ) {
+      self.annotatedRegions.push({
+        start: self.getPos(start),
+        end: self.getPos(end),
+        attributes,
+      })
+    },
 
     setOffsets(left: number, right: number) {
-      self.annotPos = {
-        left,
-        right,
-      }
+      self.annotPos = { left, right }
     },
 
     clearAnnotPos() {
