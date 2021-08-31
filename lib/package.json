@@ -18,6 +18,7 @@
     "build": "yarn tsc",
     "size": "size-limit",
     "analyze": "size-limit --why",
+    "preversion": "npm test && npm run build",
     "postversion": "git push --follow-tags"
   },
   "peerDependencies": {
