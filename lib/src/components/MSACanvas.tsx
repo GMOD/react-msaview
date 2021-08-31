@@ -6,7 +6,7 @@ import normalizeWheel from 'normalize-wheel'
 // locals
 import { MsaViewModel } from '../model'
 import { colorContrast } from '../util'
-import { getClustalXColor } from '../colorSchemes'
+import { getClustalXColor, getPercentIdentityColor } from '../colorSchemes'
 
 const MSABlock = observer(
   ({
@@ -81,9 +81,16 @@ const MSABlock = observer(
         for (let i = 0; i < str?.length; i++) {
           const letter = str[i]
           const color =
-            colorSchemeName !== 'clustalx_protein_dynamic'
-              ? colorScheme[letter.toUpperCase()]
-              : getClustalXColor(colStats[xStart + i], model, name, xStart + i)
+            colorSchemeName === 'clustalx_protein_dynamic'
+              ? getClustalXColor(colStats[xStart + i], model, name, xStart + i)
+              : colorSchemeName === 'percent_identity_dynamic'
+              ? getPercentIdentityColor(
+                  colStats[xStart + i],
+                  model,
+                  name,
+                  xStart + i,
+                )
+              : colorScheme[letter.toUpperCase()]
           if (bgColor) {
             const x = i * colWidth + offsetX - (offsetX % colWidth)
             ctx.fillStyle = color || 'white'

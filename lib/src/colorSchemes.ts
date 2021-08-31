@@ -63,6 +63,7 @@ const colorSchemes = {
     T: 'red',
   },
 
+  percent_identity_dynamic: {},
   //https://github.com/biotite-dev/biotite/blob/8c460972f8ab904312f130dfb80f3efc8c9bd7c5/src/biotite/sequence/graphics/color_schemes/flower.json
   flower: {
     A: '#b18a51',
@@ -485,4 +486,35 @@ export function getClustalXColor(
     return 'rgb(26, 179, 179)'
   }
   return undefined
+}
+
+// info http://www.jalview.org/help/html/colourSchemes/clustal.html
+// modifications:
+// reference to clustalX source code scheme modifies what the jalview.org
+// scheme says there the jalview.org colorscheme says WLVIMAFCHP but it
+// should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
+export function getPercentIdentityColor(
+  stats: { [key: string]: number },
+  model: { columns: Record<string, string> },
+  row: number,
+  col: number,
+) {
+  const total = Object.values(stats).reduce((a, b) => a + b, 0)
+  const l = model.columns[row][col]
+  const entries = Object.entries(stats)
+  let ent = 0
+  let letter = ''
+  for (let i = 0; i < entries.length; i++) {
+    if (entries[i][1] > ent && entries[i][0] !== '-') {
+      letter = entries[i][0]
+      ent = entries[i][1]
+    }
+  }
+  const proportion = ent / total
+  const thresh = `hsl(240, 30%, ${100 * Math.max(1 - ent / total / 3, 0.3)}%)`
+  if (proportion > 0.4) {
+    if (l === letter) {
+      return thresh
+    }
+  }
 }
