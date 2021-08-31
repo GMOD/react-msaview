@@ -4,7 +4,7 @@ import { ascending, max } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { trace, autorun } from 'mobx'
+import { autorun } from 'mobx'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
 import Stockholm from 'stockholm-js'
@@ -805,7 +805,7 @@ const MSAModel = types
     },
     globalBpToPx(position: number) {
       let count = 0
-      for (let k = 0; k < self.rows[0][1].length; k++) {
+      for (let k = 0; k < self.rows[0]?.[1].length; k++) {
         if (self.blanks.indexOf(k) !== -1 && k < position + 1) {
           count++
         }

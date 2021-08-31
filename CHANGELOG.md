@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.7
+
+- Add bugfix for data while loading
+
 ## v1.2.6
 
 - Fix collapsing of annotations
