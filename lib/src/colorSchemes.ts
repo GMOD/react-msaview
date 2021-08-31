@@ -341,6 +341,10 @@ export default transform(colorSchemes, ([key, val]) => [
 ])
 
 // info http://www.jalview.org/help/html/colourSchemes/clustal.html
+// modifications:
+// reference to clustalX source code scheme modifies what the jalview.org
+// scheme says there the jalview.org colorscheme says WLVIMAFCHP but it
+// should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getClustalXColor(
   stats: { [key: string]: number },
   model: { columns: Record<string, string> },
@@ -371,24 +375,27 @@ export function getClustalXColor(
     Y = 0,
     N = 0,
   } = stats
-  const WLVIMAFCHP = W + L + V + I + M + A + F + C + H + P
+
+  const WLVIMAFCHP = W + L + V + I + M + A + F + C + H + P + Y
 
   const KR = K + R
   const QE = Q + E
   const ED = E + D
   const TS = T + S
+
   if (WLVIMAFCHP / total > 0.6) {
     if (
+      l === 'W' ||
+      l === 'L' ||
+      l === 'V' ||
       l === 'A' ||
       l === 'I' ||
-      l === 'L' ||
       l === 'M' ||
       l === 'F' ||
-      l === 'W' ||
-      l === 'V' ||
       l === 'C'
     ) {
-      return '#88d'
+      // blue from jalview.org docs
+      return 'rgb(128,179,230)'
     }
   }
 
@@ -418,7 +425,7 @@ export function getClustalXColor(
       R / total > 0.8 ||
       Q / total > 0.8)
   ) {
-    return 'rgb(192, 72, 192)'
+    return 'rgb(204, 77, 204)'
   }
 
   if (l === 'N' && (N / total > 0.5 || Y / total > 0.85)) {
@@ -438,12 +445,13 @@ export function getClustalXColor(
 
   if (
     (l === 'S' || l === 'T') &&
+    // WLVIMAFCHP modified from 0.6 to 0.55 on page to match what i see in jalview
     (WLVIMAFCHP / total > 0.6 ||
       TS / total > 0.5 ||
       S / total > 0.85 ||
       T / total > 0.85)
   ) {
-    return '#8f8'
+    return 'rgb(26,204,26)'
   }
 
   if (l === 'C' && C / total > 0.85) {
@@ -454,7 +462,7 @@ export function getClustalXColor(
     return 'rgb(240, 144, 72)'
   }
   if (l === 'P' && P / total > 0) {
-    return 'rgb(192, 192, 0)'
+    return 'rgb(204, 204, 0)'
   }
 
   if (
@@ -473,7 +481,8 @@ export function getClustalXColor(
       M > 0.85 ||
       V > 0.85)
   ) {
-    return 'rgb(21, 164, 164)'
+    // cyan from jalview.org docs
+    return 'rgb(26, 179, 179)'
   }
   return undefined
 }
