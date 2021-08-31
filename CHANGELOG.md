@@ -3,6 +3,9 @@
 ## v1.2.6
 
 - Fix collapsing of annotations
+- Fix mouseover of protein panel highlighting the right bases in MSA panel
+- Add clustalX dynamic coloring scheme
+- Add percent identity dynamic coloring scheme
 
 ## v1.2.5
 
