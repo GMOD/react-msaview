@@ -118,6 +118,9 @@ const colorSchemes = {
     Y: '#19b2b2',
   },
 
+  // this has special handling
+  clustalx_protein_dynamic: {},
+
   clustalx_dna: {
     A: '#e53319',
     C: '#197fe5',
@@ -336,3 +339,141 @@ export default transform(colorSchemes, ([key, val]) => [
   key,
   transform(val, ([letter, color]) => [letter, Color(color).hex()]),
 ])
+
+// info http://www.jalview.org/help/html/colourSchemes/clustal.html
+export function getClustalXColor(
+  stats: { [key: string]: number },
+  model: { columns: Record<string, string> },
+  row: number,
+  col: number,
+) {
+  const total = Object.values(stats).reduce((a, b) => a + b, 0)
+  const l = model.columns[row][col]
+  const {
+    W = 0,
+    L = 0,
+    V = 0,
+    I = 0,
+    M = 0,
+    A = 0,
+    F = 0,
+    C = 0,
+    H = 0,
+    P = 0,
+    R = 0,
+    K = 0,
+    Q = 0,
+    E = 0,
+    D = 0,
+    T = 0,
+    S = 0,
+    G = 0,
+    Y = 0,
+    N = 0,
+  } = stats
+  const WLVIMAFCHP = W + L + V + I + M + A + F + C + H + P
+
+  const KR = K + R
+  const QE = Q + E
+  const ED = E + D
+  const TS = T + S
+  if (WLVIMAFCHP / total > 0.6) {
+    if (
+      l === 'A' ||
+      l === 'I' ||
+      l === 'L' ||
+      l === 'M' ||
+      l === 'F' ||
+      l === 'W' ||
+      l === 'V' ||
+      l === 'C'
+    ) {
+      return '#88d'
+    }
+  }
+
+  if (
+    (l === 'K' || l === 'R') &&
+    (KR / total > 0.6 || K / total > 0.8 || R / total > 0.8 || Q / total > 0.8)
+  ) {
+    return '#d88'
+  }
+
+  if (
+    l === 'E' &&
+    (KR / total > 0.6 ||
+      QE / total > 0.5 ||
+      E / total > 0.8 ||
+      Q / total > 0.8 ||
+      D / total > 0.8)
+  ) {
+    return 'rgb(192, 72, 192)'
+  }
+
+  if (
+    l === 'D' &&
+    (KR / total > 0.6 ||
+      ED / total > 0.5 ||
+      K / total > 0.8 ||
+      R / total > 0.8 ||
+      Q / total > 0.8)
+  ) {
+    return 'rgb(192, 72, 192)'
+  }
+
+  if (l === 'N' && (N / total > 0.5 || Y / total > 0.85)) {
+    return '#8f8'
+  }
+  if (
+    l === 'Q' &&
+    (KR / total > 0.6 ||
+      QE / total > 0.6 ||
+      Q / total > 0.85 ||
+      E / total > 0.85 ||
+      K / total > 0.85 ||
+      R / total > 0.85)
+  ) {
+    return '#8f8'
+  }
+
+  if (
+    (l === 'S' || l === 'T') &&
+    (WLVIMAFCHP / total > 0.6 ||
+      TS / total > 0.5 ||
+      S / total > 0.85 ||
+      T / total > 0.85)
+  ) {
+    return '#8f8'
+  }
+
+  if (l === 'C' && C / total > 0.85) {
+    return 'rgb(240, 128, 128)'
+  }
+
+  if (l === 'G' && G / total > 0) {
+    return 'rgb(240, 144, 72)'
+  }
+  if (l === 'P' && P / total > 0) {
+    return 'rgb(192, 192, 0)'
+  }
+
+  if (
+    (l === 'H' || l === 'Y') &&
+    (WLVIMAFCHP / total > 0.6 ||
+      W > 0.85 ||
+      Y > 0.85 ||
+      A > 0.85 ||
+      C > 0.85 ||
+      P > 0.85 ||
+      Q > 0.85 ||
+      F > 0.85 ||
+      H > 0.85 ||
+      I > 0.85 ||
+      L > 0.85 ||
+      M > 0.85 ||
+      V > 0.85)
+  ) {
+    return 'rgb(21, 164, 164)'
+  }
+  return undefined
+}
