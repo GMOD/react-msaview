@@ -18,7 +18,7 @@
     "build": "yarn tsc",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "preversion": "npm test && npm run build",
+    "preversion": "npm run build",
     "postversion": "git push --follow-tags"
   },
   "peerDependencies": {
@@ -29,17 +29,6 @@
   },
   "name": "react-msaview",
   "author": "Colin",
-  "module": "dist/react-msaview.esm.js",
-  "size-limit": [
-    {
-      "path": "dist/react-msaview.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/react-msaview.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.10.1",
     "@types/color": "^3.0.1",

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.8
+
+- Remove obsolete module field from react-msaview
+
 ## v1.2.7
 
 - Add bugfix for data while loading
