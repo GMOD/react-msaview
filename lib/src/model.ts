@@ -136,7 +136,7 @@ const UniprotTrack = types
             const text = await response.text()
             self.setData(text)
           } catch (e) {
-            self.setError(e)
+            self.setError(e as Error)
           }
         }),
       )
@@ -341,7 +341,7 @@ const MSAModel = types
                 (await openLocation(treeFilehandle).readFile('utf8')) as string,
               )
             } catch (e) {
-              this.setError(e)
+              this.setError(e as Error)
             }
           }
         }),
@@ -357,7 +357,7 @@ const MSAModel = types
                 (await openLocation(msaFilehandle).readFile('utf8')) as string,
               )
             } catch (e) {
-              this.setError(e)
+              this.setError(e as Error)
             }
           }
         }),
