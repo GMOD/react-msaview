@@ -13,8 +13,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
     "outDir": "dist/",
+    "jsx": "react",
     "declaration": true
   },
   "include": ["src"]
