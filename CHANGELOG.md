@@ -1,8 +1,12 @@
 # CHANGELOG
 
-## v1.2.9
+## v1.2.10
 
 - Remove dependency on @gmod/gff to avoid need to polyfill nodejs streams
+
+## v1.2.9
+
+- Use react instead of react-jsx transform
 
 ## v1.2.8
 
