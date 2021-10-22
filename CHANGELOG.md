@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.9
+
+- Remove dependency on @gmod/gff to avoid need to polyfill nodejs streams
+
 ## v1.2.8
 
 - Remove obsolete module field from react-msaview

@@ -14,8 +14,6 @@ import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 
-import gff from '@gmod/gff'
-
 import { generateNodeIds } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
@@ -148,7 +146,37 @@ const UniprotTrack = types
     },
 
     get features() {
-      return gff.parseStringSync(self.data).map((f: any) => f[0])
+      return (self.data as string | undefined)
+        ?.split('\n')
+        .map(f => f.trim())
+        .filter(f => !!f)
+        .filter(f => !f.startsWith('#'))
+        .map(f => {
+          const [seq_id, source, type, start, end, score, strand, phase, col9] =
+            f.split('\t')
+
+          return {
+            seq_id,
+            source,
+            type,
+            start: +start,
+            end: +end,
+            score: +score,
+            strand,
+            phase,
+            ...Object.fromEntries(
+              col9
+                .split(';')
+                .map(f => f.trim())
+                .filter(f => !!f)
+                .map(f => f.split('='))
+                .map(([key, val]) => [
+                  key.trim(),
+                  decodeURIComponent(val).trim().split(',').join(' '),
+                ]),
+            ),
+          }
+        })
     },
   }))
 
