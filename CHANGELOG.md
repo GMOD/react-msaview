@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.2.11
+
+- Make links use event.preventDefault()
+
 ## v1.2.10
 
 - Remove dependency on @gmod/gff to avoid need to polyfill nodejs streams

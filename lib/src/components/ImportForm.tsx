@@ -18,8 +18,9 @@ const ListItem = ({
 }) => (
   <li>
     <Link
-      onClick={() => {
+      onClick={event => {
         model.setError(undefined)
+        event.preventDefault()
         onClick()
       }}
       href="#"
