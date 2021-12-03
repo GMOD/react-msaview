@@ -107,7 +107,7 @@ function App() {
 
 ## API
 
-The following fields can be passed as fields to the MSAModel.create function
+The following fields can be passed as constructor aka the MSAModel.create function
 
 ```js
 const MSAModel = types.model('MsaView', {
@@ -214,6 +214,15 @@ const MSAModel = types.model('MsaView', {
   ),
 })
 ```
+
+There are also actions for manipulating the MSA model after creation, see
+lib/src/model.ts for the actions that you can call on the model after it is
+created. You can also "observe" the state of the model using React and
+mobx-state-tree e.g. if you wanted to know what base the user was hovering
+over. You can get an intro to basic React and mobx-state-tree + observer
+concepts in this short tutorial, and the concepts will apply to this codebase
+as well
+https://gist.github.com/cmdcolin/94d1cbc285e6319cc3af4b9a8556f03f
 
 ## Notes
 
