@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.3.1
+
+- Avoid a console.error undefined
+
 ## v1.3.0
 
 - Add ability to use a UMD bundle

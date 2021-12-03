@@ -279,7 +279,9 @@ const MSAModel = types
       self.selectedStructures = []
     },
     setError(error?: Error) {
-      console.error(error)
+      if (error) {
+        console.error(error)
+      }
       self.error = error
     },
     setMousePos(col?: number, row?: number) {
