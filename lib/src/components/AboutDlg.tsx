@@ -6,6 +6,7 @@ import {
   Typography,
   Link,
 } from '@material-ui/core'
+import { version } from './package.json'
 
 function LicenseDialog({
   onClose,
@@ -68,7 +69,7 @@ export default function AboutDialog({
         <DialogTitle>About this plugin</DialogTitle>
         <DialogContent>
           <Typography>
-            MSAView 1.2.12 (
+            MSAView {version} (
             <Link href="https://github.com/gmod/jbrowse-plugin-msaview">
               Github
             </Link>
