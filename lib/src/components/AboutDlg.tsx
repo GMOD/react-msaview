@@ -69,7 +69,7 @@ export default function AboutDialog({
         <DialogTitle>About this plugin</DialogTitle>
         <DialogContent>
           <Typography>
-            JBrowse 2 MSAView plugin {version} (
+            MSAView {version} (
             <Link href="https://github.com/gmod/jbrowse-plugin-msaview">
               Github
             </Link>

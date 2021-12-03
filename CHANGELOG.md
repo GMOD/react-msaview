@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.3.0
+
+- Add ability to use a UMD bundle
+
 ## v1.2.11
 
 - Make links use event.preventDefault()

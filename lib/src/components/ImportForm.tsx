@@ -89,6 +89,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               onClick={() => {
                 model.setTreeFilehandle({
                   uri: 'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
+                  locationType: 'UriLocation',
                 })
               }}
             >
@@ -115,6 +116,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               onClick={() => {
                 model.setMSAFilehandle({
                   uri: 'https://ihh.github.io/abrowse/build/pfam-cov2.stock',
+                  locationType: 'UriLocation',
                 })
               }}
             >
@@ -125,6 +127,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               onClick={() => {
                 model.setMSAFilehandle({
                   uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
+                  locationType: 'UriLocation',
                 })
               }}
             >
@@ -135,6 +138,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               onClick={() => {
                 model.setMSAFilehandle({
                   uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
+                  locationType: 'UriLocation',
                 })
               }}
             >
@@ -145,6 +149,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               onClick={() => {
                 model.setMSAFilehandle({
                   uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
+                  locationType: 'UriLocation',
                 })
               }}
             >
@@ -156,9 +161,11 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                 transaction(() => {
                   model.setMSAFilehandle({
                     uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
+                    locationType: 'UriLocation',
                   })
                   model.setTreeFilehandle({
                     uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
+                    locationType: 'UriLocation',
                   })
                 })
               }}
