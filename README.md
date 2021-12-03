@@ -80,7 +80,7 @@ function App() {
     ></script>
     <script
       crossorigin
-      src="https://unpkg.com/react-msaview@1.3.0/bundle/index.js"
+      src="https://unpkg.com/react-msaview@1.3.1/bundle/index.js"
     ></script>
   </head>
   <body>
