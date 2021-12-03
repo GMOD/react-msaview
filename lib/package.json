@@ -4,7 +4,8 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "bundle"
   ],
   "engines": {
     "node": ">=10"
@@ -15,9 +16,7 @@
     "prestart": "npm run clean",
     "prebuild": "npm run clean",
     "start": "yarn tsc --watch",
-    "build": "yarn tsc",
-    "prebundle": "yarn build",
-    "bundle": "rollup -c",
+    "build": "yarn tsc && rollup -c",
     "preversion": "npm run build",
     "postversion": "git push --follow-tags"
   },
