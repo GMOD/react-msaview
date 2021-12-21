@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.3.2
+
+- Fix error clicking msa sources that don't define getRowDetails
+
 ## v1.3.1
 
 - Avoid a console.error undefined
