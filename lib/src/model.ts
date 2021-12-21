@@ -469,7 +469,7 @@ const MSAModel = types
 
     getRowDetails(name: string) {
       //@ts-ignore
-      const details = this.MSA?.getRowDetails(name)
+      const details = this.MSA?.getRowDetails?.(name)
       const matches = name.match(/\S+\/(\d+)-(\d+)/)
       return {
         ...details,
