@@ -376,6 +376,7 @@ const TreeBlock = observer(
       labelsAlignRight,
       treeAreaWidth,
       structures,
+      highResScaleFactor,
     ])
 
     useEffect(() => {

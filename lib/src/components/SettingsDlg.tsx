@@ -10,7 +10,6 @@ import {
   FormControlLabel,
   MenuItem,
   TextField,
-  Typography,
 } from '@material-ui/core'
 
 import { MsaViewModel } from '../model'
