@@ -274,7 +274,7 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
       style={{
         position: 'relative',
         height,
-        width: msaAreaWidth,
+        width: msaAreaWidth * 0.65,
         overflow: 'hidden',
       }}
     >

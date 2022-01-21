@@ -182,7 +182,7 @@ const Ruler = observer(({ model }: { model: MsaViewModel }) => {
       ref={ref}
       style={{
         position: 'relative',
-        width: msaAreaWidth,
+        width: msaAreaWidth * .654,
         cursor: 'crosshair',
         overflow: 'hidden',
         height: 20,
