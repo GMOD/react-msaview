@@ -12,6 +12,7 @@ import TreeRuler from './TreeRuler'
 import Header from './Header'
 import Track from './Track'
 import AnnotationDialog from './AnnotationDlg'
+import GeneScoreCanvas from './GeneScoreCanvas'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
@@ -117,6 +118,9 @@ export default observer(({ model }: { model: MsaViewModel }) => {
                   <VerticalResizeHandle model={model} />
                   <MSACanvas model={model} />
                   <MouseoverCanvas model={model} />
+                  <div style={{ flexShrink: 0, width: treeAreaWidth }}>
+                    <GeneScoreCanvas model={model} />
+                  </div>
                 </div>
               </div>
             </div>
