@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Container, Grid, Typography, Link } from '@material-ui/core'
 import { observer } from 'mobx-react'
 import { transaction } from 'mobx'
@@ -32,6 +32,7 @@ const ListItem = ({
 export default observer(({ model }: { model: MsaViewModel }) => {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
+  const [geneScoreFile, setGeneScoreFile] = useState<FileLocation>()
   const { error } = model
 
   return (
@@ -60,6 +61,8 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <FileSelector location={msaFile} setLocation={setMsaFile} />
           <Typography>Tree file or URL</Typography>
           <FileSelector location={treeFile} setLocation={setTreeFile} />
+          <Typography>Gene Score file or URL</Typography>
+          <FileSelector location={geneScoreFile} setLocation={setGeneScoreFile} />
         </Grid>
 
         <Grid item>
@@ -71,6 +74,9 @@ export default observer(({ model }: { model: MsaViewModel }) => {
               }
               if (treeFile) {
                 model.setTreeFilehandle(treeFile)
+              }
+              if (geneScoreFile) {
+                model.setGeneScoreFilehandle(geneScoreFile)
               }
             }}
             variant="contained"

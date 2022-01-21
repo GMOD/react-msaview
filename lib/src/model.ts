@@ -205,6 +205,7 @@ const MSAModel = types
     colorSchemeName: 'maeditor',
     treeFilehandle: types.maybe(FileLocation),
     msaFilehandle: types.maybe(FileLocation),
+    geneScoreFilehandle: types.maybe(FileLocation),
     currentAlignment: 0,
     collapsed: types.array(types.string),
     showOnly: types.maybe(types.string),
@@ -222,6 +223,7 @@ const MSAModel = types
         .model({
           tree: types.maybe(types.string),
           msa: types.maybe(types.string),
+          geneScore: types.maybe(types.string),
         })
         .actions(self => ({
           setTree(tree?: string) {
@@ -230,8 +232,11 @@ const MSAModel = types
           setMSA(msa?: string) {
             self.msa = msa
           },
+          setGeneScore(score?: string) {
+            self.geneScore = score
+          }
         })),
-      { tree: '', msa: '' },
+      { tree: '', msa: '', geneScore: '' },
     ),
   })
   .volatile(() => ({
@@ -337,8 +342,11 @@ const MSAModel = types
     toggleNodeBubbles() {
       self.drawNodeBubbles = !self.drawNodeBubbles
     },
-    setData(data: { msa?: string; tree?: string }) {
+    setData(data: { msa?: string; tree?: string, geneScore?: string }) {
       self.data = cast(data)
+    },
+    async setGeneScoreFilehandle(geneScoreFilehandle?: FileLocationType) {
+      self.geneScoreFilehandle = geneScoreFilehandle
     },
     async setMSAFilehandle(msaFilehandle?: FileLocationType) {
       self.msaFilehandle = msaFilehandle
@@ -359,8 +367,27 @@ const MSAModel = types
     setTree(result: string) {
       self.data.setTree(result)
     },
+    setGeneScore(result: string) {
+      self.data.setGeneScore(result)
+    },
 
     afterCreate() {
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { geneScoreFilehandle } = self
+          if (geneScoreFilehandle) {
+            try {
+              this.setGeneScore(
+                (await openLocation(geneScoreFilehandle).readFile('utf8')) as string,
+              )
+
+            } catch (e) {
+              this.setError(e as Error)
+            }
+          }
+        }),
+      )
       addDisposer(
         self,
         autorun(async () => {
