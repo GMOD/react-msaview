@@ -7,6 +7,7 @@ import { openLocation } from '@jbrowse/core/util/io'
 import { autorun } from 'mobx'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
+import GeneScoreCSV from './parsers/GeneScoreCSV'
 import Stockholm from 'stockholm-js'
 import ClustalMSA from './parsers/ClustalMSA'
 import StockholmMSA from './parsers/StockholmMSA'
@@ -518,6 +519,11 @@ const MSAModel = types
 
     get menuItems() {
       return []
+    },
+
+    get GeneScores() {
+      const text = self.data.geneScore
+      return GeneScoreCSV(text)
     },
 
     get MSA() {

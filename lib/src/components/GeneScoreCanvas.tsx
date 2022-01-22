@@ -191,6 +191,7 @@ const GeneScoreBlock = observer(
     const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
     const {
+      GeneScores,
       hierarchy,
       rowHeight,
       scrollY,
@@ -237,54 +238,7 @@ const GeneScoreBlock = observer(
 
           const y1 = Math.min(sy, ty)
           const y2 = Math.max(sy, ty)
-          //1d line intersection to check if line crosses block at all, this is
-          //an optimization that allows us to skip drawing most tree links
-          //outside the block
-          // if (offsetY + blockSize >= y1 && y2 >= offsetY) {
-          //   ctx.beginPath()
-          //   ctx.moveTo(sx, sy)
-          //   ctx.lineTo(sx, ty)
-          //   ctx.lineTo(tx, ty)
-          //   ctx.stroke()
-          // }
         })
-
-        // if (drawNodeBubbles) {
-        //   hierarchy.descendants().forEach(node => {
-        //     const val = showBranchLen ? 'len' : 'y'
-        //     const {
-        //       //@ts-ignore
-        //       x: y,
-        //       //@ts-ignore
-        //       [val]: x,
-        //       data,
-        //     } = node
-        //     const { id = '', name = '' } = data
-
-        //     if (
-        //       y > offsetY - extendBounds &&
-        //       y < offsetY + blockSize + extendBounds
-        //     ) {
-        //       ctx.strokeStyle = 'black'
-        //       ctx.fillStyle = collapsed.includes(id) ? 'black' : 'white'
-        //       ctx.beginPath()
-        //       ctx.arc(x, y, radius, 0, 2 * Math.PI)
-        //       ctx.fill()
-        //       ctx.stroke()
-
-        //       clickMap.current.insert({
-        //         minX: x - radius,
-        //         maxX: x - radius + d,
-        //         minY: y - radius,
-        //         maxY: y - radius + d,
-        //         branch: true,
-        //         id,
-        //         name,
-        //       })
-        //     }
-        //   })
-        // }
-      //}
 
       if (rowHeight >= 10) {
         if (labelsAlignRight) {
@@ -318,50 +272,22 @@ const GeneScoreBlock = observer(
             const hasStructure = structures[name]
             ctx.fillStyle = hasStructure ? 'blue' : 'black'
 
-            //if (!drawTree && !labelsAlignRight) {
-              ctx.fillText(`${name}: [DEMO DATA HERE]`, 0, yp)
-              clickMap.current.insert({
-                minX: 0,
-                maxX: width,
-                minY: yp - height,
-                maxY: yp,
-                name,
-                id,
-              })
-            // } else if (labelsAlignRight) {
-            //   const smallPadding = 2
-            //   const offset = treeAreaWidth - smallPadding - margin.left
-            //   if (drawTree && !noTree) {
-            //     const { width } = ctx.measureText(name)
-            //     ctx.moveTo(xp + radius + 2, y)
-            //     ctx.lineTo(offset - smallPadding - width, y)
-            //     ctx.stroke()
-            //   }
-            //   ctx.fillText(name, offset, yp)
-            //   clickMap.current.insert({
-            //     minX: treeAreaWidth - margin.left - width,
-            //     maxX: treeAreaWidth - margin.left,
-            //     minY: yp - height,
-            //     maxY: yp,
-            //     name,
-            //     id,
-            //   })
-            // } else {
-            //   ctx.fillText(name, xp + d, yp)
-            //   clickMap.current.insert({
-            //     minX: xp + d,
-            //     maxX: xp + d + width,
-            //     minY: yp - height,
-            //     maxY: yp,
-            //     name,
-            //     id,
-            //   })
-            // }
+            const scores = GeneScores[name]
+            ctx.fillText(`${name}: [${scores['geneScore']}, ${scores['diffCount']}]`, 0, yp)
+            clickMap.current.insert({
+              minX: 0,
+              maxX: width,
+              minY: yp - height,
+              maxY: yp,
+              name,
+              id,
+            })
           }
         })
         ctx.setLineDash([])
       }
     }, [
+      GeneScores,
       collapsed,
       rowHeight,
       margin.left,
