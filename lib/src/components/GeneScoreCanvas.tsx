@@ -273,7 +273,7 @@ const GeneScoreBlock = observer(
             ctx.fillStyle = hasStructure ? 'blue' : 'black'
 
             const scores = GeneScores[name]
-            ctx.fillText(`${name}: [${scores['geneScore']}, ${scores['diffCount']}]`, 0, yp)
+            ctx.fillText(`${name}: [${scores?.geneScore}, ${scores?.diffCount}]`, 0, yp)
             clickMap.current.insert({
               minX: 0,
               maxX: width,
