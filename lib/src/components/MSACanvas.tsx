@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { Typography, CircularProgress, useTheme } from '@material-ui/core'
 import { observer } from 'mobx-react'
 import normalizeWheel from 'normalize-wheel'
@@ -8,68 +8,49 @@ import { MsaViewModel } from '../model'
 import { colorContrast } from '../util'
 import { getClustalXColor, getPercentIdentityColor } from '../colorSchemes'
 
-const MSABlock = observer(
-  ({
-    model,
-    offsetX,
-    offsetY,
-  }: {
-    model: MsaViewModel
-    offsetX: number
-    offsetY: number
-  }) => {
-    const {
-      MSA,
-      colWidth,
-      bgColor,
-      columns,
-      rowHeight,
-      scrollY,
-      scrollX,
-      hierarchy,
-      colorScheme,
-      colorSchemeName,
-      blockSize,
-      highResScaleFactor,
-      colStats,
-    } = model
-    const theme = useTheme()
+import * as PIXI from 'pixi.js'
 
-    const contrastScheme = useMemo(
-      () => colorContrast(colorScheme, theme),
-      [colorScheme, theme],
-    )
+import { Stage, Graphics } from '@inlet/react-pixi'
 
-    const ref = useRef<HTMLCanvasElement>(null)
-    useEffect(() => {
-      if (!ref.current) {
-        return
-      }
+function Rectangle(props: any) {
+  const draw = useCallback(
+    g => {
+      g.clear()
+      g.beginFill(props.color)
+      g.drawRect(props.x, props.y, props.width, props.height)
+      g.endFill()
+    },
+    [props],
+  )
 
-      const ctx = ref.current.getContext('2d')
-      if (!ctx) {
-        return
-      }
+  return <Graphics draw={draw} />
+}
 
-      ctx.resetTransform()
-      ctx.scale(highResScaleFactor, highResScaleFactor)
-      ctx.clearRect(0, 0, blockSize, blockSize)
-      ctx.translate(-offsetX, rowHeight / 2 - offsetY)
-      ctx.textAlign = 'center'
-      ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
+const MSABlock = observer(({ model }: { model: MsaViewModel }) => {
+  const {
+    msaAreaWidth,
+    height,
+    colWidth,
+    bgColor,
+    columns,
+    rowHeight,
+    hierarchy,
+    colorScheme,
+    colorSchemeName,
+    colStats,
+    scrollX,
+  } = model
+  const theme = useTheme()
 
-      const leaves = hierarchy.leaves()
-      const b = blockSize
+  const contrastScheme = useMemo(
+    () => colorContrast(colorScheme, theme),
+    [colorScheme, theme],
+  )
+  console.log({ scrollX })
 
-      // slice vertical rows, e.g. tree leaves, avoid negative slice
-      const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
-      const yEnd = Math.max(0, Math.ceil((offsetY + b + rowHeight) / rowHeight))
-
-      // slice horizontal visible letters, avoid negative slice
-      const xStart = Math.max(0, Math.floor(offsetX / colWidth))
-      const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
-      const visibleLeaves = leaves.slice(yStart, yEnd)
-      visibleLeaves.forEach(node => {
+  return (
+    <Stage width={msaAreaWidth} height={height}>
+      {hierarchy.leaves().map(node => {
         const {
           //@ts-ignore
           x: y,
@@ -77,96 +58,35 @@ const MSABlock = observer(
           data: { name },
         } = node
 
-        const str = columns[name]?.slice(xStart, xEnd)
-        for (let i = 0; i < str?.length; i++) {
-          const letter = str[i]
+        return columns[name].split('').map((letter, i) => {
           const color =
             colorSchemeName === 'clustalx_protein_dynamic'
-              ? getClustalXColor(colStats[xStart + i], model, name, xStart + i)
+              ? getClustalXColor(colStats[i], model, name, i)
               : colorSchemeName === 'percent_identity_dynamic'
-              ? getPercentIdentityColor(
-                  colStats[xStart + i],
-                  model,
-                  name,
-                  xStart + i,
-                )
+              ? getPercentIdentityColor(colStats[i], model, name, i)
               : colorScheme[letter.toUpperCase()]
           if (bgColor) {
-            const x = i * colWidth + offsetX - (offsetX % colWidth)
-            ctx.fillStyle = color || 'white'
-            ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
-          }
-        }
-      })
-
-      if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-        visibleLeaves.forEach(node => {
-          const {
-            //@ts-ignore
-            x: y,
-            //@ts-ignore
-            data: { name },
-          } = node
-
-          const str = columns[name]?.slice(xStart, xEnd)
-          for (let i = 0; i < str?.length; i++) {
-            const letter = str[i]
-            const color = colorScheme[letter.toUpperCase()]
-            const contrast = contrastScheme[letter.toUpperCase()] || 'black'
-            const x = i * colWidth + offsetX - (offsetX % colWidth)
-
-            //note: -rowHeight/4 matches +rowHeight/4 in tree
-            ctx.fillStyle = bgColor ? contrast : color || 'black'
-            ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
+            const x = i * colWidth
+            const hex = PIXI.utils.string2hex(color || '')
+            return (
+              <Rectangle
+                key={y + '_' + x}
+                color={hex}
+                x={x + scrollX}
+                y={y - rowHeight}
+                width={colWidth}
+                height={rowHeight}
+              />
+            )
           }
         })
-      }
-    }, [
-      MSA,
-      highResScaleFactor,
-      columns,
-      colorScheme,
-      contrastScheme,
-      bgColor,
-      rowHeight,
-      colWidth,
-      hierarchy,
-      offsetX,
-      offsetY,
-      blockSize,
-    ])
-    return (
-      <canvas
-        ref={ref}
-        onMouseMove={event => {
-          if (!ref.current) {
-            return
-          }
-          const { left, top } = ref.current.getBoundingClientRect()
-          const mouseX = event.clientX - left
-          const mouseY = event.clientY - top
-          model.setMousePos(
-            Math.floor((mouseX + offsetX) / colWidth) + 1,
-            Math.floor((mouseY + offsetY) / rowHeight),
-          )
-        }}
-        onMouseLeave={() => model.setMousePos()}
-        width={blockSize * highResScaleFactor}
-        height={blockSize * highResScaleFactor}
-        style={{
-          position: 'absolute',
-          top: scrollY + offsetY,
-          left: scrollX + offsetX,
-          width: blockSize,
-          height: blockSize,
-        }}
-      />
-    )
-  },
-)
+      })}
+    </Stage>
+  )
+})
 
 const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
-  const { MSA, msaFilehandle, height, msaAreaWidth, blocks2d } = model
+  const { MSA, msaFilehandle } = model
   const ref = useRef<HTMLDivElement>(null)
   // wheel
   const scheduled = useRef(false)
@@ -271,12 +191,6 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
       onMouseLeave={event => {
         event.preventDefault()
       }}
-      style={{
-        position: 'relative',
-        height,
-        width: msaAreaWidth,
-        overflow: 'hidden',
-      }}
     >
       {!MSA && !msaFilehandle ? null : !MSA ? (
         <div style={{ position: 'absolute', left: '50%', top: '50%' }}>
@@ -284,14 +198,7 @@ const MSACanvas = observer(({ model }: { model: MsaViewModel }) => {
           <Typography>Loading...</Typography>
         </div>
       ) : (
-        blocks2d.map(([bx, by]) => (
-          <MSABlock
-            key={`${bx}_${by}`}
-            model={model}
-            offsetX={bx}
-            offsetY={by}
-          />
-        ))
+        <MSABlock model={model} />
       )}
     </div>
   )
