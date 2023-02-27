@@ -25,7 +25,7 @@ const ListItem = ({
       }}
       href="#"
     >
-      <Typography>{children}</Typography>
+      <Typography display="inline">{children}</Typography>
     </Link>
   </li>
 )

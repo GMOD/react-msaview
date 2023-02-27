@@ -1,19 +1,24 @@
-type StrMap = { [key: string]: string }
+function parseSmallFasta(text: string) {
+  return text
+    .split('>')
+    .filter(t => /\S/.test(t))
+    .map(entryText => {
+      const [defLine, ...seqLines] = entryText.split('\n')
+      const [id, ...description] = defLine.split(' ')
+      const descriptionStr = description.join(' ')
+      const seqLinesStr = seqLines.join('')
+      const sequence = seqLinesStr.replace(/\s/g, '')
+      return { id, description: descriptionStr, sequence }
+    })
+}
 export default class FastaMSA {
   private MSA: { seqdata: { [key: string]: string } }
   constructor(text: string) {
-    const seq: StrMap = {}
-    let name = ''
-    const re = /^>(\S+)/
-    text.split('\n').forEach(line => {
-      const match = re.exec(line)
-      if (match) {
-        seq[(name = match[1])] = ''
-      } else if (name) {
-        seq[name] = seq[name] + line.replace(/[ \t]/g, '')
-      }
-    })
-    this.MSA = { seqdata: seq }
+    this.MSA = {
+      seqdata: Object.fromEntries(
+        parseSmallFasta(text).map((m, i) => [`${m.id}-${i}`, m.sequence]),
+      ),
+    }
   }
 
   getMSA() {
