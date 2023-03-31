@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import { getSnapshot } from "mobx-state-tree";
 import { observer } from "mobx-react";
@@ -8,20 +9,7 @@ DatasourceRegistry.add(
   "data",
   new StaticDatasource("https://files.rcsb.org/download/")
 );
-
-function getOffset(model, rowName, structure, mouseCol, startPos) {
-  const rn = structure.residueStore.count;
-  const rp = structure.getResidueProxy();
-  const pos = model.msaview.relativePxToBp(rowName, mouseCol);
-  for (let i = 0; i < rn; ++i) {
-    rp.index = i;
-    if (rp.resno === pos + startPos - 1) {
-      return rp;
-    }
-  }
-}
-
-export const ProteinPanel = observer(({ model }) => {
+export const ProteinPanel = observer(function ({ model }: { model: any }) {
   const annotations = useRef([]);
   const [type, setType] = useState("cartoon");
   const [res, setRes] = useState([]);
@@ -144,3 +132,15 @@ export const ProteinPanel = observer(({ model }) => {
     </div>
   ) : null;
 });
+
+function getOffset(model, rowName, structure, mouseCol, startPos) {
+  const rn = structure.residueStore.count;
+  const rp = structure.getResidueProxy();
+  const pos = model.msaview.relativePxToBp(rowName, mouseCol);
+  for (let i = 0; i < rn; ++i) {
+    rp.index = i;
+    if (rp.resno === pos + startPos - 1) {
+      return rp;
+    }
+  }
+}
