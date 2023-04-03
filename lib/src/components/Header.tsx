@@ -1,19 +1,20 @@
 import React, { useState } from 'react'
-import { IconButton, Select, Typography } from '@material-ui/core'
-import { MsaViewModel } from '../model'
+import { IconButton, Select, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
+// locals
+import { MsaViewModel } from '../model'
 import SettingsDialog from './SettingsDlg'
 import AboutDialog from './AboutDlg'
 import DetailsDialog from './DetailsDlg'
 import TracklistDialog from './TracklistDlg'
 
 //icons
-import FolderOpenIcon from '@material-ui/icons/FolderOpen'
-import SettingsIcon from '@material-ui/icons/Settings'
-import HelpIcon from '@material-ui/icons/Help'
-import AssignmentIcon from '@material-ui/icons/Assignment'
-import ListIcon from '@material-ui/icons/List'
+import FolderOpenIcon from '@mui/icons-material/FolderOpen'
+import SettingsIcon from '@mui/icons-material/Settings'
+import HelpIcon from '@mui/icons-material/Help'
+import AssignmentIcon from '@mui/icons-material/Assignment'
+import ListIcon from '@mui/icons-material/List'
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
@@ -27,10 +28,10 @@ const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
 })
 
 const Header = observer(({ model }: { model: MsaViewModel }) => {
-  const [settingsDialogVisible, setSettingsDialogVisible] = useState(false)
-  const [aboutDialogVisible, setAboutDialogVisible] = useState(false)
-  const [detailsDialogVisible, setDetailsDialogVisible] = useState(false)
-  const [tracklistDialogVisible, setTracklistDialogVisible] = useState(false)
+  const [settingsDialogViz, setSettingsDialogViz] = useState(false)
+  const [aboutDialogViz, setAboutDialogViz] = useState(false)
+  const [detailsDialogViz, setDetailsDialogViz] = useState(false)
+  const [tracklistDialogViz, setTracklistDialogViz] = useState(false)
   const { currentAlignment, alignmentNames } = model
 
   return (
@@ -47,44 +48,45 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       >
         <FolderOpenIcon />
       </IconButton>
-      <IconButton onClick={() => setSettingsDialogVisible(true)}>
+      <IconButton onClick={() => setSettingsDialogViz(true)}>
         <SettingsIcon />
       </IconButton>
-      <IconButton onClick={() => setDetailsDialogVisible(true)}>
+      <IconButton onClick={() => setDetailsDialogViz(true)}>
         <AssignmentIcon />
       </IconButton>
-      <IconButton onClick={() => setTracklistDialogVisible(true)}>
+      <IconButton onClick={() => setTracklistDialogViz(true)}>
         <ListIcon />
       </IconButton>
-      {settingsDialogVisible ? (
+      {settingsDialogViz ? (
         <SettingsDialog
           open
           model={model}
-          onClose={() => setSettingsDialogVisible(false)}
+          onClose={() => setSettingsDialogViz(false)}
         />
       ) : null}
-      {aboutDialogVisible ? (
-        <AboutDialog open onClose={() => setAboutDialogVisible(false)} />
+      {aboutDialogViz ? (
+        <AboutDialog open onClose={() => setAboutDialogViz(false)} />
       ) : null}
-      {detailsDialogVisible ? (
+      {detailsDialogViz ? (
         <DetailsDialog
           open
           model={model}
-          onClose={() => setDetailsDialogVisible(false)}
+          onClose={() => setDetailsDialogViz(false)}
         />
       ) : null}
 
-      {tracklistDialogVisible ? (
+      {tracklistDialogViz ? (
         <TracklistDialog
           open
           model={model}
-          onClose={() => setTracklistDialogVisible(false)}
+          onClose={() => setTracklistDialogViz(false)}
         />
       ) : null}
       {alignmentNames.length > 0 ? (
         <Select
           native
           value={currentAlignment}
+          size="small"
           onChange={event => {
             model.setCurrentAlignment(+(event.target.value as string))
             model.setScrollX(0)
@@ -100,7 +102,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       ) : null}
       <InfoArea model={model} />
       <div style={{ flex: 1 }} />
-      <IconButton onClick={() => setAboutDialogVisible(true)}>
+      <IconButton onClick={() => setAboutDialogViz(true)}>
         <HelpIcon />
       </IconButton>
     </div>

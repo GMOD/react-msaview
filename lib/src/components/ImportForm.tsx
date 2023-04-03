@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { Button, Container, Grid, Typography, Link } from '@material-ui/core'
+import { Button, Container, Grid, Typography, Link } from '@mui/material'
 import { observer } from 'mobx-react'
 import { transaction } from 'mobx'
 import { FileSelector } from '@jbrowse/core/ui'
 import { FileLocation } from '@jbrowse/core/util/types'
+
+// locals
 import { MsaViewModel } from '../model'
 import { smallTree, smallMSA, smallMSAOnly } from './data/seq2'
 

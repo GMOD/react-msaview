@@ -1,28 +1,28 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent } from '@material-ui/core'
+import { DialogContent } from '@mui/material'
 import { observer } from 'mobx-react'
+import { Dialog } from '@jbrowse/core/ui'
 import { Attributes } from '@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail'
+
+// locals
 import { MsaViewModel } from '../model'
 
-export default observer(
-  ({
-    model,
-    onClose,
-    open,
-  }: {
-    model: MsaViewModel
-    onClose: () => void
-    open: boolean
-  }) => {
-    const { alignmentDetails } = model
+export default observer(function ({
+  model,
+  onClose,
+  open,
+}: {
+  model: MsaViewModel
+  onClose: () => void
+  open: boolean
+}) {
+  const { alignmentDetails } = model
 
-    return (
-      <Dialog onClose={() => onClose()} open={open}>
-        <DialogTitle>Metadata</DialogTitle>
-        <DialogContent>
-          <Attributes attributes={alignmentDetails} />
-        </DialogContent>
-      </Dialog>
-    )
-  },
-)
+  return (
+    <Dialog onClose={() => onClose()} open={open} title="Metadata">
+      <DialogContent>
+        <Attributes attributes={alignmentDetails} />
+      </DialogContent>
+    </Dialog>
+  )
+})

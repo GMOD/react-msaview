@@ -3,10 +3,11 @@ import { observer } from "mobx-react";
 import { onSnapshot } from "mobx-state-tree";
 import { MSAView } from "react-msaview";
 import { createJBrowseTheme } from "@jbrowse/core/ui/theme";
-import { ThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import { throttle } from "lodash";
-import AppGlobal, { AppModel } from "./model";
 
+// locals
+import AppGlobal, { AppModel } from "./model";
 import { ProteinPanel } from "./ProteinPanel";
 
 const urlParams = new URLSearchParams(window.location.search);

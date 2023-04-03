@@ -895,10 +895,11 @@ const MSAModel = types
 
 const model = types.snapshotProcessor(types.compose(BaseViewModel, MSAModel), {
   postProcessor(result) {
+    const snap = result as Omit<typeof result, symbol>
     const {
       data: { tree, msa },
       ...rest
-    } = result
+    } = snap
 
     // remove the MSA/tree data from the tree if the filehandle available in
     // which case it can be reloaded on refresh

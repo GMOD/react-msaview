@@ -1,11 +1,6 @@
 import React, { useState } from 'react'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Link,
-} from '@material-ui/core'
+import { Dialog } from '@jbrowse/core/ui'
+import { DialogContent, Typography, Link } from '@mui/material'
 import packageJSON from './package.json'
 
 function LicenseDialog({
@@ -16,8 +11,7 @@ function LicenseDialog({
   open: boolean
 }) {
   return (
-    <Dialog onClose={() => onClose()} open={open}>
-      <DialogTitle>Biotite License</DialogTitle>
+    <Dialog onClose={() => onClose()} open={open} title="Biotite license">
       <DialogContent>
         <pre style={{ height: 100, overflow: 'auto' }}>
           {`
@@ -65,8 +59,7 @@ export default function AboutDialog({
   return (
     <>
       <LicenseDialog onClose={() => setDlgOpen(false)} open={dlgOpen} />
-      <Dialog onClose={() => onClose()} open={open}>
-        <DialogTitle>About this plugin</DialogTitle>
+      <Dialog onClose={() => onClose()} open={open} title="About this plugin">
         <DialogContent>
           <Typography>
             MSAView {packageJSON.version} (

@@ -2,7 +2,7 @@
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import { getSnapshot } from "mobx-state-tree";
 import { observer } from "mobx-react";
-import { Button, Select, MenuItem, TextField } from "@material-ui/core";
+import { Button, Select, MenuItem, TextField } from "@mui/material";
 import { Stage, StaticDatasource, DatasourceRegistry } from "ngl";
 
 DatasourceRegistry.add(
