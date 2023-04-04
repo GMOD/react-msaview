@@ -14,9 +14,9 @@ jobs:
           node-version: 16.x
       - name: Install deps (with cache)
         uses: bahmutov/npm-install@v1
-      - name: Lint
-        run: yarn lint
       - name: tsc lib
         run: cd lib && yarn tsc
       - name: tsc app
         run: cd app && yarn tsc
+      - name: Lint
+        run: yarn lint
