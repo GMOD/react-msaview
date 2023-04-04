@@ -233,9 +233,9 @@ const TreeBlock = observer(function ({
     if (!noTree && drawTree) {
       hierarchy.links().forEach(({ source, target }) => {
         const y = showBranchLen ? 'len' : 'y'
-        //@ts-ignore
+        //@ts-expect-error
         const { x: sy, [y]: sx } = source
-        //@ts-ignore
+        //@ts-expect-error
         const { x: ty, [y]: tx } = target
 
         const y1 = Math.min(sy, ty)
@@ -256,9 +256,9 @@ const TreeBlock = observer(function ({
         hierarchy.descendants().forEach(node => {
           const val = showBranchLen ? 'len' : 'y'
           const {
-            //@ts-ignore
+            //@ts-expect-error
             x: y,
-            //@ts-ignore
+            //@ts-expect-error
             [val]: x,
             data,
           } = node
@@ -298,12 +298,12 @@ const TreeBlock = observer(function ({
       }
       hierarchy.leaves().forEach(node => {
         const {
-          //@ts-ignore
+          //@ts-expect-error
           x: y,
-          //@ts-ignore
+          //@ts-expect-error
           y: x,
           data: { name, id },
-          //@ts-ignore
+          //@ts-expect-error
           len,
         } = node
 

@@ -1,6 +1,6 @@
 import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
-import { ascending, max } from 'd3-array'
+import { ascending } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
@@ -9,6 +9,14 @@ import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewMo
 import Stockholm from 'stockholm-js'
 
 // locals
+import {
+  collapse,
+  generateNodeIds,
+  maxLength,
+  setBrLength,
+  skipBlanks,
+  clamp,
+} from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
 import ClustalMSA from './parsers/ClustalMSA'
@@ -16,7 +24,8 @@ import StockholmMSA from './parsers/StockholmMSA'
 import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
-import { generateNodeIds } from './util'
+import { UniprotTrack } from './UniprotTrack'
+import { StructureModel } from './StructureModel'
 
 interface BasicTrackModel {
   id: string
@@ -44,143 +53,6 @@ export interface BoxTrack {
 }
 
 type BasicTrack = BoxTrack | TextTrack
-
-function skipBlanks(blanks: number[], arg: string) {
-  let s = ''
-  let b = 0
-  for (let j = 0; j < arg.length; j++) {
-    if (j === blanks[b]) {
-      b++
-    } else {
-      s += arg[j]
-    }
-  }
-  return s
-}
-
-function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
-  //@ts-ignore
-  d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
-  d.children?.forEach(d => {
-    setBrLength(d, y0, k)
-  })
-}
-
-function maxLength(d: HierarchyNode<any>): number {
-  return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0)
-}
-
-// Collapse the node and all it's children, from
-// https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
-function collapse(d: HierarchyNode<any>) {
-  if (d.children) {
-    //@ts-ignore
-    d._children = d.children
-    //@ts-ignore
-    d._children.forEach(collapse)
-    //@ts-ignore
-    d.children = null
-  }
-}
-
-function clamp(min: number, num: number, max: number) {
-  return Math.min(Math.max(num, min), max)
-}
-
-const StructureModel = types.model({
-  id: types.identifier,
-  structure: types.model({
-    pdb: types.string,
-    startPos: types.number,
-    endPos: types.number,
-  }),
-  range: types.maybe(types.string),
-})
-
-const UniprotTrack = types
-  .model({
-    id: types.string,
-    accession: types.string,
-    name: types.string,
-    associatedRowName: types.string,
-    height: types.optional(types.number, 100),
-  })
-  .volatile(() => ({
-    error: undefined as unknown,
-    data: undefined as string | undefined,
-  }))
-  .actions(self => ({
-    setError(error: unknown) {
-      self.error = error
-    },
-    setData(data: string) {
-      self.data = data
-    },
-  }))
-  .actions(self => ({
-    afterCreate() {
-      addDisposer(
-        self,
-        autorun(async () => {
-          try {
-            const { accession } = self
-            const url = `https://www.uniprot.org/uniprot/${accession}.gff`
-            const response = await fetch(url)
-            if (!response.ok) {
-              throw new Error(
-                `HTTP ${
-                  response.status
-                } fetching ${url}: ${await response.text()}`,
-              )
-            }
-            self.setData(await response.text())
-          } catch (e) {
-            console.error(e)
-            self.setError(e)
-          }
-        }),
-      )
-    },
-  }))
-  .views(self => ({
-    get loading() {
-      return !self.data
-    },
-
-    get features() {
-      return self.data
-        ?.split('\n')
-        .map(f => f.trim())
-        .filter(f => !!f)
-        .filter(f => !f.startsWith('#'))
-        .map(f => {
-          const [seq_id, source, type, start, end, score, strand, phase, col9] =
-            f.split('\t')
-
-          return {
-            seq_id,
-            source,
-            type,
-            start: +start,
-            end: +end,
-            score: +score,
-            strand,
-            phase,
-            ...Object.fromEntries(
-              col9
-                .split(';')
-                .map(f => f.trim())
-                .filter(f => !!f)
-                .map(f => f.split('='))
-                .map(([key, val]) => [
-                  key.trim(),
-                  decodeURIComponent(val).trim().split(',').join(' '),
-                ]),
-            ),
-          }
-        })
-    },
-  }))
 
 const MSAModel = types
   .model('MsaView', {
@@ -277,7 +149,7 @@ const MSAModel = types
       }
     },
     clearSelectedStructures() {
-      //@ts-ignore
+      //@ts-expect-error
       self.selectedStructures = []
     },
     setError(error?: unknown) {
@@ -324,7 +196,7 @@ const MSAModel = types
         self.collapsed.push(node)
       }
     },
-    setShowOnly(node: string | undefined) {
+    setShowOnly(node?: string) {
       self.showOnly = node
     },
     toggleBranchLen() {
@@ -469,7 +341,7 @@ const MSAModel = types
     },
 
     getRowDetails(name: string) {
-      //@ts-ignore
+      //@ts-expect-error
       const details = this.MSA?.getRowDetails?.(name)
       const matches = name.match(/\S+\/(\d+)-(\d+)/)
       return {
@@ -519,7 +391,7 @@ const MSAModel = types
     },
 
     get rowNames(): string[] {
-      return this.hierarchy.leaves().map((node: any) => node.data.name)
+      return this.hierarchy.leaves().map(node => node.data.name)
     },
 
     get mouseOverRowName() {
@@ -533,13 +405,11 @@ const MSAModel = types
     },
 
     get root() {
-      let hier = hierarchy(this.tree, (d: any) => d.branchset)
-        .sum((d: any) => (d.branchset ? 0 : 1))
-        .sort((a: any, b: any) =>
-          ascending(a.data.length || 1, b.data.length || 1),
-        )
+      let hier = hierarchy(this.tree, d => d.branchset)
+        .sum(d => (d.branchset ? 0 : 1))
+        .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
       if (self.showOnly) {
-        const res = hier.find((node: any) => node.data.id === self.showOnly)
+        const res = hier.find(node => node.data.id === self.showOnly)
         if (res) {
           hier = res
         }
@@ -547,11 +417,9 @@ const MSAModel = types
 
       if (self.collapsed.length) {
         self.collapsed
-          .map(collapsedId =>
-            hier.find((node: any) => node.data.id === collapsedId),
-          )
-          .filter(f => !!f)
-          .map((node: any) => collapse(node))
+          .map(collapsedId => hier.find(node => node.data.id === collapsedId))
+          .filter((f): f is HierarchyNode<any> => !!f)
+          .map(node => collapse(node))
       }
       return hier
     },
@@ -567,14 +435,15 @@ const MSAModel = types
     },
 
     get inverseStructures() {
-      const map = Object.entries(this.structures)
-        .map(([key, val]) => val.map(pdbEntry => [pdbEntry.pdb, { id: key }]))
-        .flat()
-      return Object.fromEntries(map)
+      return Object.fromEntries(
+        Object.entries(this.structures)
+          .map(([key, val]) => val.map(pdbEntry => [pdbEntry.pdb, { id: key }]))
+          .flat(),
+      )
     },
 
     get msaAreaWidth() {
-      //@ts-ignore
+      //@ts-expect-error
       return self.width - self.treeAreaWidth
     },
 
@@ -582,7 +451,7 @@ const MSAModel = types
       const blanks = []
       const strs = this.hierarchy
         .leaves()
-        .map(({ data }: any) => this.MSA?.getRow(data.name))
+        .map(({ data }) => this.MSA?.getRow(data.name))
         .filter((item): item is string[] => !!item)
 
       for (let i = 0; i < strs[0]?.length; i++) {
@@ -602,24 +471,18 @@ const MSAModel = types
     get rows(): string[][] {
       return this.hierarchy
         .leaves()
-        .map(({ data }: any) => [data.name, this.MSA?.getRow(data.name)])
+        .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
         .filter(f => !!f[1])
     },
 
-    get columns(): Record<string, string> {
-      const rows = this.rows
-      const cols = this.columns2d
-
-      return Object.fromEntries(rows.map((row, index) => [row[0], cols[index]]))
+    get columns() {
+      return Object.fromEntries(
+        this.rows.map((row, index) => [row[0], this.columns2d[index]]),
+      )
     },
 
     get columns2d() {
-      const strs = this.rows.map(r => r[1])
-      const ret: string[] = []
-      for (let i = 0; i < strs.length; i++) {
-        ret.push(skipBlanks(this.blanks, strs[i]))
-      }
-      return ret
+      return this.rows.map(r => r[1]).map(str => skipBlanks(this.blanks, str))
     },
 
     get colStats() {
@@ -647,7 +510,6 @@ const MSAModel = types
       clust(root)
       setBrLength(
         root,
-        //@ts-ignore
         (root.data.length = 0),
         self.treeWidth / maxLength(root),
       )

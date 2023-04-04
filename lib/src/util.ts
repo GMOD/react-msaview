@@ -1,4 +1,6 @@
 import Color from 'color'
+import { HierarchyNode } from 'd3-hierarchy'
+import { max } from 'd3-array'
 export function transform<T>(
   obj: Record<string, T>,
   cb: (arg0: [string, T]) => [string, T],
@@ -38,4 +40,79 @@ export function colorContrast(
     letter,
     theme.palette.getContrastText(Color(color).hex()),
   ])
+}
+
+export function parseGFF(str?: string) {
+  return str
+    ?.split('\n')
+    .map(f => f.trim())
+    .filter(f => !!f && !f.startsWith('#'))
+    .map(f => {
+      const [seq_id, source, type, start, end, score, strand, phase, col9] =
+        f.split('\t')
+
+      return {
+        seq_id,
+        source,
+        type,
+        start: +start,
+        end: +end,
+        score: +score,
+        strand,
+        phase,
+        ...Object.fromEntries(
+          col9
+            .split(';')
+            .map(f => f.trim())
+            .filter(f => !!f)
+            .map(f => f.split('='))
+            .map(([key, val]) => [
+              key.trim(),
+              decodeURIComponent(val).trim().split(',').join(' '),
+            ]),
+        ),
+      }
+    })
+}
+
+export function skipBlanks(blanks: number[], arg: string) {
+  let s = ''
+  let b = 0
+  for (let j = 0; j < arg.length; j++) {
+    if (j === blanks[b]) {
+      b++
+    } else {
+      s += arg[j]
+    }
+  }
+  return s
+}
+
+export function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
+  //@ts-expect-error
+  d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
+  d.children?.forEach(d => {
+    setBrLength(d, y0, k)
+  })
+}
+
+export function maxLength(d: HierarchyNode<any>): number {
+  return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0)
+}
+
+// Collapse the node and all it's children, from
+// https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
+export function collapse(d: HierarchyNode<any>) {
+  if (d.children) {
+    //@ts-expect-error
+    d._children = d.children
+    //@ts-expect-error
+    d._children.forEach(collapse)
+    //@ts-expect-error
+    d.children = null
+  }
+}
+
+export function clamp(min: number, num: number, max: number) {
+  return Math.min(Math.max(num, min), max)
 }

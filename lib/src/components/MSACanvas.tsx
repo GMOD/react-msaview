@@ -70,9 +70,8 @@ const MSABlock = observer(function ({
     const visibleLeaves = leaves.slice(yStart, yEnd)
     visibleLeaves.forEach(node => {
       const {
-        //@ts-ignore
+        //@ts-expect-error
         x: y,
-        //@ts-ignore
         data: { name },
       } = node
 
@@ -101,9 +100,8 @@ const MSABlock = observer(function ({
     if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
       visibleLeaves.forEach(node => {
         const {
-          //@ts-ignore
+          //@ts-expect-error
           x: y,
-          //@ts-ignore
           data: { name },
         } = node
 
