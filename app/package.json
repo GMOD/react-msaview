@@ -21,7 +21,6 @@
     "@types/node": "^18.15.11",
     "buffer": "^6.0.3",
     "gh-pages": "^5.0.0",
-    "lodash": "^4.17.21",
     "mobx": "^6.9.0",
     "mobx-react": "^7.6.0",
     "mobx-state-tree": "5.1.8",

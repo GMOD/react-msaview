@@ -4,7 +4,6 @@ import { onSnapshot } from 'mobx-state-tree'
 import { MSAView } from 'react-msaview'
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { ThemeProvider } from '@mui/material/styles'
-import { throttle } from 'lodash'
 
 // locals
 import AppGlobal, { AppModel } from './model'
@@ -19,14 +18,16 @@ const mymodel = AppGlobal.create(
 
 mymodel.msaview.setWidth(window.innerWidth)
 
-onSnapshot(
-  mymodel,
-  throttle(snap => {
+let lastTime = 0
+onSnapshot(mymodel, snap => {
+  const now = Date.now()
+  if (now - lastTime >= 1000) {
+    lastTime = now
     const url = new URL(window.document.URL)
     url.searchParams.set('data', JSON.stringify(snap))
     window.history.replaceState(null, '', url.toString())
-  }, 500),
-)
+  }
+})
 
 // Handle window resizing
 window.addEventListener('resize', () => {
