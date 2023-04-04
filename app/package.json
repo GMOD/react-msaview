@@ -1,58 +1,42 @@
 {
   "name": "app2",
-  "version": "0.1.0",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
-    "@jbrowse/core": "^1.5.1",
-    "@material-ui/core": "^4.12.2",
-    "@mui/x-data-grid": "^4.0.0",
-    "@material-ui/lab": "^4.0.0-alpha.60",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@jbrowse/core": "^2.4.2",
+    "@mui/material": "^5.0.0",
+    "@mui/x-data-grid": "^5.0.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "@types/jest": "^26.0.15",
-    "@types/node": "^12.0.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "gh-pages": "^3.2.3",
-    "lodash": "^4.17.21",
-    "mobx": "^5.0.0",
-    "mobx-react": "^6.0.0",
-    "mobx-state-tree": "3.14.1",
-    "ngl": "2.0.0-dev.37",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^18.15.11",
+    "buffer": "^6.0.3",
+    "gh-pages": "^5.0.0",
+    "mobx": "^6.9.0",
+    "mobx-react": "^7.6.0",
+    "mobx-state-tree": "5.1.8",
+    "ngl": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-msaview": "^1.0.0",
     "react-ngl": "^0.2.2",
-    "react-scripts": "4.0.3",
-    "rxjs": "^6.6.6",
-    "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "rxjs": "^7.8.0",
+    "tss-react": "^4.8.2"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "yarn build",
-    "deploy": "gh-pages -d build"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "homepage": "."
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^3.1.0",
+    "typescript": "^5.0.3",
+    "vite": "^4.2.0"
+  }
 }

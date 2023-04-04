@@ -56,7 +56,8 @@
 ## v1.2.2
 
 - Improve the clickmap for tree nodes
-- Create template for adding annotation tracks, including feature-style glyphs from genome browsers
+- Create template for adding annotation tracks, including feature-style glyphs
+  from genome browsers
 - Fix colormap for secondary structure tracks from stockholm files
 - Add ability to download tracks from uniprot
 
@@ -68,7 +69,8 @@
 
 - Add ability to integrate with a 3D viewer based on "selecting" a structure
 - Add easy ability to copy a node name from the tree to the clipboard
-- Add demo integration with the NGL (https://nglviewer.github.io/) library in the app folder
+- Add demo integration with the NGL (https://nglviewer.github.io/) library in
+  the app folder
 - Add click and drag scrolling behavior
 
 ## v1.1.2
@@ -123,7 +125,8 @@
 
 ## v1.0.6
 
-- Use postversion to run build so that the accurate version is encoded into the release binary
+- Use postversion to run build so that the accurate version is encoded into the
+  release binary
 
 ## v1.0.5
 
@@ -154,8 +157,8 @@
   as a newick tree embedded in stockholm metadata
 - View metadata about alignment from MSA headers (e.g. stockholm)
 - Collapse subtrees with click action on branches
-- The collapse subtree action hides gaps that were introduced by that subtree
-  in the rest of the alignment
+- The collapse subtree action hides gaps that were introduced by that subtree in
+  the rest of the alignment
 - Allows "zooming out" by setting tiny rowHeight/colWidth settings
 - Allows changing color schemes, with jalview, clustal, and other color schemes
 - Allows toggling the branch length rendering for the phylogenetic tree

@@ -1,11 +1,30 @@
 import React, { useState } from 'react'
-import { Button, Container, Grid, Typography, Link } from '@material-ui/core'
+import { Button, Container, Grid, Typography, Link } from '@mui/material'
 import { observer } from 'mobx-react'
-import { transaction } from 'mobx'
 import { FileSelector } from '@jbrowse/core/ui'
 import { FileLocation } from '@jbrowse/core/util/types'
+
+// locals
 import { MsaViewModel } from '../model'
 import { smallTree, smallMSA, smallMSAOnly } from './data/seq2'
+
+async function load(
+  model: MsaViewModel,
+  msaFile?: FileLocation,
+  treeFile?: FileLocation,
+) {
+  model.setError(undefined)
+  try {
+    if (msaFile) {
+      await model.setMSAFilehandle(msaFile)
+    }
+    if (treeFile) {
+      await model.setTreeFilehandle(treeFile)
+    }
+  } catch (e) {
+    model.setError(e)
+  }
+}
 
 const ListItem = ({
   onClick,
@@ -25,7 +44,7 @@ const ListItem = ({
       }}
       href="#"
     >
-      <Typography>{children}</Typography>
+      <Typography display="inline">{children}</Typography>
     </Link>
   </li>
 )
@@ -64,15 +83,7 @@ export default observer(({ model }: { model: MsaViewModel }) => {
 
         <Grid item>
           <Button
-            onClick={() => {
-              model.setError(undefined)
-              if (msaFile) {
-                model.setMSAFilehandle(msaFile)
-              }
-              if (treeFile) {
-                model.setTreeFilehandle(treeFile)
-              }
-            }}
+            onClick={() => load(model, msaFile, treeFile)}
             variant="contained"
             color="primary"
             disabled={!msaFile && !treeFile}
@@ -86,12 +97,12 @@ export default observer(({ model }: { model: MsaViewModel }) => {
           <ul>
             <ListItem
               model={model}
-              onClick={() => {
-                model.setTreeFilehandle({
+              onClick={() =>
+                load(model, undefined, {
                   uri: 'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
                   locationType: 'UriLocation',
                 })
-              }}
+              }
             >
               230k COVID-19 samples (tree only)
             </ListItem>
@@ -113,62 +124,63 @@ export default observer(({ model }: { model: MsaViewModel }) => {
             </ListItem>
             <ListItem
               model={model}
-              onClick={() => {
-                model.setMSAFilehandle({
+              onClick={() =>
+                load(model, {
                   uri: 'https://ihh.github.io/abrowse/build/pfam-cov2.stock',
                   locationType: 'UriLocation',
                 })
-              }}
+              }
             >
               PFAM SARS-CoV2 multi-stockholm
             </ListItem>
             <ListItem
               model={model}
-              onClick={() => {
-                model.setMSAFilehandle({
+              onClick={() =>
+                load(model, {
                   uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
                   locationType: 'UriLocation',
                 })
-              }}
+              }
             >
               Lysine stockholm file
             </ListItem>
             <ListItem
               model={model}
-              onClick={() => {
-                model.setMSAFilehandle({
+              onClick={() =>
+                load(model, {
                   uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
                   locationType: 'UriLocation',
                 })
-              }}
+              }
             >
               PF01601 stockholm file (SARS-CoV2 spike protein)
             </ListItem>
             <ListItem
               model={model}
-              onClick={() => {
-                model.setMSAFilehandle({
+              onClick={() =>
+                load(model, {
                   uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
                   locationType: 'UriLocation',
                 })
-              }}
+              }
             >
               Europe COVID full genomes (LR883044.1 and 199 other sequences)
             </ListItem>
             <ListItem
               model={model}
-              onClick={() => {
-                transaction(() => {
-                  model.setMSAFilehandle({
+              onClick={() =>
+                load(
+                  model,
+                  {
                     uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
                     locationType: 'UriLocation',
-                  })
-                  model.setTreeFilehandle({
+                  },
+                  {
                     uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
                     locationType: 'UriLocation',
-                  })
-                })
-              }}
+                  },
+                )
+              }
             >
               MAFFT+VeryFastTree(17.9k samples)
             </ListItem>

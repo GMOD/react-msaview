@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from 'react'
 
 import { observer } from 'mobx-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
+// locals
 import ImportForm from './ImportForm'
 import Rubberband from './Rubberband'
 import TreeCanvas from './TreeCanvas'
@@ -16,7 +17,7 @@ import AnnotationDialog from './AnnotationDlg'
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
 
-const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
+const MouseoverCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const {
     height,
@@ -47,15 +48,7 @@ const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
       ctx.fillStyle = 'rgba(100,100,100,0.5)'
       ctx.fillRect(x, 0, colWidth, height)
     }
-  }, [
-    mouseCol,
-    colWidth,
-    scrollX,
-    height,
-    resizeHandleWidth,
-    treeAreaWidth,
-    width,
-  ])
+  }, [mouseCol, colWidth, scrollX, height, resizeHandleWidth, treeAreaWidth, width])
 
   return (
     <canvas
@@ -74,15 +67,8 @@ const MouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
     />
   )
 })
-export default observer(({ model }: { model: MsaViewModel }) => {
-  const {
-    done,
-    initialized,
-    treeAreaWidth,
-    height,
-    resizeHandleWidth,
-    turnedOnTracks,
-  } = model
+export default observer(function ({ model }: { model: MsaViewModel }) {
+  const { done, initialized, treeAreaWidth, height, turnedOnTracks } = model
 
   return (
     <div>

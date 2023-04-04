@@ -1,22 +1,21 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { observer } from 'mobx-react'
-// material ui
-import {
-  Popover,
-  Tooltip,
-  Typography,
-  makeStyles,
-  alpha,
-} from '@material-ui/core'
-import AssignmentIcon from '@material-ui/icons/Assignment'
-
-// import { stringify } from '@jbrowse/core/util'
+import { makeStyles } from 'tss-react/mui'
+import { Popover, Typography, alpha } from '@mui/material'
 import { Menu } from '@jbrowse/core/ui'
 
-const useStyles = makeStyles(theme => {
-  const background = theme.palette.tertiary
-    ? alpha(theme.palette.tertiary.main, 0.7)
-    : alpha(theme.palette.primary.main, 0.7)
+// icons
+import AssignmentIcon from '@mui/icons-material/Assignment'
+
+// locals
+import { MsaViewModel } from '../model'
+import VerticalGuide from './VerticalGuide'
+
+const useStyles = makeStyles()(theme => {
+  const background =
+    'tertiary' in theme.palette && theme.palette.tertiary
+      ? alpha(theme.palette.tertiary.main, 0.7)
+      : alpha(theme.palette.primary.main, 0.7)
   return {
     rubberband: {
       height: '100%',
@@ -44,53 +43,14 @@ const useStyles = makeStyles(theme => {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
     },
-    guide: {
-      pointerEvents: 'none',
-      height: '100%',
-      width: 1,
-      position: 'absolute',
-      zIndex: 10,
-    },
   }
 })
-
-const VerticalGuide = observer(
-  ({ model, coordX }: { model: any; coordX: number }) => {
-    const { treeAreaWidth } = model
-    const classes = useStyles()
-    return (
-      <>
-        <Tooltip
-          open
-          placement="top"
-          title={`${model.pxToBp(coordX) + 1}`}
-          arrow
-        >
-          <div
-            style={{
-              left: coordX + treeAreaWidth,
-              position: 'absolute',
-              height: 1,
-            }}
-          />
-        </Tooltip>
-        <div
-          className={classes.guide}
-          style={{
-            left: coordX + treeAreaWidth,
-            background: 'red',
-          }}
-        />
-      </>
-    )
-  },
-)
 
 function Rubberband({
   model,
   ControlComponent = <div />,
 }: {
-  model: any
+  model: MsaViewModel
   ControlComponent?: React.ReactElement
 }) {
   const { treeAreaWidth } = model
@@ -107,7 +67,7 @@ function Rubberband({
   const [guideX, setGuideX] = useState<number | undefined>()
   const controlsRef = useRef<HTMLDivElement>(null)
   const rubberbandRef = useRef(null)
-  const classes = useStyles()
+  const { classes } = useStyles()
   const mouseDragging = startX !== undefined && anchorPosition === undefined
 
   useEffect(() => {
@@ -182,7 +142,7 @@ function Rubberband({
     setCurrentX(undefined)
   }
 
-  //eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   function handleMenuItemClick(_: unknown, callback: Function) {
     callback()
     handleClose()

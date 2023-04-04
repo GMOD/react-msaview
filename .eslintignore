@@ -6,3 +6,4 @@ node_modules/
 
 # TSDX build / generate output
 dist
+lib/bundle

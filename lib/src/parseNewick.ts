@@ -57,9 +57,10 @@
  *   ]
  * }
  */
-export default function parse(s) {
+export default function parse(s: string) {
   const ancestors = []
-  let tree = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let tree = {} as Record<string, any>
   const tokens = s.split(/\s*(;|\(|\)|,|:)\s*/)
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
@@ -75,7 +76,8 @@ export default function parse(s) {
         tree = subtree
         break
       case ')': // optional name next
-        tree = ancestors.pop()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tree = ancestors.pop() as Record<string, any>
         break
       case ':': // optional length next
         break

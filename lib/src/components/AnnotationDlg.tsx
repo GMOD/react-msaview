@@ -2,59 +2,62 @@ import React, { useState } from 'react'
 import { observer } from 'mobx-react'
 import {
   Button,
-  Dialog,
   DialogActions,
-  DialogTitle,
   DialogContent,
   IconButton,
   TextField,
   Typography,
-} from '@material-ui/core'
-import DeleteIcon from '@material-ui/icons/Delete'
+} from '@mui/material'
+import { Dialog } from '@jbrowse/core/ui'
+
+// icons
+import DeleteIcon from '@mui/icons-material/Delete'
+
+// locals
 import { MsaViewModel } from '../model'
 
 const specialFromEntries = (val: string[][]) => {
   const ret = {} as { [key: string]: string[] }
   val.forEach(([key, val]) => {
-    if (!ret[key]) ret[key] = [] as string[]
+    if (!ret[key]) {
+      ret[key] = [] as string[]
+    }
     ret[key].push(val)
   })
   return ret
 }
 
-const Row = observer(
-  ({
-    name,
-    value,
-    setValue,
-    setName,
-    onDelete,
-  }: {
-    name: string
-    value: string
-    setValue: (arg: string) => void
-    setName: (arg: string) => void
-    onDelete: () => void
-  }) => {
-    return (
-      <div>
-        <IconButton onClick={onDelete} style={{ margin: 10 }}>
-          <DeleteIcon />
-        </IconButton>
-        <TextField
-          value={name}
-          onChange={event => setName(event.target.value)}
-          label="Key"
-        />
-        <TextField
-          value={value}
-          onChange={event => setValue(event.target.value)}
-          label="Value"
-        />
-      </div>
-    )
-  },
-)
+const Row = observer(function ({
+  name,
+  value,
+  setValue,
+  setName,
+  onDelete,
+}: {
+  name: string
+  value: string
+  setValue: (arg: string) => void
+  setName: (arg: string) => void
+  onDelete: () => void
+}) {
+  return (
+    <div>
+      <IconButton onClick={onDelete} style={{ margin: 10 }}>
+        <DeleteIcon />
+      </IconButton>
+      <TextField
+        value={name}
+        onChange={event => setName(event.target.value)}
+        label="Key"
+      />
+      <TextField
+        value={value}
+        onChange={event => setValue(event.target.value)}
+        label="Value"
+      />
+    </div>
+  )
+})
 
 export default observer(
   ({
@@ -74,8 +77,11 @@ export default observer(
       ['Note', ''],
     ])
     return (
-      <Dialog onClose={() => onClose()} open>
-        <DialogTitle>Create new region annotation</DialogTitle>
+      <Dialog
+        onClose={() => onClose()}
+        open
+        title="Create new region annotation"
+      >
         <DialogContent>
           <Typography>
             Do you want to add an annotation to the MSA at {l}..{r}{' '}

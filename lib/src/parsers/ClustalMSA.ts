@@ -1,10 +1,7 @@
 import { parse } from 'clustal-js'
+import { NodeWithIds } from '../util'
 export default class ClustalMSA {
-  private MSA: {
-    header: Record<string, any>
-    consensus?: string
-    alns: { id: string; seq: string }[]
-  }
+  private MSA: ReturnType<typeof parse>
 
   constructor(text: string) {
     this.MSA = parse(text)
@@ -22,7 +19,11 @@ export default class ClustalMSA {
     return this.MSA.alns[0].seq.length
   }
 
-  getDetails() {
+  getRowData() {
+    return undefined
+  }
+
+  getHeader() {
     return this.MSA.header
   }
 
@@ -38,11 +39,16 @@ export default class ClustalMSA {
     return []
   }
 
-  getTree() {
+  getTree(): NodeWithIds {
     return {
       id: 'root',
+      name: 'root',
       noTree: true,
-      branchset: this.getNames().map(name => ({ id: name, name })),
+      branchset: this.getNames().map(name => ({
+        id: name,
+        name,
+        branchset: [],
+      })),
     }
   }
 

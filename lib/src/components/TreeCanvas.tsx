@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Menu, MenuItem } from '@material-ui/core'
+import { Menu, MenuItem } from '@mui/material'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 import RBush from 'rbush'
+
+// locals
 import { MsaViewModel } from '../model'
 import MoreInfoDlg from './MoreInfoDlg'
 
@@ -29,120 +31,25 @@ interface ClickEntry {
   maxY: number
 }
 
-const TreeMenu = observer(
-  ({
-    node,
-    onClose,
-    model,
-  }: {
-    node: { x: number; y: number; name: string }
-    model: MsaViewModel
-    onClose: () => void
-  }) => {
-    const { structures } = model
-    const nodeDetails = node ? model.getRowDetails(node.name) : undefined
+const TreeMenu = observer(function ({
+  node,
+  onClose,
+  model,
+}: {
+  node: { x: number; y: number; name: string }
+  model: MsaViewModel
+  onClose: () => void
+}) {
+  const { structures } = model
+  const nodeDetails = node ? model.getRowData(node.name) : undefined
 
-    return (
-      <>
-        <Menu
-          anchorReference="anchorPosition"
-          anchorPosition={{
-            top: node.y,
-            left: node.x,
-          }}
-          transitionDuration={0}
-          keepMounted
-          open={Boolean(node)}
-          onClose={onClose}
-        >
-          <MenuItem dense disabled>
-            {node.name}
-          </MenuItem>
-
-          <MenuItem
-            dense
-            onClick={() => {
-              model.setDialogComponent(MoreInfoDlg, {
-                info: model.getRowDetails(node.name),
-              })
-              onClose()
-            }}
-          >
-            More info...
-          </MenuItem>
-
-          {structures[node.name]?.map(entry => {
-            return !model.selectedStructures.find(n => n.id === node.name) ? (
-              <MenuItem
-                key={JSON.stringify(entry)}
-                dense
-                onClick={() => {
-                  model.addStructureToSelection({
-                    structure: entry,
-                    id: node.name,
-                  })
-                  onClose()
-                }}
-              >
-                Add PDB to selection ({entry.pdb})
-              </MenuItem>
-            ) : (
-              <MenuItem
-                key={JSON.stringify(entry)}
-                dense
-                onClick={() => {
-                  model.removeStructureFromSelection({
-                    structure: entry,
-                    id: node.name,
-                  })
-                  onClose()
-                }}
-              >
-                Remove PDB from selection ({entry.pdb})
-              </MenuItem>
-            )
-          })}
-
-          {nodeDetails.accession?.map((accession: string) => (
-            <MenuItem
-              dense
-              key={accession}
-              onClick={() => {
-                model.addUniprotTrack({ name: nodeDetails.name, accession })
-                onClose()
-              }}
-            >
-              Open UniProt track ({accession})
-            </MenuItem>
-          ))}
-        </Menu>
-      </>
-    )
-  },
-)
-interface Node {
-  x: number
-  y: number
-  name: string
-  id: string
-}
-
-const TreeBranchMenu = observer(
-  ({
-    node,
-    model,
-    onClose,
-  }: {
-    node: Node
-    model: MsaViewModel
-    onClose: () => void
-  }) => {
-    return (
+  return (
+    <>
       <Menu
         anchorReference="anchorPosition"
         anchorPosition={{
-          left: node.x,
           top: node.y,
+          left: node.x,
         }}
         transitionDuration={0}
         keepMounted
@@ -152,363 +59,461 @@ const TreeBranchMenu = observer(
         <MenuItem dense disabled>
           {node.name}
         </MenuItem>
+
         <MenuItem
           dense
           onClick={() => {
-            model.toggleCollapsed(node.id)
+            model.setDialogComponent(MoreInfoDlg, {
+              info: model.getRowData(node.name),
+            })
             onClose()
           }}
         >
-          {model.collapsed.includes(node.id)
-            ? 'Expand this node'
-            : 'Collapse this node'}
+          More info...
         </MenuItem>
-        <MenuItem
-          dense
-          onClick={() => {
-            model.showOnly === node.id
-              ? model.setShowOnly(undefined)
-              : model.setShowOnly(node.id)
-            onClose()
-          }}
-        >
-          {model.showOnly === node.id
-            ? 'Disable show only this node'
-            : 'Show only this node'}
-        </MenuItem>
+
+        {structures[node.name]?.map(entry => {
+          return !model.selectedStructures.some(n => n.id === node.name) ? (
+            <MenuItem
+              key={JSON.stringify(entry)}
+              dense
+              onClick={() => {
+                model.addStructureToSelection({
+                  structure: entry,
+                  id: node.name,
+                })
+                onClose()
+              }}
+            >
+              Add PDB to selection ({entry.pdb})
+            </MenuItem>
+          ) : (
+            <MenuItem
+              key={JSON.stringify(entry)}
+              dense
+              onClick={() => {
+                model.removeStructureFromSelection({
+                  structure: entry,
+                  id: node.name,
+                })
+                onClose()
+              }}
+            >
+              Remove PDB from selection ({entry.pdb})
+            </MenuItem>
+          )
+        })}
+
+        {
+          // @ts-expect-error
+          nodeDetails?.data.accession?.map((accession: string) => (
+            <MenuItem
+              dense
+              key={accession}
+              onClick={() => {
+                model.addUniprotTrack({
+                  // @ts-expect-error
+                  name: nodeDetails?.data.name,
+                  accession,
+                })
+                onClose()
+              }}
+            >
+              Open UniProt track ({accession})
+            </MenuItem>
+          ))
+        }
       </Menu>
-    )
-  },
-)
+    </>
+  )
+})
+interface Node {
+  x: number
+  y: number
+  name: string
+  id: string
+}
 
-const TreeBlock = observer(
-  ({ model, offsetY }: { model: MsaViewModel; offsetY: number }) => {
-    const ref = useRef<HTMLCanvasElement>(null)
-    const clickMap = useRef(new RBush<ClickEntry>())
-    const mouseoverRef = useRef<HTMLCanvasElement>(null)
-    const [branchMenu, setBranchMenu] = useState<TooltipData>()
-    const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
-    const [hoverElt, setHoverElt] = useState<ClickEntry>()
+const TreeBranchMenu = observer(function ({
+  node,
+  model,
+  onClose,
+}: {
+  node: Node
+  model: MsaViewModel
+  onClose: () => void
+}) {
+  return (
+    <Menu
+      anchorReference="anchorPosition"
+      anchorPosition={{
+        left: node.x,
+        top: node.y,
+      }}
+      transitionDuration={0}
+      keepMounted
+      open={Boolean(node)}
+      onClose={onClose}
+    >
+      <MenuItem dense disabled>
+        {node.name}
+      </MenuItem>
+      <MenuItem
+        dense
+        onClick={() => {
+          model.toggleCollapsed(node.id)
+          onClose()
+        }}
+      >
+        {model.collapsed.includes(node.id)
+          ? 'Expand this node'
+          : 'Collapse this node'}
+      </MenuItem>
+      <MenuItem
+        dense
+        onClick={() => {
+          model.showOnly === node.id
+            ? model.setShowOnly(undefined)
+            : model.setShowOnly(node.id)
+          onClose()
+        }}
+      >
+        {model.showOnly === node.id
+          ? 'Disable show only this node'
+          : 'Show only this node'}
+      </MenuItem>
+    </Menu>
+  )
+})
 
-    const {
-      hierarchy,
-      rowHeight,
-      scrollY,
-      treeWidth,
-      showBranchLen,
-      collapsed,
-      margin,
-      labelsAlignRight,
-      noTree,
-      blockSize,
-      drawNodeBubbles,
-      drawTree,
-      treeAreaWidth,
-      structures,
-      highResScaleFactor,
-    } = model
+const TreeBlock = observer(function ({
+  model,
+  offsetY,
+}: {
+  model: MsaViewModel
+  offsetY: number
+}) {
+  const ref = useRef<HTMLCanvasElement>(null)
+  const clickMap = useRef(new RBush<ClickEntry>())
+  const mouseoverRef = useRef<HTMLCanvasElement>(null)
+  const [branchMenu, setBranchMenu] = useState<TooltipData>()
+  const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
+  const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
-    useEffect(() => {
-      clickMap.current.clear()
+  const {
+    hierarchy,
+    rowHeight,
+    scrollY,
+    treeWidth,
+    showBranchLen,
+    collapsed,
+    margin,
+    labelsAlignRight,
+    noTree,
+    blockSize,
+    drawNodeBubbles,
+    drawTree,
+    treeAreaWidth,
+    structures,
+    highResScaleFactor,
+  } = model
 
-      if (!ref.current) {
-        return
-      }
-      const ctx = ref.current.getContext('2d')
-      if (!ctx) {
-        return
-      }
+  useEffect(() => {
+    clickMap.current.clear()
 
-      ctx.resetTransform()
-      ctx.scale(highResScaleFactor, highResScaleFactor)
-      ctx.clearRect(0, 0, treeWidth + padding, blockSize)
-      ctx.translate(margin.left, -offsetY)
+    if (!ref.current) {
+      return
+    }
+    const ctx = ref.current.getContext('2d')
+    if (!ctx) {
+      return
+    }
 
-      const font = ctx.font
-      ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
+    ctx.resetTransform()
+    ctx.scale(highResScaleFactor, highResScaleFactor)
+    ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+    ctx.translate(margin.left, -offsetY)
 
-      if (!noTree && drawTree) {
-        hierarchy.links().forEach(({ source, target }) => {
-          const y = showBranchLen ? 'len' : 'y'
-          //@ts-ignore
-          const { x: sy, [y]: sx } = source
-          //@ts-ignore
-          const { x: ty, [y]: tx } = target
+    const font = ctx.font
+    ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
 
-          const y1 = Math.min(sy, ty)
-          const y2 = Math.max(sy, ty)
-          //1d line intersection to check if line crosses block at all, this is
-          //an optimization that allows us to skip drawing most tree links
-          //outside the block
-          if (offsetY + blockSize >= y1 && y2 >= offsetY) {
-            ctx.beginPath()
-            ctx.moveTo(sx, sy)
-            ctx.lineTo(sx, ty)
-            ctx.lineTo(tx, ty)
-            ctx.stroke()
-          }
-        })
+    if (!noTree && drawTree) {
+      hierarchy.links().forEach(({ source, target }) => {
+        const y = showBranchLen ? 'len' : 'y'
+        // @ts-expect-error
+        const { x: sy, [y]: sx } = source
+        // @ts-expect-error
+        const { x: ty, [y]: tx } = target
 
-        if (drawNodeBubbles) {
-          hierarchy.descendants().forEach(node => {
-            const val = showBranchLen ? 'len' : 'y'
-            const {
-              //@ts-ignore
-              x: y,
-              //@ts-ignore
-              [val]: x,
-              data,
-            } = node
-            const { id = '', name = '' } = data
-
-            if (
-              y > offsetY - extendBounds &&
-              y < offsetY + blockSize + extendBounds
-            ) {
-              ctx.strokeStyle = 'black'
-              ctx.fillStyle = collapsed.includes(id) ? 'black' : 'white'
-              ctx.beginPath()
-              ctx.arc(x, y, radius, 0, 2 * Math.PI)
-              ctx.fill()
-              ctx.stroke()
-
-              clickMap.current.insert({
-                minX: x - radius,
-                maxX: x - radius + d,
-                minY: y - radius,
-                maxY: y - radius + d,
-                branch: true,
-                id,
-                name,
-              })
-            }
-          })
+        const y1 = Math.min(sy, ty)
+        const y2 = Math.max(sy, ty)
+        // 1d line intersection to check if line crosses block at all, this is
+        // an optimization that allows us to skip drawing most tree links
+        // outside the block
+        if (offsetY + blockSize >= y1 && y2 >= offsetY) {
+          ctx.beginPath()
+          ctx.moveTo(sx, sy)
+          ctx.lineTo(sx, ty)
+          ctx.lineTo(tx, ty)
+          ctx.stroke()
         }
-      }
+      })
 
-      if (rowHeight >= 10) {
-        if (labelsAlignRight) {
-          ctx.textAlign = 'right'
-          ctx.setLineDash([1, 3])
-        } else {
-          ctx.textAlign = 'start'
-        }
-        hierarchy.leaves().forEach(node => {
+      if (drawNodeBubbles) {
+        hierarchy.descendants().forEach(node => {
+          const val = showBranchLen ? 'len' : 'y'
           const {
-            //@ts-ignore
+            // @ts-expect-error
             x: y,
-            //@ts-ignore
-            y: x,
-            data: { name, id },
-            //@ts-ignore
-            len,
+            // @ts-expect-error
+            [val]: x,
+            data,
           } = node
+          const { id = '', name = '' } = data
 
           if (
             y > offsetY - extendBounds &&
             y < offsetY + blockSize + extendBounds
           ) {
-            //note: +rowHeight/4 matches with -rowHeight/4 in msa
-            const yp = y + rowHeight / 4
-            const xp = showBranchLen ? len : x
+            ctx.strokeStyle = 'black'
+            ctx.fillStyle = collapsed.includes(id) ? 'black' : 'white'
+            ctx.beginPath()
+            ctx.arc(x, y, radius, 0, 2 * Math.PI)
+            ctx.fill()
+            ctx.stroke()
 
-            const { width } = ctx.measureText(name)
-            const height = ctx.measureText('M').width // use an 'em' for height
-
-            const hasStructure = structures[name]
-            ctx.fillStyle = hasStructure ? 'blue' : 'black'
-
-            if (!drawTree && !labelsAlignRight) {
-              ctx.fillText(name, 0, yp)
-              clickMap.current.insert({
-                minX: 0,
-                maxX: width,
-                minY: yp - height,
-                maxY: yp,
-                name,
-                id,
-              })
-            } else if (labelsAlignRight) {
-              const smallPadding = 2
-              const offset = treeAreaWidth - smallPadding - margin.left
-              if (drawTree && !noTree) {
-                const { width } = ctx.measureText(name)
-                ctx.moveTo(xp + radius + 2, y)
-                ctx.lineTo(offset - smallPadding - width, y)
-                ctx.stroke()
-              }
-              ctx.fillText(name, offset, yp)
-              clickMap.current.insert({
-                minX: treeAreaWidth - margin.left - width,
-                maxX: treeAreaWidth - margin.left,
-                minY: yp - height,
-                maxY: yp,
-                name,
-                id,
-              })
-            } else {
-              ctx.fillText(name, xp + d, yp)
-              clickMap.current.insert({
-                minX: xp + d,
-                maxX: xp + d + width,
-                minY: yp - height,
-                maxY: yp,
-                name,
-                id,
-              })
-            }
+            clickMap.current.insert({
+              minX: x - radius,
+              maxX: x - radius + d,
+              minY: y - radius,
+              maxY: y - radius + d,
+              branch: true,
+              id,
+              name,
+            })
           }
         })
-        ctx.setLineDash([])
       }
-    }, [
-      collapsed,
-      rowHeight,
-      margin.left,
-      hierarchy,
-      offsetY,
-      treeWidth,
-      showBranchLen,
-      noTree,
-      blockSize,
-      drawNodeBubbles,
-      drawTree,
-      labelsAlignRight,
-      treeAreaWidth,
-      structures,
-      highResScaleFactor,
-    ])
-
-    useEffect(() => {
-      const canvas = mouseoverRef.current
-      if (!canvas) {
-        return
-      }
-      const ctx = canvas.getContext('2d')
-      if (!ctx) {
-        return
-      }
-
-      ctx.resetTransform()
-      ctx.clearRect(0, 0, treeWidth + padding, blockSize)
-      ctx.translate(margin.left, -offsetY)
-
-      if (hoverElt) {
-        const { minX, maxX, minY, maxY } = hoverElt
-
-        ctx.fillStyle = 'rgba(0,0,0,0.1)'
-        ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
-      }
-    }, [hoverElt, margin.left, offsetY, blockSize, treeWidth])
-
-    function hoverBranchClickMap(event: React.MouseEvent) {
-      const x = event.nativeEvent.offsetX - margin.left
-      const y = event.nativeEvent.offsetY
-
-      const [entry] = clickMap.current.search({
-        minX: x,
-        maxX: x + 1,
-        minY: y + offsetY,
-        maxY: y + 1 + offsetY,
-      })
-
-      return entry && entry.branch
-        ? { ...entry, x: event.clientX, y: event.clientY }
-        : undefined
     }
 
-    function hoverNameClickMap(event: React.MouseEvent) {
-      const x = event.nativeEvent.offsetX - margin.left
-      const y = event.nativeEvent.offsetY
-      const [entry] = clickMap.current.search({
-        minX: x,
-        maxX: x + 1,
-        minY: y + offsetY,
-        maxY: y + 1 + offsetY,
-      })
+    if (rowHeight >= 10) {
+      if (labelsAlignRight) {
+        ctx.textAlign = 'right'
+        ctx.setLineDash([1, 3])
+      } else {
+        ctx.textAlign = 'start'
+      }
+      hierarchy.leaves().forEach(node => {
+        const {
+          // @ts-expect-error
+          x: y,
+          // @ts-expect-error
+          y: x,
+          data: { name, id },
+          // @ts-expect-error
+          len,
+        } = node
 
-      return entry && !entry.branch
-        ? { ...entry, x: event.clientX, y: event.clientY }
-        : undefined
+        if (
+          y > offsetY - extendBounds &&
+          y < offsetY + blockSize + extendBounds
+        ) {
+          // note: +rowHeight/4 matches with -rowHeight/4 in msa
+          const yp = y + rowHeight / 4
+          const xp = showBranchLen ? len : x
+
+          const { width } = ctx.measureText(name)
+          const height = ctx.measureText('M').width // use an 'em' for height
+
+          const hasStructure = structures[name]
+          ctx.fillStyle = hasStructure ? 'blue' : 'black'
+
+          if (!drawTree && !labelsAlignRight) {
+            ctx.fillText(name, 0, yp)
+            clickMap.current.insert({
+              minX: 0,
+              maxX: width,
+              minY: yp - height,
+              maxY: yp,
+              name,
+              id,
+            })
+          } else if (labelsAlignRight) {
+            const smallPadding = 2
+            const offset = treeAreaWidth - smallPadding - margin.left
+            if (drawTree && !noTree) {
+              const { width } = ctx.measureText(name)
+              ctx.moveTo(xp + radius + 2, y)
+              ctx.lineTo(offset - smallPadding - width, y)
+              ctx.stroke()
+            }
+            ctx.fillText(name, offset, yp)
+            clickMap.current.insert({
+              minX: treeAreaWidth - margin.left - width,
+              maxX: treeAreaWidth - margin.left,
+              minY: yp - height,
+              maxY: yp,
+              name,
+              id,
+            })
+          } else {
+            ctx.fillText(name, xp + d, yp)
+            clickMap.current.insert({
+              minX: xp + d,
+              maxX: xp + d + width,
+              minY: yp - height,
+              maxY: yp,
+              name,
+              id,
+            })
+          }
+        }
+      })
+      ctx.setLineDash([])
+    }
+  }, [
+    collapsed,
+    rowHeight,
+    margin.left,
+    hierarchy,
+    offsetY,
+    treeWidth,
+    showBranchLen,
+    noTree,
+    blockSize,
+    drawNodeBubbles,
+    drawTree,
+    labelsAlignRight,
+    treeAreaWidth,
+    structures,
+    highResScaleFactor,
+  ])
+
+  useEffect(() => {
+    const canvas = mouseoverRef.current
+    if (!canvas) {
+      return
+    }
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      return
     }
 
-    return (
-      <>
-        {branchMenu?.id ? (
-          <TreeBranchMenu
-            node={branchMenu}
-            model={model}
-            onClose={() => setBranchMenu(undefined)}
-          />
-        ) : null}
+    ctx.resetTransform()
+    ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+    ctx.translate(margin.left, -offsetY)
 
-        {toggleNodeMenu?.id ? (
-          <TreeMenu
-            node={toggleNodeMenu}
-            model={model}
-            onClose={() => setToggleNodeMenu(undefined)}
-          />
-        ) : null}
+    if (hoverElt) {
+      const { minX, maxX, minY, maxY } = hoverElt
 
-        <canvas
-          width={(treeWidth + padding) * highResScaleFactor}
-          height={blockSize * highResScaleFactor}
-          style={{
-            width: treeWidth + padding,
-            height: blockSize,
-            top: scrollY + offsetY,
-            left: 0,
-            position: 'absolute',
-          }}
-          onMouseMove={event => {
-            if (!ref.current) {
-              return
-            }
+      ctx.fillStyle = 'rgba(0,0,0,0.1)'
+      ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
+    }
+  }, [hoverElt, margin.left, offsetY, blockSize, treeWidth])
 
-            const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
+  function hoverBranchClickMap(event: React.MouseEvent) {
+    const x = event.nativeEvent.offsetX - margin.left
+    const y = event.nativeEvent.offsetY
 
-            if (ret) {
-              ref.current.style.cursor = 'pointer'
-            } else {
-              ref.current.style.cursor = 'default'
-            }
+    const [entry] = clickMap.current.search({
+      minX: x,
+      maxX: x + 1,
+      minY: y + offsetY,
+      maxY: y + 1 + offsetY,
+    })
 
-            setHoverElt(hoverNameClickMap(event))
-          }}
-          onClick={event => {
-            const { clientX: x, clientY: y } = event
+    return entry && entry.branch
+      ? { ...entry, x: event.clientX, y: event.clientY }
+      : undefined
+  }
 
-            const data = hoverBranchClickMap(event)
-            if (data?.id) {
-              setBranchMenu({ ...data, x, y })
-            }
+  function hoverNameClickMap(event: React.MouseEvent) {
+    const x = event.nativeEvent.offsetX - margin.left
+    const y = event.nativeEvent.offsetY
+    const [entry] = clickMap.current.search({
+      minX: x,
+      maxX: x + 1,
+      minY: y + offsetY,
+      maxY: y + 1 + offsetY,
+    })
 
-            const data2 = hoverNameClickMap(event)
-            if (data2?.id) {
-              setToggleNodeMenu({ ...data2, x, y })
-            }
-          }}
-          ref={ref}
+    return entry && !entry.branch
+      ? { ...entry, x: event.clientX, y: event.clientY }
+      : undefined
+  }
+
+  return (
+    <>
+      {branchMenu?.id ? (
+        <TreeBranchMenu
+          node={branchMenu}
+          model={model}
+          onClose={() => setBranchMenu(undefined)}
         />
-        <canvas
-          style={{
-            width: treeWidth + padding,
-            height: blockSize,
-            top: scrollY + offsetY,
-            left: 0,
-            position: 'absolute',
-            pointerEvents: 'none',
-            zIndex: 100,
-          }}
-          width={treeWidth + padding}
-          height={blockSize}
-          ref={mouseoverRef}
+      ) : null}
+
+      {toggleNodeMenu?.id ? (
+        <TreeMenu
+          node={toggleNodeMenu}
+          model={model}
+          onClose={() => setToggleNodeMenu(undefined)}
         />
-      </>
-    )
-  },
-)
-const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
+      ) : null}
+
+      <canvas
+        width={(treeWidth + padding) * highResScaleFactor}
+        height={blockSize * highResScaleFactor}
+        style={{
+          width: treeWidth + padding,
+          height: blockSize,
+          top: scrollY + offsetY,
+          left: 0,
+          position: 'absolute',
+        }}
+        onMouseMove={event => {
+          if (!ref.current) {
+            return
+          }
+
+          const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
+
+          ref.current.style.cursor = ret ? 'pointer' : 'default'
+
+          setHoverElt(hoverNameClickMap(event))
+        }}
+        onClick={event => {
+          const { clientX: x, clientY: y } = event
+
+          const data = hoverBranchClickMap(event)
+          if (data?.id) {
+            setBranchMenu({ ...data, x, y })
+          }
+
+          const data2 = hoverNameClickMap(event)
+          if (data2?.id) {
+            setToggleNodeMenu({ ...data2, x, y })
+          }
+        }}
+        ref={ref}
+      />
+      <canvas
+        style={{
+          width: treeWidth + padding,
+          height: blockSize,
+          top: scrollY + offsetY,
+          left: 0,
+          position: 'absolute',
+          pointerEvents: 'none',
+          zIndex: 100,
+        }}
+        width={treeWidth + padding}
+        height={blockSize}
+        ref={mouseoverRef}
+      />
+    </>
+  )
+})
+const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLDivElement>(null)
   const scheduled = useRef(false)
   const deltaY = useRef(0)

@@ -1,6 +1,2 @@
-import MSAView from './components/MSAView'
-import MSAModel, { MsaViewModel } from './model'
-
-export { MSAModel, MSAView }
-
-export type { MsaViewModel }
+export { default as MSAView } from './components/MSAView'
+export { default as MSAModel, type MsaViewModel } from './model'

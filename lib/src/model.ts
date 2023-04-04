@@ -1,22 +1,39 @@
 import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
-import { ascending, max } from 'd3-array'
+import { ascending } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
 import { autorun } from 'mobx'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
-
 import Stockholm from 'stockholm-js'
+
+export interface RowDetails {
+  [key: string]: unknown
+  name: string
+  range?: { start: number; end: number }
+}
+
+// locals
+import {
+  collapse,
+  generateNodeIds,
+  maxLength,
+  setBrLength,
+  skipBlanks,
+  clamp,
+  NodeWithIds,
+  NodeWithIdsAndLength,
+} from './util'
+import TextTrack from './components/TextTrack'
+import BoxTrack from './components/BoxTrack'
 import ClustalMSA from './parsers/ClustalMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
-
-import { generateNodeIds } from './util'
-import TextTrack from './components/TextTrack'
-import BoxTrack from './components/BoxTrack'
+import { UniprotTrack } from './UniprotTrack'
+import { StructureModel } from './StructureModel'
 
 interface BasicTrackModel {
   id: string
@@ -33,152 +50,19 @@ export interface TextTrackModel extends BasicTrackModel {
 export interface BoxTrackModel extends BasicTrackModel {
   features: { start: number; end: number }[]
 }
-export interface TextTrack {
+export interface ITextTrack {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactComponent: React.FC<any>
   model: TextTrackModel
 }
 
-export interface BoxTrack {
+export interface IBoxTrack {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactComponent: React.FC<any>
   model: BoxTrackModel
 }
 
-type BasicTrack = BoxTrack | TextTrack
-
-function skipBlanks(blanks: number[], arg: string) {
-  let s = ''
-  let b = 0
-  for (let j = 0; j < arg.length; j++) {
-    if (j === blanks[b]) {
-      b++
-    } else {
-      s += arg[j]
-    }
-  }
-  return s
-}
-
-function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
-  //@ts-ignore
-  d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
-  d.children?.forEach(d => {
-    setBrLength(d, y0, k)
-  })
-}
-
-function maxLength(d: HierarchyNode<any>): number {
-  return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0)
-}
-
-// Collapse the node and all it's children, from
-// https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
-function collapse(d: HierarchyNode<any>) {
-  if (d.children) {
-    //@ts-ignore
-    d._children = d.children
-    //@ts-ignore
-    d._children.forEach(collapse)
-    //@ts-ignore
-    d.children = null
-  }
-}
-
-function clamp(min: number, num: number, max: number) {
-  return Math.min(Math.max(num, min), max)
-}
-
-const StructureModel = types.model({
-  id: types.identifier,
-  structure: types.model({
-    pdb: types.string,
-    startPos: types.number,
-    endPos: types.number,
-  }),
-  range: types.maybe(types.string),
-})
-
-const UniprotTrack = types
-  .model({
-    id: types.string,
-    accession: types.string,
-    name: types.string,
-    associatedRowName: types.string,
-    height: types.optional(types.number, 100),
-  })
-  .volatile(() => ({
-    error: undefined as Error | undefined,
-    data: undefined as any | undefined,
-  }))
-  .actions(self => ({
-    setError(error: Error) {
-      self.error = error
-    },
-    setData(data: string) {
-      self.data = data
-    },
-  }))
-  .actions(self => ({
-    afterCreate() {
-      addDisposer(
-        self,
-        autorun(async () => {
-          try {
-            const { accession } = self
-            const url = `https://www.uniprot.org/uniprot/${accession}.gff`
-            const response = await fetch(url)
-            if (!response.ok) {
-              throw new Error(
-                `HTTP ${response.status} ${response.statusText} fetching ${url}`,
-              )
-            }
-            const text = await response.text()
-            self.setData(text)
-          } catch (e) {
-            self.setError(e as Error)
-          }
-        }),
-      )
-    },
-  }))
-  .views(self => ({
-    get loading() {
-      return !self.data
-    },
-
-    get features() {
-      return (self.data as string | undefined)
-        ?.split('\n')
-        .map(f => f.trim())
-        .filter(f => !!f)
-        .filter(f => !f.startsWith('#'))
-        .map(f => {
-          const [seq_id, source, type, start, end, score, strand, phase, col9] =
-            f.split('\t')
-
-          return {
-            seq_id,
-            source,
-            type,
-            start: +start,
-            end: +end,
-            score: +score,
-            strand,
-            phase,
-            ...Object.fromEntries(
-              col9
-                .split(';')
-                .map(f => f.trim())
-                .filter(f => !!f)
-                .map(f => f.split('='))
-                .map(([key, val]) => [
-                  key.trim(),
-                  decodeURIComponent(val).trim().split(',').join(' '),
-                ]),
-            ),
-          }
-        })
-    },
-  }))
+type BasicTrack = IBoxTrack | ITextTrack
 
 const MSAModel = types
   .model('MsaView', {
@@ -235,18 +119,18 @@ const MSAModel = types
     ),
   })
   .volatile(() => ({
-    error: undefined as Error | undefined,
+    error: undefined as unknown,
     margin: { left: 20, top: 20 },
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogComponent: undefined as undefined | React.FC<any>,
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogProps: undefined as any,
 
     // annotations
     annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setDialogComponent(dlg: React.FC<any> | undefined, props: any) {
       self.DialogComponent = dlg
       self.DialogProps = props
@@ -275,13 +159,10 @@ const MSAModel = types
       }
     },
     clearSelectedStructures() {
-      //@ts-ignore
+      // @ts-expect-error
       self.selectedStructures = []
     },
-    setError(error?: Error) {
-      if (error) {
-        console.error(error)
-      }
+    setError(error?: unknown) {
       self.error = error
     },
     setMousePos(col?: number, row?: number) {
@@ -325,7 +206,7 @@ const MSAModel = types
         self.collapsed.push(node)
       }
     },
-    setShowOnly(node: string | undefined) {
+    setShowOnly(node?: string) {
       self.showOnly = node
     },
     toggleBranchLen() {
@@ -345,9 +226,7 @@ const MSAModel = types
     },
     async setTreeFilehandle(treeFilehandle?: FileLocationType) {
       if (treeFilehandle && 'blobId' in treeFilehandle) {
-        const r = (await openLocation(treeFilehandle).readFile(
-          'utf8',
-        )) as string
+        const r = await openLocation(treeFilehandle).readFile('utf8')
         this.setTree(r)
       } else {
         self.treeFilehandle = treeFilehandle
@@ -367,11 +246,10 @@ const MSAModel = types
           const { treeFilehandle } = self
           if (treeFilehandle) {
             try {
-              this.setTree(
-                (await openLocation(treeFilehandle).readFile('utf8')) as string,
-              )
+              this.setTree(await openLocation(treeFilehandle).readFile('utf8'))
             } catch (e) {
-              this.setError(e as Error)
+              console.error(e)
+              this.setError(e)
             }
           }
         }),
@@ -383,11 +261,10 @@ const MSAModel = types
 
           if (msaFilehandle) {
             try {
-              this.setMSA(
-                (await openLocation(msaFilehandle).readFile('utf8')) as string,
-              )
+              this.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
             } catch (e) {
-              this.setError(e as Error)
+              console.error(e)
+              this.setError(e)
             }
           }
         }),
@@ -453,7 +330,7 @@ const MSAModel = types
   })
   .views(self => ({
     get blocks2d() {
-      return self.blocksY.map(by => self.blocksX.map(bx => [bx, by])).flat()
+      return self.blocksY.flatMap(by => self.blocksX.map(bx => [bx, by]))
     },
     get done() {
       return self.initialized && (self.data.msa || self.data.tree)
@@ -463,16 +340,14 @@ const MSAModel = types
       return colorSchemes[self.colorSchemeName]
     },
 
-    get alignmentDetails() {
-      return this.MSA?.getDetails() || {}
+    get header() {
+      return this.MSA?.getHeader() || {}
     },
 
-    getRowDetails(name: string) {
-      //@ts-ignore
-      const details = this.MSA?.getRowDetails?.(name)
+    getRowData(name: string) {
       const matches = name.match(/\S+\/(\d+)-(\d+)/)
       return {
-        ...details,
+        data: this.MSA?.getRowData(name) || ({} as Record<string, unknown>),
         ...(matches && { range: { start: +matches[1], end: +matches[2] } }),
       }
     },
@@ -511,14 +386,19 @@ const MSAModel = types
       return ((this.MSA?.getWidth() || 0) - this.blanks.length) * self.colWidth
     },
 
-    get tree() {
+    get tree(): NodeWithIds {
       return self.data.tree
         ? generateNodeIds(parseNewick(self.data.tree))
-        : this.MSA?.getTree() || ({ noTree: true } as any)
+        : this.MSA?.getTree() || {
+            noTree: true,
+            branchset: [],
+            id: 'empty',
+            name: 'empty',
+          }
     },
 
     get rowNames(): string[] {
-      return this.hierarchy.leaves().map((node: any) => node.data.name)
+      return this.hierarchy.leaves().map(node => node.data.name)
     },
 
     get mouseOverRowName() {
@@ -532,13 +412,11 @@ const MSAModel = types
     },
 
     get root() {
-      let hier = hierarchy(this.tree, (d: any) => d.branchset)
-        .sum((d: any) => (d.branchset ? 0 : 1))
-        .sort((a: any, b: any) =>
-          ascending(a.data.length || 1, b.data.length || 1),
-        )
+      let hier = hierarchy(this.tree, d => d.branchset)
+        .sum(d => (d.branchset ? 0 : 1))
+        .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
       if (self.showOnly) {
-        const res = hier.find((node: any) => node.data.id === self.showOnly)
+        const res = hier.find(node => node.data.id === self.showOnly)
         if (res) {
           hier = res
         }
@@ -546,11 +424,9 @@ const MSAModel = types
 
       if (self.collapsed.length) {
         self.collapsed
-          .map(collapsedId =>
-            hier.find((node: any) => node.data.id === collapsedId),
-          )
-          .filter(f => !!f)
-          .map((node: any) => collapse(node))
+          .map(collapsedId => hier.find(node => node.data.id === collapsedId))
+          .filter((f): f is HierarchyNode<NodeWithIds> => !!f)
+          .map(node => collapse(node))
       }
       return hier
     },
@@ -566,14 +442,15 @@ const MSAModel = types
     },
 
     get inverseStructures() {
-      const map = Object.entries(this.structures)
-        .map(([key, val]) => val.map(pdbEntry => [pdbEntry.pdb, { id: key }]))
-        .flat()
-      return Object.fromEntries(map)
+      return Object.fromEntries(
+        Object.entries(this.structures).flatMap(([key, val]) =>
+          val.map(pdbEntry => [pdbEntry.pdb, { id: key }]),
+        ),
+      )
     },
 
     get msaAreaWidth() {
-      //@ts-ignore
+      // @ts-expect-error
       return self.width - self.treeAreaWidth
     },
 
@@ -581,7 +458,7 @@ const MSAModel = types
       const blanks = []
       const strs = this.hierarchy
         .leaves()
-        .map(({ data }: any) => this.MSA?.getRow(data.name))
+        .map(({ data }) => this.MSA?.getRow(data.name))
         .filter((item): item is string[] => !!item)
 
       for (let i = 0; i < strs[0]?.length; i++) {
@@ -598,27 +475,21 @@ const MSAModel = types
       return blanks
     },
 
-    get rows(): string[][] {
+    get rows() {
       return this.hierarchy
         .leaves()
-        .map(({ data }: any) => [data.name, this.MSA?.getRow(data.name)])
-        .filter(f => !!f[1])
+        .map(({ data }) => [data.name, this.MSA?.getRow(data.name)] as const)
+        .filter((f): f is [string, string[]] => !!f[1])
     },
 
-    get columns(): Record<string, string> {
-      const rows = this.rows
-      const cols = this.columns2d
-
-      return Object.fromEntries(rows.map((row, index) => [row[0], cols[index]]))
+    get columns() {
+      return Object.fromEntries(
+        this.rows.map((row, index) => [row[0], this.columns2d[index]] as const),
+      )
     },
 
     get columns2d() {
-      const strs = this.rows.map(r => r[1])
-      const ret: string[] = []
-      for (let i = 0; i < strs.length; i++) {
-        ret.push(skipBlanks(this.blanks, strs[i]))
-      }
-      return ret
+      return this.rows.map(r => r[1]).map(str => skipBlanks(this.blanks, str))
     },
 
     get colStats() {
@@ -638,7 +509,7 @@ const MSAModel = types
     },
 
     // generates a new tree that is clustered with x,y positions
-    get hierarchy() {
+    get hierarchy(): HierarchyNode<NodeWithIdsAndLength> {
       const root = this.root
       const clust = cluster()
         .size([this.totalHeight, self.treeWidth])
@@ -646,11 +517,10 @@ const MSAModel = types
       clust(root)
       setBrLength(
         root,
-        //@ts-ignore
         (root.data.length = 0),
         self.treeWidth / maxLength(root),
       )
-      return root
+      return root as HierarchyNode<NodeWithIdsAndLength>
     },
 
     get totalHeight() {
@@ -659,7 +529,7 @@ const MSAModel = types
   }))
   .actions(self => ({
     addUniprotTrack(node: { name: string; accession: string }) {
-      if (self.boxTracks.find(t => t.name === node.name)) {
+      if (self.boxTracks.some(t => t.name === node.name)) {
         if (self.turnedOffTracks.has(node.name)) {
           this.toggleTrack(node.name)
         }
@@ -750,7 +620,7 @@ const MSAModel = types
 
       const boxTracks = self.boxTracks
         // filter out tracks that are associated with hidden rows
-        .filter(track => !!self.rows.find(row => row[0] === track.name))
+        .filter(track => !!self.rows.some(row => row[0] === track.name))
         .map(track => ({
           model: track as BoxTrackModel,
           ReactComponent: BoxTrack,
@@ -807,7 +677,7 @@ const MSAModel = types
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
       const row = rows[index][1]
-      const details = self.getRowDetails(rowName)
+      const details = self.getRowData(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
 
@@ -826,7 +696,7 @@ const MSAModel = types
 
       let count = 0
       for (let k = 0; k < row.length; k++) {
-        if (blanks.indexOf(k) !== -1 && k < i + 1) {
+        if (blanks.includes(k) && k < i + 1) {
           count++
         }
       }
@@ -836,7 +706,7 @@ const MSAModel = types
     globalBpToPx(position: number) {
       let count = 0
       for (let k = 0; k < self.rows[0]?.[1].length; k++) {
-        if (self.blanks.indexOf(k) !== -1 && k < position + 1) {
+        if (self.blanks.includes(k) && k < position + 1) {
           count++
         }
       }
@@ -895,16 +765,17 @@ const MSAModel = types
 
 const model = types.snapshotProcessor(types.compose(BaseViewModel, MSAModel), {
   postProcessor(result) {
+    const snap = result as Omit<typeof result, symbol>
     const {
       data: { tree, msa },
       ...rest
-    } = result
+    } = snap
 
     // remove the MSA/tree data from the tree if the filehandle available in
     // which case it can be reloaded on refresh
     return {
       data: {
-        //https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/
+        // https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/
         ...(!result.treeFilehandle && { tree }),
         ...(!result.msaFilehandle && { msa }),
       },
