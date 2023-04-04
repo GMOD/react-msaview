@@ -17,4 +17,4 @@ jobs:
       - name: Lint
         run: cd lib && yarn lint
       - name: TSC
-        run: cd lib && yarn tsc
+        run: yarn tsc
