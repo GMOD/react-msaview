@@ -2,7 +2,7 @@ import React from 'react'
 
 import { observer } from 'mobx-react'
 import { makeStyles } from 'tss-react/mui'
-import { Tooltip, alpha } from '@mui/material'
+import { Tooltip } from '@mui/material'
 
 // icons
 import { MsaViewModel } from '../model'

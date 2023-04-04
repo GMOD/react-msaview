@@ -8,7 +8,7 @@ export default observer(function ({
   info,
   onClose,
 }: {
-  info: any
+  info: Record<string, unknown>
   onClose: () => void
 }) {
   return (

@@ -1,6 +1,7 @@
 import Color from 'color'
 import { HierarchyNode } from 'd3-hierarchy'
 import { max } from 'd3-array'
+import { Theme } from '@mui/material'
 export function transform<T>(
   obj: Record<string, T>,
   cb: (arg0: [string, T]) => [string, T],
@@ -34,7 +35,7 @@ export function generateNodeIds(
 
 export function colorContrast(
   colorScheme: { [key: string]: string },
-  theme: any,
+  theme: Theme,
 ) {
   return transform(colorScheme, ([letter, color]) => [
     letter,
@@ -88,6 +89,7 @@ export function skipBlanks(blanks: number[], arg: string) {
   return s
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   // @ts-expect-error
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
@@ -96,12 +98,14 @@ export function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
   })
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function maxLength(d: HierarchyNode<any>): number {
   return (d.data.length || 1) + (d.children ? max(d.children, maxLength) : 0)
 }
 
 // Collapse the node and all it's children, from
 // https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function collapse(d: HierarchyNode<any>) {
   if (d.children) {
     // @ts-expect-error

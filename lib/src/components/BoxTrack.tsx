@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import { getSnapshot, isStateTreeNode } from 'mobx-state-tree'
 
 // locals
-import { BoxTrack, MsaViewModel } from '../model'
+import { IBoxTrack, MsaViewModel } from '../model'
 import Layout from '../layout'
 
 interface Feat {
@@ -15,7 +15,7 @@ const AnnotationBlock = observer(function ({
   model,
   offsetX,
 }: {
-  track: BoxTrack
+  track: IBoxTrack
   model: MsaViewModel
   offsetX: number
 }) {
@@ -52,6 +52,9 @@ const AnnotationBlock = observer(function ({
       }
     })
     return temp
+
+    // might convert to autorun based drawing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowHeight, feats, associatedRowName, model, blanks])
 
   const ref = useRef<HTMLCanvasElement>(null)
@@ -123,6 +126,7 @@ const AnnotationBlock = observer(function ({
     ctx.textAlign = 'left'
     layout.rectangles.forEach(value => {
       const { minX, maxX, maxY, minY } = value
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const feature = value.data as any
 
       const x1 = minX * colWidth
@@ -191,27 +195,31 @@ const AnnotationBlock = observer(function ({
     </>
   )
 })
-const AnnotationTrack = observer(
-  ({ model, track }: { model: MsaViewModel; track: any }) => {
-    const { blocksX, msaAreaWidth } = model
-    const {
-      model: { height },
-    } = track
-    return (
-      <div
-        style={{
-          position: 'relative',
-          height,
-          width: msaAreaWidth,
-          overflow: 'hidden',
-        }}
-      >
-        {blocksX.map(bx => (
-          <AnnotationBlock track={track} key={bx} model={model} offsetX={bx} />
-        ))}
-      </div>
-    )
-  },
-)
+const AnnotationTrack = observer(function ({
+  model,
+  track,
+}: {
+  model: MsaViewModel
+  track: IBoxTrack
+}) {
+  const { blocksX, msaAreaWidth } = model
+  const {
+    model: { height },
+  } = track
+  return (
+    <div
+      style={{
+        position: 'relative',
+        height,
+        width: msaAreaWidth,
+        overflow: 'hidden',
+      }}
+    >
+      {blocksX.map(bx => (
+        <AnnotationBlock track={track} key={bx} model={model} offsetX={bx} />
+      ))}
+    </div>
+  )
+})
 
 export default AnnotationTrack

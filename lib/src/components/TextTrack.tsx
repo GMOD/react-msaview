@@ -2,7 +2,7 @@ import React, { useRef, useMemo, useEffect } from 'react'
 import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 // locals
-import { MsaViewModel, TextTrack } from '../model'
+import { MsaViewModel, ITextTrack } from '../model'
 import { colorContrast } from '../util'
 
 const AnnotationBlock = observer(function ({
@@ -10,7 +10,7 @@ const AnnotationBlock = observer(function ({
   model,
   offsetX,
 }: {
-  track: TextTrack
+  track: ITextTrack
   model: MsaViewModel
   offsetX: number
 }) {
@@ -93,24 +93,28 @@ const AnnotationBlock = observer(function ({
     />
   )
 })
-const AnnotationTrack = observer(
-  ({ track, model }: { track: any; model: MsaViewModel }) => {
-    const { blocksX, msaAreaWidth, rowHeight } = model
-    return (
-      <div
-        style={{
-          position: 'relative',
-          height: rowHeight,
-          width: msaAreaWidth,
-          overflow: 'hidden',
-        }}
-      >
-        {blocksX.map(bx => (
-          <AnnotationBlock key={bx} track={track} model={model} offsetX={bx} />
-        ))}
-      </div>
-    )
-  },
-)
+const AnnotationTrack = observer(function ({
+  track,
+  model,
+}: {
+  track: ITextTrack
+  model: MsaViewModel
+}) {
+  const { blocksX, msaAreaWidth, rowHeight } = model
+  return (
+    <div
+      style={{
+        position: 'relative',
+        height: rowHeight,
+        width: msaAreaWidth,
+        overflow: 'hidden',
+      }}
+    >
+      {blocksX.map(bx => (
+        <AnnotationBlock key={bx} track={track} model={model} offsetX={bx} />
+      ))}
+    </div>
+  )
+})
 
 export default AnnotationTrack

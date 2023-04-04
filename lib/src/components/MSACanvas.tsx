@@ -118,6 +118,7 @@ const MSABlock = observer(function ({
         }
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     MSA,
     highResScaleFactor,

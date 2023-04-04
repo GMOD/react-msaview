@@ -72,7 +72,7 @@ export default class StockholmMSA {
   getStructures() {
     const pdbRegex = /PDB; +(\S+) +(\S); ([0-9]+)-([0-9]+)/
     const ent = this.MSA
-    return Object.entries(ent.gs?.DR || {})
+    const args = Object.entries(ent.gs?.DR || {})
       .map(([id, dr]) => [id, pdbRegex.exec(dr)])
       .filter((item): item is [string, RegExpExecArray] => !!item[1])
       .map(([id, match]: [string, RegExpExecArray]) => {
@@ -82,14 +82,15 @@ export default class StockholmMSA {
         const endPos = +match[4]
         return { id, pdb, chain, startPos, endPos }
       })
-      .reduce((a, b) => {
-        const { id, ...rest } = b
-        if (!a[id]) {
-          a[id] = []
-        }
-        a[id].push(rest)
-        return a
-      }, {} as Record<string, { pdb: string; chain: string; startPos: number; endPos: number }[]>)
+
+    const ret = {} as Record<string, Omit<(typeof args)[0], 'id'>[]>
+    for (const entry of args) {
+      const { id, ...rest } = entry
+      if (!ret[id]) {
+        ret[id] = []
+      }
+      ret[id].push(rest)
+    }
   }
 
   getTree() {

@@ -37,13 +37,18 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
   return (
     <div style={{ display: 'flex' }}>
       <IconButton
-        onClick={() => {
-          model.setData({ tree: '', msa: '' })
-          model.setTreeFilehandle(undefined)
-          model.setMSAFilehandle(undefined)
-          model.setScrollY(0)
-          model.setScrollX(0)
-          model.setCurrentAlignment(0)
+        onClick={async () => {
+          try {
+            model.setData({ tree: '', msa: '' })
+            await model.setTreeFilehandle(undefined)
+            await model.setMSAFilehandle(undefined)
+            model.setScrollY(0)
+            model.setScrollX(0)
+            model.setCurrentAlignment(0)
+          } catch (e) {
+            console.error(e)
+            model.setError(e)
+          }
         }}
       >
         <FolderOpenIcon />

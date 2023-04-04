@@ -42,17 +42,19 @@ export interface TextTrackModel extends BasicTrackModel {
 export interface BoxTrackModel extends BasicTrackModel {
   features: { start: number; end: number }[]
 }
-export interface TextTrack {
+export interface ITextTrack {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactComponent: React.FC<any>
   model: TextTrackModel
 }
 
-export interface BoxTrack {
+export interface IBoxTrack {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactComponent: React.FC<any>
   model: BoxTrackModel
 }
 
-type BasicTrack = BoxTrack | TextTrack
+type BasicTrack = IBoxTrack | ITextTrack
 
 const MSAModel = types
   .model('MsaView', {
@@ -381,7 +383,9 @@ const MSAModel = types
     get tree() {
       return self.data.tree
         ? generateNodeIds(parseNewick(self.data.tree))
-        : this.MSA?.getTree() || ({ noTree: true } as any)
+        : // would be good to not cast to any here
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          this.MSA?.getTree() || ({ noTree: true } as any)
     },
 
     get rowNames(): string[] {
@@ -412,6 +416,7 @@ const MSAModel = types
       if (self.collapsed.length) {
         self.collapsed
           .map(collapsedId => hier.find(node => node.data.id === collapsedId))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .filter((f): f is HierarchyNode<any> => !!f)
           .map(node => collapse(node))
       }

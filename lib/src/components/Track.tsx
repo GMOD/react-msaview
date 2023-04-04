@@ -22,6 +22,7 @@ export const TrackLabel = observer(function ({
   track,
 }: {
   model: MsaViewModel
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track: any
 }) {
   const [anchorEl, setAnchorEl] = useState<Element>()
@@ -99,6 +100,7 @@ const Track = observer(function ({
   track,
 }: {
   model: MsaViewModel
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track: any
 }) {
   const { resizeHandleWidth } = model

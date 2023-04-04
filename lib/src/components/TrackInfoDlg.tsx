@@ -18,7 +18,7 @@ const TrackInfoDialog = observer(function ({
   model,
   onClose,
 }: {
-  model: any
+  model: { name: string; data: string }
   onClose: () => void
 }) {
   const [label, setLabel] = useState('Copy to clipboard')

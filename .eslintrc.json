@@ -36,7 +36,6 @@
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-argument": "off",
-
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-return": "off",
@@ -80,8 +79,8 @@
     "unicorn/prefer-number-properties": 0,
     "unicorn/no-process-exit": 0,
 
-    "no-use-before-define": "off",
     "curly": "error",
+    "no-use-before-define": "off",
     "no-global-assign": "warn",
     "no-console": [
       "warn",
@@ -91,10 +90,9 @@
     ],
     "no-debugger": "warn",
     "no-undef": "error",
-    "no-underscore-dangle": "warn",
-
     "import/no-extraneous-dependencies": "error",
     "import/no-anonymous-default-export": "off",
+
     "monorepo/no-internal-import": "off",
 
     "react/no-danger": "warn",
@@ -103,6 +101,7 @@
     "react/no-unused-prop-types": "error",
     "react/no-unused-state": "error",
     "react/prefer-stateless-function": "error",
+    "@typescript-eslint/no-extra-semi": 0,
 
     "spaced-comment": [
       "error",
