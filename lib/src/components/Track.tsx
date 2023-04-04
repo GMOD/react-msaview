@@ -25,7 +25,7 @@ export const TrackLabel = observer(function ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track: any
 }) {
-  const [anchorEl, setAnchorEl] = useState<Element>()
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>()
   const [trackInfoDlgOpen, setTrackInfoDlgOpen] = useState(false)
   const { rowHeight, treeAreaWidth: width } = model
   const {
@@ -45,25 +45,23 @@ export const TrackLabel = observer(function ({
         fontSize: trackLabelHeight,
       }}
     >
-      {name}
+      {name}{' '}
       <IconButton
         className={classes.button}
-        style={{ width: trackLabelHeight, height: trackLabelHeight }}
-        onClick={event => {
-          setAnchorEl(event.target as Element)
+        style={{
+          width: trackLabelHeight,
+          height: trackLabelHeight,
         }}
+        onClick={event => setAnchorEl(event.currentTarget)}
       >
         <ArrowDropDownIcon />
       </IconButton>
-
       {anchorEl ? (
         <Menu
           anchorEl={anchorEl}
           transitionDuration={0}
           open
-          onClose={() => {
-            setAnchorEl(undefined)
-          }}
+          onClose={() => setAnchorEl(undefined)}
         >
           <MenuItem
             dense
@@ -105,7 +103,7 @@ const Track = observer(function ({
 }) {
   const { resizeHandleWidth } = model
   const {
-    model: { height },
+    model: { height, error },
   } = track
   const ref = useRef<HTMLDivElement>(null)
   const scheduled = useRef(false)
@@ -139,7 +137,11 @@ const Track = observer(function ({
       <TrackLabel model={model} track={track} />
       <div style={{ width: resizeHandleWidth, flexShrink: 0 }} />
       <div ref={ref}>
-        <track.ReactComponent model={model} track={track} />
+        {error ? (
+          <div style={{ color: 'red', fontSize: 10 }}>{`${error}`}</div>
+        ) : (
+          <track.ReactComponent model={model} track={track} />
+        )}
       </div>
     </div>
   )
