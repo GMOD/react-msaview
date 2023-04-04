@@ -6,17 +6,17 @@ import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
 import { autorun } from 'mobx'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
-
 import Stockholm from 'stockholm-js'
+
+// locals
+import TextTrack from './components/TextTrack'
+import BoxTrack from './components/BoxTrack'
 import ClustalMSA from './parsers/ClustalMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
-
 import { generateNodeIds } from './util'
-import TextTrack from './components/TextTrack'
-import BoxTrack from './components/BoxTrack'
 
 interface BasicTrackModel {
   id: string
@@ -106,11 +106,11 @@ const UniprotTrack = types
     height: types.optional(types.number, 100),
   })
   .volatile(() => ({
-    error: undefined as Error | undefined,
-    data: undefined as any | undefined,
+    error: undefined as unknown,
+    data: undefined as string | undefined,
   }))
   .actions(self => ({
-    setError(error: Error) {
+    setError(error: unknown) {
       self.error = error
     },
     setData(data: string) {
@@ -128,13 +128,15 @@ const UniprotTrack = types
             const response = await fetch(url)
             if (!response.ok) {
               throw new Error(
-                `HTTP ${response.status} ${response.statusText} fetching ${url}`,
+                `HTTP ${
+                  response.status
+                } fetching ${url}: ${await response.text()}`,
               )
             }
-            const text = await response.text()
-            self.setData(text)
+            self.setData(await response.text())
           } catch (e) {
-            self.setError(e as Error)
+            console.error(e)
+            self.setError(e)
           }
         }),
       )
@@ -146,7 +148,7 @@ const UniprotTrack = types
     },
 
     get features() {
-      return (self.data as string | undefined)
+      return self.data
         ?.split('\n')
         .map(f => f.trim())
         .filter(f => !!f)
@@ -235,7 +237,7 @@ const MSAModel = types
     ),
   })
   .volatile(() => ({
-    error: undefined as Error | undefined,
+    error: undefined as unknown,
     margin: { left: 20, top: 20 },
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogComponent: undefined as undefined | React.FC<any>,
@@ -278,10 +280,7 @@ const MSAModel = types
       //@ts-ignore
       self.selectedStructures = []
     },
-    setError(error?: Error) {
-      if (error) {
-        console.error(error)
-      }
+    setError(error?: unknown) {
       self.error = error
     },
     setMousePos(col?: number, row?: number) {
@@ -371,7 +370,8 @@ const MSAModel = types
                 (await openLocation(treeFilehandle).readFile('utf8')) as string,
               )
             } catch (e) {
-              this.setError(e as Error)
+              console.error(e)
+              this.setError(e)
             }
           }
         }),
@@ -387,7 +387,8 @@ const MSAModel = types
                 (await openLocation(msaFilehandle).readFile('utf8')) as string,
               )
             } catch (e) {
-              this.setError(e as Error)
+              console.error(e)
+              this.setError(e)
             }
           }
         }),
