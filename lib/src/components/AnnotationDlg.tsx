@@ -19,7 +19,7 @@ import { MsaViewModel } from '../model'
 const specialFromEntries = (val: string[][]) => {
   const ret = {} as { [key: string]: string[] }
   val.forEach(([key, val]) => {
-    if (!ret[key]) ret[key] = [] as string[]
+    if (!ret[key]) {ret[key] = [] as string[]}
     ret[key].push(val)
   })
   return ret

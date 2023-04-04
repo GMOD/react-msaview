@@ -70,7 +70,7 @@ const MSABlock = observer(function ({
     const visibleLeaves = leaves.slice(yStart, yEnd)
     visibleLeaves.forEach(node => {
       const {
-        //@ts-expect-error
+        // @ts-expect-error
         x: y,
         data: { name },
       } = node
@@ -100,7 +100,7 @@ const MSABlock = observer(function ({
     if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
       visibleLeaves.forEach(node => {
         const {
-          //@ts-expect-error
+          // @ts-expect-error
           x: y,
           data: { name },
         } = node
@@ -112,7 +112,7 @@ const MSABlock = observer(function ({
           const contrast = contrastScheme[letter.toUpperCase()] || 'black'
           const x = i * colWidth + offsetX - (offsetX % colWidth)
 
-          //note: -rowHeight/4 matches +rowHeight/4 in tree
+          // note: -rowHeight/4 matches +rowHeight/4 in tree
           ctx.fillStyle = bgColor ? contrast : color || 'black'
           ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
         }

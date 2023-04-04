@@ -12,6 +12,9 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.170",
-    "@types/rbush": "^3.0.0"
+    "@types/rbush": "^3.0.0",
+    "eslint": "^8.37.0",
+    "eslint-plugin-monorepo": "^0.3.2",
+    "eslint-plugin-unicorn": "^46.0.0"
   }
 }

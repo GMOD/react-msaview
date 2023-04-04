@@ -34,31 +34,31 @@ react-dom since react-msaview uses these as peerDependencies
 
 Example script
 
-```js
-import { observer } from "mobx-react";
-import { MSAView, MSAModel } from "msaview";
-import { createJBrowseTheme } from "@jbrowse/core/ui/theme";
-import { ThemeProvider } from "@mui/material/styles";
+```typescript
+import { observer } from 'mobx-react'
+import { MSAView, MSAModel } from 'msaview'
+import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
+import { ThemeProvider } from '@mui/material/styles'
 
 function App() {
-  const theme = createJBrowseTheme();
+  const theme = createJBrowseTheme()
 
-  const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView" });
+  const model = MSAModel.create({ id: `${Math.random()}`, type: 'MsaView' })
   // can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
   // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", msaFilehandle: {uri:'http://path/to/msa.stock'} });
   // or pass a string of an msa/tree directly to the "data" field if not pointing to a URL
   // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", data: {msa:/*string of msa here */} });
 
   // choose MSA width, calculate width of div/rendering area if needed beforehand
-  model.setWidth(1800);
+  model.setWidth(1800)
 
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ border: "1px solid black", margin: 20 }}>
+      <div style={{ border: '1px solid black', margin: 20 }}>
         <MSAView model={model} />
       </div>
     </ThemeProvider>
-  );
+  )
 }
 ```
 
@@ -68,7 +68,7 @@ function App() {
 <html>
   <head>
     <script>
-      window.global = window;
+      window.global = window
     </script>
     <script
       crossorigin
@@ -86,23 +86,23 @@ function App() {
   <body>
     <div id="root" />
     <script>
-      const { MSAView, MSAModel } = window.ReactMSAView;
+      const { MSAView, MSAModel } = window.ReactMSAView
       const model = MSAModel.create({
         id: `${Math.random()}`,
-        type: "MsaView",
-      });
+        type: 'MsaView',
+      })
       // can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
       // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", msaFilehandle: {uri:'http://path/to/msa.stock'} });
       // or pass a string of an msa/tree directly to the "data" field if not pointing to a URL
       // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", data: {msa:/*string of msa here */} });
 
       // choose MSA width, calculate width of div/rendering area if needed beforehand
-      model.setWidth(1800);
+      model.setWidth(1800)
 
       ReactDOM.render(
         React.createElement(MSAView, { model }),
-        document.getElementById("root")
-      );
+        document.getElementById('root'),
+      )
     </script>
   </body>
 </html>
@@ -113,12 +113,12 @@ function App() {
 The following fields can be passed as constructor aka the MSAModel.create
 function
 
-```js
-const MSAModel = types.model("MsaView", {
+```typescript
+const MSAModel = types.model('MsaView', {
   // internal
   id: ElementId,
   // internal
-  type: types.literal("MsaView"),
+  type: types.literal('MsaView'),
 
   // height of msaview
   height: types.optional(types.number, 550),
@@ -177,7 +177,7 @@ const MSAModel = types.model("MsaView", {
   highResScaleFactor: 2,
 
   // default color scheme, see  lib/src/colorSchemes.ts for more
-  colorSchemeName: "maeditor",
+  colorSchemeName: 'maeditor',
 
   // pass a default tree filehandle, e.g. formatted as {uri:'http://path/to/your/file.nh'}
   treeFilehandle: types.maybe(FileLocation),
@@ -206,17 +206,17 @@ const MSAModel = types.model("MsaView", {
         tree: types.maybe(types.string),
         msa: types.maybe(types.string),
       })
-      .actions((self) => ({
+      .actions(self => ({
         setTree(tree?: string) {
-          self.tree = tree;
+          self.tree = tree
         },
         setMSA(msa?: string) {
-          self.msa = msa;
+          self.msa = msa
         },
       })),
-    { tree: "", msa: "" }
+    { tree: '', msa: '' },
   ),
-});
+})
 ```
 
 There are also actions for manipulating the MSA model after creation, see

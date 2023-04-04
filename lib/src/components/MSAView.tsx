@@ -67,15 +67,8 @@ const MouseoverCanvas = observer(function ({ model }: { model: MsaViewModel }) {
     />
   )
 })
-export default observer(({ model }: { model: MsaViewModel }) => {
-  const {
-    done,
-    initialized,
-    treeAreaWidth,
-    height,
-    resizeHandleWidth,
-    turnedOnTracks,
-  } = model
+export default observer(function ({ model }: { model: MsaViewModel }) {
+  const { done, initialized, treeAreaWidth, height, turnedOnTracks } = model
 
   return (
     <div>

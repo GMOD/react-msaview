@@ -89,7 +89,7 @@ export function skipBlanks(blanks: number[], arg: string) {
 }
 
 export function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
-  //@ts-expect-error
+  // @ts-expect-error
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
   d.children?.forEach(d => {
     setBrLength(d, y0, k)
@@ -104,11 +104,11 @@ export function maxLength(d: HierarchyNode<any>): number {
 // https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
 export function collapse(d: HierarchyNode<any>) {
   if (d.children) {
-    //@ts-expect-error
+    // @ts-expect-error
     d._children = d.children
-    //@ts-expect-error
+    // @ts-expect-error
     d._children.forEach(collapse)
-    //@ts-expect-error
+    // @ts-expect-error
     d.children = null
   }
 }

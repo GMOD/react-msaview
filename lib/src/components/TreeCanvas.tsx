@@ -73,7 +73,7 @@ const TreeMenu = observer(function ({
         </MenuItem>
 
         {structures[node.name]?.map(entry => {
-          return !model.selectedStructures.find(n => n.id === node.name) ? (
+          return !model.selectedStructures.some(n => n.id === node.name) ? (
             <MenuItem
               key={JSON.stringify(entry)}
               dense
@@ -233,16 +233,16 @@ const TreeBlock = observer(function ({
     if (!noTree && drawTree) {
       hierarchy.links().forEach(({ source, target }) => {
         const y = showBranchLen ? 'len' : 'y'
-        //@ts-expect-error
+        // @ts-expect-error
         const { x: sy, [y]: sx } = source
-        //@ts-expect-error
+        // @ts-expect-error
         const { x: ty, [y]: tx } = target
 
         const y1 = Math.min(sy, ty)
         const y2 = Math.max(sy, ty)
-        //1d line intersection to check if line crosses block at all, this is
-        //an optimization that allows us to skip drawing most tree links
-        //outside the block
+        // 1d line intersection to check if line crosses block at all, this is
+        // an optimization that allows us to skip drawing most tree links
+        // outside the block
         if (offsetY + blockSize >= y1 && y2 >= offsetY) {
           ctx.beginPath()
           ctx.moveTo(sx, sy)
@@ -256,9 +256,9 @@ const TreeBlock = observer(function ({
         hierarchy.descendants().forEach(node => {
           const val = showBranchLen ? 'len' : 'y'
           const {
-            //@ts-expect-error
+            // @ts-expect-error
             x: y,
-            //@ts-expect-error
+            // @ts-expect-error
             [val]: x,
             data,
           } = node
@@ -298,12 +298,12 @@ const TreeBlock = observer(function ({
       }
       hierarchy.leaves().forEach(node => {
         const {
-          //@ts-expect-error
+          // @ts-expect-error
           x: y,
-          //@ts-expect-error
+          // @ts-expect-error
           y: x,
           data: { name, id },
-          //@ts-expect-error
+          // @ts-expect-error
           len,
         } = node
 
@@ -311,7 +311,7 @@ const TreeBlock = observer(function ({
           y > offsetY - extendBounds &&
           y < offsetY + blockSize + extendBounds
         ) {
-          //note: +rowHeight/4 matches with -rowHeight/4 in msa
+          // note: +rowHeight/4 matches with -rowHeight/4 in msa
           const yp = y + rowHeight / 4
           const xp = showBranchLen ? len : x
 
@@ -470,11 +470,7 @@ const TreeBlock = observer(function ({
 
           const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
 
-          if (ret) {
-            ref.current.style.cursor = 'pointer'
-          } else {
-            ref.current.style.cursor = 'default'
-          }
+          ref.current.style.cursor = ret ? 'pointer' : 'default'
 
           setHoverElt(hoverNameClickMap(event))
         }}

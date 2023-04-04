@@ -111,16 +111,16 @@ const MSAModel = types
   .volatile(() => ({
     error: undefined as unknown,
     margin: { left: 20, top: 20 },
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogComponent: undefined as undefined | React.FC<any>,
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogProps: undefined as any,
 
     // annotations
     annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setDialogComponent(dlg: React.FC<any> | undefined, props: any) {
       self.DialogComponent = dlg
       self.DialogProps = props
@@ -149,7 +149,7 @@ const MSAModel = types
       }
     },
     clearSelectedStructures() {
-      //@ts-expect-error
+      // @ts-expect-error
       self.selectedStructures = []
     },
     setError(error?: unknown) {
@@ -216,9 +216,7 @@ const MSAModel = types
     },
     async setTreeFilehandle(treeFilehandle?: FileLocationType) {
       if (treeFilehandle && 'blobId' in treeFilehandle) {
-        const r = (await openLocation(treeFilehandle).readFile(
-          'utf8',
-        )) as string
+        const r = await openLocation(treeFilehandle).readFile('utf8')
         this.setTree(r)
       } else {
         self.treeFilehandle = treeFilehandle
@@ -238,9 +236,7 @@ const MSAModel = types
           const { treeFilehandle } = self
           if (treeFilehandle) {
             try {
-              this.setTree(
-                (await openLocation(treeFilehandle).readFile('utf8')) as string,
-              )
+              this.setTree(await openLocation(treeFilehandle).readFile('utf8'))
             } catch (e) {
               console.error(e)
               this.setError(e)
@@ -255,9 +251,7 @@ const MSAModel = types
 
           if (msaFilehandle) {
             try {
-              this.setMSA(
-                (await openLocation(msaFilehandle).readFile('utf8')) as string,
-              )
+              this.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
             } catch (e) {
               console.error(e)
               this.setError(e)
@@ -326,7 +320,7 @@ const MSAModel = types
   })
   .views(self => ({
     get blocks2d() {
-      return self.blocksY.map(by => self.blocksX.map(bx => [bx, by])).flat()
+      return self.blocksY.flatMap(by => self.blocksX.map(bx => [bx, by]))
     },
     get done() {
       return self.initialized && (self.data.msa || self.data.tree)
@@ -341,7 +335,7 @@ const MSAModel = types
     },
 
     getRowDetails(name: string) {
-      //@ts-expect-error
+      // @ts-expect-error
       const details = this.MSA?.getRowDetails?.(name)
       const matches = name.match(/\S+\/(\d+)-(\d+)/)
       return {
@@ -436,14 +430,14 @@ const MSAModel = types
 
     get inverseStructures() {
       return Object.fromEntries(
-        Object.entries(this.structures)
-          .map(([key, val]) => val.map(pdbEntry => [pdbEntry.pdb, { id: key }]))
-          .flat(),
+        Object.entries(this.structures).flatMap(([key, val]) =>
+          val.map(pdbEntry => [pdbEntry.pdb, { id: key }]),
+        ),
       )
     },
 
     get msaAreaWidth() {
-      //@ts-expect-error
+      // @ts-expect-error
       return self.width - self.treeAreaWidth
     },
 
@@ -522,7 +516,7 @@ const MSAModel = types
   }))
   .actions(self => ({
     addUniprotTrack(node: { name: string; accession: string }) {
-      if (self.boxTracks.find(t => t.name === node.name)) {
+      if (self.boxTracks.some(t => t.name === node.name)) {
         if (self.turnedOffTracks.has(node.name)) {
           this.toggleTrack(node.name)
         }
@@ -613,7 +607,7 @@ const MSAModel = types
 
       const boxTracks = self.boxTracks
         // filter out tracks that are associated with hidden rows
-        .filter(track => !!self.rows.find(row => row[0] === track.name))
+        .filter(track => !!self.rows.some(row => row[0] === track.name))
         .map(track => ({
           model: track as BoxTrackModel,
           ReactComponent: BoxTrack,
@@ -689,7 +683,7 @@ const MSAModel = types
 
       let count = 0
       for (let k = 0; k < row.length; k++) {
-        if (blanks.indexOf(k) !== -1 && k < i + 1) {
+        if (blanks.includes(k) && k < i + 1) {
           count++
         }
       }
@@ -699,7 +693,7 @@ const MSAModel = types
     globalBpToPx(position: number) {
       let count = 0
       for (let k = 0; k < self.rows[0]?.[1].length; k++) {
-        if (self.blanks.indexOf(k) !== -1 && k < position + 1) {
+        if (self.blanks.includes(k) && k < position + 1) {
           count++
         }
       }
@@ -768,7 +762,7 @@ const model = types.snapshotProcessor(types.compose(BaseViewModel, MSAModel), {
     // which case it can be reloaded on refresh
     return {
       data: {
-        //https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/
+        // https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/
         ...(!result.treeFilehandle && { tree }),
         ...(!result.msaFilehandle && { msa }),
       },

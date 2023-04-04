@@ -64,7 +64,7 @@ const AnnotationBlock = observer(function ({
         ctx.fillRect(x, 0, colWidth, rowHeight)
         if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
           ctx.fillStyle = contrastScheme[letter.toUpperCase()] || 'black'
-          ctx.fillText(letter, x + colWidth / 2, rowHeight / 2 + 1) //+1 to avoid cutoff at height:10
+          ctx.fillText(letter, x + colWidth / 2, rowHeight / 2 + 1) // +1 to avoid cutoff at height:10
         }
       }
     }

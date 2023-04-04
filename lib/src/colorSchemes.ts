@@ -64,7 +64,7 @@ const colorSchemes = {
   },
 
   percent_identity_dynamic: {},
-  //https://github.com/biotite-dev/biotite/blob/8c460972f8ab904312f130dfb80f3efc8c9bd7c5/src/biotite/sequence/graphics/color_schemes/flower.json
+  // https://github.com/biotite-dev/biotite/blob/8c460972f8ab904312f130dfb80f3efc8c9bd7c5/src/biotite/sequence/graphics/color_schemes/flower.json
   flower: {
     A: '#b18a51',
     C: '#ff5701',
@@ -95,7 +95,7 @@ const colorSchemes = {
     U: '#f53737',
   },
 
-  //https://github.com/biotite-dev/biotite/blob/8c460972f8ab904312f130dfb80f3efc8c9bd7c5/src/biotite/sequence/graphics/color_schemes/clustalx_protein.json
+  // https://github.com/biotite-dev/biotite/blob/8c460972f8ab904312f130dfb80f3efc8c9bd7c5/src/biotite/sequence/graphics/color_schemes/clustalx_protein.json
   clustalx_protein: {
     A: '#197fe5',
     C: '#e57f7f',

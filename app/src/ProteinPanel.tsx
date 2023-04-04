@@ -1,4 +1,4 @@
-//@ts-nocheck
+// @ts-nocheck
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import { getSnapshot } from "mobx-state-tree";
 import { observer } from "mobx-react";

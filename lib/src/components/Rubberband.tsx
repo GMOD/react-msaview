@@ -176,7 +176,7 @@ function Rubberband({
     setCurrentX(undefined)
   }
 
-  //eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   function handleMenuItemClick(_: unknown, callback: Function) {
     callback()
     handleClose()
