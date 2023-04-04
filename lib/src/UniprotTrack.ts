@@ -31,7 +31,7 @@ export const UniprotTrack = types
         autorun(async () => {
           try {
             const { accession } = self
-            const url = `https://www.uniprot.org/uniprot/${accession}.gff`
+            const url = `https://rest.uniprot.org/uniprotkb/${accession}.gff`
             const response = await fetch(url)
             if (!response.ok) {
               throw new Error(

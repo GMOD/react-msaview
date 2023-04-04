@@ -55,7 +55,7 @@ export function makeTicks(
   }
 
   if (bpPerPx < 0) {
-    [minBase, maxBase] = [maxBase, minBase]
+    ;[minBase, maxBase] = [maxBase, minBase]
   }
 
   // add 20px additional on the right and left to allow us to draw the ends of
@@ -86,5 +86,8 @@ export function mathPower(num: number): string {
   if (num < 999) {
     return String(num)
   }
-  return `${mathPower(~~(num / 1000))},${`00${~~(num % 1000)}`.slice(-3, -3 + 3)}`
+  return `${mathPower(~~(num / 1000))},${`00${~~(num % 1000)}`.slice(
+    -3,
+    -3 + 3,
+  )}`
 }

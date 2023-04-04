@@ -33,7 +33,7 @@ In one window, start a watcher for the library
 
 ```bash
 cd lib
-yarn start
+yarn tsc --watch
 ```
 
 In another window, start the app

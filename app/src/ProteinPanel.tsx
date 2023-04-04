@@ -11,7 +11,6 @@ DatasourceRegistry.add(
   new StaticDatasource('https://files.rcsb.org/download/'),
 )
 
- 
 export const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
   const annotations = useRef([])
   const [type, setType] = useState('cartoon')

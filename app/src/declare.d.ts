@@ -1,1 +1,1 @@
-declare module "ngl";
+declare module 'ngl'

@@ -5,9 +5,11 @@
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:monorepo/recommended",
     "plugin:unicorn/recommended",
-    "react-app"
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -92,8 +94,6 @@
     "no-undef": "error",
     "import/no-extraneous-dependencies": "error",
     "import/no-anonymous-default-export": "off",
-
-    "monorepo/no-internal-import": "off",
 
     "react/no-danger": "warn",
     "react/prop-types": "off",
