@@ -32,7 +32,6 @@ export const UniprotTrack = types
           try {
             const { accession } = self
             const url = `https://rest.uniprot.org/uniprotkb/${accession}.gff`
-            console.log({ url })
             const response = await fetch(url)
             if (!response.ok) {
               throw new Error(
@@ -43,7 +42,6 @@ export const UniprotTrack = types
             }
             self.setData(await response.text())
           } catch (e) {
-            console.log({ e })
             console.error(e)
             self.setError(e)
           }

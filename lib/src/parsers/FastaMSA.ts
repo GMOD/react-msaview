@@ -1,3 +1,5 @@
+import { NodeWithIds } from '../util'
+
 function parseSmallFasta(text: string) {
   return text
     .split('>')
@@ -25,6 +27,10 @@ export default class FastaMSA {
     return this.MSA
   }
 
+  getRowData() {
+    return undefined
+  }
+
   getNames() {
     return Object.keys(this.MSA.seqdata)
   }
@@ -46,16 +52,18 @@ export default class FastaMSA {
     return []
   }
 
-  getDetails() {
+  getHeader() {
     return {}
   }
 
-  getTree() {
+  getTree(): NodeWithIds {
     return {
       id: 'root',
+      name: 'root',
       noTree: true,
       branchset: this.getNames().map(name => ({
         id: name,
+        branchset: [],
         name,
       })),
     }

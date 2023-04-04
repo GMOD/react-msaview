@@ -2,6 +2,11 @@
   "env": {
     "browser": true
   },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
@@ -41,6 +46,11 @@
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-extra-semi": "off",
+
+    "semi": "off",
+    "@typescript-eslint/semi": "off",
+    "no-unexpected-multiline": "error",
 
     "unicorn/no-new-array": 0,
     "unicorn/prefer-type-error": 0,
@@ -101,7 +111,6 @@
     "react/no-unused-prop-types": "error",
     "react/no-unused-state": "error",
     "react/prefer-stateless-function": "error",
-    "@typescript-eslint/no-extra-semi": 0,
 
     "spaced-comment": [
       "error",

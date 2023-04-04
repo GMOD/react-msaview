@@ -16,12 +16,12 @@ export default observer(function ({
   onClose: () => void
   open: boolean
 }) {
-  const { alignmentDetails } = model
+  const { header } = model
 
   return (
     <Dialog onClose={() => onClose()} open={open} title="Metadata">
       <DialogContent>
-        <Attributes attributes={alignmentDetails} />
+        <Attributes attributes={header} />
       </DialogContent>
     </Dialog>
   )

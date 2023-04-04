@@ -349,7 +349,7 @@ export default transform(colorSchemes, ([key, val]) => [
 export function getClustalXColor(
   stats: { [key: string]: number },
   model: { columns: Record<string, string> },
-  row: number,
+  row: string,
   col: number,
 ) {
   const total = Object.values(stats).reduce((a, b) => a + b, 0)
@@ -496,7 +496,7 @@ export function getClustalXColor(
 export function getPercentIdentityColor(
   stats: { [key: string]: number },
   model: { columns: Record<string, string> },
-  row: number,
+  row: string,
   col: number,
 ) {
   const total = Object.values(stats).reduce((a, b) => a + b, 0)

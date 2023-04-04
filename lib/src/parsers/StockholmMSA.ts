@@ -1,7 +1,7 @@
 import Stockholm from 'stockholm-js'
 import parseNewick from '../parseNewick'
 
-import { generateNodeIds } from '../util'
+import { NodeWithIds, generateNodeIds } from '../util'
 type StockholmEntry = {
   gf: {
     DE?: string[]
@@ -42,12 +42,10 @@ export default class StockholmMSA {
   }
 
   get alignmentNames() {
-    return this.data.map(
-      (aln, index) => aln.gf.DE?.[0] || `Alignment ${index + 1}`,
-    )
+    return this.data.map((aln, idx) => aln.gf.DE?.[0] || `Alignment ${idx + 1}`)
   }
 
-  getDetails() {
+  getHeader() {
     return {
       General: this.MSA.gf,
       Accessions: this.MSA.gs?.AC,
@@ -55,7 +53,7 @@ export default class StockholmMSA {
     }
   }
 
-  getRowDetails(rowName: string) {
+  getRowData(rowName: string) {
     return {
       name: rowName,
       accession: this.MSA.gs?.AC[rowName],
@@ -73,9 +71,9 @@ export default class StockholmMSA {
     const pdbRegex = /PDB; +(\S+) +(\S); ([0-9]+)-([0-9]+)/
     const ent = this.MSA
     const args = Object.entries(ent.gs?.DR || {})
-      .map(([id, dr]) => [id, pdbRegex.exec(dr)])
+      .map(([id, dr]) => [id, pdbRegex.exec(dr)] as const)
       .filter((item): item is [string, RegExpExecArray] => !!item[1])
-      .map(([id, match]: [string, RegExpExecArray]) => {
+      .map(([id, match]) => {
         const pdb = match[1].toLowerCase()
         const chain = match[2]
         const startPos = +match[3]
@@ -91,17 +89,20 @@ export default class StockholmMSA {
       }
       ret[id].push(rest)
     }
+    return ret
   }
 
-  getTree() {
+  getTree(): NodeWithIds {
     const tree = this.MSA?.gf?.NH?.[0]
     return tree
       ? generateNodeIds(parseNewick(tree))
       : {
           id: 'root',
+          name: 'root',
           noTree: true,
           branchset: this.getNames().map(name => ({
             id: name,
+            branchset: [],
             name,
           })),
         }

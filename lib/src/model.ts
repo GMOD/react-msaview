@@ -8,6 +8,12 @@ import { autorun } from 'mobx'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 import Stockholm from 'stockholm-js'
 
+export interface RowDetails {
+  [key: string]: unknown
+  name: string
+  range?: { start: number; end: number }
+}
+
 // locals
 import {
   collapse,
@@ -16,6 +22,8 @@ import {
   setBrLength,
   skipBlanks,
   clamp,
+  NodeWithIds,
+  NodeWithIdsAndLength,
 } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
@@ -332,16 +340,14 @@ const MSAModel = types
       return colorSchemes[self.colorSchemeName]
     },
 
-    get alignmentDetails() {
-      return this.MSA?.getDetails() || {}
+    get header() {
+      return this.MSA?.getHeader() || {}
     },
 
-    getRowDetails(name: string) {
-      // @ts-expect-error
-      const details = this.MSA?.getRowDetails?.(name)
+    getRowData(name: string) {
       const matches = name.match(/\S+\/(\d+)-(\d+)/)
       return {
-        ...details,
+        data: this.MSA?.getRowData(name) || ({} as Record<string, unknown>),
         ...(matches && { range: { start: +matches[1], end: +matches[2] } }),
       }
     },
@@ -380,12 +386,15 @@ const MSAModel = types
       return ((this.MSA?.getWidth() || 0) - this.blanks.length) * self.colWidth
     },
 
-    get tree() {
+    get tree(): NodeWithIds {
       return self.data.tree
         ? generateNodeIds(parseNewick(self.data.tree))
-        : // would be good to not cast to any here
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          this.MSA?.getTree() || ({ noTree: true } as any)
+        : this.MSA?.getTree() || {
+            noTree: true,
+            branchset: [],
+            id: 'empty',
+            name: 'empty',
+          }
     },
 
     get rowNames(): string[] {
@@ -416,8 +425,7 @@ const MSAModel = types
       if (self.collapsed.length) {
         self.collapsed
           .map(collapsedId => hier.find(node => node.data.id === collapsedId))
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((f): f is HierarchyNode<any> => !!f)
+          .filter((f): f is HierarchyNode<NodeWithIds> => !!f)
           .map(node => collapse(node))
       }
       return hier
@@ -467,16 +475,16 @@ const MSAModel = types
       return blanks
     },
 
-    get rows(): string[][] {
+    get rows() {
       return this.hierarchy
         .leaves()
-        .map(({ data }) => [data.name, this.MSA?.getRow(data.name)])
-        .filter(f => !!f[1])
+        .map(({ data }) => [data.name, this.MSA?.getRow(data.name)] as const)
+        .filter((f): f is [string, string[]] => !!f[1])
     },
 
     get columns() {
       return Object.fromEntries(
-        this.rows.map((row, index) => [row[0], this.columns2d[index]]),
+        this.rows.map((row, index) => [row[0], this.columns2d[index]] as const),
       )
     },
 
@@ -501,7 +509,7 @@ const MSAModel = types
     },
 
     // generates a new tree that is clustered with x,y positions
-    get hierarchy() {
+    get hierarchy(): HierarchyNode<NodeWithIdsAndLength> {
       const root = this.root
       const clust = cluster()
         .size([this.totalHeight, self.treeWidth])
@@ -512,7 +520,7 @@ const MSAModel = types
         (root.data.length = 0),
         self.treeWidth / maxLength(root),
       )
-      return root
+      return root as HierarchyNode<NodeWithIdsAndLength>
     },
 
     get totalHeight() {
@@ -669,7 +677,7 @@ const MSAModel = types
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
       const row = rows[index][1]
-      const details = self.getRowDetails(rowName)
+      const details = self.getRowData(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
 

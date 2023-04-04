@@ -41,7 +41,7 @@ const TreeMenu = observer(function ({
   onClose: () => void
 }) {
   const { structures } = model
-  const nodeDetails = node ? model.getRowDetails(node.name) : undefined
+  const nodeDetails = node ? model.getRowData(node.name) : undefined
 
   return (
     <>
@@ -64,7 +64,7 @@ const TreeMenu = observer(function ({
           dense
           onClick={() => {
             model.setDialogComponent(MoreInfoDlg, {
-              info: model.getRowDetails(node.name),
+              info: model.getRowData(node.name),
             })
             onClose()
           }}
@@ -104,18 +104,25 @@ const TreeMenu = observer(function ({
           )
         })}
 
-        {nodeDetails.accession?.map((accession: string) => (
-          <MenuItem
-            dense
-            key={accession}
-            onClick={() => {
-              model.addUniprotTrack({ name: nodeDetails.name, accession })
-              onClose()
-            }}
-          >
-            Open UniProt track ({accession})
-          </MenuItem>
-        ))}
+        {
+          // @ts-expect-error
+          nodeDetails?.data.accession?.map((accession: string) => (
+            <MenuItem
+              dense
+              key={accession}
+              onClick={() => {
+                model.addUniprotTrack({
+                  // @ts-expect-error
+                  name: nodeDetails?.data.name,
+                  accession,
+                })
+                onClose()
+              }}
+            >
+              Open UniProt track ({accession})
+            </MenuItem>
+          ))
+        }
       </Menu>
     </>
   )
