@@ -2,6 +2,11 @@
 
 A multiple sequence alignment viewer
 
+
+## Docs
+
+See [user guide](docs/user_guide.md)
+
 ## Demo
 
 See https://gmod.github.io/react-msaview
@@ -15,9 +20,6 @@ This page is a deployment of the `app` directory in this repo, which uses the
 
 ![](docs/media/image15.png)
 
-## Docs
-
-See [user guide](docs/user_guide.md)
 
 ## Developers
 
