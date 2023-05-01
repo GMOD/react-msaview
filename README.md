@@ -27,7 +27,7 @@ The lib folder contains the NPM package, and the `app` folder contains an
 example usage with additional wiring to use with a 3-D protein structure viewer
 
 ```bash
-git clone https://GMOD/react-msaview
+git clone https://github.com/GMOD/react-msaview
 cd react-msaview
 ```
 
