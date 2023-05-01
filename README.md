@@ -45,11 +45,9 @@ cd app
 yarn dev
 ```
 
-## Usage
+## Programmatic usage, embedding, downloading from NPM
 
-To install as a NPM package or CDN style bundle, See
-
-See [USAGE.md](USAGE.md)
+To install as a NPM package or CDN style bundle, see [USAGE.md](USAGE.md)
 
 ## Notes
 
