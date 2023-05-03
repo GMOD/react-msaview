@@ -511,7 +511,7 @@ const MSAModel = types
     // generates a new tree that is clustered with x,y positions
     get hierarchy(): HierarchyNode<NodeWithIdsAndLength> {
       const root = this.root
-      const clust = cluster()
+      const clust = cluster<NodeWithIds>()
         .size([this.totalHeight, self.treeWidth])
         .separation(() => 1)
       clust(root)
