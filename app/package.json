@@ -27,7 +27,7 @@
     "ngl": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-msaview": "^1.0.0",
+    "react-msaview": "^2.0.0",
     "react-ngl": "^0.2.2",
     "rxjs": "^7.8.1",
     "tss-react": "^4.8.3"
