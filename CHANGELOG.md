@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.0.0
+
+Bump deps to e.g. MUIv5
+
 ## v1.3.2
 
 - Fix error clicking msa sources that don't define getRowDetails
