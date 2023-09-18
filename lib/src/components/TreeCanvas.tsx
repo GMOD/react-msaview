@@ -104,25 +104,23 @@ const TreeMenu = observer(function ({
           )
         })}
 
-        {
-          // @ts-expect-error
-          nodeDetails?.data.accession?.map((accession: string) => (
-            <MenuItem
-              dense
-              key={accession}
-              onClick={() => {
-                model.addUniprotTrack({
-                  // @ts-expect-error
-                  name: nodeDetails?.data.name,
-                  accession,
-                })
-                onClose()
-              }}
-            >
-              Open UniProt track ({accession})
-            </MenuItem>
-          ))
-        }
+        {// @ts-expect-error
+        nodeDetails?.data.accession?.map((accession: string) => (
+          <MenuItem
+            dense
+            key={accession}
+            onClick={() => {
+              model.addUniprotTrack({
+                // @ts-expect-error
+                name: nodeDetails?.data.name,
+                accession,
+              })
+              onClose()
+            }}
+          >
+            Open UniProt track ({accession})
+          </MenuItem>
+        ))}
       </Menu>
     </>
   )

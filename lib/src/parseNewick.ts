@@ -72,7 +72,7 @@ export default function parse(s: string) {
         tree = subtree
         break
       case ',': // another branch
-        ancestors[ancestors.length - 1].branchset.push(subtree)
+        ancestors.at(-1)?.branchset.push(subtree)
         tree = subtree
         break
       case ')': // optional name next
