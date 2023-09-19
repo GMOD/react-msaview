@@ -55,7 +55,6 @@ export function makeTicks(
   }
 
   if (bpPerPx < 0) {
-    // eslint-disable-next-line @typescript-eslint/no-extra-semi
     ;[minBase, maxBase] = [maxBase, minBase]
   }
 

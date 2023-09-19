@@ -81,7 +81,7 @@ export default class StockholmMSA {
         return { id, pdb, chain, startPos, endPos }
       })
 
-    const ret = {} as Record<string, Omit<typeof args[0], 'id'>[]>
+    const ret = {} as Record<string, Omit<(typeof args)[0], 'id'>[]>
     for (const entry of args) {
       const { id, ...rest } = entry
       if (!ret[id]) {

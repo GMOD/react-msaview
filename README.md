@@ -2,7 +2,6 @@
 
 A multiple sequence alignment viewer
 
-
 ## Docs
 
 See [user guide](docs/user_guide.md)
@@ -19,7 +18,6 @@ This page is a deployment of the `app` directory in this repo, which uses the
 ![](docs/media/image20.png)
 
 ![](docs/media/image15.png)
-
 
 ## Developers
 
