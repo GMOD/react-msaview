@@ -142,7 +142,7 @@ function Rubberband({
     setCurrentX(undefined)
   }
 
-  function handleMenuItemClick(_: unknown, callback: () => void) {
+  function handleMenuItemClick(_: unknown, callback: Function) {
     callback()
     handleClose()
   }
