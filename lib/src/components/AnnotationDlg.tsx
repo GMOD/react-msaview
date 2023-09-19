@@ -17,7 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { MsaViewModel } from '../model'
 
 const specialFromEntries = (val: string[][]) => {
-  const ret = {} as { [key: string]: string[] }
+  const ret = {} as Record<string, string[]>
   val.forEach(([key, val]) => {
     if (!ret[key]) {
       ret[key] = [] as string[]

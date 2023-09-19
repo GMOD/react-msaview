@@ -2,7 +2,7 @@ import Stockholm from 'stockholm-js'
 import parseNewick from '../parseNewick'
 
 import { NodeWithIds, generateNodeIds } from '../util'
-type StockholmEntry = {
+interface StockholmEntry {
   gf: {
     DE?: string[]
     NH?: string[]
@@ -15,7 +15,7 @@ type StockholmEntry = {
     SS_cons?: string
     seq_cons?: string
   }
-  seqdata: { [key: string]: string }
+  seqdata: Record<string, string>
 }
 
 export default class StockholmMSA {

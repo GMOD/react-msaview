@@ -76,8 +76,8 @@ export default function parse(s: string) {
         tree = subtree
         break
       case ')': // optional name next
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tree = ancestors.pop() as Record<string, any>
+         
+        tree = ancestors.pop()!
         break
       case ':': // optional length next
         break

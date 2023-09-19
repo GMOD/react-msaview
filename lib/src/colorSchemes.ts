@@ -332,7 +332,7 @@ const colorSchemes = {
     '-': 'gray',
     '.': 'gray',
   },
-} as { [key: string]: { [key: string]: string } }
+} as Record<string, Record<string, string>>
 
 // turn all supplied colors to hex colors which getContrastText from mui
 // requires
@@ -347,7 +347,7 @@ export default transform(colorSchemes, ([key, val]) => [
 // scheme says there the jalview.org colorscheme says WLVIMAFCHP but it
 // should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getClustalXColor(
-  stats: { [key: string]: number },
+  stats: Record<string, number>,
   model: { columns: Record<string, string> },
   row: string,
   col: number,
@@ -494,7 +494,7 @@ export function getClustalXColor(
 // scheme says there the jalview.org colorscheme says WLVIMAFCHP but it
 // should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getPercentIdentityColor(
-  stats: { [key: string]: number },
+  stats: Record<string, number>,
   model: { columns: Record<string, string> },
   row: string,
   col: number,
@@ -504,10 +504,10 @@ export function getPercentIdentityColor(
   const entries = Object.entries(stats)
   let ent = 0
   let letter = ''
-  for (let i = 0; i < entries.length; i++) {
-    if (entries[i][1] > ent && entries[i][0] !== '-') {
-      letter = entries[i][0]
-      ent = entries[i][1]
+  for (const entry of entries) {
+    if (entry[1] > ent && entry[0] !== '-') {
+      letter = entry[0]
+      ent = entry[1]
     }
   }
   const proportion = ent / total

@@ -16,7 +16,7 @@ interface Node {
   [key: string]: unknown
 }
 
-export type NodeWithIds = {
+export interface NodeWithIds {
   id: string
   name: string
   branchset: NodeWithIds[]
@@ -24,7 +24,7 @@ export type NodeWithIds = {
   noTree?: boolean
 }
 
-export type NodeWithIdsAndLength = {
+export interface NodeWithIdsAndLength {
   id: string
   name: string
   branchset: NodeWithIdsAndLength[]
@@ -51,7 +51,7 @@ export function generateNodeIds(
 }
 
 export function colorContrast(
-  colorScheme: { [key: string]: string },
+  colorScheme: Record<string, string>,
   theme: Theme,
 ) {
   return transform(colorScheme, ([letter, color]) => [

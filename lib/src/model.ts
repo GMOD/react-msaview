@@ -44,7 +44,7 @@ interface BasicTrackModel {
 }
 
 export interface TextTrackModel extends BasicTrackModel {
-  customColorScheme?: { [key: string]: string }
+  customColorScheme?: Record<string, string>
   data: string
 }
 
@@ -432,13 +432,14 @@ const MSAModel = types
       return hier
     },
 
-    get structures(): {
-      [key: string]: {
+    get structures(): Record<
+      string,
+      {
         pdb: string
         startPos: number
         endPos: number
       }[]
-    } {
+    > {
       return this.MSA?.getStructures() || {}
     },
 
@@ -464,8 +465,8 @@ const MSAModel = types
 
       for (let i = 0; i < strs[0]?.length; i++) {
         let counter = 0
-        for (let j = 0; j < strs.length; j++) {
-          if (strs[j][i] === '-') {
+        for (const str of strs) {
+          if (str[i] === '-') {
             counter++
           }
         }
@@ -494,15 +495,15 @@ const MSAModel = types
     },
 
     get colStats() {
-      const r = [] as { [key: string]: number }[]
-      const m = this.columns2d
-      for (let i = 0; i < m.length; i++) {
-        for (let j = 0; j < m[i].length; j++) {
+      const r = [] as Record<string, number>[]
+      const columns = this.columns2d
+      for (const column of columns) {
+        for (let j = 0; j < column.length; j++) {
           const l = r[j] || {}
-          if (!l[m[i][j]]) {
-            l[m[i][j]] = 0
+          if (!l[column[j]]) {
+            l[column[j]] = 0
           }
-          l[m[i][j]]++
+          l[column[j]]++
           r[j] = l
         }
       }
@@ -590,13 +591,11 @@ const MSAModel = types
     },
 
     get conservation() {
-      const m = self.columns2d
-
-      if (m.length) {
-        for (let i = 0; i < m[0].length; i++) {
+      if (self.columns2d.length) {
+        for (let i = 0; i < self.columns2d[0].length; i++) {
           const col = []
-          for (let j = 0; j < m.length; j++) {
-            col.push(m[j][i])
+          for (const column of self.columns2d) {
+            col.push(column[i])
           }
         }
       }
@@ -746,7 +745,7 @@ const MSAModel = types
     addAnnotation(
       start: number,
       end: number,
-      attributes: { [key: string]: string[] },
+      attributes: Record<string, string[]>,
     ) {
       self.annotatedRegions.push({
         start: self.getPos(start),

@@ -14,7 +14,7 @@ function parseSmallFasta(text: string) {
     })
 }
 export default class FastaMSA {
-  private MSA: { seqdata: { [key: string]: string } }
+  private MSA: { seqdata: Record<string, string> }
   constructor(text: string) {
     this.MSA = {
       seqdata: Object.fromEntries(
