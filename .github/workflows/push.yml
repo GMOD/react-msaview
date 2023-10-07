@@ -4,14 +4,14 @@ on: push
 
 jobs:
   test:
-    name: Test and typecheck on node 16.x and ubuntu-latest
+    name: Test and typecheck on node 20.x and ubuntu-latest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 20.x
       - name: Install deps (with cache)
         uses: bahmutov/npm-install@v1
       - name: tsc lib

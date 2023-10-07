@@ -25,7 +25,7 @@
     "gh-pages": "^6.0.0",
     "mobx": "^6.9.0",
     "mobx-react": "^9.0.1",
-    "mobx-state-tree": "5.1.8",
+    "mobx-state-tree": "5.2.0",
     "ngl": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
