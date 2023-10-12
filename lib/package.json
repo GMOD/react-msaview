@@ -16,10 +16,9 @@
   "scripts": {
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "prepublishOnly": "node -p \"'export const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "prepublishOnly": "node -p \"'export const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts && git add src/version.ts && git commit -m '[skip ci] Bump version'",
     "build": "tsc && rollup -c",
-    "preversion": "npm run build",
-    "postversion": "git add src/version.ts && git commit -m '[skip ci] Bump version' && git push --follow-tags"
+    "preversion": "npm run build"
   },
   "peerDependencies": {
     "@jbrowse/core": ">=2.0.0",

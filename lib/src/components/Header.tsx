@@ -15,6 +15,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import HelpIcon from '@mui/icons-material/Help'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import ListIcon from '@mui/icons-material/List'
+import { ZoomIn, ZoomOut } from '@mui/icons-material'
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
@@ -105,6 +106,22 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           ))}
         </Select>
       ) : null}
+      <IconButton
+        onClick={() => {
+          model.setColWidth(Math.ceil(model.colWidth * 1.5))
+          model.setRowHeight(Math.ceil(model.rowHeight * 1.5))
+        }}
+      >
+        <ZoomIn />
+      </IconButton>
+      <IconButton
+        onClick={() => {
+          model.setColWidth(Math.max(1, Math.floor(model.colWidth * 0.75)))
+          model.setRowHeight(Math.max(1, Math.floor(model.rowHeight * 0.75)))
+        }}
+      >
+        <ZoomOut />
+      </IconButton>
       <InfoArea model={model} />
       <div style={{ flex: 1 }} />
       <IconButton onClick={() => setAboutDialogViz(true)}>

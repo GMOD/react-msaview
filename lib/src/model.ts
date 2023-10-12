@@ -259,7 +259,6 @@ const MSAModel = types
         self,
         autorun(async () => {
           const { msaFilehandle } = self
-
           if (msaFilehandle) {
             try {
               this.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
