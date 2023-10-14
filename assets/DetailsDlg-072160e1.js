@@ -1,0 +1,1 @@
+import{o as r,R as e,u as s,D as i}from"./index-56495e8d.js";import{B as l}from"./index-95699cbd.js";import"./index-93f78a20.js";const c=r(function({model:t,onClose:a}){const{header:o}=t;return e.createElement(s.Dialog,{onClose:()=>a(),open:!0,title:"Metadata"},e.createElement(i,null,e.createElement(l.Attributes,{attributes:o})))});export{c as default};
