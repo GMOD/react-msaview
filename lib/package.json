@@ -2,7 +2,7 @@
   "name": "react-msaview",
   "type": "module",
   "author": "Colin",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [
