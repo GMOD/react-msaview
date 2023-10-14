@@ -7,7 +7,7 @@ import { ThemeProvider } from '@mui/material/styles'
 
 // locals
 import AppGlobal, { AppModel } from './model'
-import { ProteinPanel } from './ProteinPanel'
+import ProteinPanel from './ProteinPanel'
 
 const urlParams = new URLSearchParams(window.location.search)
 const val = urlParams.get('data')

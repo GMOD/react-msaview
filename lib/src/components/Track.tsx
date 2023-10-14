@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 import { IconButton, Menu, MenuItem } from '@mui/material'
@@ -9,7 +9,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
 // locals
 import { MsaViewModel } from '../model'
-import TrackInfoDialog from './TrackInfoDlg'
+
+const TrackInfoDialog = lazy(() => import('./dialogs/TrackInfoDlg'))
 
 const useStyles = makeStyles()({
   button: {
@@ -84,10 +85,12 @@ export const TrackLabel = observer(function ({
         </Menu>
       ) : null}
       {trackInfoDlgOpen ? (
-        <TrackInfoDialog
-          model={track.model}
-          onClose={() => setTrackInfoDlgOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <TrackInfoDialog
+            model={track.model}
+            onClose={() => setTrackInfoDlgOpen(false)}
+          />
+        </Suspense>
       ) : null}
     </div>
   )

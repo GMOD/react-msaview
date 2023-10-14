@@ -10,7 +10,7 @@ import {
 import { Dialog, FileSelector } from '@jbrowse/core/ui'
 import { FileLocation } from '@jbrowse/core/util/types'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 export default observer(function ({
   model,

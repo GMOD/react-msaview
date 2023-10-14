@@ -12,21 +12,19 @@ import {
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 export default observer(function ({
   model,
   onClose,
-  open,
 }: {
   model: MsaViewModel
   onClose: () => void
-  open: boolean
 }) {
   const { tracks } = model
 
   return (
-    <Dialog onClose={() => onClose()} open={open} title="Add track">
+    <Dialog onClose={() => onClose()} open title="Add track">
       <DialogContent>
         <Typography>
           Open relevant per-alignment tracks e.g. protein domains

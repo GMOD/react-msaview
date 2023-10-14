@@ -5,24 +5,24 @@ import { Dialog } from '@jbrowse/core/ui'
 import { Attributes } from '@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
-export default observer(function ({
+const DetailsDialog = observer(function ({
   model,
   onClose,
-  open,
 }: {
   model: MsaViewModel
   onClose: () => void
-  open: boolean
 }) {
   const { header } = model
 
   return (
-    <Dialog onClose={() => onClose()} open={open} title="Metadata">
+    <Dialog onClose={() => onClose()} open title="Metadata">
       <DialogContent>
         <Attributes attributes={header} />
       </DialogContent>
     </Dialog>
   )
 })
+
+export default DetailsDialog

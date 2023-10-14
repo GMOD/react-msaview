@@ -18,7 +18,7 @@ export default class FastaMSA {
   constructor(text: string) {
     this.MSA = {
       seqdata: Object.fromEntries(
-        parseSmallFasta(text).map((m, i) => [`${m.id}-${i}`, m.sequence]),
+        parseSmallFasta(text).map(m => [`${m.id}`, m.sequence]),
       ),
     }
   }

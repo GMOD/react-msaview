@@ -76,7 +76,6 @@ export default function parse(s: string) {
         tree = subtree
         break
       case ')': // optional name next
-         
         tree = ancestors.pop()!
         break
       case ':': // optional length next

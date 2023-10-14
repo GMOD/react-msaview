@@ -1,20 +1,23 @@
-import React, { useState } from 'react'
-import { IconButton, Select, Typography } from '@mui/material'
+import React, { Suspense, lazy, useState } from 'react'
+import { IconButton, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
 import { MsaViewModel } from '../model'
-import SettingsDialog from './SettingsDlg'
-import AboutDialog from './AboutDlg'
-import DetailsDialog from './DetailsDlg'
-import TracklistDialog from './TracklistDlg'
 
 // icons
-import FolderOpenIcon from '@mui/icons-material/FolderOpen'
-import SettingsIcon from '@mui/icons-material/Settings'
-import HelpIcon from '@mui/icons-material/Help'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import ListIcon from '@mui/icons-material/List'
+import FolderOpen from '@mui/icons-material/FolderOpen'
+import Settings from '@mui/icons-material/Settings'
+import Help from '@mui/icons-material/Help'
+import Assignment from '@mui/icons-material/Assignment'
+import List from '@mui/icons-material/List'
+import ZoomControls from './ZoomControls'
+import MultiAlignmentSelector from './MultiAlignmentSelector'
+
+const SettingsDialog = lazy(() => import('./dialogs/SettingsDlg'))
+const AboutDialog = lazy(() => import('./dialogs/AboutDlg'))
+const DetailsDialog = lazy(() => import('./dialogs/DetailsDlg'))
+const TracklistDialog = lazy(() => import('./dialogs/TracklistDlg'))
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
@@ -32,7 +35,6 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
   const [aboutDialogViz, setAboutDialogViz] = useState(false)
   const [detailsDialogViz, setDetailsDialogViz] = useState(false)
   const [tracklistDialogViz, setTracklistDialogViz] = useState(false)
-  const { currentAlignment, alignmentNames } = model
 
   return (
     <div style={{ display: 'flex' }}>
@@ -51,67 +53,54 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           }
         }}
       >
-        <FolderOpenIcon />
+        <FolderOpen />
       </IconButton>
       <IconButton onClick={() => setSettingsDialogViz(true)}>
-        <SettingsIcon />
+        <Settings />
       </IconButton>
       <IconButton onClick={() => setDetailsDialogViz(true)}>
-        <AssignmentIcon />
+        <Assignment />
       </IconButton>
       <IconButton onClick={() => setTracklistDialogViz(true)}>
-        <ListIcon />
+        <List />
       </IconButton>
-      {settingsDialogViz ? (
-        <SettingsDialog
-          open
-          model={model}
-          onClose={() => setSettingsDialogViz(false)}
-        />
-      ) : null}
-      {aboutDialogViz ? (
-        <AboutDialog open onClose={() => setAboutDialogViz(false)} />
-      ) : null}
-      {detailsDialogViz ? (
-        <DetailsDialog
-          open
-          model={model}
-          onClose={() => setDetailsDialogViz(false)}
-        />
-      ) : null}
+      <Suspense fallback={null}>
+        {settingsDialogViz ? (
+          <SettingsDialog
+            model={model}
+            onClose={() => setSettingsDialogViz(false)}
+          />
+        ) : null}
+        {aboutDialogViz ? (
+          <AboutDialog onClose={() => setAboutDialogViz(false)} />
+        ) : null}
+        {detailsDialogViz ? (
+          <DetailsDialog
+            model={model}
+            onClose={() => setDetailsDialogViz(false)}
+          />
+        ) : null}
 
-      {tracklistDialogViz ? (
-        <TracklistDialog
-          open
-          model={model}
-          onClose={() => setTracklistDialogViz(false)}
-        />
-      ) : null}
-      {alignmentNames.length > 0 ? (
-        <Select
-          native
-          value={currentAlignment}
-          size="small"
-          onChange={event => {
-            model.setCurrentAlignment(+(event.target.value as string))
-            model.setScrollX(0)
-            model.setScrollY(0)
-          }}
-        >
-          {alignmentNames.map((option, index) => (
-            <option key={`${option}-${index}`} value={index}>
-              {option}
-            </option>
-          ))}
-        </Select>
-      ) : null}
+        {tracklistDialogViz ? (
+          <TracklistDialog
+            model={model}
+            onClose={() => setTracklistDialogViz(false)}
+          />
+        ) : null}
+      </Suspense>
+      <MultiAlignmentSelector model={model} />
+      <ZoomControls model={model} />
       <InfoArea model={model} />
-      <div style={{ flex: 1 }} />
+      <Spacer />
       <IconButton onClick={() => setAboutDialogViz(true)}>
-        <HelpIcon />
+        <Help />
       </IconButton>
     </div>
   )
 })
+
+function Spacer() {
+  return <div style={{ flex: 1 }} />
+}
 
 export default Header

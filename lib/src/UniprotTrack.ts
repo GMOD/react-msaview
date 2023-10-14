@@ -31,16 +31,15 @@ export const UniprotTrack = types
         autorun(async () => {
           try {
             const { accession } = self
-            const url = `https://rest.uniprot.org/uniprotkb/${accession}.gff`
-            const response = await fetch(url)
-            if (!response.ok) {
+            const accessionSansVersion = accession?.replace(/\.[^/.]+$/, '')
+            const url = `https://rest.uniprot.org/uniprotkb/${accessionSansVersion}.gff`
+            const res = await fetch(url)
+            if (!res.ok) {
               throw new Error(
-                `HTTP ${
-                  response.status
-                } fetching ${url}: ${await response.text()}`,
+                `HTTP ${res.status} fetching ${url}: ${await res.text()}`,
               )
             }
-            self.setData(await response.text())
+            self.setData(await res.text())
           } catch (e) {
             console.error(e)
             self.setError(e)

@@ -3,7 +3,6 @@ coverage
 
 # Dependency directories
 node_modules/
-
-# TSDX build / generate output
-dist
-lib/bundle
+**/dist/
+**/bundle/
+.eslintrc.js
