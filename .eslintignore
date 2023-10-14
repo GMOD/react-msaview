@@ -3,3 +3,6 @@ coverage
 
 # Dependency directories
 node_modules/
+**/dist/
+**/bundle/
+.eslintrc.js
