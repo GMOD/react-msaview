@@ -12,11 +12,10 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
+    "plugin:unicorn/recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:import/recommended",
-    "plugin:import/typescript",
-    "prettier"
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -25,7 +24,6 @@
     },
     "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "unicorn"],
   "rules": {
     "@typescript-eslint/ban-ts-ignore": "off",
     "@typescript-eslint/ban-ts-comment": "off",
@@ -105,8 +103,6 @@
     ],
     "no-debugger": "warn",
     "no-undef": "error",
-    "import/no-extraneous-dependencies": "error",
-    "import/no-anonymous-default-export": "off",
 
     "react/no-danger": "warn",
     "react/prop-types": "off",

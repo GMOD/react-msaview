@@ -49,16 +49,11 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@typescript-eslint/parser": "^6.7.2",
     "clustal-js": "^1.0.3",
     "color": "^4.2.3",
     "copy-to-clipboard": "^3.3.1",
     "d3-array": "^3.2.3",
     "d3-hierarchy": "^3.1.2",
-    "eslint": "^8.39.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-react": "^7.32.2",
     "normalize-wheel": "^1.0.1",
     "rbush": "^3.0.1",
     "stockholm-js": "^1.0.10",
