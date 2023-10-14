@@ -716,17 +716,20 @@ const MSAModel = types
     relativePxToBp(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
-      const row = rows[index][1]
+      if (index !== -1) {
+        const row = rows[index][1]
 
-      let k = 0
-      for (let i = 0; i < position; i++) {
-        if (row[i] !== '-') {
-          k++
-        } else if (k >= position) {
-          break
+        let k = 0
+        for (let i = 0; i < position; i++) {
+          if (row[i] !== '-') {
+            k++
+          } else if (k >= position) {
+            break
+          }
         }
+        return k
       }
-      return k
+      return 0
     },
 
     getPos(pos: number) {
