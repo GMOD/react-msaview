@@ -1,7 +1,10 @@
-import Color from 'color'
 import { HierarchyNode } from 'd3-hierarchy'
 import { max } from 'd3-array'
 import { Theme } from '@mui/material'
+import { colord, extend } from 'colord'
+import namesPlugin from 'colord/plugins/names'
+
+extend([namesPlugin])
 
 export function transform<T>(
   obj: Record<string, T>,
@@ -56,7 +59,7 @@ export function colorContrast(
 ) {
   return transform(colorScheme, ([letter, color]) => [
     letter,
-    theme.palette.getContrastText(Color(color).hex()),
+    theme.palette.getContrastText(colord(color).toHex()),
   ])
 }
 

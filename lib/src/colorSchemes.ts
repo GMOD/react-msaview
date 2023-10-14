@@ -1,5 +1,8 @@
-import Color from 'color'
+import { colord, extend } from 'colord'
+import namesPlugin from 'colord/plugins/names'
 import { transform } from './util'
+
+extend([namesPlugin])
 
 const colorSchemes = {
   clustal: {
@@ -338,7 +341,7 @@ const colorSchemes = {
 // requires
 export default transform(colorSchemes, ([key, val]) => [
   key,
-  transform(val, ([letter, color]) => [letter, Color(color).hex()]),
+  transform(val, ([letter, color]) => [letter, colord(color).toHex()]),
 ])
 
 // info http://www.jalview.org/help/html/colourSchemes/clustal.html
