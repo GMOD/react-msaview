@@ -1,10 +1,10 @@
-import { IStructure } from './ProteinPanel'
+import { Structure } from 'ngl'
 import { AppModel } from './model'
 
 export function getOffset(
   model: AppModel,
   rowName: string,
-  structure: IStructure,
+  structure: Structure,
   mouseCol: number,
   startPos: number,
 ) {

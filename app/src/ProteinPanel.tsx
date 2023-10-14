@@ -2,68 +2,26 @@ import React, { useCallback, useState, useEffect, useRef } from 'react'
 import { getSnapshot } from 'mobx-state-tree'
 import { observer } from 'mobx-react'
 import { Button, Select, MenuItem, TextField } from '@mui/material'
-import { Stage, StaticDatasource, DatasourceRegistry } from 'ngl'
+import {
+  Stage,
+  StaticDatasource,
+  DatasourceRegistry,
+  Component,
+  Structure,
+} from 'ngl'
 import { AppModel } from './model'
 import { getOffset } from './util'
+import Annotation from 'ngl/dist/declarations/component/annotation'
 
 DatasourceRegistry.add(
   'data',
   new StaticDatasource('https://files.rcsb.org/download/'),
 )
-
-export interface IResidueProxy {
-  index: number
-  resno: number
-  atomOffset: number
-  qualifiedName: () => string
-}
-export interface IStructure {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getAtomProxy: () => any
-  getResidueProxy: () => IResidueProxy
-  residueStore: {
-    count: number
-  }
-}
-export interface IRes {
-  structure: IStructure
-  removeAllRepresentations: () => void
-  addRepresentation: (arg: string, obj: { sele: string }) => void
-  removeAnnotation: (arg: unknown) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addAnnotation: (arg0: any, arg: string) => unknown
-}
-
-interface IPickingProxy {
-  atom: {
-    resno: number
-    chainname: string
-  }
-  bond: string
-  closestBondAtom: string
-  picker: { structure: { name: string } }
-}
-
-interface IStage {
-  viewer: {
-    requestRender: () => void
-  }
-  dispose: () => void
-  loadFile: (arg: string) => IRes
-  autoView: () => void
-  handleResize: () => void
-  signals: {
-    hovered: {
-      add: (arg: (arg: IPickingProxy) => void) => void
-    }
-  }
-}
-
 const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
-  const annotations = useRef<unknown[]>([])
+  const annotations = useRef<Annotation[]>([])
   const [type, setType] = useState('cartoon')
-  const [res, setRes] = useState<IRes[]>([])
-  const [stage, setStage] = useState<IStage>()
+  const [res, setRes] = useState<Component[]>([])
+  const [stage, setStage] = useState<Stage>()
   const [isMouseHovering, setMouseHovering] = useState(false)
   const { msaview, nglSelection } = model
   const { selectedStructures, mouseCol } = msaview
@@ -92,13 +50,16 @@ const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
       })
 
       const res = await Promise.all(
-        structures.map(selection => {
-          return stage.loadFile(`data://${selection.structure.pdb}.pdb`)
-        }),
+        structures.map(
+          selection =>
+            stage.loadFile(
+              `data://${selection.structure.pdb}.pdb`,
+            ) as Promise<Component>,
+        ),
       )
       setRes(res)
-
-      stage.signals.hovered.add(pickingProxy => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      stage.signals.hovered.add((pickingProxy: any) => {
         if (pickingProxy && (pickingProxy.atom || pickingProxy.bond)) {
           const atom = pickingProxy.atom || pickingProxy.closestBondAtom
           msaview.setMouseoveredColumn(
@@ -129,18 +90,21 @@ const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
         }
         annotations.current = []
         if (mouseCol !== undefined) {
+          // @ts-expect-error
+          const structure = elt.structure as Structure
           const offset = getOffset(
             model,
             structures[index].id,
-            elt.structure,
+            structure,
             mouseCol,
             structures[0].structure.startPos,
           )
           if (offset) {
-            const ap = elt.structure.getAtomProxy()
+            const ap = structure.getAtomProxy()
             ap.index = offset.atomOffset
 
             annotations.current.push(
+              // @ts-expect-error
               elt.addAnnotation(ap.positionToVector3(), offset.qualifiedName()),
             )
           }
