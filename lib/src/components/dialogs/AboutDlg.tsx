@@ -1,17 +1,11 @@
 import React from 'react'
 import { Dialog } from '@jbrowse/core/ui'
 import { DialogContent, Typography, Link } from '@mui/material'
-import { version } from '../version'
+import { version } from '../../version'
 
-export default function AboutDialog({
-  onClose,
-  open,
-}: {
-  onClose: () => void
-  open: boolean
-}) {
+export default function AboutDialog({ onClose }: { onClose: () => void }) {
   return (
-    <Dialog onClose={() => onClose()} open={open} title="About this plugin">
+    <Dialog onClose={() => onClose()} open title="About this plugin">
       <DialogContent>
         <Typography>
           MSAView {version} (

@@ -12,8 +12,8 @@ import {
   TextField,
 } from '@mui/material'
 
-import { MsaViewModel } from '../model'
-import colorSchemes from '../colorSchemes'
+import { MsaViewModel } from '../../model'
+import colorSchemes from '../../colorSchemes'
 
 const useStyles = makeStyles()(theme => ({
   field: {
@@ -21,14 +21,12 @@ const useStyles = makeStyles()(theme => ({
   },
 }))
 
-export default observer(function ({
+const SettingsDialog = observer(function ({
   model,
   onClose,
-  open,
 }: {
   model: MsaViewModel
   onClose: () => void
-  open: boolean
 }) {
   const { classes } = useStyles()
   const { colorSchemeName, noTree } = model
@@ -44,7 +42,7 @@ export default observer(function ({
   const treeWidthError = error(treeWidth)
 
   return (
-    <Dialog onClose={() => onClose()} open={open} title="Settings">
+    <Dialog open onClose={() => onClose()} title="Settings">
       <DialogContent>
         <FormControlLabel
           control={
@@ -152,3 +150,5 @@ export default observer(function ({
     </Dialog>
   )
 })
+
+export default SettingsDialog

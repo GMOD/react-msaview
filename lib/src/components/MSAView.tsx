@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, lazy, Suspense } from 'react'
 
 import { observer } from 'mobx-react'
 import { Typography } from '@mui/material'
@@ -12,10 +12,11 @@ import Ruler from './Ruler'
 import TreeRuler from './TreeRuler'
 import Header from './Header'
 import Track from './Track'
-import AnnotationDialog from './AnnotationDlg'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
+
+const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDlg'))
 
 const MouseoverCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -120,20 +121,24 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
       )}
 
       {model.DialogComponent ? (
-        <model.DialogComponent
-          {...(model.DialogProps || {})}
-          onClose={() => {
-            model.setDialogComponent(undefined, undefined)
-          }}
-        />
+        <Suspense fallback={null}>
+          <model.DialogComponent
+            {...(model.DialogProps || {})}
+            onClose={() => {
+              model.setDialogComponent(undefined, undefined)
+            }}
+          />
+        </Suspense>
       ) : null}
 
       {model.annotPos ? (
-        <AnnotationDialog
-          data={model.annotPos}
-          model={model}
-          onClose={() => model.clearAnnotPos()}
-        />
+        <Suspense fallback={null}>
+          <AnnotationDialog
+            data={model.annotPos}
+            model={model}
+            onClose={() => model.clearAnnotPos()}
+          />
+        </Suspense>
       ) : null}
     </div>
   )

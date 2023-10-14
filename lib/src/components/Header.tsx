@@ -1,14 +1,10 @@
-import React, { useState } from 'react'
+import React, { Suspense, lazy, useState } from 'react'
 import { IconButton, Select, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../model'
-import SettingsDialog from './SettingsDlg'
-import AboutDialog from './AboutDlg'
-import DetailsDialog from './DetailsDlg'
-import TracklistDialog from './TracklistDlg'
 
 // icons
 import FolderOpen from '@mui/icons-material/FolderOpen'
@@ -19,6 +15,11 @@ import List from '@mui/icons-material/List'
 import MoreVert from '@mui/icons-material/MoreVert'
 import ZoomIn from '@mui/icons-material/ZoomIn'
 import ZoomOut from '@mui/icons-material/ZoomOut'
+
+const SettingsDialog = lazy(() => import('./dialogs/SettingsDlg'))
+const AboutDialog = lazy(() => import('./dialogs/AboutDlg'))
+const DetailsDialog = lazy(() => import('./dialogs/DetailsDlg'))
+const TracklistDialog = lazy(() => import('./dialogs/TracklistDlg'))
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
@@ -66,31 +67,30 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       <IconButton onClick={() => setTracklistDialogViz(true)}>
         <List />
       </IconButton>
-      {settingsDialogViz ? (
-        <SettingsDialog
-          open
-          model={model}
-          onClose={() => setSettingsDialogViz(false)}
-        />
-      ) : null}
-      {aboutDialogViz ? (
-        <AboutDialog open onClose={() => setAboutDialogViz(false)} />
-      ) : null}
-      {detailsDialogViz ? (
-        <DetailsDialog
-          open
-          model={model}
-          onClose={() => setDetailsDialogViz(false)}
-        />
-      ) : null}
+      <Suspense fallback={null}>
+        {settingsDialogViz ? (
+          <SettingsDialog
+            model={model}
+            onClose={() => setSettingsDialogViz(false)}
+          />
+        ) : null}
+        {aboutDialogViz ? (
+          <AboutDialog onClose={() => setAboutDialogViz(false)} />
+        ) : null}
+        {detailsDialogViz ? (
+          <DetailsDialog
+            model={model}
+            onClose={() => setDetailsDialogViz(false)}
+          />
+        ) : null}
 
-      {tracklistDialogViz ? (
-        <TracklistDialog
-          open
-          model={model}
-          onClose={() => setTracklistDialogViz(false)}
-        />
-      ) : null}
+        {tracklistDialogViz ? (
+          <TracklistDialog
+            model={model}
+            onClose={() => setTracklistDialogViz(false)}
+          />
+        ) : null}
+      </Suspense>
       {alignmentNames.length > 0 ? (
         <Select
           native
@@ -109,6 +109,23 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           ))}
         </Select>
       ) : null}
+      <ZoomControls model={model} />
+      <InfoArea model={model} />
+      <Spacer />
+      <IconButton onClick={() => setAboutDialogViz(true)}>
+        <Help />
+      </IconButton>
+    </div>
+  )
+})
+
+function Spacer() {
+  return <div style={{ flex: 1 }} />
+}
+
+function ZoomControls({ model }: { model: MsaViewModel }) {
+  return (
+    <>
       <IconButton
         onClick={() => {
           model.setColWidth(Math.ceil(model.colWidth * 1.5))
@@ -120,7 +137,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       <IconButton
         onClick={() => {
           model.setColWidth(Math.max(1, Math.floor(model.colWidth * 0.75)))
-          model.setRowHeight(Math.max(1, Math.floor(model.rowHeight * 0.75)))
+          model.setRowHeight(Math.max(1.5, Math.floor(model.rowHeight * 0.75)))
         }}
       >
         <ZoomOut />
@@ -129,33 +146,34 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         menuItems={[
           {
             label: 'Decrease row height',
-            onClick: () =>
-              model.setRowHeight(Math.max(1, model.rowHeight * 0.75)),
+            onClick: () => {
+              model.setRowHeight(Math.max(1.5, model.rowHeight * 0.75))
+            },
           },
           {
             label: 'Increase row height',
-            onClick: () => model.setRowHeight(model.rowHeight * 1.5),
+            onClick: () => {
+              model.setRowHeight(model.rowHeight * 1.5)
+            },
           },
           {
             label: 'Decrease col width',
-            onClick: () =>
-              model.setColWidth(Math.max(1, model.colWidth * 0.75)),
+            onClick: () => {
+              model.setColWidth(Math.max(1, model.colWidth * 0.75))
+            },
           },
           {
             label: 'Increase col width',
-            onClick: () => model.setColWidth(model.colWidth * 1.5),
+            onClick: () => {
+              model.setColWidth(model.colWidth * 1.5)
+            },
           },
         ]}
       >
         <MoreVert />
       </CascadingMenuButton>
-      <InfoArea model={model} />
-      <div style={{ flex: 1 }} />
-      <IconButton onClick={() => setAboutDialogViz(true)}>
-        <Help />
-      </IconButton>
-    </div>
+    </>
   )
-})
+}
 
 export default Header

@@ -67,7 +67,7 @@ const MSABlock = observer(function ({
     const xStart = Math.max(0, Math.floor(offsetX / colWidth))
     const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
     const visibleLeaves = leaves.slice(yStart, yEnd)
-    visibleLeaves.forEach(node => {
+    for (const node of visibleLeaves) {
       const {
         // @ts-expect-error
         x: y,
@@ -94,10 +94,10 @@ const MSABlock = observer(function ({
           ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
         }
       }
-    })
+    }
 
-    if (rowHeight >= 10 && colWidth >= rowHeight / 2) {
-      visibleLeaves.forEach(node => {
+    if (rowHeight >= 5 && colWidth > rowHeight / 2) {
+      for (const node of visibleLeaves) {
         const {
           // @ts-expect-error
           x: y,
@@ -115,7 +115,7 @@ const MSABlock = observer(function ({
           ctx.fillStyle = bgColor ? contrast : color || 'black'
           ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
         }
-      })
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -140,11 +140,11 @@ const MSABlock = observer(function ({
           return
         }
         const { left, top } = ref.current.getBoundingClientRect()
-        const mouseX = event.clientX - left
-        const mouseY = event.clientY - top
+        const mouseX = event.clientX - left + offsetX
+        const mouseY = event.clientY - top + offsetY
         model.setMousePos(
-          Math.floor((mouseX + offsetX) / colWidth) + 1,
-          Math.floor((mouseY + offsetY) / rowHeight),
+          Math.floor(mouseX / colWidth) + 1,
+          Math.floor(mouseY / rowHeight),
         )
       }}
       onMouseLeave={() => model.setMousePos()}

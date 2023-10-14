@@ -9,6 +9,7 @@
     "lint": "eslint --report-unused-disable-directives --max-warnings 0 --ext .js,.ts,.jsx,.tsx ."
   },
   "devDependencies": {
+    "@types/normalize-wheel": "^1.0.2",
     "@types/rbush": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^6.7.2",

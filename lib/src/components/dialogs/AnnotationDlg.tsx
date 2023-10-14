@@ -14,7 +14,7 @@ import { Dialog } from '@jbrowse/core/ui'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 const specialFromEntries = (val: string[][]) => {
   const ret = {} as Record<string, string[]>
