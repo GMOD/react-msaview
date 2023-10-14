@@ -39,13 +39,16 @@ const MSAMouseoverCanvas = observer(function ({
     ctx.resetTransform()
     ctx.clearRect(0, 0, width, height)
 
-    if (mouseCol !== undefined && mouseRow !== undefined) {
+    ctx.fillStyle = 'rgba(0,0,0,0.15)'
+    if (mouseCol !== undefined) {
       const x =
         (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
+
+      ctx.fillRect(x, 0, colWidth, height)
+    }
+    if (mouseRow !== undefined) {
       const y =
         mouseRow * rowHeight + scrollY + rulerHeight + totalTrackAreaHeight
-      ctx.fillStyle = 'rgba(0,0,0,0.15)'
-      ctx.fillRect(x, 0, colWidth, height)
       ctx.fillRect(treeAreaWidth + resizeHandleWidth, y, width, rowHeight)
     }
   }, [
