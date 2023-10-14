@@ -20,7 +20,8 @@
     "build:esm": "tsc",
     "build:bundle": "rollup -c",
     "build": "npm run build:esm && npm run build:bundle",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "postversion": "git push --follow-tags"
   },
   "peerDependencies": {
     "@jbrowse/core": ">=2.0.0",
