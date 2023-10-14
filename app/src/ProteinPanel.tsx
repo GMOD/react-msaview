@@ -1,27 +1,75 @@
-// @ts-nocheck
 import React, { useCallback, useState, useEffect, useRef } from 'react'
 import { getSnapshot } from 'mobx-state-tree'
 import { observer } from 'mobx-react'
 import { Button, Select, MenuItem, TextField } from '@mui/material'
 import { Stage, StaticDatasource, DatasourceRegistry } from 'ngl'
 import { AppModel } from './model'
+import { getOffset } from './util'
 
 DatasourceRegistry.add(
   'data',
   new StaticDatasource('https://files.rcsb.org/download/'),
 )
 
-export const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
-  const annotations = useRef([])
+export interface IResidueProxy {
+  index: number
+  resno: number
+  atomOffset: number
+  qualifiedName: () => string
+}
+export interface IStructure {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getAtomProxy: () => any
+  getResidueProxy: () => IResidueProxy
+  residueStore: {
+    count: number
+  }
+}
+export interface IRes {
+  structure: IStructure
+  removeAllRepresentations: () => void
+  addRepresentation: (arg: string, obj: { sele: string }) => void
+  removeAnnotation: (arg: unknown) => void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addAnnotation: (arg0: any, arg: string) => unknown
+}
+
+interface IPickingProxy {
+  atom: {
+    resno: number
+    chainname: string
+  }
+  bond: string
+  closestBondAtom: string
+  picker: { structure: { name: string } }
+}
+
+interface IStage {
+  viewer: {
+    requestRender: () => void
+  }
+  dispose: () => void
+  loadFile: (arg: string) => IRes
+  autoView: () => void
+  handleResize: () => void
+  signals: {
+    hovered: {
+      add: (arg: (arg: IPickingProxy) => void) => void
+    }
+  }
+}
+
+const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
+  const annotations = useRef<unknown[]>([])
   const [type, setType] = useState('cartoon')
-  const [res, setRes] = useState([])
-  const [stage, setStage] = useState()
+  const [res, setRes] = useState<IRes[]>([])
+  const [stage, setStage] = useState<IStage>()
   const [isMouseHovering, setMouseHovering] = useState(false)
   const { msaview, nglSelection } = model
   const { selectedStructures, mouseCol } = msaview
   const structures = getSnapshot(selectedStructures)
 
-  const stageElementRef = useCallback(element => {
+  const stageElementRef = useCallback((element: HTMLDivElement) => {
     if (element) {
       const currentStage = new Stage(element)
       setStage(currentStage)
@@ -65,10 +113,10 @@ export const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
 
   useEffect(() => {
     if (stage) {
-      res.forEach(elt => {
+      for (const elt of res) {
         elt.removeAllRepresentations()
         elt.addRepresentation(type, { sele: nglSelection })
-      })
+      }
       stage.autoView()
     }
   }, [type, res, stage, nglSelection])
@@ -97,7 +145,7 @@ export const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
             )
           }
         }
-        stage.viewer.requestRender()
+        stage?.viewer.requestRender()
       })
     }
   }, [model, mouseCol, structures, stage?.viewer, res, isMouseHovering])
@@ -136,14 +184,4 @@ export const ProteinPanel = observer(function ({ model }: { model: AppModel }) {
   ) : null
 })
 
-function getOffset(model, rowName, structure, mouseCol, startPos) {
-  const rn = structure.residueStore.count
-  const rp = structure.getResidueProxy()
-  const pos = model.msaview.relativePxToBp(rowName, mouseCol)
-  for (let i = 0; i < rn; ++i) {
-    rp.index = i
-    if (rp.resno === pos + startPos - 1) {
-      return rp
-    }
-  }
-}
+export default ProteinPanel
