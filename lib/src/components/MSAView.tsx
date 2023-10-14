@@ -15,67 +15,10 @@ import Track from './Track'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
+import MSAMouseoverCanvas from './MSAMouseoverCanvas'
 
 const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDlg'))
 
-const MouseoverCanvas = observer(function ({ model }: { model: MsaViewModel }) {
-  const ref = useRef<HTMLCanvasElement>(null)
-  const {
-    height,
-    width,
-    treeAreaWidth,
-    resizeHandleWidth,
-    scrollX,
-    mouseCol,
-    colWidth,
-  } = model
-
-  useEffect(() => {
-    if (!ref.current) {
-      return
-    }
-
-    const ctx = ref.current.getContext('2d')
-    if (!ctx) {
-      return
-    }
-
-    ctx.resetTransform()
-    ctx.clearRect(0, 0, width, height)
-
-    if (mouseCol !== undefined) {
-      const x =
-        (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
-      ctx.fillStyle = 'rgba(100,100,100,0.5)'
-      ctx.fillRect(x, 0, colWidth, height)
-    }
-  }, [
-    mouseCol,
-    colWidth,
-    scrollX,
-    height,
-    resizeHandleWidth,
-    treeAreaWidth,
-    width,
-  ])
-
-  return (
-    <canvas
-      ref={ref}
-      width={width}
-      height={height}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width,
-        height,
-        zIndex: 1000,
-        pointerEvents: 'none',
-      }}
-    />
-  )
-})
 export default observer(function ({ model }: { model: MsaViewModel }) {
   const { done, initialized, treeAreaWidth, height, turnedOnTracks } = model
 
@@ -111,7 +54,7 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
                   </div>
                   <VerticalResizeHandle model={model} />
                   <MSACanvas model={model} />
-                  <MouseoverCanvas model={model} />
+                  <MSAMouseoverCanvas model={model} />
                 </div>
               </div>
             </div>

@@ -1,7 +1,6 @@
 import React, { Suspense, lazy, useState } from 'react'
-import { IconButton, Select, Typography } from '@mui/material'
+import { IconButton, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
-import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../model'
@@ -12,9 +11,8 @@ import Settings from '@mui/icons-material/Settings'
 import Help from '@mui/icons-material/Help'
 import Assignment from '@mui/icons-material/Assignment'
 import List from '@mui/icons-material/List'
-import MoreVert from '@mui/icons-material/MoreVert'
-import ZoomIn from '@mui/icons-material/ZoomIn'
-import ZoomOut from '@mui/icons-material/ZoomOut'
+import ZoomControls from './ZoomControls'
+import MultiAlignmentSelector from './MultiAlignmentSelector'
 
 const SettingsDialog = lazy(() => import('./dialogs/SettingsDlg'))
 const AboutDialog = lazy(() => import('./dialogs/AboutDlg'))
@@ -37,7 +35,6 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
   const [aboutDialogViz, setAboutDialogViz] = useState(false)
   const [detailsDialogViz, setDetailsDialogViz] = useState(false)
   const [tracklistDialogViz, setTracklistDialogViz] = useState(false)
-  const { currentAlignment, alignmentNames } = model
 
   return (
     <div style={{ display: 'flex' }}>
@@ -91,24 +88,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           />
         ) : null}
       </Suspense>
-      {alignmentNames.length > 0 ? (
-        <Select
-          native
-          value={currentAlignment}
-          size="small"
-          onChange={event => {
-            model.setCurrentAlignment(+(event.target.value as string))
-            model.setScrollX(0)
-            model.setScrollY(0)
-          }}
-        >
-          {alignmentNames.map((option, index) => (
-            <option key={`${option}-${index}`} value={index}>
-              {option}
-            </option>
-          ))}
-        </Select>
-      ) : null}
+      <MultiAlignmentSelector model={model} />
       <ZoomControls model={model} />
       <InfoArea model={model} />
       <Spacer />
@@ -121,59 +101,6 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
 
 function Spacer() {
   return <div style={{ flex: 1 }} />
-}
-
-function ZoomControls({ model }: { model: MsaViewModel }) {
-  return (
-    <>
-      <IconButton
-        onClick={() => {
-          model.setColWidth(Math.ceil(model.colWidth * 1.5))
-          model.setRowHeight(Math.ceil(model.rowHeight * 1.5))
-        }}
-      >
-        <ZoomIn />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          model.setColWidth(Math.max(1, Math.floor(model.colWidth * 0.75)))
-          model.setRowHeight(Math.max(1.5, Math.floor(model.rowHeight * 0.75)))
-        }}
-      >
-        <ZoomOut />
-      </IconButton>
-      <CascadingMenuButton
-        menuItems={[
-          {
-            label: 'Decrease row height',
-            onClick: () => {
-              model.setRowHeight(Math.max(1.5, model.rowHeight * 0.75))
-            },
-          },
-          {
-            label: 'Increase row height',
-            onClick: () => {
-              model.setRowHeight(model.rowHeight * 1.5)
-            },
-          },
-          {
-            label: 'Decrease col width',
-            onClick: () => {
-              model.setColWidth(Math.max(1, model.colWidth * 0.75))
-            },
-          },
-          {
-            label: 'Increase col width',
-            onClick: () => {
-              model.setColWidth(model.colWidth * 1.5)
-            },
-          },
-        ]}
-      >
-        <MoreVert />
-      </CascadingMenuButton>
-    </>
-  )
 }
 
 export default Header
