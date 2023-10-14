@@ -61,6 +61,13 @@ const ZoomControls = observer(function ZoomControls({
               model.setColWidth(colWidth * 1.5)
             },
           },
+          {
+            label: 'Reset zoom to default',
+            onClick: () => {
+              model.setColWidth(16)
+              model.setRowHeight(20)
+            },
+          },
         ]}
       >
         <MoreVert />

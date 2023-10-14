@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, lazy, Suspense } from 'react'
+import React, { lazy, Suspense } from 'react'
 
 import { observer } from 'mobx-react'
 import { Typography } from '@mui/material'

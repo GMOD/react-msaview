@@ -5,8 +5,6 @@ import { observer } from 'mobx-react'
 // locals
 import { MsaViewModel } from '../model'
 
-const radius = 3.5
-
 interface Node {
   x: number
   y: number
