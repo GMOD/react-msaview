@@ -56,8 +56,8 @@ export default class StockholmMSA {
   getRowData(rowName: string) {
     return {
       name: rowName,
-      accession: this.MSA.gs?.AC[rowName],
-      dbxref: this.MSA.gs?.DR[rowName],
+      accession: this.MSA.gs?.AC?.[rowName],
+      dbxref: this.MSA.gs?.DR?.[rowName],
     }
   }
 

@@ -80,6 +80,7 @@ const Ruler = observer(function ({ model }: { model: MsaViewModel }) {
     MSA,
     colWidth,
     msaAreaWidth,
+    rulerHeight,
     resizeHandleWidth,
     scrollX,
     blocksX,
@@ -96,7 +97,7 @@ const Ruler = observer(function ({ model }: { model: MsaViewModel }) {
         width: msaAreaWidth,
         cursor: 'crosshair',
         overflow: 'hidden',
-        height: 20,
+        height: rulerHeight,
         background: '#ccc',
       }}
     >

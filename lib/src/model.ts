@@ -120,6 +120,7 @@ const MSAModel = types
     ),
   })
   .volatile(() => ({
+  rulerHeight:20,
     error: undefined as unknown,
     margin: { left: 20, top: 20 },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

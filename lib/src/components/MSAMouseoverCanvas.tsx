@@ -3,6 +3,7 @@ import { observer } from 'mobx-react'
 
 // locals
 import { MsaViewModel } from '../model'
+import { sum } from '@jbrowse/core/util'
 
 const MSAMouseoverCanvas = observer(function ({
   model,
@@ -15,6 +16,8 @@ const MSAMouseoverCanvas = observer(function ({
     width,
     treeAreaWidth,
     resizeHandleWidth,
+    rulerHeight,
+    turnedOnTracks,
     scrollX,
     scrollY,
     mouseCol,
@@ -22,7 +25,7 @@ const MSAMouseoverCanvas = observer(function ({
     rowHeight,
     colWidth,
   } = model
-
+  const totalTrackAreaHeight = sum(turnedOnTracks.map(r => r.model.height))
   useEffect(() => {
     if (!ref.current) {
       return
@@ -39,7 +42,8 @@ const MSAMouseoverCanvas = observer(function ({
     if (mouseCol !== undefined && mouseRow !== undefined) {
       const x =
         (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
-      const y = mouseRow * rowHeight + scrollY + rowHeight * 3
+      const y =
+        mouseRow * rowHeight + scrollY + rulerHeight + totalTrackAreaHeight
       ctx.fillStyle = 'rgba(0,0,0,0.15)'
       ctx.fillRect(x, 0, colWidth, height)
       ctx.fillRect(treeAreaWidth + resizeHandleWidth, y, width, rowHeight)
@@ -48,8 +52,10 @@ const MSAMouseoverCanvas = observer(function ({
     mouseCol,
     colWidth,
     scrollY,
+    totalTrackAreaHeight,
     mouseRow,
     rowHeight,
+    rulerHeight,
     scrollX,
     height,
     resizeHandleWidth,
