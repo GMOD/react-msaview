@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { IconButton, Select, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
+import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../model'
@@ -10,12 +11,14 @@ import DetailsDialog from './DetailsDlg'
 import TracklistDialog from './TracklistDlg'
 
 // icons
-import FolderOpenIcon from '@mui/icons-material/FolderOpen'
-import SettingsIcon from '@mui/icons-material/Settings'
-import HelpIcon from '@mui/icons-material/Help'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import ListIcon from '@mui/icons-material/List'
-import { ZoomIn, ZoomOut } from '@mui/icons-material'
+import FolderOpen from '@mui/icons-material/FolderOpen'
+import Settings from '@mui/icons-material/Settings'
+import Help from '@mui/icons-material/Help'
+import Assignment from '@mui/icons-material/Assignment'
+import List from '@mui/icons-material/List'
+import MoreVert from '@mui/icons-material/MoreVert'
+import ZoomIn from '@mui/icons-material/ZoomIn'
+import ZoomOut from '@mui/icons-material/ZoomOut'
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
@@ -52,16 +55,16 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           }
         }}
       >
-        <FolderOpenIcon />
+        <FolderOpen />
       </IconButton>
       <IconButton onClick={() => setSettingsDialogViz(true)}>
-        <SettingsIcon />
+        <Settings />
       </IconButton>
       <IconButton onClick={() => setDetailsDialogViz(true)}>
-        <AssignmentIcon />
+        <Assignment />
       </IconButton>
       <IconButton onClick={() => setTracklistDialogViz(true)}>
-        <ListIcon />
+        <List />
       </IconButton>
       {settingsDialogViz ? (
         <SettingsDialog
@@ -122,10 +125,34 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       >
         <ZoomOut />
       </IconButton>
+      <CascadingMenuButton
+        menuItems={[
+          {
+            label: 'Decrease row height',
+            onClick: () =>
+              model.setRowHeight(Math.max(1, model.rowHeight * 0.75)),
+          },
+          {
+            label: 'Increase row height',
+            onClick: () => model.setRowHeight(model.rowHeight * 1.5),
+          },
+          {
+            label: 'Decrease col width',
+            onClick: () =>
+              model.setColWidth(Math.max(1, model.colWidth * 0.75)),
+          },
+          {
+            label: 'Increase col width',
+            onClick: () => model.setColWidth(model.colWidth * 1.5),
+          },
+        ]}
+      >
+        <MoreVert />
+      </CascadingMenuButton>
       <InfoArea model={model} />
       <div style={{ flex: 1 }} />
       <IconButton onClick={() => setAboutDialogViz(true)}>
-        <HelpIcon />
+        <Help />
       </IconButton>
     </div>
   )

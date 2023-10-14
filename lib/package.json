@@ -17,7 +17,9 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "prepublishOnly": "node -p \"'export const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts && git add src/version.ts && git commit -m '[skip ci] Bump version'",
-    "build": "tsc && rollup -c",
+    "postbuild": "rollup -c",
+    "build:esm": "tsc",
+    "build": "npm run build:esm",
     "preversion": "npm run build"
   },
   "peerDependencies": {
