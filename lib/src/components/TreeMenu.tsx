@@ -5,7 +5,7 @@ import { observer } from 'mobx-react'
 // locals
 import { MsaViewModel } from '../model'
 
-const MoreInfoDlg = lazy(() => import('./dialogs/MoreInfoDlg'))
+const TreeNodeInfoDlg = lazy(() => import('./dialogs/TreeNodeInfoDlg'))
 
 const TreeMenu = observer(function ({
   node,
@@ -39,8 +39,10 @@ const TreeMenu = observer(function ({
         <MenuItem
           dense
           onClick={() => {
-            model.setDialogComponent(MoreInfoDlg, {
+            model.setDialogComponent(TreeNodeInfoDlg, {
               info: model.getRowData(node.name),
+              model,
+              nodeName: node.name,
             })
             onClose()
           }}

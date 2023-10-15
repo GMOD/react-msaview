@@ -173,6 +173,10 @@ const model = types
       /**
        * #property
        */
+      treeMetadataFilehandle: types.maybe(FileLocation),
+      /**
+       * #property
+       */
       currentAlignment: 0,
       /**
        * #property
@@ -208,6 +212,7 @@ const model = types
           .model({
             tree: types.maybe(types.string),
             msa: types.maybe(types.string),
+            treeMetadata: types.maybe(types.string),
           })
           .actions(self => ({
             setTree(tree?: string) {
@@ -215,6 +220,9 @@ const model = types
             },
             setMSA(msa?: string) {
               self.msa = msa
+            },
+            setTreeMetadata(treeMetadata?: string) {
+              self.treeMetadata = treeMetadata
             },
           })),
         { tree: '', msa: '' },
@@ -428,6 +436,12 @@ const model = types
     setTree(result: string) {
       self.data.setTree(result)
     },
+    /**
+     * #action
+     */
+    setTreeMetadata(result: string) {
+      self.data.setTreeMetadata(result)
+    },
 
     afterCreate() {
       addDisposer(
@@ -437,6 +451,22 @@ const model = types
           if (treeFilehandle) {
             try {
               this.setTree(await openLocation(treeFilehandle).readFile('utf8'))
+            } catch (e) {
+              console.error(e)
+              this.setError(e)
+            }
+          }
+        }),
+      )
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { treeMetadataFilehandle } = self
+          if (treeMetadataFilehandle) {
+            try {
+              this.setTreeMetadata(
+                await openLocation(treeMetadataFilehandle).readFile('utf8'),
+              )
             } catch (e) {
               console.error(e)
               this.setError(e)
@@ -582,6 +612,12 @@ const model = types
      */
     get menuItems() {
       return []
+    },
+    /**
+     * #getter
+     */
+    get treeMetadata() {
+      return self.data.treeMetadata ? JSON.parse(self.data.treeMetadata) : {}
     },
     /**
      * #getter
@@ -1061,7 +1097,7 @@ const model = types
   .postProcessSnapshot(result => {
     const snap = result as Omit<typeof result, symbol>
     const {
-      data: { tree, msa },
+      data: { tree, msa, treeMetadata },
       ...rest
     } = snap
 
@@ -1072,6 +1108,7 @@ const model = types
         // https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/
         ...(!result.treeFilehandle && { tree }),
         ...(!result.msaFilehandle && { msa }),
+        ...(!result.treeMetadataFilehandle && { treeMetadata }),
       },
       ...rest,
     }

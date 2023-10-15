@@ -49,6 +49,7 @@ const TreeCanvasBlock = observer(function ({
     rowHeight,
     scrollY,
     treeWidth,
+    treeMetadata,
     showBranchLen,
     collapsed,
     margin,
@@ -158,6 +159,8 @@ const TreeCanvasBlock = observer(function ({
           len,
         } = node
 
+        const displayName = treeMetadata[name]?.genome || name
+
         if (
           y > offsetY - extendBounds &&
           y < offsetY + blockSize + extendBounds
@@ -166,14 +169,14 @@ const TreeCanvasBlock = observer(function ({
           const yp = y + rowHeight / 4
           const xp = showBranchLen ? len : x
 
-          const { width } = ctx.measureText(name)
+          const { width } = ctx.measureText(displayName)
           const height = ctx.measureText('M').width // use an 'em' for height
 
           const hasStructure = structures[name]
           ctx.fillStyle = hasStructure ? 'blue' : 'black'
 
           if (!drawTree && !labelsAlignRight) {
-            ctx.fillText(name, 0, yp)
+            ctx.fillText(displayName, 0, yp)
             clickMap.current.insert({
               minX: 0,
               maxX: width,
@@ -186,12 +189,12 @@ const TreeCanvasBlock = observer(function ({
             const smallPadding = 2
             const offset = treeAreaWidth - smallPadding - margin.left
             if (drawTree && !noTree) {
-              const { width } = ctx.measureText(name)
+              const { width } = ctx.measureText(displayName)
               ctx.moveTo(xp + radius + 2, y)
               ctx.lineTo(offset - smallPadding - width, y)
               ctx.stroke()
             }
-            ctx.fillText(name, offset, yp)
+            ctx.fillText(displayName, offset, yp)
             clickMap.current.insert({
               minX: treeAreaWidth - margin.left - width,
               maxX: treeAreaWidth - margin.left,
@@ -201,7 +204,7 @@ const TreeCanvasBlock = observer(function ({
               id,
             })
           } else {
-            ctx.fillText(name, xp + d, yp)
+            ctx.fillText(displayName, xp + d, yp)
             clickMap.current.insert({
               minX: xp + d,
               maxX: xp + d + width,
@@ -231,6 +234,7 @@ const TreeCanvasBlock = observer(function ({
     treeAreaWidth,
     structures,
     highResScaleFactor,
+    treeMetadata,
   ])
 
   useEffect(() => {

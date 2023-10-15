@@ -16,7 +16,7 @@ import MultiAlignmentSelector from './MultiAlignmentSelector'
 
 const SettingsDialog = lazy(() => import('./dialogs/SettingsDlg'))
 const AboutDialog = lazy(() => import('./dialogs/AboutDlg'))
-const DetailsDialog = lazy(() => import('./dialogs/DetailsDlg'))
+const MetadataDialog = lazy(() => import('./dialogs/MetadataDlg'))
 const TracklistDialog = lazy(() => import('./dialogs/TracklistDlg'))
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
@@ -33,7 +33,7 @@ const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
 const Header = observer(({ model }: { model: MsaViewModel }) => {
   const [settingsDialogViz, setSettingsDialogViz] = useState(false)
   const [aboutDialogViz, setAboutDialogViz] = useState(false)
-  const [detailsDialogViz, setDetailsDialogViz] = useState(false)
+  const [detailsDialogViz, setMetadataDialogViz] = useState(false)
   const [tracklistDialogViz, setTracklistDialogViz] = useState(false)
 
   return (
@@ -58,7 +58,7 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
       <IconButton onClick={() => setSettingsDialogViz(true)}>
         <Settings />
       </IconButton>
-      <IconButton onClick={() => setDetailsDialogViz(true)}>
+      <IconButton onClick={() => setMetadataDialogViz(true)}>
         <Assignment />
       </IconButton>
       <IconButton onClick={() => setTracklistDialogViz(true)}>
@@ -75,9 +75,9 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
           <AboutDialog onClose={() => setAboutDialogViz(false)} />
         ) : null}
         {detailsDialogViz ? (
-          <DetailsDialog
+          <MetadataDialog
             model={model}
-            onClose={() => setDetailsDialogViz(false)}
+            onClose={() => setMetadataDialogViz(false)}
           />
         ) : null}
 

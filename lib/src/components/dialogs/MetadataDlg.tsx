@@ -1,21 +1,32 @@
 import React from 'react'
-import { Dialog } from '@jbrowse/core/ui'
 import { DialogContent } from '@mui/material'
 import { observer } from 'mobx-react'
+import { Dialog } from '@jbrowse/core/ui'
 import { Attributes } from '@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail'
 
-export default observer(function ({
-  info,
+// locals
+import { MsaViewModel } from '../../model'
+
+const MetadataDialog = observer(function ({
+  model,
   onClose,
 }: {
-  info: Record<string, unknown>
+  model: MsaViewModel
   onClose: () => void
 }) {
+  const {
+    header,
+    data: { treeMetadata },
+  } = model
+  console.log({ header, treeMetadata })
+
   return (
     <Dialog onClose={() => onClose()} open title="Metadata">
       <DialogContent>
-        <Attributes attributes={info} />
+        <Attributes attributes={header} />
       </DialogContent>
     </Dialog>
   )
 })
+
+export default MetadataDialog
