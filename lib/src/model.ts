@@ -954,6 +954,7 @@ const MSAModel = types
       const details = self.getRowData(rowName)
       const offset = details.range?.start || 0
       const current = position - offset
+      const s = new Set(self.blanks)
 
       if (current < 0) {
         return 0
@@ -970,7 +971,7 @@ const MSAModel = types
 
       let count = 0
       for (let k = 0; k < row.length; k++) {
-        if (blanks.includes(k) && k < i + 1) {
+        if (s.has(k) && k < i + 1) {
           count++
         }
       }
@@ -982,8 +983,10 @@ const MSAModel = types
      */
     globalBpToPx(position: number) {
       let count = 0
+      const s = new Set(self.blanks)
+
       for (let k = 0; k < self.rows[0]?.[1].length; k++) {
-        if (self.blanks.includes(k) && k < position + 1) {
+        if (s.has(k) && k < position + 1) {
           count++
         }
       }
