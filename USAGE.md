@@ -92,116 +92,16 @@ function App() {
 The following fields can be passed as constructor aka the MSAModel.create
 function
 
-```typescript
-const MSAModel = types.model('MsaView', {
-  // internal
-  id: ElementId,
-  // internal
-  type: types.literal('MsaView'),
+This document shows all the properties you can pass to the model.create
+function, as well as getters, methods, and actions on the model.
+https://github.com/GMOD/react-msaview/blob/main/lib/apidocs/MsaView.md
 
-  // height of msaview
-  height: types.optional(types.number, 550),
+See lib/src/model.ts for the full model source code. It is helpful to be
+knowledgeable of the way mobx+react inter-operate: you can write components that
+"observe" (by wrapping a component with the mobx-react observe function) the
+state of the model using React and mobx-state-tree
 
-  // space to give to treeArea
-  treeAreaWidth: types.optional(types.number, 400),
-
-  // width of tree within treeArea, can be wider than treeAreaWidth
-  treeWidth: types.optional(types.number, 300),
-
-  // height of a row, at <10 it doesn't draw the text
-  rowHeight: 20,
-
-  // scroll position Y
-  scrollY: 0,
-
-  // scroll position X
-  scrollX: 0,
-
-  // width of the horizontal resize handle
-  resizeHandleWidth: 5,
-
-  // internal, could be adjusted for performance
-  blockSize: 1000,
-
-  // internal, current hovered mouse row
-  mouseRow: types.maybe(types.number),
-
-  // internal, current hovered mouse col
-  mouseCol: types.maybe(types.number),
-
-  // internal, but can be observed: user selects that they want to view a
-  // structure. used by https://gmod.github.io/react-msaview/ demo app to
-  // display 3d structures
-  selectedStructures: types.array(StructureModel),
-
-  // choose to align labels on right
-  labelsAlignRight: false,
-
-  // width of a column, can be small for "zoom out"
-  colWidth: 16,
-
-  // use the phylogenetic branch length for tree drawing
-  showBranchLen: true,
-
-  // draw the color in the background. if false, letters of MSA are colored instead
-  bgColor: true,
-
-  // whether to draw tree or not
-  drawTree: true,
-
-  // draw node bubbles at tree tips
-  drawNodeBubbles: true,
-
-  // high resolution scaling of canvas, can be increased for super high def
-  highResScaleFactor: 2,
-
-  // default color scheme, see  lib/src/colorSchemes.ts for more
-  colorSchemeName: 'maeditor',
-
-  // pass a default tree filehandle, e.g. formatted as {uri:'http://path/to/your/file.nh'}
-  treeFilehandle: types.maybe(FileLocation),
-
-  // pass a default msa filehandle, e.g. formatted as
-  // {uri:'http://path/to/your/file.stock'}, stock can contain a tree and you
-  // don't have to pass treeFilehandle if msa contains a tree e.g. for stockholm
-  msaFilehandle: types.maybe(FileLocation),
-
-  // if the msa contains multiple alignments e.g. for multi-stockholm, which
-  // one to display
-  currentAlignment: 0,
-
-  // array of nodes to collapse
-  collapsed: types.array(types.string),
-
-  // array of nodes to focus on
-  showOnly: types.maybe(types.string),
-
-  // alternative to msaFilehandle/treeFilehandle: if you have an MSA or tree as
-  // a string, you can pass this directly to the "data" field. note: you can
-  // supply just the tree, just the msa, or both
-  data: types.optional(
-    types
-      .model({
-        tree: types.maybe(types.string),
-        msa: types.maybe(types.string),
-      })
-      .actions(self => ({
-        setTree(tree?: string) {
-          self.tree = tree
-        },
-        setMSA(msa?: string) {
-          self.msa = msa
-        },
-      })),
-    { tree: '', msa: '' },
-  ),
-})
-```
-
-There are also actions for manipulating the MSA model after creation, see
-lib/src/model.ts for the actions that you can call on the model after it is
-created. You can also "observe" the state of the model using React and
-mobx-state-tree e.g. if you wanted to know what base the user was hovering over.
-You can get an intro to basic React and mobx-state-tree + observer concepts in
-this short tutorial, and the concepts will apply to this codebase as well
+For example, if you wanted to know what base the user was hovering over. You can
+get an intro to basic React and mobx-state-tree + observer concepts in this
+short tutorial, and the concepts will apply to this codebase as well
 https://gist.github.com/cmdcolin/94d1cbc285e6319cc3af4b9a8556f03f
