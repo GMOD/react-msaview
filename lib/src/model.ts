@@ -74,150 +74,153 @@ type StructureSnap = SnapshotIn<typeof StructureModel>
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
-const MSAModel = types
-  .model('MsaView', {
-    /**
-     * #property
-     */
-    id: ElementId,
-    /**
-     * #property
-     */
-    type: types.literal('MsaView'),
-    /**
-     * #property
-     */
-    height: types.optional(types.number, 550),
-    /**
-     * #property
-     */
-    treeAreaWidth: types.optional(types.number, 400),
-    /**
-     * #property
-     */
-    treeWidth: types.optional(types.number, 300),
-    /**
-     * #property
-     */
-    rowHeight: 20,
-    /**
-     * #property
-     */
-    scrollY: 0,
-    /**
-     * #property
-     */
-    scrollX: 0,
-    /**
-     * #property
-     */
-    resizeHandleWidth: 5,
-    /**
-     * #property
-     */
-    blockSize: 1000,
-    /**
-     * #property
-     */
-    mouseRow: types.maybe(types.number),
-    /**
-     * #property
-     */
-    mouseCol: types.maybe(types.number),
-    /**
-     * #property
-     */
-    selectedStructures: types.array(StructureModel),
-    /**
-     * #property
-     */
-    labelsAlignRight: false,
-    /**
-     * #property
-     */
-    colWidth: 16,
-    /**
-     * #property
-     */
-    showBranchLen: true,
-    /**
-     * #property
-     */
-    bgColor: true,
-    /**
-     * #property
-     */
-    drawTree: true,
-    /**
-     * #property
-     */
-    drawNodeBubbles: true,
-    /**
-     * #property
-     */
-    highResScaleFactor: 2,
-    /**
-     * #property
-     */
-    colorSchemeName: 'maeditor',
-    /**
-     * #property
-     */
-    treeFilehandle: types.maybe(FileLocation),
-    /**
-     * #property
-     */
-    msaFilehandle: types.maybe(FileLocation),
-    /**
-     * #property
-     */
-    currentAlignment: 0,
-    /**
-     * #property
-     */
-    collapsed: types.array(types.string),
-    /**
-     * #property
-     */
-    showOnly: types.maybe(types.string),
-    /**
-     * #property
-     */
-    boxTracks: types.array(UniprotTrack),
-    /**
-     * #property
-     */
-    turnedOffTracks: types.map(types.boolean),
-    /**
-     * #property
-     */
-    annotatedRegions: types.array(
-      types.model({
-        start: types.number,
-        end: types.number,
-        attributes: types.frozen<Record<string, string[]>>(),
-      }),
-    ),
-    /**
-     * #property
-     */
-    data: types.optional(
-      types
-        .model({
-          tree: types.maybe(types.string),
-          msa: types.maybe(types.string),
-        })
-        .actions(self => ({
-          setTree(tree?: string) {
-            self.tree = tree
-          },
-          setMSA(msa?: string) {
-            self.msa = msa
-          },
-        })),
-      { tree: '', msa: '' },
-    ),
-  })
+const model = types
+  .compose(
+    BaseViewModel,
+    types.model('MsaView', {
+      /**
+       * #property
+       */
+      id: ElementId,
+      /**
+       * #property
+       */
+      type: types.literal('MsaView'),
+      /**
+       * #property
+       */
+      height: types.optional(types.number, 550),
+      /**
+       * #property
+       */
+      treeAreaWidth: types.optional(types.number, 400),
+      /**
+       * #property
+       */
+      treeWidth: types.optional(types.number, 300),
+      /**
+       * #property
+       */
+      rowHeight: 20,
+      /**
+       * #property
+       */
+      scrollY: 0,
+      /**
+       * #property
+       */
+      scrollX: 0,
+      /**
+       * #property
+       */
+      resizeHandleWidth: 5,
+      /**
+       * #property
+       */
+      blockSize: 1000,
+      /**
+       * #property
+       */
+      mouseRow: types.maybe(types.number),
+      /**
+       * #property
+       */
+      mouseCol: types.maybe(types.number),
+      /**
+       * #property
+       */
+      selectedStructures: types.array(StructureModel),
+      /**
+       * #property
+       */
+      labelsAlignRight: false,
+      /**
+       * #property
+       */
+      colWidth: 16,
+      /**
+       * #property
+       */
+      showBranchLen: true,
+      /**
+       * #property
+       */
+      bgColor: true,
+      /**
+       * #property
+       */
+      drawTree: true,
+      /**
+       * #property
+       */
+      drawNodeBubbles: true,
+      /**
+       * #property
+       */
+      highResScaleFactor: 2,
+      /**
+       * #property
+       */
+      colorSchemeName: 'maeditor',
+      /**
+       * #property
+       */
+      treeFilehandle: types.maybe(FileLocation),
+      /**
+       * #property
+       */
+      msaFilehandle: types.maybe(FileLocation),
+      /**
+       * #property
+       */
+      currentAlignment: 0,
+      /**
+       * #property
+       */
+      collapsed: types.array(types.string),
+      /**
+       * #property
+       */
+      showOnly: types.maybe(types.string),
+      /**
+       * #property
+       */
+      boxTracks: types.array(UniprotTrack),
+      /**
+       * #property
+       */
+      turnedOffTracks: types.map(types.boolean),
+      /**
+       * #property
+       */
+      annotatedRegions: types.array(
+        types.model({
+          start: types.number,
+          end: types.number,
+          attributes: types.frozen<Record<string, string[]>>(),
+        }),
+      ),
+      /**
+       * #property
+       */
+      data: types.optional(
+        types
+          .model({
+            tree: types.maybe(types.string),
+            msa: types.maybe(types.string),
+          })
+          .actions(self => ({
+            setTree(tree?: string) {
+              self.tree = tree
+            },
+            setMSA(msa?: string) {
+              self.msa = msa
+            },
+          })),
+        { tree: '', msa: '' },
+      ),
+    }),
+  )
   .volatile(() => ({
     rulerHeight: 20,
     error: undefined as unknown,
@@ -685,7 +688,6 @@ const MSAModel = types
      * #getter
      */
     get msaAreaWidth() {
-      // @ts-expect-error
       return self.width - self.treeAreaWidth
     },
     /**
@@ -1056,9 +1058,7 @@ const MSAModel = types
       self.annotPos = undefined
     },
   }))
-
-const model = types.snapshotProcessor(types.compose(BaseViewModel, MSAModel), {
-  postProcessor(result) {
+  .postProcessSnapshot(result => {
     const snap = result as Omit<typeof result, symbol>
     const {
       data: { tree, msa },
@@ -1075,8 +1075,7 @@ const model = types.snapshotProcessor(types.compose(BaseViewModel, MSAModel), {
       },
       ...rest,
     }
-  },
-})
+  })
 
 export default model
 
