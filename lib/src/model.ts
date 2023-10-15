@@ -69,36 +69,128 @@ export interface IBoxTrack {
 type BasicTrack = IBoxTrack | ITextTrack
 type StructureSnap = SnapshotIn<typeof StructureModel>
 
+/**
+ * #stateModel MsaView
+ */
+function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
+
 const MSAModel = types
   .model('MsaView', {
+    /**
+     * #property
+     */
     id: ElementId,
+    /**
+     * #property
+     */
     type: types.literal('MsaView'),
+    /**
+     * #property
+     */
     height: types.optional(types.number, 550),
+    /**
+     * #property
+     */
     treeAreaWidth: types.optional(types.number, 400),
+    /**
+     * #property
+     */
     treeWidth: types.optional(types.number, 300),
+    /**
+     * #property
+     */
     rowHeight: 20,
+    /**
+     * #property
+     */
     scrollY: 0,
+    /**
+     * #property
+     */
     scrollX: 0,
+    /**
+     * #property
+     */
     resizeHandleWidth: 5,
+    /**
+     * #property
+     */
     blockSize: 1000,
+    /**
+     * #property
+     */
     mouseRow: types.maybe(types.number),
+    /**
+     * #property
+     */
     mouseCol: types.maybe(types.number),
+    /**
+     * #property
+     */
     selectedStructures: types.array(StructureModel),
+    /**
+     * #property
+     */
     labelsAlignRight: false,
+    /**
+     * #property
+     */
     colWidth: 16,
+    /**
+     * #property
+     */
     showBranchLen: true,
+    /**
+     * #property
+     */
     bgColor: true,
+    /**
+     * #property
+     */
     drawTree: true,
+    /**
+     * #property
+     */
     drawNodeBubbles: true,
+    /**
+     * #property
+     */
     highResScaleFactor: 2,
+    /**
+     * #property
+     */
     colorSchemeName: 'maeditor',
+    /**
+     * #property
+     */
     treeFilehandle: types.maybe(FileLocation),
+    /**
+     * #property
+     */
     msaFilehandle: types.maybe(FileLocation),
+    /**
+     * #property
+     */
     currentAlignment: 0,
+    /**
+     * #property
+     */
     collapsed: types.array(types.string),
+    /**
+     * #property
+     */
     showOnly: types.maybe(types.string),
+    /**
+     * #property
+     */
     boxTracks: types.array(UniprotTrack),
+    /**
+     * #property
+     */
     turnedOffTracks: types.map(types.boolean),
+    /**
+     * #property
+     */
     annotatedRegions: types.array(
       types.model({
         start: types.number,
@@ -106,6 +198,9 @@ const MSAModel = types
         attributes: types.frozen<Record<string, string[]>>(),
       }),
     ),
+    /**
+     * #property
+     */
     data: types.optional(
       types
         .model({
@@ -126,7 +221,10 @@ const MSAModel = types
   .volatile(() => ({
     rulerHeight: 20,
     error: undefined as unknown,
-    margin: { left: 20, top: 20 },
+    margin: {
+      left: 20,
+      top: 20,
+    },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     DialogComponent: undefined as undefined | React.FC<any>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -136,23 +234,38 @@ const MSAModel = types
     annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
+    /**
+     * #action
+     */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setDialogComponent(dlg: React.FC<any> | undefined, props: any) {
       self.DialogComponent = dlg
       self.DialogProps = props
     },
+    /**
+     * #action
+     */
     setHeight(height: number) {
       self.height = height
     },
+    /**
+     * #action
+     */
     addStructureToSelection(elt: StructureSnap) {
       self.selectedStructures.push(elt)
     },
+    /**
+     * #action
+     */
     removeStructureFromSelection(elt: StructureSnap) {
       const r = self.selectedStructures.find(node => node.id === elt.id)
       if (r) {
         self.selectedStructures.remove(r)
       }
     },
+    /**
+     * #action
+     */
     toggleStructureSelection(elt: {
       id: string
       structure: { startPos: number; endPos: number; pdb: string }
@@ -164,47 +277,88 @@ const MSAModel = types
         self.selectedStructures.push(elt)
       }
     },
+    /**
+     * #action
+     */
     clearSelectedStructures() {
-      // @ts-expect-error
-      self.selectedStructures = []
+      self.selectedStructures = cast([])
     },
+    /**
+     * #action
+     */
     setError(error?: unknown) {
       self.error = error
     },
+    /**
+     * #action
+     */
     setMousePos(col?: number, row?: number) {
       self.mouseCol = col
       self.mouseRow = row
     },
+    /**
+     * #action
+     */
     setRowHeight(n: number) {
       self.rowHeight = n
     },
+    /**
+     * #action
+     */
     setColWidth(n: number) {
       self.colWidth = n
     },
+    /**
+     * #action
+     */
     setColorSchemeName(name: string) {
       self.colorSchemeName = name
     },
+    /**
+     * #action
+     */
     setScrollY(n: number) {
       self.scrollY = n
     },
+    /**
+     * #action
+     */
     setScrollX(n: number) {
       self.scrollX = n
     },
+    /**
+     * #action
+     */
     setTreeAreaWidth(n: number) {
       self.treeAreaWidth = n
     },
+    /**
+     * #action
+     */
     setTreeWidth(n: number) {
       self.treeWidth = n
     },
+    /**
+     * #action
+     */
     setCurrentAlignment(n: number) {
       self.currentAlignment = n
     },
+    /**
+     * #action
+     */
     toggleLabelsAlignRight() {
       self.labelsAlignRight = !self.labelsAlignRight
     },
+    /**
+     * #action
+     */
     toggleDrawTree() {
       self.drawTree = !self.drawTree
     },
+    /**
+     * #action
+     */
     toggleCollapsed(node: string) {
       if (self.collapsed.includes(node)) {
         self.collapsed.remove(node)
@@ -212,24 +366,45 @@ const MSAModel = types
         self.collapsed.push(node)
       }
     },
+    /**
+     * #action
+     */
     setShowOnly(node?: string) {
       self.showOnly = node
     },
+    /**
+     * #action
+     */
     toggleBranchLen() {
       self.showBranchLen = !self.showBranchLen
     },
+    /**
+     * #action
+     */
     toggleBgColor() {
       self.bgColor = !self.bgColor
     },
+    /**
+     * #action
+     */
     toggleNodeBubbles() {
       self.drawNodeBubbles = !self.drawNodeBubbles
     },
+    /**
+     * #action
+     */
     setData(data: { msa?: string; tree?: string }) {
       self.data = cast(data)
     },
+    /**
+     * #action
+     */
     async setMSAFilehandle(msaFilehandle?: FileLocationType) {
       self.msaFilehandle = msaFilehandle
     },
+    /**
+     * #action
+     */
     async setTreeFilehandle(treeFilehandle?: FileLocationType) {
       if (treeFilehandle && 'blobId' in treeFilehandle) {
         const r = await openLocation(treeFilehandle).readFile('utf8')
@@ -238,9 +413,15 @@ const MSAModel = types
         self.treeFilehandle = treeFilehandle
       }
     },
+    /**
+     * #action
+     */
     setMSA(result: string) {
       self.data.setMSA(result)
     },
+    /**
+     * #action
+     */
     setTree(result: string) {
       self.data.setTree(result)
     },
@@ -282,6 +463,9 @@ const MSAModel = types
     let oldValX = 0
     let oldValY = 0
     return {
+      /**
+       * #getter
+       */
       get initialized() {
         return (
           (self.data.msa ||
@@ -291,7 +475,9 @@ const MSAModel = types
           !self.error
         )
       },
-
+      /**
+       * #getter
+       */
       get blocksX() {
         const { scrollX, blockSize: size, colWidth } = self
         const ret = -(size * Math.floor(scrollX / size)) - size
@@ -311,7 +497,9 @@ const MSAModel = types
         }
         return oldBlocksX
       },
-
+      /**
+       * #getter
+       */
       get blocksY() {
         const { scrollY, blockSize: size, rowHeight } = self
         const ret = -(size * Math.floor(scrollY / size)) - 2 * size
@@ -334,21 +522,33 @@ const MSAModel = types
     }
   })
   .views(self => ({
+    /**
+     * #getter
+     */
     get blocks2d() {
       return self.blocksY.flatMap(by => self.blocksX.map(bx => [bx, by]))
     },
+    /**
+     * #getter
+     */
     get done() {
       return self.initialized && (self.data.msa || self.data.tree)
     },
-
+    /**
+     * #getter
+     */
     get colorScheme() {
       return colorSchemes[self.colorSchemeName]
     },
-
+    /**
+     * #getter
+     */
     get header() {
       return this.MSA?.getHeader() || {}
     },
-
+    /**
+     * #method
+     */
     getRowData(name: string) {
       const matches = name.match(/\S+\/(\d+)-(\d+)/)
       return {
@@ -356,23 +556,33 @@ const MSAModel = types
         ...(matches && { range: { start: +matches[1], end: +matches[2] } }),
       }
     },
-
+    /**
+     * #getter
+     */
     get currentAlignmentName() {
       return this.alignmentNames[self.currentAlignment]
     },
-
+    /**
+     * #getter
+     */
     get alignmentNames() {
       return this.MSA?.alignmentNames || []
     },
-
+    /**
+     * #getter
+     */
     get noTree() {
       return !!this.tree.noTree
     },
-
+    /**
+     * #getter
+     */
     get menuItems() {
       return []
     },
-
+    /**
+     * #getter
+     */
     get MSA() {
       const text = self.data.msa
       if (text) {
@@ -386,11 +596,15 @@ const MSAModel = types
       }
       return null
     },
-
+    /**
+     * #getter
+     */
     get numColumns() {
       return ((this.MSA?.getWidth() || 0) - this.blanks.length) * self.colWidth
     },
-
+    /**
+     * #getter
+     */
     get tree(): NodeWithIds {
       return self.data.tree
         ? generateNodeIds(parseNewick(self.data.tree))
@@ -401,21 +615,30 @@ const MSAModel = types
             name: 'empty',
           }
     },
-
+    /**
+     * #getter
+     */
     get rowNames(): string[] {
       return this.hierarchy.leaves().map(node => node.data.name)
     },
-
-    get mouseOverRowName() {
+    /**
+     * #getter
+     */ get mouseOverRowName() {
       return self.mouseRow !== undefined
         ? this.rowNames[self.mouseRow]
         : undefined
     },
 
+    /**
+     * #method
+     */
     getMouseOverResidue(rowName: string) {
       return this.columns[rowName]
     },
 
+    /**
+     * #getter
+     */
     get root() {
       let hier = hierarchy(this.tree, d => d.branchset)
         .sum(d => (d.branchset ? 0 : 1))
@@ -435,7 +658,9 @@ const MSAModel = types
       }
       return hier
     },
-
+    /**
+     * #getter
+     */
     get structures(): Record<
       string,
       {
@@ -446,7 +671,9 @@ const MSAModel = types
     > {
       return this.MSA?.getStructures() || {}
     },
-
+    /**
+     * #getter
+     */
     get inverseStructures() {
       return Object.fromEntries(
         Object.entries(this.structures).flatMap(([key, val]) =>
@@ -454,12 +681,16 @@ const MSAModel = types
         ),
       )
     },
-
+    /**
+     * #getter
+     */
     get msaAreaWidth() {
       // @ts-expect-error
       return self.width - self.treeAreaWidth
     },
-
+    /**
+     * #getter
+     */
     get blanks() {
       const blanks = []
       const strs = this.hierarchy
@@ -480,24 +711,32 @@ const MSAModel = types
       }
       return blanks
     },
-
+    /**
+     * #getter
+     */
     get rows() {
       return this.hierarchy
         .leaves()
         .map(({ data }) => [data.name, this.MSA?.getRow(data.name)] as const)
         .filter((f): f is [string, string[]] => !!f[1])
     },
-
+    /**
+     * #getter
+     */
     get columns() {
       return Object.fromEntries(
         this.rows.map((row, index) => [row[0], this.columns2d[index]] as const),
       )
     },
-
+    /**
+     * #getter
+     */
     get columns2d() {
       return this.rows.map(r => r[1]).map(str => skipBlanks(this.blanks, str))
     },
-
+    /**
+     * #getter
+     */
     get colStats() {
       const r = [] as Record<string, number>[]
       const columns = this.columns2d
@@ -513,8 +752,10 @@ const MSAModel = types
       }
       return r
     },
-
-    // generates a new tree that is clustered with x,y positions
+    /**
+     * #getter
+     * generates a new tree that is clustered with x,y positions
+     */
     get hierarchy(): HierarchyNode<NodeWithIdsAndLength> {
       const root = this.root
       const clust = cluster<NodeWithIds>()
@@ -528,12 +769,17 @@ const MSAModel = types
       )
       return root as HierarchyNode<NodeWithIdsAndLength>
     },
-
+    /**
+     * #getter
+     */
     get totalHeight() {
       return this.root.leaves().length * self.rowHeight
     },
   }))
   .actions(self => ({
+    /**
+     * #action
+     */
     addUniprotTrack(node: { name: string; accession: string }) {
       if (self.boxTracks.some(t => t.name === node.name)) {
         if (self.turnedOffTracks.has(node.name)) {
@@ -547,11 +793,15 @@ const MSAModel = types
         })
       }
     },
-
+    /**
+     * #action
+     */
     doScrollY(deltaY: number) {
       self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 0)
     },
-
+    /**
+     * #action
+     */
     doScrollX(deltaX: number) {
       self.scrollX = clamp(
         -self.numColumns + (self.msaAreaWidth - 100),
@@ -559,6 +809,9 @@ const MSAModel = types
         0,
       )
     },
+    /**
+     * #action
+     */
     setMouseoveredColumn(n: number, chain: string, file: string) {
       let j = 0
       let i = 0
@@ -576,7 +829,9 @@ const MSAModel = types
         self.mouseCol = undefined
       }
     },
-
+    /**
+     * #action
+     */
     toggleTrack(id: string) {
       if (self.turnedOffTracks.has(id)) {
         self.turnedOffTracks.delete(id)
@@ -586,14 +841,21 @@ const MSAModel = types
     },
   }))
   .views(self => ({
+    /**
+     * #getter
+     */
     get secondaryStructureConsensus() {
       return self.MSA?.secondaryStructureConsensus
     },
-
+    /**
+     * #getter
+     */
     get seqConsensus() {
       return self.MSA?.seqConsensus
     },
-
+    /**
+     * #getter
+     */
     get conservation() {
       if (self.columns2d.length) {
         for (let i = 0; i < self.columns2d[0].length; i++) {
@@ -605,7 +867,9 @@ const MSAModel = types
       }
       return ['a']
     },
-
+    /**
+     * #getter
+     */
     get tracks(): BasicTrack[] {
       const blanks = self.blanks
       const adapterTracks = self.MSA
@@ -667,16 +931,22 @@ const MSAModel = types
 
       return [...adapterTracks, ...boxTracks, ...annotationTracks]
     },
-
+    /**
+     * #getter
+     */
     get turnedOnTracks() {
       return this.tracks.filter(f => !self.turnedOffTracks.has(f.model.id))
     },
-
-    // returns coordinate in the current relative coordinate scheme
+    /**
+     * #method
+     * returns coordinate in the current relative coordinate scheme
+     */
     pxToBp(coord: number) {
       return Math.floor((coord - self.scrollX) / self.colWidth)
     },
-
+    /**
+     * #method
+     */
     rowSpecificBpToPx(rowName: string, position: number) {
       const { rowNames, rows, blanks } = self
       const index = rowNames.indexOf(rowName)
@@ -707,6 +977,9 @@ const MSAModel = types
 
       return i - count
     },
+    /**
+     * #method
+     */
     globalBpToPx(position: number) {
       let count = 0
       for (let k = 0; k < self.rows[0]?.[1].length; k++) {
@@ -717,7 +990,9 @@ const MSAModel = types
 
       return position - count
     },
-
+    /**
+     * #method
+     */
     relativePxToBp(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
@@ -736,7 +1011,9 @@ const MSAModel = types
       }
       return 0
     },
-
+    /**
+     * #method
+     */
     getPos(pos: number) {
       let j = 0
       for (let i = 0, k = 0; i < pos; i++, j++) {
@@ -749,6 +1026,9 @@ const MSAModel = types
     },
   }))
   .actions(self => ({
+    /**
+     * #action
+     */
     addAnnotation(
       start: number,
       end: number,
@@ -760,11 +1040,15 @@ const MSAModel = types
         attributes,
       })
     },
-
+    /**
+     * #action
+     */
     setOffsets(left: number, right: number) {
       self.annotPos = { left, right }
     },
-
+    /**
+     * #action
+     */
     clearAnnotPos() {
       self.annotPos = undefined
     },
