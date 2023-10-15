@@ -5,9 +5,13 @@
 Install react-msaview. Your app should have @jbrowse/core, @mui/material, react,
 react-dom since react-msaview uses these as peerDependencies
 
-\$ yarn add react-msaview
+```sh
 
-Example script
+$ yarn add react-msaview
+
+```
+
+Example script using the react-msaview package:
 
 ```typescript
 import { observer } from 'mobx-react'
