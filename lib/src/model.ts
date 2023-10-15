@@ -49,7 +49,10 @@ export interface TextTrackModel extends BasicTrackModel {
 }
 
 export interface BoxTrackModel extends BasicTrackModel {
-  features: { start: number; end: number }[]
+  features: {
+    start: number
+    end: number
+  }[]
 }
 export interface ITextTrack {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,6 +67,7 @@ export interface IBoxTrack {
 }
 
 type BasicTrack = IBoxTrack | ITextTrack
+type StructureSnap = SnapshotIn<typeof StructureModel>
 
 const MSAModel = types
   .model('MsaView', {
@@ -140,10 +144,10 @@ const MSAModel = types
     setHeight(height: number) {
       self.height = height
     },
-    addStructureToSelection(elt: SnapshotIn<typeof StructureModel>) {
+    addStructureToSelection(elt: StructureSnap) {
       self.selectedStructures.push(elt)
     },
-    removeStructureFromSelection(elt: SnapshotIn<typeof StructureModel>) {
+    removeStructureFromSelection(elt: StructureSnap) {
       const r = self.selectedStructures.find(node => node.id === elt.id)
       if (r) {
         self.selectedStructures.remove(r)
