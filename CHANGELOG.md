@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v2.1.2
+
+- Add auto-generated API docs
+- Convert to postProcessSnapshot, as snapshotProcessor was producing typescript
+  errors
+
+## v2.1.1
+
+- Convert to colord for smaller bundle
+
+## v2.1.0
+
+- Use proper typescript types from ngl (currently had a ts-nocheck on
+  ProteinPanel)
+- Fix crash when changing MSA models with a protein panel still open in the app
+- Add zoom in and out buttons
+- Add horizontal mouse over
+- Fix uniprot track by stripping version number
+
 ## v2.0.0
 
 Bump deps to e.g. MUIv5
