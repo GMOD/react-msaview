@@ -67,9 +67,7 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
         <Suspense fallback={null}>
           <model.DialogComponent
             {...(model.DialogProps || {})}
-            onClose={() => {
-              model.setDialogComponent(undefined, undefined)
-            }}
+            onClose={() => model.setDialogComponent()}
           />
         </Suspense>
       ) : null}
@@ -79,7 +77,7 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
           <AnnotationDialog
             data={model.annotPos}
             model={model}
-            onClose={() => model.clearAnnotPos()}
+            onClose={() => model.clearAnnotationClickBoundaries()}
           />
         </Suspense>
       ) : null}

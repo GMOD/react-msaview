@@ -133,7 +133,7 @@ function Rubberband({
 
   function mouseOut() {
     setGuideX(undefined)
-    model.clearAnnotPos()
+    model.clearAnnotationClickBoundaries()
   }
 
   function handleClose() {
@@ -180,7 +180,7 @@ function Rubberband({
       label: 'Create annotation',
       icon: AssignmentIcon,
       onClick: () => {
-        model.setOffsets(leftBpOffset, rightBpOffset)
+        model.setAnnotationClickBoundaries(leftBpOffset, rightBpOffset)
         handleClose()
       },
     },

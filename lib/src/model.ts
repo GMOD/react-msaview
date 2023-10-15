@@ -238,7 +238,7 @@ const MSAModel = types
      * #action
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setDialogComponent(dlg: React.FC<any> | undefined, props: any) {
+    setDialogComponent(dlg?: React.FC<any>, props?: any) {
       self.DialogComponent = dlg
       self.DialogProps = props
     },
@@ -1043,13 +1043,13 @@ const MSAModel = types
     /**
      * #action
      */
-    setOffsets(left: number, right: number) {
+    setAnnotationClickBoundaries(left: number, right: number) {
       self.annotPos = { left, right }
     },
     /**
      * #action
      */
-    clearAnnotPos() {
+    clearAnnotationClickBoundaries() {
       self.annotPos = undefined
     },
   }))

@@ -45,7 +45,6 @@ interface StateModel {
 }
 
 function generateStateModelDocs(files: string[]) {
-  console.log({ files })
   const cwd = process.cwd() + '/'
   const contents = {} as Record<string, StateModel>
   extractWithComment(files, obj => {

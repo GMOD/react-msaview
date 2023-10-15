@@ -748,13 +748,13 @@ addStructureToSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimple
 addUniprotTrack: (node: { name: string; accession: string; }) => void
 ```
 
-#### action: clearAnnotPos
+#### action: clearAnnotationClickBoundaries
 
 
 
 ```js
 // type signature
-clearAnnotPos: () => void
+clearAnnotationClickBoundaries: () => void
 ```
 
 #### action: clearSelectedStructures
@@ -791,6 +791,15 @@ doScrollY: (deltaY: number) => void
 ```js
 // type signature
 removeStructureFromSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }>>) => void
+```
+
+#### action: setAnnotationClickBoundaries
+
+
+
+```js
+// type signature
+setAnnotationClickBoundaries: (left: number, right: number) => void
 ```
 
 #### action: setColorSchemeName
@@ -835,7 +844,7 @@ setData: (data: { msa?: string; tree?: string; }) => void
 
 ```js
 // type signature
-setDialogComponent: (dlg: any, props: any) => void
+setDialogComponent: (dlg?: React.FC<any>, props?: any) => void
 ```
 
 #### action: setError
@@ -890,15 +899,6 @@ setMSA: (result: string) => void
 ```js
 // type signature
 setMSAFilehandle: (msaFilehandle?: FileLocation) => Promise<void>
-```
-
-#### action: setOffsets
-
-
-
-```js
-// type signature
-setOffsets: (left: number, right: number) => void
 ```
 
 #### action: setRowHeight
