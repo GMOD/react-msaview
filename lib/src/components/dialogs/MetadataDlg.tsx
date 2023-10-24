@@ -18,7 +18,6 @@ const MetadataDialog = observer(function ({
     header,
     data: { treeMetadata },
   } = model
-  console.log({ header, treeMetadata })
 
   return (
     <Dialog onClose={() => onClose()} open title="Metadata">

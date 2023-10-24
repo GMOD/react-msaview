@@ -45,6 +45,7 @@ interface StateModel {
 }
 
 function generateStateModelDocs(files: string[]) {
+  // eslint-disable-next-line no-undef
   const cwd = process.cwd() + '/'
   const contents = {} as Record<string, StateModel>
   extractWithComment(files, obj => {

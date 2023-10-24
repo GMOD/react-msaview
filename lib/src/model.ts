@@ -986,7 +986,7 @@ const model = types
      * #method
      */
     rowSpecificBpToPx(rowName: string, position: number) {
-      const { rowNames, rows, blanks } = self
+      const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
       const row = rows[index][1]
       const details = self.getRowData(rowName)
