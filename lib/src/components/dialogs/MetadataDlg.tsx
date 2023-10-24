@@ -14,10 +14,7 @@ const MetadataDialog = observer(function ({
   model: MsaViewModel
   onClose: () => void
 }) {
-  const {
-    header,
-    data: { treeMetadata },
-  } = model
+  const { header } = model
 
   return (
     <Dialog onClose={() => onClose()} open title="Metadata">
