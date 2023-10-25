@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v2.1.4
+
+- Remove type:module as it caused issues in esbuild
+
+## v2.1.3
+
+- Add concept of treeMetadata, for mapping species names to display labels
+
 ## v2.1.2
 
 - Add auto-generated API docs
