@@ -21,6 +21,8 @@ const MSAMouseoverCanvas = observer(function ({
     scrollX,
     scrollY,
     mouseCol,
+    // @ts-expect-error
+    mouseCol2,
     mouseRow,
     rowHeight,
     colWidth,
@@ -39,20 +41,30 @@ const MSAMouseoverCanvas = observer(function ({
     ctx.resetTransform()
     ctx.clearRect(0, 0, width, height)
 
-    ctx.fillStyle = 'rgba(0,0,0,0.15)'
     if (mouseCol !== undefined) {
+      ctx.fillStyle = 'rgba(0,0,0,0.15)'
       const x =
         (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
 
       ctx.fillRect(x, 0, colWidth, height)
     }
+
     if (mouseRow !== undefined) {
+      ctx.fillStyle = 'rgba(0,0,0,0.15)'
       const y =
         mouseRow * rowHeight + scrollY + rulerHeight + totalTrackAreaHeight
       ctx.fillRect(treeAreaWidth + resizeHandleWidth, y, width, rowHeight)
     }
+    if (mouseCol2 !== undefined) {
+      ctx.fillStyle = 'rgba(255,255,0,0.2)'
+      const x =
+        (mouseCol2 - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
+
+      ctx.fillRect(x, 0, colWidth, height)
+    }
   }, [
     mouseCol,
+    mouseCol2,
     colWidth,
     scrollY,
     totalTrackAreaHeight,
