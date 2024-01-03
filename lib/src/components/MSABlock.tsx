@@ -81,13 +81,13 @@ const MSABlock = observer(function ({
           colorSchemeName === 'clustalx_protein_dynamic'
             ? getClustalXColor(colStats[xStart + i], model, name, xStart + i)
             : colorSchemeName === 'percent_identity_dynamic'
-            ? getPercentIdentityColor(
-                colStats[xStart + i],
-                model,
-                name,
-                xStart + i,
-              )
-            : colorScheme[letter.toUpperCase()]
+              ? getPercentIdentityColor(
+                  colStats[xStart + i],
+                  model,
+                  name,
+                  xStart + i,
+                )
+              : colorScheme[letter.toUpperCase()]
         if (bgColor) {
           const x = i * colWidth + offsetX - (offsetX % colWidth)
           ctx.fillStyle = color || 'white'
