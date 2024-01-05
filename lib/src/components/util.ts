@@ -1,3 +1,6 @@
+import { FileLocation } from '@jbrowse/core/util'
+import { MsaViewModel } from '../model'
+
 /**
  * Given a scale ( bp/px ) and minimum distances (px) between major and minor
  * gridlines, return an object like `{ majorPitch: bp, minorPitch: bp }` giving
@@ -90,4 +93,22 @@ export function mathPower(num: number): string {
     -3,
     -3 + 3,
   )}`
+}
+
+export async function load(
+  model: MsaViewModel,
+  msaFile?: FileLocation,
+  treeFile?: FileLocation,
+) {
+  model.setError(undefined)
+  try {
+    if (msaFile) {
+      await model.setMSAFilehandle(msaFile)
+    }
+    if (treeFile) {
+      await model.setTreeFilehandle(treeFile)
+    }
+  } catch (e) {
+    model.setError(e)
+  }
 }
