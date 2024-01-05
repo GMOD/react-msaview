@@ -42,11 +42,12 @@ const Header = observer(({ model }: { model: MsaViewModel }) => {
         onClick={async () => {
           try {
             model.setData({ tree: '', msa: '' })
-            await model.setTreeFilehandle(undefined)
-            await model.setMSAFilehandle(undefined)
+            model.clearSelectedStructures()
             model.setScrollY(0)
             model.setScrollX(0)
             model.setCurrentAlignment(0)
+            await model.setTreeFilehandle(undefined)
+            await model.setMSAFilehandle(undefined)
           } catch (e) {
             console.error(e)
             model.setError(e)
