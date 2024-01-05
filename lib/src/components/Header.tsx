@@ -30,7 +30,7 @@ const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   )
 })
 
-const Header = observer(({ model }: { model: MsaViewModel }) => {
+const Header = observer(function ({ model }: { model: MsaViewModel }) {
   const [settingsDialogViz, setSettingsDialogViz] = useState(false)
   const [aboutDialogViz, setAboutDialogViz] = useState(false)
   const [detailsDialogViz, setMetadataDialogViz] = useState(false)
