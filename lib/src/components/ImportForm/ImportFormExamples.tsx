@@ -114,7 +114,7 @@ const ImportFormExamples = observer(function ({
           load(
             model,
             {
-              uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
+              uri: '/rhv_test-only.aligned_with_mafft_auto.fa',
               locationType: 'UriLocation',
             },
             {

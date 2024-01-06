@@ -18,8 +18,8 @@ import TreePanel from './TreePanel'
 
 const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDlg'))
 
-export default observer(function ({ model }: { model: MsaViewModel }) {
-  const { done, initialized, treeAreaWidth, height, turnedOnTracks } = model
+const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
+  const { done, initialized } = model
 
   return (
     <div>
@@ -28,36 +28,43 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
       ) : !done ? (
         <Typography variant="h4">Loading...</Typography>
       ) : (
+        <MSAView2 model={model} />
+      )}
+    </div>
+  )
+})
+
+const MSAView2 = observer(function ({ model }: { model: MsaViewModel }) {
+  const { treeAreaWidth, height, turnedOnTracks } = model
+  return (
+    <div>
+      <div style={{ height, overflow: 'hidden' }}>
+        <Header model={model} />
         <div>
-          <div style={{ height, overflow: 'hidden' }}>
-            <Header model={model} />
-            <div>
-              <div style={{ position: 'relative' }}>
-                <div style={{ display: 'flex' }}>
-                  <div style={{ flexShrink: 0, width: treeAreaWidth }}>
-                    <TreeRuler model={model} />
-                  </div>
-
-                  <Rubberband
-                    model={model}
-                    ControlComponent={<Ruler model={model} />}
-                  />
-                </div>
-                {turnedOnTracks?.map(track => (
-                  <Track key={track.model.id} model={model} track={track} />
-                ))}
-
-                <div style={{ display: 'flex' }}>
-                  <TreePanel model={model} />
-                  <VerticalResizeHandle model={model} />
-                  <MSAPanel model={model} />
-                </div>
+          <div style={{ position: 'relative' }}>
+            <div style={{ display: 'flex' }}>
+              <div style={{ flexShrink: 0, width: treeAreaWidth }}>
+                <TreeRuler model={model} />
               </div>
+
+              <Rubberband
+                model={model}
+                ControlComponent={<Ruler model={model} />}
+              />
+            </div>
+            {turnedOnTracks?.map(track => (
+              <Track key={track.model.id} model={model} track={track} />
+            ))}
+
+            <div style={{ display: 'flex' }}>
+              <TreePanel model={model} />
+              <VerticalResizeHandle model={model} />
+              <MSAPanel model={model} />
             </div>
           </div>
-          <HorizontalResizeHandle model={model} />
         </div>
-      )}
+      </div>
+      <HorizontalResizeHandle model={model} />
 
       {model.DialogComponent ? (
         <Suspense fallback={null}>
@@ -80,3 +87,5 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
     </div>
   )
 })
+
+export default MSAView
