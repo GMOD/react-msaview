@@ -1,11 +1,12 @@
 import React from 'react'
+import { autorun } from 'mobx'
 import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { autorun } from 'mobx'
+import { sum } from '@jbrowse/core/util'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 import Stockholm from 'stockholm-js'
 
@@ -35,7 +36,6 @@ import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
 import { StructureModel } from './StructureModel'
-import { sum } from '@jbrowse/core/util'
 
 interface BasicTrackModel {
   id: string
@@ -640,7 +640,7 @@ const model = types
      * #getter
      */
     get numColumns() {
-      return ((this.MSA?.getWidth() || 0) - this.blanks.length) * self.colWidth
+      return ((this.MSA?.getWidth() || 0) - this.blanks.length) 
     },
     /**
      * #getter
@@ -843,7 +843,7 @@ const model = types
      */
     doScrollX(deltaX: number) {
       self.scrollX = clamp(
-        -self.numColumns + (self.msaAreaWidth - 100),
+        -(self.numColumns * self.colWidth) + (self.msaAreaWidth - 100),
         self.scrollX + deltaX,
         0,
       )
