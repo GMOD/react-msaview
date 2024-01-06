@@ -24,9 +24,20 @@ function App() {
 
   const model = MSAModel.create({ id: `${Math.random()}`, type: 'MsaView' })
   // can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
-  // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", msaFilehandle: {uri:'http://path/to/msa.stock'} });
+  //
+  // const model = MSAModel.create({
+  //   id: `${Math.random()}`,
+  //   type: "MsaView",
+  //   msaFilehandle: {uri:'http://path/to/msa.stock'}
+  // });
+  //
   // or pass a string of an msa/tree directly to the "data" field if not pointing to a URL
-  // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", data: {msa:/*string of msa here */} });
+  //
+  // const model = MSAModel.create({
+  //   id: `${Math.random()}`,
+  //   type: "MsaView",
+  //   data: {msa:/*string of msa here */}
+  // });
 
   // choose MSA width, calculate width of div/rendering area if needed beforehand
   model.setWidth(1800)
