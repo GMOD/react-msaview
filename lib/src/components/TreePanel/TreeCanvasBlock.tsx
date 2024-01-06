@@ -41,9 +41,8 @@ function drawCanvas({
   model: MsaViewModel
   offsetY: number
   ctx: CanvasRenderingContext2D
-  clickMap: RBush<any>
+  clickMap: RBush<ClickEntry>
 }) {
-  console.log('here')
   clickMap.clear()
   const {
     noTree,

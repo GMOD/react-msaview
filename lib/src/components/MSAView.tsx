@@ -40,27 +40,25 @@ const MSAView2 = observer(function ({ model }: { model: MsaViewModel }) {
     <div>
       <div style={{ height, overflow: 'hidden' }}>
         <Header model={model} />
-        <div>
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'flex' }}>
-              <div style={{ flexShrink: 0, width: treeAreaWidth }}>
-                <TreeRuler model={model} />
-              </div>
-
-              <Rubberband
-                model={model}
-                ControlComponent={<Ruler model={model} />}
-              />
+        <div style={{ position: 'relative' }}>
+          <div style={{ display: 'flex' }}>
+            <div style={{ flexShrink: 0, width: treeAreaWidth }}>
+              <TreeRuler model={model} />
             </div>
-            {turnedOnTracks?.map(track => (
-              <Track key={track.model.id} model={model} track={track} />
-            ))}
 
-            <div style={{ display: 'flex' }}>
-              <TreePanel model={model} />
-              <VerticalResizeHandle model={model} />
-              <MSAPanel model={model} />
-            </div>
+            <Rubberband
+              model={model}
+              ControlComponent={<Ruler model={model} />}
+            />
+          </div>
+          {turnedOnTracks?.map(track => (
+            <Track key={track.model.id} model={model} track={track} />
+          ))}
+
+          <div style={{ display: 'flex' }}>
+            <TreePanel model={model} />
+            <VerticalResizeHandle model={model} />
+            <MSAPanel model={model} />
           </div>
         </div>
       </div>
