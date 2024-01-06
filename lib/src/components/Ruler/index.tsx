@@ -18,7 +18,7 @@ const Ruler = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLDivElement>(null)
   const offsetX = blocksX[0]
 
-  return !MSA ? null : (
+  return MSA ? (
     <div
       ref={ref}
       style={{
@@ -46,7 +46,7 @@ const Ruler = observer(function ({ model }: { model: MsaViewModel }) {
         />
       </svg>
     </div>
-  )
+  ) : null
 })
 
 export default Ruler
