@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { observer } from 'mobx-react'
 import { onSnapshot } from 'mobx-state-tree'
 import { MSAView } from 'react-msaview'
@@ -7,7 +7,9 @@ import { ThemeProvider } from '@mui/material/styles'
 
 // locals
 import AppGlobal, { AppModel } from './model'
-import ProteinPanel from './ProteinPanel'
+
+// lazies
+const ProteinPanel = lazy(() => import('./ProteinPanel'))
 
 const urlParams = new URLSearchParams(window.location.search)
 const val = urlParams.get('data')
@@ -41,7 +43,11 @@ const App = observer(({ model }: { model: AppModel }) => {
       <div style={{ border: '1px solid black', margin: 20 }}>
         <MSAView model={msaview} />
       </div>
-      <ProteinPanel model={model} />
+      {msaview.selectedStructures.length ? (
+        <Suspense fallback={null}>
+          <ProteinPanel model={model} />
+        </Suspense>
+      ) : null}
     </div>
   )
 })
