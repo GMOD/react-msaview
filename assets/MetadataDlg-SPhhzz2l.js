@@ -1,0 +1,2 @@
+import{o as r,R as e,u as n,D as s}from"./index-SEQt8VF-.js";import{B as i}from"./index-Cmm1_PZk.js";import"./index-SCwaNniL.js";const c=r(function({model:t,onClose:a}){const{header:o}=t;return e.createElement(n.Dialog,{onClose:()=>a(),open:!0,title:"Metadata"},e.createElement(s,null,e.createElement(i.Attributes,{attributes:o})))});export{c as default};
+//# sourceMappingURL=MetadataDlg-SPhhzz2l.js.map
