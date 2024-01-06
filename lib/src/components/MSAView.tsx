@@ -38,7 +38,7 @@ const MSAView2 = observer(function ({ model }: { model: MsaViewModel }) {
   const { treeAreaWidth, height, turnedOnTracks } = model
   return (
     <div>
-      <div style={{ height, overflow: 'hidden' }}>
+      <div style={{ overflow: 'hidden' }}>
         <Header model={model} />
         <div style={{ position: 'relative' }}>
           <div style={{ display: 'flex' }}>

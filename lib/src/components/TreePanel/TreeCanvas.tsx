@@ -5,8 +5,7 @@ import { observer } from 'mobx-react'
 // locals
 import { MsaViewModel } from '../../model'
 import TreeCanvasBlock from './TreeCanvasBlock'
-
-const padding = 600
+import { padding } from './renderTreeCanvas'
 
 const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLDivElement>(null)

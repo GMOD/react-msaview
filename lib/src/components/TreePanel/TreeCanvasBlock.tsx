@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 import RBush from 'rbush'
 
@@ -6,14 +7,7 @@ import RBush from 'rbush'
 import { MsaViewModel } from '../../model'
 import TreeMenu from './TreeMenu'
 import TreeBranchMenu from './TreeBranchMenu'
-import {
-  renderNodeBubbles,
-  renderTree,
-  renderTreeLabels,
-} from './renderTreeCanvas'
-import { autorun } from 'mobx'
-
-const padding = 600
+import { padding, renderTreeCanvas } from './renderTreeCanvas'
 
 interface TooltipData {
   name: string
@@ -30,50 +24,6 @@ interface ClickEntry {
   maxX: number
   minY: number
   maxY: number
-}
-
-function drawCanvas({
-  model,
-  clickMap,
-  ctx,
-  offsetY,
-}: {
-  model: MsaViewModel
-  offsetY: number
-  ctx: CanvasRenderingContext2D
-  clickMap: RBush<ClickEntry>
-}) {
-  clickMap.clear()
-  const {
-    noTree,
-    drawTree,
-    drawNodeBubbles,
-    treeWidth,
-    highResScaleFactor,
-    margin,
-    blockSize,
-    rowHeight,
-  } = model
-
-  ctx.resetTransform()
-  ctx.scale(highResScaleFactor, highResScaleFactor)
-  ctx.clearRect(0, 0, treeWidth + padding, blockSize)
-  ctx.translate(margin.left, -offsetY)
-
-  const font = ctx.font
-  ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
-
-  if (!noTree && drawTree) {
-    renderTree({ ctx, offsetY, model })
-
-    if (drawNodeBubbles) {
-      renderNodeBubbles({ ctx, offsetY, clickMap, model })
-    }
-  }
-
-  if (rowHeight >= 5) {
-    renderTreeLabels({ ctx, offsetY, model, clickMap })
-  }
 }
 
 const TreeCanvasBlock = observer(function ({
@@ -93,24 +43,22 @@ const TreeCanvasBlock = observer(function ({
   const { scrollY, treeWidth, margin, blockSize, highResScaleFactor } = model
 
   useEffect(() => {
-    if (!ref.current) {
-      return
-    }
-    const ctx = ref.current.getContext('2d')
+    const ctx = ref.current?.getContext('2d')
     if (!ctx) {
       return
     }
     return autorun(() => {
-      drawCanvas({ ctx, model, offsetY, clickMap: clickMap.current })
+      renderTreeCanvas({
+        ctx,
+        model,
+        offsetY,
+        clickMap: clickMap.current,
+      })
     })
   }, [model, offsetY])
 
   useEffect(() => {
-    const canvas = mouseoverRef.current
-    if (!canvas) {
-      return
-    }
-    const ctx = canvas.getContext('2d')
+    const ctx = mouseoverRef.current?.getContext('2d')
     if (!ctx) {
       return
     }
