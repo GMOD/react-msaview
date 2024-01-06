@@ -3,7 +3,7 @@ import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 import TreeCanvasBlock from './TreeCanvasBlock'
 
 const padding = 600

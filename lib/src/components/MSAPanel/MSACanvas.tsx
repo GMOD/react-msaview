@@ -4,7 +4,7 @@ import { observer } from 'mobx-react'
 import normalizeWheel from 'normalize-wheel'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 import MSABlock from './MSABlock'
 
 const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {

@@ -3,7 +3,7 @@ import { Typography, Link } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 import { smallTree, smallMSA, smallMSAOnly } from './data/seq2'
 import { load } from './util'
 

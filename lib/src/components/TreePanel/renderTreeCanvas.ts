@@ -1,7 +1,7 @@
 import RBush from 'rbush'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 const extendBounds = 5
 const radius = 3.5

@@ -2,7 +2,7 @@ import React from 'react'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 const TreeRuler = observer(({ model }: { model: MsaViewModel }) => {
   const { treeWidth } = model

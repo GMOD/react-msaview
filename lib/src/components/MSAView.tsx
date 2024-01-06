@@ -6,16 +6,15 @@ import { Typography } from '@mui/material'
 // locals
 import ImportForm from './ImportForm'
 import Rubberband from './Rubberband'
-import TreeCanvas from './TreeCanvas'
-import MSACanvas from './MSACanvas'
 import Ruler from './Ruler'
-import TreeRuler from './TreeRuler'
+import TreeRuler from './TreePanel/TreeRuler'
 import Header from './Header'
 import Track from './Track'
 
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
-import MSAMouseoverCanvas from './MSAMouseoverCanvas'
+import MSAPanel from './MSAPanel'
+import TreePanel from './TreePanel'
 
 const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDlg'))
 
@@ -49,12 +48,9 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
                 ))}
 
                 <div style={{ display: 'flex' }}>
-                  <div style={{ flexShrink: 0, width: treeAreaWidth }}>
-                    <TreeCanvas model={model} />
-                  </div>
+                  <TreePanel model={model} />
                   <VerticalResizeHandle model={model} />
-                  <MSACanvas model={model} />
-                  <MSAMouseoverCanvas model={model} />
+                  <MSAPanel model={model} />
                 </div>
               </div>
             </div>

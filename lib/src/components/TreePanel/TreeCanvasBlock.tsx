@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import RBush from 'rbush'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 import TreeMenu from './TreeMenu'
 import TreeBranchMenu from './TreeBranchMenu'
 import {

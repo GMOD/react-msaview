@@ -5,7 +5,7 @@ import { FileSelector } from '@jbrowse/core/ui'
 import { FileLocation } from '@jbrowse/core/util/types'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 import { load } from './util'
 import ImportFormExamples from './ImportFormExamples'
 

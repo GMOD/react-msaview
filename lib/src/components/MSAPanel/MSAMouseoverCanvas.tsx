@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react'
 import { observer } from 'mobx-react'
+import { sum } from '@jbrowse/core/util'
 
 // locals
-import { MsaViewModel } from '../model'
-import { sum } from '@jbrowse/core/util'
+import { MsaViewModel } from '../../model'
 
 const MSAMouseoverCanvas = observer(function ({
   model,
