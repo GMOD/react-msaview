@@ -640,7 +640,7 @@ const model = types
      * #getter
      */
     get numColumns() {
-      return ((this.MSA?.getWidth() || 0) - this.blanks.length) 
+      return (this.MSA?.getWidth() || 0) - this.blanks.length
     },
     /**
      * #getter
