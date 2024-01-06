@@ -71,9 +71,12 @@ export function renderNodeBubbles({
       [val]: x,
       data,
     } = node
-    const { id = '', name = '' } = data
-
-    if (y > offsetY - extendBounds && y < offsetY + blockSize + extendBounds) {
+    const { branchset, id = '', name = '' } = data
+    if (
+      branchset.length &&
+      y > offsetY - extendBounds &&
+      y < offsetY + blockSize + extendBounds
+    ) {
       ctx.strokeStyle = 'black'
       ctx.fillStyle = collapsed.includes(id) ? 'black' : 'white'
       ctx.beginPath()
