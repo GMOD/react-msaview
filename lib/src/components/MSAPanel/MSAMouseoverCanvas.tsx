@@ -1,9 +1,58 @@
 import React, { useEffect, useRef } from 'react'
 import { observer } from 'mobx-react'
-import { sum } from '@jbrowse/core/util'
 
 // locals
 import { MsaViewModel } from '../../model'
+import { autorun } from 'mobx'
+
+function renderMouseover({
+  ctx,
+  model,
+}: {
+  ctx: CanvasRenderingContext2D
+  model: MsaViewModel
+}) {
+  const {
+    mouseCol,
+    colWidth,
+    treeAreaWidth,
+    resizeHandleWidth,
+    width,
+    height,
+    rowHeight,
+    scrollX,
+    scrollY,
+    mouseRow,
+    // @ts-expect-error
+    mouseCol2,
+    rulerHeight,
+    totalTrackAreaHeight,
+  } = model
+  ctx.resetTransform()
+  ctx.clearRect(0, 0, width, height)
+
+  if (mouseCol !== undefined) {
+    ctx.fillStyle = 'rgba(0,0,0,0.15)'
+    const x =
+      (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
+
+    ctx.fillRect(x, 0, colWidth, height)
+  }
+
+  if (mouseRow !== undefined) {
+    ctx.fillStyle = 'rgba(0,0,0,0.15)'
+    const y =
+      mouseRow * rowHeight + scrollY + rulerHeight + totalTrackAreaHeight
+    ctx.fillRect(treeAreaWidth + resizeHandleWidth, y, width, rowHeight)
+  }
+  if (mouseCol2 !== undefined) {
+    ctx.fillStyle = 'rgba(255,255,0,0.2)'
+    const x =
+      (mouseCol2 - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
+
+    ctx.fillRect(x, 0, colWidth, height)
+  }
+}
 
 const MSAMouseoverCanvas = observer(function ({
   model,
@@ -11,72 +60,16 @@ const MSAMouseoverCanvas = observer(function ({
   model: MsaViewModel
 }) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const {
-    height,
-    width,
-    treeAreaWidth,
-    resizeHandleWidth,
-    rulerHeight,
-    turnedOnTracks,
-    scrollX,
-    scrollY,
-    mouseCol,
-    // @ts-expect-error
-    mouseCol2,
-    mouseRow,
-    rowHeight,
-    colWidth,
-  } = model
-  const totalTrackAreaHeight = sum(turnedOnTracks.map(r => r.model.height))
+  const { height, width } = model
   useEffect(() => {
-    if (!ref.current) {
-      return
-    }
-
-    const ctx = ref.current.getContext('2d')
+    const ctx = ref.current?.getContext('2d')
     if (!ctx) {
       return
     }
-
-    ctx.resetTransform()
-    ctx.clearRect(0, 0, width, height)
-
-    if (mouseCol !== undefined) {
-      ctx.fillStyle = 'rgba(0,0,0,0.15)'
-      const x =
-        (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
-
-      ctx.fillRect(x, 0, colWidth, height)
-    }
-
-    if (mouseRow !== undefined) {
-      ctx.fillStyle = 'rgba(0,0,0,0.15)'
-      const y =
-        mouseRow * rowHeight + scrollY + rulerHeight + totalTrackAreaHeight
-      ctx.fillRect(treeAreaWidth + resizeHandleWidth, y, width, rowHeight)
-    }
-    if (mouseCol2 !== undefined) {
-      ctx.fillStyle = 'rgba(255,255,0,0.2)'
-      const x =
-        (mouseCol2 - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
-
-      ctx.fillRect(x, 0, colWidth, height)
-    }
-  }, [
-    mouseCol,
-    mouseCol2,
-    colWidth,
-    scrollY,
-    totalTrackAreaHeight,
-    mouseRow,
-    rowHeight,
-    rulerHeight,
-    scrollX,
-    height,
-    resizeHandleWidth,
-    treeAreaWidth,
-    width,
-  ])
+    return autorun(() => {
+      renderMouseover({ ctx, model })
+    })
+  }, [model])
 
   return (
     <canvas

@@ -35,6 +35,7 @@ import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
 import { StructureModel } from './StructureModel'
+import { sum } from '@jbrowse/core/util'
 
 interface BasicTrackModel {
   id: string
@@ -1092,6 +1093,14 @@ const model = types
      */
     clearAnnotationClickBoundaries() {
       self.annotPos = undefined
+    },
+  }))
+  .views(self => ({
+    /**
+     * #getter
+     */
+    get totalTrackAreaHeight() {
+      return sum(self.turnedOnTracks.map(r => r.model.height))
     },
   }))
   .postProcessSnapshot(result => {
