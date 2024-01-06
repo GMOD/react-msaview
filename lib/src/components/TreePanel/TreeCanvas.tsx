@@ -1,23 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { Typography, CircularProgress } from '@mui/material'
-import { observer } from 'mobx-react'
+import React, { useEffect, useRef, useState } from 'react'
 import normalizeWheel from 'normalize-wheel'
+import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../model'
-import MSABlock from './MSABlock'
+import { MsaViewModel } from '../../model'
+import TreeCanvasBlock from './TreeCanvasBlock'
+import { padding } from './renderTreeCanvas'
 
-const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
-  const { MSA, msaFilehandle, height, msaAreaWidth, blocks2d } = model
+const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLDivElement>(null)
-  // wheel
   const scheduled = useRef(false)
-  const deltaX = useRef(0)
   const deltaY = useRef(0)
-  // mouse click-and-drag scrolling
-  const prevX = useRef<number>(0)
   const prevY = useRef<number>(0)
+  const { treeWidth, height, blocksY } = model
   const [mouseDragging, setMouseDragging] = useState(false)
+
   useEffect(() => {
     const curr = ref.current
     if (!curr) {
@@ -25,15 +22,12 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     }
     function onWheel(origEvent: WheelEvent) {
       const event = normalizeWheel(origEvent)
-      deltaX.current += event.pixelX
       deltaY.current += event.pixelY
 
       if (!scheduled.current) {
         scheduled.current = true
         requestAnimationFrame(() => {
-          model.doScrollX(-deltaX.current)
           model.doScrollY(-deltaY.current)
-          deltaX.current = 0
           deltaY.current = 0
           scheduled.current = false
         })
@@ -51,20 +45,16 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
 
     function globalMouseMove(event: MouseEvent) {
       event.preventDefault()
-      const currX = event.clientX
       const currY = event.clientY
-      const distanceX = currX - prevX.current
       const distanceY = currY - prevY.current
-      if (distanceX || distanceY) {
+      if (distanceY) {
         // use rAF to make it so multiple event handlers aren't fired per-frame
         // see https://calendar.perfplanet.com/2013/the-runtime-performance-checklist/
         if (!scheduled.current) {
           scheduled.current = true
           window.requestAnimationFrame(() => {
-            model.doScrollX(distanceX)
             model.doScrollY(distanceY)
             scheduled.current = false
-            prevX.current = event.clientX
             prevY.current = event.clientY
           })
         }
@@ -72,7 +62,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     }
 
     function globalMouseUp() {
-      prevX.current = 0
+      prevY.current = 0
       if (mouseDragging) {
         setMouseDragging(false)
       }
@@ -89,54 +79,49 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     return cleanup
   }, [model, mouseDragging])
 
+  function mouseDown(event: React.MouseEvent) {
+    // check if clicking a draggable element or a resize handle
+    const target = event.target as HTMLElement
+    if (target.draggable || target.dataset.resizer) {
+      return
+    }
+
+    // otherwise do click and drag scroll
+    if (event.button === 0) {
+      prevY.current = event.clientY
+      setMouseDragging(true)
+    }
+  }
+
+  // this local mouseup is used in addition to the global because sometimes
+  // the global add/remove are not called in time, resulting in issue #533
+  function mouseUp(event: React.MouseEvent) {
+    event.preventDefault()
+    setMouseDragging(false)
+  }
+
+  function mouseLeave(event: React.MouseEvent) {
+    event.preventDefault()
+  }
+
   return (
     <div
       ref={ref}
-      onMouseDown={event => {
-        // check if clicking a draggable element or a resize handle
-        const target = event.target as HTMLElement
-        if (target.draggable || target.dataset.resizer) {
-          return
-        }
-
-        // otherwise do click and drag scroll
-        if (event.button === 0) {
-          prevX.current = event.clientX
-          prevY.current = event.clientY
-          setMouseDragging(true)
-        }
-      }}
-      onMouseUp={event => {
-        event.preventDefault()
-        setMouseDragging(false)
-      }}
-      onMouseLeave={event => {
-        event.preventDefault()
-      }}
+      onMouseDown={mouseDown}
+      onMouseUp={mouseUp}
+      onMouseLeave={mouseLeave}
       style={{
-        position: 'relative',
         height,
-        width: msaAreaWidth,
+        position: 'relative',
         overflow: 'hidden',
+        width: treeWidth + padding,
       }}
     >
-      {!MSA && !msaFilehandle ? null : !MSA ? (
-        <div style={{ position: 'absolute', left: '50%', top: '50%' }}>
-          <CircularProgress />
-          <Typography>Loading...</Typography>
-        </div>
-      ) : (
-        blocks2d.map(([bx, by]) => (
-          <MSABlock
-            key={`${bx}_${by}`}
-            model={model}
-            offsetX={bx}
-            offsetY={by}
-          />
-        ))
-      )}
+      {blocksY.map(block => (
+        <TreeCanvasBlock key={block} model={model} offsetY={block} />
+      ))}
     </div>
   )
 })
 
-export default MSACanvas
+export default TreeCanvas

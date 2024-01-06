@@ -1,8 +1,9 @@
 import RBush from 'rbush'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
+export const padding = 600
 const extendBounds = 5
 const radius = 3.5
 const d = radius * 2
@@ -189,4 +190,48 @@ export function renderTreeLabels({
     }
   }
   ctx.setLineDash([])
+}
+
+export function renderTreeCanvas({
+  model,
+  clickMap,
+  ctx,
+  offsetY,
+}: {
+  model: MsaViewModel
+  offsetY: number
+  ctx: CanvasRenderingContext2D
+  clickMap: RBush<ClickEntry>
+}) {
+  clickMap.clear()
+  const {
+    noTree,
+    drawTree,
+    drawNodeBubbles,
+    treeWidth,
+    highResScaleFactor,
+    margin,
+    blockSize,
+    rowHeight,
+  } = model
+
+  ctx.resetTransform()
+  ctx.scale(highResScaleFactor, highResScaleFactor)
+  ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+  ctx.translate(margin.left, -offsetY)
+
+  const font = ctx.font
+  ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
+
+  if (!noTree && drawTree) {
+    renderTree({ ctx, offsetY, model })
+
+    if (drawNodeBubbles) {
+      renderNodeBubbles({ ctx, offsetY, clickMap, model })
+    }
+  }
+
+  if (rowHeight >= 5) {
+    renderTreeLabels({ ctx, offsetY, model, clickMap })
+  }
 }

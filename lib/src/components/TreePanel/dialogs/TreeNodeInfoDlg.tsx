@@ -6,7 +6,7 @@ import {
   Attributes,
   BaseCard,
 } from '@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail'
-import { MsaViewModel } from '../../model'
+import { MsaViewModel } from '../../../model'
 
 export default observer(function ({
   info,

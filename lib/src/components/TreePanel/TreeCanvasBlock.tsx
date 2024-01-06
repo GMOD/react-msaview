@@ -1,18 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 import RBush from 'rbush'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 import TreeMenu from './TreeMenu'
 import TreeBranchMenu from './TreeBranchMenu'
-import {
-  renderNodeBubbles,
-  renderTree,
-  renderTreeLabels,
-} from './renderTreeCanvas'
-
-const padding = 600
+import { padding, renderTreeCanvas } from './renderTreeCanvas'
 
 interface TooltipData {
   name: string
@@ -45,81 +40,25 @@ const TreeCanvasBlock = observer(function ({
   const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
   const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
-  const {
-    hierarchy,
-    rowHeight,
-    scrollY,
-    treeWidth,
-    treeMetadata,
-    showBranchLen,
-    collapsed,
-    margin,
-    labelsAlignRight,
-    noTree,
-    blockSize,
-    drawNodeBubbles,
-    drawTree,
-    treeAreaWidth,
-    structures,
-    highResScaleFactor,
-  } = model
+  const { scrollY, treeWidth, margin, blockSize, highResScaleFactor } = model
 
   useEffect(() => {
-    clickMap.current.clear()
-
-    if (!ref.current) {
-      return
-    }
-    const ctx = ref.current.getContext('2d')
+    const ctx = ref.current?.getContext('2d')
     if (!ctx) {
       return
     }
-
-    ctx.resetTransform()
-    ctx.scale(highResScaleFactor, highResScaleFactor)
-    ctx.clearRect(0, 0, treeWidth + padding, blockSize)
-    ctx.translate(margin.left, -offsetY)
-
-    const font = ctx.font
-    ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
-
-    if (!noTree && drawTree) {
-      renderTree({ ctx, offsetY, model })
-
-      if (drawNodeBubbles) {
-        renderNodeBubbles({ ctx, offsetY, clickMap: clickMap.current, model })
-      }
-    }
-
-    if (rowHeight >= 5) {
-      renderTreeLabels({ ctx, offsetY, model, clickMap: clickMap.current })
-    }
-  }, [
-    collapsed,
-    rowHeight,
-    model,
-    margin.left,
-    hierarchy,
-    offsetY,
-    treeWidth,
-    showBranchLen,
-    noTree,
-    blockSize,
-    drawNodeBubbles,
-    drawTree,
-    labelsAlignRight,
-    treeAreaWidth,
-    structures,
-    highResScaleFactor,
-    treeMetadata,
-  ])
+    return autorun(() => {
+      renderTreeCanvas({
+        ctx,
+        model,
+        offsetY,
+        clickMap: clickMap.current,
+      })
+    })
+  }, [model, offsetY])
 
   useEffect(() => {
-    const canvas = mouseoverRef.current
-    if (!canvas) {
-      return
-    }
-    const ctx = canvas.getContext('2d')
+    const ctx = mouseoverRef.current?.getContext('2d')
     if (!ctx) {
       return
     }
