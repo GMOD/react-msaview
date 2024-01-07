@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, lazy } from 'react'
 import { observer } from 'mobx-react'
 import { makeStyles } from 'tss-react/mui'
 import { Popover, Typography, alpha } from '@mui/material'
@@ -10,6 +10,8 @@ import AssignmentIcon from '@mui/icons-material/Assignment'
 // locals
 import { MsaViewModel } from '../model'
 import VerticalGuide from './VerticalGuide'
+
+const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDlg'))
 
 const useStyles = makeStyles()(theme => {
   const background =
@@ -181,6 +183,17 @@ function Rubberband({
       icon: AssignmentIcon,
       onClick: () => {
         model.setAnnotationClickBoundaries(leftBpOffset, rightBpOffset)
+        model.queueDialog(onClose => [
+          AnnotationDialog,
+          {
+            data: model.annotPos,
+            model,
+            onClose: () => {
+              model.clearAnnotationClickBoundaries()
+              onClose()
+            },
+          },
+        ])
         handleClose()
       },
     },

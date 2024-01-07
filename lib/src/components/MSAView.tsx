@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import React, { Suspense } from 'react'
 
 import { observer } from 'mobx-react'
 import { Typography } from '@mui/material'
@@ -13,8 +13,6 @@ import { MsaViewModel } from '../model'
 import MSAPanel from './MSAPanel'
 import TreePanel from './TreePanel'
 import Minimap from './Minimap'
-
-const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDlg'))
 
 const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
   const { done, initialized } = model
@@ -33,7 +31,7 @@ const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
 })
 
 const MSAView2 = observer(function ({ model }: { model: MsaViewModel }) {
-  const { height, turnedOnTracks } = model
+  const { height, turnedOnTracks, DialogComponent, DialogProps } = model
   return (
     <div>
       <div style={{ height, overflow: 'hidden' }}>
@@ -56,22 +54,9 @@ const MSAView2 = observer(function ({ model }: { model: MsaViewModel }) {
       </div>
       <HorizontalResizeHandle model={model} />
 
-      {model.DialogComponent ? (
+      {DialogComponent ? (
         <Suspense fallback={null}>
-          <model.DialogComponent
-            {...(model.DialogProps || {})}
-            onClose={() => model.setDialogComponent()}
-          />
-        </Suspense>
-      ) : null}
-
-      {model.annotPos ? (
-        <Suspense fallback={null}>
-          <AnnotationDialog
-            data={model.annotPos}
-            model={model}
-            onClose={() => model.clearAnnotationClickBoundaries()}
-          />
+          <DialogComponent {...DialogProps} />
         </Suspense>
       ) : null}
     </div>

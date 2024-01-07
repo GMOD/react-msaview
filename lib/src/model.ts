@@ -36,6 +36,7 @@ import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
 import { StructureModel } from './StructureModel'
+import { DialogQueueSessionMixin } from './DialogQueue'
 
 interface BasicTrackModel {
   id: string
@@ -75,9 +76,16 @@ type StructureSnap = SnapshotIn<typeof StructureModel>
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
+export type DialogComponentType =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | React.LazyExoticComponent<React.FC<any>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | React.FC<any>
+
 const model = types
   .compose(
     BaseViewModel,
+    DialogQueueSessionMixin(),
     types.model('MsaView', {
       /**
        * #property
@@ -231,29 +239,16 @@ const model = types
     }),
   )
   .volatile(() => ({
-    rulerHeight: 20,
+    minimapHeight: 56,
     error: undefined as unknown,
     margin: {
       left: 20,
       top: 20,
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    DialogComponent: undefined as undefined | React.FC<any>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    DialogProps: undefined as any,
-
     // annotations
     annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
-    /**
-     * #action
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setDialogComponent(dlg?: React.FC<any>, props?: any) {
-      self.DialogComponent = dlg
-      self.DialogProps = props
-    },
     /**
      * #action
      */
