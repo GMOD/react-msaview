@@ -40,14 +40,22 @@ const TreeCanvasBlock = observer(function ({
   const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
   const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
-  const { scrollY, treeWidth, margin, blockSize, highResScaleFactor } = model
+  const {
+    scrollY,
+    treeAreaWidth,
+    treeWidth,
+    margin,
+    blockSize,
+    highResScaleFactor,
+  } = model
 
   useEffect(() => {
-    const ctx = ref.current?.getContext('2d')
-    if (!ctx) {
-      return
-    }
     return autorun(() => {
+      const ctx = ref.current?.getContext('2d')
+      if (!ctx) {
+        return
+      }
+      console.log('t1')
       renderTreeCanvas({
         ctx,
         model,
