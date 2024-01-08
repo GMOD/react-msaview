@@ -371,14 +371,14 @@ const model = types
     /**
      * #action
      */
-    toggleLabelsAlignRight() {
-      self.labelsAlignRight = !self.labelsAlignRight
+    setLabelsAlignRight(arg: boolean) {
+      self.labelsAlignRight = arg
     },
     /**
      * #action
      */
-    toggleDrawTree() {
-      self.drawTree = !self.drawTree
+    setDrawTree(arg: boolean) {
+      self.drawTree = arg
     },
     /**
      * #action
@@ -399,20 +399,20 @@ const model = types
     /**
      * #action
      */
-    toggleBranchLen() {
-      self.showBranchLen = !self.showBranchLen
+    setShowBranchLen(arg: boolean) {
+      self.showBranchLen = arg
     },
     /**
      * #action
      */
-    toggleBgColor() {
-      self.bgColor = !self.bgColor
+    setBgColor(arg: boolean) {
+      self.bgColor = arg
     },
     /**
      * #action
      */
-    toggleNodeBubbles() {
-      self.drawNodeBubbles = !self.drawNodeBubbles
+    setDrawNodeBubbles(arg: boolean) {
+      self.drawNodeBubbles = arg
     },
     /**
      * #action

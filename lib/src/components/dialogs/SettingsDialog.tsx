@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { observer } from 'mobx-react'
 import { makeStyles } from 'tss-react/mui'
 import { Dialog } from '@jbrowse/core/ui'
@@ -9,7 +9,9 @@ import {
   DialogContent,
   FormControlLabel,
   MenuItem,
+  Slider,
   TextField,
+  Typography,
 } from '@mui/material'
 
 import { MsaViewModel } from '../../model'
@@ -29,17 +31,18 @@ const SettingsDialog = observer(function ({
   onClose: () => void
 }) {
   const { classes } = useStyles()
-  const { colorSchemeName, noTree } = model
-  const [rowHeight, setRowHeight] = useState(`${model.rowHeight}`)
-  const [colWidth, setColWidth] = useState(`${model.colWidth}`)
-  const [treeWidth, setTreeWidth] = useState(`${model.treeWidth}`)
-
-  function error(n: string) {
-    return Number.isNaN(+n) || +n < 0
-  }
-  const rowHeightError = error(rowHeight)
-  const colWidthError = error(colWidth)
-  const treeWidthError = error(treeWidth)
+  const {
+    colorSchemeName,
+    drawTree,
+    labelsAlignRight,
+    drawNodeBubbles,
+    bgColor,
+    treeWidth,
+    showBranchLen,
+    noTree,
+    rowHeight,
+    colWidth,
+  } = model
 
   return (
     <Dialog open onClose={() => onClose()} title="Settings">
@@ -47,8 +50,8 @@ const SettingsDialog = observer(function ({
         <FormControlLabel
           control={
             <Checkbox
-              checked={model.showBranchLen}
-              onChange={() => model.toggleBranchLen()}
+              checked={showBranchLen}
+              onChange={() => model.setShowBranchLen(!showBranchLen)}
             />
           }
           label="Show branch length"
@@ -56,8 +59,8 @@ const SettingsDialog = observer(function ({
         <FormControlLabel
           control={
             <Checkbox
-              checked={model.bgColor}
-              onChange={() => model.toggleBgColor()}
+              checked={bgColor}
+              onChange={() => model.setBgColor(!bgColor)}
             />
           }
           label="Color background"
@@ -65,8 +68,8 @@ const SettingsDialog = observer(function ({
         <FormControlLabel
           control={
             <Checkbox
-              checked={model.drawNodeBubbles}
-              onChange={() => model.toggleNodeBubbles()}
+              checked={drawNodeBubbles}
+              onChange={() => model.setDrawNodeBubbles(!drawNodeBubbles)}
             />
           }
           label="Draw node bubbles"
@@ -74,8 +77,8 @@ const SettingsDialog = observer(function ({
         <FormControlLabel
           control={
             <Checkbox
-              checked={model.drawTree}
-              onChange={() => model.toggleDrawTree()}
+              checked={drawTree}
+              onChange={() => model.setDrawTree(!drawTree)}
             />
           }
           label="Draw tree (if available)"
@@ -83,36 +86,45 @@ const SettingsDialog = observer(function ({
         <FormControlLabel
           control={
             <Checkbox
-              checked={model.labelsAlignRight}
-              onChange={() => model.toggleLabelsAlignRight()}
+              checked={labelsAlignRight}
+              onChange={() => model.setLabelsAlignRight(!labelsAlignRight)}
             />
           }
           label="Labels align right (note: labels may draw over tree, but can adjust tree width or tree area width in UI)"
         />
 
-        <TextField
-          className={classes.field}
-          label="Row height (px)"
-          value={rowHeight}
-          error={rowHeightError}
-          onChange={event => setRowHeight(event.target.value)}
-        />
-        <TextField
-          className={classes.field}
-          label="Column width (px)"
-          value={colWidth}
-          error={colWidthError}
-          onChange={event => setColWidth(event.target.value)}
-        />
-        <br />
-        {!noTree ? (
-          <TextField
+        <div>
+          <Typography>Column width ({colWidth}px)</Typography>
+          <Slider
             className={classes.field}
-            label="Tree width (px)"
-            value={treeWidth}
-            error={treeWidthError}
-            onChange={event => setTreeWidth(event.target.value)}
+            min={1}
+            max={50}
+            value={colWidth}
+            onChange={(_, val) => model.setColWidth(val as number)}
           />
+        </div>
+        <div>
+          <Typography>Row height ({rowHeight}px)</Typography>
+          <Slider
+            className={classes.field}
+            min={1}
+            max={50}
+            value={rowHeight}
+            onChange={(_, val) => model.setRowHeight(val as number)}
+          />
+        </div>
+
+        {!noTree ? (
+          <div>
+            <Typography>Tree width ({treeWidth}px)</Typography>
+            <Slider
+              className={classes.field}
+              min={50}
+              max={600}
+              value={treeWidth}
+              onChange={(_, val) => model.setTreeWidth(val as number)}
+            />
+          </div>
         ) : null}
 
         <br />
@@ -131,7 +143,6 @@ const SettingsDialog = observer(function ({
         </TextField>
         <DialogActions>
           <Button
-            disabled={rowHeightError || colWidthError || treeWidthError}
             onClick={() => {
               model.setRowHeight(+rowHeight)
               model.setColWidth(+colWidth)

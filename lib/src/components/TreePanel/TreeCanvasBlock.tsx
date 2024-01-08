@@ -45,6 +45,8 @@ const TreeCanvasBlock = observer(function ({
 
   const width = treeAreaWidth + padding
   const height = blockSize
+  const w2 = width * highResScaleFactor
+  const h2 = height * highResScaleFactor
 
   const vref = useCallback(
     (arg: HTMLCanvasElement) => {
@@ -118,7 +120,13 @@ const TreeCanvasBlock = observer(function ({
       ? { ...entry, x: event.clientX, y: event.clientY }
       : undefined
   }
-
+  const style = {
+    width,
+    height,
+    top: scrollY + offsetY,
+    left: 0,
+    position: 'absolute',
+  } as const
   return (
     <>
       {branchMenu?.id ? (
@@ -138,15 +146,9 @@ const TreeCanvasBlock = observer(function ({
       ) : null}
 
       <canvas
-        width={(treeAreaWidth + padding) * highResScaleFactor}
-        height={blockSize * highResScaleFactor}
-        style={{
-          width: treeAreaWidth + padding,
-          height: blockSize,
-          top: scrollY + offsetY,
-          left: 0,
-          position: 'absolute',
-        }}
+        width={w2}
+        height={h2}
+        style={style}
         onMouseMove={event => {
           if (!ref.current) {
             return
@@ -173,16 +175,12 @@ const TreeCanvasBlock = observer(function ({
       />
       <canvas
         style={{
-          width: treeAreaWidth + padding,
-          height: blockSize,
-          top: scrollY + offsetY,
-          left: 0,
-          position: 'absolute',
+          ...style,
           pointerEvents: 'none',
           zIndex: 100,
         }}
-        width={treeAreaWidth + padding}
-        height={blockSize}
+        width={width}
+        height={height}
         ref={mouseoverRef}
       />
     </>
