@@ -121,10 +121,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       }}
     >
       {!MSA && !msaFilehandle ? null : !MSA ? (
-        <div style={{ position: 'absolute', left: '50%', top: '50%' }}>
-          <CircularProgress />
-          <Typography>Loading...</Typography>
-        </div>
+        <Loading />
       ) : (
         blocks2d.map(([bx, by]) => (
           <MSABlock
@@ -138,5 +135,20 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     </div>
   )
 })
+
+function Loading() {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+      }}
+    >
+      <CircularProgress />
+      <Typography>Loading...</Typography>
+    </div>
+  )
+}
 
 export default MSACanvas
