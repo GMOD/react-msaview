@@ -32,16 +32,17 @@ const SettingsDialog = observer(function ({
 }) {
   const { classes } = useStyles()
   const {
+    bgColor,
+    colWidth,
     colorSchemeName,
     drawTree,
-    labelsAlignRight,
     drawNodeBubbles,
-    bgColor,
-    treeWidth,
-    showBranchLen,
+    labelsAlignRight,
     noTree,
     rowHeight,
-    colWidth,
+    showBranchLen,
+    treeWidthMatchesArea,
+    treeWidth,
   } = model
 
   return (
@@ -116,14 +117,29 @@ const SettingsDialog = observer(function ({
 
         {!noTree ? (
           <div>
-            <Typography>Tree width ({treeWidth}px)</Typography>
-            <Slider
-              className={classes.field}
-              min={50}
-              max={600}
-              value={treeWidth}
-              onChange={(_, val) => model.setTreeWidth(val as number)}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={treeWidthMatchesArea}
+                  onChange={() =>
+                    model.setTreeWidthMatchesArea(!treeWidthMatchesArea)
+                  }
+                />
+              }
+              label="Make tree width fit to tree area?"
             />
+            {!treeWidthMatchesArea ? (
+              <div>
+                <Typography>Tree width ({treeWidth}px)</Typography>
+                <Slider
+                  className={classes.field}
+                  min={50}
+                  max={600}
+                  value={treeWidth}
+                  onChange={(_, val) => model.setTreeWidth(val as number)}
+                />
+              </div>
+            ) : null}
           </div>
         ) : null}
 

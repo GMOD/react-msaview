@@ -5,7 +5,7 @@ import { MsaViewModel } from '../../model'
 
 export const padding = 600
 const extendBounds = 5
-const radius = 3.5
+const radius = 2.5
 const d = radius * 2
 
 interface ClickEntry {
@@ -215,7 +215,10 @@ export function renderTreeCanvas({
     highResScaleFactor,
     margin,
     blockSize,
+    fontSize,
     rowHeight,
+    // nref has to be kept as a unused var or at least reference to force
+    // redraw after canvas ref change
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     nref,
   } = model
@@ -226,7 +229,7 @@ export function renderTreeCanvas({
   ctx.translate(margin.left, -offsetY)
 
   const font = ctx.font
-  ctx.font = font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
+  ctx.font = font.replace(/\d+px/, `${fontSize}px`)
 
   if (!noTree && drawTree) {
     renderTree({ ctx, offsetY, model })

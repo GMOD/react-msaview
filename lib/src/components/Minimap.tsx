@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
+import OverviewRubberband from './OverviewRubberband'
 
 const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
+  const [mouseDownCoordX, setMouseDownCoordX] = useState<number>()
+  const [mouseCurrCoordX, setMouseCurrCoordX] = useState<number>()
+  const ref = useRef<SVGSVGElement>(null)
   const {
     scrollX,
     msaAreaWidth: W,
@@ -10,27 +14,53 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
     colWidth,
     numColumns,
   } = model
-  const unit = W / numColumns
+  const unit = W / numColumns / colWidth
   const left = -scrollX
   const right = left + W
-  const s = (left / colWidth) * unit
-  const e = (right / colWidth) * unit
+  const s = left * unit
+  const e = right * unit
   const TOP = 10
   const fill = 'rgba(66, 119, 127, 0.3)'
+
+  useEffect(() => {
+    if (mouseDownCoordX !== undefined) {
+      function fn(event: MouseEvent) {
+        setMouseCurrCoordX(event.clientX)
+      }
+      document.addEventListener('mousemove', fn)
+      return () => {
+        document.removeEventListener('mousemove', fn)
+      }
+    }
+  }, [mouseDownCoordX])
+
+  const rect = ref.current?.getBoundingClientRect()
+  const l = (mouseDownCoordX || 0) - (rect?.left || 0)
+  const r = (mouseCurrCoordX || 0) - (rect?.left || 0)
+  const l2 = Math.min(l, r)
+  const r2 = Math.max(l, r)
   return (
-    <svg height={H} style={{ width: '100%' }}>
-      <rect x={0} y={0} width={W} height={TOP} stroke="black" fill="none" />
-      <rect x={s} y={0} width={e - s} height={TOP} fill={fill} />
-      <polygon
-        fill={fill}
-        points={[
-          [e, TOP],
-          [s, TOP],
-          [0, H],
-          [W, H],
-        ].toString()}
+    <div style={{ width: '100%' }}>
+      <OverviewRubberband
+        model={model}
+        ControlComponent={<div style={{ background: '#f00c', height: 12 }} />}
       />
-    </svg>
+      <rect x={s} y={0} width={e - s} height={TOP} fill={fill} />
+      {mouseDownCoordX !== undefined && mouseCurrCoordX !== undefined ? (
+        <rect x={l2} y={0} width={r2 - l2} height={TOP} fill={'black'} />
+      ) : null}
+      <svg ref={ref} height={H} style={{ width: '100%' }}>
+        <polygon
+          fill={fill}
+          points={[
+            [e, 0],
+            [s, 0],
+            [0, H],
+            [W, H],
+          ].toString()}
+        />
+      </svg>
+    </div>
   )
 })
 

@@ -6,7 +6,7 @@ import { ascending } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { sum } from '@jbrowse/core/util'
+import { measureText, sum } from '@jbrowse/core/util'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 import Stockholm from 'stockholm-js'
 
@@ -107,6 +107,10 @@ const model = types
        * #property
        */
       treeWidth: types.optional(types.number, 300),
+      /**
+       * #getter
+       */
+      treeWidthMatchesArea: true,
       /**
        * #property
        */
@@ -341,6 +345,12 @@ const model = types
     /**
      * #action
      */
+    setTreeWidthMatchesArea(arg: boolean) {
+      self.treeWidthMatchesArea = arg
+    },
+    /**
+     * #action
+     */
     setScrollY(n: number) {
       self.scrollY = n
     },
@@ -455,54 +465,8 @@ const model = types
     setTreeMetadata(result: string) {
       self.data.setTreeMetadata(result)
     },
-
-    afterCreate() {
-      addDisposer(
-        self,
-        autorun(async () => {
-          const { treeFilehandle } = self
-          if (treeFilehandle) {
-            try {
-              this.setTree(await openLocation(treeFilehandle).readFile('utf8'))
-            } catch (e) {
-              console.error(e)
-              this.setError(e)
-            }
-          }
-        }),
-      )
-      addDisposer(
-        self,
-        autorun(async () => {
-          const { treeMetadataFilehandle } = self
-          if (treeMetadataFilehandle) {
-            try {
-              this.setTreeMetadata(
-                await openLocation(treeMetadataFilehandle).readFile('utf8'),
-              )
-            } catch (e) {
-              console.error(e)
-              this.setError(e)
-            }
-          }
-        }),
-      )
-      addDisposer(
-        self,
-        autorun(async () => {
-          const { msaFilehandle } = self
-          if (msaFilehandle) {
-            try {
-              this.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
-            } catch (e) {
-              console.error(e)
-              this.setError(e)
-            }
-          }
-        }),
-      )
-    },
   }))
+
   .views(self => {
     let oldBlocksX: number[] = []
     let oldBlocksY: number[] = []
@@ -586,6 +550,7 @@ const model = types
     get colorScheme() {
       return colorSchemes[self.colorSchemeName]
     },
+
     /**
      * #getter
      */
@@ -788,6 +753,12 @@ const model = types
     /**
      * #getter
      */
+    get fontSize() {
+      return Math.max(8, self.rowHeight - 8)
+    },
+    /**
+     * #getter
+     */
     get colStats() {
       const r = [] as Record<string, number>[]
       const columns = this.columns2d
@@ -892,6 +863,22 @@ const model = types
     },
   }))
   .views(self => ({
+    /**
+     * #getter
+     */
+    get labelsWidth() {
+      let x = 0
+      if (self.rowHeight > 5) {
+        for (const node of self.hierarchy.leaves()) {
+          const {
+            data: { name },
+          } = node
+          const displayName = self.treeMetadata[name]?.genome || name
+          x = Math.max(measureText(displayName, self.fontSize), x)
+        }
+      }
+      return x
+    },
     /**
      * #getter
      */
@@ -1119,6 +1106,64 @@ const model = types
      */
     get totalTrackAreaHeight() {
       return sum(self.turnedOnTracks.map(r => r.model.height))
+    },
+  }))
+  .actions(self => ({
+    afterCreate() {
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { treeFilehandle } = self
+          if (treeFilehandle) {
+            try {
+              self.setTree(await openLocation(treeFilehandle).readFile('utf8'))
+            } catch (e) {
+              console.error(e)
+              self.setError(e)
+            }
+          }
+        }),
+      )
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { treeMetadataFilehandle } = self
+          if (treeMetadataFilehandle) {
+            try {
+              self.setTreeMetadata(
+                await openLocation(treeMetadataFilehandle).readFile('utf8'),
+              )
+            } catch (e) {
+              console.error(e)
+              self.setError(e)
+            }
+          }
+        }),
+      )
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { msaFilehandle } = self
+          if (msaFilehandle) {
+            try {
+              self.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
+            } catch (e) {
+              console.error(e)
+              self.setError(e)
+            }
+          }
+        }),
+      )
+      addDisposer(
+        self,
+        autorun(async () => {
+          if (self.treeWidthMatchesArea) {
+            self.setTreeWidth(
+              Math.max(50, self.treeAreaWidth - self.labelsWidth),
+            )
+          }
+        }),
+      )
     },
   }))
   .postProcessSnapshot(result => {
