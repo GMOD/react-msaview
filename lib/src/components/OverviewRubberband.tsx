@@ -48,7 +48,7 @@ const useStyles = makeStyles()(theme => {
   }
 })
 
-function Rubberband({
+function OverviewRubberband({
   model,
   ControlComponent = <div />,
 }: {
@@ -280,4 +280,4 @@ function Rubberband({
     </>
   )
 }
-export default observer(Rubberband)
+export default observer(OverviewRubberband)

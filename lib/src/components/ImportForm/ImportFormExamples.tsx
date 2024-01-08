@@ -68,7 +68,7 @@ const ImportFormExamples = observer(function ({
         model={model}
         onClick={() =>
           load(model, {
-            uri: 'https://ihh.github.io/abrowse/build/pfam-cov2.stock',
+            uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/pfam-cov2.stock',
             locationType: 'UriLocation',
           })
         }

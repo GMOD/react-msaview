@@ -25,7 +25,7 @@ function renderMouseover({
     mouseRow,
     // @ts-expect-error
     mouseCol2,
-    rulerHeight,
+    minimapHeight,
     totalTrackAreaHeight,
   } = model
   ctx.resetTransform()
@@ -42,7 +42,7 @@ function renderMouseover({
   if (mouseRow !== undefined) {
     ctx.fillStyle = 'rgba(0,0,0,0.15)'
     const y =
-      mouseRow * rowHeight + scrollY + rulerHeight + totalTrackAreaHeight
+      mouseRow * rowHeight + scrollY + minimapHeight + totalTrackAreaHeight
     ctx.fillRect(treeAreaWidth + resizeHandleWidth, y, width, rowHeight)
   }
   if (mouseCol2 !== undefined) {

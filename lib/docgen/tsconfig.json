@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "declaration": true,
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node"
   },
   "include": ["generateConfigDocs.ts", "generateStateModelDocs.ts", "util.ts"]

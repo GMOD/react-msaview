@@ -1,11 +1,12 @@
 import React from 'react'
+import { autorun } from 'mobx'
 import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { autorun } from 'mobx'
+import { measureText, sum } from '@jbrowse/core/util'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 import Stockholm from 'stockholm-js'
 
@@ -35,7 +36,7 @@ import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
 import { StructureModel } from './StructureModel'
-import { sum } from '@jbrowse/core/util'
+import { DialogQueueSessionMixin } from './DialogQueue'
 
 interface BasicTrackModel {
   id: string
@@ -75,9 +76,16 @@ type StructureSnap = SnapshotIn<typeof StructureModel>
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
+export type DialogComponentType =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | React.LazyExoticComponent<React.FC<any>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | React.FC<any>
+
 const model = types
   .compose(
     BaseViewModel,
+    DialogQueueSessionMixin(),
     types.model('MsaView', {
       /**
        * #property
@@ -99,6 +107,10 @@ const model = types
        * #property
        */
       treeWidth: types.optional(types.number, 300),
+      /**
+       * #getter
+       */
+      treeWidthMatchesArea: true,
       /**
        * #property
        */
@@ -231,29 +243,33 @@ const model = types
     }),
   )
   .volatile(() => ({
-    rulerHeight: 20,
+    /**
+     * #volatile
+     * a dummy variable that is incremented when ref changes so autorun for
+     * drawing canvas commands will run
+     */
+    nref: 0,
+    /**
+     * #volatile
+     */
+    minimapHeight: 56,
+    /**
+     * #volatile
+     */
     error: undefined as unknown,
+    /**
+     * #volatile
+     */
     margin: {
       left: 20,
       top: 20,
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    DialogComponent: undefined as undefined | React.FC<any>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    DialogProps: undefined as any,
-
-    // annotations
+    /**
+     * #volatile
+     */
     annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
-    /**
-     * #action
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setDialogComponent(dlg?: React.FC<any>, props?: any) {
-      self.DialogComponent = dlg
-      self.DialogProps = props
-    },
     /**
      * #action
      */
@@ -329,15 +345,16 @@ const model = types
     /**
      * #action
      */
-    setScrollY(n: number) {
-      self.scrollY = n
+    setTreeWidthMatchesArea(arg: boolean) {
+      self.treeWidthMatchesArea = arg
     },
     /**
      * #action
      */
-    setScrollX(n: number) {
-      self.scrollX = n
+    setScrollY(n: number) {
+      self.scrollY = n
     },
+
     /**
      * #action
      */
@@ -359,14 +376,14 @@ const model = types
     /**
      * #action
      */
-    toggleLabelsAlignRight() {
-      self.labelsAlignRight = !self.labelsAlignRight
+    setLabelsAlignRight(arg: boolean) {
+      self.labelsAlignRight = arg
     },
     /**
      * #action
      */
-    toggleDrawTree() {
-      self.drawTree = !self.drawTree
+    setDrawTree(arg: boolean) {
+      self.drawTree = arg
     },
     /**
      * #action
@@ -387,20 +404,20 @@ const model = types
     /**
      * #action
      */
-    toggleBranchLen() {
-      self.showBranchLen = !self.showBranchLen
+    setShowBranchLen(arg: boolean) {
+      self.showBranchLen = arg
     },
     /**
      * #action
      */
-    toggleBgColor() {
-      self.bgColor = !self.bgColor
+    setBgColor(arg: boolean) {
+      self.bgColor = arg
     },
     /**
      * #action
      */
-    toggleNodeBubbles() {
-      self.drawNodeBubbles = !self.drawNodeBubbles
+    setDrawNodeBubbles(arg: boolean) {
+      self.drawNodeBubbles = arg
     },
     /**
      * #action
@@ -443,54 +460,8 @@ const model = types
     setTreeMetadata(result: string) {
       self.data.setTreeMetadata(result)
     },
-
-    afterCreate() {
-      addDisposer(
-        self,
-        autorun(async () => {
-          const { treeFilehandle } = self
-          if (treeFilehandle) {
-            try {
-              this.setTree(await openLocation(treeFilehandle).readFile('utf8'))
-            } catch (e) {
-              console.error(e)
-              this.setError(e)
-            }
-          }
-        }),
-      )
-      addDisposer(
-        self,
-        autorun(async () => {
-          const { treeMetadataFilehandle } = self
-          if (treeMetadataFilehandle) {
-            try {
-              this.setTreeMetadata(
-                await openLocation(treeMetadataFilehandle).readFile('utf8'),
-              )
-            } catch (e) {
-              console.error(e)
-              this.setError(e)
-            }
-          }
-        }),
-      )
-      addDisposer(
-        self,
-        autorun(async () => {
-          const { msaFilehandle } = self
-          if (msaFilehandle) {
-            try {
-              this.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
-            } catch (e) {
-              console.error(e)
-              this.setError(e)
-            }
-          }
-        }),
-      )
-    },
   }))
+
   .views(self => {
     let oldBlocksX: number[] = []
     let oldBlocksY: number[] = []
@@ -574,6 +545,7 @@ const model = types
     get colorScheme() {
       return colorSchemes[self.colorSchemeName]
     },
+
     /**
      * #getter
      */
@@ -640,7 +612,7 @@ const model = types
      * #getter
      */
     get numColumns() {
-      return ((this.MSA?.getWidth() || 0) - this.blanks.length) * self.colWidth
+      return (this.MSA?.getWidth() || 0) - this.blanks.length
     },
     /**
      * #getter
@@ -776,6 +748,12 @@ const model = types
     /**
      * #getter
      */
+    get fontSize() {
+      return Math.max(8, self.rowHeight - 8)
+    },
+    /**
+     * #getter
+     */
     get colStats() {
       const r = [] as Record<string, number>[]
       const columns = this.columns2d
@@ -843,8 +821,18 @@ const model = types
      */
     doScrollX(deltaX: number) {
       self.scrollX = clamp(
-        -self.numColumns + (self.msaAreaWidth - 100),
+        -(self.numColumns * self.colWidth) + (self.msaAreaWidth - 100),
         self.scrollX + deltaX,
+        0,
+      )
+    },
+    /**
+     * #action
+     */
+    setScrollX(n: number) {
+      self.scrollX = clamp(
+        -(self.numColumns * self.colWidth) + (self.msaAreaWidth - 100),
+        n,
         0,
       )
     },
@@ -880,6 +868,23 @@ const model = types
     },
   }))
   .views(self => ({
+    /**
+     * #getter
+     */
+    get labelsWidth() {
+      let x = 0
+      const { rowHeight, hierarchy, treeMetadata, fontSize } = self
+      if (rowHeight > 5) {
+        for (const node of hierarchy.leaves()) {
+          const {
+            data: { name },
+          } = node
+          const displayName = treeMetadata[name]?.genome || name
+          x = Math.max(measureText(displayName, fontSize), x)
+        }
+      }
+      return x
+    },
     /**
      * #getter
      */
@@ -1094,6 +1099,12 @@ const model = types
     clearAnnotationClickBoundaries() {
       self.annotPos = undefined
     },
+    /**
+     * #action
+     */
+    incrementRef() {
+      self.nref++
+    },
   }))
   .views(self => ({
     /**
@@ -1101,6 +1112,64 @@ const model = types
      */
     get totalTrackAreaHeight() {
       return sum(self.turnedOnTracks.map(r => r.model.height))
+    },
+  }))
+  .actions(self => ({
+    afterCreate() {
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { treeFilehandle } = self
+          if (treeFilehandle) {
+            try {
+              self.setTree(await openLocation(treeFilehandle).readFile('utf8'))
+            } catch (e) {
+              console.error(e)
+              self.setError(e)
+            }
+          }
+        }),
+      )
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { treeMetadataFilehandle } = self
+          if (treeMetadataFilehandle) {
+            try {
+              self.setTreeMetadata(
+                await openLocation(treeMetadataFilehandle).readFile('utf8'),
+              )
+            } catch (e) {
+              console.error(e)
+              self.setError(e)
+            }
+          }
+        }),
+      )
+      addDisposer(
+        self,
+        autorun(async () => {
+          const { msaFilehandle } = self
+          if (msaFilehandle) {
+            try {
+              self.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
+            } catch (e) {
+              console.error(e)
+              self.setError(e)
+            }
+          }
+        }),
+      )
+      addDisposer(
+        self,
+        autorun(async () => {
+          if (self.treeWidthMatchesArea) {
+            self.setTreeWidth(
+              Math.max(50, self.treeAreaWidth - self.labelsWidth - 20),
+            )
+          }
+        }),
+      )
     },
   }))
   .postProcessSnapshot(result => {

@@ -26,6 +26,7 @@ const BoxTrackBlock = observer(function ({
     blanks,
     rowHeight,
     highResScaleFactor,
+    fontSize,
     scrollX,
   } = model
   const { height, features, associatedRowName } = track.model
@@ -75,7 +76,7 @@ const BoxTrackBlock = observer(function ({
     ctx.clearRect(0, 0, blockSize, height)
     ctx.translate(-offsetX, 0)
     ctx.textAlign = 'center'
-    ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
+    ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
 
     const xStart = Math.max(0, Math.floor(offsetX / colWidth))
     ctx.fillStyle = 'goldenrod'
@@ -91,6 +92,7 @@ const BoxTrackBlock = observer(function ({
     })
   }, [
     associatedRowName,
+    fontSize,
     blockSize,
     colWidth,
     layout.rectangles,

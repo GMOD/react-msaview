@@ -10,24 +10,29 @@ our source code.
 
 [src/model.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model.ts)
 
-### MsaView - Properties
 
+
+### MsaView - Properties
 #### property: annotatedRegions
+
+
 
 ```js
 // type signature
 IArrayType<IModelType<{ start: ISimpleType<number>; end: ISimpleType<number>; attributes: IType<Record<string, string[]>, Record<string, string[]>, Record<string, string[]>>; }, {}, _NotCustomized, _NotCustomized>>
 // code
 annotatedRegions: types.array(
-      types.model({
-        start: types.number,
-        end: types.number,
-        attributes: types.frozen<Record<string, string[]>>(),
-      }),
-    )
+        types.model({
+          start: types.number,
+          end: types.number,
+          attributes: types.frozen<Record<string, string[]>>(),
+        }),
+      )
 ```
 
 #### property: bgColor
+
+
 
 ```js
 // type signature
@@ -38,6 +43,8 @@ bgColor: true
 
 #### property: blockSize
 
+
+
 ```js
 // type signature
 number
@@ -46,6 +53,8 @@ blockSize: 1000
 ```
 
 #### property: boxTracks
+
+
 
 ```js
 // type signature
@@ -56,6 +65,8 @@ boxTracks: types.array(UniprotTrack)
 
 #### property: collapsed
 
+
+
 ```js
 // type signature
 IArrayType<ISimpleType<string>>
@@ -64,6 +75,8 @@ collapsed: types.array(types.string)
 ```
 
 #### property: colorSchemeName
+
+
 
 ```js
 // type signature
@@ -74,6 +87,8 @@ colorSchemeName: 'maeditor'
 
 #### property: colWidth
 
+
+
 ```js
 // type signature
 number
@@ -82,6 +97,8 @@ colWidth: 16
 ```
 
 #### property: currentAlignment
+
+
 
 ```js
 // type signature
@@ -92,29 +109,37 @@ currentAlignment: 0
 
 #### property: data
 
+
+
 ```js
 // type signature
-IOptionalIType<IModelType<{ tree: IMaybe<ISimpleType<string>>; msa: IMaybe<ISimpleType<string>>; }, { setTree(tree?: string): void; setMSA(msa?: string): void; }, _NotCustomized, _NotCustomized>, [...]>
+IOptionalIType<IModelType<{ tree: IMaybe<ISimpleType<string>>; msa: IMaybe<ISimpleType<string>>; treeMetadata: IMaybe<ISimpleType<string>>; }, { ...; }, _NotCustomized, _NotCustomized>, [...]>
 // code
 data: types.optional(
-      types
-        .model({
-          tree: types.maybe(types.string),
-          msa: types.maybe(types.string),
-        })
-        .actions(self => ({
-          setTree(tree?: string) {
-            self.tree = tree
-          },
-          setMSA(msa?: string) {
-            self.msa = msa
-          },
-        })),
-      { tree: '', msa: '' },
-    )
+        types
+          .model({
+            tree: types.maybe(types.string),
+            msa: types.maybe(types.string),
+            treeMetadata: types.maybe(types.string),
+          })
+          .actions(self => ({
+            setTree(tree?: string) {
+              self.tree = tree
+            },
+            setMSA(msa?: string) {
+              self.msa = msa
+            },
+            setTreeMetadata(treeMetadata?: string) {
+              self.treeMetadata = treeMetadata
+            },
+          })),
+        { tree: '', msa: '' },
+      )
 ```
 
 #### property: drawNodeBubbles
+
+
 
 ```js
 // type signature
@@ -125,6 +150,8 @@ drawNodeBubbles: true
 
 #### property: drawTree
 
+
+
 ```js
 // type signature
 true
@@ -133,6 +160,8 @@ drawTree: true
 ```
 
 #### property: height
+
+
 
 ```js
 // type signature
@@ -143,6 +172,8 @@ height: types.optional(types.number, 550)
 
 #### property: highResScaleFactor
 
+
+
 ```js
 // type signature
 number
@@ -151,6 +182,8 @@ highResScaleFactor: 2
 ```
 
 #### property: id
+
+
 
 ```js
 // type signature
@@ -161,6 +194,8 @@ id: ElementId
 
 #### property: labelsAlignRight
 
+
+
 ```js
 // type signature
 false
@@ -169,6 +204,8 @@ labelsAlignRight: false
 ```
 
 #### property: mouseCol
+
+
 
 ```js
 // type signature
@@ -179,6 +216,8 @@ mouseCol: types.maybe(types.number)
 
 #### property: mouseRow
 
+
+
 ```js
 // type signature
 IMaybe<ISimpleType<number>>
@@ -187,6 +226,8 @@ mouseRow: types.maybe(types.number)
 ```
 
 #### property: msaFilehandle
+
+
 
 ```js
 // type signature
@@ -197,6 +238,8 @@ msaFilehandle: types.maybe(FileLocation)
 
 #### property: resizeHandleWidth
 
+
+
 ```js
 // type signature
 number
@@ -205,6 +248,8 @@ resizeHandleWidth: 5
 ```
 
 #### property: rowHeight
+
+
 
 ```js
 // type signature
@@ -215,6 +260,8 @@ rowHeight: 20
 
 #### property: scrollX
 
+
+
 ```js
 // type signature
 number
@@ -223,6 +270,8 @@ scrollX: 0
 ```
 
 #### property: scrollY
+
+
 
 ```js
 // type signature
@@ -233,6 +282,8 @@ scrollY: 0
 
 #### property: selectedStructures
 
+
+
 ```js
 // type signature
 IArrayType<IModelType<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }, {}, _NotCustomized, _NotCustomized>>
@@ -241,6 +292,8 @@ selectedStructures: types.array(StructureModel)
 ```
 
 #### property: showBranchLen
+
+
 
 ```js
 // type signature
@@ -251,6 +304,8 @@ showBranchLen: true
 
 #### property: showOnly
 
+
+
 ```js
 // type signature
 IMaybe<ISimpleType<string>>
@@ -259,6 +314,8 @@ showOnly: types.maybe(types.string)
 ```
 
 #### property: treeAreaWidth
+
+
 
 ```js
 // type signature
@@ -269,6 +326,8 @@ treeAreaWidth: types.optional(types.number, 400)
 
 #### property: treeFilehandle
 
+
+
 ```js
 // type signature
 IMaybe<ISnapshotProcessor<ITypeUnion<ModelCreationType<ExtractCFromProps<{ locationType: ISimpleType<"UriLocation">; uri: ISimpleType<string>; baseUri: IMaybe<ISimpleType<string>>; internetAccountId: IMaybe<...>; internetAccountPreAuthorization: IMaybe<...>; }>> | ModelCreationType<...> | ModelCreationType<...>, { ....
@@ -276,7 +335,20 @@ IMaybe<ISnapshotProcessor<ITypeUnion<ModelCreationType<ExtractCFromProps<{ locat
 treeFilehandle: types.maybe(FileLocation)
 ```
 
+#### property: treeMetadataFilehandle
+
+
+
+```js
+// type signature
+IMaybe<ISnapshotProcessor<ITypeUnion<ModelCreationType<ExtractCFromProps<{ locationType: ISimpleType<"UriLocation">; uri: ISimpleType<string>; baseUri: IMaybe<ISimpleType<string>>; internetAccountId: IMaybe<...>; internetAccountPreAuthorization: IMaybe<...>; }>> | ModelCreationType<...> | ModelCreationType<...>, { ....
+// code
+treeMetadataFilehandle: types.maybe(FileLocation)
+```
+
 #### property: treeWidth
+
+
 
 ```js
 // type signature
@@ -287,6 +359,8 @@ treeWidth: types.optional(types.number, 300)
 
 #### property: turnedOffTracks
 
+
+
 ```js
 // type signature
 IMapType<ISimpleType<boolean>>
@@ -296,6 +370,8 @@ turnedOffTracks: types.map(types.boolean)
 
 #### property: type
 
+
+
 ```js
 // type signature
 ISimpleType<"MsaView">
@@ -303,9 +379,11 @@ ISimpleType<"MsaView">
 type: types.literal('MsaView')
 ```
 
-### MsaView - Getters
 
+### MsaView - Getters
 #### getter: alignmentNames
+
+
 
 ```js
 // type
@@ -314,12 +392,16 @@ any
 
 #### getter: blanks
 
+
+
 ```js
 // type
 any[]
 ```
 
 #### getter: blocks2d
+
+
 
 ```js
 // type
@@ -328,12 +410,16 @@ number[][]
 
 #### getter: blocksX
 
+
+
 ```js
 // type
 number[]
 ```
 
 #### getter: blocksY
+
+
 
 ```js
 // type
@@ -342,6 +428,8 @@ number[]
 
 #### getter: colorScheme
 
+
+
 ```js
 // type
 Record<string, string>
@@ -349,12 +437,16 @@ Record<string, string>
 
 #### getter: colStats
 
+
+
 ```js
 // type
-Record < string, number > []
+Record<string, number>[]
 ```
 
 #### getter: columns
+
+
 
 ```js
 // type
@@ -363,12 +455,16 @@ Record < string, number > []
 
 #### getter: columns2d
 
+
+
 ```js
 // type
 any
 ```
 
 #### getter: conservation
+
+
 
 ```js
 // type
@@ -377,6 +473,8 @@ string[]
 
 #### getter: currentAlignmentName
 
+
+
 ```js
 // type
 any
@@ -384,12 +482,16 @@ any
 
 #### getter: done
 
+
+
 ```js
 // type
 string
 ```
 
 #### getter: header
+
+
 
 ```js
 // type
@@ -407,12 +509,16 @@ HierarchyNode<NodeWithIdsAndLength>
 
 #### getter: initialized
 
+
+
 ```js
 // type
 boolean
 ```
 
 #### getter: inverseStructures
+
+
 
 ```js
 // type
@@ -421,12 +527,16 @@ boolean
 
 #### getter: menuItems
 
+
+
 ```js
 // type
 any[]
 ```
 
 #### getter: mouseOverRowName
+
+
 
 ```js
 // type
@@ -435,12 +545,16 @@ any
 
 #### getter: MSA
 
+
+
 ```js
 // type
-;ClustalMSA | StockholmMSA | FastaMSA
+ClustalMSA | StockholmMSA | FastaMSA
 ```
 
 #### getter: msaAreaWidth
+
+
 
 ```js
 // type
@@ -449,12 +563,16 @@ number
 
 #### getter: noTree
 
+
+
 ```js
 // type
 boolean
 ```
 
 #### getter: numColumns
+
+
 
 ```js
 // type
@@ -463,12 +581,16 @@ number
 
 #### getter: root
 
+
+
 ```js
 // type
 HierarchyNode<any>
 ```
 
 #### getter: rowNames
+
+
 
 ```js
 // type
@@ -477,12 +599,16 @@ string[]
 
 #### getter: rows
 
+
+
 ```js
 // type
 any
 ```
 
 #### getter: secondaryStructureConsensus
+
+
 
 ```js
 // type
@@ -491,12 +617,16 @@ any
 
 #### getter: seqConsensus
 
+
+
 ```js
 // type
 any
 ```
 
 #### getter: structures
+
+
 
 ```js
 // type
@@ -505,12 +635,25 @@ Record<string, { pdb: string; startPos: number; endPos: number; }[]>
 
 #### getter: totalHeight
 
+
+
+```js
+// type
+number
+```
+
+#### getter: totalTrackAreaHeight
+
+
+
 ```js
 // type
 number
 ```
 
 #### getter: tracks
+
+
 
 ```js
 // type
@@ -519,21 +662,36 @@ BasicTrack[]
 
 #### getter: tree
 
+
+
 ```js
 // type
 NodeWithIds
 ```
 
-#### getter: turnedOnTracks
+#### getter: treeMetadata
+
+
 
 ```js
 // type
 any
 ```
 
-### MsaView - Methods
+#### getter: turnedOnTracks
 
+
+
+```js
+// type
+any
+```
+
+
+### MsaView - Methods
 #### method: getMouseOverResidue
+
+
 
 ```js
 // type signature
@@ -542,6 +700,8 @@ getMouseOverResidue: (rowName: string) => any
 
 #### method: getPos
 
+
+
 ```js
 // type signature
 getPos: (pos: number) => number
@@ -549,12 +709,16 @@ getPos: (pos: number) => number
 
 #### method: getRowData
 
+
+
 ```js
 // type signature
 getRowData: (name: string) => { range: { start: number; end: number; }; data: any; }
 ```
 
 #### method: globalBpToPx
+
+
 
 ```js
 // type signature
@@ -572,6 +736,8 @@ pxToBp: (coord: number) => number
 
 #### method: relativePxToBp
 
+
+
 ```js
 // type signature
 relativePxToBp: (rowName: string, position: number) => number
@@ -579,14 +745,18 @@ relativePxToBp: (rowName: string, position: number) => number
 
 #### method: rowSpecificBpToPx
 
+
+
 ```js
 // type signature
 rowSpecificBpToPx: (rowName: string, position: number) => number
 ```
 
-### MsaView - Actions
 
+### MsaView - Actions
 #### action: addAnnotation
+
+
 
 ```js
 // type signature
@@ -595,12 +765,16 @@ addAnnotation: (start: number, end: number, attributes: Record<string, string[]>
 
 #### action: addStructureToSelection
 
+
+
 ```js
 // type signature
 addStructureToSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }>>) => void
 ```
 
 #### action: addUniprotTrack
+
+
 
 ```js
 // type signature
@@ -609,12 +783,16 @@ addUniprotTrack: (node: { name: string; accession: string; }) => void
 
 #### action: clearAnnotationClickBoundaries
 
+
+
 ```js
 // type signature
 clearAnnotationClickBoundaries: () => void
 ```
 
 #### action: clearSelectedStructures
+
+
 
 ```js
 // type signature
@@ -623,12 +801,16 @@ clearSelectedStructures: () => void
 
 #### action: doScrollX
 
+
+
 ```js
 // type signature
 doScrollX: (deltaX: number) => void
 ```
 
 #### action: doScrollY
+
+
 
 ```js
 // type signature
@@ -637,12 +819,16 @@ doScrollY: (deltaY: number) => void
 
 #### action: removeStructureFromSelection
 
+
+
 ```js
 // type signature
 removeStructureFromSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }>>) => void
 ```
 
 #### action: setAnnotationClickBoundaries
+
+
 
 ```js
 // type signature
@@ -651,12 +837,16 @@ setAnnotationClickBoundaries: (left: number, right: number) => void
 
 #### action: setColorSchemeName
 
+
+
 ```js
 // type signature
 setColorSchemeName: (name: string) => void
 ```
 
 #### action: setColWidth
+
+
 
 ```js
 // type signature
@@ -665,6 +855,8 @@ setColWidth: (n: number) => void
 
 #### action: setCurrentAlignment
 
+
+
 ```js
 // type signature
 setCurrentAlignment: (n: number) => void
@@ -672,19 +864,16 @@ setCurrentAlignment: (n: number) => void
 
 #### action: setData
 
+
+
 ```js
 // type signature
 setData: (data: { msa?: string; tree?: string; }) => void
 ```
 
-#### action: setDialogComponent
-
-```js
-// type signature
-setDialogComponent: (dlg?: React.FC<any>, props?: any) => void
-```
-
 #### action: setError
+
+
 
 ```js
 // type signature
@@ -693,12 +882,16 @@ setError: (error?: unknown) => void
 
 #### action: setHeight
 
+
+
 ```js
 // type signature
 setHeight: (height: number) => void
 ```
 
 #### action: setMouseoveredColumn
+
+
 
 ```js
 // type signature
@@ -707,12 +900,16 @@ setMouseoveredColumn: (n: number, chain: string, file: string) => void
 
 #### action: setMousePos
 
+
+
 ```js
 // type signature
 setMousePos: (col?: number, row?: number) => void
 ```
 
 #### action: setMSA
+
+
 
 ```js
 // type signature
@@ -721,12 +918,16 @@ setMSA: (result: string) => void
 
 #### action: setMSAFilehandle
 
+
+
 ```js
 // type signature
 setMSAFilehandle: (msaFilehandle?: FileLocation) => Promise<void>
 ```
 
 #### action: setRowHeight
+
+
 
 ```js
 // type signature
@@ -735,12 +936,16 @@ setRowHeight: (n: number) => void
 
 #### action: setScrollX
 
+
+
 ```js
 // type signature
 setScrollX: (n: number) => void
 ```
 
 #### action: setScrollY
+
+
 
 ```js
 // type signature
@@ -749,12 +954,16 @@ setScrollY: (n: number) => void
 
 #### action: setShowOnly
 
+
+
 ```js
 // type signature
 setShowOnly: (node?: string) => void
 ```
 
 #### action: setTree
+
+
 
 ```js
 // type signature
@@ -763,6 +972,8 @@ setTree: (result: string) => void
 
 #### action: setTreeAreaWidth
 
+
+
 ```js
 // type signature
 setTreeAreaWidth: (n: number) => void
@@ -770,12 +981,25 @@ setTreeAreaWidth: (n: number) => void
 
 #### action: setTreeFilehandle
 
+
+
 ```js
 // type signature
 setTreeFilehandle: (treeFilehandle?: FileLocation) => Promise<void>
 ```
 
+#### action: setTreeMetadata
+
+
+
+```js
+// type signature
+setTreeMetadata: (result: string) => void
+```
+
 #### action: setTreeWidth
+
+
 
 ```js
 // type signature
@@ -784,12 +1008,16 @@ setTreeWidth: (n: number) => void
 
 #### action: toggleBgColor
 
+
+
 ```js
 // type signature
 toggleBgColor: () => void
 ```
 
 #### action: toggleBranchLen
+
+
 
 ```js
 // type signature
@@ -798,12 +1026,16 @@ toggleBranchLen: () => void
 
 #### action: toggleCollapsed
 
+
+
 ```js
 // type signature
 toggleCollapsed: (node: string) => void
 ```
 
 #### action: toggleDrawTree
+
+
 
 ```js
 // type signature
@@ -812,12 +1044,16 @@ toggleDrawTree: () => void
 
 #### action: toggleLabelsAlignRight
 
+
+
 ```js
 // type signature
 toggleLabelsAlignRight: () => void
 ```
 
 #### action: toggleNodeBubbles
+
+
 
 ```js
 // type signature
@@ -826,6 +1062,8 @@ toggleNodeBubbles: () => void
 
 #### action: toggleStructureSelection
 
+
+
 ```js
 // type signature
 toggleStructureSelection: (elt: { id: string; structure: { startPos: number; endPos: number; pdb: string; }; }) => void
@@ -833,7 +1071,11 @@ toggleStructureSelection: (elt: { id: string; structure: { startPos: number; end
 
 #### action: toggleTrack
 
+
+
 ```js
 // type signature
 toggleTrack: (id: string) => void
 ```
+
+

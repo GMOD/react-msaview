@@ -5,8 +5,8 @@ import { observer } from 'mobx-react'
 import { MsaViewModel } from '../../model'
 
 const TreeRuler = observer(({ model }: { model: MsaViewModel }) => {
-  const { treeWidth } = model
-  return <div style={{ width: treeWidth }} />
+  const { treeAreaWidth } = model
+  return <div style={{ flexShrink: 0, width: treeAreaWidth }} />
 })
 
 export default TreeRuler
