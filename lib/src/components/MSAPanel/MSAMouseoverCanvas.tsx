@@ -36,7 +36,7 @@ function renderMouseover({
     const x =
       (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
 
-    ctx.fillRect(x, 0, colWidth, height)
+    ctx.fillRect(x, minimapHeight, colWidth, height)
   }
 
   if (mouseRow !== undefined) {
