@@ -25,6 +25,7 @@ export function renderBlock({
     blockSize,
     colWidth,
     rowHeight,
+    fontSize,
     highResScaleFactor,
   } = model
   ctx.resetTransform()
@@ -32,7 +33,7 @@ export function renderBlock({
   ctx.clearRect(0, 0, blockSize, blockSize)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
-  ctx.font = ctx.font.replace(/\d+px/, `${Math.max(8, rowHeight - 8)}px`)
+  ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
 
   const leaves = hierarchy.leaves()
   const b = blockSize

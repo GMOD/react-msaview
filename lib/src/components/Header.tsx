@@ -20,12 +20,10 @@ const MetadataDialog = lazy(() => import('./dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('./dialogs/TracklistDialog'))
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
-  const { mouseOverRowName, mouseCol } = model
+  const { mouseOverRowName } = model
   return (
     <div>
       <Typography display="inline">Row name: {mouseOverRowName}</Typography>
-      <span style={{ marginLeft: 10 }} />
-      <Typography display="inline">Position: {mouseCol}</Typography>
     </div>
   )
 })

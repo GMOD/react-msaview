@@ -354,12 +354,7 @@ const model = types
     setScrollY(n: number) {
       self.scrollY = n
     },
-    /**
-     * #action
-     */
-    setScrollX(n: number) {
-      self.scrollX = n
-    },
+
     /**
      * #action
      */
@@ -834,6 +829,16 @@ const model = types
     /**
      * #action
      */
+    setScrollX(n: number) {
+      self.scrollX = clamp(
+        -(self.numColumns * self.colWidth) + (self.msaAreaWidth - 100),
+        n,
+        0,
+      )
+    },
+    /**
+     * #action
+     */
     setMouseoveredColumn(n: number, chain: string, file: string) {
       let j = 0
       let i = 0
@@ -868,13 +873,14 @@ const model = types
      */
     get labelsWidth() {
       let x = 0
-      if (self.rowHeight > 5) {
-        for (const node of self.hierarchy.leaves()) {
+      const { rowHeight, hierarchy, treeMetadata, fontSize } = self
+      if (rowHeight > 5) {
+        for (const node of hierarchy.leaves()) {
           const {
             data: { name },
           } = node
-          const displayName = self.treeMetadata[name]?.genome || name
-          x = Math.max(measureText(displayName, self.fontSize), x)
+          const displayName = treeMetadata[name]?.genome || name
+          x = Math.max(measureText(displayName, fontSize), x)
         }
       }
       return x
@@ -1159,7 +1165,7 @@ const model = types
         autorun(async () => {
           if (self.treeWidthMatchesArea) {
             self.setTreeWidth(
-              Math.max(50, self.treeAreaWidth - self.labelsWidth),
+              Math.max(50, self.treeAreaWidth - self.labelsWidth - 20),
             )
           }
         }),

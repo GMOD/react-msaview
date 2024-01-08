@@ -91,29 +91,8 @@ const SettingsDialog = observer(function ({
               onChange={() => model.setLabelsAlignRight(!labelsAlignRight)}
             />
           }
-          label="Labels align right (note: labels may draw over tree, but can adjust tree width or tree area width in UI)"
+          label="Labels align right"
         />
-
-        <div>
-          <Typography>Column width ({colWidth}px)</Typography>
-          <Slider
-            className={classes.field}
-            min={1}
-            max={50}
-            value={colWidth}
-            onChange={(_, val) => model.setColWidth(val as number)}
-          />
-        </div>
-        <div>
-          <Typography>Row height ({rowHeight}px)</Typography>
-          <Slider
-            className={classes.field}
-            min={1}
-            max={50}
-            value={rowHeight}
-            onChange={(_, val) => model.setRowHeight(val as number)}
-          />
-        </div>
 
         {!noTree ? (
           <div>
@@ -129,7 +108,7 @@ const SettingsDialog = observer(function ({
               label="Make tree width fit to tree area?"
             />
             {!treeWidthMatchesArea ? (
-              <div>
+              <div style={{ display: 'flex' }}>
                 <Typography>Tree width ({treeWidth}px)</Typography>
                 <Slider
                   className={classes.field}
@@ -143,7 +122,26 @@ const SettingsDialog = observer(function ({
           </div>
         ) : null}
 
-        <br />
+        <div style={{ display: 'flex' }}>
+          <Typography>Column width ({colWidth}px)</Typography>
+          <Slider
+            className={classes.field}
+            min={1}
+            max={50}
+            value={colWidth}
+            onChange={(_, val) => model.setColWidth(val as number)}
+          />
+        </div>
+        <div style={{ display: 'flex' }}>
+          <Typography>Row height ({rowHeight}px)</Typography>
+          <Slider
+            className={classes.field}
+            min={1}
+            max={50}
+            value={rowHeight}
+            onChange={(_, val) => model.setRowHeight(val as number)}
+          />
+        </div>
 
         <TextField
           select

@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
-import OverviewRubberband from './OverviewRubberband'
 
 const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
-  const [mouseDownCoordX, setMouseDownCoordX] = useState<number>()
-  const [mouseCurrCoordX, setMouseCurrCoordX] = useState<number>()
-  const ref = useRef<SVGSVGElement>(null)
+  const [mouseDown, setMouseDown] = useState<{
+    clientX: number
+    scrollX: number
+  }>()
+  const [hovered, setHovered] = useState(false)
   const {
     scrollX,
     msaAreaWidth: W,
@@ -19,44 +20,71 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   const right = left + W
   const s = left * unit
   const e = right * unit
-  const TOP = 10
   const fill = 'rgba(66, 119, 127, 0.3)'
 
   useEffect(() => {
-    if (mouseDownCoordX !== undefined) {
+    if (mouseDown !== undefined) {
       function fn(event: MouseEvent) {
-        setMouseCurrCoordX(event.clientX)
+        if (mouseDown !== undefined) {
+          model.setScrollX(
+            mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
+          )
+        }
+      }
+      function fn2() {
+        setMouseDown(undefined)
       }
       document.addEventListener('mousemove', fn)
+      document.addEventListener('mouseup', fn2)
       return () => {
         document.removeEventListener('mousemove', fn)
+        document.removeEventListener('mousemove', fn2)
       }
     }
-  }, [mouseDownCoordX])
+  }, [model, unit, mouseDown])
 
-  const rect = ref.current?.getBoundingClientRect()
-  const l = (mouseDownCoordX || 0) - (rect?.left || 0)
-  const r = (mouseCurrCoordX || 0) - (rect?.left || 0)
-  const l2 = Math.min(l, r)
-  const r2 = Math.max(l, r)
+  const BAR_HEIGHT = 12
+  const H2 = H - 12
   return (
-    <div style={{ width: '100%' }}>
-      <OverviewRubberband
-        model={model}
-        ControlComponent={<div style={{ background: '#f00c', height: 12 }} />}
+    <div style={{ position: 'relative', height: H, width: '100%' }}>
+      <div
+        style={{
+          boxSizing: 'border-box',
+          height: BAR_HEIGHT,
+          border: '1px solid #555',
+        }}
       />
-      <rect x={s} y={0} width={e - s} height={TOP} fill={fill} />
-      {mouseDownCoordX !== undefined && mouseCurrCoordX !== undefined ? (
-        <rect x={l2} y={0} width={r2 - l2} height={TOP} fill={'black'} />
-      ) : null}
-      <svg ref={ref} height={H} style={{ width: '100%' }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: Math.max(0, s),
+          background: hovered ? 'rgba(66,119,127,0.6)' : fill,
+          cursor: 'pointer',
+          border: '1px solid #555',
+          boxSizing: 'border-box',
+          height: BAR_HEIGHT,
+          width: e - s,
+          zIndex: 100,
+        }}
+        onMouseOver={() => setHovered(true)}
+        onMouseOut={() => setHovered(false)}
+        onMouseDown={event => {
+          setMouseDown({
+            clientX: event.clientX,
+            scrollX: model.scrollX,
+          })
+        }}
+      />
+
+      <svg height={H2} style={{ width: '100%' }}>
         <polygon
           fill={fill}
           points={[
             [e, 0],
             [s, 0],
-            [0, H],
-            [W, H],
+            [0, H2],
+            [W, H2],
           ].toString()}
         />
       </svg>
