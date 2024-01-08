@@ -216,6 +216,8 @@ export function renderTreeCanvas({
     margin,
     blockSize,
     rowHeight,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    nref,
   } = model
 
   ctx.resetTransform()

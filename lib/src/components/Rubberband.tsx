@@ -11,7 +11,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment'
 import { MsaViewModel } from '../model'
 import VerticalGuide from './VerticalGuide'
 
-const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDlg'))
+const AnnotationDialog = lazy(() => import('./dialogs/AnnotationDialog'))
 
 const useStyles = makeStyles()(theme => {
   const background =

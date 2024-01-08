@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 import RBush from 'rbush'
@@ -33,29 +33,34 @@ const TreeCanvasBlock = observer(function ({
   model: MsaViewModel
   offsetY: number
 }) {
-  const ref = useRef<HTMLCanvasElement>(null)
+  const ref = useRef<HTMLCanvasElement>()
   const clickMap = useRef(new RBush<ClickEntry>())
   const mouseoverRef = useRef<HTMLCanvasElement>(null)
   const [branchMenu, setBranchMenu] = useState<TooltipData>()
   const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
   const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
-  const {
-    scrollY,
-    treeAreaWidth,
-    treeWidth,
-    margin,
-    blockSize,
-    highResScaleFactor,
-  } = model
+  const { scrollY, treeAreaWidth, margin, blockSize, highResScaleFactor } =
+    model
 
+  const width = treeAreaWidth + padding
+  const height = blockSize
+
+  const vref = useCallback(
+    (arg: HTMLCanvasElement) => {
+      model.incrementRef()
+      ref.current = arg
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [model, height, width],
+  )
   useEffect(() => {
+    const ctx = ref.current?.getContext('2d')
+    if (!ctx) {
+      return
+    }
+
     return autorun(() => {
-      const ctx = ref.current?.getContext('2d')
-      if (!ctx) {
-        return
-      }
-      console.log('t1')
       renderTreeCanvas({
         ctx,
         model,
@@ -72,7 +77,7 @@ const TreeCanvasBlock = observer(function ({
     }
 
     ctx.resetTransform()
-    ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+    ctx.clearRect(0, 0, treeAreaWidth + padding, blockSize)
     ctx.translate(margin.left, -offsetY)
 
     if (hoverElt) {
@@ -81,7 +86,7 @@ const TreeCanvasBlock = observer(function ({
       ctx.fillStyle = 'rgba(0,0,0,0.1)'
       ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
     }
-  }, [hoverElt, margin.left, offsetY, blockSize, treeWidth])
+  }, [hoverElt, margin.left, offsetY, blockSize, treeAreaWidth])
 
   function hoverBranchClickMap(event: React.MouseEvent) {
     const x = event.nativeEvent.offsetX - margin.left
@@ -133,10 +138,10 @@ const TreeCanvasBlock = observer(function ({
       ) : null}
 
       <canvas
-        width={(treeWidth + padding) * highResScaleFactor}
+        width={(treeAreaWidth + padding) * highResScaleFactor}
         height={blockSize * highResScaleFactor}
         style={{
-          width: treeWidth + padding,
+          width: treeAreaWidth + padding,
           height: blockSize,
           top: scrollY + offsetY,
           left: 0,
@@ -164,11 +169,11 @@ const TreeCanvasBlock = observer(function ({
             setToggleNodeMenu({ ...data2, x, y })
           }
         }}
-        ref={ref}
+        ref={vref}
       />
       <canvas
         style={{
-          width: treeWidth + padding,
+          width: treeAreaWidth + padding,
           height: blockSize,
           top: scrollY + offsetY,
           left: 0,
@@ -176,7 +181,7 @@ const TreeCanvasBlock = observer(function ({
           pointerEvents: 'none',
           zIndex: 100,
         }}
-        width={treeWidth + padding}
+        width={treeAreaWidth + padding}
         height={blockSize}
         ref={mouseoverRef}
       />

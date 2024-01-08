@@ -239,13 +239,30 @@ const model = types
     }),
   )
   .volatile(() => ({
+    /**
+     * #volatile
+     * a dummy variable that is incremented when ref changes so autorun for
+     * drawing canvas commands will run
+     */
+    nref: 0,
+    /**
+     * #volatile
+     */
     minimapHeight: 56,
+    /**
+     * #volatile
+     */
     error: undefined as unknown,
+    /**
+     * #volatile
+     */
     margin: {
       left: 20,
       top: 20,
     },
-    // annotations
+    /**
+     * #volatile
+     */
     annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
@@ -1088,6 +1105,12 @@ const model = types
      */
     clearAnnotationClickBoundaries() {
       self.annotPos = undefined
+    },
+    /**
+     * #action
+     */
+    incrementRef() {
+      self.nref++
     },
   }))
   .views(self => ({

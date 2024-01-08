@@ -14,10 +14,10 @@ import List from '@mui/icons-material/List'
 import ZoomControls from './ZoomControls'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
 
-const SettingsDialog = lazy(() => import('./dialogs/SettingsDlg'))
-const AboutDialog = lazy(() => import('./dialogs/AboutDlg'))
-const MetadataDialog = lazy(() => import('./dialogs/MetadataDlg'))
-const TracklistDialog = lazy(() => import('./dialogs/TracklistDlg'))
+const SettingsDialog = lazy(() => import('./dialogs/SettingsDialog'))
+const AboutDialog = lazy(() => import('./dialogs/AboutDialog'))
+const MetadataDialog = lazy(() => import('./dialogs/MetadataDialog'))
+const TracklistDialog = lazy(() => import('./dialogs/TracklistDialog'))
 
 const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model

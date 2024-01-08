@@ -10,7 +10,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 // locals
 import { MsaViewModel } from '../model'
 
-const TrackInfoDialog = lazy(() => import('./dialogs/TrackInfoDlg'))
+const TrackInfoDialog = lazy(() => import('./dialogs/TrackInfoDialog'))
 
 const useStyles = makeStyles()({
   button: {
@@ -27,7 +27,7 @@ export const TrackLabel = observer(function ({
   track: any
 }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>()
-  const [trackInfoDlgOpen, setTrackInfoDlgOpen] = useState(false)
+  const [trackInfoDialogOpen, setTrackInfoDialogOpen] = useState(false)
   const { rowHeight, treeAreaWidth: width } = model
   const {
     height,
@@ -76,7 +76,7 @@ export const TrackLabel = observer(function ({
           <MenuItem
             dense
             onClick={() => {
-              setTrackInfoDlgOpen(true)
+              setTrackInfoDialogOpen(true)
               setAnchorEl(undefined)
             }}
           >
@@ -84,11 +84,11 @@ export const TrackLabel = observer(function ({
           </MenuItem>
         </Menu>
       ) : null}
-      {trackInfoDlgOpen ? (
+      {trackInfoDialogOpen ? (
         <Suspense fallback={null}>
           <TrackInfoDialog
             model={track.model}
-            onClose={() => setTrackInfoDlgOpen(false)}
+            onClose={() => setTrackInfoDialogOpen(false)}
           />
         </Suspense>
       ) : null}
