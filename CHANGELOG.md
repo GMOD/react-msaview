@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v3.0.0
+
+- Removed coordinate system from the header bar, instead uses a slider bar to
+  indicate coordinates
+
 ## v2.1.4
 
 - Remove type:module as it caused issues in esbuild
