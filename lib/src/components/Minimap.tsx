@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 import { MsaViewModel } from '../model'
 
@@ -7,6 +7,7 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
     clientX: number
     scrollX: number
   }>()
+  const scheduled = useRef(false)
   const [hovered, setHovered] = useState(false)
   const {
     scrollX,
@@ -26,9 +27,15 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
     if (mouseDown !== undefined) {
       function fn(event: MouseEvent) {
         if (mouseDown !== undefined) {
-          model.setScrollX(
-            mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
-          )
+          if (!scheduled.current) {
+            scheduled.current = true
+            window.requestAnimationFrame(() => {
+              model.setScrollX(
+                mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
+              )
+              scheduled.current = false
+            })
+          }
         }
       }
       function fn2() {

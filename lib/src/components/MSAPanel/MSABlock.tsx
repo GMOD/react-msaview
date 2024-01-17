@@ -40,7 +40,13 @@ const MSABlock = observer(function ({
       return
     }
     return autorun(() => {
-      renderBlock({ ctx, offsetX, offsetY, contrastScheme, model })
+      renderBlock({
+        ctx,
+        offsetX,
+        offsetY,
+        contrastScheme,
+        model,
+      })
     })
   }, [model, offsetX, offsetY, contrastScheme])
   return (

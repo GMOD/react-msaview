@@ -1,6 +1,8 @@
 // locals
 import { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
+import { NodeWithIdsAndLength } from '../../util'
+import { HierarchyNode } from 'd3-hierarchy'
 
 export function renderBlock({
   model,
@@ -17,13 +19,8 @@ export function renderBlock({
 }) {
   const {
     hierarchy,
-    bgColor,
-    colorSchemeName,
-    colorScheme,
-    colStats,
-    columns,
-    blockSize,
     colWidth,
+    blockSize,
     rowHeight,
     fontSize,
     highResScaleFactor,
@@ -38,14 +35,59 @@ export function renderBlock({
   const leaves = hierarchy.leaves()
   const b = blockSize
 
-  // slice vertical rows, e.g. tree leaves, avoid negative slice
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
   const yEnd = Math.max(0, Math.ceil((offsetY + b + rowHeight) / rowHeight))
-
-  // slice horizontal visible letters, avoid negative slice
   const xStart = Math.max(0, Math.floor(offsetX / colWidth))
   const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
   const visibleLeaves = leaves.slice(yStart, yEnd)
+
+  drawTiles({
+    model,
+    ctx,
+    offsetX,
+    offsetY,
+    xStart,
+    xEnd,
+    visibleLeaves,
+  })
+  drawText({
+    model,
+    ctx,
+    offsetX,
+    contrastScheme,
+    xStart,
+    xEnd,
+    visibleLeaves,
+  })
+}
+
+function drawTiles({
+  model,
+  offsetX,
+  ctx,
+  visibleLeaves,
+  xStart,
+  xEnd,
+}: {
+  model: MsaViewModel
+  offsetX: number
+  offsetY: number
+  ctx: CanvasRenderingContext2D
+  visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
+  xStart: number
+  xEnd: number
+}) {
+  const {
+    bgColor,
+    colorSchemeName,
+    colorScheme,
+    colStats,
+    columns,
+    colWidth,
+    rowHeight,
+  } = model
+
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   for (const node of visibleLeaves) {
     const {
       // @ts-expect-error
@@ -74,7 +116,26 @@ export function renderBlock({
       }
     }
   }
+}
 
+function drawText({
+  model,
+  offsetX,
+  contrastScheme,
+  ctx,
+  visibleLeaves,
+  xStart,
+  xEnd,
+}: {
+  offsetX: number
+  model: MsaViewModel
+  contrastScheme: Record<string, string>
+  ctx: CanvasRenderingContext2D
+  visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
+  xStart: number
+  xEnd: number
+}) {
+  const { bgColor, colorScheme, columns, colWidth, rowHeight } = model
   if (rowHeight >= 5 && colWidth > rowHeight / 2) {
     for (const node of visibleLeaves) {
       const {
