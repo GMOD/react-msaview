@@ -1,0 +1,2 @@
+import{o as r,R as e,u as n,D as s}from"./index-QLmrv1ml.js";import{B as i}from"./index-3j3gySzW.js";import"./index-IWv-vdvz.js";const c=r(function({model:t,onClose:a}){const{header:o}=t;return e.createElement(n.Dialog,{onClose:()=>a(),open:!0,title:"Metadata"},e.createElement(s,null,e.createElement(i.Attributes,{attributes:o})))});export{c as default};
+//# sourceMappingURL=MetadataDialog-Gym5xB8d.js.map

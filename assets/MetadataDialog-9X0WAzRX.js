@@ -1,2 +1,0 @@
-import{o as r,R as e,u as n,D as s}from"./index-qjH87g2J.js";import{B as i}from"./index-hzrNVOQJ.js";import"./index-JoGTdyHT.js";const c=r(function({model:t,onClose:a}){const{header:o}=t;return e.createElement(n.Dialog,{onClose:()=>a(),open:!0,title:"Metadata"},e.createElement(s,null,e.createElement(i.Attributes,{attributes:o})))});export{c as default};
-//# sourceMappingURL=MetadataDialog-9X0WAzRX.js.map
