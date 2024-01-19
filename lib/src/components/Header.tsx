@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useState } from 'react'
-import { IconButton, Typography } from '@mui/material'
+import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
@@ -11,22 +11,16 @@ import Settings from '@mui/icons-material/Settings'
 import Help from '@mui/icons-material/Help'
 import Assignment from '@mui/icons-material/Assignment'
 import List from '@mui/icons-material/List'
+
+// locals
 import ZoomControls from './ZoomControls'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
+import HeaderInfoArea from './HeaderInfoArea'
 
 const SettingsDialog = lazy(() => import('./dialogs/SettingsDialog'))
 const AboutDialog = lazy(() => import('./dialogs/AboutDialog'))
 const MetadataDialog = lazy(() => import('./dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('./dialogs/TracklistDialog'))
-
-const InfoArea = observer(({ model }: { model: MsaViewModel }) => {
-  const { mouseOverRowName } = model
-  return (
-    <div>
-      <Typography display="inline">Row name: {mouseOverRowName}</Typography>
-    </div>
-  )
-})
 
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
   const [settingsDialogViz, setSettingsDialogViz] = useState(false)
@@ -89,7 +83,7 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       </Suspense>
       <MultiAlignmentSelector model={model} />
       <ZoomControls model={model} />
-      <InfoArea model={model} />
+      <HeaderInfoArea model={model} />
       <Spacer />
       <IconButton onClick={() => setAboutDialogViz(true)}>
         <Help />

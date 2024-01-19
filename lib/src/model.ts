@@ -635,7 +635,8 @@ const model = types
     },
     /**
      * #getter
-     */ get mouseOverRowName() {
+     */
+    get mouseOverRowName() {
       return self.mouseRow !== undefined
         ? this.rowNames[self.mouseRow]
         : undefined
