@@ -3,18 +3,13 @@ import { autorun } from 'mobx'
 import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
+import Stockholm from 'stockholm-js'
+// jbrowse
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
 import { measureText, sum } from '@jbrowse/core/util'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
-import Stockholm from 'stockholm-js'
-
-export interface RowDetails {
-  [key: string]: unknown
-  name: string
-  range?: { start: number; end: number }
-}
 
 // locals
 import {
@@ -37,6 +32,12 @@ import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
 import { StructureModel } from './StructureModel'
 import { DialogQueueSessionMixin } from './DialogQueue'
+
+export interface RowDetails {
+  [key: string]: unknown
+  name: string
+  range?: { start: number; end: number }
+}
 
 interface BasicTrackModel {
   id: string
@@ -73,6 +74,9 @@ type StructureSnap = SnapshotIn<typeof StructureModel>
 
 /**
  * #stateModel MsaView
+ * extends
+ * - BaseViewModel
+ * - DialogQueueSessionMixin
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
