@@ -2,6 +2,7 @@ import RBush from 'rbush'
 
 // locals
 import { MsaViewModel } from '../../model'
+import { Theme } from '@mui/material'
 
 export const padding = 600
 const extendBounds = 5
@@ -22,12 +23,15 @@ export function renderTree({
   offsetY,
   ctx,
   model,
+  theme,
 }: {
   offsetY: number
   ctx: CanvasRenderingContext2D
   model: MsaViewModel
+  theme: Theme
 }) {
   const { hierarchy, showBranchLen, blockSize } = model
+  ctx.strokeStyle = theme.palette.text.primary
   for (const { source, target } of hierarchy.links()) {
     const y = showBranchLen ? 'len' : 'y'
     // @ts-expect-error
@@ -60,6 +64,7 @@ export function renderNodeBubbles({
   clickMap: RBush<ClickEntry>
   offsetY: number
   model: MsaViewModel
+  theme: Theme
 }) {
   const { hierarchy, showBranchLen, collapsed, blockSize } = model
   for (const node of hierarchy.descendants()) {
@@ -98,6 +103,7 @@ export function renderNodeBubbles({
 }
 
 export function renderTreeLabels({
+  theme,
   model,
   offsetY,
   ctx,
@@ -107,6 +113,7 @@ export function renderTreeLabels({
   offsetY: number
   ctx: CanvasRenderingContext2D
   clickMap: RBush<ClickEntry>
+  theme: Theme
 }) {
   const {
     rowHeight,
@@ -149,7 +156,7 @@ export function renderTreeLabels({
       const height = ctx.measureText('M').width // use an 'em' for height
 
       const hasStructure = structures[name]
-      ctx.fillStyle = hasStructure ? 'blue' : 'black'
+      ctx.fillStyle = hasStructure ? 'blue' : theme.palette.text.primary
 
       if (!drawTree && !labelsAlignRight) {
         ctx.fillText(displayName, 0, yp)
@@ -200,11 +207,13 @@ export function renderTreeCanvas({
   clickMap,
   ctx,
   offsetY,
+  theme,
 }: {
   model: MsaViewModel
   offsetY: number
   ctx: CanvasRenderingContext2D
   clickMap: RBush<ClickEntry>
+  theme: Theme
 }) {
   clickMap.clear()
   const {
@@ -232,14 +241,14 @@ export function renderTreeCanvas({
   ctx.font = font.replace(/\d+px/, `${fontSize}px`)
 
   if (!noTree && drawTree) {
-    renderTree({ ctx, offsetY, model })
+    renderTree({ ctx, offsetY, model, theme })
 
     if (drawNodeBubbles) {
-      renderNodeBubbles({ ctx, offsetY, clickMap, model })
+      renderNodeBubbles({ ctx, offsetY, clickMap, model, theme })
     }
   }
 
   if (rowHeight >= 5) {
-    renderTreeLabels({ ctx, offsetY, model, clickMap })
+    renderTreeLabels({ ctx, offsetY, model, clickMap, theme })
   }
 }

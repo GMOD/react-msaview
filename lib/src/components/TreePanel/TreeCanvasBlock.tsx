@@ -8,6 +8,7 @@ import { MsaViewModel } from '../../model'
 import TreeMenu from './TreeMenu'
 import TreeBranchMenu from './TreeBranchMenu'
 import { padding, renderTreeCanvas } from './renderTreeCanvas'
+import { useTheme } from '@mui/material'
 
 interface TooltipData {
   name: string
@@ -33,6 +34,7 @@ const TreeCanvasBlock = observer(function ({
   model: MsaViewModel
   offsetY: number
 }) {
+  const theme = useTheme()
   const ref = useRef<HTMLCanvasElement>()
   const clickMap = useRef(new RBush<ClickEntry>())
   const mouseoverRef = useRef<HTMLCanvasElement>(null)
@@ -68,9 +70,10 @@ const TreeCanvasBlock = observer(function ({
         model,
         offsetY,
         clickMap: clickMap.current,
+        theme,
       })
     })
-  }, [model, offsetY])
+  }, [model, offsetY, theme])
 
   useEffect(() => {
     const ctx = mouseoverRef.current?.getContext('2d')
