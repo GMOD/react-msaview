@@ -10,12 +10,14 @@ our source code.
 
 [src/model.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model.ts)
 
-
+extends
+- BaseViewModel
+- DialogQueueSessionMixin
 
 ### MsaView - Properties
 #### property: annotatedRegions
 
-
+current "annotated regions"
 
 ```js
 // type signature
@@ -32,7 +34,7 @@ annotatedRegions: types.array(
 
 #### property: bgColor
 
-
+draw MSA tiles with a background color
 
 ```js
 // type signature
@@ -43,7 +45,7 @@ bgColor: true
 
 #### property: blockSize
 
-
+size of blocks of content to be drawn, px
 
 ```js
 // type signature
@@ -54,7 +56,8 @@ blockSize: 1000
 
 #### property: boxTracks
 
-
+a list of "tracks" to display, as box-like glyphs (e.g. protein
+domains)
 
 ```js
 // type signature
@@ -65,7 +68,7 @@ boxTracks: types.array(UniprotTrack)
 
 #### property: collapsed
 
-
+array of tree nodes that are 'collapsed'
 
 ```js
 // type signature
@@ -76,7 +79,7 @@ collapsed: types.array(types.string)
 
 #### property: colorSchemeName
 
-
+default color scheme name
 
 ```js
 // type signature
@@ -87,7 +90,7 @@ colorSchemeName: 'maeditor'
 
 #### property: colWidth
 
-
+width of columns, px
 
 ```js
 // type signature
@@ -109,7 +112,8 @@ currentAlignment: 0
 
 #### property: data
 
-
+data from the loaded tree/msa/treeMetadata, generally loaded by
+autorun
 
 ```js
 // type signature
@@ -139,7 +143,7 @@ data: types.optional(
 
 #### property: drawNodeBubbles
 
-
+draw clickable node bubbles on the tree
 
 ```js
 // type signature
@@ -150,7 +154,7 @@ drawNodeBubbles: true
 
 #### property: drawTree
 
-
+draw tree, boolean
 
 ```js
 // type signature
@@ -161,7 +165,7 @@ drawTree: true
 
 #### property: height
 
-
+height of the div containing the view, px
 
 ```js
 // type signature
@@ -172,7 +176,8 @@ height: types.optional(types.number, 550)
 
 #### property: highResScaleFactor
 
-
+high resolution scale factor, helps make canvas look better on hi-dpi
+screens
 
 ```js
 // type signature
@@ -183,7 +188,7 @@ highResScaleFactor: 2
 
 #### property: id
 
-
+id of view, randomly generated if not provided
 
 ```js
 // type signature
@@ -194,7 +199,7 @@ id: ElementId
 
 #### property: labelsAlignRight
 
-
+right-align the labels
 
 ```js
 // type signature
@@ -205,7 +210,7 @@ labelsAlignRight: false
 
 #### property: mouseCol
 
-
+the currently mouse-hovered column
 
 ```js
 // type signature
@@ -216,7 +221,7 @@ mouseCol: types.maybe(types.number)
 
 #### property: mouseRow
 
-
+the currently mouse-hovered row
 
 ```js
 // type signature
@@ -227,7 +232,8 @@ mouseRow: types.maybe(types.number)
 
 #### property: msaFilehandle
 
-
+filehandle object for the MSA (which could contain a tree e.g. with
+stockholm files)
 
 ```js
 // type signature
@@ -238,7 +244,7 @@ msaFilehandle: types.maybe(FileLocation)
 
 #### property: resizeHandleWidth
 
-
+resize handle width between tree and msa area, px
 
 ```js
 // type signature
@@ -249,7 +255,7 @@ resizeHandleWidth: 5
 
 #### property: rowHeight
 
-
+height of each row, px
 
 ```js
 // type signature
@@ -260,7 +266,7 @@ rowHeight: 20
 
 #### property: scrollX
 
-
+scroll position, X-offset, px
 
 ```js
 // type signature
@@ -271,7 +277,7 @@ scrollX: 0
 
 #### property: scrollY
 
-
+scroll position, Y-offset, px
 
 ```js
 // type signature
@@ -282,7 +288,7 @@ scrollY: 0
 
 #### property: selectedStructures
 
-
+currently "selected" structures, generally PDB 3-D protein structures
 
 ```js
 // type signature
@@ -293,7 +299,9 @@ selectedStructures: types.array(StructureModel)
 
 #### property: showBranchLen
 
-
+use "branch length" e.g. evolutionary distance to draw tree branch
+lengths. if false, the layout is a "cladogram" that does not take into
+account evolutionary distances
 
 ```js
 // type signature
@@ -304,7 +312,7 @@ showBranchLen: true
 
 #### property: showOnly
 
-
+array of tree nodes to show (invert of collapsed)
 
 ```js
 // type signature
@@ -315,7 +323,7 @@ showOnly: types.maybe(types.string)
 
 #### property: treeAreaWidth
 
-
+width of the area the tree is drawn in, px
 
 ```js
 // type signature
@@ -326,7 +334,7 @@ treeAreaWidth: types.optional(types.number, 400)
 
 #### property: treeFilehandle
 
-
+filehandle object for the tree
 
 ```js
 // type signature
@@ -337,7 +345,7 @@ treeFilehandle: types.maybe(FileLocation)
 
 #### property: treeMetadataFilehandle
 
-
+filehandle object for tree metadata
 
 ```js
 // type signature
@@ -348,7 +356,7 @@ treeMetadataFilehandle: types.maybe(FileLocation)
 
 #### property: treeWidth
 
-
+width of the tree within the treeArea, px
 
 ```js
 // type signature
@@ -359,7 +367,7 @@ treeWidth: types.optional(types.number, 300)
 
 #### property: turnedOffTracks
 
-
+turned off tracks
 
 ```js
 // type signature
@@ -370,7 +378,7 @@ turnedOffTracks: types.map(types.boolean)
 
 #### property: type
 
-
+hardcoded view type
 
 ```js
 // type signature
@@ -381,6 +389,15 @@ type: types.literal('MsaView')
 
 
 ### MsaView - Getters
+#### getter: adapterTrackModels
+
+
+
+```js
+// type
+BasicTrack[]
+```
+
 #### getter: alignmentNames
 
 
@@ -388,6 +405,15 @@ type: types.literal('MsaView')
 ```js
 // type
 any
+```
+
+#### getter: annotationTrackModels
+
+
+
+```js
+// type
+BasicTrack[]
 ```
 
 #### getter: blanks
@@ -424,6 +450,15 @@ number[]
 ```js
 // type
 number[]
+```
+
+#### getter: boxTrackModels
+
+
+
+```js
+// type
+BasicTrack[]
 ```
 
 #### getter: colorScheme
@@ -489,6 +524,15 @@ any
 string
 ```
 
+#### getter: fontSize
+
+
+
+```js
+// type
+number
+```
+
 #### getter: header
 
 
@@ -525,6 +569,15 @@ boolean
 { [k: string]: any; }
 ```
 
+#### getter: labelsWidth
+
+
+
+```js
+// type
+number
+```
+
 #### getter: menuItems
 
 
@@ -554,7 +607,7 @@ ClustalMSA | StockholmMSA | FastaMSA
 
 #### getter: msaAreaWidth
 
-
+widget width minus the tree area gives the space for the MSA
 
 ```js
 // type
@@ -630,7 +683,7 @@ any
 
 ```js
 // type
-Record<string, { pdb: string; startPos: number; endPos: number; }[]>
+Record<string, Structure[]>
 ```
 
 #### getter: totalHeight
@@ -644,7 +697,7 @@ number
 
 #### getter: totalTrackAreaHeight
 
-
+total height of track area (px)
 
 ```js
 // type
@@ -676,6 +729,15 @@ NodeWithIds
 ```js
 // type
 any
+```
+
+#### getter: treeWidthMatchesArea
+
+synchronization that matches treeWidth to treeAreaWidth
+
+```js
+// type
+true
 ```
 
 #### getter: turnedOnTracks
@@ -743,6 +805,15 @@ pxToBp: (coord: number) => number
 relativePxToBp: (rowName: string, position: number) => number
 ```
 
+#### method: relativePxToBp2
+
+
+
+```js
+// type signature
+relativePxToBp2: (rowName: string, position: number) => number
+```
+
 #### method: rowSpecificBpToPx
 
 
@@ -756,7 +827,7 @@ rowSpecificBpToPx: (rowName: string, position: number) => number
 ### MsaView - Actions
 #### action: addAnnotation
 
-
+add a new annotated region, in 'global' coordinates
 
 ```js
 // type signature
@@ -765,7 +836,7 @@ addAnnotation: (start: number, end: number, attributes: Record<string, string[]>
 
 #### action: addStructureToSelection
 
-
+add to the selected structures
 
 ```js
 // type signature
@@ -783,7 +854,7 @@ addUniprotTrack: (node: { name: string; accession: string; }) => void
 
 #### action: clearAnnotationClickBoundaries
 
-
+internal, used for annotation click-and-drag state
 
 ```js
 // type signature
@@ -792,7 +863,7 @@ clearAnnotationClickBoundaries: () => void
 
 #### action: clearSelectedStructures
 
-
+clear all selected structures
 
 ```js
 // type signature
@@ -817,9 +888,18 @@ doScrollX: (deltaX: number) => void
 doScrollY: (deltaY: number) => void
 ```
 
+#### action: incrementRef
+
+internal, used for drawing to canvas
+
+```js
+// type signature
+incrementRef: () => void
+```
+
 #### action: removeStructureFromSelection
 
-
+remove from the selected structures
 
 ```js
 // type signature
@@ -828,16 +908,25 @@ removeStructureFromSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: IS
 
 #### action: setAnnotationClickBoundaries
 
-
+internal, used for annotation click-and-drag state
 
 ```js
 // type signature
 setAnnotationClickBoundaries: (left: number, right: number) => void
 ```
 
+#### action: setBgColor
+
+
+
+```js
+// type signature
+setBgColor: (arg: boolean) => void
+```
+
 #### action: setColorSchemeName
 
-
+set color scheme name
 
 ```js
 // type signature
@@ -846,7 +935,7 @@ setColorSchemeName: (name: string) => void
 
 #### action: setColWidth
 
-
+set col width (px)
 
 ```js
 // type signature
@@ -871,9 +960,27 @@ setCurrentAlignment: (n: number) => void
 setData: (data: { msa?: string; tree?: string; }) => void
 ```
 
+#### action: setDrawNodeBubbles
+
+
+
+```js
+// type signature
+setDrawNodeBubbles: (arg: boolean) => void
+```
+
+#### action: setDrawTree
+
+
+
+```js
+// type signature
+setDrawTree: (arg: boolean) => void
+```
+
 #### action: setError
 
-
+set error state
 
 ```js
 // type signature
@@ -882,11 +989,20 @@ setError: (error?: unknown) => void
 
 #### action: setHeight
 
-
+set the height of the view in px
 
 ```js
 // type signature
 setHeight: (height: number) => void
+```
+
+#### action: setLabelsAlignRight
+
+
+
+```js
+// type signature
+setLabelsAlignRight: (arg: boolean) => void
 ```
 
 #### action: setMouseoveredColumn
@@ -900,7 +1016,7 @@ setMouseoveredColumn: (n: number, chain: string, file: string) => void
 
 #### action: setMousePos
 
-
+set mouse position (row, column) in the MSA
 
 ```js
 // type signature
@@ -927,7 +1043,7 @@ setMSAFilehandle: (msaFilehandle?: FileLocation) => Promise<void>
 
 #### action: setRowHeight
 
-
+set row height (px)
 
 ```js
 // type signature
@@ -945,11 +1061,20 @@ setScrollX: (n: number) => void
 
 #### action: setScrollY
 
-
+set scroll Y-offset (px)
 
 ```js
 // type signature
 setScrollY: (n: number) => void
+```
+
+#### action: setShowBranchLen
+
+
+
+```js
+// type signature
+setShowBranchLen: (arg: boolean) => void
 ```
 
 #### action: setShowOnly
@@ -972,7 +1097,7 @@ setTree: (result: string) => void
 
 #### action: setTreeAreaWidth
 
-
+set tree area width (px)
 
 ```js
 // type signature
@@ -999,29 +1124,20 @@ setTreeMetadata: (result: string) => void
 
 #### action: setTreeWidth
 
-
+set tree width (px)
 
 ```js
 // type signature
 setTreeWidth: (n: number) => void
 ```
 
-#### action: toggleBgColor
+#### action: setTreeWidthMatchesArea
 
-
-
-```js
-// type signature
-toggleBgColor: () => void
-```
-
-#### action: toggleBranchLen
-
-
+synchronize the treewidth and treeareawidth
 
 ```js
 // type signature
-toggleBranchLen: () => void
+setTreeWidthMatchesArea: (arg: boolean) => void
 ```
 
 #### action: toggleCollapsed
@@ -1033,36 +1149,9 @@ toggleBranchLen: () => void
 toggleCollapsed: (node: string) => void
 ```
 
-#### action: toggleDrawTree
-
-
-
-```js
-// type signature
-toggleDrawTree: () => void
-```
-
-#### action: toggleLabelsAlignRight
-
-
-
-```js
-// type signature
-toggleLabelsAlignRight: () => void
-```
-
-#### action: toggleNodeBubbles
-
-
-
-```js
-// type signature
-toggleNodeBubbles: () => void
-```
-
 #### action: toggleStructureSelection
 
-
+toggle a structure from the selected structures list
 
 ```js
 // type signature

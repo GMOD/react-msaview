@@ -36,7 +36,7 @@ export default class FastaMSA {
   }
 
   getRow(name: string) {
-    return this.MSA?.seqdata[name]?.split('')
+    return this.MSA?.seqdata[name] || ''
   }
 
   getWidth() {

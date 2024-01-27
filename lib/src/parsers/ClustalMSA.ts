@@ -12,7 +12,7 @@ export default class ClustalMSA {
   }
 
   getRow(name: string) {
-    return this.MSA.alns.find(aln => aln.id === name)?.seq.split('')
+    return this.MSA.alns.find(aln => aln.id === name)?.seq || ''
   }
 
   getWidth() {

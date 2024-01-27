@@ -45,6 +45,11 @@ interface BasicTrackModel {
   associatedRowName?: string
   height: number
 }
+interface Structure {
+  pdb: string
+  startPos: number
+  endPos: number
+}
 
 export interface TextTrackModel extends BasicTrackModel {
   customColorScheme?: Record<string, string>
@@ -93,126 +98,191 @@ const model = types
     types.model('MsaView', {
       /**
        * #property
+       * id of view, randomly generated if not provided
        */
       id: ElementId,
+
       /**
        * #property
+       * hardcoded view type
        */
       type: types.literal('MsaView'),
+
       /**
        * #property
+       * height of the div containing the view, px
        */
       height: types.optional(types.number, 550),
+
       /**
        * #property
+       * width of the area the tree is drawn in, px
        */
       treeAreaWidth: types.optional(types.number, 400),
+
       /**
        * #property
+       * width of the tree within the treeArea, px
        */
       treeWidth: types.optional(types.number, 300),
+
       /**
        * #getter
+       * synchronization that matches treeWidth to treeAreaWidth
        */
       treeWidthMatchesArea: true,
+
       /**
        * #property
+       * height of each row, px
        */
       rowHeight: 20,
+
       /**
        * #property
+       * scroll position, Y-offset, px
        */
       scrollY: 0,
+
       /**
        * #property
+       * scroll position, X-offset, px
        */
       scrollX: 0,
+
       /**
        * #property
+       * resize handle width between tree and msa area, px
        */
       resizeHandleWidth: 5,
+
       /**
        * #property
+       * size of blocks of content to be drawn, px
        */
       blockSize: 1000,
+
       /**
        * #property
+       * the currently mouse-hovered row
        */
       mouseRow: types.maybe(types.number),
+
       /**
        * #property
+       * the currently mouse-hovered column
        */
       mouseCol: types.maybe(types.number),
+
       /**
        * #property
+       * currently "selected" structures, generally PDB 3-D protein structures
        */
       selectedStructures: types.array(StructureModel),
+
       /**
        * #property
+       * right-align the labels
        */
       labelsAlignRight: false,
+
       /**
        * #property
+       * width of columns, px
        */
       colWidth: 16,
+
       /**
        * #property
+       * use "branch length" e.g. evolutionary distance to draw tree branch
+       * lengths. if false, the layout is a "cladogram" that does not take into
+       * account evolutionary distances
        */
       showBranchLen: true,
       /**
        * #property
+       * draw MSA tiles with a background color
        */
       bgColor: true,
+
       /**
        * #property
+       * draw tree, boolean
        */
       drawTree: true,
+
       /**
        * #property
+       * draw clickable node bubbles on the tree
        */
       drawNodeBubbles: true,
+
       /**
        * #property
+       * high resolution scale factor, helps make canvas look better on hi-dpi
+       * screens
        */
       highResScaleFactor: 2,
+
       /**
        * #property
+       * default color scheme name
        */
       colorSchemeName: 'maeditor',
+
       /**
        * #property
+       * filehandle object for the tree
        */
       treeFilehandle: types.maybe(FileLocation),
+
       /**
        * #property
+       * filehandle object for the MSA (which could contain a tree e.g. with
+       * stockholm files)
        */
       msaFilehandle: types.maybe(FileLocation),
+
       /**
        * #property
+       * filehandle object for tree metadata
        */
       treeMetadataFilehandle: types.maybe(FileLocation),
+
       /**
        * #property
+       *
        */
       currentAlignment: 0,
+
       /**
        * #property
+       * array of tree nodes that are 'collapsed'
        */
       collapsed: types.array(types.string),
+
       /**
        * #property
+       * array of tree nodes to show (invert of collapsed)
        */
       showOnly: types.maybe(types.string),
+
       /**
        * #property
+       * a list of "tracks" to display, as box-like glyphs (e.g. protein
+       * domains)
        */
       boxTracks: types.array(UniprotTrack),
+
       /**
        * #property
+       * turned off tracks
        */
       turnedOffTracks: types.map(types.boolean),
+
       /**
        * #property
+       * current "annotated regions"
        */
       annotatedRegions: types.array(
         types.model({
@@ -221,8 +291,11 @@ const model = types
           attributes: types.frozen<Record<string, string[]>>(),
         }),
       ),
+
       /**
        * #property
+       * data from the loaded tree/msa/treeMetadata, generally loaded by
+       * autorun
        */
       data: types.optional(
         types
@@ -276,18 +349,23 @@ const model = types
   .actions(self => ({
     /**
      * #action
+     * set the height of the view in px
      */
     setHeight(height: number) {
       self.height = height
     },
+
     /**
      * #action
+     * add to the selected structures
      */
     addStructureToSelection(elt: StructureSnap) {
       self.selectedStructures.push(elt)
     },
+
     /**
      * #action
+     * remove from the selected structures
      */
     removeStructureFromSelection(elt: StructureSnap) {
       const r = self.selectedStructures.find(node => node.id === elt.id)
@@ -295,8 +373,10 @@ const model = types
         self.selectedStructures.remove(r)
       }
     },
+
     /**
      * #action
+     * toggle a structure from the selected structures list
      */
     toggleStructureSelection(elt: {
       id: string
@@ -309,51 +389,67 @@ const model = types
         self.selectedStructures.push(elt)
       }
     },
+
     /**
      * #action
+     * clear all selected structures
      */
     clearSelectedStructures() {
       self.selectedStructures = cast([])
     },
+
     /**
      * #action
+     * set error state
      */
     setError(error?: unknown) {
       self.error = error
     },
+
     /**
      * #action
+     * set mouse position (row, column) in the MSA
      */
     setMousePos(col?: number, row?: number) {
       self.mouseCol = col
       self.mouseRow = row
     },
+
     /**
      * #action
+     * set row height (px)
      */
     setRowHeight(n: number) {
       self.rowHeight = n
     },
+
     /**
      * #action
+     * set col width (px)
      */
     setColWidth(n: number) {
       self.colWidth = n
     },
+
     /**
      * #action
+     * set color scheme name
      */
     setColorSchemeName(name: string) {
       self.colorSchemeName = name
     },
+
     /**
      * #action
+     * synchronize the treewidth and treeareawidth
      */
     setTreeWidthMatchesArea(arg: boolean) {
       self.treeWidthMatchesArea = arg
     },
+
     /**
      * #action
+     * set scroll Y-offset (px)
      */
     setScrollY(n: number) {
       self.scrollY = n
@@ -361,22 +457,27 @@ const model = types
 
     /**
      * #action
+     * set tree area width (px)
      */
     setTreeAreaWidth(n: number) {
       self.treeAreaWidth = n
     },
     /**
      * #action
+     * set tree width (px)
      */
     setTreeWidth(n: number) {
       self.treeWidth = n
     },
+
     /**
      * #action
+     *
      */
     setCurrentAlignment(n: number) {
       self.currentAlignment = n
     },
+
     /**
      * #action
      */
@@ -389,6 +490,7 @@ const model = types
     setDrawTree(arg: boolean) {
       self.drawTree = arg
     },
+
     /**
      * #action
      */
@@ -399,42 +501,49 @@ const model = types
         self.collapsed.push(node)
       }
     },
+
     /**
      * #action
      */
     setShowOnly(node?: string) {
       self.showOnly = node
     },
+
     /**
      * #action
      */
     setShowBranchLen(arg: boolean) {
       self.showBranchLen = arg
     },
+
     /**
      * #action
      */
     setBgColor(arg: boolean) {
       self.bgColor = arg
     },
+
     /**
      * #action
      */
     setDrawNodeBubbles(arg: boolean) {
       self.drawNodeBubbles = arg
     },
+
     /**
      * #action
      */
     setData(data: { msa?: string; tree?: string }) {
       self.data = cast(data)
     },
+
     /**
      * #action
      */
     async setMSAFilehandle(msaFilehandle?: FileLocationType) {
       self.msaFilehandle = msaFilehandle
     },
+
     /**
      * #action
      */
@@ -446,18 +555,21 @@ const model = types
         self.treeFilehandle = treeFilehandle
       }
     },
+
     /**
      * #action
      */
     setMSA(result: string) {
       self.data.setMSA(result)
     },
+
     /**
      * #action
      */
     setTree(result: string) {
       self.data.setTree(result)
     },
+
     /**
      * #action
      */
@@ -678,14 +790,7 @@ const model = types
     /**
      * #getter
      */
-    get structures(): Record<
-      string,
-      {
-        pdb: string
-        startPos: number
-        endPos: number
-      }[]
-    > {
+    get structures(): Record<string, Structure[]> {
       return this.MSA?.getStructures() || {}
     },
     /**
@@ -700,6 +805,7 @@ const model = types
     },
     /**
      * #getter
+     * widget width minus the tree area gives the space for the MSA
      */
     get msaAreaWidth() {
       return self.width - self.treeAreaWidth
@@ -712,7 +818,7 @@ const model = types
       const strs = this.hierarchy
         .leaves()
         .map(({ data }) => this.MSA?.getRow(data.name))
-        .filter((item): item is string[] => !!item)
+        .filter((item): item is string => !!item)
 
       for (let i = 0; i < strs[0]?.length; i++) {
         let counter = 0
@@ -731,10 +837,11 @@ const model = types
      * #getter
      */
     get rows() {
+      const MSA = this.MSA
       return this.hierarchy
         .leaves()
-        .map(({ data }) => [data.name, this.MSA?.getRow(data.name)] as const)
-        .filter((f): f is [string, string[]] => !!f[1])
+        .map(leaf => [leaf.data.name, MSA?.getRow(leaf.data.name)] as const)
+        .filter((f): f is [string, string] => !!f[1])
     },
     /**
      * #getter
@@ -779,17 +886,13 @@ const model = types
      * generates a new tree that is clustered with x,y positions
      */
     get hierarchy(): HierarchyNode<NodeWithIdsAndLength> {
-      const root = this.root
+      const r = this.root
       const clust = cluster<NodeWithIds>()
         .size([this.totalHeight, self.treeWidth])
         .separation(() => 1)
-      clust(root)
-      setBrLength(
-        root,
-        (root.data.length = 0),
-        self.treeWidth / maxLength(root),
-      )
-      return root as HierarchyNode<NodeWithIdsAndLength>
+      clust(r)
+      setBrLength(r, (r.data.length = 0), self.treeWidth / maxLength(r))
+      return r as HierarchyNode<NodeWithIdsAndLength>
     },
     /**
      * #getter
@@ -881,11 +984,13 @@ const model = types
       const { rowHeight, hierarchy, treeMetadata, fontSize } = self
       if (rowHeight > 5) {
         for (const node of hierarchy.leaves()) {
-          const {
-            data: { name },
-          } = node
-          const displayName = treeMetadata[name]?.genome || name
-          x = Math.max(measureText(displayName, fontSize), x)
+          x = Math.max(
+            measureText(
+              treeMetadata[node.data.name]?.genome || node.data.name,
+              fontSize,
+            ),
+            x,
+          )
         }
       }
       return x
@@ -916,69 +1021,80 @@ const model = types
       }
       return ['a']
     },
+
     /**
      * #getter
      */
-    get tracks(): BasicTrack[] {
-      const blanks = self.blanks
-      const adapterTracks = self.MSA
-        ? self.MSA.tracks.map(track => {
-            const { data } = track
-            return {
-              model: {
-                ...track,
-                data: data ? skipBlanks(blanks, data) : undefined,
-                height: self.rowHeight,
-              } as TextTrackModel,
-              ReactComponent: TextTrack,
-            }
-          })
-        : ([] as BasicTrack[])
-
-      const boxTracks = self.boxTracks
-        // filter out tracks that are associated with hidden rows
+    get adapterTrackModels(): BasicTrack[] {
+      return (
+        self.MSA?.tracks.map(t => ({
+          model: {
+            ...t,
+            data: t.data ? skipBlanks(self.blanks, t.data) : undefined,
+            height: self.rowHeight,
+          } as TextTrackModel,
+          ReactComponent: TextTrack,
+        })) || []
+      )
+    },
+    /**
+     * #getter
+     */
+    get boxTrackModels(): BasicTrack[] {
+      return self.boxTracks
         .filter(track => !!self.rows.some(row => row[0] === track.name))
         .map(track => ({
           model: track as BoxTrackModel,
           ReactComponent: BoxTrack,
         }))
-
-      const annotationTracks =
-        self.annotatedRegions.length > 0
-          ? [
-              {
-                model: {
-                  features: self.annotatedRegions,
-                  height: 100,
-                  id: 'annotations',
-                  name: 'User-created annotations',
-                  data: self.annotatedRegions
-                    .map(region => {
-                      const attrs = region.attributes
-                        ? Object.entries(region.attributes)
-                            .map(([k, v]) => `${k}=${v.join(',')}`)
-                            .join(';')
-                        : '.'
-                      return [
-                        'MSA_refcoord',
-                        '.',
-                        '.',
-                        region.start,
-                        region.end,
-                        '.',
-                        '.',
-                        '.',
-                        attrs,
-                      ].join('\t')
-                    })
-                    .join('\n'),
-                } as BoxTrackModel,
-                ReactComponent: BoxTrack,
-              },
-            ]
-          : ([] as BasicTrack[])
-
-      return [...adapterTracks, ...boxTracks, ...annotationTracks]
+    },
+    /**
+     * #getter
+     */
+    get annotationTrackModels(): BasicTrack[] {
+      return self.annotatedRegions.length > 0
+        ? [
+            {
+              model: {
+                features: self.annotatedRegions,
+                height: 100,
+                id: 'annotations',
+                name: 'User-created annotations',
+                data: self.annotatedRegions
+                  .map(region => {
+                    const attrs = region.attributes
+                      ? Object.entries(region.attributes)
+                          .map(([k, v]) => `${k}=${v.join(',')}`)
+                          .join(';')
+                      : '.'
+                    return [
+                      'MSA_refcoord',
+                      '.',
+                      '.',
+                      region.start,
+                      region.end,
+                      '.',
+                      '.',
+                      '.',
+                      attrs,
+                    ].join('\t')
+                  })
+                  .join('\n'),
+              } as BoxTrackModel,
+              ReactComponent: BoxTrack,
+            },
+          ]
+        : []
+    },
+    /**
+     * #getter
+     */
+    get tracks(): BasicTrack[] {
+      return [
+        ...this.adapterTrackModels,
+        ...this.boxTrackModels,
+        ...this.annotationTrackModels,
+      ]
     },
     /**
      * #getter
@@ -1063,6 +1179,29 @@ const model = types
       }
       return 0
     },
+
+    /**
+     * #method
+     */
+    relativePxToBp2(rowName: string, position: number) {
+      const { rowNames, rows } = self
+      const index = rowNames.indexOf(rowName)
+      if (index !== -1) {
+        const row = rows[index][1]
+
+        let k = 0
+        let i = 0
+        for (; k < position; i++) {
+          if (row[i] !== '-') {
+            k++
+          } else if (k >= position) {
+            break
+          }
+        }
+        return i
+      }
+      return 0
+    },
     /**
      * #method
      */
@@ -1080,6 +1219,7 @@ const model = types
   .actions(self => ({
     /**
      * #action
+     * add a new annotated region, in 'global' coordinates
      */
     addAnnotation(
       start: number,
@@ -1094,18 +1234,21 @@ const model = types
     },
     /**
      * #action
+     * internal, used for annotation click-and-drag state
      */
     setAnnotationClickBoundaries(left: number, right: number) {
       self.annotPos = { left, right }
     },
     /**
      * #action
+     * internal, used for annotation click-and-drag state
      */
     clearAnnotationClickBoundaries() {
       self.annotPos = undefined
     },
     /**
      * #action
+     * internal, used for drawing to canvas
      */
     incrementRef() {
       self.nref++
@@ -1114,6 +1257,7 @@ const model = types
   .views(self => ({
     /**
      * #getter
+     * total height of track area (px)
      */
     get totalTrackAreaHeight() {
       return sum(self.turnedOnTracks.map(r => r.model.height))
@@ -1121,6 +1265,7 @@ const model = types
   }))
   .actions(self => ({
     afterCreate() {
+      // autorun opens treeFilehandle
       addDisposer(
         self,
         autorun(async () => {
@@ -1135,6 +1280,7 @@ const model = types
           }
         }),
       )
+      // autorun opens treeMetadataFilehandle
       addDisposer(
         self,
         autorun(async () => {
@@ -1151,6 +1297,7 @@ const model = types
           }
         }),
       )
+      // autorun opens msaFilehandle
       addDisposer(
         self,
         autorun(async () => {
@@ -1165,6 +1312,8 @@ const model = types
           }
         }),
       )
+
+      // autorun synchronizes treeWidth with treeAreaWidth
       addDisposer(
         self,
         autorun(async () => {
