@@ -3,8 +3,6 @@ import { max } from 'd3-array'
 import { Theme } from '@mui/material'
 import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
-import { FileLocation } from '@jbrowse/core/util'
-import { openLocation } from '@jbrowse/core/util/io'
 
 extend([namesPlugin])
 

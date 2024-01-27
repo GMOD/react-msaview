@@ -25,7 +25,7 @@ export default observer(function ({
     <Dialog onClose={() => onClose()} open title="Tree node info">
       <DialogContent>
         <BaseCard title="Attributes">
-          <Attributes attributes={info} />
+          <Attributes attributes={{ nodeName, ...info }} />
         </BaseCard>
         {metadata ? (
           <BaseCard title="Extra metadata">
