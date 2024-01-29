@@ -8,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   FormControlLabel,
+  FormControlLabelProps,
   MenuItem,
   Slider,
   TextField,
@@ -21,15 +22,20 @@ const useStyles = makeStyles()(theme => ({
   field: {
     margin: theme.spacing(4),
   },
+  flex: {
+    display: 'flex',
+  },
 }))
 
-const SettingsDialog = observer(function ({
-  model,
-  onClose,
-}: {
-  model: MsaViewModel
-  onClose: () => void
-}) {
+function FormControlLabel2(rest: FormControlLabelProps) {
+  return (
+    <div>
+      <FormControlLabel {...rest} />
+    </div>
+  )
+}
+
+const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
   const { classes } = useStyles()
   const {
     bgColor,
@@ -44,59 +50,51 @@ const SettingsDialog = observer(function ({
     treeWidthMatchesArea,
     treeWidth,
   } = model
-
   return (
-    <Dialog open onClose={() => onClose()} title="Settings">
-      <DialogContent>
-        <FormControlLabel
+    <>
+      <div>
+        <h1>Tree options</h1>
+        <FormControlLabel2
           control={
             <Checkbox
               checked={showBranchLen}
               onChange={() => model.setShowBranchLen(!showBranchLen)}
             />
           }
-          label="Show branch length"
+          label="Show branch length on tree?"
         />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={bgColor}
-              onChange={() => model.setBgColor(!bgColor)}
-            />
-          }
-          label="Color background"
-        />
-        <FormControlLabel
+
+        <FormControlLabel2
           control={
             <Checkbox
               checked={drawNodeBubbles}
               onChange={() => model.setDrawNodeBubbles(!drawNodeBubbles)}
             />
           }
-          label="Draw node bubbles"
+          label="Draw clickable bubbles on tree branches?"
         />
-        <FormControlLabel
+        <FormControlLabel2
           control={
             <Checkbox
               checked={drawTree}
               onChange={() => model.setDrawTree(!drawTree)}
             />
           }
-          label="Draw tree (if available)"
+          label="Show tree?"
         />
-        <FormControlLabel
+
+        <FormControlLabel2
           control={
             <Checkbox
               checked={labelsAlignRight}
               onChange={() => model.setLabelsAlignRight(!labelsAlignRight)}
             />
           }
-          label="Labels align right"
+          label="Tree labels align right?"
         />
-
         {!noTree ? (
           <div>
-            <FormControlLabel
+            <FormControlLabel2
               control={
                 <Checkbox
                   checked={treeWidthMatchesArea}
@@ -108,7 +106,7 @@ const SettingsDialog = observer(function ({
               label="Make tree width fit to tree area?"
             />
             {!treeWidthMatchesArea ? (
-              <div style={{ display: 'flex' }}>
+              <div className={classes.flex}>
                 <Typography>Tree width ({treeWidth}px)</Typography>
                 <Slider
                   className={classes.field}
@@ -121,8 +119,21 @@ const SettingsDialog = observer(function ({
             ) : null}
           </div>
         ) : null}
+      </div>
+      <div>
+        <h1>MSA options</h1>
 
-        <div style={{ display: 'flex' }}>
+        <FormControlLabel2
+          control={
+            <Checkbox
+              checked={bgColor}
+              onChange={() => model.setBgColor(!bgColor)}
+            />
+          }
+          label="Color background tiles of MSA?"
+        />
+
+        <div className={classes.flex}>
           <Typography>Column width ({colWidth}px)</Typography>
           <Slider
             className={classes.field}
@@ -132,7 +143,7 @@ const SettingsDialog = observer(function ({
             onChange={(_, val) => model.setColWidth(val as number)}
           />
         </div>
-        <div style={{ display: 'flex' }}>
+        <div className={classes.flex}>
           <Typography>Row height ({rowHeight}px)</Typography>
           <Slider
             className={classes.field}
@@ -155,19 +166,24 @@ const SettingsDialog = observer(function ({
             </MenuItem>
           ))}
         </TextField>
+      </div>
+    </>
+  )
+})
+
+const SettingsDialog = observer(function ({
+  model,
+  onClose,
+}: {
+  model: MsaViewModel
+  onClose: () => void
+}) {
+  return (
+    <Dialog open onClose={() => onClose()} title="Settings">
+      <DialogContent>
+        <SettingsContent model={model} />
         <DialogActions>
-          <Button
-            onClick={() => {
-              model.setRowHeight(+rowHeight)
-              model.setColWidth(+colWidth)
-              if (!noTree) {
-                model.setTreeWidth(+treeWidth)
-              }
-              onClose()
-            }}
-            variant="contained"
-            color="primary"
-          >
+          <Button onClick={() => onClose()} variant="contained" color="primary">
             Submit
           </Button>
         </DialogActions>
