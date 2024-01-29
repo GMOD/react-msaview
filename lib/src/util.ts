@@ -109,6 +109,7 @@ export function skipBlanks(blanks: number[], arg: string | string[]) {
   return s
 }
 
+// basically same as setRadius from https://observablehq.com/@d3/tree-of-life
 export function setBrLength(
   d: HierarchyNode<NodeWithIds>,
   y0: number,
@@ -116,14 +117,17 @@ export function setBrLength(
 ) {
   // @ts-expect-error
   d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
-  d.children?.forEach(d => {
-    setBrLength(d, y0, k)
-  })
+  if (d.children) {
+    d.children.forEach(d => {
+      setBrLength(d, y0, k)
+    })
+  }
 }
 
+// basically same as maxLength from https://observablehq.com/@d3/tree-of-life
 export function maxLength(d: HierarchyNode<NodeWithIds>): number {
   return (
-    (d.data.length || 1) + (d.children ? max(d.children, maxLength) || 0 : 0)
+    (d.data.length || 0) + (d.children ? max(d.children, maxLength) || 0 : 0)
   )
 }
 
