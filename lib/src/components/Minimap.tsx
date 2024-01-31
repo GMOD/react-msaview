@@ -24,23 +24,23 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   const fill = 'rgba(66, 119, 127, 0.3)'
 
   useEffect(() => {
-    if (mouseDown !== undefined) {
-      function fn(event: MouseEvent) {
-        if (mouseDown !== undefined) {
-          if (!scheduled.current) {
-            scheduled.current = true
-            window.requestAnimationFrame(() => {
-              model.setScrollX(
-                mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
-              )
-              scheduled.current = false
-            })
-          }
+    function fn(event: MouseEvent) {
+      if (mouseDown !== undefined) {
+        if (!scheduled.current) {
+          scheduled.current = true
+          window.requestAnimationFrame(() => {
+            model.setScrollX(
+              mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
+            )
+            scheduled.current = false
+          })
         }
       }
-      function fn2() {
-        setMouseDown(undefined)
-      }
+    }
+    function fn2() {
+      setMouseDown(undefined)
+    }
+    if (mouseDown !== undefined) {
       document.addEventListener('mousemove', fn)
       document.addEventListener('mouseup', fn2)
       return () => {

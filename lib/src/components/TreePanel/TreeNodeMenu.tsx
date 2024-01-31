@@ -12,7 +12,7 @@ const TreeMenu = observer(function ({
   onClose,
   model,
 }: {
-  node: { x: number; y: number; name: string }
+  node: { x: number; y: number; name: string; id: string }
   model: MsaViewModel
   onClose: () => void
 }) {
@@ -52,6 +52,17 @@ const TreeMenu = observer(function ({
           }}
         >
           More info...
+        </MenuItem>
+        <MenuItem
+          dense
+          onClick={() => {
+            model.toggleCollapsed(node.id)
+            onClose()
+          }}
+        >
+          {model.collapsed.includes(node.id)
+            ? 'Expand this node'
+            : 'Collapse this node'}
         </MenuItem>
 
         {structures[node.name]?.map(entry => {

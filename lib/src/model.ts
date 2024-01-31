@@ -8,7 +8,7 @@ import Stockholm from 'stockholm-js'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { measureText, sum } from '@jbrowse/core/util'
+import { measureText, notEmpty, sum } from '@jbrowse/core/util'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
 // locals
@@ -675,7 +675,12 @@ const model = types
       const matches = name.match(/\S+\/(\d+)-(\d+)/)
       return {
         data: this.MSA?.getRowData(name) || ({} as Record<string, unknown>),
-        ...(matches && { range: { start: +matches[1], end: +matches[2] } }),
+        ...(matches && {
+          range: {
+            start: +matches[1],
+            end: +matches[2],
+          },
+        }),
       }
     },
     /**
@@ -772,6 +777,7 @@ const model = types
       let hier = hierarchy(this.tree, d => d.branchset)
         .sum(d => (d.branchset ? 0 : 1))
         .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
+
       if (self.showOnly) {
         const res = hier.find(node => node.data.id === self.showOnly)
         if (res) {
@@ -782,7 +788,7 @@ const model = types
       if (self.collapsed.length) {
         self.collapsed
           .map(collapsedId => hier.find(node => node.data.id === collapsedId))
-          .filter((f): f is HierarchyNode<NodeWithIds> => !!f)
+          .filter(notEmpty)
           .map(node => collapse(node))
       }
       return hier
@@ -817,7 +823,7 @@ const model = types
       const blanks = []
       const strs = this.hierarchy
         .leaves()
-        .map(({ data }) => this.MSA?.getRow(data.name))
+        .map(leaf => this.MSA?.getRow(leaf.data.name))
         .filter((item): item is string => !!item)
 
       for (let i = 0; i < strs[0]?.length; i++) {
@@ -1042,7 +1048,7 @@ const model = types
      */
     get boxTrackModels(): BasicTrack[] {
       return self.boxTracks
-        .filter(track => !!self.rows.some(row => row[0] === track.name))
+        .filter(track => self.rows.some(row => row[0] === track.name))
         .map(track => ({
           model: track as BoxTrackModel,
           ReactComponent: BoxTrack,

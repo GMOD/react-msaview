@@ -87,7 +87,6 @@ function drawTiles({
     rowHeight,
   } = model
 
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   for (const node of visibleLeaves) {
     const {
       // @ts-expect-error
@@ -143,7 +142,6 @@ function drawText({
         x: y,
         data: { name },
       } = node
-
       const str = columns[name]?.slice(xStart, xEnd)
       for (let i = 0; i < str?.length; i++) {
         const letter = str[i]

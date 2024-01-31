@@ -189,7 +189,9 @@ ${name}: ${signature || ''}
         const dir = `apidocs`
         try {
           fs.mkdirSync(dir)
-        } catch (e) {}
+        } catch (e) {
+          /* do nothing*/
+        }
         fs.writeFileSync(
           `${dir}/${model.name}.md`,
           `---

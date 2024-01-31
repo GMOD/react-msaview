@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
+import { useTheme } from '@mui/material'
 import RBush from 'rbush'
 
 // locals
 import { MsaViewModel } from '../../model'
-import TreeMenu from './TreeMenu'
+import TreeMenu from './TreeNodeMenu'
 import TreeBranchMenu from './TreeBranchMenu'
 import { padding, renderTreeCanvas } from './renderTreeCanvas'
-import { useTheme } from '@mui/material'
 
 interface TooltipData {
   name: string

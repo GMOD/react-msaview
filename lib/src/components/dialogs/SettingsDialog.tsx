@@ -61,7 +61,7 @@ const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
               onChange={() => model.setShowBranchLen(!showBranchLen)}
             />
           }
-          label="Show branch length on tree?"
+          label="Show branch length?"
         />
 
         <FormControlLabel2
