@@ -43,17 +43,6 @@ true
 bgColor: true
 ```
 
-#### property: blockSize
-
-size of blocks of content to be drawn, px
-
-```js
-// type signature
-number
-// code
-blockSize: 1000
-```
-
 #### property: boxTracks
 
 a list of "tracks" to display, as box-like glyphs (e.g. protein
@@ -174,6 +163,17 @@ IOptionalIType<ISimpleType<number>, [undefined]>
 height: types.optional(types.number, 550)
 ```
 
+#### property: hidden
+
+array of leaf nodes that are 'hidden', similar to collapsed but for leaf nodes
+
+```js
+// type signature
+IArrayType<ISimpleType<string>>
+// code
+hidden: types.array(types.string)
+```
+
 #### property: highResScaleFactor
 
 high resolution scale factor, helps make canvas look better on hi-dpi
@@ -208,28 +208,6 @@ false
 labelsAlignRight: false
 ```
 
-#### property: mouseCol
-
-the currently mouse-hovered column
-
-```js
-// type signature
-IMaybe<ISimpleType<number>>
-// code
-mouseCol: types.maybe(types.number)
-```
-
-#### property: mouseRow
-
-the currently mouse-hovered row
-
-```js
-// type signature
-IMaybe<ISimpleType<number>>
-// code
-mouseRow: types.maybe(types.number)
-```
-
 #### property: msaFilehandle
 
 filehandle object for the MSA (which could contain a tree e.g. with
@@ -240,17 +218,6 @@ stockholm files)
 IMaybe<ISnapshotProcessor<ITypeUnion<ModelCreationType<ExtractCFromProps<{ locationType: ISimpleType<"UriLocation">; uri: ISimpleType<string>; baseUri: IMaybe<ISimpleType<string>>; internetAccountId: IMaybe<...>; internetAccountPreAuthorization: IMaybe<...>; }>> | ModelCreationType<...> | ModelCreationType<...>, { ....
 // code
 msaFilehandle: types.maybe(FileLocation)
-```
-
-#### property: resizeHandleWidth
-
-resize handle width between tree and msa area, px
-
-```js
-// type signature
-number
-// code
-resizeHandleWidth: 5
 ```
 
 #### property: rowHeight
@@ -389,6 +356,15 @@ type: types.literal('MsaView')
 
 
 ### MsaView - Getters
+#### getter: _tree
+
+
+
+```js
+// type
+NodeWithIds
+```
+
 #### getter: adapterTrackModels
 
 
@@ -713,15 +689,6 @@ number
 BasicTrack[]
 ```
 
-#### getter: tree
-
-
-
-```js
-// type
-NodeWithIds
-```
-
 #### getter: treeMetadata
 
 
@@ -861,6 +828,15 @@ internal, used for annotation click-and-drag state
 clearAnnotationClickBoundaries: () => void
 ```
 
+#### action: clearHidden
+
+
+
+```js
+// type signature
+clearHidden: () => void
+```
+
 #### action: clearSelectedStructures
 
 clear all selected structures
@@ -886,6 +862,15 @@ doScrollX: (deltaX: number) => void
 ```js
 // type signature
 doScrollY: (deltaY: number) => void
+```
+
+#### action: hideNode
+
+
+
+```js
+// type signature
+hideNode: (arg: string) => void
 ```
 
 #### action: incrementRef

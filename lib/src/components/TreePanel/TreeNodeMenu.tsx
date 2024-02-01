@@ -56,13 +56,11 @@ const TreeMenu = observer(function ({
         <MenuItem
           dense
           onClick={() => {
-            model.toggleCollapsed(node.id)
+            model.hideNode(node.id)
             onClose()
           }}
         >
-          {model.collapsed.includes(node.id)
-            ? 'Expand this node'
-            : 'Collapse this node'}
+          Hide node
         </MenuItem>
 
         {structures[node.name]?.map(entry => {

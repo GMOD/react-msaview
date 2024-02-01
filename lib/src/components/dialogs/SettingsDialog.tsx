@@ -53,6 +53,7 @@ const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <>
       <div>
+        <Button onClick={() => model.clearHidden()}>Clear hidden</Button>
         <h1>Tree options</h1>
         <FormControlLabel2
           control={

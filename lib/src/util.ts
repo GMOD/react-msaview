@@ -20,7 +20,6 @@ interface Node {
 }
 
 export interface NodeWithIds {
-  hidden?: boolean
   id: string
   name: string
   branchset: NodeWithIds[]
@@ -116,11 +115,6 @@ export function setBrLength(
   y0: number,
   k: number,
 ) {
-  // @ts-expect-error
-  if (!d.hidden) {
-    // @ts-expect-error
-    d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
-  }
   if (d.children) {
     d.children.forEach(d => {
       setBrLength(d, y0, k)
@@ -145,9 +139,17 @@ export function collapse(d: HierarchyNode<NodeWithIds>) {
     d._children.forEach(collapse)
     // @ts-expect-error
     d.children = null
-  } else {
-    // @ts-expect-error
-    d.hidden = true
+  }
+}
+
+// Collapse the node and all it's children, from
+// https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
+export function filterHiddenLeafNodes(
+  d: HierarchyNode<NodeWithIds> | null,
+  hiddenId?: string,
+) {
+  if (d?.children) {
+    d.children = d.children.filter(f => f.id !== hiddenId)
   }
 }
 

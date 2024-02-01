@@ -6,7 +6,7 @@ import RBush from 'rbush'
 
 // locals
 import { MsaViewModel } from '../../model'
-import TreeMenu from './TreeNodeMenu'
+import TreeNodeMenu from './TreeNodeMenu'
 import TreeBranchMenu from './TreeBranchMenu'
 import { padding, renderTreeCanvas } from './renderTreeCanvas'
 
@@ -141,7 +141,7 @@ const TreeCanvasBlock = observer(function ({
       ) : null}
 
       {toggleNodeMenu?.id ? (
-        <TreeMenu
+        <TreeNodeMenu
           node={toggleNodeMenu}
           model={model}
           onClose={() => setToggleNodeMenu(undefined)}
@@ -158,6 +158,7 @@ const TreeCanvasBlock = observer(function ({
           }
 
           const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
+          console.log({ ret })
           ref.current.style.cursor = ret ? 'pointer' : 'default'
           setHoverElt(hoverNameClickMap(event))
         }}
@@ -174,6 +175,7 @@ const TreeCanvasBlock = observer(function ({
             setToggleNodeMenu({ ...data2, x, y })
           }
         }}
+        onMouseLeave={() => setHoverElt(undefined)}
         ref={vref}
       />
       <canvas

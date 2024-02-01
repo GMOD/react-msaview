@@ -21,6 +21,7 @@ import {
   clamp,
   NodeWithIds,
   NodeWithIdsAndLength,
+  filterHiddenLeafNodes,
 } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
@@ -152,30 +153,6 @@ const model = types
 
       /**
        * #property
-       * resize handle width between tree and msa area, px
-       */
-      resizeHandleWidth: 5,
-
-      /**
-       * #property
-       * size of blocks of content to be drawn, px
-       */
-      blockSize: 1000,
-
-      /**
-       * #property
-       * the currently mouse-hovered row
-       */
-      mouseRow: types.maybe(types.number),
-
-      /**
-       * #property
-       * the currently mouse-hovered column
-       */
-      mouseCol: types.maybe(types.number),
-
-      /**
-       * #property
        * currently "selected" structures, generally PDB 3-D protein structures
        */
       selectedStructures: types.array(StructureModel),
@@ -263,6 +240,12 @@ const model = types
 
       /**
        * #property
+       * array of leaf nodes that are 'hidden', similar to collapsed but for leaf nodes
+       */
+      hidden: types.array(types.string),
+
+      /**
+       * #property
        * array of tree nodes to show (invert of collapsed)
        */
       showOnly: types.maybe(types.string),
@@ -322,18 +305,45 @@ const model = types
   .volatile(() => ({
     /**
      * #volatile
+     * resize handle width between tree and msa area, px
+     */
+    resizeHandleWidth: 5,
+
+    /**
+     * #volatile
+     * size of blocks of content to be drawn, px
+     */
+    blockSize: 1000,
+
+    /**
+     * #volatile
+     * the currently mouse-hovered row
+     */
+    mouseRow: undefined as number | undefined,
+
+    /**
+     * #volatile
+     * the currently mouse-hovered column
+     */
+    mouseCol: undefined as number | undefined,
+
+    /**
+     * #volatile
      * a dummy variable that is incremented when ref changes so autorun for
      * drawing canvas commands will run
      */
     nref: 0,
+
     /**
      * #volatile
      */
     minimapHeight: 56,
+
     /**
      * #volatile
      */
     error: undefined as unknown,
+
     /**
      * #volatile
      */
@@ -341,6 +351,7 @@ const model = types
       left: 20,
       top: 20,
     },
+
     /**
      * #volatile
      */
@@ -489,6 +500,20 @@ const model = types
      */
     setDrawTree(arg: boolean) {
       self.drawTree = arg
+    },
+
+    /**
+     * #action
+     */
+    hideNode(arg: string) {
+      self.hidden.push(arg)
+    },
+
+    /**
+     * #action
+     */
+    clearHidden() {
+      self.hidden.clear()
     },
 
     /**
@@ -649,12 +674,14 @@ const model = types
     get blocks2d() {
       return self.blocksY.flatMap(by => self.blocksX.map(bx => [bx, by]))
     },
+
     /**
      * #getter
      */
     get done() {
       return self.initialized && (self.data.msa || self.data.tree)
     },
+
     /**
      * #getter
      */
@@ -668,6 +695,7 @@ const model = types
     get header() {
       return this.MSA?.getHeader() || {}
     },
+
     /**
      * #method
      */
@@ -699,7 +727,7 @@ const model = types
      * #getter
      */
     get noTree() {
-      return !!this.tree.noTree
+      return !!this._tree.noTree
     },
     /**
      * #getter
@@ -738,7 +766,7 @@ const model = types
     /**
      * #getter
      */
-    get tree(): NodeWithIds {
+    get _tree(): NodeWithIds {
       return self.data.tree
         ? generateNodeIds(parseNewick(self.data.tree))
         : this.MSA?.getTree() || {
@@ -774,7 +802,7 @@ const model = types
      * #getter
      */
     get root() {
-      let hier = hierarchy(this.tree, d => d.branchset)
+      let hier = hierarchy(this._tree, d => d.branchset)
         .sum(d => (d.branchset ? 0 : 1))
         .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
@@ -790,6 +818,12 @@ const model = types
           .map(collapsedId => hier.find(node => node.data.id === collapsedId))
           .filter(notEmpty)
           .map(node => collapse(node))
+      }
+      if (self.hidden.length) {
+        self.hidden
+          .map(hiddenId => hier.find(node => node.data.id === hiddenId))
+          .filter(notEmpty)
+          .map(node => filterHiddenLeafNodes(node.parent, node.id))
       }
       return hier
     },
@@ -900,6 +934,7 @@ const model = types
       setBrLength(r, (r.data.length = 0), self.treeWidth / maxLength(r))
       return r as HierarchyNode<NodeWithIdsAndLength>
     },
+
     /**
      * #getter
      */
@@ -924,12 +959,14 @@ const model = types
         })
       }
     },
+
     /**
      * #action
      */
     doScrollY(deltaY: number) {
       self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 0)
     },
+
     /**
      * #action
      */
@@ -940,6 +977,7 @@ const model = types
         0,
       )
     },
+
     /**
      * #action
      */
@@ -950,6 +988,7 @@ const model = types
         0,
       )
     },
+
     /**
      * #action
      */
@@ -1001,18 +1040,21 @@ const model = types
       }
       return x
     },
+
     /**
      * #getter
      */
     get secondaryStructureConsensus() {
       return self.MSA?.secondaryStructureConsensus
     },
+
     /**
      * #getter
      */
     get seqConsensus() {
       return self.MSA?.seqConsensus
     },
+
     /**
      * #getter
      */
@@ -1043,6 +1085,7 @@ const model = types
         })) || []
       )
     },
+
     /**
      * #getter
      */
@@ -1054,6 +1097,7 @@ const model = types
           ReactComponent: BoxTrack,
         }))
     },
+
     /**
      * #getter
      */
@@ -1108,6 +1152,7 @@ const model = types
     get turnedOnTracks() {
       return this.tracks.filter(f => !self.turnedOffTracks.has(f.model.id))
     },
+
     /**
      * #method
      * returns coordinate in the current relative coordinate scheme
@@ -1115,6 +1160,7 @@ const model = types
     pxToBp(coord: number) {
       return Math.floor((coord - self.scrollX) / self.colWidth)
     },
+
     /**
      * #method
      */
@@ -1149,6 +1195,7 @@ const model = types
 
       return i - count
     },
+
     /**
      * #method
      */
@@ -1164,6 +1211,7 @@ const model = types
 
       return position - count
     },
+
     /**
      * #method
      */
@@ -1245,6 +1293,7 @@ const model = types
     setAnnotationClickBoundaries(left: number, right: number) {
       self.annotPos = { left, right }
     },
+
     /**
      * #action
      * internal, used for annotation click-and-drag state
@@ -1252,6 +1301,7 @@ const model = types
     clearAnnotationClickBoundaries() {
       self.annotPos = undefined
     },
+
     /**
      * #action
      * internal, used for drawing to canvas
@@ -1303,6 +1353,7 @@ const model = types
           }
         }),
       )
+
       // autorun opens msaFilehandle
       addDisposer(
         self,
