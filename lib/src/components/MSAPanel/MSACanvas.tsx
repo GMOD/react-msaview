@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Typography, CircularProgress } from '@mui/material'
 import { observer } from 'mobx-react'
 import normalizeWheel from 'normalize-wheel'
 
 // locals
 import { MsaViewModel } from '../../model'
 import MSABlock from './MSABlock'
+import Loading from './Loading'
 
 const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const { MSA, msaFilehandle, height, msaAreaWidth, blocks2d } = model
@@ -135,20 +135,5 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     </div>
   )
 })
-
-function Loading() {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-      }}
-    >
-      <CircularProgress />
-      <Typography>Loading...</Typography>
-    </div>
-  )
-}
 
 export default MSACanvas

@@ -13,15 +13,15 @@ import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewMo
 
 // locals
 import {
+  clamp,
   collapse,
+  filterHiddenLeafNodes,
   generateNodeIds,
   maxLength,
   setBrLength,
   skipBlanks,
-  clamp,
   NodeWithIds,
   NodeWithIdsAndLength,
-  filterHiddenLeafNodes,
 } from './util'
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
@@ -246,7 +246,7 @@ const model = types
 
       /**
        * #property
-       * array of tree nodes to show (invert of collapsed)
+       * focus on particular subtree
        */
       showOnly: types.maybe(types.string),
 
@@ -262,18 +262,6 @@ const model = types
        * turned off tracks
        */
       turnedOffTracks: types.map(types.boolean),
-
-      /**
-       * #property
-       * current "annotated regions"
-       */
-      annotatedRegions: types.array(
-        types.model({
-          start: types.number,
-          end: types.number,
-          attributes: types.frozen<Record<string, string[]>>(),
-        }),
-      ),
 
       /**
        * #property
@@ -1101,50 +1089,8 @@ const model = types
     /**
      * #getter
      */
-    get annotationTrackModels(): BasicTrack[] {
-      return self.annotatedRegions.length > 0
-        ? [
-            {
-              model: {
-                features: self.annotatedRegions,
-                height: 100,
-                id: 'annotations',
-                name: 'User-created annotations',
-                data: self.annotatedRegions
-                  .map(region => {
-                    const attrs = region.attributes
-                      ? Object.entries(region.attributes)
-                          .map(([k, v]) => `${k}=${v.join(',')}`)
-                          .join(';')
-                      : '.'
-                    return [
-                      'MSA_refcoord',
-                      '.',
-                      '.',
-                      region.start,
-                      region.end,
-                      '.',
-                      '.',
-                      '.',
-                      attrs,
-                    ].join('\t')
-                  })
-                  .join('\n'),
-              } as BoxTrackModel,
-              ReactComponent: BoxTrack,
-            },
-          ]
-        : []
-    },
-    /**
-     * #getter
-     */
     get tracks(): BasicTrack[] {
-      return [
-        ...this.adapterTrackModels,
-        ...this.boxTrackModels,
-        ...this.annotationTrackModels,
-      ]
+      return [...this.adapterTrackModels, ...this.boxTrackModels]
     },
     /**
      * #getter
@@ -1270,46 +1216,7 @@ const model = types
       return j
     },
   }))
-  .actions(self => ({
-    /**
-     * #action
-     * add a new annotated region, in 'global' coordinates
-     */
-    addAnnotation(
-      start: number,
-      end: number,
-      attributes: Record<string, string[]>,
-    ) {
-      self.annotatedRegions.push({
-        start: self.getPos(start),
-        end: self.getPos(end),
-        attributes,
-      })
-    },
-    /**
-     * #action
-     * internal, used for annotation click-and-drag state
-     */
-    setAnnotationClickBoundaries(left: number, right: number) {
-      self.annotPos = { left, right }
-    },
 
-    /**
-     * #action
-     * internal, used for annotation click-and-drag state
-     */
-    clearAnnotationClickBoundaries() {
-      self.annotPos = undefined
-    },
-
-    /**
-     * #action
-     * internal, used for drawing to canvas
-     */
-    incrementRef() {
-      self.nref++
-    },
-  }))
   .views(self => ({
     /**
      * #getter
@@ -1320,6 +1227,13 @@ const model = types
     },
   }))
   .actions(self => ({
+    /**
+     * #action
+     * internal, used for drawing to canvas
+     */
+    incrementRef() {
+      self.nref++
+    },
     afterCreate() {
       // autorun opens treeFilehandle
       addDisposer(
