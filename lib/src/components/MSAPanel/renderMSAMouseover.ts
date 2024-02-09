@@ -25,7 +25,6 @@ export function renderMouseover({
   } = model
   ctx.resetTransform()
   ctx.clearRect(0, 0, width, height)
-  console.log({ mouseCol })
 
   if (mouseCol !== undefined) {
     ctx.fillStyle = 'rgba(0,0,0,0.15)'

@@ -158,7 +158,6 @@ const TreeCanvasBlock = observer(function ({
           }
 
           const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
-          console.log({ ret })
           ref.current.style.cursor = ret ? 'pointer' : 'default'
           setHoverElt(hoverNameClickMap(event))
         }}
