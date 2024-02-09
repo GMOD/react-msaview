@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v3.0.3
+
+- Fix tree drawing
+
+## v3.0.2
+
+- Bump clustal-js
+
+## v3.0.1
+
+- New settings dialog layout
+
 ## v3.0.0
 
 - Removed coordinate system from the header bar, instead uses a slider bar to

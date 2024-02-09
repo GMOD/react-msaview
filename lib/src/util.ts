@@ -115,6 +115,9 @@ export function setBrLength(
   y0: number,
   k: number,
 ) {
+  // @ts-expect-error
+  d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
+
   if (d.children) {
     d.children.forEach(d => {
       setBrLength(d, y0, k)
