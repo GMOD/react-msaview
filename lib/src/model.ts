@@ -4,6 +4,7 @@ import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import Stockholm from 'stockholm-js'
+import { saveAs } from 'file-saver'
 // jbrowse
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
@@ -33,6 +34,8 @@ import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
 import { StructureModel } from './StructureModel'
 import { DialogQueueSessionMixin } from './DialogQueue'
+import { renderToSvg } from './renderToSvg'
+import { Theme } from '@mui/material'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -970,6 +973,7 @@ const model = types
      * #action
      */
     setScrollX(n: number) {
+      console.log({ n })
       self.scrollX = clamp(
         -(self.numColumns * self.colWidth) + (self.msaAreaWidth - 100),
         n,
@@ -1227,6 +1231,14 @@ const model = types
     },
   }))
   .actions(self => ({
+    /**
+     * #action
+     */
+    async exportSVG(opts: { theme: Theme }) {
+      const html = await renderToSvg(self as MsaViewModel, opts)
+      const blob = new Blob([html], { type: 'image/svg+xml' })
+      saveAs(blob, 'image.svg')
+    },
     /**
      * #action
      * internal, used for drawing to canvas

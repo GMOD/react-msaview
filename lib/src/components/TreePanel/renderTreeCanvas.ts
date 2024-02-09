@@ -3,6 +3,7 @@ import RBush from 'rbush'
 // locals
 import { MsaViewModel } from '../../model'
 import { Theme } from '@mui/material'
+import { measureText } from '@jbrowse/core/util'
 
 export const padding = 600
 const extendBounds = 5
@@ -61,7 +62,7 @@ export function renderNodeBubbles({
   model,
 }: {
   ctx: CanvasRenderingContext2D
-  clickMap: RBush<ClickEntry>
+  clickMap?: RBush<ClickEntry>
   offsetY: number
   model: MsaViewModel
   theme: Theme
@@ -89,7 +90,7 @@ export function renderNodeBubbles({
       ctx.fill()
       ctx.stroke()
 
-      clickMap.insert({
+      clickMap?.insert({
         minX: x - radius,
         maxX: x - radius + d,
         minY: y - radius,
@@ -112,7 +113,7 @@ export function renderTreeLabels({
   model: MsaViewModel
   offsetY: number
   ctx: CanvasRenderingContext2D
-  clickMap: RBush<ClickEntry>
+  clickMap?: RBush<ClickEntry>
   theme: Theme
 }) {
   const {
@@ -152,15 +153,15 @@ export function renderTreeLabels({
       const yp = y + rowHeight / 4
       const xp = showBranchLen ? len : x
 
-      const { width } = ctx.measureText(displayName)
-      const height = ctx.measureText('M').width // use an 'em' for height
+      const width = measureText(displayName)
+      const height = 10 //ctx.measureText('M').width // use an 'em' for height
 
       const hasStructure = structures[name]
       ctx.fillStyle = hasStructure ? 'blue' : theme.palette.text.primary
 
       if (!drawTree && !labelsAlignRight) {
         ctx.fillText(displayName, 0, yp)
-        clickMap.insert({
+        clickMap?.insert({
           minX: 0,
           maxX: width,
           minY: yp - height,
@@ -178,7 +179,7 @@ export function renderTreeLabels({
           ctx.stroke()
         }
         ctx.fillText(displayName, offset, yp)
-        clickMap.insert({
+        clickMap?.insert({
           minX: treeAreaWidth - margin.left - width,
           maxX: treeAreaWidth - margin.left,
           minY: yp - height,
@@ -188,7 +189,7 @@ export function renderTreeLabels({
         })
       } else {
         ctx.fillText(displayName, xp + d, yp)
-        clickMap.insert({
+        clickMap?.insert({
           minX: xp + d,
           maxX: xp + d + width,
           minY: yp - height,
@@ -208,14 +209,16 @@ export function renderTreeCanvas({
   ctx,
   offsetY,
   theme,
+  highResScaleFactorOverride,
 }: {
   model: MsaViewModel
   offsetY: number
   ctx: CanvasRenderingContext2D
-  clickMap: RBush<ClickEntry>
+  clickMap?: RBush<ClickEntry>
   theme: Theme
+  highResScaleFactorOverride?: number
 }) {
-  clickMap.clear()
+  clickMap?.clear()
   const {
     noTree,
     drawTree,
@@ -233,10 +236,12 @@ export function renderTreeCanvas({
   } = model
 
   ctx.resetTransform()
-  ctx.scale(highResScaleFactor, highResScaleFactor)
+  const k = highResScaleFactorOverride || highResScaleFactor
+  ctx.scale(k, k)
   ctx.clearRect(0, 0, treeWidth + padding, blockSize)
   ctx.translate(margin.left, -offsetY)
 
+  // console.log(ctx.font)
   const font = ctx.font
   ctx.font = font.replace(/\d+px/, `${fontSize}px`)
 

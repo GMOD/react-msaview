@@ -1,5 +1,5 @@
 import React from 'react'
-import { IconButton } from '@mui/material'
+import { IconButton, useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
@@ -17,6 +17,7 @@ const ZoomControls = observer(function ZoomControls({
   model: MsaViewModel
 }) {
   const { colWidth, rowHeight } = model
+  const theme = useTheme()
   return (
     <>
       <IconButton
@@ -39,33 +40,31 @@ const ZoomControls = observer(function ZoomControls({
         menuItems={[
           {
             label: 'Decrease row height',
-            onClick: () => {
-              model.setRowHeight(Math.max(1.5, rowHeight * 0.75))
-            },
+            onClick: () => model.setRowHeight(Math.max(1.5, rowHeight * 0.75)),
           },
           {
             label: 'Increase row height',
-            onClick: () => {
-              model.setRowHeight(rowHeight * 1.5)
-            },
+            onClick: () => model.setRowHeight(rowHeight * 1.5),
           },
           {
             label: 'Decrease col width',
-            onClick: () => {
-              model.setColWidth(Math.max(1, colWidth * 0.75))
-            },
+            onClick: () => model.setColWidth(Math.max(1, colWidth * 0.75)),
           },
           {
             label: 'Increase col width',
-            onClick: () => {
-              model.setColWidth(colWidth * 1.5)
-            },
+            onClick: () => model.setColWidth(colWidth * 1.5),
           },
           {
             label: 'Reset zoom to default',
             onClick: () => {
               model.setColWidth(16)
               model.setRowHeight(20)
+            },
+          },
+          {
+            label: 'Export SVG',
+            onClick: () => {
+              model.exportSVG({ theme })
             },
           },
         ]}

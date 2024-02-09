@@ -32,6 +32,7 @@ const MSABlock = observer(function ({
     () => colorContrast(colorScheme, theme),
     [colorScheme, theme],
   )
+  console.log({ offsetX, offsetY, scrollX, scrollY })
 
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {

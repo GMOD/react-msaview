@@ -10,12 +10,14 @@ export function renderBlock({
   offsetY,
   contrastScheme,
   ctx,
+  highResScaleFactorOverride,
 }: {
   offsetX: number
   offsetY: number
   model: MsaViewModel
   contrastScheme: Record<string, string>
   ctx: CanvasRenderingContext2D
+  highResScaleFactorOverride?: number
 }) {
   const {
     hierarchy,
@@ -25,8 +27,9 @@ export function renderBlock({
     fontSize,
     highResScaleFactor,
   } = model
+  const k = highResScaleFactorOverride || highResScaleFactor
   ctx.resetTransform()
-  ctx.scale(highResScaleFactor, highResScaleFactor)
+  ctx.scale(k, k)
   ctx.clearRect(0, 0, blockSize, blockSize)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
