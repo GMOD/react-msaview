@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v3.1.1
+
+- Add minimap to Export SVG header
+- Improve block calculations
+
 ## v3.1.0
 
 - Add Export SVG function
