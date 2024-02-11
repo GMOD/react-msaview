@@ -1,9 +1,8 @@
 import RBush from 'rbush'
+import { Theme } from '@mui/material'
 
 // locals
 import { MsaViewModel } from '../../model'
-import { Theme } from '@mui/material'
-import { measureText } from '@jbrowse/core/util'
 
 export const padding = 600
 const extendBounds = 5
@@ -25,13 +24,16 @@ export function renderTree({
   ctx,
   model,
   theme,
+  blockSizeYOverride,
 }: {
   offsetY: number
   ctx: CanvasRenderingContext2D
   model: MsaViewModel
   theme: Theme
+  blockSizeYOverride?: number
 }) {
   const { hierarchy, showBranchLen, blockSize } = model
+  const by = blockSizeYOverride || blockSize
   ctx.strokeStyle = theme.palette.text.primary
   for (const { source, target } of hierarchy.links()) {
     const y = showBranchLen ? 'len' : 'y'
@@ -45,7 +47,7 @@ export function renderTree({
     // 1d line intersection to check if line crosses block at all, this is
     // an optimization that allows us to skip drawing most tree links
     // outside the block
-    if (offsetY + blockSize >= y1 && y2 >= offsetY) {
+    if (offsetY + by >= y1 && y2 >= offsetY) {
       ctx.beginPath()
       ctx.moveTo(sx, sy)
       ctx.lineTo(sx, ty)
@@ -60,14 +62,17 @@ export function renderNodeBubbles({
   clickMap,
   offsetY,
   model,
+  blockSizeYOverride,
 }: {
   ctx: CanvasRenderingContext2D
   clickMap?: RBush<ClickEntry>
   offsetY: number
   model: MsaViewModel
   theme: Theme
+  blockSizeYOverride?: number
 }) {
   const { hierarchy, showBranchLen, collapsed, blockSize } = model
+  const by = blockSizeYOverride || blockSize
   for (const node of hierarchy.descendants()) {
     const val = showBranchLen ? 'len' : 'y'
     const {
@@ -81,7 +86,7 @@ export function renderNodeBubbles({
     if (
       branchset.length &&
       y > offsetY - extendBounds &&
-      y < offsetY + blockSize + extendBounds
+      y < offsetY + by + extendBounds
     ) {
       ctx.strokeStyle = 'black'
       ctx.fillStyle = collapsed.includes(id) ? 'black' : 'white'
@@ -109,12 +114,14 @@ export function renderTreeLabels({
   offsetY,
   ctx,
   clickMap,
+  blockSizeYOverride,
 }: {
   model: MsaViewModel
   offsetY: number
   ctx: CanvasRenderingContext2D
   clickMap?: RBush<ClickEntry>
   theme: Theme
+  blockSizeYOverride?: number
 }) {
   const {
     rowHeight,
@@ -129,6 +136,7 @@ export function renderTreeLabels({
     margin,
     noTree,
   } = model
+  const by = blockSizeYOverride || blockSize
   if (labelsAlignRight) {
     ctx.textAlign = 'right'
     ctx.setLineDash([1, 3])
@@ -148,13 +156,13 @@ export function renderTreeLabels({
 
     const displayName = treeMetadata[name]?.genome || name
 
-    if (y > offsetY - extendBounds && y < offsetY + blockSize + extendBounds) {
+    if (y > offsetY - extendBounds && y < offsetY + by + extendBounds) {
       // note: +rowHeight/4 matches with -rowHeight/4 in msa
       const yp = y + rowHeight / 4
       const xp = showBranchLen ? len : x
 
-      const width = measureText(displayName)
-      const height = 10 //ctx.measureText('M').width // use an 'em' for height
+      const { width } = ctx.measureText(displayName)
+      const height = ctx.measureText('M').width // use an 'em' for height
 
       const hasStructure = structures[name]
       ctx.fillStyle = hasStructure ? 'blue' : theme.palette.text.primary
@@ -210,6 +218,7 @@ export function renderTreeCanvas({
   offsetY,
   theme,
   highResScaleFactorOverride,
+  blockSizeYOverride,
 }: {
   model: MsaViewModel
   offsetY: number
@@ -217,6 +226,7 @@ export function renderTreeCanvas({
   clickMap?: RBush<ClickEntry>
   theme: Theme
   highResScaleFactorOverride?: number
+  blockSizeYOverride?: number
 }) {
   clickMap?.clear()
   const {
@@ -234,11 +244,12 @@ export function renderTreeCanvas({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     nref,
   } = model
+  const by = blockSizeYOverride || blockSize
 
   ctx.resetTransform()
   const k = highResScaleFactorOverride || highResScaleFactor
   ctx.scale(k, k)
-  ctx.clearRect(0, 0, treeWidth + padding, blockSize)
+  ctx.clearRect(0, 0, treeWidth + padding, by)
   ctx.translate(margin.left, -offsetY)
 
   // console.log(ctx.font)
@@ -246,14 +257,34 @@ export function renderTreeCanvas({
   ctx.font = font.replace(/\d+px/, `${fontSize}px`)
 
   if (!noTree && drawTree) {
-    renderTree({ ctx, offsetY, model, theme })
+    renderTree({
+      ctx,
+      offsetY,
+      model,
+      theme,
+      blockSizeYOverride,
+    })
 
     if (drawNodeBubbles) {
-      renderNodeBubbles({ ctx, offsetY, clickMap, model, theme })
+      renderNodeBubbles({
+        ctx,
+        offsetY,
+        clickMap,
+        model,
+        theme,
+        blockSizeYOverride,
+      })
     }
   }
 
   if (rowHeight >= 5) {
-    renderTreeLabels({ ctx, offsetY, model, clickMap, theme })
+    renderTreeLabels({
+      ctx,
+      offsetY,
+      model,
+      clickMap,
+      theme,
+      blockSizeYOverride,
+    })
   }
 }

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v3.1.0
+
+- Add Export SVG function
+
 ## v3.0.3
 
 - Fix tree drawing

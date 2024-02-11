@@ -26,6 +26,7 @@ export async function renderToSvg(model: MsaViewModel, opts: { theme: Theme }) {
     offsetY: scrollY,
     ctx: ctx1,
     theme,
+    blockSizeYOverride: height,
     highResScaleFactorOverride: 1,
   })
   renderBlock({
@@ -34,9 +35,12 @@ export async function renderToSvg(model: MsaViewModel, opts: { theme: Theme }) {
     offsetX: -scrollX,
     contrastScheme,
     ctx: ctx2,
+    blockSizeXOverride: width - treeAreaWidth,
+    blockSizeYOverride: height,
     highResScaleFactorOverride: 1,
   })
 
+  const clipId = 'tree'
   // the xlink namespace is used for rendering <image> tag
   return renderToStaticMarkup(
     <svg
@@ -46,8 +50,16 @@ export async function renderToSvg(model: MsaViewModel, opts: { theme: Theme }) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox={[0, 0, width, height].toString()}
     >
-      {/* eslint-disable-next-line react/no-danger */}
-      <g dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }} />
+      <defs>
+        <clipPath id={clipId}>
+          <rect x={0} y={0} width={treeAreaWidth} height={height} />
+        </clipPath>
+      </defs>
+      <g
+        clipPath={`url(#${clipId})`}
+        /* eslint-disable-next-line react/no-danger */
+        dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
+      />
       <g
         transform={`translate(${treeAreaWidth} 0)`}
         /* eslint-disable-next-line react/no-danger */

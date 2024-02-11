@@ -11,6 +11,8 @@ export function renderBlock({
   contrastScheme,
   ctx,
   highResScaleFactorOverride,
+  blockSizeXOverride,
+  blockSizeYOverride,
 }: {
   offsetX: number
   offsetY: number
@@ -18,6 +20,8 @@ export function renderBlock({
   contrastScheme: Record<string, string>
   ctx: CanvasRenderingContext2D
   highResScaleFactorOverride?: number
+  blockSizeXOverride?: number
+  blockSizeYOverride?: number
 }) {
   const {
     hierarchy,
@@ -28,20 +32,21 @@ export function renderBlock({
     highResScaleFactor,
   } = model
   const k = highResScaleFactorOverride || highResScaleFactor
+  const bx = blockSizeXOverride || blockSize
+  const by = blockSizeYOverride || blockSize
   ctx.resetTransform()
   ctx.scale(k, k)
-  ctx.clearRect(0, 0, blockSize, blockSize)
+  ctx.clearRect(0, 0, bx, by)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
   ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
 
   const leaves = hierarchy.leaves()
-  const b = blockSize
 
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
-  const yEnd = Math.max(0, Math.ceil((offsetY + b + rowHeight) / rowHeight))
+  const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
   const xStart = Math.max(0, Math.floor(offsetX / colWidth))
-  const xEnd = Math.max(0, Math.ceil((offsetX + b) / colWidth))
+  const xEnd = Math.max(0, Math.ceil((offsetX + bx) / colWidth))
   const visibleLeaves = leaves.slice(yStart, yEnd)
 
   drawTiles({
