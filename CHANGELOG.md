@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v3.1.3
+
+- Add ability to export entire MSA to SVG
+
 ## v3.1.2
 
 - Workaround rollup minification bug with canvas tree resizing disappearing

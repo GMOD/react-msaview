@@ -21,7 +21,7 @@ export async function renderToSvg(
 
   if (exportType === 'entire') {
     return render({
-      width: model.totalWidth,
+      width: model.totalWidth + model.treeAreaWidth,
       height: model.totalHeight,
       theme,
       model,
@@ -62,6 +62,71 @@ async function render({
   includeMinimap?: boolean
 }) {
   const { Context } = await import('svgcanvas')
+  const Wrapper = includeMinimap ? MinimapWrapper : NullWrapper
+
+  return renderToStaticMarkup(
+    <SvgWrapper width={width} height={height}>
+      <Wrapper model={model}>
+        <CoreRendering
+          Context={Context}
+          model={model}
+          theme={theme}
+          offsetX={offsetX}
+          offsetY={offsetY}
+          width={width}
+          height={height}
+        />
+      </Wrapper>
+    </SvgWrapper>,
+    createRoot,
+  )
+}
+
+// function renderMultiline({ model }: { model: MsaViewModel }) {
+//   const { treeAreaWidth, height } = model
+//   const clipId = 'tree'
+//   return (
+//     <Wrapper model={model}>
+//       <defs>
+//         <clipPath id={clipId}>
+//           <rect x={0} y={0} width={treeAreaWidth} height={height} />
+//         </clipPath>
+//       </defs>
+//       <g
+//         clipPath={`url(#${clipId})`}
+//         /* eslint-disable-next-line react/no-danger */
+//         dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
+//       />
+//       <g
+//         transform={`translate(${treeAreaWidth} 0)`}
+//         /* eslint-disable-next-line react/no-danger */
+//         dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}
+//       />
+//     </Wrapper>
+//   )
+// }
+
+function CoreRendering({
+  model,
+  theme,
+  width,
+  height,
+  offsetX,
+  offsetY,
+  Context,
+}: {
+  model: MsaViewModel
+  theme: Theme
+  width: number
+  height: number
+  offsetX: number
+  offsetY: number
+  Context: (
+    width: number,
+    height: number,
+  ) => CanvasRenderingContext2D & { getSvg: () => { innerHTML: string } }
+}) {
+  const clipId = 'tree'
   const { treeAreaWidth, colorScheme } = model
   const contrastScheme = colorContrast(colorScheme, theme)
   const ctx1 = Context(width, height)
@@ -84,36 +149,24 @@ async function render({
     blockSizeYOverride: height,
     highResScaleFactorOverride: 1,
   })
-
-  const Wrapper = includeMinimap ? MinimapWrapper : NullWrapper
-  const clipId = 'tree'
-  return renderToStaticMarkup(
-    <svg
-      width={width}
-      height={height}
-      xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      viewBox={[0, 0, width, height].toString()}
-    >
-      <Wrapper model={model}>
-        <defs>
-          <clipPath id={clipId}>
-            <rect x={0} y={0} width={treeAreaWidth} height={height} />
-          </clipPath>
-        </defs>
-        <g
-          clipPath={`url(#${clipId})`}
-          /* eslint-disable-next-line react/no-danger */
-          dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
-        />
-        <g
-          transform={`translate(${treeAreaWidth} 0)`}
-          /* eslint-disable-next-line react/no-danger */
-          dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}
-        />
-      </Wrapper>
-    </svg>,
-    createRoot,
+  return (
+    <>
+      <defs>
+        <clipPath id={clipId}>
+          <rect x={0} y={0} width={treeAreaWidth} height={height} />
+        </clipPath>
+      </defs>
+      <g
+        clipPath={`url(#${clipId})`}
+        /* eslint-disable-next-line react/no-danger */
+        dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
+      />
+      <g
+        transform={`translate(${treeAreaWidth} 0)`}
+        /* eslint-disable-next-line react/no-danger */
+        dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}
+      />
+    </>
   )
 }
 
@@ -134,6 +187,28 @@ function MinimapWrapper({
 
       <g transform={`translate(0 ${minimapHeight})`}>{children}</g>
     </>
+  )
+}
+
+function SvgWrapper({
+  width,
+  height,
+  children,
+}: {
+  width: number
+  height: number
+  children: React.ReactNode
+}) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      viewBox={[0, 0, width, height].toString()}
+    >
+      {children}
+    </svg>
   )
 }
 
