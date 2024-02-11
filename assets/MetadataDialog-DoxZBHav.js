@@ -1,0 +1,2 @@
+import{o as r,R as e,u as n,D as s}from"./index-lPGyvoX4.js";import{B as i}from"./index-3E2_fvj8.js";import"./index-Ds00izCo.js";const c=r(function({model:t,onClose:a}){const{header:o}=t;return e.createElement(n.Dialog,{onClose:()=>a(),open:!0,title:"Metadata"},e.createElement(s,null,e.createElement(i.Attributes,{attributes:o})))});export{c as default};
+//# sourceMappingURL=MetadataDialog-DoxZBHav.js.map
