@@ -1,13 +1,17 @@
 import React, { useState } from 'react'
 import { Dialog, ErrorMessage } from '@jbrowse/core/ui'
 import {
-  DialogContent,
-  DialogActions,
   Button,
   Checkbox,
+  DialogContent,
+  DialogActions,
   FormControlLabel,
-  useTheme,
+  FormControl,
+  RadioGroup,
+  Radio,
   Typography,
+  useTheme,
+  FormLabel,
 } from '@mui/material'
 import { MsaViewModel } from '../model'
 
@@ -19,22 +23,48 @@ export default function ExportSVGDialog({
   onClose: () => void
 }) {
   const [includeMinimap, setIncludeMinimap] = useState(true)
+  const [exportType, setExportType] = useState('viewport')
   const [error, setError] = useState<unknown>()
   const theme = useTheme()
   return (
     <Dialog onClose={() => onClose()} open title="Export SVG">
       <DialogContent>
-        <Typography>Export SVG of current view</Typography>
         {error ? <ErrorMessage error={error} /> : null}
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={includeMinimap}
-              onChange={event => setIncludeMinimap(event.target.checked)}
+        <Typography>Settings:</Typography>
+        <div>
+          <FormControl>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={includeMinimap}
+                  onChange={event => setIncludeMinimap(event.target.checked)}
+                />
+              }
+              disabled={exportType === 'entire'}
+              label="Include minimap?"
             />
-          }
-          label="Include minimap?"
-        />
+          </FormControl>
+        </div>
+        <div>
+          <FormControl>
+            <FormLabel>Export type</FormLabel>
+            <RadioGroup
+              value={exportType}
+              onChange={event => setExportType(event.target.value)}
+            >
+              <FormControlLabel
+                value="entire"
+                control={<Radio />}
+                label="Entire MSA"
+              />
+              <FormControlLabel
+                value="viewport"
+                control={<Radio />}
+                label="Current viewport only"
+              />
+            </RadioGroup>
+          </FormControl>
+        </div>
       </DialogContent>
       <DialogActions>
         <Button
@@ -42,7 +72,12 @@ export default function ExportSVGDialog({
           color="primary"
           onClick={async () => {
             try {
-              await model.exportSVG({ theme, includeMinimap })
+              await model.exportSVG({
+                theme,
+                includeMinimap:
+                  exportType === 'entire' ? false : includeMinimap,
+                exportType,
+              })
             } catch (e) {
               console.error(e)
               setError(e)

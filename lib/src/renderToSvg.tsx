@@ -11,23 +11,64 @@ import { renderMSABlock } from './components/MSAPanel/renderMSABlock'
 import { colorContrast } from './util'
 import MinimapSVG from './components/MinimapSVG'
 
-// render LGV to SVG
 export async function renderToSvg(
   model: MsaViewModel,
-  opts: { theme: Theme; includeMinimap?: boolean },
+  opts: { theme: Theme; includeMinimap?: boolean; exportType: string },
 ) {
   await when(() => !!model.initialized)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { width, height, scrollX, scrollY, colorScheme, treeAreaWidth } = model
-  const { theme, includeMinimap } = opts
+  const { width, height, scrollX, scrollY } = model
+  const { exportType, theme, includeMinimap } = opts
 
+  if (exportType === 'entire') {
+    return render({
+      width: model.totalWidth,
+      height: model.totalHeight,
+      theme,
+      model,
+      offsetY: 0,
+      offsetX: 0,
+      includeMinimap,
+    })
+  } else if (exportType === 'viewport') {
+    return render({
+      width,
+      height,
+      theme,
+      model,
+      offsetY: scrollY,
+      offsetX: -scrollX,
+      includeMinimap,
+    })
+  } else {
+    throw new Error('unknown export type')
+  }
+}
+
+async function render({
+  width,
+  height,
+  offsetX,
+  offsetY,
+  theme,
+  model,
+  includeMinimap,
+}: {
+  width: number
+  height: number
+  offsetX: number
+  offsetY: number
+  theme: Theme
+  model: MsaViewModel
+  includeMinimap?: boolean
+}) {
   const { Context } = await import('svgcanvas')
+  const { treeAreaWidth, colorScheme } = model
+  const contrastScheme = colorContrast(colorScheme, theme)
   const ctx1 = Context(width, height)
   const ctx2 = Context(width, height)
-  const contrastScheme = colorContrast(colorScheme, theme)
   renderTreeCanvas({
     model,
-    offsetY: scrollY,
+    offsetY,
     ctx: ctx1,
     theme,
     blockSizeYOverride: height,
@@ -35,8 +76,8 @@ export async function renderToSvg(
   })
   renderMSABlock({
     model,
-    offsetY: scrollY,
-    offsetX: -scrollX,
+    offsetY,
+    offsetX,
     contrastScheme,
     ctx: ctx2,
     blockSizeXOverride: width - treeAreaWidth,
@@ -46,7 +87,6 @@ export async function renderToSvg(
 
   const Wrapper = includeMinimap ? MinimapWrapper : NullWrapper
   const clipId = 'tree'
-  // the xlink namespace is used for rendering <image> tag
   return renderToStaticMarkup(
     <svg
       width={width}

@@ -1220,7 +1220,11 @@ const model = types
     /**
      * #action
      */
-    async exportSVG(opts: { theme: Theme; includeMinimap?: boolean }) {
+    async exportSVG(opts: {
+      theme: Theme
+      includeMinimap?: boolean
+      exportType: string
+    }) {
       const html = await renderToSvg(self as MsaViewModel, opts)
       const blob = new Blob([html], { type: 'image/svg+xml' })
       saveAs(blob, 'image.svg')
