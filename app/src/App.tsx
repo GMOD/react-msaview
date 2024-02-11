@@ -48,6 +48,7 @@ const App = observer(({ model }: { model: AppModel }) => {
           <ProteinPanel model={model} />
         </Suspense>
       ) : null}
+      <div style={{ height: 500 }} />
     </div>
   )
 })
