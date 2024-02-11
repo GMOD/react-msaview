@@ -4,7 +4,7 @@ import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 import { NodeWithIdsAndLength } from '../../util'
 import { HierarchyNode } from 'd3-hierarchy'
 
-export function renderBlock({
+export function renderMSABlock({
   model,
   offsetX,
   offsetY,

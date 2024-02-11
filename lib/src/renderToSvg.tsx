@@ -7,7 +7,7 @@ import { Theme } from '@mui/material'
 // locals
 import { MsaViewModel } from './model'
 import { renderTreeCanvas } from './components/TreePanel/renderTreeCanvas'
-import { renderBlock } from './components/MSAPanel/renderMSABlock'
+import { renderMSABlock } from './components/MSAPanel/renderMSABlock'
 import { colorContrast } from './util'
 
 // render LGV to SVG
@@ -29,7 +29,7 @@ export async function renderToSvg(model: MsaViewModel, opts: { theme: Theme }) {
     blockSizeYOverride: height,
     highResScaleFactorOverride: 1,
   })
-  renderBlock({
+  renderMSABlock({
     model,
     offsetY: scrollY,
     offsetX: -scrollX,

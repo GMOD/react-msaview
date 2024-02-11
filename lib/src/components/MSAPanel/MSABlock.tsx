@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
-import { renderBlock } from './renderMSABlock'
+import { renderMSABlock } from './renderMSABlock'
 import { MsaViewModel } from '../../model'
 import { colorContrast } from '../../util'
 
@@ -32,7 +32,6 @@ const MSABlock = observer(function ({
     () => colorContrast(colorScheme, theme),
     [colorScheme, theme],
   )
-  console.log({ offsetX, offsetY, scrollX, scrollY })
 
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
@@ -41,7 +40,7 @@ const MSABlock = observer(function ({
       return
     }
     return autorun(() => {
-      renderBlock({
+      renderMSABlock({
         ctx,
         offsetX,
         offsetY,
