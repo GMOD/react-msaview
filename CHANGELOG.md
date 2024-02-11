@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v3.1.2
+
+- Workaround rollup minification bug with canvas tree resizing disappearing
+
 ## v3.1.1
 
 - Add minimap to Export SVG header

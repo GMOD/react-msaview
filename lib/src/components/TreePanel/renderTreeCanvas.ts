@@ -239,20 +239,23 @@ export function renderTreeCanvas({
     blockSize,
     fontSize,
     rowHeight,
-    // nref has to be kept as a unused var or at least reference to force
-    // redraw after canvas ref change
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     nref,
   } = model
   const by = blockSizeYOverride || blockSize
 
   ctx.resetTransform()
-  const k = highResScaleFactorOverride || highResScaleFactor
+
+  // this is a bogus use of nref, it is never less than 0. we just are using it
+  // in this statement because otherwise it would be an unused variable, we
+  // just need to use nref to indicate a redraw in an autorun when canvas ref
+  // is updated and in order to convince bundlers like not to delete unused
+  // usage with propertyReadSideEffects
+  const k =
+    nref < 0 ? -Infinity : highResScaleFactorOverride || highResScaleFactor
   ctx.scale(k, k)
   ctx.clearRect(0, 0, treeWidth + padding, by)
   ctx.translate(margin.left, -offsetY)
 
-  // console.log(ctx.font)
   const font = ctx.font
   ctx.font = font.replace(/\d+px/, `${fontSize}px`)
 
