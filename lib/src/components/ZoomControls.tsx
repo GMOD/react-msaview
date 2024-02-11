@@ -1,5 +1,5 @@
-import React from 'react'
-import { IconButton, useTheme } from '@mui/material'
+import React, { Suspense, lazy, useState } from 'react'
+import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
@@ -11,13 +11,16 @@ import MoreVert from '@mui/icons-material/MoreVert'
 import ZoomIn from '@mui/icons-material/ZoomIn'
 import ZoomOut from '@mui/icons-material/ZoomOut'
 
+// lazies
+const ExportSVGDialog = lazy(() => import('./ExportSVGDialog'))
+
 const ZoomControls = observer(function ZoomControls({
   model,
 }: {
   model: MsaViewModel
 }) {
   const { colWidth, rowHeight } = model
-  const theme = useTheme()
+  const [exportSvgDialogOpen, setExportSvgDialogOpen] = useState(false)
   return (
     <>
       <IconButton
@@ -63,14 +66,20 @@ const ZoomControls = observer(function ZoomControls({
           },
           {
             label: 'Export SVG',
-            onClick: () => {
-              model.exportSVG({ theme })
-            },
+            onClick: () => setExportSvgDialogOpen(true),
           },
         ]}
       >
         <MoreVert />
       </CascadingMenuButton>
+      {exportSvgDialogOpen ? (
+        <Suspense fallback={null}>
+          <ExportSVGDialog
+            model={model}
+            onClose={() => setExportSvgDialogOpen(false)}
+          />
+        </Suspense>
+      ) : null}
     </>
   )
 })
