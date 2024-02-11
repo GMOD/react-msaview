@@ -36,6 +36,7 @@ import { StructureModel } from './StructureModel'
 import { DialogQueueSessionMixin } from './DialogQueue'
 import { renderToSvg } from './renderToSvg'
 import { Theme } from '@mui/material'
+import { blocksX, blocksY } from './calculateBlocks'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -594,85 +595,7 @@ const model = types
     },
   }))
 
-  .views(self => {
-    let oldBlocksX: number[] = []
-    let oldBlocksY: number[] = []
-    let oldValX = 0
-    let oldValY = 0
-    return {
-      /**
-       * #getter
-       */
-      get initialized() {
-        return (
-          (self.data.msa ||
-            self.data.tree ||
-            self.msaFilehandle ||
-            self.treeFilehandle) &&
-          !self.error
-        )
-      },
-      /**
-       * #getter
-       */
-      get blocksX() {
-        const { scrollX, blockSize: size, colWidth } = self
-        const ret = -(size * Math.floor(scrollX / size)) - size
-
-        const b = []
-        for (let i = ret; i < ret + size * 3; i += size) {
-          if (i + size > 0) {
-            b.push(i)
-          }
-        }
-        if (
-          JSON.stringify(b) !== JSON.stringify(oldBlocksX) ||
-          colWidth !== oldValX
-        ) {
-          oldBlocksX = b
-          oldValX = colWidth
-        }
-        return oldBlocksX
-      },
-      /**
-       * #getter
-       */
-      get blocksY() {
-        const { scrollY, blockSize: size, rowHeight } = self
-        const ret = -(size * Math.floor(scrollY / size)) - 2 * size
-
-        const b = []
-        for (let i = ret; i < ret + size * 3; i += size) {
-          if (i + size > 0) {
-            b.push(i)
-          }
-        }
-        if (
-          JSON.stringify(b) !== JSON.stringify(oldBlocksY) ||
-          rowHeight !== oldValY
-        ) {
-          oldBlocksY = b
-          oldValY = rowHeight
-        }
-        return oldBlocksY
-      },
-    }
-  })
   .views(self => ({
-    /**
-     * #getter
-     */
-    get blocks2d() {
-      return self.blocksY.flatMap(by => self.blocksX.map(bx => [bx, by]))
-    },
-
-    /**
-     * #getter
-     */
-    get done() {
-      return self.initialized && (self.data.msa || self.data.tree)
-    },
-
     /**
      * #getter
      */
@@ -933,6 +856,78 @@ const model = types
       return this.root.leaves().length * self.rowHeight
     },
   }))
+  .views(self => ({
+    /**
+     * #getter
+     */
+    get totalWidth() {
+      return self.numColumns * self.colWidth
+    },
+  }))
+
+  .views(self => ({
+    /**
+     * #getter
+     */
+    get initialized() {
+      return (
+        (self.data.msa ||
+          self.data.tree ||
+          self.msaFilehandle ||
+          self.treeFilehandle) &&
+        !self.error
+      )
+    },
+    /**
+     * #getter
+     */
+    get blocksX() {
+      return blocksX({
+        viewportWidth: self.msaAreaWidth,
+        viewportX: -self.scrollX,
+        blockSize: self.blockSize,
+        mapWidth: self.totalWidth,
+      })
+    },
+    /**
+     * #getter
+     */
+    get blocksY() {
+      return blocksY({
+        viewportHeight: self.height,
+        viewportY: -self.scrollY,
+        blockSize: self.blockSize,
+        mapHeight: self.totalHeight,
+      })
+    },
+  }))
+  .views(self => ({
+    /**
+     * #getter
+     */
+    get blocks2d() {
+      const ret = []
+      for (const by of self.blocksY) {
+        for (const bx of self.blocksX) {
+          ret.push([bx, by])
+        }
+      }
+      return ret
+    },
+
+    /**
+     * #getter
+     */
+    get done() {
+      return self.initialized && (self.data.msa || self.data.tree)
+    },
+    /**
+     * #getter
+     */
+    get maxScrollX() {
+      return -self.totalWidth + (self.msaAreaWidth - 100)
+    },
+  }))
   .actions(self => ({
     /**
      * #action
@@ -962,23 +957,14 @@ const model = types
      * #action
      */
     doScrollX(deltaX: number) {
-      self.scrollX = clamp(
-        -(self.numColumns * self.colWidth) + (self.msaAreaWidth - 100),
-        self.scrollX + deltaX,
-        0,
-      )
+      self.scrollX = clamp(self.maxScrollX, self.scrollX + deltaX, 0)
     },
 
     /**
      * #action
      */
     setScrollX(n: number) {
-      console.log({ n })
-      self.scrollX = clamp(
-        -(self.numColumns * self.colWidth) + (self.msaAreaWidth - 100),
-        n,
-        0,
-      )
+      self.scrollX = clamp(self.maxScrollX, n, 0)
     },
 
     /**
