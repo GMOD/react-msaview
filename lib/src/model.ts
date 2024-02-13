@@ -44,13 +44,13 @@ export interface RowDetails {
   range?: { start: number; end: number }
 }
 
-interface BasicTrackModel {
+export interface BasicTrackModel {
   id: string
   name: string
   associatedRowName?: string
   height: number
 }
-interface Structure {
+export interface Structure {
   pdb: string
   startPos: number
   endPos: number
@@ -79,8 +79,9 @@ export interface IBoxTrack {
   model: BoxTrackModel
 }
 
-type BasicTrack = IBoxTrack | ITextTrack
-type StructureSnap = SnapshotIn<typeof StructureModel>
+export type BasicTrack = IBoxTrack | ITextTrack
+
+export type StructureSnap = SnapshotIn<typeof StructureModel>
 
 /**
  * #stateModel MsaView
