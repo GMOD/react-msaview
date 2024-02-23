@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { measureText, notEmpty, sum } from '@jbrowse/core/util'
+import { notEmpty, sum } from '@jbrowse/core/util'
 import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 
 // locals
@@ -37,6 +37,7 @@ import { DialogQueueSessionMixin } from './DialogQueue'
 import { renderToSvg } from './renderToSvg'
 import { Theme } from '@mui/material'
 import { blocksX, blocksY } from './calculateBlocks'
+import measureTextCanvas from './measureTextCanvas'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -1001,7 +1002,7 @@ const model = types
       if (rowHeight > 5) {
         for (const node of hierarchy.leaves()) {
           x = Math.max(
-            measureText(
+            measureTextCanvas(
               treeMetadata[node.data.name]?.genome || node.data.name,
               fontSize,
             ),
@@ -1285,7 +1286,7 @@ const model = types
         autorun(async () => {
           if (self.treeWidthMatchesArea) {
             self.setTreeWidth(
-              Math.max(50, self.treeAreaWidth - self.labelsWidth),
+              Math.max(50, self.treeAreaWidth - self.labelsWidth - 10),
             )
           }
         }),
