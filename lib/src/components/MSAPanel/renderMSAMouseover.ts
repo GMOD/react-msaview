@@ -25,11 +25,10 @@ export function renderMouseover({
   } = model
   ctx.resetTransform()
   ctx.clearRect(0, 0, width, height)
-
   if (mouseCol !== undefined) {
     ctx.fillStyle = 'rgba(0,0,0,0.15)'
     const x =
-      (mouseCol - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
+      (mouseCol + 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
 
     ctx.fillRect(x, minimapHeight, colWidth, height)
   }
@@ -43,7 +42,7 @@ export function renderMouseover({
   if (mouseCol2 !== undefined) {
     ctx.fillStyle = 'rgba(255,255,0,0.2)'
     const x =
-      (mouseCol2 - 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
+      (mouseCol2 + 1) * colWidth + scrollX + treeAreaWidth + resizeHandleWidth
 
     ctx.fillRect(x, 0, colWidth, height)
   }

@@ -67,6 +67,7 @@ export function renderMSABlock({
     ctx,
     offsetX,
     contrastScheme,
+    theme,
     xStart,
     xEnd,
     visibleLeaves,
@@ -135,6 +136,7 @@ function drawText({
   model,
   offsetX,
   contrastScheme,
+  theme,
   ctx,
   visibleLeaves,
   xStart,
@@ -143,6 +145,7 @@ function drawText({
   offsetX: number
   model: MsaViewModel
   contrastScheme: Record<string, string>
+  theme: Theme
   ctx: CanvasRenderingContext2D
   visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
   xStart: number
