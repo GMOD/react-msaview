@@ -15,6 +15,7 @@ export async function load(
       await model.setTreeFilehandle(treeFile)
     }
   } catch (e) {
+    console.error(e)
     model.setError(e)
   }
 }
