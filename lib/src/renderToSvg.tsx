@@ -141,6 +141,7 @@ function CoreRendering({
   })
   renderMSABlock({
     model,
+    theme,
     offsetY,
     offsetX,
     contrastScheme,

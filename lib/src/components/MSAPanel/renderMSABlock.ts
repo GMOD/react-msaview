@@ -3,6 +3,7 @@ import { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 import { NodeWithIdsAndLength } from '../../util'
 import { HierarchyNode } from 'd3-hierarchy'
+import { Theme } from '@mui/material'
 
 export function renderMSABlock({
   model,
@@ -10,12 +11,14 @@ export function renderMSABlock({
   offsetY,
   contrastScheme,
   ctx,
+  theme,
   highResScaleFactorOverride,
   blockSizeXOverride,
   blockSizeYOverride,
 }: {
   offsetX: number
   offsetY: number
+  theme: Theme
   model: MsaViewModel
   contrastScheme: Record<string, string>
   ctx: CanvasRenderingContext2D
@@ -52,6 +55,7 @@ export function renderMSABlock({
   drawTiles({
     model,
     ctx,
+    theme,
     offsetX,
     offsetY,
     xStart,
@@ -74,11 +78,13 @@ function drawTiles({
   offsetX,
   ctx,
   visibleLeaves,
+  theme,
   xStart,
   xEnd,
 }: {
   model: MsaViewModel
   offsetX: number
+  theme: Theme
   offsetY: number
   ctx: CanvasRenderingContext2D
   visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
@@ -118,7 +124,7 @@ function drawTiles({
             : colorScheme[letter.toUpperCase()]
       if (bgColor) {
         const x = i * colWidth + offsetX - (offsetX % colWidth)
-        ctx.fillStyle = color || 'white'
+        ctx.fillStyle = color || theme.palette.background.default
         ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
       }
     }

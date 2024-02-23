@@ -42,13 +42,14 @@ const MSABlock = observer(function ({
     return autorun(() => {
       renderMSABlock({
         ctx,
+        theme,
         offsetX,
         offsetY,
         contrastScheme,
         model,
       })
     })
-  }, [model, offsetX, offsetY, contrastScheme])
+  }, [model, offsetX, offsetY, theme, contrastScheme])
   return (
     <canvas
       ref={ref}
