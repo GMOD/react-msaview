@@ -2,11 +2,11 @@ import React, { Suspense } from 'react'
 import { observer } from 'mobx-react'
 
 // locals
+import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
+import { MsaViewModel } from '../model'
 import TreeRuler from './TreePanel/TreeRuler'
 import Header from './Header'
 import Track from './Track'
-import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
-import { MsaViewModel } from '../model'
 import MSAPanel from './MSAPanel'
 import TreePanel from './TreePanel'
 import Minimap from './Minimap'
@@ -32,7 +32,7 @@ function MainArea({ model }: { model: MsaViewModel }) {
 const View = observer(function ({ model }: { model: MsaViewModel }) {
   const { turnedOnTracks } = model
   return (
-    <div style={{ paddingLeft: 20, position: 'relative' }}>
+    <div style={{ position: 'relative' }}>
       <TopArea model={model} />
       {turnedOnTracks?.map(track => (
         <Track key={track.model.id} model={model} track={track} />

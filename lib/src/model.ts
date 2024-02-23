@@ -336,6 +336,11 @@ const model = types
     /**
      * #volatile
      */
+    marginLeft: 20,
+
+    /**
+     * #volatile
+     */
     error: undefined as unknown,
 
     /**
@@ -757,6 +762,13 @@ const model = types
      */
     get msaAreaWidth() {
       return self.width - self.treeAreaWidth
+    },
+
+    /**
+     * #getter
+     */
+    get treeAreaWidthMinusMargin() {
+      return self.treeAreaWidth - self.marginLeft
     },
     /**
      * #getter
@@ -1286,7 +1298,10 @@ const model = types
         autorun(async () => {
           if (self.treeWidthMatchesArea) {
             self.setTreeWidth(
-              Math.max(50, self.treeAreaWidth - self.labelsWidth - 10),
+              Math.max(
+                50,
+                self.treeAreaWidth - self.labelsWidth - 10 - self.marginLeft,
+              ),
             )
           }
         }),
