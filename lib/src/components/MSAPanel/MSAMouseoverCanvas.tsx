@@ -15,17 +15,17 @@ const MSAMouseoverCanvas = observer(function ({
   const { height, width } = model
   useEffect(() => {
     const ctx = ref.current?.getContext('2d')
-    if (!ctx) {
-      return
-    }
-    return autorun(() => {
-      renderMouseover({ ctx, model })
-    })
+    return ctx
+      ? autorun(() => {
+          renderMouseover({ ctx, model })
+        })
+      : undefined
   }, [model])
 
   return (
     <canvas
       ref={ref}
+      id="mouseover"
       width={width}
       height={height}
       style={{
