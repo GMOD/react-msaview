@@ -1,10 +1,7 @@
 import React, { Suspense } from 'react'
-
 import { observer } from 'mobx-react'
-import { Typography } from '@mui/material'
 
 // locals
-import ImportForm from './ImportForm'
 import TreeRuler from './TreePanel/TreeRuler'
 import Header from './Header'
 import Track from './Track'
@@ -14,43 +11,44 @@ import MSAPanel from './MSAPanel'
 import TreePanel from './TreePanel'
 import Minimap from './Minimap'
 
-const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
-  const { done, initialized } = model
-
+function TopArea({ model }: { model: MsaViewModel }) {
   return (
-    <div>
-      {!initialized ? (
-        <ImportForm model={model} />
-      ) : !done ? (
-        <Typography variant="h4">Loading...</Typography>
-      ) : (
-        <MSAView2 model={model} />
-      )}
+    <div style={{ display: 'flex' }}>
+      <TreeRuler model={model} />
+      <Minimap model={model} />
+    </div>
+  )
+}
+function MainArea({ model }: { model: MsaViewModel }) {
+  return (
+    <div style={{ display: 'flex' }}>
+      <TreePanel model={model} />
+      <VerticalResizeHandle model={model} />
+      <MSAPanel model={model} />
+    </div>
+  )
+}
+
+const View = observer(function ({ model }: { model: MsaViewModel }) {
+  const { turnedOnTracks } = model
+  return (
+    <div style={{ paddingLeft: 20, position: 'relative' }}>
+      <TopArea model={model} />
+      {turnedOnTracks?.map(track => (
+        <Track key={track.model.id} model={model} track={track} />
+      ))}
+      <MainArea model={model} />
     </div>
   )
 })
 
-const MSAView2 = observer(function ({ model }: { model: MsaViewModel }) {
-  const { height, turnedOnTracks, DialogComponent, DialogProps } = model
+const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
+  const { height, DialogComponent, DialogProps } = model
   return (
     <div>
       <div style={{ height, overflow: 'hidden' }}>
         <Header model={model} />
-        <div style={{ position: 'relative' }}>
-          <div style={{ display: 'flex' }}>
-            <TreeRuler model={model} />
-            <Minimap model={model} />
-          </div>
-          {turnedOnTracks?.map(track => (
-            <Track key={track.model.id} model={model} track={track} />
-          ))}
-
-          <div style={{ display: 'flex' }}>
-            <TreePanel model={model} />
-            <VerticalResizeHandle model={model} />
-            <MSAPanel model={model} />
-          </div>
-        </div>
+        <View model={model} />
       </div>
       <HorizontalResizeHandle model={model} />
 

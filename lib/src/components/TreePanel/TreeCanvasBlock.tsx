@@ -42,8 +42,7 @@ const TreeCanvasBlock = observer(function ({
   const [toggleNodeMenu, setToggleNodeMenu] = useState<TooltipData>()
   const [hoverElt, setHoverElt] = useState<ClickEntry>()
 
-  const { scrollY, treeAreaWidth, margin, blockSize, highResScaleFactor } =
-    model
+  const { scrollY, treeAreaWidth, blockSize, highResScaleFactor } = model
 
   const width = treeAreaWidth + padding
   const height = blockSize
@@ -83,7 +82,7 @@ const TreeCanvasBlock = observer(function ({
 
     ctx.resetTransform()
     ctx.clearRect(0, 0, treeAreaWidth + padding, blockSize)
-    ctx.translate(margin.left, -offsetY)
+    ctx.translate(0, -offsetY)
 
     if (hoverElt) {
       const { minX, maxX, minY, maxY } = hoverElt
@@ -91,10 +90,10 @@ const TreeCanvasBlock = observer(function ({
       ctx.fillStyle = 'rgba(0,0,0,0.1)'
       ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
     }
-  }, [hoverElt, margin.left, offsetY, blockSize, treeAreaWidth])
+  }, [hoverElt, offsetY, blockSize, treeAreaWidth])
 
   function hoverBranchClickMap(event: React.MouseEvent) {
-    const x = event.nativeEvent.offsetX - margin.left
+    const x = event.nativeEvent.offsetX
     const y = event.nativeEvent.offsetY
 
     const [entry] = clickMap.current.search({
@@ -110,7 +109,7 @@ const TreeCanvasBlock = observer(function ({
   }
 
   function hoverNameClickMap(event: React.MouseEvent) {
-    const x = event.nativeEvent.offsetX - margin.left
+    const x = event.nativeEvent.offsetX
     const y = event.nativeEvent.offsetY
     const [entry] = clickMap.current.search({
       minX: x,

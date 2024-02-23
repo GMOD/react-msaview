@@ -133,7 +133,6 @@ export function renderTreeLabels({
     drawTree,
     structures,
     treeAreaWidth,
-    margin,
     noTree,
   } = model
   const by = blockSizeYOverride || blockSize
@@ -179,7 +178,7 @@ export function renderTreeLabels({
         })
       } else if (labelsAlignRight) {
         const smallPadding = 2
-        const offset = treeAreaWidth - smallPadding - margin.left
+        const offset = treeAreaWidth - smallPadding
         if (drawTree && !noTree) {
           const { width } = ctx.measureText(displayName)
           ctx.moveTo(xp + radius + 2, y)
@@ -188,8 +187,8 @@ export function renderTreeLabels({
         }
         ctx.fillText(displayName, offset, yp)
         clickMap?.insert({
-          minX: treeAreaWidth - margin.left - width,
-          maxX: treeAreaWidth - margin.left,
+          minX: treeAreaWidth - width,
+          maxX: treeAreaWidth,
           minY: yp - height,
           maxY: yp,
           name,
@@ -235,7 +234,6 @@ export function renderTreeCanvas({
     drawNodeBubbles,
     treeWidth,
     highResScaleFactor,
-    margin,
     blockSize,
     fontSize,
     rowHeight,
@@ -254,7 +252,7 @@ export function renderTreeCanvas({
     nref < 0 ? -Infinity : highResScaleFactorOverride || highResScaleFactor
   ctx.scale(k, k)
   ctx.clearRect(0, 0, treeWidth + padding, by)
-  ctx.translate(margin.left, -offsetY)
+  ctx.translate(0, -offsetY)
 
   const font = ctx.font
   ctx.font = font.replace(/\d+px/, `${fontSize}px`)

@@ -340,14 +340,6 @@ const model = types
     /**
      * #volatile
      */
-    margin: {
-      left: 20,
-      top: 20,
-    },
-
-    /**
-     * #volatile
-     */
     annotPos: undefined as { left: number; right: number } | undefined,
   }))
   .actions(self => ({
@@ -1293,7 +1285,7 @@ const model = types
         autorun(async () => {
           if (self.treeWidthMatchesArea) {
             self.setTreeWidth(
-              Math.max(50, self.treeAreaWidth - self.labelsWidth - 20),
+              Math.max(50, self.treeAreaWidth - self.labelsWidth),
             )
           }
         }),
