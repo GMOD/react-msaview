@@ -136,7 +136,6 @@ function drawText({
   model,
   offsetX,
   contrastScheme,
-  theme,
   ctx,
   visibleLeaves,
   xStart,
