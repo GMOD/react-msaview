@@ -60,20 +60,6 @@ export default class ClustalMSA {
   }
 
   get tracks() {
-    return this.seqConsensus?.trim()
-      ? [
-          {
-            id: 'seqConsensus',
-            name: 'Sequence consensus',
-            data: this.seqConsensus,
-            customColorScheme: {
-              '*': 'white',
-              ':': 'grey',
-              '.': 'darkgrey',
-              ' ': 'black',
-            },
-          },
-        ]
-      : []
+    return []
   }
 }
