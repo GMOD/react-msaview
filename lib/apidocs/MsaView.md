@@ -15,23 +15,6 @@ extends
 - DialogQueueSessionMixin
 
 ### MsaView - Properties
-#### property: annotatedRegions
-
-current "annotated regions"
-
-```js
-// type signature
-IArrayType<IModelType<{ start: ISimpleType<number>; end: ISimpleType<number>; attributes: IType<Record<string, string[]>, Record<string, string[]>, Record<string, string[]>>; }, {}, _NotCustomized, _NotCustomized>>
-// code
-annotatedRegions: types.array(
-        types.model({
-          start: types.number,
-          end: types.number,
-          attributes: types.frozen<Record<string, string[]>>(),
-        }),
-      )
-```
-
 #### property: bgColor
 
 draw MSA tiles with a background color
@@ -108,26 +91,7 @@ autorun
 // type signature
 IOptionalIType<IModelType<{ tree: IMaybe<ISimpleType<string>>; msa: IMaybe<ISimpleType<string>>; treeMetadata: IMaybe<ISimpleType<string>>; }, { ...; }, _NotCustomized, _NotCustomized>, [...]>
 // code
-data: types.optional(
-        types
-          .model({
-            tree: types.maybe(types.string),
-            msa: types.maybe(types.string),
-            treeMetadata: types.maybe(types.string),
-          })
-          .actions(self => ({
-            setTree(tree?: string) {
-              self.tree = tree
-            },
-            setMSA(msa?: string) {
-              self.msa = msa
-            },
-            setTreeMetadata(treeMetadata?: string) {
-              self.treeMetadata = treeMetadata
-            },
-          })),
-        { tree: '', msa: '' },
-      )
+data: types.optional(DataModelF(), { tree: '', msa: '' })
 ```
 
 #### property: drawNodeBubbles
@@ -279,7 +243,7 @@ showBranchLen: true
 
 #### property: showOnly
 
-array of tree nodes to show (invert of collapsed)
+focus on particular subtree
 
 ```js
 // type signature
@@ -383,15 +347,6 @@ BasicTrack[]
 any
 ```
 
-#### getter: annotationTrackModels
-
-
-
-```js
-// type
-BasicTrack[]
-```
-
 #### getter: blanks
 
 
@@ -407,7 +362,7 @@ any[]
 
 ```js
 // type
-number[][]
+any[]
 ```
 
 #### getter: blocksX
@@ -416,7 +371,7 @@ number[][]
 
 ```js
 // type
-number[]
+any[]
 ```
 
 #### getter: blocksY
@@ -425,7 +380,7 @@ number[]
 
 ```js
 // type
-number[]
+any[]
 ```
 
 #### getter: boxTrackModels
@@ -546,6 +501,15 @@ boolean
 ```
 
 #### getter: labelsWidth
+
+
+
+```js
+// type
+number
+```
+
+#### getter: maxScrollX
 
 
 
@@ -680,6 +644,15 @@ total height of track area (px)
 number
 ```
 
+#### getter: totalWidth
+
+
+
+```js
+// type
+number
+```
+
 #### getter: tracks
 
 
@@ -687,6 +660,15 @@ number
 ```js
 // type
 BasicTrack[]
+```
+
+#### getter: treeAreaWidthMinusMargin
+
+
+
+```js
+// type
+number
 ```
 
 #### getter: treeMetadata
@@ -792,15 +774,6 @@ rowSpecificBpToPx: (rowName: string, position: number) => number
 
 
 ### MsaView - Actions
-#### action: addAnnotation
-
-add a new annotated region, in 'global' coordinates
-
-```js
-// type signature
-addAnnotation: (start: number, end: number, attributes: Record<string, string[]>) => void
-```
-
 #### action: addStructureToSelection
 
 add to the selected structures
@@ -817,15 +790,6 @@ addStructureToSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimple
 ```js
 // type signature
 addUniprotTrack: (node: { name: string; accession: string; }) => void
-```
-
-#### action: clearAnnotationClickBoundaries
-
-internal, used for annotation click-and-drag state
-
-```js
-// type signature
-clearAnnotationClickBoundaries: () => void
 ```
 
 #### action: clearHidden
@@ -864,6 +828,15 @@ doScrollX: (deltaX: number) => void
 doScrollY: (deltaY: number) => void
 ```
 
+#### action: exportSVG
+
+
+
+```js
+// type signature
+exportSVG: (opts: { theme: Theme; includeMinimap?: boolean; exportType: string; }) => Promise<void>
+```
+
 #### action: hideNode
 
 
@@ -889,15 +862,6 @@ remove from the selected structures
 ```js
 // type signature
 removeStructureFromSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }>>) => void
-```
-
-#### action: setAnnotationClickBoundaries
-
-internal, used for annotation click-and-drag state
-
-```js
-// type signature
-setAnnotationClickBoundaries: (left: number, right: number) => void
 ```
 
 #### action: setBgColor

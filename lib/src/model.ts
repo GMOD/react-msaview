@@ -5,6 +5,8 @@ import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import Stockholm from 'stockholm-js'
 import { saveAs } from 'file-saver'
+import { Theme } from '@mui/material'
+
 // jbrowse
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
@@ -35,9 +37,9 @@ import { UniprotTrack } from './UniprotTrack'
 import { StructureModel } from './StructureModel'
 import { DialogQueueSessionMixin } from './DialogQueue'
 import { renderToSvg } from './renderToSvg'
-import { Theme } from '@mui/material'
 import { blocksX, blocksY } from './calculateBlocks'
 import measureTextCanvas from './measureTextCanvas'
+import { DataModelF } from './DataModel'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -274,26 +276,7 @@ const model = types
        * data from the loaded tree/msa/treeMetadata, generally loaded by
        * autorun
        */
-      data: types.optional(
-        types
-          .model({
-            tree: types.maybe(types.string),
-            msa: types.maybe(types.string),
-            treeMetadata: types.maybe(types.string),
-          })
-          .actions(self => ({
-            setTree(tree?: string) {
-              self.tree = tree
-            },
-            setMSA(msa?: string) {
-              self.msa = msa
-            },
-            setTreeMetadata(treeMetadata?: string) {
-              self.treeMetadata = treeMetadata
-            },
-          })),
-        { tree: '', msa: '' },
-      ),
+      data: types.optional(DataModelF(), { tree: '', msa: '' }),
     }),
   )
   .volatile(() => ({
