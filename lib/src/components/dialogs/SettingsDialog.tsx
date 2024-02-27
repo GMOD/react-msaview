@@ -35,142 +35,146 @@ function FormControlLabel2(rest: FormControlLabelProps) {
   )
 }
 
+function Checkbox2({
+  checked,
+  label,
+  onChange,
+}: {
+  checked: boolean
+  label: string
+  onChange: () => void
+}) {
+  return (
+    <FormControlLabel2
+      control={<Checkbox checked={checked} onChange={onChange} />}
+      label={label}
+    />
+  )
+}
+
 const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
+  return (
+    <>
+      <TreeSettings model={model} />
+      <MSASettings model={model} />
+    </>
+  )
+})
+
+function TreeSettings({ model }: { model: MsaViewModel }) {
   const { classes } = useStyles()
   const {
-    bgColor,
-    colWidth,
-    colorSchemeName,
     drawTree,
     drawNodeBubbles,
     labelsAlignRight,
     noTree,
-    rowHeight,
     showBranchLen,
     treeWidthMatchesArea,
     treeWidth,
   } = model
+
   return (
-    <>
-      <div>
-        <Button onClick={() => model.clearHidden()}>Clear hidden</Button>
-        <h1>Tree options</h1>
-        <FormControlLabel2
-          control={
-            <Checkbox
-              checked={showBranchLen}
-              onChange={() => model.setShowBranchLen(!showBranchLen)}
-            />
-          }
-          label="Show branch length?"
-        />
+    <div>
+      <h1>Tree options</h1>
+      <Checkbox2
+        checked={showBranchLen}
+        onChange={() => model.setShowBranchLen(!showBranchLen)}
+        label="Show branch length?"
+      />
 
-        <FormControlLabel2
-          control={
-            <Checkbox
-              checked={drawNodeBubbles}
-              onChange={() => model.setDrawNodeBubbles(!drawNodeBubbles)}
-            />
-          }
-          label="Draw clickable bubbles on tree branches?"
-        />
-        <FormControlLabel2
-          control={
-            <Checkbox
-              checked={drawTree}
-              onChange={() => model.setDrawTree(!drawTree)}
-            />
-          }
-          label="Show tree?"
-        />
+      <Checkbox2
+        checked={drawNodeBubbles}
+        onChange={() => model.setDrawNodeBubbles(!drawNodeBubbles)}
+        label="Draw clickable bubbles on tree branches?"
+      />
+      <Checkbox2
+        checked={drawTree}
+        onChange={() => model.setDrawTree(!drawTree)}
+        label="Show tree?"
+      />
 
-        <FormControlLabel2
-          control={
-            <Checkbox
-              checked={labelsAlignRight}
-              onChange={() => model.setLabelsAlignRight(!labelsAlignRight)}
-            />
-          }
-          label="Tree labels align right?"
-        />
-        {!noTree ? (
-          <div>
-            <FormControlLabel2
-              control={
-                <Checkbox
-                  checked={treeWidthMatchesArea}
-                  onChange={() =>
-                    model.setTreeWidthMatchesArea(!treeWidthMatchesArea)
-                  }
-                />
-              }
-              label="Make tree width fit to tree area?"
-            />
-            {!treeWidthMatchesArea ? (
-              <div className={classes.flex}>
-                <Typography>Tree width ({treeWidth}px)</Typography>
-                <Slider
-                  className={classes.field}
-                  min={50}
-                  max={600}
-                  value={treeWidth}
-                  onChange={(_, val) => model.setTreeWidth(val as number)}
-                />
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-      <div>
-        <h1>MSA options</h1>
-
-        <FormControlLabel2
-          control={
-            <Checkbox
-              checked={bgColor}
-              onChange={() => model.setBgColor(!bgColor)}
-            />
-          }
-          label="Color background tiles of MSA?"
-        />
-
-        <div className={classes.flex}>
-          <Typography>Column width ({colWidth}px)</Typography>
-          <Slider
-            className={classes.field}
-            min={1}
-            max={50}
-            value={colWidth}
-            onChange={(_, val) => model.setColWidth(val as number)}
+      <Checkbox2
+        checked={labelsAlignRight}
+        onChange={() => model.setLabelsAlignRight(!labelsAlignRight)}
+        label="Tree labels align right?"
+      />
+      {!noTree ? (
+        <div>
+          <Checkbox2
+            checked={treeWidthMatchesArea}
+            onChange={() =>
+              model.setTreeWidthMatchesArea(!treeWidthMatchesArea)
+            }
+            label="Make tree width fit to tree area?"
           />
+          {!treeWidthMatchesArea ? (
+            <div className={classes.flex}>
+              <Typography>Tree width ({treeWidth}px)</Typography>
+              <Slider
+                className={classes.field}
+                min={50}
+                max={600}
+                value={treeWidth}
+                onChange={(_, val) => model.setTreeWidth(val as number)}
+              />
+            </div>
+          ) : null}
         </div>
-        <div className={classes.flex}>
-          <Typography>Row height ({rowHeight}px)</Typography>
-          <Slider
-            className={classes.field}
-            min={1}
-            max={50}
-            value={rowHeight}
-            onChange={(_, val) => model.setRowHeight(val as number)}
-          />
-        </div>
-
-        <TextField
-          select
-          label="Color scheme"
-          value={colorSchemeName}
-          onChange={event => model.setColorSchemeName(event.target.value)}
-        >
-          {Object.keys(colorSchemes).map(option => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </TextField>
-      </div>
-    </>
+      ) : null}
+    </div>
   )
-})
+}
+
+function MSASettings({ model }: { model: MsaViewModel }) {
+  const { classes } = useStyles()
+  const { bgColor, colWidth, colorSchemeName, rowHeight } = model
+
+  return (
+    <div>
+      <h1>MSA options</h1>
+
+      <Checkbox2
+        checked={bgColor}
+        onChange={() => model.setBgColor(!bgColor)}
+        label="Color background tiles of MSA?"
+      />
+
+      <div className={classes.flex}>
+        <Typography>Column width ({colWidth}px)</Typography>
+        <Slider
+          className={classes.field}
+          min={1}
+          max={50}
+          value={colWidth}
+          onChange={(_, val) => model.setColWidth(val as number)}
+        />
+      </div>
+      <div className={classes.flex}>
+        <Typography>Row height ({rowHeight}px)</Typography>
+        <Slider
+          className={classes.field}
+          min={1}
+          max={50}
+          value={rowHeight}
+          onChange={(_, val) => model.setRowHeight(val as number)}
+        />
+      </div>
+
+      <TextField
+        select
+        label="Color scheme"
+        value={colorSchemeName}
+        onChange={event => model.setColorSchemeName(event.target.value)}
+      >
+        {Object.keys(colorSchemes).map(option => (
+          <MenuItem key={option} value={option}>
+            {option}
+          </MenuItem>
+        ))}
+      </TextField>
+    </div>
+  )
+}
 
 const SettingsDialog = observer(function ({
   model,

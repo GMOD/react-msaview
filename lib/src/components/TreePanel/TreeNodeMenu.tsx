@@ -5,6 +5,7 @@ import { observer } from 'mobx-react'
 // locals
 import { MsaViewModel } from '../../model'
 
+// lazies
 const TreeNodeInfoDialog = lazy(() => import('./dialogs/TreeNodeInfoDialog'))
 
 const TreeMenu = observer(function ({
@@ -16,104 +17,112 @@ const TreeMenu = observer(function ({
   model: MsaViewModel
   onClose: () => void
 }) {
-  const { structures } = model
+  const { selectedStructures, collapsed, collapsed2, structures } = model
   const nodeDetails = node ? model.getRowData(node.name) : undefined
 
   return (
-    <>
-      <Menu
-        anchorReference="anchorPosition"
-        anchorPosition={{
-          top: node.y,
-          left: node.x,
+    <Menu
+      anchorReference="anchorPosition"
+      anchorPosition={{
+        top: node.y,
+        left: node.x,
+      }}
+      transitionDuration={0}
+      keepMounted
+      open={Boolean(node)}
+      onClose={onClose}
+    >
+      <MenuItem dense disabled>
+        {node.name}
+      </MenuItem>
+
+      <MenuItem
+        dense
+        onClick={() => {
+          model.queueDialog(onClose => [
+            TreeNodeInfoDialog,
+            {
+              info: model.getRowData(node.name),
+              model,
+              nodeName: node.name,
+              onClose,
+            },
+          ])
+          onClose()
         }}
-        transitionDuration={0}
-        keepMounted
-        open={Boolean(node)}
-        onClose={onClose}
       >
-        <MenuItem dense disabled>
-          {node.name}
-        </MenuItem>
+        More info...
+      </MenuItem>
+      <MenuItem
+        dense
+        onClick={() => {
+          if (collapsed.includes(node.id)) {
+            model.toggleCollapsed(node.id)
+          } else {
+            if (node.id.endsWith('-leafnode')) {
+              model.toggleCollapsed2(`${node.id}`)
+            } else {
+              model.toggleCollapsed2(`${node.id}-leafnode`)
+            }
+          }
+          onClose()
+        }}
+      >
+        {collapsed.includes(node.id) || collapsed2.includes(node.id)
+          ? 'Show node'
+          : 'Hide node'}
+      </MenuItem>
 
-        <MenuItem
-          dense
-          onClick={() => {
-            model.queueDialog(onClose => [
-              TreeNodeInfoDialog,
-              {
-                info: model.getRowData(node.name),
-                model,
-                nodeName: node.name,
-                onClose,
-              },
-            ])
-            onClose()
-          }}
-        >
-          More info...
-        </MenuItem>
-        <MenuItem
-          dense
-          onClick={() => {
-            model.hideNode(node.id)
-            onClose()
-          }}
-        >
-          Hide node
-        </MenuItem>
-
-        {structures[node.name]?.map(entry => {
-          return !model.selectedStructures.some(n => n.id === node.name) ? (
-            <MenuItem
-              key={JSON.stringify(entry)}
-              dense
-              onClick={() => {
-                model.addStructureToSelection({
-                  structure: entry,
-                  id: node.name,
-                })
-                onClose()
-              }}
-            >
-              Add PDB to selection ({entry.pdb})
-            </MenuItem>
-          ) : (
-            <MenuItem
-              key={JSON.stringify(entry)}
-              dense
-              onClick={() => {
-                model.removeStructureFromSelection({
-                  structure: entry,
-                  id: node.name,
-                })
-                onClose()
-              }}
-            >
-              Remove PDB from selection ({entry.pdb})
-            </MenuItem>
-          )
-        })}
-
-        {// @ts-expect-error
-        nodeDetails?.data.accession?.map(accession => (
+      {structures[node.name]?.map(entry =>
+        !selectedStructures.some(n => n.id === node.name) ? (
           <MenuItem
+            key={JSON.stringify(entry)}
             dense
-            key={accession}
             onClick={() => {
-              model.addUniprotTrack({
-                // @ts-expect-error
-                name: nodeDetails?.data.name,
-                accession,
+              model.addStructureToSelection({
+                structure: entry,
+                id: node.name,
               })
               onClose()
             }}
           >
-            Open UniProt track ({accession})
+            Add PDB to selection ({entry.pdb})
           </MenuItem>
-        ))}
-      </Menu>
-    </>
+        ) : (
+          <MenuItem
+            key={JSON.stringify(entry)}
+            dense
+            onClick={() => {
+              model.removeStructureFromSelection({
+                structure: entry,
+                id: node.name,
+              })
+              onClose()
+            }}
+          >
+            Remove PDB from selection ({entry.pdb})
+          </MenuItem>
+        ),
+      )}
+
+      {// @ts-expect-error
+      nodeDetails?.data.accession?.map(accession => (
+        <MenuItem
+          dense
+          key={accession}
+          onClick={() => {
+            model.addUniprotTrack({
+              // @ts-expect-error
+              name: nodeDetails?.data.name,
+              accession,
+            })
+            onClose()
+          }}
+        >
+          Open UniProt track ({accession})
+        </MenuItem>
+      ))}
+    </Menu>
   )
 })
 
