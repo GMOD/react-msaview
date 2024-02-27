@@ -1,6 +1,6 @@
 import React from 'react'
 import { autorun } from 'mobx'
-import { Instance, cast, types, addDisposer, SnapshotIn } from 'mobx-state-tree'
+import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import Stockholm from 'stockholm-js'
@@ -35,7 +35,6 @@ import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
 import { DialogQueueSessionMixin } from './DialogQueue'
-import { renderToSvg } from './renderToSvg'
 import { blocksX, blocksY } from './calculateBlocks'
 import measureTextCanvas from './measureTextCanvas'
 import { DataModelF } from './DataModel'
@@ -1165,6 +1164,7 @@ const model = types
       includeMinimap?: boolean
       exportType: string
     }) {
+      const { renderToSvg } = await import('./renderToSvg')
       const html = await renderToSvg(self as MsaViewModel, opts)
       const blob = new Blob([html], { type: 'image/svg+xml' })
       saveAs(blob, 'image.svg')
