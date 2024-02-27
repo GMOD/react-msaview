@@ -90,6 +90,7 @@ export function renderNodeBubbles({
     } = node
     const { branchset, id = '', name = '' } = data
     if (
+      !id.endsWith('-leafnode') &&
       branchset.length &&
       y > offsetY - extendBounds &&
       y < offsetY + by + extendBounds

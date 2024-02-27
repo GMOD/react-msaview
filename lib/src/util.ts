@@ -145,17 +145,6 @@ export function collapse(d: HierarchyNode<NodeWithIds>) {
   }
 }
 
-// Collapse the node and all it's children, from
-// https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd
-export function filterHiddenLeafNodes(
-  d: HierarchyNode<NodeWithIds> | null,
-  hiddenId?: string,
-) {
-  if (d?.children) {
-    d.children = d.children.filter(f => f.id !== hiddenId)
-  }
-}
-
 export function clamp(min: number, num: number, max: number) {
   return Math.min(Math.max(num, min), max)
 }

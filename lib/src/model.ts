@@ -18,7 +18,6 @@ import BaseViewModel from '@jbrowse/core/pluggableElementTypes/models/BaseViewMo
 import {
   clamp,
   collapse,
-  filterHiddenLeafNodes,
   generateNodeIds,
   maxLength,
   setBrLength,
@@ -91,6 +90,21 @@ export type BasicTrack = IBoxTrack | ITextTrack
  * - SelectedStructuresMixin
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
+
+function reparseTree(tree: NodeWithIds): NodeWithIds {
+  return {
+    ...tree,
+    branchset: tree.branchset.map(r =>
+      r.branchset.length
+        ? reparseTree(r)
+        : {
+            branchset: [r],
+            id: `${r.id}-leafnode`,
+            name: `${r.name}-hidden`,
+          },
+    ),
+  }
+}
 
 export type DialogComponentType =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -239,12 +253,7 @@ const model = types
        */
       collapsed: types.array(types.string),
 
-      /**
-       * #property
-       * array of leaf nodes that are 'hidden', similar to collapsed but for leaf nodes
-       */
-      hidden: types.array(types.string),
-
+      collapsed2: types.array(types.string),
       /**
        * #property
        * focus on particular subtree
@@ -429,20 +438,6 @@ const model = types
     /**
      * #action
      */
-    hideNode(arg: string) {
-      self.hidden.push(arg)
-    },
-
-    /**
-     * #action
-     */
-    clearHidden() {
-      self.hidden.clear()
-    },
-
-    /**
-     * #action
-     */
     toggleCollapsed(node: string) {
       if (self.collapsed.includes(node)) {
         self.collapsed.remove(node)
@@ -451,6 +446,16 @@ const model = types
       }
     },
 
+    /**
+     * #action
+     */
+    toggleCollapsed2(node: string) {
+      if (self.collapsed2.includes(node)) {
+        self.collapsed2.remove(node)
+      } else {
+        self.collapsed2.push(node)
+      }
+    },
     /**
      * #action
      */
@@ -613,7 +618,7 @@ const model = types
      * #getter
      */
     get _tree(): NodeWithIds {
-      return self.data.tree
+      const ret = self.data.tree
         ? generateNodeIds(parseNewick(self.data.tree))
         : this.MSA?.getTree() || {
             noTree: true,
@@ -621,6 +626,7 @@ const model = types
             id: 'empty',
             name: 'empty',
           }
+      return reparseTree(ret)
     },
     /**
      * #getter
@@ -659,18 +665,13 @@ const model = types
         }
       }
 
-      if (self.collapsed.length) {
-        self.collapsed
+      if (self.collapsed.length || self.collapsed2.length) {
+        ;[...self.collapsed, ...self.collapsed2]
           .map(collapsedId => hier.find(node => node.data.id === collapsedId))
           .filter(notEmpty)
           .map(node => collapse(node))
       }
-      if (self.hidden.length) {
-        self.hidden
-          .map(hiddenId => hier.find(node => node.data.id === hiddenId))
-          .filter(notEmpty)
-          .map(node => filterHiddenLeafNodes(node.parent, node.id))
-      }
+
       return hier
     },
     /**
@@ -1093,7 +1094,7 @@ const model = types
     relativePxToBp(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
-      if (index !== -1) {
+      if (index !== -1 && rows[index]) {
         const row = rows[index][1]
 
         let k = 0
@@ -1115,7 +1116,7 @@ const model = types
     relativePxToBp2(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
-      if (index !== -1) {
+      if (index !== -1 && rows[index]) {
         const row = rows[index][1]
 
         let k = 0
