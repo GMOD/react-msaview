@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react'
-import { autorun } from 'mobx'
 import { useTheme } from '@mui/material'
+import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 
 // locals
@@ -24,6 +24,8 @@ const MSABlock = observer(function ({
     scrollX,
     colorScheme,
     blockSize,
+    mouseClickCol,
+    mouseClickRow,
     highResScaleFactor,
   } = model
   const theme = useTheme()
@@ -36,19 +38,18 @@ const MSABlock = observer(function ({
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
     const ctx = ref.current?.getContext('2d')
-    if (!ctx) {
-      return
-    }
-    return autorun(() => {
-      renderMSABlock({
-        ctx,
-        theme,
-        offsetX,
-        offsetY,
-        contrastScheme,
-        model,
-      })
-    })
+    return ctx
+      ? autorun(() => {
+          renderMSABlock({
+            ctx,
+            theme,
+            offsetX,
+            offsetY,
+            contrastScheme,
+            model,
+          })
+        })
+      : undefined
   }, [model, offsetX, offsetY, theme, contrastScheme])
   return (
     <canvas
@@ -60,10 +61,24 @@ const MSABlock = observer(function ({
         const { left, top } = ref.current.getBoundingClientRect()
         const mouseX = event.clientX - left + offsetX
         const mouseY = event.clientY - top + offsetY
-        model.setMousePos(
-          Math.floor(mouseX / colWidth) + 1,
-          Math.floor(mouseY / rowHeight),
-        )
+        const x = Math.floor(mouseX / colWidth) + 1
+        const y = Math.floor(mouseY / rowHeight)
+        model.setMousePos(x, y)
+      }}
+      onClick={event => {
+        if (!ref.current) {
+          return
+        }
+        const { left, top } = ref.current.getBoundingClientRect()
+        const mouseX = event.clientX - left + offsetX
+        const mouseY = event.clientY - top + offsetY
+        const x = Math.floor(mouseX / colWidth) + 1
+        const y = Math.floor(mouseY / rowHeight)
+        if (x === mouseClickCol && y === mouseClickRow) {
+          model.setMouseClickPos(undefined, undefined)
+        } else {
+          model.setMouseClickPos(x, y)
+        }
       }}
       onMouseLeave={() => model.setMousePos()}
       width={blockSize * highResScaleFactor}

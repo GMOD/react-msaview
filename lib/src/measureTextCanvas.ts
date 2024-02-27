@@ -1,6 +1,6 @@
 let canvasHandle: HTMLCanvasElement | undefined
 
-export default function measureTextCanvas(text: string, fontSize: number) {
+export function measureTextCanvas(text: string, fontSize: number) {
   if (!canvasHandle) {
     canvasHandle = document.createElement('canvas')
   }

@@ -25,18 +25,25 @@ import {
   NodeWithIds,
   NodeWithIdsAndLength,
 } from './util'
+
+import { blocksX, blocksY } from './calculateBlocks'
+import { measureTextCanvas } from './measureTextCanvas'
+
+// components
 import TextTrack from './components/TextTrack'
 import BoxTrack from './components/BoxTrack'
+
+// parsers
 import ClustalMSA from './parsers/ClustalMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
+
+// models
 import { UniprotTrack } from './UniprotTrack'
-import { DialogQueueSessionMixin } from './DialogQueue'
-import { blocksX, blocksY } from './calculateBlocks'
-import measureTextCanvas from './measureTextCanvas'
 import { DataModelF } from './DataModel'
+import { DialogQueueSessionMixin } from './DialogQueue'
 import { SelectedStructuresMixin } from './SelectedStructuresMixin'
 
 export interface RowDetails {
@@ -308,6 +315,18 @@ const model = types
 
     /**
      * #volatile
+     * the currently mouse-click row
+     */
+    mouseClickRow: undefined as number | undefined,
+
+    /**
+     * #volatile
+     * the currently mouse-click column
+     */
+    mouseClickCol: undefined as number | undefined,
+
+    /**
+     * #volatile
      * a dummy variable that is incremented when ref changes so autorun for
      * drawing canvas commands will run
      */
@@ -357,6 +376,15 @@ const model = types
     setMousePos(col?: number, row?: number) {
       self.mouseCol = col
       self.mouseRow = row
+    },
+
+    /**
+     * #action
+     * set mouse click position (row, column) in the MSA
+     */
+    setMouseClickPos(col?: number, row?: number) {
+      self.mouseClickCol = col
+      self.mouseClickRow = row
     },
 
     /**
