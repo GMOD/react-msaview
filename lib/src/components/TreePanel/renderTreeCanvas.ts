@@ -196,8 +196,8 @@ export function renderTreeLabels({
         }
         ctx.fillText(displayName, offset, yp)
         clickMap?.insert({
-          minX: treeAreaWidth - width + ml,
-          maxX: treeAreaWidth + ml,
+          minX: treeAreaWidth - width,
+          maxX: treeAreaWidth,
           minY: yp - height,
           maxY: yp,
           name,
