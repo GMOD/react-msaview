@@ -34,12 +34,12 @@ import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 import { UniprotTrack } from './UniprotTrack'
-import { StructureModel } from './StructureModel'
 import { DialogQueueSessionMixin } from './DialogQueue'
 import { renderToSvg } from './renderToSvg'
 import { blocksX, blocksY } from './calculateBlocks'
 import measureTextCanvas from './measureTextCanvas'
 import { DataModelF } from './DataModel'
+import { SelectedStructuresMixin } from './SelectedStructuresMixin'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -84,13 +84,12 @@ export interface IBoxTrack {
 
 export type BasicTrack = IBoxTrack | ITextTrack
 
-export type StructureSnap = SnapshotIn<typeof StructureModel>
-
 /**
  * #stateModel MsaView
  * extends
  * - BaseViewModel
  * - DialogQueueSessionMixin
+ * - SelectedStructuresMixin
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
@@ -104,6 +103,7 @@ const model = types
   .compose(
     BaseViewModel,
     DialogQueueSessionMixin(),
+    SelectedStructuresMixin(),
     types.model('MsaView', {
       /**
        * #property
@@ -158,12 +158,6 @@ const model = types
        * scroll position, X-offset, px
        */
       scrollX: 0,
-
-      /**
-       * #property
-       * currently "selected" structures, generally PDB 3-D protein structures
-       */
-      selectedStructures: types.array(StructureModel),
 
       /**
        * #property
@@ -338,49 +332,6 @@ const model = types
      */
     setHeight(height: number) {
       self.height = height
-    },
-
-    /**
-     * #action
-     * add to the selected structures
-     */
-    addStructureToSelection(elt: StructureSnap) {
-      self.selectedStructures.push(elt)
-    },
-
-    /**
-     * #action
-     * remove from the selected structures
-     */
-    removeStructureFromSelection(elt: StructureSnap) {
-      const r = self.selectedStructures.find(node => node.id === elt.id)
-      if (r) {
-        self.selectedStructures.remove(r)
-      }
-    },
-
-    /**
-     * #action
-     * toggle a structure from the selected structures list
-     */
-    toggleStructureSelection(elt: {
-      id: string
-      structure: { startPos: number; endPos: number; pdb: string }
-    }) {
-      const r = self.selectedStructures.find(node => node.id === elt.id)
-      if (r) {
-        self.selectedStructures.remove(r)
-      } else {
-        self.selectedStructures.push(elt)
-      }
-    },
-
-    /**
-     * #action
-     * clear all selected structures
-     */
-    clearSelectedStructures() {
-      self.selectedStructures = cast([])
     },
 
     /**
