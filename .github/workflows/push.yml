@@ -20,3 +20,11 @@ jobs:
         run: cd app && yarn tsc
       - name: Lint
         run: yarn lint
+  spellcheck:
+    name: Spell check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check spelling
+        uses: crate-ci/typos@master
