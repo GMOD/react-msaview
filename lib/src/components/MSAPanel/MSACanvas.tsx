@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react'
 import normalizeWheel from 'normalize-wheel'
 import * as PIXI from 'pixi.js'
-import { Assets, BlurFilter } from 'pixi.js'
+import { Assets } from 'pixi.js'
 import { Stage, Container, Sprite, Text, BitmapText } from '@pixi/react'
 // locals
 import { MsaViewModel } from '../../model'
@@ -18,14 +18,17 @@ const ExampleAssetLoader = ({
 }: {
   name: string
   url: string
-  loader: any
+  loader: React.ReactNode
   children: React.ReactNode
 }) => {
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
     const loadAsset = async () => {
-      Assets.add(name, url)
+      Assets.add({
+        alias: name,
+        src: url,
+      })
 
       await Assets.load(name)
       setIsLoaded(true)
@@ -37,39 +40,18 @@ const ExampleAssetLoader = ({
   return isLoaded ? children : loader
 }
 
-function loadFontFromBlob(fontBlob, onComplete) {
-  const reader = new FileReader()
-  reader.onload = function (event) {
-    const fontData = event.target.result
-    // Parse the font data based on its format (e.g., BMFont)
-    const parsedFont = parseFontData(fontData)
-
-    // Create a new PIXI.BitmapText object
-    const text = new PIXI.BitmapText('Sample Text', parsedFont)
-    onComplete(text)
-  }
-  reader.readAsText(fontBlob)
-}
-
-// Usage
-loadFontFromBlob(fontBlob, text => {
-  // Add the text object to your PIXI stage
-  app.stage.addChild(text)
-})
-
 const MSACanvas = observer(function MSACanvas2({
   model,
 }: {
   model: MsaViewModel
 }) {
   const { msaAreaWidth, height } = model
-  const blurFilter = useMemo(() => new BlurFilter(4), [])
 
   return (
-    <Stage width={msaAreaWidth} height={height}>
+    <Stage width={msaAreaWidth} height={height} options={{ hello: true }}>
       <ExampleAssetLoader
-        name="desyrel"
-        url="/pixi-react/font/desyrel.xml"
+        name="sans-serif"
+        url="https://s3.amazonaws.com/jbrowse.org/demos/font/sans-serif.xml"
         loader={
           <Text
             x={100}
@@ -87,7 +69,10 @@ const MSACanvas = observer(function MSACanvas2({
           x={100}
           y={100}
           text="Hello World!"
-          style={{ fontName: 'Desyrel', fontSize: 50 }}
+          style={{
+            fontName: 'sans-serif',
+            fontSize: 72,
+          }}
         />
       </ExampleAssetLoader>
     </Stage>
