@@ -1,138 +1,96 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { observer } from 'mobx-react'
 import normalizeWheel from 'normalize-wheel'
-
+import * as PIXI from 'pixi.js'
+import { Assets, BlurFilter } from 'pixi.js'
+import { Stage, Container, Sprite, Text, BitmapText } from '@pixi/react'
 // locals
 import { MsaViewModel } from '../../model'
 import MSABlock from './MSABlock'
 import Loading from './Loading'
 
-const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
-  const { MSA, msaFilehandle, height, msaAreaWidth, blocks2d } = model
-  const ref = useRef<HTMLDivElement>(null)
-  // wheel
-  const scheduled = useRef(false)
-  const deltaX = useRef(0)
-  const deltaY = useRef(0)
-  // mouse click-and-drag scrolling
-  const prevX = useRef<number>(0)
-  const prevY = useRef<number>(0)
-  const [mouseDragging, setMouseDragging] = useState(false)
-  useEffect(() => {
-    const curr = ref.current
-    if (!curr) {
-      return
-    }
-    function onWheel(origEvent: WheelEvent) {
-      const event = normalizeWheel(origEvent)
-      deltaX.current += event.pixelX
-      deltaY.current += event.pixelY
-
-      if (!scheduled.current) {
-        scheduled.current = true
-        requestAnimationFrame(() => {
-          model.doScrollX(-deltaX.current)
-          model.doScrollY(-deltaY.current)
-          deltaX.current = 0
-          deltaY.current = 0
-          scheduled.current = false
-        })
-      }
-      origEvent.preventDefault()
-    }
-    curr.addEventListener('wheel', onWheel)
-    return () => {
-      curr.removeEventListener('wheel', onWheel)
-    }
-  }, [model])
+// Helper Component to ensure assets are loaded for docusaurus live examples
+const ExampleAssetLoader = ({
+  name,
+  url,
+  loader,
+  children,
+}: {
+  name: string
+  url: string
+  loader: any
+  children: React.ReactNode
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    let cleanup = () => {}
+    const loadAsset = async () => {
+      Assets.add(name, url)
 
-    function globalMouseMove(event: MouseEvent) {
-      event.preventDefault()
-      const currX = event.clientX
-      const currY = event.clientY
-      const distanceX = currX - prevX.current
-      const distanceY = currY - prevY.current
-      if (distanceX || distanceY) {
-        // use rAF to make it so multiple event handlers aren't fired per-frame
-        // see https://calendar.perfplanet.com/2013/the-runtime-performance-checklist/
-        if (!scheduled.current) {
-          scheduled.current = true
-          window.requestAnimationFrame(() => {
-            model.doScrollX(distanceX)
-            model.doScrollY(distanceY)
-            scheduled.current = false
-            prevX.current = event.clientX
-            prevY.current = event.clientY
-          })
-        }
-      }
+      await Assets.load(name)
+      setIsLoaded(true)
     }
 
-    function globalMouseUp() {
-      prevX.current = 0
-      if (mouseDragging) {
-        setMouseDragging(false)
-      }
-    }
+    loadAsset().catch(console.error)
+  }, [name, url])
 
-    if (mouseDragging) {
-      window.addEventListener('mousemove', globalMouseMove, true)
-      window.addEventListener('mouseup', globalMouseUp, true)
-      cleanup = () => {
-        window.removeEventListener('mousemove', globalMouseMove, true)
-        window.removeEventListener('mouseup', globalMouseUp, true)
-      }
-    }
-    return cleanup
-  }, [model, mouseDragging])
+  return isLoaded ? children : loader
+}
+
+function loadFontFromBlob(fontBlob, onComplete) {
+  const reader = new FileReader()
+  reader.onload = function (event) {
+    const fontData = event.target.result
+    // Parse the font data based on its format (e.g., BMFont)
+    const parsedFont = parseFontData(fontData)
+
+    // Create a new PIXI.BitmapText object
+    const text = new PIXI.BitmapText('Sample Text', parsedFont)
+    onComplete(text)
+  }
+  reader.readAsText(fontBlob)
+}
+
+// Usage
+loadFontFromBlob(fontBlob, text => {
+  // Add the text object to your PIXI stage
+  app.stage.addChild(text)
+})
+
+const MSACanvas = observer(function MSACanvas2({
+  model,
+}: {
+  model: MsaViewModel
+}) {
+  const { msaAreaWidth, height } = model
+  const blurFilter = useMemo(() => new BlurFilter(4), [])
 
   return (
-    <div
-      ref={ref}
-      onMouseDown={event => {
-        // check if clicking a draggable element or a resize handle
-        const target = event.target as HTMLElement
-        if (target.draggable || target.dataset.resizer) {
-          return
-        }
-
-        // otherwise do click and drag scroll
-        if (event.button === 0) {
-          prevX.current = event.clientX
-          prevY.current = event.clientY
-          setMouseDragging(true)
-        }
-      }}
-      onMouseUp={event => {
-        event.preventDefault()
-        setMouseDragging(false)
-      }}
-      onMouseLeave={event => {
-        event.preventDefault()
-      }}
-      style={{
-        position: 'relative',
-        height,
-        width: msaAreaWidth,
-        overflow: 'hidden',
-      }}
-    >
-      {!MSA && !msaFilehandle ? null : !MSA ? (
-        <Loading />
-      ) : (
-        blocks2d.map(([bx, by]) => (
-          <MSABlock
-            key={`${bx}_${by}`}
-            model={model}
-            offsetX={bx}
-            offsetY={by}
+    <Stage width={msaAreaWidth} height={height}>
+      <ExampleAssetLoader
+        name="desyrel"
+        url="/pixi-react/font/desyrel.xml"
+        loader={
+          <Text
+            x={100}
+            y={100}
+            text="⌛ Loading font..."
+            style={
+              new PIXI.TextStyle({
+                fill: ['#ffffff'],
+              })
+            }
           />
-        ))
-      )}
-    </div>
+        }
+      >
+        <BitmapText
+          x={100}
+          y={100}
+          text="Hello World!"
+          style={{ fontName: 'Desyrel', fontSize: 50 }}
+        />
+      </ExampleAssetLoader>
+    </Stage>
   )
 })
 
