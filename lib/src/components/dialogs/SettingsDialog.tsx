@@ -61,7 +61,11 @@ const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
   )
 })
 
-function TreeSettings({ model }: { model: MsaViewModel }) {
+const TreeSettings = observer(function TreeSettings({
+  model,
+}: {
+  model: MsaViewModel
+}) {
   const { classes } = useStyles()
   const {
     drawTree,
@@ -123,9 +127,13 @@ function TreeSettings({ model }: { model: MsaViewModel }) {
       ) : null}
     </div>
   )
-}
+})
 
-function MSASettings({ model }: { model: MsaViewModel }) {
+const MSASettings = observer(function MSASettings({
+  model,
+}: {
+  model: MsaViewModel
+}) {
   const { classes } = useStyles()
   const { bgColor, colWidth, colorSchemeName, rowHeight } = model
 
@@ -174,7 +182,7 @@ function MSASettings({ model }: { model: MsaViewModel }) {
       </TextField>
     </div>
   )
-}
+})
 
 const SettingsDialog = observer(function ({
   model,
