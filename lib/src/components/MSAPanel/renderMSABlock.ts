@@ -4,46 +4,35 @@ import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 import { NodeWithIdsAndLength } from '../../util'
 import { HierarchyNode } from 'd3-hierarchy'
 import { Theme } from '@mui/material'
+import { Application, BitmapText } from 'pixi.js'
 
 export function renderMSABlock({
   model,
-  offsetX,
-  offsetY,
+  app,
   contrastScheme,
-  ctx,
   theme,
-  highResScaleFactorOverride,
-  blockSizeXOverride,
-  blockSizeYOverride,
 }: {
-  offsetX: number
-  offsetY: number
   theme: Theme
   model: MsaViewModel
   contrastScheme: Record<string, string>
-  ctx: CanvasRenderingContext2D
-  highResScaleFactorOverride?: number
-  blockSizeXOverride?: number
-  blockSizeYOverride?: number
+  app: Application
 }) {
   const {
     hierarchy,
+    msaAreaWidth,
+    scrollX,
+    scrollY,
     colWidth,
     blockSize,
+    height,
     rowHeight,
-    fontSize,
     highResScaleFactor,
   } = model
-  const k = highResScaleFactorOverride || highResScaleFactor
-  const bx = blockSizeXOverride || blockSize
-  const by = blockSizeYOverride || blockSize
-  ctx.resetTransform()
-  ctx.scale(k, k)
-  ctx.clearRect(0, 0, bx, by)
-  ctx.translate(-offsetX, rowHeight / 2 - offsetY)
-  ctx.textAlign = 'center'
-  ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
-
+  const offsetX = scrollX
+  const offsetY = scrollY
+  const k = highResScaleFactor
+  const bx = msaAreaWidth
+  const by = height
   const leaves = hierarchy.leaves()
 
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
@@ -54,7 +43,7 @@ export function renderMSABlock({
 
   drawTiles({
     model,
-    ctx,
+    app,
     theme,
     offsetX,
     offsetY,
@@ -64,7 +53,7 @@ export function renderMSABlock({
   })
   drawText({
     model,
-    ctx,
+    app,
     offsetX,
     contrastScheme,
     theme,
@@ -77,7 +66,7 @@ export function renderMSABlock({
 function drawTiles({
   model,
   offsetX,
-  ctx,
+  app,
   visibleLeaves,
   theme,
   xStart,
@@ -87,7 +76,7 @@ function drawTiles({
   offsetX: number
   theme: Theme
   offsetY: number
-  ctx: CanvasRenderingContext2D
+  app: Application
   visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
   xStart: number
   xEnd: number
@@ -125,8 +114,8 @@ function drawTiles({
             : colorScheme[letter.toUpperCase()]
       if (bgColor) {
         const x = i * colWidth + offsetX - (offsetX % colWidth)
-        ctx.fillStyle = color || theme.palette.background.default
-        ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
+        // ctx.fillStyle = color || theme.palette.background.default
+        // ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
       }
     }
   }
@@ -136,7 +125,7 @@ function drawText({
   model,
   offsetX,
   contrastScheme,
-  ctx,
+  app,
   visibleLeaves,
   xStart,
   xEnd,
@@ -145,7 +134,7 @@ function drawText({
   model: MsaViewModel
   contrastScheme: Record<string, string>
   theme: Theme
-  ctx: CanvasRenderingContext2D
+  app: Application
   visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
   xStart: number
   xEnd: number
@@ -166,8 +155,19 @@ function drawText({
         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
         // note: -rowHeight/4 matches +rowHeight/4 in tree
-        ctx.fillStyle = bgColor ? contrast : color || 'black'
-        ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
+        // ctx.fillStyle = bgColor ? contrast : color || 'black'
+        // ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
+
+        const t = new BitmapText({
+          text: letter,
+          x,
+          y,
+          style: {
+            fontFamily: 'Arial',
+            fontSize: 20,
+          },
+        })
+        app.stage.addChild(t)
       }
     }
   }

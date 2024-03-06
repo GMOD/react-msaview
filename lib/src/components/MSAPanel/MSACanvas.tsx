@@ -1,13 +1,14 @@
 import 'pixi.js/text-bitmap'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
-import normalizeWheel from 'normalize-wheel'
-import { Application, Assets, Text, BitmapText } from 'pixi.js'
+import { ErrorMessage } from '@jbrowse/core/ui'
+import { useTheme } from '@mui/material'
+import { Application, BitmapText } from 'pixi.js'
+
 // locals
 import { MsaViewModel } from '../../model'
-import MSABlock from './MSABlock'
-import Loading from './Loading'
-import { ErrorMessage } from '@jbrowse/core/ui'
+import { renderMSABlock } from './renderMSABlock'
+import { colorContrast } from '../../util'
 
 // Helper Component to ensure assets are loaded for docusaurus live examples
 
@@ -16,9 +17,16 @@ const MSACanvas = observer(function MSACanvas2({
 }: {
   model: MsaViewModel
 }) {
-  const { msaAreaWidth, height } = model
+  const { colorScheme, msaAreaWidth, height } = model
   const ref = useRef<HTMLCanvasElement>(null)
   const [error, setError] = useState<unknown>()
+  const theme = useTheme()
+
+  const contrastScheme = useMemo(
+    () => colorContrast(colorScheme, theme),
+    [colorScheme, theme],
+  )
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
@@ -34,41 +42,50 @@ const MSACanvas = observer(function MSACanvas2({
           resizeTo: ref.current,
         })
 
-        const ret = [] as BitmapText[]
-        for (let i = 0; i < 100; i++) {
-          const x = new BitmapText({
-            text: 'word',
-            x: msaAreaWidth * Math.random(),
-            y: height * Math.random(),
-            style: {
-              fontFamily: 'Arial',
-              fontSize: 20,
-            },
-          })
-          ret.push(x)
-          app.stage.addChild(x)
-        }
+        const letters = [] as BitmapText[]
+        // for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
+        //   const x = new BitmapText({
+        //     text: letter,
+        //     x: msaAreaWidth * Math.random(),
+        //     y: height * Math.random(),
+        //     style: {
+        //       fontFamily: 'Arial',
+        //       fontSize: 20,
+        //     },
+        //   })
+        //   letters.push(x)
+        //   app.stage.addChild(x)
+        // }
 
         // Add a ticker callback to move the sprite back and forth
-        app.ticker.add(ticker => {
-          for (const elt of ret) {
-            elt.updateTransform({
-              x: elt.x + (Math.random() - 0.5) * 1,
-              y: elt.y + (Math.random() - 0.5) * 1,
-            })
-          }
-        })
+        // app.ticker.add(ticker => {
+        //   for (const elt of letters) {
+        //     elt.updateTransform({
+        //       x: elt.x + (Math.random() - 0.5) * 1,
+        //       y: elt.y + (Math.random() - 0.5) * 1,
+        //     })
+        //   }
+        // })
+        renderMSABlock({ app, contrastScheme, theme, model })
       } catch (e) {
         setError(e)
         console.error(e)
       }
     })()
-  }, [height, msaAreaWidth])
+  }, [height, model, theme, contrastScheme, msaAreaWidth])
   const e = error
   return e ? (
     <ErrorMessage error={e} />
   ) : (
-    <canvas width={msaAreaWidth} height={height} ref={ref} />
+    <canvas
+      onWheel={event => {
+        model.setScrollX(model.scrollX - event.deltaX)
+        model.setScrollY(model.scrollY - event.deltaY)
+      }}
+      width={msaAreaWidth}
+      height={height}
+      ref={ref}
+    />
   )
 })
 
