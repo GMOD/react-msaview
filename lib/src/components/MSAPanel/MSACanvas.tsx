@@ -2,7 +2,7 @@ import 'pixi.js/text-bitmap'
 import React, { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 import normalizeWheel from 'normalize-wheel'
-import { Application, Assets, BitmapFont, BitmapText, Sprite } from 'pixi.js'
+import { Application, Assets, Text, BitmapText } from 'pixi.js'
 // locals
 import { MsaViewModel } from '../../model'
 import MSABlock from './MSABlock'
@@ -10,35 +10,6 @@ import Loading from './Loading'
 import { ErrorMessage } from '@jbrowse/core/ui'
 
 // Helper Component to ensure assets are loaded for docusaurus live examples
-async function loadFont({ name, url }: { name: string; url: string }) {
-  Assets.add({
-    alias: name,
-    src: url,
-  })
-
-  await Assets.load(name)
-}
-
-const useBitmapFontLoader = () => {
-  const [error, setError] = useState<unknown>()
-  const [loading, setLoading] = useState(false)
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      try {
-        setLoading(true)
-        await loadFont({
-          name: 'sans-serif',
-          url: 'https://s3.amazonaws.com/jbrowse.org/demos/font/sans-serif.xml',
-        })
-        setLoading(false)
-      } catch (e) {
-        setError(e)
-      }
-    })()
-  }, [])
-  return { fontError: error, fontLoading: loading }
-}
 
 const MSACanvas = observer(function MSACanvas2({
   model,
@@ -47,12 +18,7 @@ const MSACanvas = observer(function MSACanvas2({
 }) {
   const { msaAreaWidth, height } = model
   const ref = useRef<HTMLCanvasElement>(null)
-  const completed = useRef(false)
   const [error, setError] = useState<unknown>()
-  const { fontError, fontLoading } = useBitmapFontLoader({
-    name: 'sans-serif',
-    url: 'https://s3.amazonaws.com/jbrowse.org/demos/font/sans-serif.xml',
-  })
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
@@ -75,7 +41,7 @@ const MSACanvas = observer(function MSACanvas2({
             x: msaAreaWidth * Math.random(),
             y: height * Math.random(),
             style: {
-              fontFamily: 'sans-serif',
+              fontFamily: 'Arial',
               fontSize: 20,
             },
           })
@@ -98,7 +64,7 @@ const MSACanvas = observer(function MSACanvas2({
       }
     })()
   }, [height, msaAreaWidth])
-  const e = error || fontError
+  const e = error
   return e ? (
     <ErrorMessage error={e} />
   ) : (
