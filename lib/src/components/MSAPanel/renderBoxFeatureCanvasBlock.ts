@@ -62,16 +62,16 @@ export function renderBoxFeatureCanvasBlock({
     xEnd,
     visibleLeaves,
   })
-  drawText({
-    model,
-    ctx,
-    offsetX,
-    contrastScheme,
-    theme,
-    xStart,
-    xEnd,
-    visibleLeaves,
-  })
+  // drawText({
+  //   model,
+  //   ctx,
+  //   offsetX,
+  //   contrastScheme,
+  //   theme,
+  //   xStart,
+  //   xEnd,
+  //   visibleLeaves,
+  // })
 }
 
 function drawTiles({
@@ -100,6 +100,7 @@ function drawTiles({
     columns,
     colWidth,
     rowHeight,
+    loadedIntroProAnnotations,
   } = model
 
   for (const node of visibleLeaves) {
@@ -109,66 +110,59 @@ function drawTiles({
       data: { name },
     } = node
 
-    const str = columns[name]?.slice(xStart, xEnd)
-    for (let i = 0; i < str?.length; i++) {
-      const letter = str[i]
-      const color =
-        colorSchemeName === 'clustalx_protein_dynamic'
-          ? getClustalXColor(colStats[xStart + i], model, name, xStart + i)
-          : colorSchemeName === 'percent_identity_dynamic'
-            ? getPercentIdentityColor(
-                colStats[xStart + i],
-                model,
-                name,
-                xStart + i,
-              )
-            : colorScheme[letter.toUpperCase()]
-      if (bgColor) {
-        const x = i * colWidth + offsetX - (offsetX % colWidth)
-        ctx.fillStyle = color || theme.palette.background.default
-        ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
+    const str = loadedIntroProAnnotations?.[name]
+    if (str) {
+      for (const m of str.matches) {
+        console.log({ m })
+        for (const l of m.locations) {
+          for (let i = l.start - 1; i < l.end; i++) {
+            const x = i * colWidth + offsetX - (offsetX % colWidth)
+            ctx.fillStyle = 'rgba(255,0,0,0.3)'
+            ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
+          }
+        }
       }
     }
   }
 }
 
-function drawText({
-  model,
-  offsetX,
-  contrastScheme,
-  ctx,
-  visibleLeaves,
-  xStart,
-  xEnd,
-}: {
-  offsetX: number
-  model: MsaViewModel
-  contrastScheme: Record<string, string>
-  theme: Theme
-  ctx: CanvasRenderingContext2D
-  visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
-  xStart: number
-  xEnd: number
-}) {
-  const { bgColor, colorScheme, columns, colWidth, rowHeight } = model
-  if (rowHeight >= 5 && colWidth > rowHeight / 2) {
-    for (const node of visibleLeaves) {
-      const {
-        // @ts-expect-error
-        x: y,
-        data: { name },
-      } = node
-      const str = columns[name]?.slice(xStart, xEnd)
-      for (let i = 0; i < str?.length; i++) {
-        const letter = str[i]
-        const color = colorScheme[letter.toUpperCase()]
-        const contrast = contrastScheme[letter.toUpperCase()] || 'black'
-        const x = i * colWidth + offsetX - (offsetX % colWidth)
+// function drawText({
+//   model,
+//   offsetX,
+//   contrastScheme,
+//   ctx,
+//   visibleLeaves,
+//   xStart,
+//   xEnd,
+// }: {
+//   offsetX: number
+//   model: MsaViewModel
+//   contrastScheme: Record<string, string>
+//   theme: Theme
+//   ctx: CanvasRenderingContext2D
+//   visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
+//   xStart: number
+//   xEnd: number
+// }) {
+//   const { bgColor, colorScheme, columns, colWidth, rowHeight } = model
+//   if (rowHeight >= 5 && colWidth > rowHeight / 2) {
+//     for (const node of visibleLeaves) {
+//       const {
+//         // @ts-expect-error
+//         x: y,
+//         data: { name },
+//       } = node
+//       const str = columns[name]?.slice(xStart, xEnd)
+//       for (let i = 0; i < str?.length; i++) {
+//         const letter = str[i]
+//         const color = colorScheme[letter.toUpperCase()]
+//         const contrast = contrastScheme[letter.toUpperCase()] || 'black'
+//         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
-        // note: -rowHeight/4 matches +rowHeight/4 in tree
-        ctx.fillStyle = bgColor ? contrast : color || 'black'
-        ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
-      }
-    }
-  }
-}
+//         // note: -rowHeight/4 matches +rowHeight/4 in tree
+//         ctx.fillStyle = bgColor ? contrast : color || 'black'
+//         ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
+//       }
+//     }
+//   }
+// }

@@ -113,7 +113,6 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
       style={{
         height,
         position: 'relative',
-        overflow: 'hidden',
         width: treeWidth + padding,
       }}
     >

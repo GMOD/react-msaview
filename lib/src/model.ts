@@ -47,6 +47,7 @@ import { DialogQueueSessionMixin } from './DialogQueue'
 import { SelectedStructuresMixin } from './SelectedStructuresMixin'
 import { Tree } from './treeModel'
 import { MSA } from './msaModel'
+import { jsonfetch } from './fetchUtils'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -136,6 +137,10 @@ const model = types
        * id of view, randomly generated if not provided
        */
       id: ElementId,
+      /**
+       * #property
+       */
+      featureMode: false,
 
       /**
        * #property
@@ -267,10 +272,6 @@ const model = types
      * the currently mouse-hovered column
      */
     mouseCol: undefined as number | undefined,
-    /**
-     * #property
-     */
-    featureMode: false,
 
     /**
      * #volatile
@@ -310,6 +311,40 @@ const model = types
      * #volatile
      */
     annotPos: undefined as { left: number; right: number } | undefined,
+
+    annotationTracks: [
+      'A8CT47_9VIRU%2F46-492.json',
+      'B8Y0L1_9VIRU%2F39-459.json',
+      'NS1AB_TASV1%2F1126-1583.json',
+      'POL1_BAYMY%2F1647-2074.json',
+      'POL1_CPMVS%2F1197-1670.json',
+      'POLG_EMCVR%2F1853-2275.json',
+      'POLG_FCVUR%2F1272-1715.json',
+      'POLG_HAVHM%2F1765-2198.json',
+      'POLG_NVN68%2F1309-1746.json',
+      'POLG_PVYN%2F2312-2736.json',
+      'POLG_PYFV1%2F2281-2756.json',
+      'POLG_RHDVF%2F1288-1730.json',
+      'POLG_VESVA%2F1386-1832.json',
+      'Q38L14_9VIRU%2F30-445.json',
+      'Q4FCM7_9VIRU%2F30-445.json',
+      'Q6YDQ7_9VIRU%2F46-492.json',
+      'Q9DLK1_FMDVP%2F1874-2302.json',
+      'R1AB_CVHN5%2F4801-5292.json',
+      'RDRP_BPPH6%2F35-607.json',
+      'RPOA_SHFV%2F2295-2719.json',
+      'W1I6K0_9VIRU%2F30-445.json',
+    ],
+    /**
+     * #volatile
+     *
+     */
+    loadedIntroProAnnotations: undefined as
+      | undefined
+      | Record<
+          string,
+          { matches: { locations: { start: number; end: number }[] }[] }
+        >,
   }))
   .actions(self => ({
     /**
@@ -797,6 +832,10 @@ const model = types
     },
   }))
   .actions(self => ({
+    setLoadedInterProAnnotations(data: any) {
+      console.log({ data })
+      self.loadedIntroProAnnotations = data
+    },
     /**
      * #action
      */
@@ -1105,7 +1144,25 @@ const model = types
     incrementRef() {
       self.nref++
     },
+
     afterCreate() {
+      addDisposer(
+        self,
+        autorun(async () => {
+          const res = Object.fromEntries(
+            await Promise.all(
+              self.annotationTracks.map(async f => {
+                const data = await jsonfetch(`json/${f}`)
+                return [
+                  decodeURIComponent(f).replace('.json', ''),
+                  data.result.results[0],
+                ] as const
+              }),
+            ),
+          )
+          self.setLoadedInterProAnnotations(res)
+        }),
+      )
       // autorun opens treeFilehandle
       addDisposer(
         self,
