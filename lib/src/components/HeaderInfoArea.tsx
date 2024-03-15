@@ -1,14 +1,21 @@
 import React from 'react'
 import { Typography } from '@mui/material'
 import { observer } from 'mobx-react'
+import { makeStyles } from 'tss-react/mui'
 
 // locals
 import { MsaViewModel } from '../model'
 
+const useStyles = makeStyles()({
+  margin: {
+    margin: 'auto',
+  },
+})
 const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
+  const { classes } = useStyles()
   return (
-    <div style={{ width: 400, margin: 'auto' }}>
+    <div className={classes.margin}>
       {mouseOverRowName && mouseCol !== undefined ? (
         <Typography>
           {mouseOverRowName}:{model.relativePxToBp(mouseOverRowName, mouseCol)}
