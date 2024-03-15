@@ -2,7 +2,7 @@ import { types, addDisposer } from 'mobx-state-tree'
 import { autorun } from 'mobx'
 
 // locals
-import { parseGFF } from './util'
+import { parseGFF } from './parseGFF'
 
 export const UniprotTrack = types
   .model({
