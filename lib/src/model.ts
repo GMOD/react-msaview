@@ -45,6 +45,8 @@ import { UniprotTrack } from './UniprotTrack'
 import { DataModelF } from './DataModel'
 import { DialogQueueSessionMixin } from './DialogQueue'
 import { SelectedStructuresMixin } from './SelectedStructuresMixin'
+import { Tree } from './treeModel'
+import { MSA } from './msaModel'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -95,6 +97,8 @@ export type BasicTrack = IBoxTrack | ITextTrack
  * - BaseViewModel
  * - DialogQueueSessionMixin
  * - SelectedStructuresMixin
+ * - MSA
+ * - Tree
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
@@ -124,6 +128,8 @@ const model = types
     BaseViewModel,
     DialogQueueSessionMixin(),
     SelectedStructuresMixin(),
+    Tree,
+    MSA,
     types.model('MsaView', {
       /**
        * #property
@@ -145,24 +151,6 @@ const model = types
 
       /**
        * #property
-       * width of the area the tree is drawn in, px
-       */
-      treeAreaWidth: types.optional(types.number, 400),
-
-      /**
-       * #property
-       * width of the tree within the treeArea, px
-       */
-      treeWidth: types.optional(types.number, 300),
-
-      /**
-       * #getter
-       * synchronization that matches treeWidth to treeAreaWidth
-       */
-      treeWidthMatchesArea: true,
-
-      /**
-       * #property
        * height of each row, px
        */
       rowHeight: 20,
@@ -181,40 +169,9 @@ const model = types
 
       /**
        * #property
-       * right-align the labels
-       */
-      labelsAlignRight: false,
-
-      /**
-       * #property
        * width of columns, px
        */
       colWidth: 16,
-
-      /**
-       * #property
-       * use "branch length" e.g. evolutionary distance to draw tree branch
-       * lengths. if false, the layout is a "cladogram" that does not take into
-       * account evolutionary distances
-       */
-      showBranchLen: true,
-      /**
-       * #property
-       * draw MSA tiles with a background color
-       */
-      bgColor: true,
-
-      /**
-       * #property
-       * draw tree, boolean
-       */
-      drawTree: true,
-
-      /**
-       * #property
-       * draw clickable node bubbles on the tree
-       */
-      drawNodeBubbles: true,
 
       /**
        * #property
@@ -222,12 +179,6 @@ const model = types
        * screens
        */
       highResScaleFactor: 2,
-
-      /**
-       * #property
-       * default color scheme name
-       */
-      colorSchemeName: 'maeditor',
 
       /**
        * #property
@@ -256,10 +207,14 @@ const model = types
 
       /**
        * #property
-       * array of tree nodes that are 'collapsed'
+       * array of tree parent nodes that are 'collapsed'
        */
       collapsed: types.array(types.string),
 
+      /**
+       * #property
+       * array of tree leaf nodes that are 'collapsed'
+       */
       collapsed2: types.array(types.string),
       /**
        * #property
@@ -405,22 +360,6 @@ const model = types
 
     /**
      * #action
-     * set color scheme name
-     */
-    setColorSchemeName(name: string) {
-      self.colorSchemeName = name
-    },
-
-    /**
-     * #action
-     * synchronize the treewidth and treeareawidth
-     */
-    setTreeWidthMatchesArea(arg: boolean) {
-      self.treeWidthMatchesArea = arg
-    },
-
-    /**
-     * #action
      * set scroll Y-offset (px)
      */
     setScrollY(n: number) {
@@ -429,38 +368,10 @@ const model = types
 
     /**
      * #action
-     * set tree area width (px)
-     */
-    setTreeAreaWidth(n: number) {
-      self.treeAreaWidth = n
-    },
-    /**
-     * #action
-     * set tree width (px)
-     */
-    setTreeWidth(n: number) {
-      self.treeWidth = n
-    },
-
-    /**
-     * #action
      *
      */
     setCurrentAlignment(n: number) {
       self.currentAlignment = n
-    },
-
-    /**
-     * #action
-     */
-    setLabelsAlignRight(arg: boolean) {
-      self.labelsAlignRight = arg
-    },
-    /**
-     * #action
-     */
-    setDrawTree(arg: boolean) {
-      self.drawTree = arg
     },
 
     /**
@@ -489,27 +400,6 @@ const model = types
      */
     setShowOnly(node?: string) {
       self.showOnly = node
-    },
-
-    /**
-     * #action
-     */
-    setShowBranchLen(arg: boolean) {
-      self.showBranchLen = arg
-    },
-
-    /**
-     * #action
-     */
-    setBgColor(arg: boolean) {
-      self.bgColor = arg
-    },
-
-    /**
-     * #action
-     */
-    setDrawNodeBubbles(arg: boolean) {
-      self.drawNodeBubbles = arg
     },
 
     /**
