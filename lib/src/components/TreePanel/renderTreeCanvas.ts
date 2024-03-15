@@ -163,11 +163,10 @@ export function renderTreeLabels({
     } = node
 
     const displayName = treeMetadata[name]?.genome || name
-
     if (y > offsetY - extendBounds && y < offsetY + by + extendBounds) {
       // note: +rowHeight/4 matches with -rowHeight/4 in msa
       const yp = y + rowHeight / 4
-      const xp = showBranchLen ? len : x
+      const xp = (showBranchLen ? len : x) || 0
 
       const { width } = ctx.measureText(displayName)
       const height = ctx.measureText('M').width // use an 'em' for height
@@ -175,17 +174,7 @@ export function renderTreeLabels({
       const hasStructure = structures[name]
       ctx.fillStyle = hasStructure ? 'blue' : theme.palette.text.primary
 
-      if (!drawTree && !labelsAlignRight) {
-        ctx.fillText(displayName, 0, yp)
-        clickMap?.insert({
-          minX: 0 + ml,
-          maxX: width + ml,
-          minY: yp - height,
-          maxY: yp,
-          name,
-          id,
-        })
-      } else if (labelsAlignRight) {
+      if (labelsAlignRight) {
         const smallPadding = 2
         const offset = treeAreaWidthMinusMargin - smallPadding
         if (drawTree && !noTree) {
