@@ -17,6 +17,7 @@ const MetadataDialog = lazy(() => import('./dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('./dialogs/TracklistDialog'))
 
 const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
+  const { featureMode } = model
   return (
     <CascadingMenuButton
       menuItems={[
@@ -55,6 +56,12 @@ const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
           onClick: () =>
             model.queueDialog(onClose => [TracklistDialog, { model, onClose }]),
           icon: List,
+        },
+        {
+          label: 'Feature mode',
+          onClick: () => model.setFeatureMode(!featureMode),
+          checked: featureMode,
+          type: 'checkbox',
         },
       ]}
     >

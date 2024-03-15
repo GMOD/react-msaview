@@ -267,6 +267,10 @@ const model = types
      * the currently mouse-hovered column
      */
     mouseCol: undefined as number | undefined,
+    /**
+     * #property
+     */
+    featureMode: false,
 
     /**
      * #volatile
@@ -331,6 +335,12 @@ const model = types
     setMousePos(col?: number, row?: number) {
       self.mouseCol = col
       self.mouseRow = row
+    },
+    /**
+     * #action
+     */
+    setFeatureMode(arg: boolean) {
+      self.featureMode = arg
     },
 
     /**
