@@ -229,6 +229,7 @@ export function renderTreeCanvas({
   const {
     noTree,
     drawTree,
+    drawLabels,
     drawNodeBubbles,
     treeWidth,
     highResScaleFactor,
@@ -277,7 +278,7 @@ export function renderTreeCanvas({
     }
   }
 
-  if (rowHeight >= 5) {
+  if (rowHeight >= 5 && drawLabels) {
     renderTreeLabels({
       ctx,
       offsetY,

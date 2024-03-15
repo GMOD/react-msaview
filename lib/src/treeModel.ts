@@ -9,6 +9,10 @@ export const Tree = types
   .model({
     /**
      * #property
+     */
+    drawLabels: true,
+    /**
+     * #property
      * right-align the labels
      */
     labelsAlignRight: false,
@@ -100,5 +104,11 @@ export const Tree = types
      */
     setDrawNodeBubbles(arg: boolean) {
       self.drawNodeBubbles = arg
+    },
+    /**
+     * #action
+     */
+    setDrawLabels(arg: boolean) {
+      self.drawLabels = arg
     },
   }))

@@ -54,7 +54,11 @@ export interface RowDetails {
   name: string
   range?: { start: number; end: number }
 }
-
+interface Accession {
+  accession: string
+  name: string
+  description: string
+}
 export interface BasicTrackModel {
   id: string
   name: string
@@ -343,7 +347,14 @@ const model = types
       | undefined
       | Record<
           string,
-          { matches: { locations: { start: number; end: number }[] }[] }
+          {
+            matches: {
+              signature: {
+                entry?: { name: string; description: string; accession: string }
+              }
+              locations: { start: number; end: number }[]
+            }[]
+          }
         >,
   }))
   .actions(self => ({
@@ -1121,6 +1132,24 @@ const model = types
      */
     get totalTrackAreaHeight() {
       return sum(self.turnedOnTracks.map(r => r.model.height))
+    },
+    /**
+     * #getter
+     */
+    get interProTerms() {
+      const types = new Map<string, Accession>()
+      if (self.loadedIntroProAnnotations) {
+        for (const str of Object.values(self.loadedIntroProAnnotations)) {
+          for (const { signature } of str.matches) {
+            const { entry } = signature
+            if (entry) {
+              const { name, accession, description } = entry
+              types.set(accession, { name, accession, description })
+            }
+          }
+        }
+      }
+      return types
     },
   }))
   .actions(self => ({

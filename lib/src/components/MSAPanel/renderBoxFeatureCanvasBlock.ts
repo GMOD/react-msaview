@@ -79,9 +79,6 @@ function drawTiles({
   offsetX,
   ctx,
   visibleLeaves,
-  theme,
-  xStart,
-  xEnd,
 }: {
   model: MsaViewModel
   offsetX: number
@@ -92,16 +89,8 @@ function drawTiles({
   xStart: number
   xEnd: number
 }) {
-  const {
-    bgColor,
-    colorSchemeName,
-    colorScheme,
-    colStats,
-    columns,
-    colWidth,
-    rowHeight,
-    loadedIntroProAnnotations,
-  } = model
+  const { interProTerms, colWidth, rowHeight, loadedIntroProAnnotations } =
+    model
 
   for (const node of visibleLeaves) {
     const {
@@ -111,15 +100,22 @@ function drawTiles({
     } = node
 
     const str = loadedIntroProAnnotations?.[name]
+
+    let j = 0
     if (str) {
       for (const m of str.matches) {
-        console.log({ m })
-        for (const l of m.locations) {
+        console.log(m.locations)
+        for (const l of m.locations.sort((a, b) => {
+          const l1 = a.end - a.start
+          const l2 = b.end - b.start
+          return l1 - l2
+        })) {
           for (let i = l.start - 1; i < l.end; i++) {
-            const x = i * colWidth + offsetX - (offsetX % colWidth)
+            const x = i * colWidth - offsetX
             ctx.fillStyle = 'rgba(255,0,0,0.3)'
-            ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
+            ctx.fillRect(x, y - rowHeight + j * 2, colWidth, 2)
           }
+          j++
         }
       }
     }

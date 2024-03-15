@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, lazy, Suspense } from 'react'
+import React, { useState, useRef, useEffect, lazy } from 'react'
 import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 import { IconButton, Menu, MenuItem } from '@mui/material'
@@ -10,6 +10,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 // locals
 import { MsaViewModel } from '../model'
 
+// lazies
 const TrackInfoDialog = lazy(() => import('./dialogs/TrackInfoDialog'))
 
 const useStyles = makeStyles()({
@@ -27,8 +28,7 @@ export const TrackLabel = observer(function ({
   track: any
 }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>()
-  const [trackInfoDialogOpen, setTrackInfoDialogOpen] = useState(false)
-  const { rowHeight, treeAreaWidth: width } = model
+  const { drawLabels, rowHeight, treeAreaWidth: width } = model
   const {
     height,
     model: { name },
@@ -46,7 +46,7 @@ export const TrackLabel = observer(function ({
         fontSize: trackLabelHeight,
       }}
     >
-      {name}{' '}
+      {drawLabels ? name : ''}{' '}
       <IconButton
         className={classes.button}
         style={{
@@ -76,21 +76,16 @@ export const TrackLabel = observer(function ({
           <MenuItem
             dense
             onClick={() => {
-              setTrackInfoDialogOpen(true)
+              model.queueDialog(onClose => [
+                TrackInfoDialog,
+                { onClose, model: track.model },
+              ])
               setAnchorEl(undefined)
             }}
           >
             Get info
           </MenuItem>
         </Menu>
-      ) : null}
-      {trackInfoDialogOpen ? (
-        <Suspense fallback={null}>
-          <TrackInfoDialog
-            model={track.model}
-            onClose={() => setTrackInfoDialogOpen(false)}
-          />
-        </Suspense>
       ) : null}
     </div>
   )

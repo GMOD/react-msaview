@@ -1,5 +1,5 @@
 import React, { lazy } from 'react'
-import { IconButton } from '@mui/material'
+import { Button, IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
@@ -15,8 +15,12 @@ import HeaderInfoArea from './HeaderInfoArea'
 import HeaderMenu from './HeaderMenu'
 
 const AboutDialog = lazy(() => import('./dialogs/AboutDialog'))
+const FeatureTypeFilterDialog = lazy(
+  () => import('./dialogs/FeatureTypeFilterDialog'),
+)
 
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
+  const { featureMode } = model
   return (
     <div style={{ display: 'flex' }}>
       <HeaderMenu model={model} />
@@ -29,6 +33,18 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       >
         <Help />
       </IconButton>
+      {featureMode ? (
+        <Button
+          onClick={() => {
+            model.queueDialog(onClose => [
+              FeatureTypeFilterDialog,
+              { onClose, model },
+            ])
+          }}
+        >
+          Feature types
+        </Button>
+      ) : null}
     </div>
   )
 })

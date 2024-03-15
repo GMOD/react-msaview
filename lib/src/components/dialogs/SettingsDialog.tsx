@@ -69,6 +69,7 @@ const TreeSettings = observer(function TreeSettings({
   const { classes } = useStyles()
   const {
     drawTree,
+    drawLabels,
     drawNodeBubbles,
     labelsAlignRight,
     noTree,
@@ -101,6 +102,12 @@ const TreeSettings = observer(function TreeSettings({
         checked={labelsAlignRight}
         onChange={() => model.setLabelsAlignRight(!labelsAlignRight)}
         label="Tree labels align right?"
+      />
+
+      <Checkbox2
+        checked={drawLabels}
+        onChange={() => model.setDrawLabels(!drawLabels)}
+        label="Draw labels"
       />
       {!noTree ? (
         <div>

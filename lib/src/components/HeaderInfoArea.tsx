@@ -9,6 +9,7 @@ import { MsaViewModel } from '../model'
 const useStyles = makeStyles()({
   margin: {
     margin: 'auto',
+    marginLeft: 10,
   },
 })
 const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
