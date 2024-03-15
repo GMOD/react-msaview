@@ -2,7 +2,7 @@ import { textfetch, timeout } from './fetchUtils'
 
 const base = `https://www.ebi.ac.uk/Tools/services/rest/`
 
-async function runEmbossMatcher({
+async function runInterProScan({
   seq,
   onProgress,
 }: {
@@ -21,7 +21,7 @@ async function runEmbossMatcher({
     onProgress,
   })
   return {
-    gff: await textfetch(`${base}/iprscan5/run/${jobId}/gff`),
+    gff: await textfetch(`${base}/iprscan5/result/${jobId}/gff`),
   }
 }
 
@@ -36,7 +36,7 @@ async function wait({
   while (true) {
     for (let i = 0; i < 10; i++) {
       await timeout(1000)
-      onProgress(`Re-checking alignment to PDB seq1,seq2 in... ${10 - i}`)
+      onProgress(`Checking startus... ${10 - i}`)
     }
     const result = await textfetch(`${base}/iprscan5/status/${jobId}`)
 
@@ -57,7 +57,7 @@ export async function launchInterProScan({
 }) {
   onProgress(`Launching ${algorithm} MSA...`)
   if (algorithm === 'interproscan') {
-    return runEmbossMatcher({ seq, onProgress })
+    return runInterProScan({ seq, onProgress })
   } else {
     throw new Error('unknown algorithm')
   }
