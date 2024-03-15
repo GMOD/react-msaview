@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState } from 'react'
+import React, { lazy } from 'react'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
@@ -20,7 +20,6 @@ const ZoomControls = observer(function ZoomControls({
   model: MsaViewModel
 }) {
   const { colWidth, rowHeight } = model
-  const [exportSvgDialogOpen, setExportSvgDialogOpen] = useState(false)
   return (
     <>
       <IconButton
@@ -42,22 +41,6 @@ const ZoomControls = observer(function ZoomControls({
       <CascadingMenuButton
         menuItems={[
           {
-            label: 'Decrease row height',
-            onClick: () => model.setRowHeight(Math.max(1.5, rowHeight * 0.75)),
-          },
-          {
-            label: 'Increase row height',
-            onClick: () => model.setRowHeight(rowHeight * 1.5),
-          },
-          {
-            label: 'Decrease col width',
-            onClick: () => model.setColWidth(Math.max(1, colWidth * 0.75)),
-          },
-          {
-            label: 'Increase col width',
-            onClick: () => model.setColWidth(colWidth * 1.5),
-          },
-          {
             label: 'Reset zoom to default',
             onClick: () => {
               model.setColWidth(16)
@@ -66,20 +49,16 @@ const ZoomControls = observer(function ZoomControls({
           },
           {
             label: 'Export SVG',
-            onClick: () => setExportSvgDialogOpen(true),
+            onClick: () =>
+              model.queueDialog(onClose => [
+                ExportSVGDialog,
+                { onClose, model },
+              ]),
           },
         ]}
       >
         <MoreVert />
       </CascadingMenuButton>
-      {exportSvgDialogOpen ? (
-        <Suspense fallback={null}>
-          <ExportSVGDialog
-            model={model}
-            onClose={() => setExportSvgDialogOpen(false)}
-          />
-        </Suspense>
-      ) : null}
     </>
   )
 })

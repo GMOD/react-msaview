@@ -192,8 +192,8 @@ const SettingsDialog = observer(function ({
   onClose: () => void
 }) {
   return (
-    <Dialog open onClose={() => onClose()} title="Settings">
-      <DialogContent>
+    <Dialog open onClose={() => onClose()} title="Settings" maxWidth="xl">
+      <DialogContent style={{ width: '80em' }}>
         <SettingsContent model={model} />
         <DialogActions>
           <Button onClick={() => onClose()} variant="contained" color="primary">

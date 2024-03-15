@@ -8,7 +8,7 @@ import { MsaViewModel } from '../model'
 const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
   return (
-    <div>
+    <div style={{ width: 400, margin: 'auto' }}>
       {mouseOverRowName && mouseCol !== undefined ? (
         <Typography>
           {mouseOverRowName}:{model.relativePxToBp(mouseOverRowName, mouseCol)}

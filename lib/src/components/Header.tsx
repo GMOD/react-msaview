@@ -1,6 +1,7 @@
-import React, { Suspense, lazy, useState } from 'react'
+import React, { lazy } from 'react'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
+import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../model'
@@ -11,6 +12,7 @@ import Settings from '@mui/icons-material/Settings'
 import Help from '@mui/icons-material/Help'
 import Assignment from '@mui/icons-material/Assignment'
 import List from '@mui/icons-material/List'
+import Menu from '@mui/icons-material/Menu'
 
 // locals
 import ZoomControls from './ZoomControls'
@@ -23,69 +25,67 @@ const MetadataDialog = lazy(() => import('./dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('./dialogs/TracklistDialog'))
 
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
-  const [settingsDialogViz, setSettingsDialogViz] = useState(false)
-  const [aboutDialogViz, setAboutDialogViz] = useState(false)
-  const [detailsDialogViz, setMetadataDialogViz] = useState(false)
-  const [tracklistDialogViz, setTracklistDialogViz] = useState(false)
-
   return (
     <div style={{ display: 'flex' }}>
-      <IconButton
-        onClick={async () => {
-          try {
-            model.setData({ tree: '', msa: '' })
-            model.clearSelectedStructures()
-            model.setScrollY(0)
-            model.setScrollX(0)
-            model.setCurrentAlignment(0)
-            await model.setTreeFilehandle(undefined)
-            await model.setMSAFilehandle(undefined)
-          } catch (e) {
-            console.error(e)
-            model.setError(e)
-          }
-        }}
+      <CascadingMenuButton
+        menuItems={[
+          {
+            label: 'Return to import form',
+            icon: FolderOpen,
+            onClick: async () => {
+              try {
+                model.setData({ tree: '', msa: '' })
+                model.clearSelectedStructures()
+                model.setScrollY(0)
+                model.setScrollX(0)
+                model.setCurrentAlignment(0)
+                await model.setTreeFilehandle(undefined)
+                await model.setMSAFilehandle(undefined)
+              } catch (e) {
+                console.error(e)
+                model.setError(e)
+              }
+            },
+          },
+          {
+            label: 'Settings',
+            onClick: () =>
+              model.queueDialog(onClose => [
+                SettingsDialog,
+                { model, onClose },
+              ]),
+            icon: Settings,
+          },
+          {
+            label: 'Metadata',
+            onClick: () =>
+              model.queueDialog(onClose => [
+                MetadataDialog,
+                { model, onClose },
+              ]),
+            icon: Assignment,
+          },
+          {
+            label: 'Tracks',
+            onClick: () =>
+              model.queueDialog(onClose => [
+                TracklistDialog,
+                { model, onClose },
+              ]),
+            icon: List,
+          },
+        ]}
       >
-        <FolderOpen />
-      </IconButton>
-      <IconButton onClick={() => setSettingsDialogViz(true)}>
-        <Settings />
-      </IconButton>
-      <IconButton onClick={() => setMetadataDialogViz(true)}>
-        <Assignment />
-      </IconButton>
-      <IconButton onClick={() => setTracklistDialogViz(true)}>
-        <List />
-      </IconButton>
-      <Suspense fallback={null}>
-        {settingsDialogViz ? (
-          <SettingsDialog
-            model={model}
-            onClose={() => setSettingsDialogViz(false)}
-          />
-        ) : null}
-        {aboutDialogViz ? (
-          <AboutDialog onClose={() => setAboutDialogViz(false)} />
-        ) : null}
-        {detailsDialogViz ? (
-          <MetadataDialog
-            model={model}
-            onClose={() => setMetadataDialogViz(false)}
-          />
-        ) : null}
-
-        {tracklistDialogViz ? (
-          <TracklistDialog
-            model={model}
-            onClose={() => setTracklistDialogViz(false)}
-          />
-        ) : null}
-      </Suspense>
+        <Menu />
+      </CascadingMenuButton>
+      <Spacer />
       <MultiAlignmentSelector model={model} />
       <ZoomControls model={model} />
       <HeaderInfoArea model={model} />
       <Spacer />
-      <IconButton onClick={() => setAboutDialogViz(true)}>
+      <IconButton
+        onClick={() => model.queueDialog(onClose => [AboutDialog, { onClose }])}
+      >
         <Help />
       </IconButton>
     </div>
