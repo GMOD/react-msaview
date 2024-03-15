@@ -7,7 +7,7 @@ import { MsaViewModel } from '../../model'
 import MSABlock from './MSABlock'
 import Loading from './Loading'
 
-const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
+const BlockCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const { MSA, msaFilehandle, height, msaAreaWidth, blocks2d } = model
   const ref = useRef<HTMLDivElement>(null)
   // wheel
@@ -136,4 +136,4 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
   )
 })
 
-export default MSACanvas
+export default BlockCanvas

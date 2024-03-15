@@ -769,6 +769,9 @@ const model = types
      * #getter
      */
     get columns() {
+      console.log({
+        rows: this.rows.map(r => `>${r[0]}\n${r[1].replaceAll('-', '')}`),
+      })
       return Object.fromEntries(
         this.rows.map((row, index) => [row[0], this.columns2d[index]] as const),
       )

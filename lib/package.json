@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "react-msaview",
   "author": "Colin",
   "version": "3.1.7",
