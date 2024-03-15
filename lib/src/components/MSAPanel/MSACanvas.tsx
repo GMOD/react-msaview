@@ -4,7 +4,7 @@ import normalizeWheel from 'normalize-wheel'
 
 // locals
 import { MsaViewModel } from '../../model'
-import MSABlock from './MSABlock'
+import MSACanvasBlock from './MSACanvasBlock'
 import Loading from './Loading'
 
 const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
@@ -124,7 +124,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
         <Loading />
       ) : (
         blocks2d.map(([bx, by]) => (
-          <MSABlock
+          <MSACanvasBlock
             key={`${bx}_${by}`}
             model={model}
             offsetX={bx}

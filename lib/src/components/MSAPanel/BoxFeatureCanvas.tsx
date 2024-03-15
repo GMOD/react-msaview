@@ -4,7 +4,7 @@ import normalizeWheel from 'normalize-wheel'
 
 // locals
 import { MsaViewModel } from '../../model'
-import MSABlock from './MSABlock'
+import BoxFeatureCanvasBlock from './BoxFeatureCanvasBlock'
 import Loading from './Loading'
 
 const BlockCanvas = observer(function ({ model }: { model: MsaViewModel }) {
@@ -124,7 +124,7 @@ const BlockCanvas = observer(function ({ model }: { model: MsaViewModel }) {
         <Loading />
       ) : (
         blocks2d.map(([bx, by]) => (
-          <MSABlock
+          <BoxFeatureCanvasBlock
             key={`${bx}_${by}`}
             model={model}
             offsetX={bx}
