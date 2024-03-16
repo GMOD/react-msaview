@@ -821,8 +821,8 @@ const model = types
     },
   }))
   .actions(self => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setLoadedInterProAnnotations(data: any) {
-      console.log({ data })
       self.loadedIntroProAnnotations = data
     },
 
@@ -950,6 +950,7 @@ const model = types
     get tracks(): BasicTrack[] {
       return this.adapterTrackModels
     },
+
     /**
      * #getter
      */
@@ -967,43 +968,10 @@ const model = types
 
     /**
      * #method
+     * return a row-specific sequence coordinate, skipping gaps, given a global
+     * coordinate
      */
-    rowSpecificBpToPx(rowName: string, position: number) {
-      const { rowNames, rows } = self
-      const index = rowNames.indexOf(rowName)
-      const row = rows[index][1]
-      const details = self.getRowData(rowName)
-      const offset = details.range?.start || 0
-      const current = position - offset
-      const s = new Set(self.blanks)
-
-      if (current < 0) {
-        return 0
-      }
-
-      let j = 0
-      let i = 0
-
-      for (; i < row.length; i++) {
-        if (row[i] !== '-' && j++ === current) {
-          break
-        }
-      }
-
-      let count = 0
-      for (let k = 0; k < row.length; k++) {
-        if (s.has(k) && k < i + 1) {
-          count++
-        }
-      }
-
-      return i - count
-    },
-
-    /**
-     * #method
-     */
-    globalCoordToRowSpecificCoord(rowName: string, position: number) {
+    globalCoordToRowSpecificSeqCoord(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
       if (index !== -1 && rows[index]) {
@@ -1024,8 +992,10 @@ const model = types
 
     /**
      * #method
+     * return a global coordinate given a row-specific sequence coordinate
+     * which does not not include gaps
      */
-    globalCoordToRowSpecificCoord2(rowName: string, position: number) {
+    seqCoordToRowSpecificGlobalCoord(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
       if (index !== -1 && rows[index]) {
@@ -1102,7 +1072,9 @@ const model = types
           const res = Object.fromEntries(
             await Promise.all(
               self.annotationTracks.map(async f => {
-                const data = await jsonfetch(`json/${f}`)
+                const data = await jsonfetch(
+                  `https://jbrowse.org/demos/interproscan/json/${encodeURIComponent(f)}`,
+                )
                 return [
                   decodeURIComponent(f).replace('.json', ''),
                   data.result.results[0],

@@ -20,7 +20,8 @@ const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
     <div className={classes.margin}>
       {mouseOverRowName && mouseCol !== undefined ? (
         <Typography>
-          {mouseOverRowName}:{model.globalCoordToRowSpecificCoord(mouseOverRowName, mouseCol)}
+          {mouseOverRowName}:
+          {model.globalCoordToRowSpecificSeqCoord(mouseOverRowName, mouseCol)}
         </Typography>
       ) : null}
     </div>

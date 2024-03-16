@@ -2,36 +2,26 @@
 import { MsaViewModel } from '../../model'
 import { NodeWithIdsAndLength } from '../../util'
 import { HierarchyNode } from 'd3-hierarchy'
-import { Theme } from '@mui/material'
 
 export function renderBoxFeatureCanvasBlock({
   model,
   offsetX,
   offsetY,
   ctx,
-  theme,
   highResScaleFactorOverride,
   blockSizeXOverride,
   blockSizeYOverride,
 }: {
   offsetX: number
   offsetY: number
-  theme: Theme
   model: MsaViewModel
-  contrastScheme: Record<string, string>
   ctx: CanvasRenderingContext2D
   highResScaleFactorOverride?: number
   blockSizeXOverride?: number
   blockSizeYOverride?: number
 }) {
-  const {
-    hierarchy,
-    colWidth,
-    blockSize,
-    rowHeight,
-    fontSize,
-    highResScaleFactor,
-  } = model
+  const { hierarchy, blockSize, rowHeight, fontSize, highResScaleFactor } =
+    model
   const k = highResScaleFactorOverride || highResScaleFactor
   const bx = blockSizeXOverride || blockSize
   const by = blockSizeYOverride || blockSize
@@ -43,7 +33,6 @@ export function renderBoxFeatureCanvasBlock({
   ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
 
   const leaves = hierarchy.leaves()
-
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
   const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
   const visibleLeaves = leaves.slice(yStart, yEnd)
@@ -72,6 +61,8 @@ function drawTiles({
     loadedIntroProAnnotations,
   } = model
 
+  const keys = interProTerms.keys()
+
   for (const node of visibleLeaves) {
     const {
       // @ts-expect-error
@@ -90,8 +81,8 @@ function drawTiles({
           const l2 = b.end - b.start
           return l1 - l2
         })) {
-          const m1 = model.globalCoordToRowSpecificCoord2(name, l.start - 1)
-          const m2 = model.globalCoordToRowSpecificCoord2(name, l.end)
+          const m1 = model.seqCoordToRowSpecificGlobalCoord(name, l.start - 1)
+          const m2 = model.seqCoordToRowSpecificGlobalCoord(name, l.end)
           console.log({
             name,
             s: l.start,

@@ -6,7 +6,6 @@ import { observer } from 'mobx-react'
 // locals
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock'
 import { MsaViewModel } from '../../model'
-import { colorContrast } from '../../util'
 
 const BoxFeatureCanvasBlock = observer(function ({
   model,
@@ -22,18 +21,11 @@ const BoxFeatureCanvasBlock = observer(function ({
     rowHeight,
     scrollY,
     scrollX,
-    colorScheme,
     blockSize,
     mouseClickCol,
     mouseClickRow,
     highResScaleFactor,
   } = model
-  const theme = useTheme()
-
-  const contrastScheme = useMemo(
-    () => colorContrast(colorScheme, theme),
-    [colorScheme, theme],
-  )
 
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
@@ -42,15 +34,13 @@ const BoxFeatureCanvasBlock = observer(function ({
       ? autorun(() => {
           renderBoxFeatureCanvasBlock({
             ctx,
-            theme,
             offsetX,
             offsetY,
-            contrastScheme,
             model,
           })
         })
       : undefined
-  }, [model, offsetX, offsetY, theme, contrastScheme])
+  }, [model, offsetX, offsetY])
   return (
     <canvas
       ref={ref}
