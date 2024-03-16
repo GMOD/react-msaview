@@ -1,7 +1,10 @@
+import { colord } from 'colord'
+import { HierarchyNode } from 'd3-hierarchy'
+
 // locals
 import { MsaViewModel } from '../../model'
 import { NodeWithIdsAndLength } from '../../util'
-import { HierarchyNode } from 'd3-hierarchy'
+import palettes from './ggplotPalettes'
 
 export function renderBoxFeatureCanvasBlock({
   model,
@@ -60,8 +63,16 @@ function drawTiles({
     rowHeight,
     loadedIntroProAnnotations,
   } = model
-
-  const keys = interProTerms.keys()
+  const arr = [...interProTerms.keys()]
+  let i = 0
+  const map = {} as Record<string, string>
+  const stroke = {} as Record<string, string>
+  for (const key of arr) {
+    const k = Math.min(arr.length - 1, palettes.length - 1)
+    map[key] = palettes[k][i]
+    stroke[key] = colord(palettes[k][i]).darken(0.1).toHex()
+    i++
+  }
 
   for (const node of visibleLeaves) {
     const {
@@ -76,27 +87,22 @@ function drawTiles({
     let j = 0
     if (str) {
       for (const m of str.matches) {
-        for (const l of m.locations.sort((a, b) => {
-          const l1 = a.end - a.start
-          const l2 = b.end - b.start
-          return l1 - l2
-        })) {
-          const m1 = model.seqCoordToRowSpecificGlobalCoord(name, l.start - 1)
-          const m2 = model.seqCoordToRowSpecificGlobalCoord(name, l.end)
-          console.log({
-            name,
-            s: l.start,
-            e: l.end,
-            m1,
-            m2,
-            len: m2 - m1,
-            w: colWidth * (m2 - m1),
-            str: str2?.length,
-          })
-          const x = m1 * colWidth
-          ctx.fillStyle = 'rgba(255,0,0,0.3)'
-          ctx.fillRect(x, y - rowHeight + j * 5, colWidth * (m2 - m1), 5)
-          j++
+        if (m.signature.entry) {
+          for (const l of m.locations.sort((a, b) => {
+            const l1 = a.end - a.start
+            const l2 = b.end - b.start
+            return l1 - l2
+          })) {
+            const m1 = model.seqCoordToRowSpecificGlobalCoord(name, l.start - 1)
+            const m2 = model.seqCoordToRowSpecificGlobalCoord(name, l.end)
+            const x = m1 * colWidth
+            ctx.fillStyle = map[m.signature.entry?.accession]
+            ctx.strokeStyle = stroke[m.signature.entry?.accession]
+            const h = 4
+            ctx.fillRect(x, y - rowHeight + j * h, colWidth * (m2 - m1), h)
+            ctx.strokeRect(x, y - rowHeight + j * h, colWidth * (m2 - m1), h)
+            j++
+          }
         }
       }
     }
