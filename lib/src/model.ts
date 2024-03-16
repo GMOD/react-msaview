@@ -514,12 +514,7 @@ const model = types
         }),
       }
     },
-    /**
-     * #getter
-     */
-    get currentAlignmentName() {
-      return this.alignmentNames[self.currentAlignment]
-    },
+
     /**
      * #getter
      */
@@ -593,13 +588,6 @@ const model = types
       return self.mouseRow !== undefined
         ? this.rowNames[self.mouseRow]
         : undefined
-    },
-
-    /**
-     * #method
-     */
-    getMouseOverResidue(rowName: string) {
-      return this.columns[rowName]
     },
 
     /**
@@ -847,26 +835,6 @@ const model = types
       self.scrollX = clamp(self.maxScrollX, n, 0)
     },
 
-    /**
-     * #action
-     */
-    setMouseoveredColumn(n: number, chain: string, file: string) {
-      let j = 0
-      let i = 0
-      const { id } = self.inverseStructures[file.slice(0, -4)] || {}
-      const row = self.MSA?.getRow(id)
-
-      if (row) {
-        for (i = 0; i < row.length && j < n; i++) {
-          if (row[i] !== '-') {
-            j++
-          }
-        }
-        self.mouseCol = j + 1
-      } else {
-        self.mouseCol = undefined
-      }
-    },
     /**
      * #action
      */
