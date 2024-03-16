@@ -25,9 +25,7 @@ const MetadataDialog = observer(function ({
       <DialogContent>
         <Attributes attributes={header} />
         <BaseCard title="sequence">
-          <SequenceTextArea
-            str={model.rows.map(r => `>${r[0]}\n${r[1]}`).join('\n')}
-          />
+          <SequenceTextArea str={model.rows} />
         </BaseCard>
       </DialogContent>
     </Dialog>

@@ -17,9 +17,7 @@ const TreeMenu = observer(function ({
   model: MsaViewModel
   onClose: () => void
 }) {
-  const { selectedStructures, collapsed, collapsed2, structures } = model
-  const nodeDetails = node ? model.getRowData(node.name) : undefined
-
+  const { collapsed, collapsed2 } = model
   return (
     <Menu
       anchorReference="anchorPosition"
@@ -72,38 +70,6 @@ const TreeMenu = observer(function ({
           ? 'Show node'
           : 'Hide node'}
       </MenuItem>
-
-      {structures[node.name]?.map(entry =>
-        !selectedStructures.some(n => n.id === node.name) ? (
-          <MenuItem
-            key={JSON.stringify(entry)}
-            dense
-            onClick={() => {
-              model.addStructureToSelection({
-                structure: entry,
-                id: node.name,
-              })
-              onClose()
-            }}
-          >
-            Add PDB to selection ({entry.pdb})
-          </MenuItem>
-        ) : (
-          <MenuItem
-            key={JSON.stringify(entry)}
-            dense
-            onClick={() => {
-              model.removeStructureFromSelection({
-                structure: entry,
-                id: node.name,
-              })
-              onClose()
-            }}
-          >
-            Remove PDB from selection ({entry.pdb})
-          </MenuItem>
-        ),
-      )}
     </Menu>
   )
 })

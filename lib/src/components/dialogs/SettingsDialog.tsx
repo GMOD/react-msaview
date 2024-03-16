@@ -4,11 +4,8 @@ import { makeStyles } from 'tss-react/mui'
 import { Dialog } from '@jbrowse/core/ui'
 import {
   Button,
-  Checkbox,
   DialogActions,
   DialogContent,
-  FormControlLabel,
-  FormControlLabelProps,
   MenuItem,
   Slider,
   TextField,
@@ -17,6 +14,7 @@ import {
 
 import { MsaViewModel } from '../../model'
 import colorSchemes from '../../colorSchemes'
+import Checkbox2 from '../Checkbox2'
 
 const useStyles = makeStyles()(theme => ({
   field: {
@@ -26,31 +24,6 @@ const useStyles = makeStyles()(theme => ({
     display: 'flex',
   },
 }))
-
-function FormControlLabel2(rest: FormControlLabelProps) {
-  return (
-    <div>
-      <FormControlLabel {...rest} />
-    </div>
-  )
-}
-
-function Checkbox2({
-  checked,
-  label,
-  onChange,
-}: {
-  checked: boolean
-  label: string
-  onChange: () => void
-}) {
-  return (
-    <FormControlLabel2
-      control={<Checkbox checked={checked} onChange={onChange} />}
-      label={label}
-    />
-  )
-}
 
 const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
   return (

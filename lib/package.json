@@ -1,10 +1,10 @@
 {
-  "type": "module",
   "name": "react-msaview",
   "author": "Colin",
   "version": "3.1.7",
   "license": "MIT",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "files": [
     "dist",
     "bundle",
