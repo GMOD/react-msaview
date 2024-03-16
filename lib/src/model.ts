@@ -960,14 +960,6 @@ const model = types
 
     /**
      * #method
-     * returns coordinate in the current relative coordinate scheme
-     */
-    pxToBp(coord: number) {
-      return Math.floor((coord - self.scrollX) / self.colWidth)
-    },
-
-    /**
-     * #method
      * return a row-specific sequence coordinate, skipping gaps, given a global
      * coordinate
      */
