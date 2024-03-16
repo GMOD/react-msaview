@@ -131,7 +131,7 @@ export function renderTreeLabels({
   blockSizeYOverride?: number
 }) {
   const {
-    rowHeight,
+    fontSize,
     showBranchLen,
     treeMetadata,
     hierarchy,
@@ -141,7 +141,7 @@ export function renderTreeLabels({
     structures,
     treeAreaWidth,
     treeAreaWidthMinusMargin,
-    marginLeft: ml,
+    marginLeft,
     noTree,
   } = model
   const by = blockSizeYOverride || blockSize
@@ -165,7 +165,7 @@ export function renderTreeLabels({
     const displayName = treeMetadata[name]?.genome || name
     if (y > offsetY - extendBounds && y < offsetY + by + extendBounds) {
       // note: +rowHeight/4 matches with -rowHeight/4 in msa
-      const yp = y + rowHeight / 4
+      const yp = y + fontSize / 4
       const xp = (showBranchLen ? len : x) || 0
 
       const { width } = ctx.measureText(displayName)
@@ -195,8 +195,8 @@ export function renderTreeLabels({
       } else {
         ctx.fillText(displayName, xp + d, yp)
         clickMap?.insert({
-          minX: xp + d + ml,
-          maxX: xp + d + width + ml,
+          minX: xp + d + marginLeft,
+          maxX: xp + d + width + marginLeft,
           minY: yp - height,
           maxY: yp,
           name,

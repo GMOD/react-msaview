@@ -3,15 +3,11 @@ import { Dialog } from '@jbrowse/core/ui'
 import { DialogContent } from '@mui/material'
 import { MsaViewModel } from '../../model'
 
-// 4 colors:
-// 15 105 195 285 375
-// 15 105 195 285
 function p(n: number) {
   const hues = Array.from(
     { length: n + 1 },
     (_, i) => 15 + (i * (375 - 15)) / n,
   )
-  console.log({ hues }, n, hues.length)
   return hues.map(h => `lch(65% 100 ${h})`).slice(0, n)
 }
 
@@ -24,7 +20,7 @@ export default function FeatureTypeDialog({
 }) {
   const { interProTerms } = model
   const [val, setVal] = useState(false)
-  const palette = p(4) //[...interProTerms.values()].length)
+  const palette = p([...interProTerms.values()].length)
   return (
     <Dialog onClose={() => onClose()} open title="Feature types" maxWidth="xl">
       <DialogContent>

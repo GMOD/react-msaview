@@ -745,22 +745,22 @@ returns coordinate in the current relative coordinate scheme
 pxToBp: (coord: number) => number
 ```
 
-#### method: relativePxToBp
+#### method: globalCoordToRowSpecificCoord
 
 
 
 ```js
 // type signature
-relativePxToBp: (rowName: string, position: number) => number
+globalCoordToRowSpecificCoord: (rowName: string, position: number) => number
 ```
 
-#### method: relativePxToBp2
+#### method: globalCoordToRowSpecificCoord2
 
 
 
 ```js
 // type signature
-relativePxToBp2: (rowName: string, position: number) => number
+globalCoordToRowSpecificCoord2: (rowName: string, position: number) => number
 ```
 
 #### method: rowSpecificBpToPx

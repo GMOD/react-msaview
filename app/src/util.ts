@@ -10,7 +10,7 @@ export function getOffset(
 ) {
   const rn = structure.residueStore.count
   const rp = structure.getResidueProxy()
-  const pos = model.msaview.relativePxToBp(rowName, mouseCol)
+  const pos = model.msaview.globalCoordToRowSpecificCoord(rowName, mouseCol)
   for (let i = 0; i < rn; ++i) {
     rp.index = i
     if (rp.resno === pos + startPos - 1) {

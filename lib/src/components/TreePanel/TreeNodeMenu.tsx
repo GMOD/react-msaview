@@ -104,24 +104,6 @@ const TreeMenu = observer(function ({
           </MenuItem>
         ),
       )}
-
-      {// @ts-expect-error
-      nodeDetails?.data.accession?.map(accession => (
-        <MenuItem
-          dense
-          key={accession}
-          onClick={() => {
-            model.addUniprotTrack({
-              // @ts-expect-error
-              name: nodeDetails?.data.name,
-              accession,
-            })
-            onClose()
-          }}
-        >
-          Open UniProt track ({accession})
-        </MenuItem>
-      ))}
     </Menu>
   )
 })

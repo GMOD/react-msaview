@@ -12,6 +12,7 @@ const useStyles = makeStyles()({
     marginLeft: 10,
   },
 })
+
 const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
   const { mouseOverRowName, mouseCol } = model
   const { classes } = useStyles()
@@ -19,7 +20,7 @@ const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
     <div className={classes.margin}>
       {mouseOverRowName && mouseCol !== undefined ? (
         <Typography>
-          {mouseOverRowName}:{model.relativePxToBp(mouseOverRowName, mouseCol)}
+          {mouseOverRowName}:{model.globalCoordToRowSpecificCoord(mouseOverRowName, mouseCol)}
         </Typography>
       ) : null}
     </div>

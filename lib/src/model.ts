@@ -31,7 +31,6 @@ import { measureTextCanvas } from './measureTextCanvas'
 
 // components
 import TextTrack from './components/TextTrack'
-import BoxTrack from './components/BoxTrack'
 
 // parsers
 import ClustalMSA from './parsers/ClustalMSA'
@@ -41,7 +40,6 @@ import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 
 // models
-import { UniprotTrack } from './UniprotTrack'
 import { DataModelF } from './DataModel'
 import { DialogQueueSessionMixin } from './DialogQueue'
 import { SelectedStructuresMixin } from './SelectedStructuresMixin'
@@ -76,25 +74,13 @@ export interface TextTrackModel extends BasicTrackModel {
   data: string
 }
 
-export interface BoxTrackModel extends BasicTrackModel {
-  features: {
-    start: number
-    end: number
-  }[]
-}
 export interface ITextTrack {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactComponent: React.FC<any>
   model: TextTrackModel
 }
 
-export interface IBoxTrack {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ReactComponent: React.FC<any>
-  model: BoxTrackModel
-}
-
-export type BasicTrack = IBoxTrack | ITextTrack
+export type BasicTrack = ITextTrack
 
 /**
  * #stateModel MsaView
@@ -230,14 +216,6 @@ const model = types
        * focus on particular subtree
        */
       showOnly: types.maybe(types.string),
-
-      /**
-       * #property
-       * a list of "tracks" to display, as box-like glyphs (e.g. protein
-       * domains)
-       */
-      boxTracks: types.array(UniprotTrack),
-
       /**
        * #property
        * turned off tracks
@@ -729,7 +707,7 @@ const model = types
      * #getter
      */
     get fontSize() {
-      return Math.max(8, self.rowHeight - 8)
+      return Math.min(Math.max(8, self.rowHeight - 8), 18)
     },
     /**
      * #getter
@@ -846,22 +824,6 @@ const model = types
     setLoadedInterProAnnotations(data: any) {
       console.log({ data })
       self.loadedIntroProAnnotations = data
-    },
-    /**
-     * #action
-     */
-    addUniprotTrack(node: { name: string; accession: string }) {
-      if (self.boxTracks.some(t => t.name === node.name)) {
-        if (self.turnedOffTracks.has(node.name)) {
-          this.toggleTrack(node.name)
-        }
-      } else {
-        self.boxTracks.push({
-          ...node,
-          id: node.name,
-          associatedRowName: node.name,
-        })
-      }
     },
 
     /**
@@ -985,20 +947,8 @@ const model = types
     /**
      * #getter
      */
-    get boxTrackModels(): BasicTrack[] {
-      return self.boxTracks
-        .filter(track => self.rows.some(row => row[0] === track.name))
-        .map(track => ({
-          model: track as BoxTrackModel,
-          ReactComponent: BoxTrack,
-        }))
-    },
-
-    /**
-     * #getter
-     */
     get tracks(): BasicTrack[] {
-      return [...this.adapterTrackModels, ...this.boxTrackModels]
+      return this.adapterTrackModels
     },
     /**
      * #getter
@@ -1053,23 +1003,7 @@ const model = types
     /**
      * #method
      */
-    globalBpToPx(position: number) {
-      let count = 0
-      const s = new Set(self.blanks)
-
-      for (let k = 0; k < self.rows[0]?.[1].length; k++) {
-        if (s.has(k) && k < position + 1) {
-          count++
-        }
-      }
-
-      return position - count
-    },
-
-    /**
-     * #method
-     */
-    relativePxToBp(rowName: string, position: number) {
+    globalCoordToRowSpecificCoord(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
       if (index !== -1 && rows[index]) {
@@ -1091,7 +1025,7 @@ const model = types
     /**
      * #method
      */
-    relativePxToBp2(rowName: string, position: number) {
+    globalCoordToRowSpecificCoord2(rowName: string, position: number) {
       const { rowNames, rows } = self
       const index = rowNames.indexOf(rowName)
       if (index !== -1 && rows[index]) {
@@ -1109,19 +1043,6 @@ const model = types
         return i
       }
       return 0
-    },
-    /**
-     * #method
-     */
-    getPos(pos: number) {
-      let j = 0
-      for (let i = 0, k = 0; i < pos; i++, j++) {
-        while (j === self.blanks[k]) {
-          k++
-          j++
-        }
-      }
-      return j
     },
   }))
 
