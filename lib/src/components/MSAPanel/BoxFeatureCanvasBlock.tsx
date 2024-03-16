@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react'
-import { useTheme } from '@mui/material'
+import React, { useEffect, useRef } from 'react'
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 

@@ -1,9 +1,9 @@
-import { MSAModel } from 'react-msaview'
+import { MSAModelF } from 'react-msaview'
 import { types, Instance } from 'mobx-state-tree'
 
 const App = types
   .model({
-    msaview: MSAModel,
+    msaview: MSAModelF(),
     nglSelection: types.optional(types.string, ''),
   })
   .actions(self => ({

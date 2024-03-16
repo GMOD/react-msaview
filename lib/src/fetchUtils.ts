@@ -20,7 +20,7 @@ export async function jsonfetch(url: string, args?: RequestInit) {
   return response.json()
 }
 
-export async function abfetch(url: string) {
+export async function arraybufferfetch(url: string) {
   const res = await myfetch(url)
   return res.arrayBuffer()
 }

@@ -138,7 +138,6 @@ export function renderTreeLabels({
     blockSize,
     labelsAlignRight,
     drawTree,
-    structures,
     treeAreaWidth,
     treeAreaWidthMinusMargin,
     marginLeft,
@@ -171,9 +170,7 @@ export function renderTreeLabels({
       const { width } = ctx.measureText(displayName)
       const height = ctx.measureText('M').width // use an 'em' for height
 
-      const hasStructure = structures[name]
-      ctx.fillStyle = hasStructure ? 'blue' : theme.palette.text.primary
-
+      ctx.fillStyle = theme.palette.text.primary
       if (labelsAlignRight) {
         const smallPadding = 2
         const offset = treeAreaWidthMinusMargin - smallPadding

@@ -10,6 +10,7 @@ import { makeStyles } from 'tss-react/mui'
 
 // locals
 import { MsaViewModel } from '../../../model'
+import SequenceTextArea from '../../SequenceTextArea'
 
 const useStyles = makeStyles()({
   textAreaFont: {
@@ -44,21 +45,7 @@ export default observer(function ({
           <Attributes attributes={{ nodeName, ...info }} />
         </BaseCard>
         <BaseCard title="Sequence">
-          <TextField
-            variant="outlined"
-            multiline
-            className={classes.dialogContent}
-            minRows={5}
-            maxRows={10}
-            fullWidth
-            value={`>${name}\n${sequence.replaceAll('-', '')}`}
-            InputProps={{
-              readOnly: true,
-              classes: {
-                input: classes.textAreaFont,
-              },
-            }}
-          />
+          <SequenceTextArea str={[[name, sequence]]} />
         </BaseCard>
         {metadata ? (
           <BaseCard title="Extra metadata">
