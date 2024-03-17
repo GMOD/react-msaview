@@ -1,10 +1,8 @@
-import { colord } from 'colord'
 import { HierarchyNode } from 'd3-hierarchy'
 
 // locals
 import { MsaViewModel } from '../../model'
 import { NodeWithIdsAndLength } from '../../util'
-import palettes from './ggplotPalettes'
 
 export function renderBoxFeatureCanvasBlock({
   model,
@@ -58,21 +56,13 @@ function drawTiles({
 }) {
   const {
     rows,
-    interProTerms,
+    subFeatureRows,
     colWidth,
     rowHeight,
+    fillPalette,
+    strokePalette,
     loadedIntroProAnnotations,
   } = model
-  const arr = [...interProTerms.keys()]
-  let i = 0
-  const map = {} as Record<string, string>
-  const stroke = {} as Record<string, string>
-  for (const key of arr) {
-    const k = Math.min(arr.length - 1, palettes.length - 1)
-    map[key] = palettes[k][i]
-    stroke[key] = colord(palettes[k][i]).darken(0.1).toHex()
-    i++
-  }
 
   for (const node of visibleLeaves) {
     const {
@@ -96,11 +86,13 @@ function drawTiles({
             const m1 = model.seqCoordToRowSpecificGlobalCoord(name, l.start - 1)
             const m2 = model.seqCoordToRowSpecificGlobalCoord(name, l.end)
             const x = m1 * colWidth
-            ctx.fillStyle = map[m.signature.entry?.accession]
-            ctx.strokeStyle = stroke[m.signature.entry?.accession]
-            const h = 4
-            ctx.fillRect(x, y - rowHeight + j * h, colWidth * (m2 - m1), h)
-            ctx.strokeRect(x, y - rowHeight + j * h, colWidth * (m2 - m1), h)
+            ctx.fillStyle = fillPalette[m.signature.entry?.accession]
+            ctx.strokeStyle = strokePalette[m.signature.entry?.accession]
+            const h = subFeatureRows ? 4 : rowHeight
+            const t = y - rowHeight + (subFeatureRows ? j * h : 0)
+            const lw = colWidth * (m2 - m1)
+            ctx.fillRect(x, t, lw, h)
+            ctx.strokeRect(x, t, lw, h)
             j++
           }
         }

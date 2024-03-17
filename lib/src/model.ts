@@ -27,6 +27,7 @@ import {
 
 import { blocksX, blocksY } from './calculateBlocks'
 import { measureTextCanvas } from './measureTextCanvas'
+import palettes from './ggplotPalettes'
 
 // components
 import TextTrack from './components/TextTrack'
@@ -47,6 +48,7 @@ import { MSAModelF } from './model/msaModel'
 
 // utils
 import { jsonfetch } from './fetchUtils'
+import { colord } from 'colord'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -126,6 +128,10 @@ function stateModelFactory() {
          * #property
          */
         featureMode: false,
+        /**
+         * #property
+         */
+        subFeatureRows: false,
 
         /**
          * #property
@@ -375,6 +381,12 @@ function stateModelFactory() {
 
       /**
        * #action
+       */
+      setSubFeatureRows(arg: boolean) {
+        self.subFeatureRows = arg
+      },
+      /**
+       * #action
        * set mouse click position (row, column) in the MSA
        */
       setMouseClickPos(col?: number, row?: number) {
@@ -491,6 +503,11 @@ function stateModelFactory() {
     }))
 
     .views(self => ({
+      /**
+       * #method
+       * unused here, but can be used by derived classes to add extra items
+       */
+      extraViewMenuItems() {},
       /**
        * #getter
        */
@@ -994,6 +1011,27 @@ function stateModelFactory() {
           }
         }
         return types
+      },
+    }))
+    .views(self => ({
+      get fillPalette() {
+        const arr = [...self.interProTerms.keys()]
+        let i = 0
+        const map = {} as Record<string, string>
+        for (const key of arr) {
+          const k = Math.min(arr.length - 1, palettes.length - 1)
+          map[key] = palettes[k][i]
+          i++
+        }
+        return map
+      },
+      get strokePalette() {
+        return Object.fromEntries(
+          Object.entries(this.fillPalette).map(([key, val]) => [
+            key,
+            colord(val).darken(0.1).toHex(),
+          ]),
+        )
       },
     }))
     .actions(self => ({

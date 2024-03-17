@@ -10,9 +10,10 @@ import MoreVert from '@mui/icons-material/MoreVert'
 
 // lazies
 const ExportSVGDialog = lazy(() => import('../dialogs/ExportSVGDialog'))
-const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureFilterDialog'))
+const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog'))
 
 const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
+  const { featureMode, subFeatureRows } = model
   return (
     <CascadingMenuButton
       menuItems={[
@@ -29,7 +30,19 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
             model.queueDialog(onClose => [ExportSVGDialog, { onClose, model }]),
         },
         {
-          label: 'View protein domains/features',
+          label: 'Toggle feature mode',
+          checked: featureMode,
+          type: 'checkbox',
+          onClick: () => model.setFeatureMode(!featureMode),
+        },
+        {
+          label: 'Toggle sub-feature rows',
+          checked: subFeatureRows,
+          type: 'checkbox',
+          onClick: () => model.setSubFeatureRows(!subFeatureRows),
+        },
+        {
+          label: 'Protein domains/feature settings',
           onClick: () => {
             model.queueDialog(onClose => [
               FeatureFilterDialog,
@@ -37,6 +50,7 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
             ])
           },
         },
+        ...(model.extraViewMenuItems?.() || []),
       ]}
     >
       <MoreVert />
