@@ -4,12 +4,12 @@ import { observer } from 'mobx-react'
 // locals
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import { MsaViewModel } from '../model'
-import TreeRuler from './TreePanel/TreeRuler'
-import Header from './Header'
+import TreeRuler from './tree/TreeRuler'
+import Header from './header/Header'
+import MSAPanel from './msa/MSAPanel'
+import TreePanel from './tree/TreePanel'
 import Track from './Track'
-import MSAPanel from './MSAPanel'
-import TreePanel from './TreePanel'
-import Minimap from './Minimap'
+import Minimap from './minimap/Minimap'
 
 function TopArea({ model }: { model: MsaViewModel }) {
   return (

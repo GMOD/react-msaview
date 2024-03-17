@@ -4,7 +4,7 @@ import { observer } from 'mobx-react'
 import { makeStyles } from 'tss-react/mui'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 const useStyles = makeStyles()({
   margin: {

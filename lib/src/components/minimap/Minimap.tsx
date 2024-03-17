@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   const [mouseDown, setMouseDown] = useState<{

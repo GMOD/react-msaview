@@ -4,7 +4,7 @@ import { observer } from 'mobx-react'
 import { Typography } from '@mui/material'
 
 // locals
-import ImportForm from './ImportForm'
+import ImportForm from './import/ImportForm'
 import MSAView from './MSAView'
 import { MsaViewModel } from '../model'
 

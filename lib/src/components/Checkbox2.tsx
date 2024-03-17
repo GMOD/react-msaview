@@ -15,15 +15,19 @@ function FormControlLabel2(rest: FormControlLabelProps) {
 export default function Checkbox2({
   checked,
   label,
+  disabled,
   onChange,
 }: {
   checked: boolean
   label: string
+  disabled?: boolean
   onChange: () => void
 }) {
   return (
     <FormControlLabel2
-      control={<Checkbox checked={checked} onChange={onChange} />}
+      control={
+        <Checkbox disabled={disabled} checked={checked} onChange={onChange} />
+      }
       label={label}
     />
   )

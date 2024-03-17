@@ -6,10 +6,11 @@ import { Theme } from '@mui/material'
 
 // locals
 import { MsaViewModel } from './model'
-import { renderTreeCanvas } from './components/TreePanel/renderTreeCanvas'
-import { renderMSABlock } from './components/MSAPanel/renderMSABlock'
+import { renderTreeCanvas } from './components/tree/renderTreeCanvas'
+import { renderMSABlock } from './components/msa/renderMSABlock'
 import { colorContrast } from './util'
-import MinimapSVG from './components/MinimapSVG'
+
+import MinimapSVG from './components/minimap/MinimapSVG'
 
 export async function renderToSvg(
   model: MsaViewModel,

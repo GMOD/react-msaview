@@ -1,9 +1,9 @@
 import React, { lazy } from 'react'
-import { Button, IconButton } from '@mui/material'
+import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
 // icons
 import Help from '@mui/icons-material/Help'
@@ -13,18 +13,16 @@ import ZoomControls from './ZoomControls'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
 import HeaderInfoArea from './HeaderInfoArea'
 import HeaderMenu from './HeaderMenu'
+import HeaderMenuExtra from './HeaderMenuExtra'
 
-const AboutDialog = lazy(() => import('./dialogs/AboutDialog'))
-const FeatureTypeFilterDialog = lazy(
-  () => import('./dialogs/FeatureTypeFilterDialog'),
-)
+const AboutDialog = lazy(() => import('../dialogs/AboutDialog'))
 
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
-  const { featureMode } = model
   return (
     <div style={{ display: 'flex' }}>
       <HeaderMenu model={model} />
       <ZoomControls model={model} />
+      <HeaderMenuExtra model={model} />
       <MultiAlignmentSelector model={model} />
       <HeaderInfoArea model={model} />
       <Spacer />
@@ -33,18 +31,6 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       >
         <Help />
       </IconButton>
-      {featureMode ? (
-        <Button
-          onClick={() => {
-            model.queueDialog(onClose => [
-              FeatureTypeFilterDialog,
-              { onClose, model },
-            ])
-          }}
-        >
-          Feature types
-        </Button>
-      ) : null}
     </div>
   )
 })

@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Dialog, ErrorMessage } from '@jbrowse/core/ui'
 import {
   Button,
-  Checkbox,
   DialogContent,
   DialogActions,
   FormControlLabel,
@@ -13,7 +12,9 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { MsaViewModel } from '../model'
+// locals
+import { MsaViewModel } from '../../model'
+import Checkbox2 from '../Checkbox2'
 
 export default function ExportSVGDialog({
   model,
@@ -31,20 +32,12 @@ export default function ExportSVGDialog({
       <DialogContent>
         {error ? <ErrorMessage error={error} /> : null}
         <Typography>Settings:</Typography>
-        <div>
-          <FormControl>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={includeMinimap}
-                  onChange={event => setIncludeMinimap(event.target.checked)}
-                />
-              }
-              disabled={exportType === 'entire'}
-              label="Include minimap?"
-            />
-          </FormControl>
-        </div>
+        <Checkbox2
+          label="Include minimap?"
+          disabled={exportType === 'entire'}
+          checked={includeMinimap}
+          onChange={() => setIncludeMinimap(!includeMinimap)}
+        />
         <div>
           <FormControl>
             <FormLabel>Export type</FormLabel>

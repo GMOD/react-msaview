@@ -39,11 +39,13 @@ import parseNewick from './parseNewick'
 import colorSchemes from './colorSchemes'
 
 // models
-import { DataModelF } from './DataModel'
-import { DialogQueueSessionMixin } from './DialogQueue'
-import { SelectedStructuresMixin } from './SelectedStructuresMixin'
-import { TreeF } from './treeModel'
-import { MSAModelF } from './msaModel'
+import { DataModelF } from './model/DataModel'
+import { DialogQueueSessionMixin } from './model/DialogQueue'
+import { SelectedStructuresMixin } from './model/SelectedStructuresMixin'
+import { TreeF } from './model/treeModel'
+import { MSAModelF } from './model/msaModel'
+
+// utils
 import { jsonfetch } from './fetchUtils'
 
 export interface RowDetails {

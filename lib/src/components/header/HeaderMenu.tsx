@@ -10,11 +10,11 @@ import List from '@mui/icons-material/List'
 import Menu from '@mui/icons-material/Menu'
 
 // locals
-import { MsaViewModel } from '../model'
+import { MsaViewModel } from '../../model'
 
-const SettingsDialog = lazy(() => import('./dialogs/SettingsDialog'))
-const MetadataDialog = lazy(() => import('./dialogs/MetadataDialog'))
-const TracklistDialog = lazy(() => import('./dialogs/TracklistDialog'))
+const SettingsDialog = lazy(() => import('../dialogs/SettingsDialog'))
+const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog'))
+const TracklistDialog = lazy(() => import('../dialogs/TracklistDialog'))
 
 const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
   const { featureMode } = model
