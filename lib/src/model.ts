@@ -507,7 +507,9 @@ function stateModelFactory() {
        * #method
        * unused here, but can be used by derived classes to add extra items
        */
-      extraViewMenuItems() {},
+      extraViewMenuItems() {
+        return []
+      },
       /**
        * #getter
        */
@@ -705,7 +707,7 @@ function stateModelFactory() {
        * #getter
        */
       get fontSize() {
-        return Math.min(Math.max(8, self.rowHeight - 8), 18)
+        return Math.min(Math.max(6, self.rowHeight - 8), 18)
       },
       /**
        * #getter
