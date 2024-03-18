@@ -55,7 +55,6 @@ function drawTiles({
   visibleLeaves: HierarchyNode<NodeWithIdsAndLength>[]
 }) {
   const {
-    rows,
     subFeatureRows,
     colWidth,
     rowHeight,
@@ -72,7 +71,6 @@ function drawTiles({
     } = node
 
     const str = loadedIntroProAnnotations?.[name]
-    const str2 = rows.find(f => f[0] === name)?.[1]
 
     let j = 0
     if (str) {

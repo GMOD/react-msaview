@@ -6,6 +6,7 @@
     "app"
   ],
   "scripts": {
+    "test": "jest",
     "lint": "eslint --report-unused-disable-directives --max-warnings 0 --ext .js,.ts,.jsx,.tsx ."
   },
   "devDependencies": {
