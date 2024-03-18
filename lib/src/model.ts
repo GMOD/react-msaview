@@ -1,6 +1,12 @@
 import React from 'react'
-import { autorun } from 'mobx'
-import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
+import { autorun, transaction } from 'mobx'
+import {
+  Instance,
+  cast,
+  types,
+  addDisposer,
+  getSnapshot,
+} from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import Stockholm from 'stockholm-js'
@@ -24,7 +30,9 @@ import {
   NodeWithIds,
   NodeWithIdsAndLength,
 } from './util'
-
+import { jsonfetch } from './fetchUtils'
+import { colord } from 'colord'
+import { reparseTree } from './reparseTree'
 import { blocksX, blocksY } from './calculateBlocks'
 import { measureTextCanvas } from './measureTextCanvas'
 import palettes from './ggplotPalettes'
@@ -45,10 +53,6 @@ import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { SelectedStructuresMixin } from './model/SelectedStructuresMixin'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
-
-// utils
-import { jsonfetch } from './fetchUtils'
-import { colord } from 'colord'
 
 export interface RowDetails {
   [key: string]: unknown
@@ -93,23 +97,6 @@ export type BasicTrack = ITextTrack
  * - MSAModel
  * - Tree
  */
-function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
-
-function reparseTree(tree: NodeWithIds): NodeWithIds {
-  return {
-    ...tree,
-    branchset: tree.branchset.map(r =>
-      r.branchset.length
-        ? reparseTree(r)
-        : {
-            branchset: [r],
-            id: `${r.id}-leafnode`,
-            name: `${r.name}-hidden`,
-          },
-    ),
-  }
-}
-
 function stateModelFactory() {
   return types
     .compose(
@@ -231,6 +218,15 @@ function stateModelFactory() {
       }),
     )
     .volatile(() => ({
+      /**
+       * #volatile
+       */
+      loadingMSA: false,
+      /**
+       * #volatile
+       */
+      loadingTree: false,
+
       width: 800,
       /**
        * #volatile
@@ -341,6 +337,18 @@ function stateModelFactory() {
           >,
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      setLoadingMSA(arg: boolean) {
+        self.loadingMSA = arg
+      },
+      /**
+       * #action
+       */
+      setLoadingTree(arg: boolean) {
+        self.loadingTree = arg
+      },
       /**
        * #action
        */
@@ -463,20 +471,16 @@ function stateModelFactory() {
       /**
        * #action
        */
-      async setMSAFilehandle(msaFilehandle?: FileLocationType) {
+      setMSAFilehandle(msaFilehandle?: FileLocationType) {
         self.msaFilehandle = msaFilehandle
+        console.log('WTF', self.msaFilehandle)
       },
 
       /**
        * #action
        */
-      async setTreeFilehandle(treeFilehandle?: FileLocationType) {
-        if (treeFilehandle && 'blobId' in treeFilehandle) {
-          const r = await openLocation(treeFilehandle).readFile('utf8')
-          this.setTree(r)
-        } else {
-          self.treeFilehandle = treeFilehandle
-        }
+      setTreeFilehandle(treeFilehandle?: FileLocationType) {
+        self.treeFilehandle = treeFilehandle
       },
 
       /**
@@ -761,13 +765,7 @@ function stateModelFactory() {
        * #getter
        */
       get initialized() {
-        return (
-          (self.data.msa ||
-            self.data.tree ||
-            self.msaFilehandle ||
-            self.treeFilehandle) &&
-          !self.error
-        )
+        return (self.data.msa || self.data.tree) && !self.error
       },
       /**
        * #getter
@@ -809,8 +807,8 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get done() {
-        return self.initialized && (self.data.msa || self.data.tree)
+      get isLoading() {
+        return self.loadingMSA || self.loadingTree
       },
       /**
        * #getter
@@ -1084,12 +1082,19 @@ function stateModelFactory() {
             const { treeFilehandle } = self
             if (treeFilehandle) {
               try {
+                self.setLoadingTree(true)
                 self.setTree(
                   await openLocation(treeFilehandle).readFile('utf8'),
                 )
+                if (treeFilehandle.locationType === 'BlobLocation') {
+                  // clear filehandle after loading if from a local file
+                  self.setTreeFilehandle(undefined)
+                }
               } catch (e) {
                 console.error(e)
                 self.setError(e)
+              } finally {
+                self.setLoadingTree(false)
               }
             }
           }),
@@ -1117,12 +1122,25 @@ function stateModelFactory() {
           self,
           autorun(async () => {
             const { msaFilehandle } = self
+            console.log('wtf', msaFilehandle)
             if (msaFilehandle) {
               try {
-                self.setMSA(await openLocation(msaFilehandle).readFile('utf8'))
+                self.setLoadingMSA(true)
+                console.log(getSnapshot(msaFilehandle))
+                const res = await openLocation(msaFilehandle).readFile('utf8')
+                transaction(() => {
+                  self.setMSA(res)
+                  if (msaFilehandle.locationType === 'BlobLocation') {
+                    console.log('WTFFFF clearing it!')
+                    // clear filehandle after loading if from a local file
+                    self.setMSAFilehandle(undefined)
+                  }
+                })
               } catch (e) {
                 console.error(e)
                 self.setError(e)
+              } finally {
+                self.setLoadingMSA(false)
               }
             }
           }),
@@ -1155,10 +1173,9 @@ function stateModelFactory() {
       // which case it can be reloaded on refresh
       return {
         data: {
-          // https://andreasimonecosta.dev/posts/the-shortest-way-to-conditionally-insert-properties-into-an-object-literal/
-          ...(!result.treeFilehandle && { tree }),
-          ...(!result.msaFilehandle && { msa }),
-          ...(!result.treeMetadataFilehandle && { treeMetadata }),
+          ...(result.treeFilehandle ? {} : { tree }),
+          ...(result.msaFilehandle ? {} : { msa }),
+          ...(result.treeMetadataFilehandle ? {} : { treeMetadata }),
         },
         ...rest,
       }

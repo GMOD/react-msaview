@@ -1,5 +1,6 @@
 import React, { lazy } from 'react'
 import { observer } from 'mobx-react'
+import { transaction } from 'mobx'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // icons
@@ -24,19 +25,16 @@ const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
         {
           label: 'Return to import form',
           icon: FolderOpen,
-          onClick: async () => {
-            try {
+          onClick: () => {
+            transaction(() => {
               model.setData({ tree: '', msa: '' })
               model.clearSelectedStructures()
               model.setScrollY(0)
               model.setScrollX(0)
               model.setCurrentAlignment(0)
-              await model.setTreeFilehandle(undefined)
-              await model.setMSAFilehandle(undefined)
-            } catch (e) {
-              console.error(e)
-              model.setError(e)
-            }
+              model.setTreeFilehandle(undefined)
+              model.setMSAFilehandle(undefined)
+            })
           },
         },
         {

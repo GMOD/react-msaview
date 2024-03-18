@@ -9,13 +9,13 @@ import MSAView from './MSAView'
 import { MsaViewModel } from '../model'
 
 const Loading = observer(function ({ model }: { model: MsaViewModel }) {
-  const { done, initialized } = model
+  const { isLoading, initialized } = model
 
   return (
     <div>
       {!initialized ? (
         <ImportForm model={model} />
-      ) : !done ? (
+      ) : isLoading ? (
         <Typography variant="h4">Loading...</Typography>
       ) : (
         <MSAView model={model} />
