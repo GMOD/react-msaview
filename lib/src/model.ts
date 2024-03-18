@@ -90,7 +90,6 @@ export type BasicTrack = ITextTrack
  * extends
  * - BaseViewModel
  * - DialogQueueSessionMixin
- * - SelectedStructuresMixin
  * - MSAModel
  * - Tree
  */
