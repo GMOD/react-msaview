@@ -568,12 +568,10 @@ function stateModelFactory() {
        */
       get MSA() {
         const text = self.data.msa
-        console.log({ text })
         if (text) {
           if (Stockholm.sniff(text)) {
             return new StockholmMSA(text, self.currentAlignment)
           } else if (text.startsWith('>')) {
-            console.log({ text })
             return new FastaMSA(text)
           } else {
             return new ClustalMSA(text)
