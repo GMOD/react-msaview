@@ -1,6 +1,5 @@
 import React, { lazy } from 'react'
 import { observer } from 'mobx-react'
-import { transaction } from 'mobx'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // icons
@@ -18,24 +17,13 @@ const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('../dialogs/TracklistDialog'))
 
 const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
-  const { featureMode } = model
   return (
     <CascadingMenuButton
       menuItems={[
         {
           label: 'Return to import form',
           icon: FolderOpen,
-          onClick: () => {
-            transaction(() => {
-              model.setData({ tree: '', msa: '' })
-              model.clearSelectedStructures()
-              model.setScrollY(0)
-              model.setScrollX(0)
-              model.setCurrentAlignment(0)
-              model.setTreeFilehandle(undefined)
-              model.setMSAFilehandle(undefined)
-            })
-          },
+          onClick: () => model.reset(),
         },
         {
           label: 'Settings',
@@ -54,12 +42,6 @@ const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
           onClick: () =>
             model.queueDialog(onClose => [TracklistDialog, { model, onClose }]),
           icon: List,
-        },
-        {
-          label: 'Feature mode',
-          onClick: () => model.setFeatureMode(!featureMode),
-          checked: featureMode,
-          type: 'checkbox',
         },
       ]}
     >

@@ -34,8 +34,8 @@ const View = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <div style={{ position: 'relative' }}>
       <TopArea model={model} />
-      {turnedOnTracks?.map(track => (
-        <Track key={track.model.id} model={model} track={track} />
+      {turnedOnTracks?.map(t => (
+        <Track key={t.model.id} model={model} track={t} />
       ))}
       <MainArea model={model} />
     </div>

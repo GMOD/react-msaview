@@ -473,7 +473,6 @@ function stateModelFactory() {
        */
       setMSAFilehandle(msaFilehandle?: FileLocationType) {
         self.msaFilehandle = msaFilehandle
-        console.log('WTF', self.msaFilehandle)
       },
 
       /**
@@ -572,10 +571,12 @@ function stateModelFactory() {
        */
       get MSA() {
         const text = self.data.msa
+        console.log({ text })
         if (text) {
           if (Stockholm.sniff(text)) {
             return new StockholmMSA(text, self.currentAlignment)
           } else if (text.startsWith('>')) {
+            console.log({ text })
             return new FastaMSA(text)
           } else {
             return new ClustalMSA(text)
@@ -1034,6 +1035,16 @@ function stateModelFactory() {
       },
     }))
     .actions(self => ({
+      reset() {
+        transaction(() => {
+          self.setData({ tree: '', msa: '' })
+          self.setScrollY(0)
+          self.setScrollX(0)
+          self.setCurrentAlignment(0)
+          self.setTreeFilehandle(undefined)
+          self.setMSAFilehandle(undefined)
+        })
+      },
       /**
        * #action
        */
@@ -1122,16 +1133,13 @@ function stateModelFactory() {
           self,
           autorun(async () => {
             const { msaFilehandle } = self
-            console.log('wtf', msaFilehandle)
             if (msaFilehandle) {
               try {
                 self.setLoadingMSA(true)
-                console.log(getSnapshot(msaFilehandle))
                 const res = await openLocation(msaFilehandle).readFile('utf8')
                 transaction(() => {
                   self.setMSA(res)
                   if (msaFilehandle.locationType === 'BlobLocation') {
-                    console.log('WTFFFF clearing it!')
                     // clear filehandle after loading if from a local file
                     self.setMSAFilehandle(undefined)
                   }

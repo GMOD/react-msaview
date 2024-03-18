@@ -7,15 +7,10 @@ export async function load(
   treeFile?: FileLocation,
 ) {
   model.setError(undefined)
-  try {
-    if (msaFile) {
-      await model.setMSAFilehandle(msaFile)
-    }
-    if (treeFile) {
-      await model.setTreeFilehandle(treeFile)
-    }
-  } catch (e) {
-    console.error(e)
-    model.setError(e)
+  if (msaFile) {
+    model.setMSAFilehandle(msaFile)
+  }
+  if (treeFile) {
+    model.setTreeFilehandle(treeFile)
   }
 }

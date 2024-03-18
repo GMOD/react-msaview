@@ -126,6 +126,17 @@ const ImportFormExamples = observer(function ({
       >
         MAFFT+VeryFastTree(17.9k samples)
       </ListItem>
+      <ListItem
+        model={model}
+        onClick={() =>
+          load(model, {
+            uri: 'jbrowse.org/demos/ttc39a.mfa',
+            locationType: 'UriLocation',
+          })
+        }
+      >
+        Human BLAST results mfa
+      </ListItem>
     </ul>
   )
 })
