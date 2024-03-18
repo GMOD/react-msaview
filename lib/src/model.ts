@@ -50,7 +50,6 @@ import colorSchemes from './colorSchemes'
 // models
 import { DataModelF } from './model/DataModel'
 import { DialogQueueSessionMixin } from './model/DialogQueue'
-import { SelectedStructuresMixin } from './model/SelectedStructuresMixin'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
 
@@ -92,7 +91,6 @@ export type BasicTrack = ITextTrack
 /**
  * #stateModel MsaView
  * extends
- * - BaseViewModel
  * - DialogQueueSessionMixin
  * - MSAModel
  * - Tree
@@ -101,7 +99,6 @@ function stateModelFactory() {
   return types
     .compose(
       DialogQueueSessionMixin(),
-      SelectedStructuresMixin(),
       TreeF(),
       MSAModelF(),
       types.model('MsaView', {
