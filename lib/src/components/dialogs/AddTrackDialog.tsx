@@ -51,7 +51,6 @@ export default observer(function ({
             onClick={() => {
               model.setError(undefined)
               if (trackFile) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 model.setMSAFilehandle(trackFile)
               }
             }}

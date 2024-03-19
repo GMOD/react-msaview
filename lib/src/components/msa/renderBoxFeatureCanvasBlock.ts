@@ -10,7 +10,6 @@ export function renderBoxFeatureCanvasBlock({
   offsetY,
   ctx,
   highResScaleFactorOverride,
-  blockSizeXOverride,
   blockSizeYOverride,
 }: {
   offsetX: number
@@ -18,20 +17,14 @@ export function renderBoxFeatureCanvasBlock({
   model: MsaViewModel
   ctx: CanvasRenderingContext2D
   highResScaleFactorOverride?: number
-  blockSizeXOverride?: number
   blockSizeYOverride?: number
 }) {
-  const { hierarchy, blockSize, rowHeight, fontSize, highResScaleFactor } =
-    model
+  const { hierarchy, blockSize, rowHeight, highResScaleFactor } = model
   const k = highResScaleFactorOverride || highResScaleFactor
-  const bx = blockSizeXOverride || blockSize
   const by = blockSizeYOverride || blockSize
   ctx.resetTransform()
   ctx.scale(k, k)
-  ctx.clearRect(0, 0, bx, by)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
-  ctx.textAlign = 'center'
-  ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
 
   const leaves = hierarchy.leaves()
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
@@ -60,7 +53,7 @@ function drawTiles({
     rowHeight,
     fillPalette,
     strokePalette,
-    loadedIntroProAnnotations,
+    tidyFilteredGatheredAnnotations,
   } = model
 
   for (const node of visibleLeaves) {
@@ -70,30 +63,22 @@ function drawTiles({
       data: { name },
     } = node
 
-    const str = loadedIntroProAnnotations?.[name]
+    const entry = tidyFilteredGatheredAnnotations?.[name]
 
     let j = 0
-    if (str) {
-      for (const m of str.matches) {
-        if (m.signature.entry) {
-          for (const l of m.locations.sort((a, b) => {
-            const l1 = a.end - a.start
-            const l2 = b.end - b.start
-            return l1 - l2
-          })) {
-            const m1 = model.seqCoordToRowSpecificGlobalCoord(name, l.start - 1)
-            const m2 = model.seqCoordToRowSpecificGlobalCoord(name, l.end)
-            const x = m1 * colWidth
-            ctx.fillStyle = fillPalette[m.signature.entry?.accession]
-            ctx.strokeStyle = strokePalette[m.signature.entry?.accession]
-            const h = subFeatureRows ? 4 : rowHeight
-            const t = y - rowHeight + (subFeatureRows ? j * h : 0)
-            const lw = colWidth * (m2 - m1)
-            ctx.fillRect(x, t, lw, h)
-            ctx.strokeRect(x, t, lw, h)
-            j++
-          }
-        }
+    if (entry) {
+      for (const { start, end, accession } of entry) {
+        const m1 = model.seqCoordToRowSpecificGlobalCoord(name, start - 1)
+        const m2 = model.seqCoordToRowSpecificGlobalCoord(name, end)
+        const x = m1 * colWidth
+        ctx.fillStyle = fillPalette[accession]
+        ctx.strokeStyle = strokePalette[accession]
+        const h = subFeatureRows ? 4 : rowHeight
+        const t = y - rowHeight + (subFeatureRows ? j * h : 0)
+        const lw = colWidth * (m2 - m1)
+        ctx.fillRect(x, t, lw, h)
+        ctx.strokeRect(x, t, lw, h)
+        j++
       }
     }
   }

@@ -33,6 +33,7 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
         })
       }
       origEvent.preventDefault()
+      origEvent.stopPropagation()
     }
     curr.addEventListener('wheel', onWheel)
     return () => {

@@ -1,9 +1,10 @@
+import { HierarchyNode } from 'd3-hierarchy'
+import { Theme } from '@mui/material'
+
 // locals
 import { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 import { NodeWithIdsAndLength } from '../../util'
-import { HierarchyNode } from 'd3-hierarchy'
-import { Theme } from '@mui/material'
 
 export function renderMSABlock({
   model,
@@ -33,13 +34,13 @@ export function renderMSABlock({
     rowHeight,
     fontSize,
     highResScaleFactor,
+    featureMode,
   } = model
   const k = highResScaleFactorOverride || highResScaleFactor
   const bx = blockSizeXOverride || blockSize
   const by = blockSizeYOverride || blockSize
   ctx.resetTransform()
   ctx.scale(k, k)
-  ctx.clearRect(0, 0, bx, by)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
   ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
@@ -52,16 +53,18 @@ export function renderMSABlock({
   const xEnd = Math.max(0, Math.ceil((offsetX + bx) / colWidth))
   const visibleLeaves = leaves.slice(yStart, yEnd)
 
-  drawTiles({
-    model,
-    ctx,
-    theme,
-    offsetX,
-    offsetY,
-    xStart,
-    xEnd,
-    visibleLeaves,
-  })
+  if (!featureMode) {
+    drawTiles({
+      model,
+      ctx,
+      theme,
+      offsetX,
+      offsetY,
+      xStart,
+      xEnd,
+      visibleLeaves,
+    })
+  }
   drawText({
     model,
     ctx,
@@ -72,6 +75,7 @@ export function renderMSABlock({
     xEnd,
     visibleLeaves,
   })
+  ctx.resetTransform()
 }
 
 function drawTiles({
@@ -150,7 +154,8 @@ function drawText({
   xStart: number
   xEnd: number
 }) {
-  const { bgColor, colorScheme, columns, colWidth, rowHeight } = model
+  const { bgColor, featureMode, colorScheme, columns, colWidth, rowHeight } =
+    model
   if (rowHeight >= 5 && colWidth > rowHeight / 2) {
     for (const node of visibleLeaves) {
       const {
@@ -166,7 +171,11 @@ function drawText({
         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
         // note: -rowHeight/4 matches +rowHeight/4 in tree
-        ctx.fillStyle = bgColor ? contrast : color || 'black'
+        ctx.fillStyle = featureMode
+          ? 'black'
+          : bgColor
+            ? contrast
+            : color || 'black'
         ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
       }
     }

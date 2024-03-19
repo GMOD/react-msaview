@@ -115,3 +115,7 @@ export function collapse(d: HierarchyNode<NodeWithIds>) {
 export function clamp(min: number, num: number, max: number) {
   return Math.min(Math.max(num, min), max)
 }
+
+export function len(a: { end: number; start: number }) {
+  return a.end - a.start
+}

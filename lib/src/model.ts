@@ -1,12 +1,6 @@
 import React from 'react'
 import { autorun, transaction } from 'mobx'
-import {
-  Instance,
-  cast,
-  types,
-  addDisposer,
-  getSnapshot,
-} from 'mobx-state-tree'
+import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import Stockholm from 'stockholm-js'
@@ -17,7 +11,7 @@ import { Theme } from '@mui/material'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { notEmpty, sum } from '@jbrowse/core/util'
+import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
 
 // locals
 import {
@@ -29,6 +23,7 @@ import {
   skipBlanks,
   NodeWithIds,
   NodeWithIdsAndLength,
+  len,
 } from './util'
 import { jsonfetch } from './fetchUtils'
 import { colord } from 'colord'
@@ -53,11 +48,6 @@ import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
 
-export interface RowDetails {
-  [key: string]: unknown
-  name: string
-  range?: { start: number; end: number }
-}
 interface Accession {
   accession: string
   name: string
@@ -68,11 +58,6 @@ export interface BasicTrackModel {
   name: string
   associatedRowName?: string
   height: number
-}
-export interface Structure {
-  pdb: string
-  startPos: number
-  endPos: number
 }
 
 export interface TextTrackModel extends BasicTrackModel {
@@ -154,13 +139,6 @@ function stateModelFactory() {
 
         /**
          * #property
-         * high resolution scale factor, helps make canvas look better on hi-dpi
-         * screens
-         */
-        highResScaleFactor: 2,
-
-        /**
-         * #property
          * filehandle object for the tree
          */
         treeFilehandle: types.maybe(FileLocation),
@@ -212,9 +190,19 @@ function stateModelFactory() {
          * autorun
          */
         data: types.optional(DataModelF(), { tree: '', msa: '' }),
+        /**
+         * #property
+         */
+        featureFilters: types.map(types.boolean),
       }),
     )
     .volatile(() => ({
+      /**
+       * #volatile
+       * high resolution scale factor, helps make canvas look better on hi-dpi
+       * screens
+       */
+      highResScaleFactor: 1,
       /**
        * #volatile
        */
@@ -223,7 +211,9 @@ function stateModelFactory() {
        * #volatile
        */
       loadingTree: false,
-
+      /**
+       * #volatile
+       */
       width: 800,
       /**
        * #volatile
@@ -288,6 +278,9 @@ function stateModelFactory() {
        */
       annotPos: undefined as { left: number; right: number } | undefined,
 
+      /**
+       * #volatile
+       */
       annotationTracks: [
         'A8CT47_9VIRU%2F46-492.json',
         'B8Y0L1_9VIRU%2F39-459.json',
@@ -315,7 +308,7 @@ function stateModelFactory() {
        * #volatile
        *
        */
-      loadedIntroProAnnotations: undefined as
+      loadedInterProAnnotations: undefined as
         | undefined
         | Record<
             string,
@@ -816,7 +809,7 @@ function stateModelFactory() {
     .actions(self => ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setLoadedInterProAnnotations(data: any) {
-        self.loadedIntroProAnnotations = data
+        self.loadedInterProAnnotations = data
       },
 
       /**
@@ -992,25 +985,58 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get interProTerms() {
+      get tidyTypes() {
         const types = new Map<string, Accession>()
-        if (self.loadedIntroProAnnotations) {
-          for (const str of Object.values(self.loadedIntroProAnnotations)) {
-            for (const { signature } of str.matches) {
-              const { entry } = signature
-              if (entry) {
-                const { name, accession, description } = entry
-                types.set(accession, { name, accession, description })
-              }
-            }
+        if (this.tidyAnnotations) {
+          for (const { name, accession, description } of this.tidyAnnotations) {
+            types.set(accession, { name, accession, description })
           }
         }
         return types
       },
+      get tidyAnnotations() {
+        const ret = []
+        const { loadedInterProAnnotations } = self
+        if (loadedInterProAnnotations) {
+          for (const [id, val] of Object.entries(loadedInterProAnnotations)) {
+            for (const { signature, locations } of val.matches) {
+              const { entry } = signature
+              if (entry) {
+                const { name, accession, description } = entry
+                for (const { start, end } of locations) {
+                  ret.push({
+                    id,
+                    name,
+                    accession,
+                    description,
+                    start,
+                    end,
+                  })
+                }
+              }
+            }
+          }
+        }
+        return ret.sort((a, b) => len(b) - len(a))
+      },
+      /**
+       * #getter
+       */
+      get tidyFilteredAnnotations() {
+        return this.tidyAnnotations.filter(r =>
+          self.featureFilters.get(r.accession),
+        )
+      },
+      /**
+       * #getter
+       */
+      get tidyFilteredGatheredAnnotations() {
+        return groupBy(this.tidyFilteredAnnotations, r => r.id)
+      },
     }))
     .views(self => ({
       get fillPalette() {
-        const arr = [...self.interProTerms.keys()]
+        const arr = [...self.tidyTypes.keys()]
         let i = 0
         const map = {} as Record<string, string>
         for (const key of arr) {
@@ -1061,19 +1087,45 @@ function stateModelFactory() {
         self.nref++
       },
 
+      /**
+       * #action
+       */
+      initFilter(arg: string) {
+        const ret = self.featureFilters.get(arg)
+        if (ret === undefined) {
+          self.featureFilters.set(arg, true)
+        }
+      },
+      /**
+       * #action
+       */
+      toggleFilter(arg: string) {
+        self.featureFilters.set(arg, !self.featureFilters.get(arg))
+      },
+
       afterCreate() {
+        addDisposer(
+          self,
+          autorun(() => {
+            if (!self.featureFilters) {
+              for (const key of self.tidyTypes.keys()) {
+                this.initFilter(key)
+              }
+            }
+          }),
+        )
         addDisposer(
           self,
           autorun(async () => {
             const res = Object.fromEntries(
               await Promise.all(
                 self.annotationTracks.map(async f => {
-                  const data = await jsonfetch(
+                  const d = await jsonfetch(
                     `https://jbrowse.org/demos/interproscan/json/${encodeURIComponent(f)}`,
                   )
                   return [
                     decodeURIComponent(f).replace('.json', ''),
-                    data.result.results[0],
+                    d.result.results[0],
                   ] as const
                 }),
               ),

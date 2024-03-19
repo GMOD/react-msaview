@@ -8,7 +8,6 @@ import TreeRuler from './tree/TreeRuler'
 import Header from './header/Header'
 import MSAPanel from './msa/MSAPanel'
 import TreePanel from './tree/TreePanel'
-import Track from './Track'
 import Minimap from './minimap/Minimap'
 
 function TopArea({ model }: { model: MsaViewModel }) {
@@ -30,13 +29,10 @@ function MainArea({ model }: { model: MsaViewModel }) {
 }
 
 const View = observer(function ({ model }: { model: MsaViewModel }) {
-  const { turnedOnTracks } = model
   return (
     <div style={{ position: 'relative' }}>
       <TopArea model={model} />
-      {turnedOnTracks?.map(t => (
-        <Track key={t.model.id} model={model} track={t} />
-      ))}
+
       <MainArea model={model} />
     </div>
   )

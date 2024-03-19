@@ -28,6 +28,8 @@ export default function SequenceTextArea({ str }: { str: [string, string][] }) {
   return (
     <>
       <Button
+        color="primary"
+        variant="contained"
         onClick={() => {
           copy(disp)
           setCopied(true)

@@ -7,6 +7,7 @@ import { observer } from 'mobx-react'
 import { renderMSABlock } from './renderMSABlock'
 import { MsaViewModel } from '../../model'
 import { colorContrast } from '../../util'
+import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock'
 
 const MSABlock = observer(function ({
   model,
@@ -38,19 +39,31 @@ const MSABlock = observer(function ({
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
     const ctx = ref.current?.getContext('2d')
-    return ctx
-      ? autorun(() => {
-          renderMSABlock({
-            ctx,
-            theme,
-            offsetX,
-            offsetY,
-            contrastScheme,
-            model,
-          })
+    if (!ctx) {
+      return
+    }
+    return autorun(() => {
+      ctx.resetTransform()
+      ctx.clearRect(0, 0, blockSize, blockSize)
+      if (model.featureMode) {
+        renderBoxFeatureCanvasBlock({
+          ctx,
+          offsetX,
+          offsetY,
+          model,
         })
-      : undefined
-  }, [model, offsetX, offsetY, theme, contrastScheme])
+      }
+      renderMSABlock({
+        ctx,
+        theme,
+        offsetX,
+        offsetY,
+        contrastScheme,
+        model,
+      })
+    })
+  }, [model, offsetX, offsetY, theme, blockSize, contrastScheme])
+
   return (
     <canvas
       ref={ref}
