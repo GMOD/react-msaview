@@ -5,6 +5,7 @@ import { Theme } from '@mui/material'
 import { MsaViewModel } from '../../model'
 
 export const padding = 600
+
 const extendBounds = 5
 const radius = 2.5
 const d = radius * 2
@@ -35,18 +36,20 @@ export function renderTree({
   const { hierarchy, showBranchLen, blockSize } = model
   const by = blockSizeYOverride || blockSize
   ctx.strokeStyle = theme.palette.text.primary
-  for (const { source, target } of hierarchy.links()) {
-    const y = showBranchLen ? 'len' : 'y'
+  for (const link of hierarchy.links()) {
+    const { source, target } = link
+    const sy = source.x!
+    const ty = target.x!
     // @ts-expect-error
-    const { x: sy, [y]: sx } = source
+    const tx = showBranchLen ? target.len : target.y
     // @ts-expect-error
-    const { x: ty, [y]: tx } = target
+    const sx = showBranchLen ? source.len : source.y
 
     const y1 = Math.min(sy, ty)
     const y2 = Math.max(sy, ty)
-    // 1d line intersection to check if line crosses block at all, this is
-    // an optimization that allows us to skip drawing most tree links
-    // outside the block
+    // 1d line intersection to check if line crosses block at all, this is an
+    // optimization that allows us to skip drawing most tree links outside the
+    // block
     if (offsetY + by >= y1 && y2 >= offsetY) {
       ctx.beginPath()
       ctx.moveTo(sx, sy)
@@ -81,13 +84,9 @@ export function renderNodeBubbles({
   const by = blockSizeYOverride || blockSize
   for (const node of hierarchy.descendants()) {
     const val = showBranchLen ? 'len' : 'y'
-    const {
-      // @ts-expect-error
-      x: y,
-      // @ts-expect-error
-      [val]: x,
-      data,
-    } = node
+    // @ts-expect-error
+    const { [val]: x, data } = node
+    const y = node.x!
     const { branchset, id = '', name = '' } = data
     if (
       !id.endsWith('-leafnode') &&
@@ -152,14 +151,12 @@ export function renderTreeLabels({
   }
   for (const node of hierarchy.leaves()) {
     const {
-      // @ts-expect-error
-      x: y,
-      // @ts-expect-error
-      y: x,
       data: { name, id },
       // @ts-expect-error
       len,
     } = node
+    const y = node.x!
+    const x = node.y!
 
     const displayName = treeMetadata[name]?.genome || name
     if (y > offsetY - extendBounds && y < offsetY + by + extendBounds) {

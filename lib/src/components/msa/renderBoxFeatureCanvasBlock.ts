@@ -61,10 +61,10 @@ function drawTiles({
 
   for (const node of visibleLeaves) {
     const {
-      // @ts-expect-error
-      x: y,
+      x,
       data: { name },
     } = node
+    const y = x!
 
     const entry = tidyFilteredGatheredAnnotations?.[name]
 

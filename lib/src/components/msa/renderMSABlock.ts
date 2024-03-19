@@ -108,11 +108,9 @@ function drawTiles({
 
   for (const node of visibleLeaves) {
     const {
-      // @ts-expect-error
-      x: y,
       data: { name },
     } = node
-
+    const y = node.x!
     const str = columns[name]?.slice(xStart, xEnd)
     for (let i = 0; i < str?.length; i++) {
       const letter = str[i]
@@ -159,10 +157,9 @@ function drawText({
   if (rowHeight >= 5 && colWidth > rowHeight / 2) {
     for (const node of visibleLeaves) {
       const {
-        // @ts-expect-error
-        x: y,
         data: { name },
       } = node
+      const y = node.x!
       const str = columns[name]?.slice(xStart, xEnd)
       for (let i = 0; i < str?.length; i++) {
         const letter = str[i]

@@ -128,7 +128,8 @@ function CoreRendering({
     height: number,
   ) => CanvasRenderingContext2D & { getSvg: () => { innerHTML: string } }
 }) {
-  const clipId = 'tree'
+  const clipId1 = 'tree'
+  const clipId2 = 'msa'
   const { treeAreaWidth, colorScheme } = model
   const contrastScheme = colorContrast(colorScheme, theme)
   const ctx1 = Context(width, height)
@@ -141,6 +142,7 @@ function CoreRendering({
     blockSizeYOverride: height,
     highResScaleFactorOverride: 1,
   })
+  const msaAreaWidth = width - treeAreaWidth
   renderTreeCanvas({
     model,
     offsetY,
@@ -156,24 +158,30 @@ function CoreRendering({
     offsetX,
     contrastScheme,
     ctx: ctx2,
-    blockSizeXOverride: width - treeAreaWidth,
+    blockSizeXOverride: msaAreaWidth,
     blockSizeYOverride: height,
     highResScaleFactorOverride: 1,
   })
   return (
     <>
       <defs>
-        <clipPath id={clipId}>
+        <clipPath id={clipId1}>
           <rect x={0} y={0} width={treeAreaWidth} height={height} />
+        </clipPath>
+      </defs>
+      <defs>
+        <clipPath id={clipId2}>
+          <rect x={0} y={0} width={msaAreaWidth} height={height} />
         </clipPath>
       </defs>
 
       <g
-        clipPath={`url(#${clipId})`}
+        clipPath={`url(#${clipId1})`}
         /* eslint-disable-next-line react/no-danger */
         dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
       />
       <g
+        clipPath={`url(#${clipId2})`}
         transform={`translate(${treeAreaWidth} 0)`}
         /* eslint-disable-next-line react/no-danger */
         dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}

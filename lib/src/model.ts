@@ -578,6 +578,7 @@ function stateModelFactory() {
       get numColumns() {
         return (this.MSA?.getWidth() || 0) - this.blanks.length
       },
+
       /**
        * #getter
        */
@@ -596,15 +597,14 @@ function stateModelFactory() {
        * #getter
        */
       get rowNames(): string[] {
-        return this.hierarchy.leaves().map(node => node.data.name)
+        return this.hierarchy.leaves().map(n => n.data.name)
       },
       /**
        * #getter
        */
       get mouseOverRowName() {
-        return self.mouseRow !== undefined
-          ? this.rowNames[self.mouseRow]
-          : undefined
+        const { mouseRow } = self
+        return mouseRow !== undefined ? this.rowNames[mouseRow] : undefined
       },
 
       /**
@@ -616,18 +616,16 @@ function stateModelFactory() {
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
         if (self.showOnly) {
-          const res = hier.find(node => node.data.id === self.showOnly)
+          const res = hier.find(n => n.data.id === self.showOnly)
           if (res) {
             hier = res
           }
         }
 
-        if (self.collapsed.length || self.collapsed2.length) {
-          ;[...self.collapsed, ...self.collapsed2]
-            .map(collapsedId => hier.find(node => node.data.id === collapsedId))
-            .filter(notEmpty)
-            .map(node => collapse(node))
-        }
+        ;[...self.collapsed, ...self.collapsed2]
+          .map(collapsedId => hier.find(node => node.data.id === collapsedId))
+          .filter(notEmpty)
+          .map(node => collapse(node))
 
         return hier
       },
@@ -807,6 +805,22 @@ function stateModelFactory() {
       },
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      zoomIn() {
+        self.colWidth = Math.ceil(self.colWidth * 1.5)
+        self.rowHeight = Math.ceil(self.rowHeight * 1.5)
+        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+      },
+      /**
+       * #action
+       */
+      zoomOut() {
+        self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
+        self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
+        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setLoadedInterProAnnotations(data: any) {
         self.loadedInterProAnnotations = data
@@ -1099,18 +1113,16 @@ function stateModelFactory() {
       /**
        * #action
        */
-      toggleFilter(arg: string) {
-        self.featureFilters.set(arg, !self.featureFilters.get(arg))
+      setFilter(arg: string, flag: boolean) {
+        self.featureFilters.set(arg, flag)
       },
 
       afterCreate() {
         addDisposer(
           self,
           autorun(() => {
-            if (!self.featureFilters) {
-              for (const key of self.tidyTypes.keys()) {
-                this.initFilter(key)
-              }
+            for (const key of self.tidyTypes.keys()) {
+              this.initFilter(key)
             }
           }),
         )

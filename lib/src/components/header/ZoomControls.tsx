@@ -14,23 +14,12 @@ const ZoomControls = observer(function ZoomControls({
 }: {
   model: MsaViewModel
 }) {
-  const { colWidth, rowHeight } = model
   return (
     <>
-      <IconButton
-        onClick={() => {
-          model.setColWidth(Math.ceil(colWidth * 1.5))
-          model.setRowHeight(Math.ceil(rowHeight * 1.5))
-        }}
-      >
+      <IconButton onClick={() => model.zoomIn()}>
         <ZoomIn />
       </IconButton>
-      <IconButton
-        onClick={() => {
-          model.setColWidth(Math.max(1, Math.floor(colWidth * 0.75)))
-          model.setRowHeight(Math.max(1.5, Math.floor(rowHeight * 0.75)))
-        }}
-      >
+      <IconButton onClick={() => model.zoomOut()}>
         <ZoomOut />
       </IconButton>
     </>
