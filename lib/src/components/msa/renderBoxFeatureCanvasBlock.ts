@@ -19,23 +19,26 @@ export function renderBoxFeatureCanvasBlock({
   highResScaleFactorOverride?: number
   blockSizeYOverride?: number
 }) {
-  const { hierarchy, blockSize, rowHeight, highResScaleFactor } = model
-  const k = highResScaleFactorOverride || highResScaleFactor
-  const by = blockSizeYOverride || blockSize
-  ctx.resetTransform()
-  ctx.scale(k, k)
-  ctx.translate(-offsetX, rowHeight / 2 - offsetY)
+  const { hierarchy, blockSize, rowHeight, highResScaleFactor, featureMode } =
+    model
+  if (featureMode) {
+    const k = highResScaleFactorOverride || highResScaleFactor
+    const by = blockSizeYOverride || blockSize
+    ctx.resetTransform()
+    ctx.scale(k, k)
+    ctx.translate(-offsetX, rowHeight / 2 - offsetY)
 
-  const leaves = hierarchy.leaves()
-  const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
-  const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
-  const visibleLeaves = leaves.slice(yStart, yEnd)
+    const leaves = hierarchy.leaves()
+    const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
+    const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
+    const visibleLeaves = leaves.slice(yStart, yEnd)
 
-  drawTiles({
-    model,
-    ctx,
-    visibleLeaves,
-  })
+    drawTiles({
+      model,
+      ctx,
+      visibleLeaves,
+    })
+  }
 }
 
 function drawTiles({

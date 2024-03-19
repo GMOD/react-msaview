@@ -11,6 +11,7 @@ import { renderMSABlock } from './components/msa/renderMSABlock'
 import { colorContrast } from './util'
 
 import MinimapSVG from './components/minimap/MinimapSVG'
+import { renderBoxFeatureCanvasBlock } from './components/msa/renderBoxFeatureCanvasBlock'
 
 export async function renderToSvg(
   model: MsaViewModel,
@@ -132,6 +133,14 @@ function CoreRendering({
   const contrastScheme = colorContrast(colorScheme, theme)
   const ctx1 = Context(width, height)
   const ctx2 = Context(width, height)
+  renderBoxFeatureCanvasBlock({
+    ctx: ctx2,
+    offsetX,
+    offsetY,
+    model,
+    blockSizeYOverride: height,
+    highResScaleFactorOverride: 1,
+  })
   renderTreeCanvas({
     model,
     offsetY,
@@ -158,6 +167,7 @@ function CoreRendering({
           <rect x={0} y={0} width={treeAreaWidth} height={height} />
         </clipPath>
       </defs>
+
       <g
         clipPath={`url(#${clipId})`}
         /* eslint-disable-next-line react/no-danger */
