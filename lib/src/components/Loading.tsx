@@ -2,12 +2,12 @@ import React from 'react'
 import { observer } from 'mobx-react'
 import { Button, Typography } from '@mui/material'
 import { ErrorBoundary } from 'react-error-boundary'
+import { ErrorMessage } from '@jbrowse/core/ui'
 
 // locals
 import ImportForm from './import/ImportForm'
 import MSAView from './MSAView'
 import { MsaViewModel } from '../model'
-import { ErrorMessage } from '@jbrowse/core/ui'
 
 function Reset({ model, error }: { model: MsaViewModel; error: unknown }) {
   return (
@@ -25,17 +25,17 @@ const Loading = observer(function ({ model }: { model: MsaViewModel }) {
 
   return (
     <div>
-      {!initialized ? (
-        <ImportForm model={model} />
-      ) : isLoading ? (
-        <Typography variant="h4">Loading...</Typography>
-      ) : (
-        <ErrorBoundary
-          fallbackRender={props => <Reset model={model} error={props.error} />}
-        >
+      <ErrorBoundary
+        fallbackRender={props => <Reset model={model} error={props.error} />}
+      >
+        {!initialized ? (
+          <ImportForm model={model} />
+        ) : isLoading ? (
+          <Typography variant="h4">Loading...</Typography>
+        ) : (
           <MSAView model={model} />
-        </ErrorBoundary>
-      )}
+        )}
+      </ErrorBoundary>
     </div>
   )
 })
