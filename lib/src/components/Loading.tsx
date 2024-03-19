@@ -7,11 +7,12 @@ import { ErrorBoundary } from 'react-error-boundary'
 import ImportForm from './import/ImportForm'
 import MSAView from './MSAView'
 import { MsaViewModel } from '../model'
+import { ErrorMessage } from '@jbrowse/core/ui'
 
-function Reset({ model }: { model: MsaViewModel }) {
+function Reset({ model, error }: { model: MsaViewModel; error: unknown }) {
   return (
     <div>
-      <div>Encountered fatal error</div>
+      <ErrorMessage error={error} />
       <Button variant="contained" color="primary" onClick={() => model.reset()}>
         Return to import form
       </Button>
@@ -29,7 +30,9 @@ const Loading = observer(function ({ model }: { model: MsaViewModel }) {
       ) : isLoading ? (
         <Typography variant="h4">Loading...</Typography>
       ) : (
-        <ErrorBoundary fallback={<Reset model={model} />}>
+        <ErrorBoundary
+          fallbackRender={props => <Reset model={model} error={props.error} />}
+        >
           <MSAView model={model} />
         </ErrorBoundary>
       )}
