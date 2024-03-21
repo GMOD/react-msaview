@@ -13,15 +13,19 @@ const useStyles = makeStyles()({
   },
 })
 
-const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
-  const { mouseOverRowName, mouseCol } = model
+const HeaderStatusArea = observer(({ model }: { model: MsaViewModel }) => {
+  const { status } = model
   const { classes } = useStyles()
-  return mouseOverRowName && mouseCol !== undefined ? (
+  return status ? (
     <Typography className={classes.margin}>
-      {mouseOverRowName}:
-      {model.globalCoordToRowSpecificSeqCoord(mouseOverRowName, mouseCol)}
+      {status.msg}{' '}
+      {status.url ? (
+        <a href={status.url} target="_blank" rel="noreferrer">
+          (status)
+        </a>
+      ) : null}
     </Typography>
   ) : null
 })
 
-export default HeaderInfoArea
+export default HeaderStatusArea

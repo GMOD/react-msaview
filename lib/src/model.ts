@@ -11,7 +11,13 @@ import { Theme } from '@mui/material'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
+import {
+  groupBy,
+  localStorageGetItem,
+  localStorageSetItem,
+  notEmpty,
+  sum,
+} from '@jbrowse/core/util'
 
 // locals
 import {
@@ -25,7 +31,6 @@ import {
   NodeWithIdsAndLength,
   len,
 } from './util'
-import { jsonfetch } from './fetchUtils'
 import { colord } from 'colord'
 import { reparseTree } from './reparseTree'
 import { blocksX, blocksY } from './calculateBlocks'
@@ -47,6 +52,11 @@ import { DataModelF } from './model/DataModel'
 import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
+import {
+  InterProScanResults,
+  launchInterProScan,
+  loadInterProScanResults,
+} from './launchInterProScan'
 
 interface Accession {
   accession: string
@@ -197,6 +207,7 @@ function stateModelFactory() {
       }),
     )
     .volatile(() => ({
+      status: undefined as { msg: string; url?: string } | undefined,
       /**
        * #volatile
        * high resolution scale factor, helps make canvas look better on hi-dpi
@@ -280,51 +291,17 @@ function stateModelFactory() {
 
       /**
        * #volatile
-       */
-      annotationTracks: [
-        'A8CT47_9VIRU%2F46-492.json',
-        'B8Y0L1_9VIRU%2F39-459.json',
-        'NS1AB_TASV1%2F1126-1583.json',
-        'POL1_BAYMY%2F1647-2074.json',
-        'POL1_CPMVS%2F1197-1670.json',
-        'POLG_EMCVR%2F1853-2275.json',
-        'POLG_FCVUR%2F1272-1715.json',
-        'POLG_HAVHM%2F1765-2198.json',
-        'POLG_NVN68%2F1309-1746.json',
-        'POLG_PVYN%2F2312-2736.json',
-        'POLG_PYFV1%2F2281-2756.json',
-        'POLG_RHDVF%2F1288-1730.json',
-        'POLG_VESVA%2F1386-1832.json',
-        'Q38L14_9VIRU%2F30-445.json',
-        'Q4FCM7_9VIRU%2F30-445.json',
-        'Q6YDQ7_9VIRU%2F46-492.json',
-        'Q9DLK1_FMDVP%2F1874-2302.json',
-        'R1AB_CVHN5%2F4801-5292.json',
-        'RDRP_BPPH6%2F35-607.json',
-        'RPOA_SHFV%2F2295-2719.json',
-        'W1I6K0_9VIRU%2F30-445.json',
-      ],
-      /**
-       * #volatile
        *
        */
       loadedInterProAnnotations: undefined as
         | undefined
-        | Record<
-            string,
-            {
-              matches: {
-                signature: {
-                  entry?: {
-                    name: string
-                    description: string
-                    accession: string
-                  }
-                }
-                locations: { start: number; end: number }[]
-              }[]
-            }
-          >,
+        | Record<string, InterProScanResults>,
+      /**
+       * #volatile
+       */
+      interProScanJobIds: JSON.parse(
+        localStorageGetItem('msaview-interproscanqueries') || '[]',
+      ) as { jobId: string; date: number }[],
     }))
     .actions(self => ({
       /**
@@ -520,15 +497,8 @@ function stateModelFactory() {
        * #method
        */
       getRowData(name: string) {
-        const matches = name.match(/\S+\/(\d+)-(\d+)/)
         return {
-          data: this.MSA?.getRowData(name) || ({} as Record<string, unknown>),
-          ...(matches && {
-            range: {
-              start: +matches[1],
-              end: +matches[2],
-            },
-          }),
+          data: this.MSA?.getRowData(name),
         }
       },
 
@@ -543,6 +513,12 @@ function stateModelFactory() {
        */
       get noTree() {
         return !!this._tree.noTree
+      },
+      /**
+       * #getter
+       */
+      get noAnnotations() {
+        return !self.loadedInterProAnnotations
       },
       /**
        * #getter
@@ -821,8 +797,10 @@ function stateModelFactory() {
         self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
         self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setLoadedInterProAnnotations(data: any) {
+      /**
+       * #action
+       */
+      setLoadedInterProAnnotations(data: Record<string, InterProScanResults>) {
         self.loadedInterProAnnotations = data
       },
 
@@ -856,6 +834,21 @@ function stateModelFactory() {
         } else {
           self.turnedOffTracks.set(id, true)
         }
+      },
+      /**
+       * #action
+       */
+      addInterProScanJobId(arg: string) {
+        self.interProScanJobIds = [
+          ...self.interProScanJobIds,
+          { jobId: arg, date: +Date.now() },
+        ]
+      },
+      /**
+       * #action
+       */
+      setStatus(status?: { msg: string; url?: string }) {
+        self.status = status
       },
     }))
     .views(self => ({
@@ -1070,6 +1063,43 @@ function stateModelFactory() {
       },
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      async loadInterProScanResults(jobId: string) {
+        self.setStatus({ msg: 'Loading ' + jobId })
+        const ret = await loadInterProScanResults(jobId)
+        self.setStatus()
+        self.setLoadedInterProAnnotations(
+          Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
+        )
+      },
+      /**
+       * #action
+       */
+      async queryInterProScan(programs: string[]) {
+        const { rows } = self
+        if (rows.length > 140) {
+          throw new Error('Too many sequences, please run InterProScan offline')
+        }
+
+        const ret = await launchInterProScan({
+          algorithm: 'interproscan',
+          programs: programs,
+          seq: rows
+            .map(row => `>${row[0]}\n${row[1].replaceAll('-', '')}`)
+            .join('\n'),
+          onProgress: arg => self.setStatus(arg),
+          onJobId: jobId => self.addInterProScanJobId(jobId),
+        })
+
+        self.setLoadedInterProAnnotations(
+          Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
+        )
+      },
+      /**
+       * #action
+       */
       reset() {
         transaction(() => {
           self.setData({ tree: '', msa: '' })
@@ -1129,20 +1159,20 @@ function stateModelFactory() {
         addDisposer(
           self,
           autorun(async () => {
-            const res = Object.fromEntries(
-              await Promise.all(
-                self.annotationTracks.map(async f => {
-                  const d = await jsonfetch(
-                    `https://jbrowse.org/demos/interproscan/json/${encodeURIComponent(f)}`,
-                  )
-                  return [
-                    decodeURIComponent(f).replace('.json', ''),
-                    d.result.results[0],
-                  ] as const
-                }),
-              ),
-            )
-            self.setLoadedInterProAnnotations(res)
+            // const res = Object.fromEntries(
+            //   await Promise.all(
+            //     self.annotationTracks.map(async f => {
+            //       const d = await jsonfetch(
+            //         `https://jbrowse.org/demos/interproscan/json/${encodeURIComponent(f)}`,
+            //       )
+            //       return [
+            //         decodeURIComponent(f).replace('.json', ''),
+            //         d.result.results[0],
+            //       ] as const
+            //     }),
+            //   ),
+            // )
+            // self.setLoadedInterProAnnotations(res)
           }),
         )
         // autorun opens treeFilehandle
@@ -1225,6 +1255,16 @@ function stateModelFactory() {
                 ),
               )
             }
+          }),
+        )
+
+        addDisposer(
+          self,
+          autorun(() => {
+            localStorageSetItem(
+              'msaview-interproscanqueries',
+              JSON.stringify(self.interProScanJobIds),
+            )
           }),
         )
       },

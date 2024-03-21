@@ -12,6 +12,7 @@ import Menu from '@mui/icons-material/Menu'
 // locals
 import { MsaViewModel } from '../../model'
 
+// lazies
 const SettingsDialog = lazy(() => import('../dialogs/SettingsDialog'))
 const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('../dialogs/TracklistDialog'))
@@ -38,7 +39,7 @@ const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
           icon: Assignment,
         },
         {
-          label: 'Tracks',
+          label: 'Extra tracks',
           onClick: () =>
             model.queueDialog(onClose => [TracklistDialog, { model, onClose }]),
           icon: List,

@@ -8,7 +8,7 @@ our source code.
 
 ### Source file
 
-[src/DataModel.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/DataModel.ts)
+[src/model/DataModel.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model/DataModel.ts)
 
 the data stored for the model. this is sometimes temporary in the case that
 e.g. msaFilehandle is available on the parent model, because then the msa

@@ -12,6 +12,7 @@ import Help from '@mui/icons-material/Help'
 import ZoomControls from './ZoomControls'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
 import HeaderInfoArea from './HeaderInfoArea'
+import HeaderStatusArea from './HeaderStatusArea'
 import HeaderMenu from './HeaderMenu'
 import HeaderMenuExtra from './HeaderMenuExtra'
 
@@ -26,6 +27,7 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       <MultiAlignmentSelector model={model} />
       <HeaderInfoArea model={model} />
       <Spacer />
+      <HeaderStatusArea model={model} />
       <IconButton
         onClick={() => model.queueDialog(onClose => [AboutDialog, { onClose }])}
       >

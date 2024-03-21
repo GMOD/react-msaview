@@ -8,7 +8,7 @@ our source code.
 
 ### Source file
 
-[src/DialogQueue.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/DialogQueue.ts)
+[src/model/DialogQueue.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model/DialogQueue.ts)
 
 
 

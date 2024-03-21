@@ -5,14 +5,7 @@ import { Button, DialogContent } from '@mui/material'
 
 // locals
 import { MsaViewModel } from '../../model'
-
-function p(n: number) {
-  const hues = Array.from(
-    { length: n + 1 },
-    (_, i) => 15 + (i * (375 - 15)) / n,
-  )
-  return hues.map(h => `lch(65% 100 ${h})`).slice(0, n)
-}
+import { getPalette } from '../../ggplotPalettes'
 
 const Toggles = observer(function ({ model }: { model: MsaViewModel }) {
   const { featureFilters } = model
@@ -43,7 +36,8 @@ const Toggles = observer(function ({ model }: { model: MsaViewModel }) {
 
 const Table = observer(function ({ model }: { model: MsaViewModel }) {
   const { tidyTypes, featureFilters } = model
-  const palette = p([...tidyTypes.values()].length)
+  const values = [...tidyTypes.values()]
+  const palette = getPalette(values.length - 1)
   return (
     <>
       <Toggles model={model} />
@@ -57,36 +51,34 @@ const Table = observer(function ({ model }: { model: MsaViewModel }) {
           </tr>
         </thead>
         <tbody>
-          {[...tidyTypes.values()].map(
-            ({ accession, name, description }, idx) => (
-              <tr key={accession}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={featureFilters.get(accession) ?? false}
-                    onChange={() =>
-                      model.setFilter(
-                        accession,
-                        !model.featureFilters.get(accession),
-                      )
-                    }
-                  />
-                </td>
-                <td>{accession}</td>
-                <td>{name}</td>
-                <td>{description}</td>
-                <td>
-                  <div
-                    style={{
-                      width: 20,
-                      height: 20,
-                      background: palette[idx],
-                    }}
-                  ></div>
-                </td>
-              </tr>
-            ),
-          )}
+          {values.map(({ accession, name, description }, idx) => (
+            <tr key={accession}>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={featureFilters.get(accession) ?? false}
+                  onChange={() =>
+                    model.setFilter(
+                      accession,
+                      !model.featureFilters.get(accession),
+                    )
+                  }
+                />
+              </td>
+              <td>{accession}</td>
+              <td>{name}</td>
+              <td>{description}</td>
+              <td>
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    background: palette[idx],
+                  }}
+                ></div>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </>
@@ -101,7 +93,12 @@ const FeatureTypeDialog = observer(function ({
   model: MsaViewModel
 }) {
   return (
-    <Dialog onClose={() => onClose()} open title="Feature types" maxWidth="xl">
+    <Dialog
+      onClose={() => onClose()}
+      open
+      title="Feature filters"
+      maxWidth="xl"
+    >
       <DialogContent>
         <Table model={model} />
       </DialogContent>

@@ -233,5 +233,5 @@ function SvgWrapper({
 }
 
 function NullWrapper({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return children
 }

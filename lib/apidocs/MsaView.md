@@ -11,36 +11,14 @@ our source code.
 [src/model.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model.ts)
 
 extends
-- BaseViewModel
 - DialogQueueSessionMixin
+- MSAModel
+- Tree
 
 ### MsaView - Properties
-#### property: bgColor
-
-draw MSA tiles with a background color
-
-```js
-// type signature
-true
-// code
-bgColor: true
-```
-
-#### property: boxTracks
-
-a list of "tracks" to display, as box-like glyphs (e.g. protein
-domains)
-
-```js
-// type signature
-IArrayType<IModelType<{ id: ISimpleType<string>; accession: ISimpleType<string>; name: ISimpleType<string>; associatedRowName: ISimpleType<string>; height: IOptionalIType<...>; }, { ...; } & ... 2 more ... & { ...; }, _NotCustomized, _NotCustomized>>
-// code
-boxTracks: types.array(UniprotTrack)
-```
-
 #### property: collapsed
 
-array of tree nodes that are 'collapsed'
+array of tree parent nodes that are 'collapsed'
 
 ```js
 // type signature
@@ -49,15 +27,15 @@ IArrayType<ISimpleType<string>>
 collapsed: types.array(types.string)
 ```
 
-#### property: colorSchemeName
+#### property: collapsed2
 
-default color scheme name
+array of tree leaf nodes that are 'collapsed'
 
 ```js
 // type signature
-string
+IArrayType<ISimpleType<string>>
 // code
-colorSchemeName: 'maeditor'
+collapsed2: types.array(types.string)
 ```
 
 #### property: colWidth
@@ -94,26 +72,26 @@ IOptionalIType<IModelType<{ tree: IMaybe<ISimpleType<string>>; msa: IMaybe<ISimp
 data: types.optional(DataModelF(), { tree: '', msa: '' })
 ```
 
-#### property: drawNodeBubbles
+#### property: featureFilters
 
-draw clickable node bubbles on the tree
+
 
 ```js
 // type signature
-true
+IMapType<ISimpleType<boolean>>
 // code
-drawNodeBubbles: true
+featureFilters: types.map(types.boolean)
 ```
 
-#### property: drawTree
+#### property: featureMode
 
-draw tree, boolean
+
 
 ```js
 // type signature
-true
+false
 // code
-drawTree: true
+featureMode: false
 ```
 
 #### property: height
@@ -127,29 +105,6 @@ IOptionalIType<ISimpleType<number>, [undefined]>
 height: types.optional(types.number, 550)
 ```
 
-#### property: hidden
-
-array of leaf nodes that are 'hidden', similar to collapsed but for leaf nodes
-
-```js
-// type signature
-IArrayType<ISimpleType<string>>
-// code
-hidden: types.array(types.string)
-```
-
-#### property: highResScaleFactor
-
-high resolution scale factor, helps make canvas look better on hi-dpi
-screens
-
-```js
-// type signature
-number
-// code
-highResScaleFactor: 2
-```
-
 #### property: id
 
 id of view, randomly generated if not provided
@@ -159,17 +114,6 @@ id of view, randomly generated if not provided
 IOptionalIType<ISimpleType<string>, [undefined]>
 // code
 id: ElementId
-```
-
-#### property: labelsAlignRight
-
-right-align the labels
-
-```js
-// type signature
-false
-// code
-labelsAlignRight: false
 ```
 
 #### property: msaFilehandle
@@ -217,30 +161,6 @@ number
 scrollY: 0
 ```
 
-#### property: selectedStructures
-
-currently "selected" structures, generally PDB 3-D protein structures
-
-```js
-// type signature
-IArrayType<IModelType<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }, {}, _NotCustomized, _NotCustomized>>
-// code
-selectedStructures: types.array(StructureModel)
-```
-
-#### property: showBranchLen
-
-use "branch length" e.g. evolutionary distance to draw tree branch
-lengths. if false, the layout is a "cladogram" that does not take into
-account evolutionary distances
-
-```js
-// type signature
-true
-// code
-showBranchLen: true
-```
-
 #### property: showOnly
 
 focus on particular subtree
@@ -252,15 +172,15 @@ IMaybe<ISimpleType<string>>
 showOnly: types.maybe(types.string)
 ```
 
-#### property: treeAreaWidth
+#### property: subFeatureRows
 
-width of the area the tree is drawn in, px
+
 
 ```js
 // type signature
-IOptionalIType<ISimpleType<number>, [undefined]>
+false
 // code
-treeAreaWidth: types.optional(types.number, 400)
+subFeatureRows: false
 ```
 
 #### property: treeFilehandle
@@ -283,17 +203,6 @@ filehandle object for tree metadata
 IMaybe<ISnapshotProcessor<ITypeUnion<ModelCreationType<ExtractCFromProps<{ locationType: ISimpleType<"UriLocation">; uri: ISimpleType<string>; baseUri: IMaybe<ISimpleType<string>>; internetAccountId: IMaybe<...>; internetAccountPreAuthorization: IMaybe<...>; }>> | ModelCreationType<...> | ModelCreationType<...>, { ....
 // code
 treeMetadataFilehandle: types.maybe(FileLocation)
-```
-
-#### property: treeWidth
-
-width of the tree within the treeArea, px
-
-```js
-// type signature
-IOptionalIType<ISimpleType<number>, [undefined]>
-// code
-treeWidth: types.optional(types.number, 300)
 ```
 
 #### property: turnedOffTracks
@@ -335,7 +244,7 @@ NodeWithIds
 
 ```js
 // type
-BasicTrack[]
+ITextTrack[]
 ```
 
 #### getter: alignmentNames
@@ -383,15 +292,6 @@ any[]
 any[]
 ```
 
-#### getter: boxTrackModels
-
-
-
-```js
-// type
-BasicTrack[]
-```
-
 #### getter: colorScheme
 
 
@@ -437,24 +337,6 @@ any
 string[]
 ```
 
-#### getter: currentAlignmentName
-
-
-
-```js
-// type
-any
-```
-
-#### getter: done
-
-
-
-```js
-// type
-string
-```
-
 #### getter: fontSize
 
 
@@ -491,13 +373,13 @@ HierarchyNode<NodeWithIdsAndLength>
 boolean
 ```
 
-#### getter: inverseStructures
+#### getter: isLoading
 
 
 
 ```js
 // type
-{ [k: string]: any; }
+boolean
 ```
 
 #### getter: labelsWidth
@@ -552,6 +434,15 @@ widget width minus the tree area gives the space for the MSA
 ```js
 // type
 number
+```
+
+#### getter: noAnnotations
+
+
+
+```js
+// type
+boolean
 ```
 
 #### getter: noTree
@@ -617,13 +508,31 @@ any
 any
 ```
 
-#### getter: structures
+#### getter: tidyFilteredAnnotations
 
 
 
 ```js
 // type
-Record<string, Structure[]>
+any
+```
+
+#### getter: tidyFilteredGatheredAnnotations
+
+
+
+```js
+// type
+Record<string, unknown[]>
+```
+
+#### getter: tidyTypes
+
+
+
+```js
+// type
+Map<string, Accession>
 ```
 
 #### getter: totalHeight
@@ -659,7 +568,7 @@ number
 
 ```js
 // type
-BasicTrack[]
+ITextTrack[]
 ```
 
 #### getter: treeAreaWidthMinusMargin
@@ -680,15 +589,6 @@ number
 any
 ```
 
-#### getter: treeWidthMatchesArea
-
-synchronization that matches treeWidth to treeAreaWidth
-
-```js
-// type
-true
-```
-
 #### getter: turnedOnTracks
 
 
@@ -700,22 +600,13 @@ any
 
 
 ### MsaView - Methods
-#### method: getMouseOverResidue
+#### method: extraViewMenuItems
 
-
-
-```js
-// type signature
-getMouseOverResidue: (rowName: string) => any
-```
-
-#### method: getPos
-
-
+unused here, but can be used by derived classes to add extra items
 
 ```js
 // type signature
-getPos: (pos: number) => number
+extraViewMenuItems: () => any[]
 ```
 
 #### method: getRowData
@@ -724,90 +615,38 @@ getPos: (pos: number) => number
 
 ```js
 // type signature
-getRowData: (name: string) => { range: { start: number; end: number; }; data: any; }
+getRowData: (name: string) => { data: any; }
 ```
 
-#### method: globalBpToPx
+#### method: globalCoordToRowSpecificSeqCoord
 
-
+return a row-specific sequence coordinate, skipping gaps, given a global
+coordinate
 
 ```js
 // type signature
-globalBpToPx: (position: number) => number
+globalCoordToRowSpecificSeqCoord: (rowName: string, position: number) => number
 ```
 
-#### method: pxToBp
+#### method: seqCoordToRowSpecificGlobalCoord
 
-returns coordinate in the current relative coordinate scheme
+return a global coordinate given a row-specific sequence coordinate
+which does not not include gaps
 
 ```js
 // type signature
-pxToBp: (coord: number) => number
-```
-
-#### method: globalCoordToRowSpecificCoord
-
-
-
-```js
-// type signature
-globalCoordToRowSpecificCoord: (rowName: string, position: number) => number
-```
-
-#### method: globalCoordToRowSpecificCoord2
-
-
-
-```js
-// type signature
-globalCoordToRowSpecificCoord2: (rowName: string, position: number) => number
-```
-
-#### method: rowSpecificBpToPx
-
-
-
-```js
-// type signature
-rowSpecificBpToPx: (rowName: string, position: number) => number
+seqCoordToRowSpecificGlobalCoord: (rowName: string, position: number) => number
 ```
 
 
 ### MsaView - Actions
-#### action: addStructureToSelection
-
-add to the selected structures
-
-```js
-// type signature
-addStructureToSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }>>) => void
-```
-
-#### action: addUniprotTrack
+#### action: addInterProScanJobId
 
 
 
 ```js
 // type signature
-addUniprotTrack: (node: { name: string; accession: string; }) => void
-```
-
-#### action: clearHidden
-
-
-
-```js
-// type signature
-clearHidden: () => void
-```
-
-#### action: clearSelectedStructures
-
-clear all selected structures
-
-```js
-// type signature
-clearSelectedStructures: () => void
+addInterProScanJobId: (arg: string) => void
 ```
 
 #### action: doScrollX
@@ -837,15 +676,6 @@ doScrollY: (deltaY: number) => void
 exportSVG: (opts: { theme: Theme; includeMinimap?: boolean; exportType: string; }) => Promise<void>
 ```
 
-#### action: hideNode
-
-
-
-```js
-// type signature
-hideNode: (arg: string) => void
-```
-
 #### action: incrementRef
 
 internal, used for drawing to canvas
@@ -855,31 +685,40 @@ internal, used for drawing to canvas
 incrementRef: () => void
 ```
 
-#### action: removeStructureFromSelection
+#### action: initFilter
 
-remove from the selected structures
+
 
 ```js
 // type signature
-removeStructureFromSelection: (elt: ModelCreationType<ExtractCFromProps<{ id: ISimpleType<string>; structure: IModelType<{ pdb: ISimpleType<string>; startPos: ISimpleType<number>; endPos: ISimpleType<number>; }, {}, _NotCustomized, _NotCustomized>; range: IMaybe<...>; }>>) => void
+initFilter: (arg: string) => void
 ```
 
-#### action: setBgColor
+#### action: loadInterProScanResults
 
 
 
 ```js
 // type signature
-setBgColor: (arg: boolean) => void
+loadInterProScanResults: (jobId: string) => Promise<void>
 ```
 
-#### action: setColorSchemeName
+#### action: queryInterProScan
 
-set color scheme name
+
 
 ```js
 // type signature
-setColorSchemeName: (name: string) => void
+queryInterProScan: (programs: string[]) => Promise<void>
+```
+
+#### action: reset
+
+
+
+```js
+// type signature
+reset: () => void
 ```
 
 #### action: setColWidth
@@ -909,24 +748,6 @@ setCurrentAlignment: (n: number) => void
 setData: (data: { msa?: string; tree?: string; }) => void
 ```
 
-#### action: setDrawNodeBubbles
-
-
-
-```js
-// type signature
-setDrawNodeBubbles: (arg: boolean) => void
-```
-
-#### action: setDrawTree
-
-
-
-```js
-// type signature
-setDrawTree: (arg: boolean) => void
-```
-
 #### action: setError
 
 set error state
@@ -934,6 +755,24 @@ set error state
 ```js
 // type signature
 setError: (error?: unknown) => void
+```
+
+#### action: setFeatureMode
+
+
+
+```js
+// type signature
+setFeatureMode: (arg: boolean) => void
+```
+
+#### action: setFilter
+
+
+
+```js
+// type signature
+setFilter: (arg: string, flag: boolean) => void
 ```
 
 #### action: setHeight
@@ -945,22 +784,40 @@ set the height of the view in px
 setHeight: (height: number) => void
 ```
 
-#### action: setLabelsAlignRight
+#### action: setLoadedInterProAnnotations
 
 
 
 ```js
 // type signature
-setLabelsAlignRight: (arg: boolean) => void
+setLoadedInterProAnnotations: (data: Record<string, InterProScanResults>) => void
 ```
 
-#### action: setMouseoveredColumn
+#### action: setLoadingMSA
 
 
 
 ```js
 // type signature
-setMouseoveredColumn: (n: number, chain: string, file: string) => void
+setLoadingMSA: (arg: boolean) => void
+```
+
+#### action: setLoadingTree
+
+
+
+```js
+// type signature
+setLoadingTree: (arg: boolean) => void
+```
+
+#### action: setMouseClickPos
+
+set mouse click position (row, column) in the MSA
+
+```js
+// type signature
+setMouseClickPos: (col?: number, row?: number) => void
 ```
 
 #### action: setMousePos
@@ -987,7 +844,7 @@ setMSA: (result: string) => void
 
 ```js
 // type signature
-setMSAFilehandle: (msaFilehandle?: FileLocation) => Promise<void>
+setMSAFilehandle: (msaFilehandle?: FileLocation) => void
 ```
 
 #### action: setRowHeight
@@ -1017,15 +874,6 @@ set scroll Y-offset (px)
 setScrollY: (n: number) => void
 ```
 
-#### action: setShowBranchLen
-
-
-
-```js
-// type signature
-setShowBranchLen: (arg: boolean) => void
-```
-
 #### action: setShowOnly
 
 
@@ -1033,6 +881,24 @@ setShowBranchLen: (arg: boolean) => void
 ```js
 // type signature
 setShowOnly: (node?: string) => void
+```
+
+#### action: setStatus
+
+
+
+```js
+// type signature
+setStatus: (status?: { msg: string; url?: string; }) => void
+```
+
+#### action: setSubFeatureRows
+
+
+
+```js
+// type signature
+setSubFeatureRows: (arg: boolean) => void
 ```
 
 #### action: setTree
@@ -1044,22 +910,13 @@ setShowOnly: (node?: string) => void
 setTree: (result: string) => void
 ```
 
-#### action: setTreeAreaWidth
-
-set tree area width (px)
-
-```js
-// type signature
-setTreeAreaWidth: (n: number) => void
-```
-
 #### action: setTreeFilehandle
 
 
 
 ```js
 // type signature
-setTreeFilehandle: (treeFilehandle?: FileLocation) => Promise<void>
+setTreeFilehandle: (treeFilehandle?: FileLocation) => void
 ```
 
 #### action: setTreeMetadata
@@ -1071,22 +928,13 @@ setTreeFilehandle: (treeFilehandle?: FileLocation) => Promise<void>
 setTreeMetadata: (result: string) => void
 ```
 
-#### action: setTreeWidth
+#### action: setWidth
 
-set tree width (px)
 
-```js
-// type signature
-setTreeWidth: (n: number) => void
-```
-
-#### action: setTreeWidthMatchesArea
-
-synchronize the treewidth and treeareawidth
 
 ```js
 // type signature
-setTreeWidthMatchesArea: (arg: boolean) => void
+setWidth: (arg: number) => void
 ```
 
 #### action: toggleCollapsed
@@ -1098,13 +946,13 @@ setTreeWidthMatchesArea: (arg: boolean) => void
 toggleCollapsed: (node: string) => void
 ```
 
-#### action: toggleStructureSelection
+#### action: toggleCollapsed2
 
-toggle a structure from the selected structures list
+
 
 ```js
 // type signature
-toggleStructureSelection: (elt: { id: string; structure: { startPos: number; endPos: number; pdb: string; }; }) => void
+toggleCollapsed2: (node: string) => void
 ```
 
 #### action: toggleTrack
@@ -1114,6 +962,24 @@ toggleStructureSelection: (elt: { id: string; structure: { startPos: number; end
 ```js
 // type signature
 toggleTrack: (id: string) => void
+```
+
+#### action: zoomIn
+
+
+
+```js
+// type signature
+zoomIn: () => void
+```
+
+#### action: zoomOut
+
+
+
+```js
+// type signature
+zoomOut: () => void
 ```
 
 

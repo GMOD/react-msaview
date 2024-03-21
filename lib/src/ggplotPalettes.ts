@@ -17,4 +17,9 @@ const palettes = [
     '#FF61CC',
   ],
 ]
+
+export function getPalette(l: number) {
+  return palettes[Math.min(l, palettes.length - 1)]
+}
+
 export default palettes
