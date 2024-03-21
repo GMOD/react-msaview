@@ -45,17 +45,19 @@ export interface BoxTrack {
 
 type BasicTrack = BoxTrack | TextTrack
 
+// special build, don't skip blanks RE: https://github.com/GMOD/jbrowse-components/discussions/4304
 function skipBlanks(blanks: number[], arg: string) {
-  let s = ''
-  let b = 0
-  for (let j = 0; j < arg.length; j++) {
-    if (j === blanks[b]) {
-      b++
-    } else {
-      s += arg[j]
-    }
-  }
-  return s
+  return arg
+  // let s = ''
+  // let b = 0
+  // for (let j = 0; j < arg.length; j++) {
+  //   if (j === blanks[b]) {
+  //     b++
+  //   } else {
+  //     s += arg[j]
+  //   }
+  // }
+  // return s
 }
 
 function setBrLength(d: HierarchyNode<any>, y0: number, k: number) {
@@ -736,16 +738,16 @@ const MSAModel = types
       const blanks = self.blanks
       const adapterTracks = self.MSA
         ? self.MSA.tracks.map(track => {
-            const { data } = track
-            return {
-              model: {
-                ...track,
-                data: data ? skipBlanks(blanks, data) : undefined,
-                height: self.rowHeight,
-              } as TextTrackModel,
-              ReactComponent: TextTrack,
-            }
-          })
+          const { data } = track
+          return {
+            model: {
+              ...track,
+              data: data ? skipBlanks(blanks, data) : undefined,
+              height: self.rowHeight,
+            } as TextTrackModel,
+            ReactComponent: TextTrack,
+          }
+        })
         : ([] as BasicTrack[])
 
       const boxTracks = self.boxTracks
@@ -759,36 +761,36 @@ const MSAModel = types
       const annotationTracks =
         self.annotatedRegions.length > 0
           ? [
-              {
-                model: {
-                  features: self.annotatedRegions,
-                  height: 100,
-                  id: 'annotations',
-                  name: 'User-created annotations',
-                  data: self.annotatedRegions
-                    .map(region => {
-                      const attrs = region.attributes
-                        ? Object.entries(region.attributes)
-                            .map(([k, v]) => `${k}=${v.join(',')}`)
-                            .join(';')
-                        : '.'
-                      return [
-                        'MSA_refcoord',
-                        '.',
-                        '.',
-                        region.start,
-                        region.end,
-                        '.',
-                        '.',
-                        '.',
-                        attrs,
-                      ].join('\t')
-                    })
-                    .join('\n'),
-                } as BoxTrackModel,
-                ReactComponent: BoxTrack,
-              },
-            ]
+            {
+              model: {
+                features: self.annotatedRegions,
+                height: 100,
+                id: 'annotations',
+                name: 'User-created annotations',
+                data: self.annotatedRegions
+                  .map(region => {
+                    const attrs = region.attributes
+                      ? Object.entries(region.attributes)
+                        .map(([k, v]) => `${k}=${v.join(',')}`)
+                        .join(';')
+                      : '.'
+                    return [
+                      'MSA_refcoord',
+                      '.',
+                      '.',
+                      region.start,
+                      region.end,
+                      '.',
+                      '.',
+                      '.',
+                      attrs,
+                    ].join('\t')
+                  })
+                  .join('\n'),
+              } as BoxTrackModel,
+              ReactComponent: BoxTrack,
+            },
+          ]
           : ([] as BasicTrack[])
 
       return [...adapterTracks, ...boxTracks, ...annotationTracks]
