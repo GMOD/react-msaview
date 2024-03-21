@@ -73,7 +73,7 @@ const Table = observer(function ({ model }: { model: MsaViewModel }) {
                   style={{
                     width: 20,
                     height: 20,
-                    background: palette[idx],
+                    background: palette[idx] || 'black',
                   }}
                 ></div>
               </td>
