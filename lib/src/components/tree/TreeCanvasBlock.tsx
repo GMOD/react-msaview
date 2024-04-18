@@ -103,7 +103,7 @@ const TreeCanvasBlock = observer(function ({
       maxY: y + 1 + offsetY,
     })
 
-    return entry && entry.branch
+    return entry?.branch
       ? { ...entry, x: event.clientX, y: event.clientY }
       : undefined
   }

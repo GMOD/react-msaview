@@ -5,7 +5,6 @@ import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
 
 // locals
 import { MsaViewModel } from '../../model'
-import SequenceTextArea from '../SequenceTextArea'
 
 const FeatureTypeDialog = observer(function ({
   onClose,
