@@ -58,7 +58,7 @@ import {
   loadInterProScanResults,
 } from './launchInterProScan'
 
-interface Accession {
+export interface Accession {
   accession: string
   name: string
   description: string
