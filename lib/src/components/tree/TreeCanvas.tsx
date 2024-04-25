@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import normalizeWheel from 'normalize-wheel'
 import { observer } from 'mobx-react'
 
 // locals
@@ -20,9 +19,8 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
     if (!curr) {
       return
     }
-    function onWheel(origEvent: WheelEvent) {
-      const event = normalizeWheel(origEvent)
-      deltaY.current += event.pixelY
+    function onWheel(event: WheelEvent) {
+      deltaY.current += event.deltaY
 
       if (!scheduled.current) {
         scheduled.current = true
@@ -32,8 +30,8 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
           scheduled.current = false
         })
       }
-      origEvent.preventDefault()
-      origEvent.stopPropagation()
+      event.preventDefault()
+      event.stopPropagation()
     }
     curr.addEventListener('wheel', onWheel)
     return () => {

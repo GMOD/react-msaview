@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { observer } from 'mobx-react'
-import normalizeWheel from 'normalize-wheel'
 
 // locals
 import { MsaViewModel } from '../../model'
@@ -23,10 +22,9 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     if (!curr) {
       return
     }
-    function onWheel(origEvent: WheelEvent) {
-      const event = normalizeWheel(origEvent)
-      deltaX.current += event.pixelX
-      deltaY.current += event.pixelY
+    function onWheel(event: WheelEvent) {
+      deltaX.current += event.deltaX
+      deltaY.current += event.deltaY
 
       if (!scheduled.current) {
         scheduled.current = true
@@ -38,8 +36,8 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
           scheduled.current = false
         })
       }
-      origEvent.preventDefault()
-      origEvent.stopPropagation()
+      event.preventDefault()
+      event.stopPropagation()
     }
     curr.addEventListener('wheel', onWheel)
     return () => {

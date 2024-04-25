@@ -33,7 +33,7 @@ window.addEventListener('resize', () => {
   mymodel.msaview.setWidth(window.innerWidth)
 })
 
-const App = observer(({ model }: { model: AppModel }) => {
+const App = observer(function ({ model }: { model: AppModel }) {
   const { msaview } = model
   return (
     <div>

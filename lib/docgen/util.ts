@@ -102,6 +102,6 @@ export function filter(str1: string, str2: string) {
 }
 
 export async function getAllFiles() {
-  const files = await exec2('git ls-files | grep "\\(t\\|j\\)sx\\?$"')
+  const files = await exec2(String.raw`git ls-files | grep "\(t\|j\)sx\?$"`)
   return files.stdout.split('\n').filter(f => !!f)
 }
