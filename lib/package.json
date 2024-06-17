@@ -16,7 +16,6 @@
   "scripts": {
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "test": "jest",
     "prepublishOnly": "node output-version.js > src/version.ts && git add -A src && git commit -m '[skip ci] Bump version.ts'",
     "build:esm": "tsc",
     "build:bundle": "rollup -c --bundleConfigAsCjs",
