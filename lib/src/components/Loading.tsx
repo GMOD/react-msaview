@@ -28,12 +28,14 @@ const Loading = observer(function ({ model }: { model: MsaViewModel }) {
       <ErrorBoundary
         fallbackRender={props => <Reset model={model} error={props.error} />}
       >
-        {!initialized ? (
-          <ImportForm model={model} />
-        ) : isLoading ? (
-          <Typography variant="h4">Loading...</Typography>
+        {initialized ? (
+          isLoading ? (
+            <Typography variant="h4">Loading...</Typography>
+          ) : (
+            <MSAView model={model} />
+          )
         ) : (
-          <MSAView model={model} />
+          <ImportForm model={model} />
         )}
       </ErrorBoundary>
     </div>

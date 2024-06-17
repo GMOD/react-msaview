@@ -119,9 +119,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
         overflow: 'hidden',
       }}
     >
-      {!MSA && !msaFilehandle ? null : !MSA ? (
-        <Loading />
-      ) : (
+      {!MSA && !msaFilehandle ? null : MSA ? (
         blocks2d.map(([bx, by]) => (
           <MSACanvasBlock
             key={`${bx}_${by}`}
@@ -130,6 +128,8 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
             offsetY={by}
           />
         ))
+      ) : (
+        <Loading />
       )}
     </div>
   )

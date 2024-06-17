@@ -82,7 +82,7 @@ const TreeSettings = observer(function TreeSettings({
         onChange={() => model.setDrawLabels(!drawLabels)}
         label="Draw labels"
       />
-      {!noTree ? (
+      {noTree ? null : (
         <div>
           <Checkbox2
             checked={treeWidthMatchesArea}
@@ -91,7 +91,7 @@ const TreeSettings = observer(function TreeSettings({
             }
             label="Make tree width fit to tree area?"
           />
-          {!treeWidthMatchesArea ? (
+          {treeWidthMatchesArea ? null : (
             <div className={classes.flex}>
               <Typography>Tree width ({treeWidth}px)</Typography>
               <Slider
@@ -102,9 +102,9 @@ const TreeSettings = observer(function TreeSettings({
                 onChange={(_, val) => model.setTreeWidth(val as number)}
               />
             </div>
-          ) : null}
+          )}
         </div>
-      ) : null}
+      )}
     </div>
   )
 })

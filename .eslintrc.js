@@ -28,10 +28,7 @@ module.exports = {
     project: './tsconfig.json',
   },
   rules: {
-    '@typescript-eslint/ban-ts-ignore': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
-    '@typescript-eslint/ban-types': 'off',
-    '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-base-to-string': 'off',
@@ -51,8 +48,6 @@ module.exports = {
     '@typescript-eslint/no-unsafe-call': 'off',
     '@typescript-eslint/no-unsafe-return': 'off',
 
-    semi: 'off',
-    '@typescript-eslint/semi': 'off',
     'no-unexpected-multiline': 'error',
 
     'unicorn/no-new-array': 'off',
@@ -85,14 +80,12 @@ module.exports = {
     'unicorn/relative-url-style': 'off',
     'unicorn/prefer-math-trunc': 'off',
     'unicorn/prefer-query-selector': 'off',
-    'unicorn/no-negated-condition': 'off',
     'unicorn/switch-case-braces': 'off',
     'unicorn/prefer-switch': 'off',
     'unicorn/better-regex': 'off',
     'unicorn/no-for-loop': 'off',
     'unicorn/escape-case': 'off',
     'unicorn/prefer-number-properties': 'off',
-    'unicorn/no-process-exit': 'off',
 
     curly: 'error',
     'no-use-before-define': 'off',
@@ -112,8 +105,6 @@ module.exports = {
     'react/no-unused-prop-types': 'error',
     'react/no-unused-state': 'error',
     'react/prefer-stateless-function': 'error',
-
-    'no-extra-semi': 'off',
 
     'spaced-comment': [
       'error',

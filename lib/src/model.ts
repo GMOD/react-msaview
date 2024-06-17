@@ -580,7 +580,7 @@ function stateModelFactory() {
        */
       get mouseOverRowName() {
         const { mouseRow } = self
-        return mouseRow !== undefined ? this.rowNames[mouseRow] : undefined
+        return mouseRow === undefined ? undefined : this.rowNames[mouseRow]
       },
 
       /**
