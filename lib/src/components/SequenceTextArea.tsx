@@ -9,6 +9,7 @@ import Checkbox2 from './Checkbox2'
 const useStyles = makeStyles()({
   textAreaFont: {
     fontFamily: 'Courier New',
+    wordWrap: 'break-word',
   },
   dialogContent: {
     background: 'lightgrey',
