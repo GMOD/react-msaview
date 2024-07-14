@@ -1,4 +1,6 @@
+import { getSession } from '@jbrowse/core/util'
 import { jsonfetch, textfetch, timeout } from './fetchUtils'
+import { MsaViewModel } from './model'
 
 const base = `https://www.ebi.ac.uk/Tools/services/rest`
 
@@ -24,11 +26,13 @@ async function runInterProScan({
   onProgress,
   onJobId,
   programs,
+  model,
 }: {
   seq: string
   programs: string[]
   onProgress: (arg?: { msg: string; url?: string }) => void
   onJobId: (arg: string) => void
+  model: MsaViewModel
 }) {
   const jobId = await textfetch(`${base}/iprscan5/run`, {
     method: 'POST',
@@ -43,7 +47,7 @@ async function runInterProScan({
     jobId,
     onProgress,
   })
-  return loadInterProScanResults(jobId)
+  return loadInterProScanResultsWithStatus({ jobId, model })
 }
 
 export function loadInterProScanResults(jobId: string) {
@@ -68,8 +72,7 @@ async function wait({
         onProgress({ msg: `Checking status ${10 - i}`, url })
       }
       const result = await textfetch(url)
-
-      if (result === 'FINISHED') {
+      if (result.includes('FINISHED')) {
         break
       }
     }
@@ -84,12 +87,14 @@ export async function launchInterProScan({
   programs,
   onJobId,
   onProgress,
+  model,
 }: {
   algorithm: string
   seq: string
   programs: string[]
   onProgress: (arg?: { msg: string; url?: string }) => void
   onJobId: (arg: string) => void
+  model: MsaViewModel
 }) {
   try {
     onProgress({ msg: `Launching ${algorithm} MSA` })
@@ -99,6 +104,7 @@ export async function launchInterProScan({
         onJobId,
         onProgress,
         programs,
+        model,
       })
       return result
     } else {
@@ -106,5 +112,34 @@ export async function launchInterProScan({
     }
   } finally {
     onProgress()
+  }
+}
+
+export async function loadInterProScanResultsWithStatus({
+  jobId,
+  model,
+}: {
+  jobId: string
+  model: MsaViewModel
+}) {
+  try {
+    model.setStatus({
+      msg:
+        'Downloading results of ' +
+        jobId +
+        ' (for larger sequences this can be slow, click status to download and upload in the manual tab)',
+      url: `https://www.ebi.ac.uk/Tools/services/rest/iprscan5/result/${jobId}/json`,
+    })
+    const ret = await loadInterProScanResults(jobId)
+    model.setLoadedInterProAnnotations(
+      Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
+    )
+    model.setShowDomains(true)
+    getSession(model).notify(`Loaded interproscan ${jobId} results`)
+  } catch (e) {
+    console.error(e)
+    getSession(model).notifyError(`${e}`, e)
+  } finally {
+    model.setStatus()
   }
 }

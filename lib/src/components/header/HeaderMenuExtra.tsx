@@ -4,7 +4,7 @@ import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../../model'
-import { loadInterProScanResults } from '../../launchInterProScan'
+import { loadInterProScanResultsWithStatus } from '../../launchInterProScan'
 
 // icons
 import MoreVert from '@mui/icons-material/MoreVert'
@@ -14,12 +14,11 @@ import FilterAlt from '@mui/icons-material/FilterAlt'
 import Search from '@mui/icons-material/Search'
 import PhotoCamera from '@mui/icons-material/PhotoCamera'
 import RestartAlt from '@mui/icons-material/RestartAlt'
-import { getSession } from '@jbrowse/core/util'
 
 // lazies
 const ExportSVGDialog = lazy(() => import('../dialogs/ExportSVGDialog'))
 const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog'))
-const InterProScanDialog = lazy(() => import('../dialogs/InterProScanDialog'))
+const DomainDialog = lazy(() => import('../dialogs/DomainDialog'))
 
 const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
   const { showDomains, subFeatureRows, noAnnotations, interProScanJobIds } =
@@ -74,9 +73,9 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
               label: 'Query InterProScan for domains...',
               icon: Search,
               onClick: () =>
-                model.queueDialog(onClose => [
-                  InterProScanDialog,
-                  { onClose, model },
+                model.queueDialog(handleClose => [
+                  DomainDialog,
+                  { handleClose, model },
                 ]),
             },
             {
@@ -89,29 +88,7 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
                       new Date(date).toLocaleString('en-US') + ' - ' + jobId,
                     onClick: () => {
                       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                      ;(async () => {
-                        try {
-                          model.setStatus({
-                            msg:
-                              'Loading ' +
-                              jobId +
-                              ' (for larger sequences this can be slow)',
-                          })
-                          const ret = await loadInterProScanResults(jobId)
-                          model.setLoadedInterProAnnotations(
-                            Object.fromEntries(
-                              ret.results.map(r => [r.xref[0].id, r]),
-                            ),
-                          )
-                          getSession(model).notify(
-                            `Loaded interproscan ${jobId} results`,
-                          )
-                        } catch (e) {
-                          getSession(model).notifyError(`${e}`, e)
-                        } finally {
-                          model.setStatus()
-                        }
-                      })()
+                      loadInterProScanResultsWithStatus({ jobId, model })
                     },
                   }))
                 : [

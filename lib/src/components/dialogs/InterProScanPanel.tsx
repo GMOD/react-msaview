@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react'
-import { Dialog } from '@jbrowse/core/ui'
 import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
 
 // locals
@@ -8,11 +7,11 @@ import { MsaViewModel } from '../../model'
 import { getSession } from '@jbrowse/core/util'
 import { launchInterProScan } from '../../launchInterProScan'
 
-const FeatureTypeDialog = observer(function ({
-  onClose,
+const InterProScanDialog = observer(function ({
+  handleClose,
   model,
 }: {
-  onClose: () => void
+  handleClose: () => void
   model: MsaViewModel
 }) {
   const [vals, setVals] = useState([
@@ -148,7 +147,7 @@ const FeatureTypeDialog = observer(function ({
   const [show, setShow] = useState(false)
 
   return (
-    <Dialog onClose={() => onClose()} open title="Feature types" maxWidth="xl">
+    <>
       <DialogContent>
         <Typography>
           This will run InterProScan on all rows of the current MSA
@@ -211,7 +210,11 @@ const FeatureTypeDialog = observer(function ({
         ) : null}
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" color="secondary" onClick={() => onClose()}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleClose()}
+        >
           Cancel
         </Button>
         <Button
@@ -227,7 +230,7 @@ const FeatureTypeDialog = observer(function ({
                     'Too many sequences, please run InterProScan offline',
                   )
                 }
-                const ret = await launchInterProScan({
+                await launchInterProScan({
                   algorithm: 'interproscan',
                   programs: programs,
                   seq: rows
@@ -237,12 +240,8 @@ const FeatureTypeDialog = observer(function ({
                     .join('\n'),
                   onProgress: arg => model.setStatus(arg),
                   onJobId: jobId => model.addInterProScanJobId(jobId),
+                  model,
                 })
-
-                model.setLoadedInterProAnnotations(
-                  Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
-                )
-                model.setShowDomains(true)
               } catch (e) {
                 console.error(e)
                 getSession(model).notifyError(`${e}`, e)
@@ -250,14 +249,14 @@ const FeatureTypeDialog = observer(function ({
                 model.setStatus()
               }
             })()
-            onClose()
+            handleClose()
           }}
         >
           Send sequences to InterProScan
         </Button>
       </DialogActions>
-    </Dialog>
+    </>
   )
 })
 
-export default FeatureTypeDialog
+export default InterProScanDialog
