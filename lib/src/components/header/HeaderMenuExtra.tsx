@@ -100,7 +100,7 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
               },
             },
             {
-              label: 'Query InterProScan for domains...',
+              label: 'View domains',
               icon: Search,
               onClick: () =>
                 model.queueDialog(handleClose => [

@@ -95,7 +95,10 @@ const FeatureTypeDialog = observer(function ({
                   Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
                 )
                 model.setShowDomains(true)
-                getSession(model).notify(`Loaded interproscan results`)
+                getSession(model).notify(
+                  'Loaded interproscan results',
+                  'success',
+                )
               } catch (e) {
                 console.error(e)
                 getSession(model).notifyError(`${e}`, e)
@@ -106,7 +109,7 @@ const FeatureTypeDialog = observer(function ({
             handleClose()
           }}
         >
-          Send sequences to InterProScan
+          Open results
         </Button>
       </DialogActions>
     </>

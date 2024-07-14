@@ -22,8 +22,11 @@ export default function SequenceTextArea({ str }: { str: [string, string][] }) {
   const { classes } = useStyles()
   const [copied, setCopied] = useState(false)
   const [showGaps, setShowGaps] = useState(false)
+  const [showEmpty, setShowEmpty] = useState(false)
 
   const disp = str
+    .map(([s1, s2]) => [s1, showGaps ? s2 : s2.replaceAll('-', '')])
+    .filter(f => (showEmpty ? true : !!f[1]))
     .map(([s1, s2]) => `>${s1}\n${showGaps ? s2 : s2.replaceAll('-', '')}`)
     .join('\n')
   return (
@@ -43,6 +46,11 @@ export default function SequenceTextArea({ str }: { str: [string, string][] }) {
         label="Show gaps"
         checked={showGaps}
         onChange={() => setShowGaps(!showGaps)}
+      />
+      <Checkbox2
+        label="Show empty"
+        checked={showEmpty}
+        onChange={() => setShowEmpty(!showEmpty)}
       />
       <TextField
         variant="outlined"

@@ -135,7 +135,7 @@ export async function loadInterProScanResultsWithStatus({
       Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
     )
     model.setShowDomains(true)
-    getSession(model).notify(`Loaded interproscan ${jobId} results`)
+    getSession(model).notify(`Loaded interproscan ${jobId} results`, 'success')
   } catch (e) {
     console.error(e)
     getSession(model).notifyError(`${e}`, e)
