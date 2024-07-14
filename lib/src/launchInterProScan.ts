@@ -11,10 +11,7 @@ export interface InterProScanResults {
         accession: string
       }
     }
-    locations: {
-      start: number
-      end: number
-    }[]
+    locations: { start: number; end: number }[]
   }[]
   xref: { id: string }[]
 }
@@ -92,12 +89,7 @@ export async function launchInterProScan({
 }) {
   onProgress({ msg: `Launching ${algorithm} MSA...` })
   if (algorithm === 'interproscan') {
-    const result = await runInterProScan({
-      seq,
-      onJobId,
-      onProgress,
-      programs,
-    })
+    const result = await runInterProScan({ seq, onJobId, onProgress, programs })
     onProgress()
     return result
   } else {

@@ -19,9 +19,9 @@ export function renderBoxFeatureCanvasBlock({
   highResScaleFactorOverride?: number
   blockSizeYOverride?: number
 }) {
-  const { hierarchy, blockSize, rowHeight, highResScaleFactor, featureMode } =
+  const { hierarchy, blockSize, rowHeight, highResScaleFactor, showDomains } =
     model
-  if (featureMode) {
+  if (showDomains) {
     const k = highResScaleFactorOverride || highResScaleFactor
     const by = blockSizeYOverride || blockSize
     ctx.resetTransform()

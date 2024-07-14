@@ -10,9 +10,12 @@ our source code.
 
 [src/model/treeModel.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model/treeModel.ts)
 
-### Tree - Properties
 
+
+### Tree - Properties
 #### property: drawLabels
+
+
 
 ```js
 // type signature
@@ -89,8 +92,8 @@ IOptionalIType<ISimpleType<number>, [undefined]>
 treeWidth: types.optional(types.number, 300)
 ```
 
-### Tree - Getters
 
+### Tree - Getters
 #### getter: treeWidthMatchesArea
 
 synchronization that matches treeWidth to treeAreaWidth
@@ -100,9 +103,14 @@ synchronization that matches treeWidth to treeAreaWidth
 true
 ```
 
-### Tree - Actions
 
+
+
+
+### Tree - Actions
 #### action: setDrawLabels
+
+
 
 ```js
 // type signature
@@ -111,12 +119,16 @@ setDrawLabels: (arg: boolean) => void
 
 #### action: setDrawNodeBubbles
 
+
+
 ```js
 // type signature
 setDrawNodeBubbles: (arg: boolean) => void
 ```
 
 #### action: setDrawTree
+
+
 
 ```js
 // type signature
@@ -125,12 +137,16 @@ setDrawTree: (arg: boolean) => void
 
 #### action: setLabelsAlignRight
 
+
+
 ```js
 // type signature
 setLabelsAlignRight: (arg: boolean) => void
 ```
 
 #### action: setShowBranchLen
+
+
 
 ```js
 // type signature
@@ -163,3 +179,5 @@ synchronize the treewidth and treeareawidth
 // type signature
 setTreeWidthMatchesArea: (arg: boolean) => void
 ```
+
+

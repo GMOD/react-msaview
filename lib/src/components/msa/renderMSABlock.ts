@@ -34,7 +34,7 @@ export function renderMSABlock({
     rowHeight,
     fontSize,
     highResScaleFactor,
-    featureMode,
+    showDomains,
   } = model
   const k = highResScaleFactorOverride || highResScaleFactor
   const bx = blockSizeXOverride || blockSize
@@ -53,7 +53,7 @@ export function renderMSABlock({
   const xEnd = Math.max(0, Math.ceil((offsetX + bx) / colWidth))
   const visibleLeaves = leaves.slice(yStart, yEnd)
 
-  if (!featureMode) {
+  if (!showDomains) {
     drawTiles({
       model,
       ctx,
@@ -152,7 +152,7 @@ function drawText({
   xStart: number
   xEnd: number
 }) {
-  const { bgColor, featureMode, colorScheme, columns, colWidth, rowHeight } =
+  const { bgColor, showDomains, colorScheme, columns, colWidth, rowHeight } =
     model
   if (rowHeight >= 5 && colWidth > rowHeight / 2) {
     for (const node of visibleLeaves) {
@@ -168,7 +168,7 @@ function drawText({
         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
         // note: -rowHeight/4 matches +rowHeight/4 in tree
-        ctx.fillStyle = featureMode
+        ctx.fillStyle = showDomains
           ? 'black'
           : bgColor
             ? contrast

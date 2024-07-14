@@ -45,7 +45,7 @@ const MSABlock = observer(function ({
     return autorun(() => {
       ctx.resetTransform()
       ctx.clearRect(0, 0, blockSize, blockSize)
-      if (model.featureMode) {
+      if (model.showDomains) {
         renderBoxFeatureCanvasBlock({
           ctx,
           offsetX,

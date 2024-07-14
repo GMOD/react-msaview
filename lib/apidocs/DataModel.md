@@ -16,8 +16,9 @@ data will not be persisted in saved session snapshots, it will be fetched
 from msaFilehandle at startup
 
 ### DataModel - Properties
-
 #### property: msa
+
+
 
 ```js
 // type signature
@@ -28,6 +29,8 @@ msa: types.maybe(types.string)
 
 #### property: tree
 
+
+
 ```js
 // type signature
 IMaybe<ISimpleType<string>>
@@ -37,6 +40,8 @@ tree: types.maybe(types.string)
 
 #### property: treeMetadata
 
+
+
 ```js
 // type signature
 IMaybe<ISimpleType<string>>
@@ -44,9 +49,17 @@ IMaybe<ISimpleType<string>>
 treeMetadata: types.maybe(types.string)
 ```
 
-### DataModel - Actions
 
+
+
+
+
+
+
+### DataModel - Actions
 #### action: setMSA
+
+
 
 ```js
 // type signature
@@ -55,6 +68,8 @@ setMSA: (msa?: string) => void
 
 #### action: setTree
 
+
+
 ```js
 // type signature
 setTree: (tree?: string) => void
@@ -62,7 +77,11 @@ setTree: (tree?: string) => void
 
 #### action: setTreeMetadata
 
+
+
 ```js
 // type signature
 setTreeMetadata: (treeMetadata?: string) => void
 ```
+
+

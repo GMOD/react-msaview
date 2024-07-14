@@ -101,7 +101,7 @@ function stateModelFactory() {
         /**
          * #property
          */
-        featureMode: false,
+        showDomains: false,
         /**
          * #property
          */
@@ -345,8 +345,8 @@ function stateModelFactory() {
       /**
        * #action
        */
-      setFeatureMode(arg: boolean) {
-        self.featureMode = arg
+      setShowDomains(arg: boolean) {
+        self.showDomains = arg
       },
 
       /**

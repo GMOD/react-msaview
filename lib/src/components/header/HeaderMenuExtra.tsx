@@ -22,7 +22,7 @@ const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog'))
 const InterProScanDialog = lazy(() => import('../dialogs/InterProScanDialog'))
 
 const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
-  const { featureMode, subFeatureRows, noAnnotations, interProScanJobIds } =
+  const { showDomains, subFeatureRows, noAnnotations, interProScanJobIds } =
     model
   return (
     <CascadingMenuButton
@@ -49,9 +49,9 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
               label:
                 'Show domains' + (noAnnotations ? ' (no domains loaded)' : ''),
               icon: Visibility,
-              checked: featureMode,
+              checked: showDomains,
               type: 'checkbox',
-              onClick: () => model.setFeatureMode(!featureMode),
+              onClick: () => model.setShowDomains(!showDomains),
             },
             {
               label: 'Use sub-row layout',
@@ -91,12 +91,20 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
                       // eslint-disable-next-line @typescript-eslint/no-floating-promises
                       ;(async () => {
                         try {
-                          model.setStatus({ msg: 'Loading ' + jobId })
+                          model.setStatus({
+                            msg:
+                              'Loading ' +
+                              jobId +
+                              ' (for larger sequences this can be slow)',
+                          })
                           const ret = await loadInterProScanResults(jobId)
                           model.setLoadedInterProAnnotations(
                             Object.fromEntries(
                               ret.results.map(r => [r.xref[0].id, r]),
                             ),
+                          )
+                          getSession(model).notify(
+                            `Loaded interproscan ${jobId} results`,
                           )
                         } catch (e) {
                           getSession(model).notifyError(`${e}`, e)
