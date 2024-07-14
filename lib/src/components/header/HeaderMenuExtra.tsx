@@ -3,8 +3,6 @@ import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
-import { MsaViewModel } from '../../model'
-import { loadInterProScanResultsWithStatus } from '../../launchInterProScan'
 
 // icons
 import MoreVert from '@mui/icons-material/MoreVert'
@@ -14,18 +12,50 @@ import FilterAlt from '@mui/icons-material/FilterAlt'
 import Search from '@mui/icons-material/Search'
 import PhotoCamera from '@mui/icons-material/PhotoCamera'
 import RestartAlt from '@mui/icons-material/RestartAlt'
+import FolderOpen from '@mui/icons-material/FolderOpen'
+import Settings from '@mui/icons-material/Settings'
+import Assignment from '@mui/icons-material/Assignment'
+import List from '@mui/icons-material/List'
+
+// locals
+import { MsaViewModel } from '../../model'
 
 // lazies
+const SettingsDialog = lazy(() => import('../dialogs/SettingsDialog'))
+const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog'))
+const TracklistDialog = lazy(() => import('../dialogs/TracklistDialog'))
 const ExportSVGDialog = lazy(() => import('../dialogs/ExportSVGDialog'))
 const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog'))
 const DomainDialog = lazy(() => import('../dialogs/DomainDialog'))
 
 const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
-  const { showDomains, subFeatureRows, noAnnotations, interProScanJobIds } =
-    model
+  const { showDomains, subFeatureRows, noAnnotations } = model
   return (
     <CascadingMenuButton
       menuItems={[
+        {
+          label: 'Return to import form',
+          icon: FolderOpen,
+          onClick: () => model.reset(),
+        },
+        {
+          label: 'Settings',
+          onClick: () =>
+            model.queueDialog(onClose => [SettingsDialog, { model, onClose }]),
+          icon: Settings,
+        },
+        {
+          label: 'Metadata',
+          onClick: () =>
+            model.queueDialog(onClose => [MetadataDialog, { model, onClose }]),
+          icon: Assignment,
+        },
+        {
+          label: 'Extra tracks',
+          onClick: () =>
+            model.queueDialog(onClose => [TracklistDialog, { model, onClose }]),
+          icon: List,
+        },
         {
           label: 'Reset zoom to default',
           icon: RestartAlt,
@@ -77,27 +107,6 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
                   DomainDialog,
                   { handleClose, model },
                 ]),
-            },
-            {
-              label: 'Load previous InterProScan results...',
-              icon: Search,
-              type: 'subMenu',
-              subMenu: interProScanJobIds.length
-                ? interProScanJobIds.map(({ jobId, date }) => ({
-                    label:
-                      new Date(date).toLocaleString('en-US') + ' - ' + jobId,
-                    onClick: () => {
-                      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                      loadInterProScanResultsWithStatus({ jobId, model })
-                    },
-                  }))
-                : [
-                    {
-                      label: 'No previous searches',
-                      disabled: true,
-                      onClick: () => {},
-                    },
-                  ],
             },
           ],
         },

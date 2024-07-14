@@ -292,12 +292,6 @@ function stateModelFactory() {
       loadedInterProAnnotations: undefined as
         | undefined
         | Record<string, InterProScanResults>,
-      /**
-       * #volatile
-       */
-      interProScanJobIds: JSON.parse(
-        localStorageGetItem('msaview-interproscanqueries') || '[]',
-      ) as { jobId: string; date: number }[],
     }))
     .actions(self => ({
       /**
@@ -834,15 +828,6 @@ function stateModelFactory() {
       /**
        * #action
        */
-      addInterProScanJobId(arg: string) {
-        self.interProScanJobIds = [
-          ...self.interProScanJobIds,
-          { jobId: arg, date: +Date.now() },
-        ]
-      },
-      /**
-       * #action
-       */
       setStatus(status?: { msg: string; url?: string }) {
         self.status = status
       },
@@ -1199,16 +1184,6 @@ function stateModelFactory() {
                 ),
               )
             }
-          }),
-        )
-
-        addDisposer(
-          self,
-          autorun(() => {
-            localStorageSetItem(
-              'msaview-interproscanqueries',
-              JSON.stringify(self.interProScanJobIds),
-            )
           }),
         )
       },

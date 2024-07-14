@@ -239,7 +239,6 @@ const InterProScanDialog = observer(function ({
                     .map(row => `>${row[0]}\n${row[1]}`)
                     .join('\n'),
                   onProgress: arg => model.setStatus(arg),
-                  onJobId: jobId => model.addInterProScanJobId(jobId),
                   model,
                 })
               } catch (e) {

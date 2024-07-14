@@ -31,7 +31,7 @@ async function runInterProScan({
   seq: string
   programs: string[]
   onProgress: (arg?: { msg: string; url?: string }) => void
-  onJobId: (arg: string) => void
+  onJobId?: (arg: string) => void
   model: MsaViewModel
 }) {
   const jobId = await textfetch(`${base}/iprscan5/run`, {
@@ -42,7 +42,7 @@ async function runInterProScan({
       programs: programs.join(','),
     }),
   })
-  onJobId(jobId)
+  onJobId?.(jobId)
   await wait({
     jobId,
     onProgress,
@@ -93,7 +93,7 @@ export async function launchInterProScan({
   seq: string
   programs: string[]
   onProgress: (arg?: { msg: string; url?: string }) => void
-  onJobId: (arg: string) => void
+  onJobId?: (arg: string) => void
   model: MsaViewModel
 }) {
   try {
