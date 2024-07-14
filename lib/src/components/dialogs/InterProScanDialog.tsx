@@ -242,6 +242,7 @@ const FeatureTypeDialog = observer(function ({
                 model.setLoadedInterProAnnotations(
                   Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
                 )
+                model.setShowDomains(true)
               } catch (e) {
                 console.error(e)
                 getSession(model).notifyError(`${e}`, e)

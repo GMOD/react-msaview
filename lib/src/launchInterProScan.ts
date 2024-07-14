@@ -60,17 +60,21 @@ async function wait({
   onProgress: (arg?: { msg: string; url?: string }) => void
 }) {
   const url = `${base}/iprscan5/status/${jobId}`
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    for (let i = 0; i < 10; i++) {
-      await timeout(1000)
-      onProgress({ msg: `Checking status... ${10 - i}`, url })
-    }
-    const result = await textfetch(url)
+  try {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      for (let i = 0; i < 10; i++) {
+        await timeout(1000)
+        onProgress({ msg: `Checking status ${10 - i}`, url })
+      }
+      const result = await textfetch(url)
 
-    if (result === 'FINISHED') {
-      break
+      if (result === 'FINISHED') {
+        break
+      }
     }
+  } finally {
+    onProgress()
   }
 }
 
@@ -87,12 +91,20 @@ export async function launchInterProScan({
   onProgress: (arg?: { msg: string; url?: string }) => void
   onJobId: (arg: string) => void
 }) {
-  onProgress({ msg: `Launching ${algorithm} MSA...` })
-  if (algorithm === 'interproscan') {
-    const result = await runInterProScan({ seq, onJobId, onProgress, programs })
+  try {
+    onProgress({ msg: `Launching ${algorithm} MSA` })
+    if (algorithm === 'interproscan') {
+      const result = await runInterProScan({
+        seq,
+        onJobId,
+        onProgress,
+        programs,
+      })
+      return result
+    } else {
+      throw new Error('unknown algorithm')
+    }
+  } finally {
     onProgress()
-    return result
-  } else {
-    throw new Error('unknown algorithm')
   }
 }

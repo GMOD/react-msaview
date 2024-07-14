@@ -23,7 +23,7 @@ const HeaderStatusArea = observer(function ({
   const { classes } = useStyles()
   return status ? (
     <Typography className={classes.margin}>
-      <LoadingEllipses message={status.msg} />{' '}
+      <LoadingEllipses message={status.msg} component="span" />{' '}
       {status.url ? (
         <a href={status.url} target="_blank" rel="noreferrer">
           (status)
