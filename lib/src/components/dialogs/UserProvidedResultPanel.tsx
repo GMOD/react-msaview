@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react'
-
 import {
   Button,
   DialogActions,
@@ -12,11 +11,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { getSession } from '@jbrowse/core/util'
 
 // locals
 import { MsaViewModel } from '../../model'
-import { getSession } from '@jbrowse/core/util'
-import { textfetch } from '../../fetchUtils'
+import { jsonfetch } from '../../fetchUtils'
+import { InterProScanResponse } from '../../launchInterProScan'
 
 const FeatureTypeDialog = observer(function ({
   handleClose,
@@ -33,7 +33,10 @@ const FeatureTypeDialog = observer(function ({
     <>
       <DialogContent>
         <div style={{ display: 'flex', margin: 30 }}>
-          <Typography>Open a JSON file of InterProScan results</Typography>
+          <Typography>
+            Open a JSON file of InterProScan results that you run remotely on
+            EBI servers or locally
+          </Typography>
 
           <FormControl component="fieldset">
             <RadioGroup
@@ -84,9 +87,9 @@ const FeatureTypeDialog = observer(function ({
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             ;(async () => {
               try {
-                const ret: any = file
-                  ? await file.text()
-                  : await textfetch(interProURL)
+                const ret: InterProScanResponse = file
+                  ? JSON.parse(await file.text())
+                  : await jsonfetch(interProURL)
 
                 model.setLoadedInterProAnnotations(
                   Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
