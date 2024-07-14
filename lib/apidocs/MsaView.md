@@ -11,11 +11,13 @@ our source code.
 [src/model.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model.ts)
 
 extends
+
 - DialogQueueSessionMixin
 - MSAModel
 - Tree
 
 ### MsaView - Properties
+
 #### property: collapsed
 
 array of tree parent nodes that are 'collapsed'
@@ -51,8 +53,6 @@ colWidth: 16
 
 #### property: currentAlignment
 
-
-
 ```js
 // type signature
 number
@@ -74,8 +74,6 @@ data: types.optional(DataModelF(), { tree: '', msa: '' })
 
 #### property: featureFilters
 
-
-
 ```js
 // type signature
 IMapType<ISimpleType<boolean>>
@@ -84,8 +82,6 @@ featureFilters: types.map(types.boolean)
 ```
 
 #### property: featureMode
-
-
 
 ```js
 // type signature
@@ -174,8 +170,6 @@ showOnly: types.maybe(types.string)
 
 #### property: subFeatureRows
 
-
-
 ```js
 // type signature
 false
@@ -227,11 +221,9 @@ ISimpleType<"MsaView">
 type: types.literal('MsaView')
 ```
 
-
 ### MsaView - Getters
-#### getter: _tree
 
-
+#### getter: \_tree
 
 ```js
 // type
@@ -240,16 +232,12 @@ NodeWithIds
 
 #### getter: adapterTrackModels
 
-
-
 ```js
 // type
 ITextTrack[]
 ```
 
 #### getter: alignmentNames
-
-
 
 ```js
 // type
@@ -258,16 +246,12 @@ any
 
 #### getter: blanks
 
-
-
 ```js
 // type
 any[]
 ```
 
 #### getter: blocks2d
-
-
 
 ```js
 // type
@@ -276,16 +260,12 @@ any[]
 
 #### getter: blocksX
 
-
-
 ```js
 // type
 any[]
 ```
 
 #### getter: blocksY
-
-
 
 ```js
 // type
@@ -294,8 +274,6 @@ any[]
 
 #### getter: colorScheme
 
-
-
 ```js
 // type
 Record<string, string>
@@ -303,16 +281,12 @@ Record<string, string>
 
 #### getter: colStats
 
-
-
 ```js
 // type
-Record<string, number>[]
+Record < string, number > []
 ```
 
 #### getter: columns
-
-
 
 ```js
 // type
@@ -321,16 +295,12 @@ Record<string, number>[]
 
 #### getter: columns2d
 
-
-
 ```js
 // type
 any
 ```
 
 #### getter: conservation
-
-
 
 ```js
 // type
@@ -339,16 +309,12 @@ string[]
 
 #### getter: fontSize
 
-
-
 ```js
 // type
 number
 ```
 
 #### getter: header
-
-
 
 ```js
 // type
@@ -366,16 +332,12 @@ HierarchyNode<NodeWithIdsAndLength>
 
 #### getter: initialized
 
-
-
 ```js
 // type
 boolean
 ```
 
 #### getter: isLoading
-
-
 
 ```js
 // type
@@ -384,16 +346,12 @@ boolean
 
 #### getter: labelsWidth
 
-
-
 ```js
 // type
 number
 ```
 
 #### getter: maxScrollX
-
-
 
 ```js
 // type
@@ -402,16 +360,12 @@ number
 
 #### getter: menuItems
 
-
-
 ```js
 // type
 any[]
 ```
 
 #### getter: mouseOverRowName
-
-
 
 ```js
 // type
@@ -420,11 +374,9 @@ any
 
 #### getter: MSA
 
-
-
 ```js
 // type
-ClustalMSA | StockholmMSA | FastaMSA
+;ClustalMSA | StockholmMSA | FastaMSA
 ```
 
 #### getter: msaAreaWidth
@@ -438,16 +390,12 @@ number
 
 #### getter: noAnnotations
 
-
-
 ```js
 // type
 boolean
 ```
 
 #### getter: noTree
-
-
 
 ```js
 // type
@@ -456,16 +404,12 @@ boolean
 
 #### getter: numColumns
 
-
-
 ```js
 // type
 number
 ```
 
 #### getter: root
-
-
 
 ```js
 // type
@@ -474,16 +418,12 @@ HierarchyNode<any>
 
 #### getter: rowNames
 
-
-
 ```js
 // type
 string[]
 ```
 
 #### getter: rows
-
-
 
 ```js
 // type
@@ -492,16 +432,12 @@ any
 
 #### getter: secondaryStructureConsensus
 
-
-
 ```js
 // type
 any
 ```
 
 #### getter: seqConsensus
-
-
 
 ```js
 // type
@@ -510,16 +446,12 @@ any
 
 #### getter: tidyFilteredAnnotations
 
-
-
 ```js
 // type
 any
 ```
 
 #### getter: tidyFilteredGatheredAnnotations
-
-
 
 ```js
 // type
@@ -528,16 +460,12 @@ Record<string, unknown[]>
 
 #### getter: tidyTypes
 
-
-
 ```js
 // type
 Map<string, Accession>
 ```
 
 #### getter: totalHeight
-
-
 
 ```js
 // type
@@ -555,16 +483,12 @@ number
 
 #### getter: totalWidth
 
-
-
 ```js
 // type
 number
 ```
 
 #### getter: tracks
-
-
 
 ```js
 // type
@@ -573,16 +497,12 @@ ITextTrack[]
 
 #### getter: treeAreaWidthMinusMargin
 
-
-
 ```js
 // type
 number
 ```
 
 #### getter: treeMetadata
-
-
 
 ```js
 // type
@@ -591,15 +511,13 @@ any
 
 #### getter: turnedOnTracks
 
-
-
 ```js
 // type
 any
 ```
 
-
 ### MsaView - Methods
+
 #### method: extraViewMenuItems
 
 unused here, but can be used by derived classes to add extra items
@@ -610,8 +528,6 @@ extraViewMenuItems: () => any[]
 ```
 
 #### method: getRowData
-
-
 
 ```js
 // type signature
@@ -638,11 +554,9 @@ which does not not include gaps
 seqCoordToRowSpecificGlobalCoord: (rowName: string, position: number) => number
 ```
 
-
 ### MsaView - Actions
+
 #### action: addInterProScanJobId
-
-
 
 ```js
 // type signature
@@ -651,8 +565,6 @@ addInterProScanJobId: (arg: string) => void
 
 #### action: doScrollX
 
-
-
 ```js
 // type signature
 doScrollX: (deltaX: number) => void
@@ -660,16 +572,12 @@ doScrollX: (deltaX: number) => void
 
 #### action: doScrollY
 
-
-
 ```js
 // type signature
 doScrollY: (deltaY: number) => void
 ```
 
 #### action: exportSVG
-
-
 
 ```js
 // type signature
@@ -687,16 +595,12 @@ incrementRef: () => void
 
 #### action: initFilter
 
-
-
 ```js
 // type signature
 initFilter: (arg: string) => void
 ```
 
 #### action: loadInterProScanResults
-
-
 
 ```js
 // type signature
@@ -705,16 +609,12 @@ loadInterProScanResults: (jobId: string) => Promise<void>
 
 #### action: queryInterProScan
 
-
-
 ```js
 // type signature
 queryInterProScan: (programs: string[]) => Promise<void>
 ```
 
 #### action: reset
-
-
 
 ```js
 // type signature
@@ -732,16 +632,12 @@ setColWidth: (n: number) => void
 
 #### action: setCurrentAlignment
 
-
-
 ```js
 // type signature
 setCurrentAlignment: (n: number) => void
 ```
 
 #### action: setData
-
-
 
 ```js
 // type signature
@@ -759,16 +655,12 @@ setError: (error?: unknown) => void
 
 #### action: setFeatureMode
 
-
-
 ```js
 // type signature
 setFeatureMode: (arg: boolean) => void
 ```
 
 #### action: setFilter
-
-
 
 ```js
 // type signature
@@ -786,8 +678,6 @@ setHeight: (height: number) => void
 
 #### action: setLoadedInterProAnnotations
 
-
-
 ```js
 // type signature
 setLoadedInterProAnnotations: (data: Record<string, InterProScanResults>) => void
@@ -795,16 +685,12 @@ setLoadedInterProAnnotations: (data: Record<string, InterProScanResults>) => voi
 
 #### action: setLoadingMSA
 
-
-
 ```js
 // type signature
 setLoadingMSA: (arg: boolean) => void
 ```
 
 #### action: setLoadingTree
-
-
 
 ```js
 // type signature
@@ -831,16 +717,12 @@ setMousePos: (col?: number, row?: number) => void
 
 #### action: setMSA
 
-
-
 ```js
 // type signature
 setMSA: (result: string) => void
 ```
 
 #### action: setMSAFilehandle
-
-
 
 ```js
 // type signature
@@ -858,8 +740,6 @@ setRowHeight: (n: number) => void
 
 #### action: setScrollX
 
-
-
 ```js
 // type signature
 setScrollX: (n: number) => void
@@ -876,16 +756,12 @@ setScrollY: (n: number) => void
 
 #### action: setShowOnly
 
-
-
 ```js
 // type signature
 setShowOnly: (node?: string) => void
 ```
 
 #### action: setStatus
-
-
 
 ```js
 // type signature
@@ -894,16 +770,12 @@ setStatus: (status?: { msg: string; url?: string; }) => void
 
 #### action: setSubFeatureRows
 
-
-
 ```js
 // type signature
 setSubFeatureRows: (arg: boolean) => void
 ```
 
 #### action: setTree
-
-
 
 ```js
 // type signature
@@ -912,16 +784,12 @@ setTree: (result: string) => void
 
 #### action: setTreeFilehandle
 
-
-
 ```js
 // type signature
 setTreeFilehandle: (treeFilehandle?: FileLocation) => void
 ```
 
 #### action: setTreeMetadata
-
-
 
 ```js
 // type signature
@@ -930,16 +798,12 @@ setTreeMetadata: (result: string) => void
 
 #### action: setWidth
 
-
-
 ```js
 // type signature
 setWidth: (arg: number) => void
 ```
 
 #### action: toggleCollapsed
-
-
 
 ```js
 // type signature
@@ -948,16 +812,12 @@ toggleCollapsed: (node: string) => void
 
 #### action: toggleCollapsed2
 
-
-
 ```js
 // type signature
 toggleCollapsed2: (node: string) => void
 ```
 
 #### action: toggleTrack
-
-
 
 ```js
 // type signature
@@ -966,8 +826,6 @@ toggleTrack: (id: string) => void
 
 #### action: zoomIn
 
-
-
 ```js
 // type signature
 zoomIn: () => void
@@ -975,11 +833,7 @@ zoomIn: () => void
 
 #### action: zoomOut
 
-
-
 ```js
 // type signature
 zoomOut: () => void
 ```
-
-

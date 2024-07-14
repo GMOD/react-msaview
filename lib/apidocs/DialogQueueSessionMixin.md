@@ -10,15 +10,9 @@ our source code.
 
 [src/model/DialogQueue.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model/DialogQueue.ts)
 
-
-
-
-
-
 ### DialogQueueSessionMixin - Getters
+
 #### getter: DialogComponent
-
-
 
 ```js
 // type
@@ -27,21 +21,14 @@ any
 
 #### getter: DialogProps
 
-
-
 ```js
 // type
 any
 ```
 
-
-
-
-
 ### DialogQueueSessionMixin - Actions
+
 #### action: queueDialog
-
-
 
 ```js
 // type signature
@@ -50,11 +37,7 @@ queueDialog: (cb: (doneCallback: () => void) => [any, unknown]) => void
 
 #### action: removeActiveDialog
 
-
-
 ```js
 // type signature
 removeActiveDialog: () => void
 ```
-
-

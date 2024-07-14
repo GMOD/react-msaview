@@ -15,9 +15,9 @@ export async function textfetch(url: string, args?: RequestInit) {
   return response.text()
 }
 
-export async function jsonfetch(url: string, args?: RequestInit) {
+export async function jsonfetch<T>(url: string, args?: RequestInit) {
   const response = await myfetch(url, args)
-  return response.json()
+  return response.json() as T
 }
 
 export async function arraybufferfetch(url: string) {

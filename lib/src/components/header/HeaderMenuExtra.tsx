@@ -4,6 +4,7 @@ import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../../model'
+import { loadInterProScanResults } from '../../launchInterProScan'
 
 // icons
 import MoreVert from '@mui/icons-material/MoreVert'
@@ -13,6 +14,7 @@ import FilterAlt from '@mui/icons-material/FilterAlt'
 import Search from '@mui/icons-material/Search'
 import PhotoCamera from '@mui/icons-material/PhotoCamera'
 import RestartAlt from '@mui/icons-material/RestartAlt'
+import { getSession } from '@jbrowse/core/util'
 
 // lazies
 const ExportSVGDialog = lazy(() => import('../dialogs/ExportSVGDialog'))
@@ -85,7 +87,24 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
                 ? interProScanJobIds.map(({ jobId, date }) => ({
                     label:
                       new Date(date).toLocaleString('en-US') + ' - ' + jobId,
-                    onClick: () => model.loadInterProScanResults(jobId),
+                    onClick: () => {
+                      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                      ;(async () => {
+                        try {
+                          model.setStatus({ msg: 'Loading ' + jobId })
+                          const ret = await loadInterProScanResults(jobId)
+                          model.setLoadedInterProAnnotations(
+                            Object.fromEntries(
+                              ret.results.map(r => [r.xref[0].id, r]),
+                            ),
+                          )
+                        } catch (e) {
+                          getSession(model).notifyError(`${e}`, e)
+                        } finally {
+                          model.setStatus()
+                        }
+                      })()
+                    },
                   }))
                 : [
                     {

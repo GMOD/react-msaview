@@ -52,11 +52,7 @@ import { DataModelF } from './model/DataModel'
 import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
-import {
-  InterProScanResults,
-  launchInterProScan,
-  loadInterProScanResults,
-} from './launchInterProScan'
+import { InterProScanResults } from './launchInterProScan'
 
 export interface Accession {
   accession: string
@@ -1066,40 +1062,6 @@ function stateModelFactory() {
       /**
        * #action
        */
-      async loadInterProScanResults(jobId: string) {
-        self.setStatus({ msg: 'Loading ' + jobId })
-        const ret = await loadInterProScanResults(jobId)
-        self.setStatus()
-        self.setLoadedInterProAnnotations(
-          Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
-        )
-      },
-      /**
-       * #action
-       */
-      async queryInterProScan(programs: string[]) {
-        const { rows } = self
-        if (rows.length > 140) {
-          throw new Error('Too many sequences, please run InterProScan offline')
-        }
-
-        const ret = await launchInterProScan({
-          algorithm: 'interproscan',
-          programs: programs,
-          seq: rows
-            .map(row => `>${row[0]}\n${row[1].replaceAll('-', '')}`)
-            .join('\n'),
-          onProgress: arg => self.setStatus(arg),
-          onJobId: jobId => self.addInterProScanJobId(jobId),
-        })
-
-        self.setLoadedInterProAnnotations(
-          Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
-        )
-      },
-      /**
-       * #action
-       */
       reset() {
         transaction(() => {
           self.setData({ tree: '', msa: '' })
@@ -1156,25 +1118,7 @@ function stateModelFactory() {
             }
           }),
         )
-        addDisposer(
-          self,
-          autorun(async () => {
-            // const res = Object.fromEntries(
-            //   await Promise.all(
-            //     self.annotationTracks.map(async f => {
-            //       const d = await jsonfetch(
-            //         `https://jbrowse.org/demos/interproscan/json/${encodeURIComponent(f)}`,
-            //       )
-            //       return [
-            //         decodeURIComponent(f).replace('.json', ''),
-            //         d.result.results[0],
-            //       ] as const
-            //     }),
-            //   ),
-            // )
-            // self.setLoadedInterProAnnotations(res)
-          }),
-        )
+
         // autorun opens treeFilehandle
         addDisposer(
           self,

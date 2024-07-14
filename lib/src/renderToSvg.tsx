@@ -84,30 +84,6 @@ async function render({
   )
 }
 
-// function renderMultiline({ model }: { model: MsaViewModel }) {
-//   const { treeAreaWidth, height } = model
-//   const clipId = 'tree'
-//   return (
-//     <Wrapper model={model}>
-//       <defs>
-//         <clipPath id={clipId}>
-//           <rect x={0} y={0} width={treeAreaWidth} height={height} />
-//         </clipPath>
-//       </defs>
-//       <g
-//         clipPath={`url(#${clipId})`}
-//         /* eslint-disable-next-line react/no-danger */
-//         dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
-//       />
-//       <g
-//         transform={`translate(${treeAreaWidth} 0)`}
-//         /* eslint-disable-next-line react/no-danger */
-//         dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}
-//       />
-//     </Wrapper>
-//   )
-// }
-
 function CoreRendering({
   model,
   theme,

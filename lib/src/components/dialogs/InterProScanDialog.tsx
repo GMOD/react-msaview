@@ -5,6 +5,8 @@ import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
 
 // locals
 import { MsaViewModel } from '../../model'
+import { getSession } from '@jbrowse/core/util'
+import { launchInterProScan } from '../../launchInterProScan'
 
 const FeatureTypeDialog = observer(function ({
   onClose,
@@ -216,7 +218,37 @@ const FeatureTypeDialog = observer(function ({
           variant="contained"
           color="primary"
           onClick={() => {
-            model.queryInterProScan(programs).catch(e => model.setError(e))
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            ;(async () => {
+              try {
+                const { rows } = model
+                if (rows.length > 140) {
+                  throw new Error(
+                    'Too many sequences, please run InterProScan offline',
+                  )
+                }
+                const ret = await launchInterProScan({
+                  algorithm: 'interproscan',
+                  programs: programs,
+                  seq: rows
+                    .map(row => [row[0], row[1].replaceAll('-', '')])
+                    .filter(f => !!f[1])
+                    .map(row => `>${row[0]}\n${row[1]}`)
+                    .join('\n'),
+                  onProgress: arg => model.setStatus(arg),
+                  onJobId: jobId => model.addInterProScanJobId(jobId),
+                })
+
+                model.setLoadedInterProAnnotations(
+                  Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
+                )
+              } catch (e) {
+                console.error(e)
+                getSession(model).notifyError(`${e}`, e)
+              } finally {
+                model.setStatus()
+              }
+            })()
             onClose()
           }}
         >
