@@ -39,7 +39,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       event.preventDefault()
       event.stopPropagation()
     }
-    curr.addEventListener('wheel', onWheel)
+    curr.addEventListener('wheel', onWheel, { passive: false })
     return () => {
       curr.removeEventListener('wheel', onWheel)
     }

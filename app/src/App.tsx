@@ -18,15 +18,15 @@ const mymodel = AppGlobal.create(
 mymodel.msaview.setWidth(window.innerWidth)
 
 let lastTime = 0
-onSnapshot(mymodel, snap => {
-  const now = Date.now()
-  if (now - lastTime >= 1000) {
-    lastTime = now
-    const url = new URL(window.document.URL)
-    url.searchParams.set('data', JSON.stringify(snap))
-    window.history.replaceState(null, '', url.toString())
-  }
-})
+// onSnapshot(mymodel, snap => {
+//   const now = Date.now()
+//   if (now - lastTime >= 1000) {
+//     lastTime = now
+//     const url = new URL(window.document.URL)
+//     url.searchParams.set('data', JSON.stringify(snap))
+//     window.history.replaceState(null, '', url.toString())
+//   }
+// })
 
 // Handle window resizing
 window.addEventListener('resize', () => {

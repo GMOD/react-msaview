@@ -1,5 +1,5 @@
 import React from 'react'
-import { autorun, transaction } from 'mobx'
+import { autorun, trace, transaction } from 'mobx'
 import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
@@ -11,13 +11,7 @@ import { Theme } from '@mui/material'
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import {
-  groupBy,
-  localStorageGetItem,
-  localStorageSetItem,
-  notEmpty,
-  sum,
-} from '@jbrowse/core/util'
+import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
 
 // locals
 import {
@@ -78,6 +72,7 @@ export interface ITextTrack {
 }
 
 export type BasicTrack = ITextTrack
+let i = 0
 
 /**
  * #stateModel MsaView
@@ -526,6 +521,8 @@ function stateModelFactory() {
        * #getter
        */
       get MSA() {
+        trace()
+        console.log('MSA', i)
         const text = self.data.msa
         if (text) {
           if (Stockholm.sniff(text)) {
@@ -637,6 +634,8 @@ function stateModelFactory() {
        * #getter
        */
       get rows() {
+        console.log('rows', i)
+        trace()
         const MSA = this.MSA
         return this.hierarchy
           .leaves()
@@ -657,6 +656,8 @@ function stateModelFactory() {
        * #getter
        */
       get columns2d() {
+        console.log('columns2d', i)
+        trace()
         return this.rows.map(r => r[1]).map(str => skipBlanks(this.blanks, str))
       },
       /**
@@ -669,6 +670,8 @@ function stateModelFactory() {
        * #getter
        */
       get colStats() {
+        console.log('colStats', i++)
+        trace()
         const r = [] as Record<string, number>[]
         const columns = this.columns2d
         for (const column of columns) {

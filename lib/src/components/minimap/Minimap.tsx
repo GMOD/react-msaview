@@ -28,7 +28,9 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
       if (mouseDown !== undefined) {
         if (!scheduled.current) {
           scheduled.current = true
+          console.log('wow')
           window.requestAnimationFrame(() => {
+            console.log('wow2')
             model.setScrollX(
               mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
             )
