@@ -42,6 +42,7 @@
     "d3-array": "^3.2.3",
     "d3-hierarchy": "^3.1.2",
     "file-saver": "^2.0.5",
+    "pako": "^2.1.0",
     "rbush": "^3.0.1",
     "react-error-boundary": "^4.0.13",
     "stockholm-js": "^1.0.10",

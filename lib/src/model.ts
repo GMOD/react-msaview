@@ -1,4 +1,5 @@
 import React from 'react'
+import { Buffer } from 'buffer'
 import { autorun, trace, transaction } from 'mobx'
 import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
@@ -6,12 +7,17 @@ import { ascending } from 'd3-array'
 import Stockholm from 'stockholm-js'
 import { saveAs } from 'file-saver'
 import { Theme } from '@mui/material'
+import { ungzip } from 'pako'
 
 // jbrowse
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
 import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
 import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
+
+export function isGzip(buf: Buffer) {
+  return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
+}
 
 // locals
 import {
@@ -1053,6 +1059,7 @@ function stateModelFactory() {
       reset() {
         transaction(() => {
           self.setData({ tree: '', msa: '' })
+          self.setError(undefined)
           self.setScrollY(0)
           self.setScrollX(0)
           self.setCurrentAlignment(0)
@@ -1157,9 +1164,11 @@ function stateModelFactory() {
             if (msaFilehandle) {
               try {
                 self.setLoadingMSA(true)
-                const res = await openLocation(msaFilehandle).readFile('utf8')
+                const res = await openLocation(msaFilehandle).readFile()
+                const buf = isGzip(res) ? ungzip(res) : res
+                const txt = new TextDecoder('utf8').decode(buf)
                 transaction(() => {
-                  self.setMSA(res)
+                  self.setMSA(txt)
                   if (msaFilehandle.locationType === 'BlobLocation') {
                     // clear filehandle after loading if from a local file
                     self.setMSAFilehandle(undefined)
