@@ -34,7 +34,6 @@ const View = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <div style={{ position: 'relative' }}>
       <TopArea model={model} />
-
       <MainArea model={model} />
     </div>
   )

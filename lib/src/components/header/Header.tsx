@@ -20,8 +20,8 @@ const AboutDialog = lazy(() => import('../dialogs/AboutDialog'))
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <div style={{ display: 'flex' }}>
-      <ZoomControls model={model} />
       <HeaderMenuExtra model={model} />
+      <ZoomControls model={model} />
       <MultiAlignmentSelector model={model} />
       <HeaderInfoArea model={model} />
       <Spacer />

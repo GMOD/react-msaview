@@ -2,10 +2,8 @@ import React, { lazy } from 'react'
 import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
-// locals
-
 // icons
-import MoreVert from '@mui/icons-material/MoreVert'
+import MoreVert from '@mui/icons-material/Menu'
 import Sort from '@mui/icons-material/Sort'
 import Visibility from '@mui/icons-material/Visibility'
 import FilterAlt from '@mui/icons-material/FilterAlt'
