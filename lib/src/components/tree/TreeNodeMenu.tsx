@@ -3,7 +3,7 @@ import { Menu, MenuItem } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 // lazies
 const TreeNodeInfoDialog = lazy(() => import('./dialogs/TreeNodeInfoDialog'))
@@ -17,7 +17,7 @@ const TreeMenu = observer(function ({
   model: MsaViewModel
   onClose: () => void
 }) {
-  const { collapsed, collapsed2 } = model
+  const { collapsed, collapsedLeaves } = model
   return (
     <Menu
       anchorReference="anchorPosition"
@@ -66,7 +66,7 @@ const TreeMenu = observer(function ({
           onClose()
         }}
       >
-        {collapsed.includes(node.id) || collapsed2.includes(node.id)
+        {collapsed.includes(node.id) || collapsedLeaves.includes(node.id)
           ? 'Show node'
           : 'Hide node'}
       </MenuItem>

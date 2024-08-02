@@ -8,7 +8,7 @@ import { makeStyles } from 'tss-react/mui'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
 // locals
-import { MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
 
 // lazies
 const TrackInfoDialog = lazy(() => import('./dialogs/TrackInfoDialog'))

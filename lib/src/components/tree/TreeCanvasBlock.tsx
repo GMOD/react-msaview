@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 import { useTheme } from '@mui/material'
 import RBush from 'rbush'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import TreeNodeMenu from './TreeNodeMenu'
 import TreeBranchMenu from './TreeBranchMenu'
 import { padding, renderTreeCanvas } from './renderTreeCanvas'

@@ -1,10 +1,10 @@
-import { HierarchyNode } from 'd3-hierarchy'
-import { Theme } from '@mui/material'
+import type { HierarchyNode } from 'd3-hierarchy'
+import type { Theme } from '@mui/material'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
-import { NodeWithIdsAndLength } from '../../util'
+import type { NodeWithIdsAndLength } from '../../util'
 
 export function renderMSABlock({
   model,
@@ -152,9 +152,16 @@ function drawText({
   xStart: number
   xEnd: number
 }) {
-  const { bgColor, showDomains, colorScheme, columns, colWidth, rowHeight } =
-    model
-  if (rowHeight >= 5 && colWidth > rowHeight / 2) {
+  const {
+    bgColor,
+    showDomains,
+    showMsaLetters,
+    colorScheme,
+    columns,
+    colWidth,
+    rowHeight,
+  } = model
+  if (showMsaLetters) {
     for (const node of visibleLeaves) {
       const {
         data: { name },

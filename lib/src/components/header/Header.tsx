@@ -1,9 +1,10 @@
-import React, { lazy } from 'react'
+import React, { lazy, useEffect } from 'react'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
+import useMeasure from '@jbrowse/core/util/useMeasure'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 // icons
 import Help from '@mui/icons-material/Help'
@@ -18,8 +19,12 @@ import HeaderMenuExtra from './HeaderMenuExtra'
 const AboutDialog = lazy(() => import('../dialogs/AboutDialog'))
 
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
+  const [ref, { height }] = useMeasure()
+  useEffect(() => {
+    model.setHeaderHeight(height || 0)
+  }, [model, height])
   return (
-    <div style={{ display: 'flex' }}>
+    <div ref={ref} style={{ display: 'flex' }}>
       <HeaderMenuExtra model={model} />
       <ZoomControls model={model} />
       <MultiAlignmentSelector model={model} />

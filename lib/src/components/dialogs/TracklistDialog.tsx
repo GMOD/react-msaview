@@ -12,7 +12,7 @@ import {
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 export default observer(function ({
   model,

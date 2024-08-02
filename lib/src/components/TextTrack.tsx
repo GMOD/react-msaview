@@ -2,7 +2,7 @@ import React, { useRef, useMemo, useEffect } from 'react'
 import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 // locals
-import { MsaViewModel, ITextTrack } from '../model'
+import type { MsaViewModel, ITextTrack } from '../model'
 import { colorContrast } from '../util'
 
 const AnnotationBlock = observer(function ({

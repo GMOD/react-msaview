@@ -1,4 +1,4 @@
-import { DialogComponentType } from '@jbrowse/core/util'
+import type { DialogComponentType } from '@jbrowse/core/util'
 import { types } from 'mobx-state-tree'
 
 /**

@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import { Select } from '@mui/material'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 const MultiAlignmentSelector = observer(function ({
   model,

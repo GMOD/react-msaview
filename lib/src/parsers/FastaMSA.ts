@@ -1,4 +1,4 @@
-import { NodeWithIds } from '../util'
+import type { NodeWithIds } from '../util'
 
 function parseSmallFasta(text: string) {
   return text

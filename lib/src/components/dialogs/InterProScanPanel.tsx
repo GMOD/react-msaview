@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { getSession } from '@jbrowse/core/util'
 import { launchInterProScan } from '../../launchInterProScan'
 

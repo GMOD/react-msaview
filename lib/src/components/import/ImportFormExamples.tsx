@@ -3,11 +3,11 @@ import { Typography, Link } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { smallTree, smallMSA, smallMSAOnly } from './data/seq2'
 import { load } from './util'
 
-const ListItem = ({
+function ListItem({
   onClick,
   model,
   children,
@@ -15,20 +15,22 @@ const ListItem = ({
   onClick: () => void
   model: MsaViewModel
   children: React.ReactNode
-}) => (
-  <li>
-    <Link
-      onClick={event => {
-        model.setError(undefined)
-        event.preventDefault()
-        onClick()
-      }}
-      href="#"
-    >
-      <Typography display="inline">{children}</Typography>
-    </Link>
-  </li>
-)
+}) {
+  return (
+    <li>
+      <Link
+        onClick={event => {
+          model.setError(undefined)
+          event.preventDefault()
+          onClick()
+        }}
+        href="#"
+      >
+        <Typography display="inline">{children}</Typography>
+      </Link>
+    </li>
+  )
+}
 
 const ImportFormExamples = observer(function ({
   model,

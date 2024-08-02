@@ -1,8 +1,8 @@
 import { getSession } from '@jbrowse/core/util'
 import { jsonfetch, textfetch, timeout } from './fetchUtils'
-import { MsaViewModel } from './model'
+import type { MsaViewModel } from './model'
 
-const base = `https://www.ebi.ac.uk/Tools/services/rest`
+const base = 'https://www.ebi.ac.uk/Tools/services/rest'
 
 export interface InterProScanResults {
   matches: {
@@ -74,7 +74,8 @@ async function wait({
       const result = await textfetch(url)
       if (result.includes('FINISHED')) {
         break
-      } else if (result.includes('FAILURE')) {
+      }
+      if (result.includes('FAILURE')) {
         throw new Error(`Failed to run: jobId ${jobId}`)
       }
     }
@@ -109,9 +110,8 @@ export async function launchInterProScan({
         model,
       })
       return result
-    } else {
-      throw new Error('unknown algorithm')
     }
+    throw new Error('unknown algorithm')
   } finally {
     onProgress()
   }
@@ -126,14 +126,11 @@ export async function loadInterProScanResultsWithStatus({
 }) {
   try {
     model.setStatus({
-      msg:
-        'Downloading results of ' +
-        jobId +
-        ' (for larger sequences this can be slow, click status to download and upload in the manual tab)',
+      msg: `Downloading results of ${jobId} (for larger sequences this can be slow, click status to download and upload in the manual tab)`,
       url: `https://www.ebi.ac.uk/Tools/services/rest/iprscan5/result/${jobId}/json`,
     })
     const ret = await loadInterProScanResults(jobId)
-    model.setLoadedInterProAnnotations(
+    model.setInterProAnnotations(
       Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
     )
     model.setShowDomains(true)

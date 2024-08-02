@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 // icons
 import ZoomIn from '@mui/icons-material/ZoomIn'
@@ -22,8 +22,11 @@ const ZoomControls = observer(function ZoomControls({
             label: 'Zoom in horizontal+vertical',
             onClick: () => model.zoomIn(),
           },
-          { label: 'Zoom in horizontal', onClick: () => model.zoomInH() },
-          { label: 'Zoom in vertical', onClick: () => model.zoomInV() },
+          {
+            label: 'Zoom in horizontal',
+            onClick: () => model.zoomInHorizontal(),
+          },
+          { label: 'Zoom in vertical', onClick: () => model.zoomInVertical() },
         ]}
       >
         <ZoomIn />
@@ -34,8 +37,14 @@ const ZoomControls = observer(function ZoomControls({
             label: 'Zoom out horizontal+vertical',
             onClick: () => model.zoomOut(),
           },
-          { label: 'Zoom out horizontal', onClick: () => model.zoomOutH() },
-          { label: 'Zoom out vertical', onClick: () => model.zoomOutV() },
+          {
+            label: 'Zoom out horizontal',
+            onClick: () => model.zoomOutHorizontal(),
+          },
+          {
+            label: 'Zoom out vertical',
+            onClick: () => model.zoomOutVertical(),
+          },
         ]}
       >
         <ZoomOut />

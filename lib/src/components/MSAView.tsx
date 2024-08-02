@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 
 // locals
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
-import { MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
 import TreeRuler from './tree/TreeRuler'
 import Header from './header/Header'
 import MSAPanel from './msa/MSAPanel'
@@ -23,6 +23,7 @@ const TopArea = observer(function ({ model }: { model: MsaViewModel }) {
 
 const MainArea = observer(function ({ model }: { model: MsaViewModel }) {
   const { showVerticalScrollbar } = model
+
   return (
     <div style={{ display: 'flex' }}>
       <TreePanel model={model} />

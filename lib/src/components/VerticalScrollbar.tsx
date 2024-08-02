@@ -1,14 +1,10 @@
 import { observer } from 'mobx-react'
 import React, { useEffect, useRef, useState } from 'react'
-import { MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
 import { clamp } from '../util'
 
-const VerticalScrollbar = observer(function ({
-  model,
-}: {
-  model: MsaViewModel
-}) {
-  const { height: H, scrollY, totalHeight, rows, rowHeight } = model
+const VerticalScrollbar = observer(({ model }: { model: MsaViewModel }) => {
+  const { msaAreaHeight, scrollY, totalHeight } = model
   const [hovered, setHovered] = useState(false)
   const scheduled = useRef(false)
   const [mouseDown, setMouseDown] = useState<{
@@ -16,9 +12,9 @@ const VerticalScrollbar = observer(function ({
     scrollY: number
   }>()
   const fill = 'rgba(66, 119, 127, 0.3)'
-  const unit = H / rows.length / rowHeight
+  const unit = msaAreaHeight / totalHeight
   const top = -scrollY
-  const bottom = top + H
+  const bottom = top + msaAreaHeight
   const t = top * unit
   const b = bottom * unit
   useEffect(() => {
@@ -50,13 +46,13 @@ const VerticalScrollbar = observer(function ({
         document.removeEventListener('mousemove', fn2)
       }
     }
-  }, [model, unit, mouseDown])
+  }, [model, unit, totalHeight, mouseDown])
   return (
     <div
       style={{
         position: 'relative',
         width: 20,
-        height: H,
+        height: msaAreaHeight,
         borderLeft: '1px solid #555',
         borderTop: '1px solid #555',
         boxSizing: 'border-box',

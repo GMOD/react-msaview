@@ -8,7 +8,7 @@ import {
 } from '@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail'
 
 // locals
-import { MsaViewModel } from '../../../model'
+import type { MsaViewModel } from '../../../model'
 import SequenceTextArea from '../../SequenceTextArea'
 
 export default observer(function ({

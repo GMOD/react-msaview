@@ -7,7 +7,7 @@ import { ErrorMessage } from '@jbrowse/core/ui'
 // locals
 import ImportForm from './import/ImportForm'
 import MSAView from './MSAView'
-import { MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
 
 const Reset = observer(function ({
   model,

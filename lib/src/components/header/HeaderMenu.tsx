@@ -10,7 +10,7 @@ import List from '@mui/icons-material/List'
 import Menu from '@mui/icons-material/Menu'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 // lazies
 const SettingsDialog = lazy(() => import('../dialogs/SettingsDialog'))

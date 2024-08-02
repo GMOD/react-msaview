@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import MSACanvasBlock from './MSACanvasBlock'
 import Loading from './Loading'
 
