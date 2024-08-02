@@ -74,6 +74,8 @@ async function wait({
       const result = await textfetch(url)
       if (result.includes('FINISHED')) {
         break
+      } else if (result.includes('FAILURE')) {
+        throw new Error(`Failed to run: jobId ${jobId}`)
       }
     }
   } finally {
