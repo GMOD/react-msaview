@@ -1,6 +1,6 @@
 import React from 'react'
-import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
+import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../../model'
@@ -16,13 +16,32 @@ const ZoomControls = observer(function ZoomControls({
 }) {
   return (
     <>
-      <IconButton onClick={() => model.zoomIn()}>
+      <CascadingMenuButton
+        menuItems={[
+          {
+            label: 'Zoom in horizontal+vertical',
+            onClick: () => model.zoomIn(),
+          },
+          { label: 'Zoom in horizontal', onClick: () => model.zoomInH() },
+          { label: 'Zoom in vertical', onClick: () => model.zoomInV() },
+        ]}
+      >
         <ZoomIn />
-      </IconButton>
-      <IconButton onClick={() => model.zoomOut()}>
+      </CascadingMenuButton>
+      <CascadingMenuButton
+        menuItems={[
+          {
+            label: 'Zoom out horizontal+vertical',
+            onClick: () => model.zoomOut(),
+          },
+          { label: 'Zoom out horizontal', onClick: () => model.zoomOutH() },
+          { label: 'Zoom out vertical', onClick: () => model.zoomOutV() },
+        ]}
+      >
         <ZoomOut />
-      </IconButton>
+      </CascadingMenuButton>
     </>
   )
 })
+
 export default ZoomControls

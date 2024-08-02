@@ -8,7 +8,7 @@ const VerticalScrollbar = observer(function ({
 }: {
   model: MsaViewModel
 }) {
-  const { height: H, scrollY, rows, rowHeight } = model
+  const { height: H, scrollY, totalHeight, rows, rowHeight } = model
   const [hovered, setHovered] = useState(false)
   const scheduled = useRef(false)
   const [mouseDown, setMouseDown] = useState<{
@@ -27,13 +27,9 @@ const VerticalScrollbar = observer(function ({
         if (!scheduled.current) {
           scheduled.current = true
           window.requestAnimationFrame(() => {
-            console.log(
-              mouseDown.scrollY - (event.clientY - mouseDown.clientY) / unit,
-              -rowHeight * rows.length,
-            )
             model.setScrollY(
               clamp(
-                -rowHeight * rows.length,
+                -totalHeight,
                 mouseDown.scrollY - (event.clientY - mouseDown.clientY) / unit,
                 0,
               ),

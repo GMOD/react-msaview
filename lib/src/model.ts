@@ -797,6 +797,20 @@ function stateModelFactory() {
       },
     }))
     .actions(self => ({
+      zoomOutH() {
+        self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
+        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+      },
+      zoomInH() {
+        self.colWidth = Math.ceil(self.colWidth * 1.5)
+        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+      },
+      zoomInV() {
+        self.rowHeight = Math.ceil(self.rowHeight * 1.5)
+      },
+      zoomOutV() {
+        self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
+      },
       /**
        * #action
        */
@@ -939,6 +953,20 @@ function stateModelFactory() {
       },
 
       /**
+       * #getter
+       */
+      get showVerticalScrollbar() {
+        return self.height < self.totalHeight
+      },
+
+      /**
+       * #getter
+       */
+      get showHorizontalScrollbar() {
+        return self.msaAreaWidth < self.totalWidth
+      },
+
+      /**
        * #method
        * return a row-specific sequence coordinate, skipping gaps, given a global
        * coordinate
@@ -1049,6 +1077,15 @@ function stateModelFactory() {
       },
     }))
     .views(self => ({
+      /**
+       * #getter
+       */
+      get verticalScrollbarWidth() {
+        return self.showVerticalScrollbar ? 20 : 0
+      },
+      /**
+       * #getter
+       */
       get fillPalette() {
         const arr = [...self.tidyTypes.keys()]
         let i = 0
@@ -1060,6 +1097,9 @@ function stateModelFactory() {
         }
         return map
       },
+      /**
+       * #getter
+       */
       get strokePalette() {
         return Object.fromEntries(
           Object.entries(this.fillPalette).map(([key, val]) => [

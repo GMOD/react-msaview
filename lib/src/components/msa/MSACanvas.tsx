@@ -7,7 +7,14 @@ import MSACanvasBlock from './MSACanvasBlock'
 import Loading from './Loading'
 
 const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
-  const { MSA, msaFilehandle, width, height, msaAreaWidth, blocks2d } = model
+  const {
+    MSA,
+    verticalScrollbarWidth,
+    msaFilehandle,
+    height,
+    msaAreaWidth,
+    blocks2d,
+  } = model
   const ref = useRef<HTMLDivElement>(null)
   // wheel
   const scheduled = useRef(false)
@@ -87,7 +94,6 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     }
     return cleanup
   }, [model, mouseDragging])
-  console.log({ width, msaAreaWidth })
 
   return (
     <div
@@ -116,7 +122,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       style={{
         position: 'relative',
         height,
-        width: msaAreaWidth - 20,
+        width: msaAreaWidth - verticalScrollbarWidth,
         overflow: 'hidden',
       }}
     >

@@ -11,24 +11,27 @@ import TreePanel from './tree/TreePanel'
 import Minimap from './minimap/Minimap'
 import VerticalScrollbar from './VerticalScrollbar'
 
-function TopArea({ model }: { model: MsaViewModel }) {
+const TopArea = observer(function ({ model }: { model: MsaViewModel }) {
+  const { showHorizontalScrollbar } = model
   return (
     <div style={{ display: 'flex' }}>
       <TreeRuler model={model} />
-      <Minimap model={model} />
+      {showHorizontalScrollbar ? <Minimap model={model} /> : null}
     </div>
   )
-}
-function MainArea({ model }: { model: MsaViewModel }) {
+})
+
+const MainArea = observer(function ({ model }: { model: MsaViewModel }) {
+  const { showVerticalScrollbar } = model
   return (
     <div style={{ display: 'flex' }}>
       <TreePanel model={model} />
       <VerticalResizeHandle model={model} />
       <MSAPanel model={model} />
-      <VerticalScrollbar model={model} />
+      {showVerticalScrollbar ? <VerticalScrollbar model={model} /> : null}
     </div>
   )
-}
+})
 
 const View = observer(function ({ model }: { model: MsaViewModel }) {
   return (
