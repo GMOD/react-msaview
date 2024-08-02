@@ -65,7 +65,6 @@ async function wait({
 }) {
   const url = `${base}/iprscan5/status/${jobId}`
   try {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       for (let i = 0; i < 10; i++) {
         await timeout(1000)

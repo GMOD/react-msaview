@@ -6,10 +6,13 @@
     "app"
   ],
   "scripts": {
-    "lint": "eslint --report-unused-disable-directives --max-warnings 0 --ext .js,.ts,.jsx,.tsx ."
+    "lint": "eslint --report-unused-disable-directives --max-warnings 0 ."
   },
   "devDependencies": {
     "@emotion/react": "^11.13.0",
+    "@eslint/compat": "^1.1.1",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.8.0",
     "@jbrowse/core": "^2.13.1",
     "@mui/icons-material": "^5.16.6",
     "@mui/material": "^5.16.6",
@@ -29,13 +32,13 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "eslint": "^8.39.0",
+    "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unicorn": "^55.0.0",
+    "globals": "^15.9.0",
     "mobx": "^6.13.1",
     "mobx-react": "^9.1.1",
     "mobx-state-tree": "^5.0.1",

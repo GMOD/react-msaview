@@ -859,17 +859,21 @@ function stateModelFactory() {
        * #action
        */
       zoomIn() {
-        self.colWidth = Math.ceil(self.colWidth * 1.5)
-        self.rowHeight = Math.ceil(self.rowHeight * 1.5)
-        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        transaction(() => {
+          self.colWidth = Math.ceil(self.colWidth * 1.5)
+          self.rowHeight = Math.ceil(self.rowHeight * 1.5)
+          self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        })
       },
       /**
        * #action
        */
       zoomOut() {
-        self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
-        self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
-        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        transaction(() => {
+          self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
+          self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
+          self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        })
       },
       /**
        * #action
