@@ -103,6 +103,10 @@ function stateModelFactory() {
          * #property
          */
         showDomains: false,
+        /**
+         * #property
+         */
+        contrastLettering: true,
 
         /**
          * #property
@@ -316,6 +320,12 @@ function stateModelFactory() {
         | Record<string, InterProScanResults>,
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      setContrastLettering(arg: boolean) {
+        self.contrastLettering = arg
+      },
       /**
        * #action
        */
@@ -1003,13 +1013,6 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get showVerticalScrollbar() {
-        return self.height < self.totalHeight
-      },
-
-      /**
-       * #getter
-       */
       get showHorizontalScrollbar() {
         return self.msaAreaWidth < self.totalWidth
       },
@@ -1139,6 +1142,14 @@ function stateModelFactory() {
       /**
        * #getter
        */
+      get showVerticalScrollbar() {
+        return self.msaAreaHeight < self.totalHeight
+      },
+    }))
+    .views(self => ({
+      /**
+       * #getter
+       */
       get verticalScrollbarWidth() {
         return self.showVerticalScrollbar ? 20 : 0
       },
@@ -1179,15 +1190,13 @@ function stateModelFactory() {
        * #action
        */
       reset() {
-        transaction(() => {
-          self.setData({ tree: '', msa: '' })
-          self.setError(undefined)
-          self.setScrollY(0)
-          self.setScrollX(0)
-          self.setCurrentAlignment(0)
-          self.setTreeFilehandle(undefined)
-          self.setMSAFilehandle(undefined)
-        })
+        self.setData({ tree: '', msa: '' })
+        self.setError(undefined)
+        self.setScrollY(0)
+        self.setScrollX(0)
+        self.setCurrentAlignment(0)
+        self.setTreeFilehandle(undefined)
+        self.setMSAFilehandle(undefined)
       },
       /**
        * #action

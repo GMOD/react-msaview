@@ -7,7 +7,7 @@ import type { MsaViewModel } from '../../model'
 import TreeCanvasBlock from './TreeCanvasBlock'
 import { padding } from './renderTreeCanvas'
 
-const TreeCanvas = observer(({ model }: { model: MsaViewModel }) => {
+const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLDivElement>(null)
   const scheduled = useRef(false)
   const deltaY = useRef(0)

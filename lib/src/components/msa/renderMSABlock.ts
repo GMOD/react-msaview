@@ -159,6 +159,7 @@ function drawText({
     colorScheme,
     columns,
     colWidth,
+    contrastLettering,
     rowHeight,
   } = model
   if (showMsaLetters) {
@@ -171,7 +172,9 @@ function drawText({
       for (let i = 0; i < str?.length; i++) {
         const letter = str[i]
         const color = colorScheme[letter.toUpperCase()]
-        const contrast = contrastScheme[letter.toUpperCase()] || 'black'
+        const contrast = contrastLettering
+          ? contrastScheme[letter.toUpperCase()] || 'black'
+          : 'black'
         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
         // note: -rowHeight/4 matches +rowHeight/4 in tree

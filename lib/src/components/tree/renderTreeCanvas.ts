@@ -141,6 +141,8 @@ export function renderTreeLabels({
     treeAreaWidthMinusMargin,
     marginLeft,
     noTree,
+    // eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    rowHeight: _rowHeight, // this is needed for redrawing after zoom change
   } = model
   const by = blockSizeYOverride || blockSize
   if (labelsAlignRight) {

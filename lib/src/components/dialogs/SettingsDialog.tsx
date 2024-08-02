@@ -115,8 +115,14 @@ const MSASettings = observer(function MSASettings({
   model: MsaViewModel
 }) {
   const { classes } = useStyles()
-  const { bgColor, colWidth, drawMsaLetters, colorSchemeName, rowHeight } =
-    model
+  const {
+    bgColor,
+    contrastLettering,
+    colWidth,
+    drawMsaLetters,
+    colorSchemeName,
+    rowHeight,
+  } = model
 
   return (
     <div>
@@ -152,7 +158,11 @@ const MSASettings = observer(function MSASettings({
           onChange={(_, val) => model.setRowHeight(val as number)}
         />
       </div>
-
+      <Checkbox2
+        checked={contrastLettering}
+        onChange={() => model.setContrastLettering(!contrastLettering)}
+        label="Use contrast lettering"
+      />
       <TextField
         select
         label="Color scheme"
