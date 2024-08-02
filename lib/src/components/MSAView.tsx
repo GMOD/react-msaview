@@ -9,6 +9,7 @@ import Header from './header/Header'
 import MSAPanel from './msa/MSAPanel'
 import TreePanel from './tree/TreePanel'
 import Minimap from './minimap/Minimap'
+import VerticalScrollbar from './VerticalScrollbar'
 
 function TopArea({ model }: { model: MsaViewModel }) {
   return (
@@ -24,6 +25,7 @@ function MainArea({ model }: { model: MsaViewModel }) {
       <TreePanel model={model} />
       <VerticalResizeHandle model={model} />
       <MSAPanel model={model} />
+      <VerticalScrollbar model={model} />
     </div>
   )
 }
@@ -39,19 +41,23 @@ const View = observer(function ({ model }: { model: MsaViewModel }) {
 })
 
 const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
-  const { height, DialogComponent, DialogProps } = model
+  const { height, viewInitialized, DialogComponent, DialogProps } = model
   return (
     <div>
-      <div style={{ height, overflow: 'hidden' }}>
-        <Header model={model} />
-        <View model={model} />
-      </div>
-      <HorizontalResizeHandle model={model} />
+      {viewInitialized ? (
+        <>
+          <div style={{ height, overflow: 'hidden' }}>
+            <Header model={model} />
+            <View model={model} />
+          </div>
+          <HorizontalResizeHandle model={model} />
 
-      {DialogComponent ? (
-        <Suspense fallback={null}>
-          <DialogComponent {...DialogProps} />
-        </Suspense>
+          {DialogComponent ? (
+            <Suspense fallback={null}>
+              <DialogComponent {...DialogProps} />
+            </Suspense>
+          ) : null}
+        </>
       ) : null}
     </div>
   )

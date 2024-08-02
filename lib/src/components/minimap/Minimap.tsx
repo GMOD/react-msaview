@@ -70,8 +70,6 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
           left: Math.max(0, s),
           background: hovered ? 'rgba(66,119,127,0.6)' : fill,
           cursor: 'pointer',
-          border: '1px solid #555',
-          boxSizing: 'border-box',
           height: BAR_HEIGHT,
           width: e - s,
           zIndex: 100,

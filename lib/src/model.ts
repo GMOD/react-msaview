@@ -222,7 +222,7 @@ function stateModelFactory() {
       /**
        * #volatile
        */
-      width: 800,
+      volatileWidth: undefined as number | undefined,
       /**
        * #volatile
        * resize handle width between tree and msa area, px
@@ -311,7 +311,7 @@ function stateModelFactory() {
        * #action
        */
       setWidth(arg: number) {
-        self.width = arg
+        self.volatileWidth = arg
       },
       /**
        * #action
@@ -462,6 +462,23 @@ function stateModelFactory() {
       },
     }))
 
+    .views(self => ({
+      /**
+       * #getter
+       */
+      get viewInitialized() {
+        return self.volatileWidth !== undefined
+      },
+      /**
+       * #getter
+       */
+      get width() {
+        if (self.volatileWidth === undefined) {
+          throw new Error('not initialized')
+        }
+        return self.volatileWidth
+      },
+    }))
     .views(self => ({
       /**
        * #method
@@ -726,7 +743,7 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get initialized() {
+      get dataInitialized() {
         return (self.data.msa || self.data.tree) && !self.error
       },
       /**

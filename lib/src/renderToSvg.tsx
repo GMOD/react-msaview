@@ -17,7 +17,7 @@ export async function renderToSvg(
   model: MsaViewModel,
   opts: { theme: Theme; includeMinimap?: boolean; exportType: string },
 ) {
-  await when(() => !!model.initialized)
+  await when(() => !!model.dataInitialized)
   const { width, height, scrollX, scrollY } = model
   const { exportType, theme, includeMinimap } = opts
 

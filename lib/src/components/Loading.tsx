@@ -27,14 +27,14 @@ const Reset = observer(function ({
 })
 
 const Loading = observer(function ({ model }: { model: MsaViewModel }) {
-  const { isLoading, initialized } = model
+  const { isLoading, dataInitialized } = model
 
   return (
     <div>
       <ErrorBoundary
         fallbackRender={props => <Reset model={model} error={props.error} />}
       >
-        {initialized ? (
+        {dataInitialized ? (
           isLoading ? (
             <Typography variant="h4">Loading...</Typography>
           ) : (
