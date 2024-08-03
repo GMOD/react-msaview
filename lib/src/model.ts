@@ -551,7 +551,7 @@ function stateModelFactory() {
        * #getter
        */
       get noTree() {
-        return !!this.tree.noTree
+        return !!this._tree.noTree
       },
       /**
        * #getter
@@ -596,9 +596,8 @@ function stateModelFactory() {
 
       /**
        * #getter
-       * use this.hierarchy for most purposes instead of this
        */
-      get tree(): NodeWithIds {
+      get _tree(): NodeWithIds {
         const ret = self.data.tree
           ? generateNodeIds(parseNewick(self.data.tree))
           : this.MSA?.getTree() || {
@@ -609,7 +608,6 @@ function stateModelFactory() {
             }
         return reparseTree(ret)
       },
-
       /**
        * #getter
        */
@@ -626,10 +624,9 @@ function stateModelFactory() {
 
       /**
        * #getter
-       * use this.hierarchy for most cases
        */
       get root() {
-        let hier = hierarchy(this.tree, d => d.branchset)
+        let hier = hierarchy(this._tree, d => d.branchset)
           .sum(d => (d.branchset ? 0 : 1))
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
@@ -745,15 +742,7 @@ function stateModelFactory() {
           .size([this.totalHeight, self.treeWidth])
           .separation(() => 1)
         clust(r)
-
-        r.data.length = 0
-        setBrLength(
-          r,
-          0,
-          0,
-          self.treeWidth / maxLength(r),
-          self.treeWidth / r.height,
-        )
+        setBrLength(r, (r.data.length = 0), self.treeWidth / maxLength(r))
         return r as HierarchyNode<NodeWithIdsAndLength>
       },
 
