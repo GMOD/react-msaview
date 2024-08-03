@@ -1,6 +1,6 @@
 import React from 'react'
 import type { Buffer } from 'buffer'
-import { autorun, transaction } from 'mobx'
+import { autorun, trace, transaction } from 'mobx'
 import { type Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { hierarchy, cluster, type HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
@@ -726,6 +726,7 @@ function stateModelFactory() {
       get colStats() {
         const r = [] as Record<string, number>[]
         const columns = this.columns2d
+        trace()
         for (const column of columns) {
           for (let j = 0; j < column.length; j++) {
             const l = r[j] || {}
@@ -1318,6 +1319,12 @@ function stateModelFactory() {
                 self.setLoadingMSA(false)
               }
             }
+          }),
+        )
+        addDisposer(
+          self,
+          autorun(() => {
+            console.log('here', self.colStats)
           }),
         )
 
