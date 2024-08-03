@@ -58,14 +58,7 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
             model.queueDialog(onClose => [TracklistDialog, { model, onClose }]),
           icon: List,
         },
-        {
-          label: 'Reset zoom to default',
-          icon: RestartAlt,
-          onClick: () => {
-            model.setColWidth(16)
-            model.setRowHeight(20)
-          },
-        },
+
         {
           label: 'Export SVG',
           icon: PhotoCamera,
