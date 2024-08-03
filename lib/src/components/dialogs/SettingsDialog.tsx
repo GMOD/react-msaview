@@ -137,6 +137,11 @@ const MSASettings = observer(function MSASettings({
         onChange={() => model.setBgColor(!bgColor)}
         label="Color background tiles of MSA?"
       />
+      <Checkbox2
+        checked={contrastLettering}
+        onChange={() => model.setContrastLettering(!contrastLettering)}
+        label="Use contrast lettering"
+      />
 
       <div className={classes.flex}>
         <Typography>Column width ({colWidth}px)</Typography>
@@ -158,11 +163,7 @@ const MSASettings = observer(function MSASettings({
           onChange={(_, val) => model.setRowHeight(val as number)}
         />
       </div>
-      <Checkbox2
-        checked={contrastLettering}
-        onChange={() => model.setContrastLettering(!contrastLettering)}
-        label="Use contrast lettering"
-      />
+
       <TextField
         select
         label="Color scheme"

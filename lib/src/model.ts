@@ -497,6 +497,12 @@ function stateModelFactory() {
       /**
        * #getter
        */
+      get actuallyShowDomains() {
+        return self.showDomains && !!self.interProAnnotations
+      },
+      /**
+       * #getter
+       */
       get viewInitialized() {
         return self.volatileWidth !== undefined
       },

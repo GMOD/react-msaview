@@ -45,7 +45,8 @@ const MSACanvasBlock = observer(function ({
     return autorun(() => {
       ctx.resetTransform()
       ctx.clearRect(0, 0, blockSize, blockSize)
-      if (model.showDomains) {
+      const { actuallyShowDomains } = model
+      if (actuallyShowDomains) {
         renderBoxFeatureCanvasBlock({
           ctx,
           offsetX,

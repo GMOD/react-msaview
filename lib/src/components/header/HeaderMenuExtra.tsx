@@ -31,7 +31,7 @@ const UserProvidedDomainsDialog = lazy(
 const InterProScanDialog = lazy(() => import('../dialogs/InterProScanDialog'))
 
 const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
-  const { showDomains, subFeatureRows, noDomains } = model
+  const { showDomains, actuallyShowDomains, subFeatureRows, noDomains } = model
   return (
     <CascadingMenuButton
       menuItems={[
@@ -98,14 +98,14 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
               label: `Show domains${noDomains ? ' (no domains loaded)' : ''}`,
               disabled: noDomains,
               icon: Visibility,
-              checked: showDomains,
+              checked: actuallyShowDomains ? showDomains : false,
               type: 'checkbox',
               onClick: () => model.setShowDomains(!showDomains),
             },
             {
               label: `Use sub-row layout${noDomains ? ' (no domains loaded)' : ''}`,
               disabled: noDomains,
-              checked: subFeatureRows,
+              checked: actuallyShowDomains ? subFeatureRows : false,
               icon: Sort,
               type: 'checkbox',
               onClick: () => model.setSubFeatureRows(!subFeatureRows),

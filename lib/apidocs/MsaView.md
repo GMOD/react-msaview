@@ -252,6 +252,13 @@ type: types.literal('MsaView')
 
 ### MsaView - Getters
 
+#### getter: actuallyShowDomains
+
+```js
+// type
+boolean
+```
+
 #### getter: adapterTrackModels
 
 ```js
