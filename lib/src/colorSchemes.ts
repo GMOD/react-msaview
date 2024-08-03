@@ -352,11 +352,11 @@ export default transform(colorSchemes, ([key, val]) => [
 // should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getClustalXColor(
   stats: Record<string, number>,
+  total: number,
   model: { columns: Record<string, string> },
   row: string,
   col: number,
 ) {
-  const total = Object.values(stats).reduce((a, b) => a + b, 0)
   const l = model.columns[row][col]
   const {
     W = 0,
@@ -499,11 +499,11 @@ export function getClustalXColor(
 // should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getPercentIdentityColor(
   stats: Record<string, number>,
+  total: number,
   model: { columns: Record<string, string> },
   row: string,
   col: number,
 ) {
-  const total = Object.values(stats).reduce((a, b) => a + b, 0)
   const l = model.columns[row][col]
   const entries = Object.entries(stats)
   let ent = 0

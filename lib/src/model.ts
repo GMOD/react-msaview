@@ -739,6 +739,17 @@ function stateModelFactory() {
         }
         return r
       },
+
+      /**
+       * #getter
+       */
+      get colStatsSums() {
+        return Object.fromEntries(
+          Object.entries(this.colStats).map(([key, val]) => {
+            return [key, sum(Object.values(val))]
+          }),
+        )
+      },
       /**
        * #getter
        * generates a new tree that is clustered with x,y positions
@@ -1324,7 +1335,10 @@ function stateModelFactory() {
         addDisposer(
           self,
           autorun(() => {
-            console.log('here', self.colStats)
+            // force colStats not to go stale,
+            // xref solution https://github.com/mobxjs/mobx/issues/266#issuecomment-222007278
+            // xref problem https://github.com/GMOD/react-msaview/issues/75
+            self.colStats
           }),
         )
 

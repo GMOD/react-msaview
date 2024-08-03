@@ -101,6 +101,7 @@ function drawTiles({
     colorSchemeName,
     colorScheme,
     colStats,
+    colStatsSums,
     columns,
     colWidth,
     rowHeight,
@@ -116,10 +117,17 @@ function drawTiles({
       const letter = str[i]
       const color =
         colorSchemeName === 'clustalx_protein_dynamic'
-          ? getClustalXColor(colStats[xStart + i], model, name, xStart + i)
+          ? getClustalXColor(
+              colStats[xStart + i],
+              colStatsSums[xStart + i],
+              model,
+              name,
+              xStart + i,
+            )
           : colorSchemeName === 'percent_identity_dynamic'
             ? getPercentIdentityColor(
                 colStats[xStart + i],
+                colStatsSums[xStart + i],
                 model,
                 name,
                 xStart + i,
