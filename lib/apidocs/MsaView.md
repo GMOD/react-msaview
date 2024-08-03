@@ -53,6 +53,15 @@ number
 colWidth: 16
 ```
 
+#### property: contrastLettering
+
+```js
+// type signature
+true
+// code
+contrastLettering: true
+```
+
 #### property: currentAlignment
 
 ```js
@@ -243,13 +252,6 @@ type: types.literal('MsaView')
 
 ### MsaView - Getters
 
-#### getter: \_tree
-
-```js
-// type
-NodeWithIds
-```
-
 #### getter: adapterTrackModels
 
 ```js
@@ -406,6 +408,15 @@ any
 ;ClustalMSA | StockholmMSA | FastaMSA
 ```
 
+#### getter: msaAreaHeight
+
+widget width minus the tree area gives the space for the MSA
+
+```js
+// type
+number
+```
+
 #### getter: msaAreaWidth
 
 widget width minus the tree area gives the space for the MSA
@@ -415,7 +426,7 @@ widget width minus the tree area gives the space for the MSA
 number
 ```
 
-#### getter: noAnnotations
+#### getter: noDomains
 
 ```js
 // type
@@ -557,6 +568,13 @@ number
 ITextTrack[]
 ```
 
+#### getter: tree
+
+```js
+// type
+NodeWithIds
+```
+
 #### getter: treeAreaWidthMinusMargin
 
 ```js
@@ -692,6 +710,13 @@ set col width (px)
 setColWidth: (n: number) => void
 ```
 
+#### action: setContrastLettering
+
+```js
+// type signature
+setContrastLettering: (arg: boolean) => void
+```
+
 #### action: setCurrentAlignment
 
 ```js
@@ -727,6 +752,13 @@ setError: (error?: unknown) => void
 ```js
 // type signature
 setFilter: (arg: string, flag: boolean) => void
+```
+
+#### action: setHeaderHeight
+
+```js
+// type signature
+setHeaderHeight: (arg: number) => void
 ```
 
 #### action: setHeight

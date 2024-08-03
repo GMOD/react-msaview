@@ -14,6 +14,7 @@ import FolderOpen from '@mui/icons-material/FolderOpen'
 import Settings from '@mui/icons-material/Settings'
 import Assignment from '@mui/icons-material/Assignment'
 import List from '@mui/icons-material/List'
+import FolderOpen from '@mui/icons-material/FolderOpen'
 
 // locals
 import type { MsaViewModel } from '../../model'
@@ -24,10 +25,13 @@ const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('../dialogs/TracklistDialog'))
 const ExportSVGDialog = lazy(() => import('../dialogs/ExportSVGDialog'))
 const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog'))
-const DomainDialog = lazy(() => import('../dialogs/DomainDialog'))
+const UserProvidedDomainsDialog = lazy(
+  () => import('../dialogs/UserProvidedDomainsDialog'),
+)
+const InterProScanDialog = lazy(() => import('../dialogs/InterProScanDialog'))
 
 const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
-  const { showDomains, subFeatureRows, noAnnotations } = model
+  const { showDomains, subFeatureRows, noDomains } = model
   return (
     <CascadingMenuButton
       menuItems={[
@@ -73,37 +77,49 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
           type: 'subMenu',
           subMenu: [
             {
-              label: `Show domains${noAnnotations ? ' (no domains loaded)' : ''}`,
+              label: 'Open domains...',
+              icon: FolderOpen,
+              onClick: () =>
+                model.queueDialog(handleClose => [
+                  UserProvidedDomainsDialog,
+                  { handleClose, model },
+                ]),
+            },
+            {
+              label: 'Query InterProScan for domains...',
+              icon: Search,
+              onClick: () =>
+                model.queueDialog(handleClose => [
+                  InterProScanDialog,
+                  { handleClose, model },
+                ]),
+            },
+            {
+              label: `Show domains${noDomains ? ' (no domains loaded)' : ''}`,
+              disabled: noDomains,
               icon: Visibility,
               checked: showDomains,
               type: 'checkbox',
               onClick: () => model.setShowDomains(!showDomains),
             },
             {
-              label: 'Use sub-row layout',
+              label: `Use sub-row layout${noDomains ? ' (no domains loaded)' : ''}`,
+              disabled: noDomains,
               checked: subFeatureRows,
               icon: Sort,
               type: 'checkbox',
               onClick: () => model.setSubFeatureRows(!subFeatureRows),
             },
             {
-              label: 'Filter domains',
+              label: `Filter domains${noDomains ? ' (no domains loaded)' : ''}`,
               icon: FilterAlt,
+              disabled: noDomains,
               onClick: () => {
                 model.queueDialog(onClose => [
                   FeatureFilterDialog,
                   { onClose, model },
                 ])
               },
-            },
-            {
-              label: 'View domains',
-              icon: Search,
-              onClick: () =>
-                model.queueDialog(handleClose => [
-                  DomainDialog,
-                  { handleClose, model },
-                ]),
             },
           ],
         },

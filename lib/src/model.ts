@@ -551,12 +551,12 @@ function stateModelFactory() {
        * #getter
        */
       get noTree() {
-        return !!this._tree.noTree
+        return !!this.tree.noTree
       },
       /**
        * #getter
        */
-      get noAnnotations() {
+      get noDomains() {
         return !self.interProAnnotations
       },
       /**
@@ -597,7 +597,7 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get _tree(): NodeWithIds {
+      get tree(): NodeWithIds {
         const ret = self.data.tree
           ? generateNodeIds(parseNewick(self.data.tree))
           : this.MSA?.getTree() || {
@@ -626,7 +626,7 @@ function stateModelFactory() {
        * #getter
        */
       get root() {
-        let hier = hierarchy(this._tree, d => d.branchset)
+        let hier = hierarchy(this.tree, d => d.branchset)
           .sum(d => (d.branchset ? 0 : 1))
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 

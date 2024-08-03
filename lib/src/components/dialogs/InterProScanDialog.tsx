@@ -6,6 +6,7 @@ import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
 import type { MsaViewModel } from '../../model'
 import { getSession } from '@jbrowse/core/util'
 import { launchInterProScan } from '../../launchInterProScan'
+import { Dialog } from '@jbrowse/core/ui'
 
 const InterProScanDialog = observer(function ({
   handleClose,
@@ -147,10 +148,16 @@ const InterProScanDialog = observer(function ({
   const [show, setShow] = useState(false)
 
   return (
-    <>
+    <Dialog
+      maxWidth="xl"
+      title="Query InterProScan API for domains"
+      onClose={() => handleClose()}
+      open
+    >
       <DialogContent>
         <Typography>
-          This will run InterProScan on all rows of the current MSA
+          This will run InterProScan via the InterProScan API on all rows of the
+          current MSA
         </Typography>
         <Button onClick={() => setShow(!show)}>
           {show ? 'Hide' : 'Show'} advanced options
@@ -254,7 +261,7 @@ const InterProScanDialog = observer(function ({
           Send sequences to InterProScan
         </Button>
       </DialogActions>
-    </>
+    </Dialog>
   )
 })
 

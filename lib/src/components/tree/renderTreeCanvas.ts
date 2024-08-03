@@ -38,7 +38,7 @@ export function renderTree({
   ctx.strokeStyle = theme.palette.text.primary
   for (const link of hierarchy.links()) {
     const { source, target } = link
-    if (target.height === 0) {
+    if (target.height === 0 && !showBranchLen) {
       continue
     }
     const sy = source.x!
@@ -137,6 +137,7 @@ export function renderTreeLabels({
     treeMetadata,
     hierarchy,
     collapsed,
+    collapsedLeaves,
     blockSize,
     labelsAlignRight,
     drawTree,
@@ -169,8 +170,16 @@ export function renderTreeLabels({
       // note: +rowHeight/4 matches with -rowHeight/4 in msa
       const yp = y + fontSize / 4
       let xp = (showBranchLen ? len : x) || 0
-      if (!collapsed.includes(id)) {
-        xp -= treeWidth / hierarchy.height // this subtraction is a hack to compensate for the leafnode (issue #71)
+      if (
+        !showBranchLen &&
+        !collapsed.includes(id) &&
+        !collapsedLeaves.includes(id)
+      ) {
+        // this subtraction is a hack to compensate for the leafnode rendering
+        // glitch (issue #71). the context is that an extra leaf node is added
+        // so that 'collapsing/hiding leaf nodes is possible' but this causes
+        // weird workarounds
+        xp -= treeWidth / hierarchy.height
       }
 
       const { width } = ctx.measureText(displayName)

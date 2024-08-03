@@ -17,8 +17,9 @@ import { getSession } from '@jbrowse/core/util'
 import type { MsaViewModel } from '../../model'
 import { jsonfetch } from '../../fetchUtils'
 import type { InterProScanResponse } from '../../launchInterProScan'
+import { Dialog } from '@jbrowse/core/ui'
 
-const UserProvidedResultsDialog = observer(function ({
+const UserProvidedDomainsDialog = observer(function ({
   handleClose,
   model,
 }: {
@@ -30,7 +31,12 @@ const UserProvidedResultsDialog = observer(function ({
   const [interProURL, setInterProURL] = useState('')
 
   return (
-    <>
+    <Dialog
+      maxWidth="xl"
+      title="Open protein domains from file"
+      onClose={() => handleClose()}
+      open
+    >
       <DialogContent>
         <div style={{ display: 'flex', margin: 30 }}>
           <Typography>
@@ -112,8 +118,8 @@ const UserProvidedResultsDialog = observer(function ({
           Open results
         </Button>
       </DialogActions>
-    </>
+    </Dialog>
   )
 })
 
-export default UserProvidedResultsDialog
+export default UserProvidedDomainsDialog

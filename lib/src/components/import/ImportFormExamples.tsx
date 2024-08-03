@@ -43,7 +43,7 @@ const ImportFormExamples = observer(function ({
         model={model}
         onClick={() =>
           load(model, undefined, {
-            uri: 'https://jbrowse.org/genomes/newick_trees/sarscov2phylo.pub.ft.nh',
+            uri: 'https://jbrowse.org/genomes/newicktrees/sarscov2phylo.pub.ft.nh',
             locationType: 'UriLocation',
           })
         }
