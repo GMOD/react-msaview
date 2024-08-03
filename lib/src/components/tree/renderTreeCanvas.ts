@@ -38,6 +38,9 @@ export function renderTree({
   ctx.strokeStyle = theme.palette.text.primary
   for (const link of hierarchy.links()) {
     const { source, target } = link
+    if (target.height === 0) {
+      continue
+    }
     const sy = source.x!
     const ty = target.x!
     // @ts-expect-error
@@ -87,10 +90,9 @@ export function renderNodeBubbles({
     // @ts-expect-error
     const { [val]: x, data } = node
     const y = node.x!
-    const { branchset, id = '', name = '' } = data
+    const { id = '', name = '' } = data
     if (
-      !id.endsWith('-leafnode') &&
-      branchset.length &&
+      node.height > 1 &&
       y > offsetY - extendBounds &&
       y < offsetY + by + extendBounds
     ) {
@@ -134,10 +136,12 @@ export function renderTreeLabels({
     showBranchLen,
     treeMetadata,
     hierarchy,
+    collapsed,
     blockSize,
     labelsAlignRight,
     drawTree,
     treeAreaWidth,
+    treeWidth,
     treeAreaWidthMinusMargin,
     marginLeft,
     noTree,
@@ -164,7 +168,10 @@ export function renderTreeLabels({
     if (y > offsetY - extendBounds && y < offsetY + by + extendBounds) {
       // note: +rowHeight/4 matches with -rowHeight/4 in msa
       const yp = y + fontSize / 4
-      const xp = (showBranchLen ? len : x) || 0
+      let xp = (showBranchLen ? len : x) || 0
+      if (!collapsed.includes(id)) {
+        xp -= treeWidth / hierarchy.height // this subtraction is a hack to compensate for the leafnode (issue #71)
+      }
 
       const { width } = ctx.measureText(displayName)
       const height = ctx.measureText('M').width // use an 'em' for height
