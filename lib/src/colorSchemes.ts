@@ -353,7 +353,9 @@ export default transform(colorSchemes, ([key, val]) => [
 export function getClustalXColor(
   stats: Record<string, number>,
   total: number,
-  model: { columns: Record<string, string> },
+  model: {
+    columns: Record<string, string>
+  },
   row: string,
   col: number,
 ) {

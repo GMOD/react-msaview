@@ -259,7 +259,7 @@ function stateModelFactory() {
        * #volatile
        * size of blocks of content to be drawn, px
        */
-      blockSize: 1000,
+      blockSize: 500,
 
       /**
        * #volatile
@@ -615,11 +615,18 @@ function stateModelFactory() {
             }
         return reparseTree(ret)
       },
+
+      /**
+       * #getter
+       */
+      get leaves() {
+        return this.hierarchy.leaves()
+      },
       /**
        * #getter
        */
       get rowNames(): string[] {
-        return this.hierarchy.leaves().map(n => n.data.name)
+        return this.leaves.map(n => n.data.name)
       },
       /**
        * #getter
@@ -727,7 +734,6 @@ function stateModelFactory() {
       get colStats() {
         const r = [] as Record<string, number>[]
         const columns = this.columns2d
-        trace()
         for (const column of columns) {
           for (let j = 0; j < column.length; j++) {
             const l = r[j] || {}
@@ -847,13 +853,13 @@ function stateModelFactory() {
        * #getter
        */
       get showMsaLetters() {
-        return self.drawMsaLetters && self.rowHeight >= 5
+        return self.drawMsaLetters && self.rowHeight >= 6 && self.colWidth >= 5
       },
       /**
        * #getter
        */
       get showTreeText() {
-        return self.drawLabels && self.rowHeight >= 5
+        return self.drawLabels && self.rowHeight >= 6
       },
     }))
     .actions(self => ({
@@ -1123,6 +1129,9 @@ function stateModelFactory() {
         }
         return types
       },
+      /**
+       * #getter
+       */
       get tidyAnnotations() {
         const ret = []
         const { interProAnnotations } = self
@@ -1346,6 +1355,9 @@ function stateModelFactory() {
             // xref solution https://github.com/mobxjs/mobx/issues/266#issuecomment-222007278
             // xref problem https://github.com/GMOD/react-msaview/issues/75
             self.colStats
+            self.colStatsSums
+            self.offscreenFillTextCache
+            self.columns
           }),
         )
 

@@ -5,7 +5,7 @@ import type { Theme } from '@mui/material'
 import type { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 import type { NodeWithIdsAndLength } from '../../util'
-import { makeOffscreenFillTextCache } from '../../offscreenFillTextCache'
+import { drawLetter } from '../../offscreenFillTextCache'
 
 export function renderMSABlock({
   model,
@@ -29,13 +29,13 @@ export function renderMSABlock({
   blockSizeYOverride?: number
 }) {
   const {
-    hierarchy,
     colWidth,
     blockSize,
     rowHeight,
     fontSize,
     highResScaleFactor,
     actuallyShowDomains,
+    leaves,
   } = model
   const k = highResScaleFactorOverride || highResScaleFactor
   const bx = blockSizeXOverride || blockSize
@@ -45,8 +45,6 @@ export function renderMSABlock({
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
   ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
-
-  const leaves = hierarchy.leaves()
 
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
   const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
@@ -169,6 +167,7 @@ function drawText({
     columns,
     colWidth,
     contrastLettering,
+    fontSize,
     rowHeight,
     offscreenFillTextCache,
   } = model
@@ -181,25 +180,29 @@ function drawText({
       const str = columns[name]?.slice(xStart, xEnd)
       for (let i = 0; i < str?.length; i++) {
         const letter = str[i]
-        const color = colorScheme[letter.toUpperCase()]
-        const contrast = contrastLettering
-          ? contrastScheme[letter.toUpperCase()] || 'black'
-          : 'black'
+        const up = letter.toUpperCase()
         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
+        const color = colorScheme[up]
+        const contrast = contrastLettering
+          ? contrastScheme[up] || 'black'
+          : 'black'
         // note: -rowHeight/4 matches +rowHeight/4 in tree
-        ctx.fillStyle = actuallyShowDomains
+        const ret = actuallyShowDomains
           ? 'black'
           : bgColor
             ? contrast
             : color || 'black'
 
-        ctx.drawImage(
-          offscreenFillTextCache[letter],
+        drawLetter(
+          offscreenFillTextCache,
+          ctx,
+          letter,
           x + colWidth / 4,
           y - rowHeight + rowHeight / 4,
+          fontSize,
+          ret,
         )
-        // ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
       }
     }
   }
