@@ -5,6 +5,7 @@ import type { Theme } from '@mui/material'
 import type { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 import type { NodeWithIdsAndLength } from '../../util'
+import { makeOffscreenFillTextCache } from '../../offscreenFillTextCache'
 
 export function renderMSABlock({
   model,
@@ -169,6 +170,7 @@ function drawText({
     colWidth,
     contrastLettering,
     rowHeight,
+    offscreenFillTextCache,
   } = model
   if (showMsaLetters) {
     for (const node of visibleLeaves) {
@@ -191,7 +193,13 @@ function drawText({
           : bgColor
             ? contrast
             : color || 'black'
-        ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
+
+        ctx.drawImage(
+          offscreenFillTextCache[letter],
+          x + colWidth / 4,
+          y - rowHeight + rowHeight / 4,
+        )
+        // ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
       }
     }
   }

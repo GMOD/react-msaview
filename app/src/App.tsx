@@ -16,16 +16,16 @@ const mymodel = AppGlobal.create(
   val ? JSON.parse(val) : { msaview: { type: 'MsaView' } },
 )
 
-// let lastTime = 0
-// onSnapshot(mymodel, snap => {
-//   const now = Date.now()
-//   if (now - lastTime >= 1000) {
-//     lastTime = now
-//     const url = new URL(window.document.URL)
-//     url.searchParams.set('data', JSON.stringify(snap))
-//     window.history.replaceState(null, '', url.toString())
-//   }
-// })
+let lastTime = 0
+onSnapshot(mymodel, snap => {
+  const now = Date.now()
+  if (now - lastTime >= 1000) {
+    lastTime = now
+    const url = new URL(window.document.URL)
+    url.searchParams.set('data', JSON.stringify(snap))
+    window.history.replaceState(null, '', url.toString())
+  }
+})
 
 // used in ViewContainer files to get the width
 export function useWidthSetter(view: { setWidth: (arg: number) => void }) {

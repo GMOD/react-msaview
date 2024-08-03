@@ -53,6 +53,7 @@ import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
 import type { InterProScanResults } from './launchInterProScan'
+import { makeOffscreenFillTextCache } from './offscreenFillTextCache'
 
 export interface Accession {
   accession: string
@@ -772,6 +773,12 @@ function stateModelFactory() {
       },
     }))
     .views(self => ({
+      /**
+       * #getter
+       */
+      get offscreenFillTextCache() {
+        return makeOffscreenFillTextCache(self.fontSize)
+      },
       /**
        * #getter
        */
