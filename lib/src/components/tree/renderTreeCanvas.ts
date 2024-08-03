@@ -38,12 +38,13 @@ export function renderTree({
   ctx.strokeStyle = theme.palette.text.primary
   for (const link of hierarchy.links()) {
     const { source, target } = link
+
     const sy = source.x!
     const ty = target.x!
     // @ts-expect-error
-    const tx = showBranchLen ? target.len : target.y
+    const tx = showBranchLen ? target.len : target.len2
     // @ts-expect-error
-    const sx = showBranchLen ? source.len : source.y
+    const sx = showBranchLen ? source.len : source.len2
 
     const y1 = Math.min(sy, ty)
     const y2 = Math.max(sy, ty)
@@ -83,7 +84,7 @@ export function renderNodeBubbles({
   } = model
   const by = blockSizeYOverride || blockSize
   for (const node of hierarchy.descendants()) {
-    const val = showBranchLen ? 'len' : 'y'
+    const val = showBranchLen ? 'len' : 'len2'
     // @ts-expect-error
     const { [val]: x, data } = node
     const y = node.x!
@@ -156,15 +157,16 @@ export function renderTreeLabels({
       data: { name, id },
       // @ts-expect-error
       len,
+      // @ts-expect-error
+      len2,
     } = node
     const y = node.x!
-    const x = node.y!
 
     const displayName = treeMetadata[name]?.genome || name
     if (y > offsetY - extendBounds && y < offsetY + by + extendBounds) {
       // note: +rowHeight/4 matches with -rowHeight/4 in msa
       const yp = y + fontSize / 4
-      const xp = (showBranchLen ? len : x) || 0
+      const xp = (showBranchLen ? len : len2) || 0
 
       const { width } = ctx.measureText(displayName)
       const height = ctx.measureText('M').width // use an 'em' for height

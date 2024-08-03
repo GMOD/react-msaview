@@ -80,16 +80,20 @@ export function skipBlanks(blanks: number[], arg: string | string[]) {
 export function setBrLength(
   d: HierarchyNode<NodeWithIds>,
   y0: number,
+  y1: number,
   k: number,
+  j: number,
 ) {
+  y0 += Math.max(d.data.length || 0, 0)
+  y1 += Math.max(d.height === 0 ? 0 : 1, 0)
   // @ts-expect-error
-  d.len = (y0 += Math.max(d.data.length || 0, 0)) * k
+  d.len = y0 * k
+  // @ts-expect-error
+  d.len2 = y1 * j
 
-  if (d.children) {
-    d.children.forEach(d => {
-      setBrLength(d, y0, k)
-    })
-  }
+  d.children?.forEach(d => {
+    setBrLength(d, y0, y1, k, j)
+  })
 }
 
 // basically same as maxLength from https://observablehq.com/@d3/tree-of-life
