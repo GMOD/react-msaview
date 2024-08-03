@@ -14,11 +14,11 @@ import {
 import { getSession } from '@jbrowse/core/util'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { jsonfetch } from '../../fetchUtils'
-import { InterProScanResponse } from '../../launchInterProScan'
+import type { InterProScanResponse } from '../../launchInterProScan'
 
-const FeatureTypeDialog = observer(function ({
+const UserProvidedResultsDialog = observer(function ({
   handleClose,
   model,
 }: {
@@ -91,7 +91,7 @@ const FeatureTypeDialog = observer(function ({
                   ? JSON.parse(await file.text())
                   : await jsonfetch(interProURL)
 
-                model.setLoadedInterProAnnotations(
+                model.setInterProAnnotations(
                   Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
                 )
                 model.setShowDomains(true)
@@ -116,4 +116,4 @@ const FeatureTypeDialog = observer(function ({
   )
 })
 
-export default FeatureTypeDialog
+export default UserProvidedResultsDialog

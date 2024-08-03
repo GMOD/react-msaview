@@ -2,7 +2,7 @@ import React from 'react'
 import {
   Checkbox,
   FormControlLabel,
-  FormControlLabelProps,
+  type FormControlLabelProps,
 } from '@mui/material'
 
 function FormControlLabel2(rest: FormControlLabelProps) {

@@ -1,23 +1,23 @@
 import React from 'react'
+import type { Buffer } from 'buffer'
 import { autorun, transaction } from 'mobx'
-import { Instance, cast, types, addDisposer } from 'mobx-state-tree'
-import { hierarchy, cluster, HierarchyNode } from 'd3-hierarchy'
+import { type Instance, cast, types, addDisposer } from 'mobx-state-tree'
+import { hierarchy, cluster, type HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
 import Stockholm from 'stockholm-js'
 import { saveAs } from 'file-saver'
-import { Theme } from '@mui/material'
+import type { Theme } from '@mui/material'
+import { ungzip } from 'pako'
 
 // jbrowse
 import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
-import { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
+import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import { openLocation } from '@jbrowse/core/util/io'
-import {
-  groupBy,
-  localStorageGetItem,
-  localStorageSetItem,
-  notEmpty,
-  sum,
-} from '@jbrowse/core/util'
+import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
+
+export function isGzip(buf: Buffer) {
+  return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
+}
 
 // locals
 import {
@@ -27,8 +27,8 @@ import {
   maxLength,
   setBrLength,
   skipBlanks,
-  NodeWithIds,
-  NodeWithIdsAndLength,
+  type NodeWithIds,
+  type NodeWithIdsAndLength,
   len,
 } from './util'
 import { colord } from 'colord'
@@ -52,7 +52,7 @@ import { DataModelF } from './model/DataModel'
 import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
-import { InterProScanResults } from './launchInterProScan'
+import type { InterProScanResults } from './launchInterProScan'
 
 export interface Accession {
   accession: string
@@ -98,10 +98,16 @@ function stateModelFactory() {
          * id of view, randomly generated if not provided
          */
         id: ElementId,
+
         /**
          * #property
          */
         showDomains: false,
+        /**
+         * #property
+         */
+        contrastLettering: true,
+
         /**
          * #property
          */
@@ -112,6 +118,16 @@ function stateModelFactory() {
          * hardcoded view type
          */
         type: types.literal('MsaView'),
+
+        /**
+         * #property
+         */
+        drawMsaLetters: true,
+
+        /**
+         * #property
+         */
+        drawTreeText: true,
 
         /**
          * #property
@@ -170,15 +186,17 @@ function stateModelFactory() {
 
         /**
          * #property
-         * array of tree parent nodes that are 'collapsed'
+         * array of tree parent nodes that are 'collapsed' (all children are
+         * hidden)
          */
         collapsed: types.array(types.string),
 
         /**
          * #property
-         * array of tree leaf nodes that are 'collapsed'
+         * array of tree leaf nodes that are 'collapsed' (just that leaf node
+         * is hidden)
          */
-        collapsed2: types.array(types.string),
+        collapsedLeaves: types.array(types.string),
         /**
          * #property
          * focus on particular subtree
@@ -196,6 +214,7 @@ function stateModelFactory() {
          * autorun
          */
         data: types.optional(DataModelF(), { tree: '', msa: '' }),
+
         /**
          * #property
          */
@@ -203,6 +222,13 @@ function stateModelFactory() {
       }),
     )
     .volatile(() => ({
+      /**
+       * #volatile
+       */
+      headerHeight: 0,
+      /**
+       * #volatile
+       */
       status: undefined as { msg: string; url?: string } | undefined,
       /**
        * #volatile
@@ -221,7 +247,7 @@ function stateModelFactory() {
       /**
        * #volatile
        */
-      width: 800,
+      volatileWidth: undefined as number | undefined,
       /**
        * #volatile
        * resize handle width between tree and msa area, px
@@ -289,11 +315,17 @@ function stateModelFactory() {
        * #volatile
        *
        */
-      loadedInterProAnnotations: undefined as
+      interProAnnotations: undefined as
         | undefined
         | Record<string, InterProScanResults>,
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      setContrastLettering(arg: boolean) {
+        self.contrastLettering = arg
+      },
       /**
        * #action
        */
@@ -310,7 +342,7 @@ function stateModelFactory() {
        * #action
        */
       setWidth(arg: number) {
-        self.width = arg
+        self.volatileWidth = arg
       },
       /**
        * #action
@@ -405,10 +437,10 @@ function stateModelFactory() {
        * #action
        */
       toggleCollapsed2(node: string) {
-        if (self.collapsed2.includes(node)) {
-          self.collapsed2.remove(node)
+        if (self.collapsedLeaves.includes(node)) {
+          self.collapsedLeaves.remove(node)
         } else {
-          self.collapsed2.push(node)
+          self.collapsedLeaves.push(node)
         }
       },
       /**
@@ -463,6 +495,23 @@ function stateModelFactory() {
 
     .views(self => ({
       /**
+       * #getter
+       */
+      get viewInitialized() {
+        return self.volatileWidth !== undefined
+      },
+      /**
+       * #getter
+       */
+      get width() {
+        if (self.volatileWidth === undefined) {
+          throw new Error('not initialized')
+        }
+        return self.volatileWidth
+      },
+    }))
+    .views(self => ({
+      /**
        * #method
        * unused here, but can be used by derived classes to add extra items
        */
@@ -508,7 +557,7 @@ function stateModelFactory() {
        * #getter
        */
       get noAnnotations() {
-        return !self.loadedInterProAnnotations
+        return !self.interProAnnotations
       },
       /**
        * #getter
@@ -530,11 +579,11 @@ function stateModelFactory() {
         if (text) {
           if (Stockholm.sniff(text)) {
             return new StockholmMSA(text, self.currentAlignment)
-          } else if (text.startsWith('>')) {
-            return new FastaMSA(text)
-          } else {
-            return new ClustalMSA(text)
           }
+          if (text.startsWith('>')) {
+            return new FastaMSA(text)
+          }
+          return new ClustalMSA(text)
         }
         return null
       },
@@ -588,7 +637,7 @@ function stateModelFactory() {
           }
         }
 
-        ;[...self.collapsed, ...self.collapsed2]
+        ;[...self.collapsed, ...self.collapsedLeaves]
           .map(collapsedId => hier.find(node => node.data.id === collapsedId))
           .filter(notEmpty)
           .map(node => collapse(node))
@@ -717,7 +766,7 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get initialized() {
+      get dataInitialized() {
         return (self.data.msa || self.data.tree) && !self.error
       },
       /**
@@ -769,29 +818,78 @@ function stateModelFactory() {
       get maxScrollX() {
         return -self.totalWidth + (self.msaAreaWidth - 100)
       },
+      /**
+       * #getter
+       */
+      get showMsaLetters() {
+        return self.drawMsaLetters && self.rowHeight >= 5
+      },
+      /**
+       * #getter
+       */
+      get showTreeText() {
+        return self.drawLabels && self.rowHeight >= 5
+      },
     }))
     .actions(self => ({
       /**
        * #action
        */
-      zoomIn() {
-        self.colWidth = Math.ceil(self.colWidth * 1.5)
-        self.rowHeight = Math.ceil(self.rowHeight * 1.5)
+      setDrawMsaLetters(arg: boolean) {
+        self.drawMsaLetters = arg
+      },
+
+      /**
+       * #action
+       */
+      zoomOutHorizontal() {
+        self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
         self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+      },
+      /**
+       * #action
+       */
+      zoomInHorizontal() {
+        self.colWidth = Math.ceil(self.colWidth * 1.5)
+        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+      },
+      /**
+       * #action
+       */
+      zoomInVertical() {
+        self.rowHeight = Math.ceil(self.rowHeight * 1.5)
+      },
+      /**
+       * #action
+       */
+      zoomOutVertical() {
+        self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
+      },
+      /**
+       * #action
+       */
+      zoomIn() {
+        transaction(() => {
+          self.colWidth = Math.ceil(self.colWidth * 1.5)
+          self.rowHeight = Math.ceil(self.rowHeight * 1.5)
+          self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        })
       },
       /**
        * #action
        */
       zoomOut() {
-        self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
-        self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
-        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        transaction(() => {
+          self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
+          self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
+          self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        })
       },
       /**
        * #action
        */
-      setLoadedInterProAnnotations(data: Record<string, InterProScanResults>) {
-        self.loadedInterProAnnotations = data
+      setInterProAnnotations(data: Record<string, InterProScanResults>) {
+        self.interProAnnotations = data
       },
 
       /**
@@ -913,6 +1011,13 @@ function stateModelFactory() {
       },
 
       /**
+       * #getter
+       */
+      get showHorizontalScrollbar() {
+        return self.msaAreaWidth < self.totalWidth
+      },
+
+      /**
        * #method
        * return a row-specific sequence coordinate, skipping gaps, given a global
        * coordinate
@@ -965,6 +1070,17 @@ function stateModelFactory() {
     .views(self => ({
       /**
        * #getter
+       * widget width minus the tree area gives the space for the MSA
+       */
+      get msaAreaHeight() {
+        return (
+          self.height -
+          (self.showHorizontalScrollbar ? self.minimapHeight : 0) -
+          self.headerHeight
+        )
+      },
+      /**
+       * #getter
        * total height of track area (px)
        */
       get totalTrackAreaHeight() {
@@ -984,9 +1100,9 @@ function stateModelFactory() {
       },
       get tidyAnnotations() {
         const ret = []
-        const { loadedInterProAnnotations } = self
-        if (loadedInterProAnnotations) {
-          for (const [id, val] of Object.entries(loadedInterProAnnotations)) {
+        const { interProAnnotations } = self
+        if (interProAnnotations) {
+          for (const [id, val] of Object.entries(interProAnnotations)) {
             for (const { signature, locations } of val.matches) {
               const { entry } = signature
               if (entry) {
@@ -1023,6 +1139,23 @@ function stateModelFactory() {
       },
     }))
     .views(self => ({
+      /**
+       * #getter
+       */
+      get showVerticalScrollbar() {
+        return self.msaAreaHeight < self.totalHeight
+      },
+    }))
+    .views(self => ({
+      /**
+       * #getter
+       */
+      get verticalScrollbarWidth() {
+        return self.showVerticalScrollbar ? 20 : 0
+      },
+      /**
+       * #getter
+       */
       get fillPalette() {
         const arr = [...self.tidyTypes.keys()]
         let i = 0
@@ -1034,6 +1167,9 @@ function stateModelFactory() {
         }
         return map
       },
+      /**
+       * #getter
+       */
       get strokePalette() {
         return Object.fromEntries(
           Object.entries(this.fillPalette).map(([key, val]) => [
@@ -1047,15 +1183,20 @@ function stateModelFactory() {
       /**
        * #action
        */
+      setHeaderHeight(arg: number) {
+        self.headerHeight = arg
+      },
+      /**
+       * #action
+       */
       reset() {
-        transaction(() => {
-          self.setData({ tree: '', msa: '' })
-          self.setScrollY(0)
-          self.setScrollX(0)
-          self.setCurrentAlignment(0)
-          self.setTreeFilehandle(undefined)
-          self.setMSAFilehandle(undefined)
-        })
+        self.setData({ tree: '', msa: '' })
+        self.setError(undefined)
+        self.setScrollY(0)
+        self.setScrollX(0)
+        self.setCurrentAlignment(0)
+        self.setTreeFilehandle(undefined)
+        self.setMSAFilehandle(undefined)
       },
       /**
        * #action
@@ -1154,9 +1295,11 @@ function stateModelFactory() {
             if (msaFilehandle) {
               try {
                 self.setLoadingMSA(true)
-                const res = await openLocation(msaFilehandle).readFile('utf8')
+                const res = await openLocation(msaFilehandle).readFile()
+                const buf = isGzip(res) ? ungzip(res) : res
+                const txt = new TextDecoder('utf8').decode(buf)
                 transaction(() => {
-                  self.setMSA(res)
+                  self.setMSA(txt)
                   if (msaFilehandle.locationType === 'BlobLocation') {
                     // clear filehandle after loading if from a local file
                     self.setMSAFilehandle(undefined)

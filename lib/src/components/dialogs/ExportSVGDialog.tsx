@@ -13,7 +13,7 @@ import {
   useTheme,
 } from '@mui/material'
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import Checkbox2 from '../Checkbox2'
 
 export default function ExportSVGDialog({

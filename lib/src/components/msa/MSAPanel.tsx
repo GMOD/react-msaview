@@ -5,7 +5,7 @@ import { observer } from 'mobx-react'
 import MSACanvas from './MSACanvas'
 import MSAMouseoverCanvas from './MSAMouseoverCanvas'
 // types
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 const MSAPanel = observer(function ({ model }: { model: MsaViewModel }) {
   return (

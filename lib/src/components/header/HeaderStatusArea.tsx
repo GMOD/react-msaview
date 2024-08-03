@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui'
 import { LoadingEllipses } from '@jbrowse/core/ui'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 const useStyles = makeStyles()({
   margin: {
@@ -14,11 +14,7 @@ const useStyles = makeStyles()({
   },
 })
 
-const HeaderStatusArea = observer(function ({
-  model,
-}: {
-  model: MsaViewModel
-}) {
+const HeaderStatusArea = observer(({ model }: { model: MsaViewModel }) => {
   const { status } = model
   const { classes } = useStyles()
   return status ? (

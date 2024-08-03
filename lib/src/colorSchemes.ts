@@ -5,6 +5,7 @@ import { transform } from './util'
 extend([namesPlugin])
 
 const colorSchemes = {
+  none: {},
   clustal: {
     G: 'orange',
     P: 'orange',

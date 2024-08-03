@@ -10,9 +10,8 @@ our source code.
 
 [src/model/msaModel.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model/msaModel.ts)
 
-
-
 ### MSAModel - Properties
+
 #### property: bgColor
 
 draw MSA tiles with a background color
@@ -35,17 +34,9 @@ string
 colorSchemeName: 'maeditor'
 ```
 
-
-
-
-
-
-
-
 ### MSAModel - Actions
+
 #### action: setBgColor
-
-
 
 ```js
 // type signature
@@ -60,5 +51,3 @@ set color scheme name
 // type signature
 setColorSchemeName: (name: string) => void
 ```
-
-

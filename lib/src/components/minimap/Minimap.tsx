@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   const [mouseDown, setMouseDown] = useState<{
@@ -9,16 +9,10 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   }>()
   const scheduled = useRef(false)
   const [hovered, setHovered] = useState(false)
-  const {
-    scrollX,
-    msaAreaWidth: W,
-    minimapHeight: H,
-    colWidth,
-    numColumns,
-  } = model
-  const unit = W / numColumns / colWidth
+  const { scrollX, msaAreaWidth, minimapHeight, colWidth, numColumns } = model
+  const unit = msaAreaWidth / numColumns / colWidth
   const left = -scrollX
-  const right = left + W
+  const right = left + msaAreaWidth
   const s = left * unit
   const e = right * unit
   const fill = 'rgba(66, 119, 127, 0.3)'
@@ -50,14 +44,14 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
     }
   }, [model, unit, mouseDown])
 
-  const BAR_HEIGHT = 12
-  const H2 = H - 12
+  const barHeight = 12
+  const polygonHeight = minimapHeight - barHeight
   return (
-    <div style={{ position: 'relative', height: H, width: '100%' }}>
+    <div style={{ position: 'relative', height: minimapHeight, width: '100%' }}>
       <div
         style={{
           boxSizing: 'border-box',
-          height: BAR_HEIGHT,
+          height: barHeight,
           border: '1px solid #555',
         }}
       />
@@ -68,9 +62,7 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
           left: Math.max(0, s),
           background: hovered ? 'rgba(66,119,127,0.6)' : fill,
           cursor: 'pointer',
-          border: '1px solid #555',
-          boxSizing: 'border-box',
-          height: BAR_HEIGHT,
+          height: barHeight,
           width: e - s,
           zIndex: 100,
         }}
@@ -84,14 +76,14 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
         }}
       />
 
-      <svg height={H2} style={{ width: '100%' }}>
+      <svg height={polygonHeight} style={{ width: '100%' }}>
         <polygon
           fill={fill}
           points={[
             [e, 0],
             [s, 0],
-            [0, H2],
-            [W, H2],
+            [0, polygonHeight],
+            [msaAreaWidth, polygonHeight],
           ].toString()}
         />
       </svg>

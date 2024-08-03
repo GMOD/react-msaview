@@ -2,12 +2,19 @@ import React, { useEffect, useState, useRef } from 'react'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import MSACanvasBlock from './MSACanvasBlock'
 import Loading from './Loading'
 
 const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
-  const { MSA, msaFilehandle, height, msaAreaWidth, blocks2d } = model
+  const {
+    MSA,
+    verticalScrollbarWidth,
+    msaFilehandle,
+    height,
+    msaAreaWidth,
+    blocks2d,
+  } = model
   const ref = useRef<HTMLDivElement>(null)
   // wheel
   const scheduled = useRef(false)
@@ -39,7 +46,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       event.preventDefault()
       event.stopPropagation()
     }
-    curr.addEventListener('wheel', onWheel)
+    curr.addEventListener('wheel', onWheel, { passive: false })
     return () => {
       curr.removeEventListener('wheel', onWheel)
     }
@@ -115,7 +122,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       style={{
         position: 'relative',
         height,
-        width: msaAreaWidth,
+        width: msaAreaWidth - verticalScrollbarWidth,
         overflow: 'hidden',
       }}
     >

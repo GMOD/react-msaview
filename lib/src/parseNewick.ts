@@ -85,7 +85,7 @@ export default function parse(s: string) {
         if (x === ')' || x === '(' || x === ',') {
           tree.name = token
         } else if (x === ':') {
-          tree.length = parseFloat(token)
+          tree.length = Number.parseFloat(token)
         }
       }
     }

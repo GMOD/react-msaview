@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import TreeCanvas from './TreeCanvas'
 
 const TreePanel = observer(function ({ model }: { model: MsaViewModel }) {

@@ -8,9 +8,9 @@ import {
   Typography,
 } from '@mui/material'
 import { Dialog, FileSelector } from '@jbrowse/core/ui'
-import { FileLocation } from '@jbrowse/core/util/types'
+import type { FileLocation } from '@jbrowse/core/util/types'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 export default observer(function ({
   model,

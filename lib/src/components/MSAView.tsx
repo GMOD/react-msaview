@@ -3,55 +3,64 @@ import { observer } from 'mobx-react'
 
 // locals
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
-import { MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
 import TreeRuler from './tree/TreeRuler'
 import Header from './header/Header'
 import MSAPanel from './msa/MSAPanel'
 import TreePanel from './tree/TreePanel'
 import Minimap from './minimap/Minimap'
+import VerticalScrollbar from './VerticalScrollbar'
 
-function TopArea({ model }: { model: MsaViewModel }) {
+const TopArea = observer(function ({ model }: { model: MsaViewModel }) {
+  const { showHorizontalScrollbar } = model
   return (
     <div style={{ display: 'flex' }}>
       <TreeRuler model={model} />
-      <Minimap model={model} />
+      {showHorizontalScrollbar ? <Minimap model={model} /> : null}
     </div>
   )
-}
-function MainArea({ model }: { model: MsaViewModel }) {
+})
+
+const MainArea = observer(function ({ model }: { model: MsaViewModel }) {
+  const { showVerticalScrollbar } = model
+
   return (
     <div style={{ display: 'flex' }}>
       <TreePanel model={model} />
       <VerticalResizeHandle model={model} />
       <MSAPanel model={model} />
+      {showVerticalScrollbar ? <VerticalScrollbar model={model} /> : null}
     </div>
   )
-}
+})
 
 const View = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <div style={{ position: 'relative' }}>
       <TopArea model={model} />
-
       <MainArea model={model} />
     </div>
   )
 })
 
 const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
-  const { height, DialogComponent, DialogProps } = model
+  const { height, viewInitialized, DialogComponent, DialogProps } = model
   return (
     <div>
-      <div style={{ height, overflow: 'hidden' }}>
-        <Header model={model} />
-        <View model={model} />
-      </div>
-      <HorizontalResizeHandle model={model} />
+      {viewInitialized ? (
+        <>
+          <div style={{ height, overflow: 'hidden' }}>
+            <Header model={model} />
+            <View model={model} />
+          </div>
+          <HorizontalResizeHandle model={model} />
 
-      {DialogComponent ? (
-        <Suspense fallback={null}>
-          <DialogComponent {...DialogProps} />
-        </Suspense>
+          {DialogComponent ? (
+            <Suspense fallback={null}>
+              <DialogComponent {...DialogProps} />
+            </Suspense>
+          ) : null}
+        </>
       ) : null}
     </div>
   )

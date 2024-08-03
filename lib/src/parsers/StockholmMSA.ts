@@ -1,7 +1,7 @@
 import Stockholm from 'stockholm-js'
 import parseNewick from '../parseNewick'
 
-import { NodeWithIds, generateNodeIds } from '../util'
+import { type NodeWithIds, generateNodeIds } from '../util'
 interface StockholmEntry {
   gf: {
     DE?: string[]

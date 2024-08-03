@@ -1,8 +1,8 @@
-import RBush from 'rbush'
-import { Theme } from '@mui/material'
+import type RBush from 'rbush'
+import type { Theme } from '@mui/material'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 export const padding = 600
 
@@ -141,6 +141,8 @@ export function renderTreeLabels({
     treeAreaWidthMinusMargin,
     marginLeft,
     noTree,
+    // eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    rowHeight: _rowHeight, // this is needed for redrawing after zoom change
   } = model
   const by = blockSizeYOverride || blockSize
   if (labelsAlignRight) {
@@ -223,13 +225,12 @@ export function renderTreeCanvas({
   const {
     noTree,
     drawTree,
-    drawLabels,
     drawNodeBubbles,
     treeWidth,
     highResScaleFactor,
     blockSize,
     fontSize,
-    rowHeight,
+    showTreeText,
     marginLeft,
     nref,
   } = model
@@ -243,7 +244,9 @@ export function renderTreeCanvas({
   // is updated and in order to convince bundlers like not to delete unused
   // usage with propertyReadSideEffects
   const k =
-    nref < 0 ? -Infinity : highResScaleFactorOverride || highResScaleFactor
+    nref < 0
+      ? Number.NEGATIVE_INFINITY
+      : highResScaleFactorOverride || highResScaleFactor
   ctx.scale(k, k)
   ctx.clearRect(0, 0, treeWidth + padding, by)
   ctx.translate(marginLeft, -offsetY)
@@ -272,7 +275,7 @@ export function renderTreeCanvas({
     }
   }
 
-  if (rowHeight >= 5 && drawLabels) {
+  if (showTreeText) {
     renderTreeLabels({
       ctx,
       offsetY,

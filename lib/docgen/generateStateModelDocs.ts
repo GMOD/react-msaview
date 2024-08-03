@@ -189,6 +189,7 @@ ${name}: ${signature || ''}
         try {
           fs.mkdirSync(dir)
         } catch (e) {
+          console.error(e)
           /* do nothing*/
         }
         fs.writeFileSync(

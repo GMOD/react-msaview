@@ -6,7 +6,7 @@ import { Tab, Tabs } from '@mui/material'
 import InterProScanPanel from './InterProScanPanel'
 import UserProvidedResultPanel from './UserProvidedResultPanel'
 import TabPanel from './TabPanel'
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 export default function LaunchDomainViewDialog({
   handleClose,

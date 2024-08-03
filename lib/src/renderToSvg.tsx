@@ -2,10 +2,10 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { when } from 'mobx'
 import { renderToStaticMarkup } from '@jbrowse/core/util'
-import { Theme } from '@mui/material'
+import type { Theme } from '@mui/material'
 
 // locals
-import { MsaViewModel } from './model'
+import type { MsaViewModel } from './model'
 import { renderTreeCanvas } from './components/tree/renderTreeCanvas'
 import { renderMSABlock } from './components/msa/renderMSABlock'
 import { colorContrast } from './util'
@@ -17,7 +17,7 @@ export async function renderToSvg(
   model: MsaViewModel,
   opts: { theme: Theme; includeMinimap?: boolean; exportType: string },
 ) {
-  await when(() => !!model.initialized)
+  await when(() => !!model.dataInitialized)
   const { width, height, scrollX, scrollY } = model
   const { exportType, theme, includeMinimap } = opts
 
@@ -31,7 +31,8 @@ export async function renderToSvg(
       offsetX: 0,
       includeMinimap,
     })
-  } else if (exportType === 'viewport') {
+  }
+  if (exportType === 'viewport') {
     return render({
       width,
       height,
@@ -41,9 +42,8 @@ export async function renderToSvg(
       offsetX: -scrollX,
       includeMinimap,
     })
-  } else {
-    throw new Error('unknown export type')
   }
+  throw new Error('unknown export type')
 }
 
 async function render({

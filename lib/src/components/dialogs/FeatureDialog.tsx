@@ -4,7 +4,7 @@ import { Dialog } from '@jbrowse/core/ui'
 import { Button, DialogContent } from '@mui/material'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { getPalette } from '../../ggplotPalettes'
 
 const Toggles = observer(function ({ model }: { model: MsaViewModel }) {
@@ -44,7 +44,7 @@ const Table = observer(function ({ model }: { model: MsaViewModel }) {
       <table>
         <thead>
           <tr>
-            <td></td>
+            <td />
             <td>accession</td>
             <td>name</td>
             <td>description</td>
@@ -75,7 +75,7 @@ const Table = observer(function ({ model }: { model: MsaViewModel }) {
                     height: 20,
                     background: palette[idx] || 'black',
                   }}
-                ></div>
+                />
               </td>
             </tr>
           ))}

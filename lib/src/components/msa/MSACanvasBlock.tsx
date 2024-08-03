@@ -5,11 +5,11 @@ import { observer } from 'mobx-react'
 
 // locals
 import { renderMSABlock } from './renderMSABlock'
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { colorContrast } from '../../util'
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock'
 
-const MSABlock = observer(function ({
+const MSACanvasBlock = observer(function ({
   model,
   offsetX,
   offsetY,
@@ -107,4 +107,4 @@ const MSABlock = observer(function ({
   )
 })
 
-export default MSABlock
+export default MSACanvasBlock

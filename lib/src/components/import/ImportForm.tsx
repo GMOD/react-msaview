@@ -2,14 +2,14 @@ import React, { useState } from 'react'
 import { observer } from 'mobx-react'
 import { Button, Container, Grid, Typography } from '@mui/material'
 import { FileSelector } from '@jbrowse/core/ui'
-import { FileLocation } from '@jbrowse/core/util/types'
+import type { FileLocation } from '@jbrowse/core/util/types'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { load } from './util'
 import ImportFormExamples from './ImportFormExamples'
 
-export default observer(({ model }: { model: MsaViewModel }) => {
+export default observer(function ({ model }: { model: MsaViewModel }) {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
   const { error } = model

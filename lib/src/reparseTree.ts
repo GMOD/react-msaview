@@ -1,4 +1,4 @@
-import { NodeWithIds } from './util'
+import type { NodeWithIds } from './util'
 
 export function reparseTree(tree: NodeWithIds): NodeWithIds {
   return {

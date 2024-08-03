@@ -1,6 +1,6 @@
-import { HierarchyNode } from 'd3-hierarchy'
+import type { HierarchyNode } from 'd3-hierarchy'
 import { max } from 'd3-array'
-import { Theme } from '@mui/material'
+import type { Theme } from '@mui/material'
 import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
 

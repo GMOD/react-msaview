@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import colorSchemes from '../../colorSchemes'
 import Checkbox2 from '../Checkbox2'
 
@@ -115,12 +115,23 @@ const MSASettings = observer(function MSASettings({
   model: MsaViewModel
 }) {
   const { classes } = useStyles()
-  const { bgColor, colWidth, colorSchemeName, rowHeight } = model
+  const {
+    bgColor,
+    contrastLettering,
+    colWidth,
+    drawMsaLetters,
+    colorSchemeName,
+    rowHeight,
+  } = model
 
   return (
     <div>
       <h1>MSA options</h1>
-
+      <Checkbox2
+        checked={drawMsaLetters}
+        onChange={() => model.setDrawMsaLetters(!drawMsaLetters)}
+        label="Draw letters"
+      />
       <Checkbox2
         checked={bgColor}
         onChange={() => model.setBgColor(!bgColor)}
@@ -147,7 +158,11 @@ const MSASettings = observer(function MSASettings({
           onChange={(_, val) => model.setRowHeight(val as number)}
         />
       </div>
-
+      <Checkbox2
+        checked={contrastLettering}
+        onChange={() => model.setContrastLettering(!contrastLettering)}
+        label="Use contrast lettering"
+      />
       <TextField
         select
         label="Color scheme"

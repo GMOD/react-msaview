@@ -2,10 +2,8 @@ import React, { lazy } from 'react'
 import { observer } from 'mobx-react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
-// locals
-
 // icons
-import MoreVert from '@mui/icons-material/MoreVert'
+import MoreVert from '@mui/icons-material/Menu'
 import Sort from '@mui/icons-material/Sort'
 import Visibility from '@mui/icons-material/Visibility'
 import FilterAlt from '@mui/icons-material/FilterAlt'
@@ -18,7 +16,7 @@ import Assignment from '@mui/icons-material/Assignment'
 import List from '@mui/icons-material/List'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
 // lazies
 const SettingsDialog = lazy(() => import('../dialogs/SettingsDialog'))
@@ -28,7 +26,7 @@ const ExportSVGDialog = lazy(() => import('../dialogs/ExportSVGDialog'))
 const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog'))
 const DomainDialog = lazy(() => import('../dialogs/DomainDialog'))
 
-const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
+const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
   const { showDomains, subFeatureRows, noAnnotations } = model
   return (
     <CascadingMenuButton
@@ -75,8 +73,7 @@ const HeaderMenuExtra = observer(function ({ model }: { model: MsaViewModel }) {
           type: 'subMenu',
           subMenu: [
             {
-              label:
-                'Show domains' + (noAnnotations ? ' (no domains loaded)' : ''),
+              label: `Show domains${noAnnotations ? ' (no domains loaded)' : ''}`,
               icon: Visibility,
               checked: showDomains,
               type: 'checkbox',

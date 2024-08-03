@@ -7,9 +7,15 @@ import { ErrorMessage } from '@jbrowse/core/ui'
 // locals
 import ImportForm from './import/ImportForm'
 import MSAView from './MSAView'
-import { MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
 
-function Reset({ model, error }: { model: MsaViewModel; error: unknown }) {
+const Reset = observer(function ({
+  model,
+  error,
+}: {
+  model: MsaViewModel
+  error: unknown
+}) {
   return (
     <div>
       <ErrorMessage error={error} />
@@ -18,17 +24,17 @@ function Reset({ model, error }: { model: MsaViewModel; error: unknown }) {
       </Button>
     </div>
   )
-}
+})
 
 const Loading = observer(function ({ model }: { model: MsaViewModel }) {
-  const { isLoading, initialized } = model
+  const { isLoading, dataInitialized } = model
 
   return (
     <div>
       <ErrorBoundary
         fallbackRender={props => <Reset model={model} error={props.error} />}
       >
-        {initialized ? (
+        {dataInitialized ? (
           isLoading ? (
             <Typography variant="h4">Loading...</Typography>
           ) : (

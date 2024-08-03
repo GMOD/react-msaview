@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import TreeCanvasBlock from './TreeCanvasBlock'
 import { padding } from './renderTreeCanvas'
 
@@ -48,7 +49,8 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
       const distanceY = currY - prevY.current
       if (distanceY) {
         // use rAF to make it so multiple event handlers aren't fired per-frame
-        // see https://calendar.perfplanet.com/2013/the-runtime-performance-checklist/
+        // see
+        // https://calendar.perfplanet.com/2013/the-runtime-performance-checklist/
         if (!scheduled.current) {
           scheduled.current = true
           window.requestAnimationFrame(() => {
@@ -92,23 +94,20 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
     }
   }
 
-  // this local mouseup is used in addition to the global because sometimes
-  // the global add/remove are not called in time, resulting in issue #533
-  function mouseUp(event: React.MouseEvent) {
-    event.preventDefault()
-    setMouseDragging(false)
-  }
-
-  function mouseLeave(event: React.MouseEvent) {
-    event.preventDefault()
-  }
-
   return (
     <div
       ref={ref}
       onMouseDown={mouseDown}
-      onMouseUp={mouseUp}
-      onMouseLeave={mouseLeave}
+      onMouseUp={event => {
+        // this local mouseup is used in addition to the global because
+        // sometimes the global add/remove are not called in time, resulting in
+        // issue #533
+        event.preventDefault()
+        setMouseDragging(false)
+      }}
+      onMouseLeave={event => {
+        event.preventDefault()
+      }}
       style={{
         height,
         position: 'relative',

@@ -1,10 +1,10 @@
-import { HierarchyNode } from 'd3-hierarchy'
-import { Theme } from '@mui/material'
+import type { HierarchyNode } from 'd3-hierarchy'
+import type { Theme } from '@mui/material'
 
 // locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
-import { NodeWithIdsAndLength } from '../../util'
+import type { NodeWithIdsAndLength } from '../../util'
 
 export function renderMSABlock({
   model,
@@ -152,9 +152,17 @@ function drawText({
   xStart: number
   xEnd: number
 }) {
-  const { bgColor, showDomains, colorScheme, columns, colWidth, rowHeight } =
-    model
-  if (rowHeight >= 5 && colWidth > rowHeight / 2) {
+  const {
+    bgColor,
+    showDomains,
+    showMsaLetters,
+    colorScheme,
+    columns,
+    colWidth,
+    contrastLettering,
+    rowHeight,
+  } = model
+  if (showMsaLetters) {
     for (const node of visibleLeaves) {
       const {
         data: { name },
@@ -164,7 +172,9 @@ function drawText({
       for (let i = 0; i < str?.length; i++) {
         const letter = str[i]
         const color = colorScheme[letter.toUpperCase()]
-        const contrast = contrastScheme[letter.toUpperCase()] || 'black'
+        const contrast = contrastLettering
+          ? contrastScheme[letter.toUpperCase()] || 'black'
+          : 'black'
         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
         // note: -rowHeight/4 matches +rowHeight/4 in tree
