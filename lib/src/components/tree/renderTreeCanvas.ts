@@ -145,6 +145,7 @@ export function renderTreeLabels({
     treeWidth,
     treeAreaWidthMinusMargin,
     marginLeft,
+    leaves,
     noTree,
     // eslint-disable-next-line  @typescript-eslint/no-unused-vars
     rowHeight: _rowHeight, // this is needed for redrawing after zoom change
@@ -156,7 +157,7 @@ export function renderTreeLabels({
   } else {
     ctx.textAlign = 'start'
   }
-  for (const node of hierarchy.leaves()) {
+  for (const node of leaves) {
     const {
       data: { name, id },
       // @ts-expect-error

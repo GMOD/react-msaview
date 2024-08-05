@@ -28,13 +28,13 @@ export function renderMSABlock({
   blockSizeYOverride?: number
 }) {
   const {
-    hierarchy,
     colWidth,
     blockSize,
     rowHeight,
     fontSize,
     highResScaleFactor,
     actuallyShowDomains,
+    leaves,
   } = model
   const k = highResScaleFactorOverride || highResScaleFactor
   const bx = blockSizeXOverride || blockSize
@@ -44,8 +44,6 @@ export function renderMSABlock({
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
   ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
-
-  const leaves = hierarchy.leaves()
 
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
   const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
@@ -101,6 +99,7 @@ function drawTiles({
     colorSchemeName,
     colorScheme,
     colStats,
+    colStatsSums,
     columns,
     colWidth,
     rowHeight,
@@ -116,10 +115,17 @@ function drawTiles({
       const letter = str[i]
       const color =
         colorSchemeName === 'clustalx_protein_dynamic'
-          ? getClustalXColor(colStats[xStart + i], model, name, xStart + i)
+          ? getClustalXColor(
+              colStats[xStart + i],
+              colStatsSums[xStart + i],
+              model,
+              name,
+              xStart + i,
+            )
           : colorSchemeName === 'percent_identity_dynamic'
             ? getPercentIdentityColor(
                 colStats[xStart + i],
+                colStatsSums[xStart + i],
                 model,
                 name,
                 xStart + i,

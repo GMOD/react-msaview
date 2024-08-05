@@ -258,7 +258,7 @@ function stateModelFactory() {
        * #volatile
        * size of blocks of content to be drawn, px
        */
-      blockSize: 1000,
+      blockSize: 500,
 
       /**
        * #volatile
@@ -618,7 +618,7 @@ function stateModelFactory() {
        * #getter
        */
       get rowNames(): string[] {
-        return this.hierarchy.leaves().map(n => n.data.name)
+        return this.leaves.map(n => n.data.name)
       },
       /**
        * #getter
@@ -738,6 +738,17 @@ function stateModelFactory() {
         }
         return r
       },
+
+      /**
+       * #getter
+       */
+      get colStatsSums() {
+        return Object.fromEntries(
+          Object.entries(this.colStats).map(([key, val]) => {
+            return [key, sum(Object.values(val))]
+          }),
+        )
+      },
       /**
        * #getter
        * generates a new tree that is clustered with x,y positions
@@ -756,7 +767,14 @@ function stateModelFactory() {
        * #getter
        */
       get totalHeight() {
-        return this.root.leaves().length * self.rowHeight
+        return this.leaves.length * self.rowHeight
+      },
+
+      /**
+       * #getter
+       */
+      get leaves() {
+        return this.hierarchy.leaves()
       },
     }))
     .views(self => ({
@@ -942,9 +960,9 @@ function stateModelFactory() {
        */
       get labelsWidth() {
         let x = 0
-        const { rowHeight, hierarchy, treeMetadata, fontSize } = self
+        const { rowHeight, leaves, treeMetadata, fontSize } = self
         if (rowHeight > 5) {
-          for (const node of hierarchy.leaves()) {
+          for (const node of leaves) {
             x = Math.max(
               measureTextCanvas(
                 treeMetadata[node.data.name]?.genome || node.data.name,
@@ -1104,6 +1122,9 @@ function stateModelFactory() {
         }
         return types
       },
+      /**
+       * #getter
+       */
       get tidyAnnotations() {
         const ret = []
         const { interProAnnotations } = self
@@ -1321,6 +1342,17 @@ function stateModelFactory() {
           }),
         )
 
+        addDisposer(
+          self,
+          autorun(() => {
+            // force colStats not to go stale,
+            // xref solution https://github.com/mobxjs/mobx/issues/266#issuecomment-222007278
+            // xref problem https://github.com/GMOD/react-msaview/issues/75
+            self.colStats
+            self.colStatsSums
+            self.columns
+          }),
+        )
         // autorun synchronizes treeWidth with treeAreaWidth
         addDisposer(
           self,
