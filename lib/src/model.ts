@@ -776,6 +776,13 @@ function stateModelFactory() {
       get leaves() {
         return this.hierarchy.leaves()
       },
+
+      /**
+       * #getter
+       */
+      get leaves() {
+        return this.hierarchy.leaves()
+      },
     }))
     .views(self => ({
       /**
