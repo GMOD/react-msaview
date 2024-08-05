@@ -618,7 +618,7 @@ function stateModelFactory() {
        * #getter
        */
       get rowNames(): string[] {
-        return this.hierarchy.leaves().map(n => n.data.name)
+        return this.leaves.map(n => n.data.name)
       },
       /**
        * #getter
@@ -767,7 +767,14 @@ function stateModelFactory() {
        * #getter
        */
       get totalHeight() {
-        return this.root.leaves().length * self.rowHeight
+        return this.leaves.length * self.rowHeight
+      },
+
+      /**
+       * #getter
+       */
+      get leaves() {
+        return this.hierarchy.leaves()
       },
     }))
     .views(self => ({
@@ -953,9 +960,9 @@ function stateModelFactory() {
        */
       get labelsWidth() {
         let x = 0
-        const { rowHeight, hierarchy, treeMetadata, fontSize } = self
+        const { rowHeight, leaves, treeMetadata, fontSize } = self
         if (rowHeight > 5) {
-          for (const node of hierarchy.leaves()) {
+          for (const node of leaves) {
             x = Math.max(
               measureTextCanvas(
                 treeMetadata[node.data.name]?.genome || node.data.name,
@@ -1115,6 +1122,9 @@ function stateModelFactory() {
         }
         return types
       },
+      /**
+       * #getter
+       */
       get tidyAnnotations() {
         const ret = []
         const { interProAnnotations } = self

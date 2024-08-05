@@ -67,7 +67,7 @@ const VerticalScrollbar = observer(({ model }: { model: MsaViewModel }) => {
           cursor: 'pointer',
           boxSizing: 'border-box',
           width: 20,
-          height: b - t,
+          height: Math.max(b - t, 20),
           zIndex: 100,
         }}
         onMouseOver={() => setHovered(true)}

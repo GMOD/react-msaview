@@ -19,7 +19,7 @@ export function renderBoxFeatureCanvasBlock({
   highResScaleFactorOverride?: number
   blockSizeYOverride?: number
 }) {
-  const { hierarchy, blockSize, rowHeight, highResScaleFactor, showDomains } =
+  const { leaves, blockSize, rowHeight, highResScaleFactor, showDomains } =
     model
   if (showDomains) {
     const k = highResScaleFactorOverride || highResScaleFactor
@@ -28,7 +28,6 @@ export function renderBoxFeatureCanvasBlock({
     ctx.scale(k, k)
     ctx.translate(-offsetX, rowHeight / 2 - offsetY)
 
-    const leaves = hierarchy.leaves()
     const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
     const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
     const visibleLeaves = leaves.slice(yStart, yEnd)
