@@ -16,17 +16,18 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   const s = left * unit
   const e = right * unit
   const fill = 'rgba(66, 119, 127, 0.3)'
-  const w = Math.max(e - s, 20)
 
   useEffect(() => {
     function fn(event: MouseEvent) {
       if (mouseDown !== undefined) {
         if (!scheduled.current) {
           scheduled.current = true
-          model.setScrollX(
-            mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
-          )
-          scheduled.current = false
+          window.requestAnimationFrame(() => {
+            model.setScrollX(
+              mouseDown.scrollX - (event.clientX - mouseDown.clientX) / unit,
+            )
+            scheduled.current = false
+          })
         }
       }
     }
@@ -62,7 +63,7 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
           background: hovered ? 'rgba(66,119,127,0.6)' : fill,
           cursor: 'pointer',
           height: barHeight,
-          width: w,
+          width: e - s,
           zIndex: 100,
         }}
         onMouseOver={() => setHovered(true)}
@@ -79,7 +80,7 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
         <polygon
           fill={fill}
           points={[
-            [s + w, 0],
+            [e, 0],
             [s, 0],
             [0, polygonHeight],
             [msaAreaWidth, polygonHeight],

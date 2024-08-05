@@ -106,6 +106,8 @@ export function collapse(d: HierarchyNode<NodeWithIds>) {
     // @ts-expect-error
     d._children = d.children
     // @ts-expect-error
+    // d._children.forEach(collapse)
+    // @ts-expect-error
     d.children = null
   }
 }

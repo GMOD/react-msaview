@@ -43,6 +43,7 @@ const MSACanvasBlock = observer(function ({
       return
     }
     return autorun(() => {
+      ctx.resetTransform()
       ctx.clearRect(0, 0, blockSize, blockSize)
       const { actuallyShowDomains } = model
       if (actuallyShowDomains) {

@@ -146,7 +146,6 @@ export function renderTreeLabels({
     treeAreaWidthMinusMargin,
     marginLeft,
     noTree,
-    leaves,
     // eslint-disable-next-line  @typescript-eslint/no-unused-vars
     rowHeight: _rowHeight, // this is needed for redrawing after zoom change
   } = model
@@ -157,7 +156,7 @@ export function renderTreeLabels({
   } else {
     ctx.textAlign = 'start'
   }
-  for (const node of leaves) {
+  for (const node of hierarchy.leaves()) {
     const {
       data: { name, id },
       // @ts-expect-error
@@ -260,7 +259,11 @@ export function renderTreeCanvas({
   // just need to use nref to indicate a redraw in an autorun when canvas ref
   // is updated and in order to convince bundlers like not to delete unused
   // usage with propertyReadSideEffects
-  const k = nref < 0 ? Number.NEGATIVE_INFINITY : 1
+  const k =
+    nref < 0
+      ? Number.NEGATIVE_INFINITY
+      : highResScaleFactorOverride || highResScaleFactor
+  ctx.scale(k, k)
   ctx.clearRect(0, 0, treeWidth + padding, by)
   ctx.translate(marginLeft, -offsetY)
 

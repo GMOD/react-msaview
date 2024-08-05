@@ -63,8 +63,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       const distanceY = currY - prevY.current
       if (distanceX || distanceY) {
         // use rAF to make it so multiple event handlers aren't fired per-frame
-        // see
-        // https://calendar.perfplanet.com/2013/the-runtime-performance-checklist/
+        // see https://calendar.perfplanet.com/2013/the-runtime-performance-checklist/
         if (!scheduled.current) {
           scheduled.current = true
           window.requestAnimationFrame(() => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import type { Buffer } from 'buffer'
-import { autorun, trace, transaction } from 'mobx'
+import { autorun, transaction } from 'mobx'
 import { type Instance, cast, types, addDisposer } from 'mobx-state-tree'
 import { hierarchy, cluster, type HierarchyNode } from 'd3-hierarchy'
 import { ascending } from 'd3-array'
@@ -53,7 +53,6 @@ import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
 import type { InterProScanResults } from './launchInterProScan'
-import { makeOffscreenFillTextCache } from './offscreenFillTextCache'
 
 export interface Accession {
   accession: string
@@ -259,7 +258,7 @@ function stateModelFactory() {
        * #volatile
        * size of blocks of content to be drawn, px
        */
-      blockSize: 500,
+      blockSize: 1000,
 
       /**
        * #volatile
@@ -615,18 +614,11 @@ function stateModelFactory() {
             }
         return reparseTree(ret)
       },
-
-      /**
-       * #getter
-       */
-      get leaves() {
-        return this.hierarchy.leaves()
-      },
       /**
        * #getter
        */
       get rowNames(): string[] {
-        return this.leaves.map(n => n.data.name)
+        return this.hierarchy.leaves().map(n => n.data.name)
       },
       /**
        * #getter
@@ -746,17 +738,6 @@ function stateModelFactory() {
         }
         return r
       },
-
-      /**
-       * #getter
-       */
-      get colStatsSums() {
-        return Object.fromEntries(
-          Object.entries(this.colStats).map(([key, val]) => {
-            return [key, sum(Object.values(val))]
-          }),
-        )
-      },
       /**
        * #getter
        * generates a new tree that is clustered with x,y positions
@@ -779,12 +760,6 @@ function stateModelFactory() {
       },
     }))
     .views(self => ({
-      /**
-       * #getter
-       */
-      get offscreenFillTextCache() {
-        return makeOffscreenFillTextCache(self.fontSize)
-      },
       /**
        * #getter
        */
@@ -853,13 +828,13 @@ function stateModelFactory() {
        * #getter
        */
       get showMsaLetters() {
-        return self.drawMsaLetters && self.rowHeight >= 6 && self.colWidth >= 5
+        return self.drawMsaLetters && self.rowHeight >= 5
       },
       /**
        * #getter
        */
       get showTreeText() {
-        return self.drawLabels && self.rowHeight >= 6
+        return self.drawLabels && self.rowHeight >= 5
       },
     }))
     .actions(self => ({
@@ -1129,9 +1104,6 @@ function stateModelFactory() {
         }
         return types
       },
-      /**
-       * #getter
-       */
       get tidyAnnotations() {
         const ret = []
         const { interProAnnotations } = self
@@ -1346,18 +1318,6 @@ function stateModelFactory() {
                 self.setLoadingMSA(false)
               }
             }
-          }),
-        )
-        addDisposer(
-          self,
-          autorun(() => {
-            // force colStats not to go stale,
-            // xref solution https://github.com/mobxjs/mobx/issues/266#issuecomment-222007278
-            // xref problem https://github.com/GMOD/react-msaview/issues/75
-            self.colStats
-            self.colStatsSums
-            self.offscreenFillTextCache
-            self.columns
           }),
         )
 

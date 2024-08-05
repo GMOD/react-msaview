@@ -5,7 +5,6 @@ import type { Theme } from '@mui/material'
 import type { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 import type { NodeWithIdsAndLength } from '../../util'
-import { drawLetter } from '../../offscreenFillTextCache'
 
 export function renderMSABlock({
   model,
@@ -29,13 +28,13 @@ export function renderMSABlock({
   blockSizeYOverride?: number
 }) {
   const {
+    hierarchy,
     colWidth,
     blockSize,
     rowHeight,
     fontSize,
     highResScaleFactor,
     actuallyShowDomains,
-    leaves,
   } = model
   const k = highResScaleFactorOverride || highResScaleFactor
   const bx = blockSizeXOverride || blockSize
@@ -45,6 +44,8 @@ export function renderMSABlock({
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
   ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
+
+  const leaves = hierarchy.leaves()
 
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
   const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))
@@ -100,7 +101,6 @@ function drawTiles({
     colorSchemeName,
     colorScheme,
     colStats,
-    colStatsSums,
     columns,
     colWidth,
     rowHeight,
@@ -116,17 +116,10 @@ function drawTiles({
       const letter = str[i]
       const color =
         colorSchemeName === 'clustalx_protein_dynamic'
-          ? getClustalXColor(
-              colStats[xStart + i],
-              colStatsSums[xStart + i],
-              model,
-              name,
-              xStart + i,
-            )
+          ? getClustalXColor(colStats[xStart + i], model, name, xStart + i)
           : colorSchemeName === 'percent_identity_dynamic'
             ? getPercentIdentityColor(
                 colStats[xStart + i],
-                colStatsSums[xStart + i],
                 model,
                 name,
                 xStart + i,
@@ -167,9 +160,7 @@ function drawText({
     columns,
     colWidth,
     contrastLettering,
-    fontSize,
     rowHeight,
-    offscreenFillTextCache,
   } = model
   if (showMsaLetters) {
     for (const node of visibleLeaves) {
@@ -180,29 +171,19 @@ function drawText({
       const str = columns[name]?.slice(xStart, xEnd)
       for (let i = 0; i < str?.length; i++) {
         const letter = str[i]
-        const up = letter.toUpperCase()
+        const color = colorScheme[letter.toUpperCase()]
+        const contrast = contrastLettering
+          ? contrastScheme[letter.toUpperCase()] || 'black'
+          : 'black'
         const x = i * colWidth + offsetX - (offsetX % colWidth)
 
-        const color = colorScheme[up]
-        const contrast = contrastLettering
-          ? contrastScheme[up] || 'black'
-          : 'black'
         // note: -rowHeight/4 matches +rowHeight/4 in tree
-        const ret = actuallyShowDomains
+        ctx.fillStyle = actuallyShowDomains
           ? 'black'
           : bgColor
             ? contrast
             : color || 'black'
-
-        drawLetter(
-          offscreenFillTextCache,
-          ctx,
-          letter,
-          x + colWidth / 4,
-          y - rowHeight + rowHeight / 4,
-          fontSize,
-          ret,
-        )
+        ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
       }
     }
   }

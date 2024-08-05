@@ -43,14 +43,4 @@ export function DataModelF() {
         self.treeMetadata = treeMetadata
       },
     }))
-    .postProcessSnapshot(snap => {
-      const { tree, msa, treeMetadata } = snap
-      const max = 50_000
-      return {
-        tree: tree && tree.length > max ? undefined : tree,
-        msa: msa && msa.length > max ? undefined : msa,
-        treeMetadata:
-          treeMetadata && treeMetadata.length > max ? undefined : treeMetadata,
-      }
-    })
 }
