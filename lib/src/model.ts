@@ -670,8 +670,7 @@ function stateModelFactory() {
        */
       get blanks() {
         const blanks = []
-        const strs = this.hierarchy
-          .leaves()
+        const strs = this.leaves
           .map(leaf => this.MSA?.getRow(leaf.data.name))
           .filter((item): item is string => !!item)
 
@@ -693,8 +692,7 @@ function stateModelFactory() {
        */
       get rows() {
         const MSA = this.MSA
-        return this.hierarchy
-          .leaves()
+        return this.leaves
           .map(leaf => [leaf.data.name, MSA?.getRow(leaf.data.name)] as const)
           .filter((f): f is [string, string] => !!f[1])
       },
@@ -767,14 +765,7 @@ function stateModelFactory() {
        * #getter
        */
       get totalHeight() {
-        return this.leaves.length * self.rowHeight
-      },
-
-      /**
-       * #getter
-       */
-      get leaves() {
-        return this.hierarchy.leaves()
+        return this.root.leaves().length * self.rowHeight
       },
 
       /**
