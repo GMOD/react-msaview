@@ -106,6 +106,10 @@ function stateModelFactory() {
         /**
          * #property
          */
+        allowedGappyness: 100,
+        /**
+         * #property
+         */
         contrastLettering: true,
 
         /**
@@ -123,6 +127,10 @@ function stateModelFactory() {
          * #property
          */
         drawMsaLetters: true,
+        /**
+         * #property
+         */
+        hideGaps: true,
 
         /**
          * #property
@@ -320,6 +328,18 @@ function stateModelFactory() {
         | Record<string, InterProScanResults>,
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      setHideGaps(arg: boolean) {
+        self.hideGaps = arg
+      },
+      /**
+       * #action
+       */
+      setAllowedGappyness(arg: number) {
+        self.allowedGappyness = arg
+      },
       /**
        * #action
        */
@@ -669,9 +689,9 @@ function stateModelFactory() {
        * #getter
        */
       get blanks() {
+        const { allowedGappyness } = self
         const blanks = []
-        const strs = this.hierarchy
-          .leaves()
+        const strs = this.leaves
           .map(leaf => this.MSA?.getRow(leaf.data.name))
           .filter((item): item is string => !!item)
 
@@ -682,7 +702,7 @@ function stateModelFactory() {
               counter++
             }
           }
-          if (counter === strs.length) {
+          if (counter / strs.length >= allowedGappyness / 100) {
             blanks.push(i)
           }
         }
@@ -693,8 +713,7 @@ function stateModelFactory() {
        */
       get rows() {
         const MSA = this.MSA
-        return this.hierarchy
-          .leaves()
+        return this.leaves
           .map(leaf => [leaf.data.name, MSA?.getRow(leaf.data.name)] as const)
           .filter((f): f is [string, string] => !!f[1])
       },
@@ -767,14 +786,7 @@ function stateModelFactory() {
        * #getter
        */
       get totalHeight() {
-        return this.leaves.length * self.rowHeight
-      },
-
-      /**
-       * #getter
-       */
-      get leaves() {
-        return this.hierarchy.leaves()
+        return this.root.leaves().length * self.rowHeight
       },
 
       /**

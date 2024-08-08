@@ -132,9 +132,13 @@ function drawTiles({
               )
             : colorScheme[letter.toUpperCase()]
       if (bgColor) {
-        const x = i * colWidth + offsetX - (offsetX % colWidth)
         ctx.fillStyle = color || theme.palette.background.default
-        ctx.fillRect(x, y - rowHeight, colWidth, rowHeight)
+        ctx.fillRect(
+          i * colWidth + offsetX - (offsetX % colWidth),
+          y - rowHeight,
+          colWidth,
+          rowHeight,
+        )
       }
     }
   }
