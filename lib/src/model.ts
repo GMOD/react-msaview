@@ -106,6 +106,10 @@ function stateModelFactory() {
         /**
          * #property
          */
+        allowedGappyness: 100,
+        /**
+         * #property
+         */
         contrastLettering: true,
 
         /**
@@ -123,6 +127,10 @@ function stateModelFactory() {
          * #property
          */
         drawMsaLetters: true,
+        /**
+         * #property
+         */
+        hideGaps: true,
 
         /**
          * #property
@@ -320,6 +328,18 @@ function stateModelFactory() {
         | Record<string, InterProScanResults>,
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      setHideGaps(arg: boolean) {
+        self.hideGaps = arg
+      },
+      /**
+       * #action
+       */
+      setAllowedGappyness(arg: number) {
+        self.allowedGappyness = arg
+      },
       /**
        * #action
        */
@@ -669,6 +689,7 @@ function stateModelFactory() {
        * #getter
        */
       get blanks() {
+        const { allowedGappyness } = self
         const blanks = []
         const strs = this.leaves
           .map(leaf => this.MSA?.getRow(leaf.data.name))
@@ -681,7 +702,7 @@ function stateModelFactory() {
               counter++
             }
           }
-          if (counter === strs.length) {
+          if (counter / strs.length >= allowedGappyness / 100) {
             blanks.push(i)
           }
         }

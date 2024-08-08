@@ -119,8 +119,10 @@ const MSASettings = observer(function MSASettings({
     bgColor,
     contrastLettering,
     colWidth,
+    allowedGappyness,
     drawMsaLetters,
     colorSchemeName,
+    hideGaps,
     rowHeight,
   } = model
 
@@ -141,6 +143,11 @@ const MSASettings = observer(function MSASettings({
         checked={contrastLettering}
         onChange={() => model.setContrastLettering(!contrastLettering)}
         label="Use contrast lettering"
+      />
+      <Checkbox2
+        checked={hideGaps}
+        onChange={() => model.setHideGaps(!hideGaps)}
+        label={`Hide columns that are ${100 - allowedGappyness}% gaps`}
       />
 
       <div className={classes.flex}>
@@ -163,6 +170,18 @@ const MSASettings = observer(function MSASettings({
           onChange={(_, val) => model.setRowHeight(val as number)}
         />
       </div>
+      {hideGaps ? (
+        <div className={classes.flex}>
+          <Typography>Allowed gappyness ({100 - allowedGappyness}%)</Typography>
+          <Slider
+            className={classes.field}
+            min={1}
+            max={100}
+            value={allowedGappyness}
+            onChange={(_, val) => model.setAllowedGappyness(val as number)}
+          />
+        </div>
+      ) : null}
 
       <TextField
         select
