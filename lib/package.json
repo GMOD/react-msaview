@@ -23,8 +23,7 @@
     "build": "npm run build:esm && npm run build:bundle",
     "prepack": "npm run build",
     "postversion": "git push --follow-tags",
-    "prestatedocs": "yarn tsc --build docgen/tsconfig.json",
-    "statedocs": "rm -rf apidocs && mkdir apidocs && node docgen/dist/generateStateModelDocs.js",
+    "statedocs": "rm -rf apidocs && mkdir apidocs && yarn tsx docgen/generateStateModelDocs.ts",
     "poststatedocs": "npm run format"
   },
   "peerDependencies": {

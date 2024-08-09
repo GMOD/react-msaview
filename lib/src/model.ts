@@ -711,6 +711,12 @@ function stateModelFactory() {
       /**
        * #getter
        */
+      get blanksSet() {
+        return new Set(this.blanks)
+      },
+      /**
+       * #getter
+       */
       get rows() {
         const MSA = this.MSA
         return this.leaves
@@ -1073,7 +1079,7 @@ function stateModelFactory() {
 
           let k = 0
           for (let i = 0; i < position; i++) {
-            if (row[i] !== '-') {
+            if (row[i] !== '-' || self.blanksSet.has(i)) {
               k++
             } else if (k >= position) {
               break
@@ -1361,12 +1367,12 @@ function stateModelFactory() {
           }),
         )
 
+        // force colStats not to go stale
+        // xref solution https://github.com/mobxjs/mobx/issues/266#issuecomment-222007278
+        // xref problem https://github.com/GMOD/react-msaview/issues/75
         addDisposer(
           self,
           autorun(() => {
-            // force colStats not to go stale,
-            // xref solution https://github.com/mobxjs/mobx/issues/266#issuecomment-222007278
-            // xref problem https://github.com/GMOD/react-msaview/issues/75
             self.colStats
             self.colStatsSums
             self.columns

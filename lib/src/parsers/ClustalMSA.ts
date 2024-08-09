@@ -11,7 +11,7 @@ export default class ClustalMSA {
     return this.MSA
   }
 
-  getRow(name: string) {
+  getRow(name: string): string {
     return this.MSA.alns.find(aln => aln.id === name)?.seq || ''
   }
 

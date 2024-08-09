@@ -18,6 +18,15 @@ extends
 
 ### MsaView - Properties
 
+#### property: allowedGappyness
+
+```js
+// type signature
+number
+// code
+allowedGappyness: 100
+```
+
 #### property: collapsed
 
 array of tree parent nodes that are 'collapsed' (all children are
@@ -78,7 +87,7 @@ autorun
 
 ```js
 // type signature
-IOptionalIType<IModelType<{ tree: IMaybe<ISimpleType<string>>; msa: IMaybe<ISimpleType<string>>; treeMetadata: IMaybe<ISimpleType<string>>; }, { ...; }, _NotCustomized, _NotCustomized>, [...]>
+IOptionalIType<IModelType<{ tree: IMaybe<ISimpleType<string>>; msa: IMaybe<ISimpleType<string>>; treeMetadata: IMaybe<ISimpleType<string>>; }, { ...; }, _NotCustomized, { ...; }>, [...]>
 // code
 data: types.optional(DataModelF(), { tree: '', msa: '' })
 ```
@@ -119,6 +128,15 @@ height of the div containing the view, px
 IOptionalIType<ISimpleType<number>, [undefined]>
 // code
 height: types.optional(types.number, 550)
+```
+
+#### property: hideGaps
+
+```js
+// type signature
+true
+// code
+hideGaps: true
 ```
 
 #### property: id
@@ -280,6 +298,13 @@ any
 any[]
 ```
 
+#### getter: blanksSet
+
+```js
+// type
+Set<unknown>
+```
+
 #### getter: blocks2d
 
 ```js
@@ -313,6 +338,13 @@ Record<string, string>
 ```js
 // type
 Record < string, number > []
+```
+
+#### getter: colStatsSums
+
+```js
+// type
+{ [k: string]: number; }
 ```
 
 #### getter: columns
@@ -385,6 +417,13 @@ boolean
 ```js
 // type
 number
+```
+
+#### getter: leaves
+
+```js
+// type
+any
 ```
 
 #### getter: maxScrollX
@@ -522,6 +561,13 @@ boolean
 ```js
 // type
 { [k: string]: string; }
+```
+
+#### getter: tidyAnnotations
+
+```js
+// type
+any[]
 ```
 
 #### getter: tidyFilteredAnnotations
@@ -708,6 +754,13 @@ initFilter: (arg: string) => void
 reset: () => void
 ```
 
+#### action: setAllowedGappyness
+
+```js
+// type signature
+setAllowedGappyness: (arg: number) => void
+```
+
 #### action: setColWidth
 
 set col width (px)
@@ -775,6 +828,13 @@ set the height of the view in px
 ```js
 // type signature
 setHeight: (height: number) => void
+```
+
+#### action: setHideGaps
+
+```js
+// type signature
+setHideGaps: (arg: boolean) => void
 ```
 
 #### action: setInterProAnnotations
