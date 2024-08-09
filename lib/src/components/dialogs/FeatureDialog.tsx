@@ -35,8 +35,8 @@ const Toggles = observer(function ({ model }: { model: MsaViewModel }) {
 })
 
 const Table = observer(function ({ model }: { model: MsaViewModel }) {
-  const { tidyTypes, featureFilters } = model
-  const values = [...tidyTypes.values()]
+  const { tidyInterProAnnotationTypes, featureFilters } = model
+  const values = [...tidyInterProAnnotationTypes.values()]
   const palette = getPalette(values.length - 1)
   return (
     <>

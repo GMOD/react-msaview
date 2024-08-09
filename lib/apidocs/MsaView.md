@@ -563,7 +563,7 @@ boolean
 { [k: string]: string; }
 ```
 
-#### getter: tidyAnnotations
+#### getter: tidyInterProAnnotations
 
 ```js
 // type
@@ -584,7 +584,7 @@ any
 Record<string, unknown[]>
 ```
 
-#### getter: tidyTypes
+#### getter: tidyInterProAnnotationTypes
 
 ```js
 // type

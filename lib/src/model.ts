@@ -1138,10 +1138,11 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get tidyTypes() {
+      get tidyInterProAnnotationTypes() {
         const types = new Map<string, Accession>()
-        if (this.tidyAnnotations) {
-          for (const { name, accession, description } of this.tidyAnnotations) {
+        if (this.tidyInterProAnnotations) {
+          for (const { name, accession, description } of this
+            .tidyInterProAnnotations) {
             types.set(accession, { name, accession, description })
           }
         }
@@ -1150,7 +1151,7 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get tidyAnnotations() {
+      get tidyInterProAnnotations() {
         const ret = []
         const { interProAnnotations } = self
         if (interProAnnotations) {
@@ -1178,16 +1179,16 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get tidyFilteredAnnotations() {
-        return this.tidyAnnotations.filter(r =>
+      get tidyFilteredInterProAnnotations() {
+        return this.tidyInterProAnnotations.filter(r =>
           self.featureFilters.get(r.accession),
         )
       },
       /**
        * #getter
        */
-      get tidyFilteredGatheredAnnotations() {
-        return groupBy(this.tidyFilteredAnnotations, r => r.id)
+      get tidyFilteredGatheredInterProAnnotations() {
+        return groupBy(this.tidyFilteredInterProAnnotations, r => r.id)
       },
     }))
     .views(self => ({
@@ -1209,7 +1210,7 @@ function stateModelFactory() {
        * #getter
        */
       get fillPalette() {
-        const arr = [...self.tidyTypes.keys()]
+        const arr = [...self.tidyInterProAnnotationTypes.keys()]
         let i = 0
         const map = {} as Record<string, string>
         for (const key of arr) {
@@ -1291,7 +1292,7 @@ function stateModelFactory() {
         addDisposer(
           self,
           autorun(() => {
-            for (const key of self.tidyTypes.keys()) {
+            for (const key of self.tidyInterProAnnotationTypes.keys()) {
               this.initFilter(key)
             }
           }),
@@ -1378,6 +1379,7 @@ function stateModelFactory() {
             self.columns
           }),
         )
+
         // autorun synchronizes treeWidth with treeAreaWidth
         addDisposer(
           self,

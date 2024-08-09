@@ -55,7 +55,7 @@ function drawTiles({
     rowHeight,
     fillPalette,
     strokePalette,
-    tidyFilteredGatheredAnnotations,
+    tidyFilteredGatheredInterProAnnotations,
   } = model
 
   for (const node of visibleLeaves) {
@@ -65,7 +65,7 @@ function drawTiles({
     } = node
     const y = x!
 
-    const entry = tidyFilteredGatheredAnnotations?.[name]
+    const entry = tidyFilteredGatheredInterProAnnotations?.[name]
 
     let j = 0
     if (entry) {
