@@ -46,6 +46,7 @@
     "prettier": "^3.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
     "rollup": "^4.19.2",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "rxjs": "^7.8.1",
