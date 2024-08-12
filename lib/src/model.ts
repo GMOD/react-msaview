@@ -516,6 +516,12 @@ function stateModelFactory() {
       /**
        * #getter
        */
+      get realAllowedGappyness() {
+        return self.hideGaps ? self.allowedGappyness : 100
+      },
+      /**
+       * #getter
+       */
       get actuallyShowDomains() {
         return self.showDomains && !!self.interProAnnotations
       },
@@ -692,22 +698,23 @@ function stateModelFactory() {
        * #getter
        */
       get blanks() {
-        const { allowedGappyness } = self
+        const { hideGaps, realAllowedGappyness } = self
         const blanks = []
-        const strs = this.leaves
-          .map(leaf => this.MSA?.getRow(leaf.data.name))
-          .filter((item): item is string => !!item)
-
-        if (strs.length) {
-          for (let i = 0; i < strs[0]!.length; i++) {
-            let counter = 0
-            for (const str of strs) {
-              if (str[i] === '-') {
-                counter++
+        if (!hideGaps) {
+          const strs = this.leaves
+            .map(leaf => this.MSA?.getRow(leaf.data.name))
+            .filter((item): item is string => !!item)
+          if (strs.length) {
+            for (let i = 0; i < strs[0]!.length; i++) {
+              let counter = 0
+              for (const str of strs) {
+                if (str[i] === '-') {
+                  counter++
+                }
               }
-            }
-            if (counter / strs.length >= allowedGappyness / 100) {
-              blanks.push(i)
+              if (counter / strs.length >= realAllowedGappyness / 100) {
+                blanks.push(i)
+              }
             }
           }
         }
