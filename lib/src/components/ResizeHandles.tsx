@@ -57,7 +57,9 @@ export const VerticalResizeHandle = observer(function ({
   return (
     <div>
       <div
-        onMouseDown={() => setMouseDragging(true)}
+        onMouseDown={() => {
+          setMouseDragging(true)
+        }}
         style={{
           cursor: 'ew-resize',
           height: '100%',
@@ -123,7 +125,9 @@ export const HorizontalResizeHandle = observer(function ({
   return (
     <div>
       <div
-        onMouseDown={() => setMouseDragging(true)}
+        onMouseDown={() => {
+          setMouseDragging(true)
+        }}
         style={{
           cursor: 'ns-resize',
           width: '100%',

@@ -110,22 +110,22 @@ function drawTiles({
       data: { name },
     } = node
     const y = node.x!
-    const str = columns[name]?.slice(xStart, xEnd)
-    for (let i = 0; i < str?.length; i++) {
-      const letter = str[i]
+    const str = columns[name]!.slice(xStart, xEnd)
+    for (let i = 0; i < str.length; i++) {
+      const letter = str[i]!
       const color =
         colorSchemeName === 'clustalx_protein_dynamic'
           ? getClustalXColor(
-              colStats[xStart + i],
-              colStatsSums[xStart + i],
+              colStats[xStart + i]!,
+              colStatsSums[xStart + i]!,
               model,
               name,
               xStart + i,
             )
           : colorSchemeName === 'percent_identity_dynamic'
             ? getPercentIdentityColor(
-                colStats[xStart + i],
-                colStatsSums[xStart + i],
+                colStats[xStart + i]!,
+                colStatsSums[xStart + i]!,
                 model,
                 name,
                 xStart + i,
@@ -178,9 +178,9 @@ function drawText({
         data: { name },
       } = node
       const y = node.x!
-      const str = columns[name]?.slice(xStart, xEnd)
-      for (let i = 0; i < str?.length; i++) {
-        const letter = str[i]
+      const str = columns[name]!.slice(xStart, xEnd)
+      for (let i = 0; i < str.length; i++) {
+        const letter = str[i]!
         const color = colorScheme[letter.toUpperCase()]
         const contrast = contrastLettering
           ? contrastScheme[letter.toUpperCase()] || 'black'

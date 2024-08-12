@@ -67,8 +67,12 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
           width: w,
           zIndex: 100,
         }}
-        onMouseOver={() => setHovered(true)}
-        onMouseOut={() => setHovered(false)}
+        onMouseOver={() => {
+          setHovered(true)
+        }}
+        onMouseOut={() => {
+          setHovered(false)
+        }}
         onMouseDown={event => {
           setMouseDown({
             clientX: event.clientX,

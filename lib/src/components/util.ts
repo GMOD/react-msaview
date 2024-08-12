@@ -11,7 +11,7 @@ export function chooseGridPitch(
   scale = Math.abs(scale)
   const minMajorPitchBp = minMajorPitchPx * scale
   const majorMagnitude = Number.parseInt(
-    Number(minMajorPitchBp).toExponential().split(/e/i)[1],
+    Number(minMajorPitchBp).toExponential().split(/e/i)[1]!,
     10,
   )
 
@@ -50,9 +50,6 @@ export function makeTicks(
 
   let minBase = start
   let maxBase = end
-  if (minBase === null || maxBase === null) {
-    return []
-  }
 
   if (bpPerPx < 0) {
     ;[minBase, maxBase] = [maxBase, minBase]

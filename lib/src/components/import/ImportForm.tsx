@@ -9,7 +9,7 @@ import type { MsaViewModel } from '../../model'
 import { load } from './util'
 import ImportFormExamples from './ImportFormExamples'
 
-export default observer(function ({ model }: { model: MsaViewModel }) {
+const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
   const { error } = model
@@ -44,7 +44,17 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
 
         <Grid item>
           <Button
-            onClick={() => load(model, msaFile, treeFile)}
+            onClick={() => {
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+              ;(async () => {
+                try {
+                  await load(model, msaFile, treeFile)
+                } catch (e) {
+                  console.error(e)
+                  model.setError(e)
+                }
+              })()
+            }}
             variant="contained"
             color="primary"
             disabled={!msaFile && !treeFile}
@@ -61,3 +71,5 @@ export default observer(function ({ model }: { model: MsaViewModel }) {
     </Container>
   )
 })
+
+export default ImportForm

@@ -72,7 +72,6 @@ export interface TextTrackModel extends BasicTrackModel {
 }
 
 export interface ITextTrack {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactComponent: React.FC<any>
   model: TextTrackModel
 }
@@ -548,7 +547,7 @@ function stateModelFactory() {
        * #getter
        */
       get colorScheme() {
-        return colorSchemes[self.colorSchemeName]
+        return colorSchemes[self.colorSchemeName]!
       },
 
       /**
@@ -653,6 +652,8 @@ function stateModelFactory() {
        */
       get root() {
         let hier = hierarchy(this.tree, d => d.branchset)
+          // todo: investigate whether needed, typescript says branchset always true
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           .sum(d => (d.branchset ? 0 : 1))
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
@@ -666,7 +667,9 @@ function stateModelFactory() {
         ;[...self.collapsed, ...self.collapsedLeaves]
           .map(collapsedId => hier.find(node => node.data.id === collapsedId))
           .filter(notEmpty)
-          .map(node => collapse(node))
+          .map(node => {
+            collapse(node)
+          })
 
         return hier
       },
@@ -695,15 +698,17 @@ function stateModelFactory() {
           .map(leaf => this.MSA?.getRow(leaf.data.name))
           .filter((item): item is string => !!item)
 
-        for (let i = 0; i < strs[0]?.length; i++) {
-          let counter = 0
-          for (const str of strs) {
-            if (str[i] === '-') {
-              counter++
+        if (strs.length) {
+          for (let i = 0; i < strs[0]!.length; i++) {
+            let counter = 0
+            for (const str of strs) {
+              if (str[i] === '-') {
+                counter++
+              }
             }
-          }
-          if (counter / strs.length >= allowedGappyness / 100) {
-            blanks.push(i)
+            if (counter / strs.length >= allowedGappyness / 100) {
+              blanks.push(i)
+            }
           }
         }
         return blanks
@@ -729,7 +734,7 @@ function stateModelFactory() {
       get columns() {
         return Object.fromEntries(
           this.rows.map(
-            (row, index) => [row[0], this.columns2d[index]] as const,
+            (row, index) => [row[0], this.columns2d[index]!] as const,
           ),
         )
       },
@@ -754,10 +759,11 @@ function stateModelFactory() {
         for (const column of columns) {
           for (let j = 0; j < column.length; j++) {
             const l = r[j] || {}
-            if (!l[column[j]]) {
-              l[column[j]] = 0
+            const cj = column[j]!
+            if (!l[cj]) {
+              l[cj] = 0
             }
-            l[column[j]]++
+            l[cj]++
             r[j] = l
           }
         }
@@ -849,7 +855,7 @@ function stateModelFactory() {
         const ret = []
         for (const by of self.blocksY) {
           for (const bx of self.blocksX) {
-            ret.push([bx, by])
+            ret.push([bx, by] as const)
           }
         }
         return ret
@@ -1019,7 +1025,7 @@ function stateModelFactory() {
        */
       get conservation() {
         if (self.columns2d.length) {
-          for (let i = 0; i < self.columns2d[0].length; i++) {
+          for (let i = 0; i < self.columns2d[0]!.length; i++) {
             const col = []
             for (const column of self.columns2d) {
               col.push(column[i])
@@ -1140,11 +1146,8 @@ function stateModelFactory() {
        */
       get tidyInterProAnnotationTypes() {
         const types = new Map<string, Accession>()
-        if (this.tidyInterProAnnotations) {
-          for (const { name, accession, description } of this
-            .tidyInterProAnnotations) {
-            types.set(accession, { name, accession, description })
-          }
+        for (const annot of this.tidyInterProAnnotations) {
+          types.set(annot.accession, annot)
         }
         return types
       },
@@ -1215,7 +1218,7 @@ function stateModelFactory() {
         const map = {} as Record<string, string>
         for (const key of arr) {
           const k = Math.min(arr.length - 1, palettes.length - 1)
-          map[key] = palettes[k][i]
+          map[key] = palettes[k]![i]!
           i++
         }
         return map
@@ -1374,8 +1377,11 @@ function stateModelFactory() {
         addDisposer(
           self,
           autorun(() => {
+            // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
             self.colStats
+            // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
             self.colStatsSums
+            // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
             self.columns
           }),
         )

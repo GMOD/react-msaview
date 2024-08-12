@@ -14,7 +14,7 @@ import { observer } from 'mobx-react'
 // locals
 import type { MsaViewModel } from '../../model'
 
-export default observer(function ({
+const TracklistDialog = observer(function ({
   model,
   onClose,
 }: {
@@ -24,7 +24,13 @@ export default observer(function ({
   const { tracks } = model
 
   return (
-    <Dialog onClose={() => onClose()} open title="Add track">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open
+      title="Add track"
+    >
       <DialogContent>
         <Typography>
           Open relevant per-alignment tracks e.g. protein domains
@@ -49,7 +55,13 @@ export default observer(function ({
           })}
         </FormGroup>
         <DialogActions>
-          <Button onClick={() => onClose()} variant="contained" color="primary">
+          <Button
+            onClick={() => {
+              onClose()
+            }}
+            variant="contained"
+            color="primary"
+          >
             Close
           </Button>
         </DialogActions>
@@ -57,3 +69,5 @@ export default observer(function ({
     </Dialog>
   )
 })
+
+export default TracklistDialog

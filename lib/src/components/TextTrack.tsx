@@ -55,9 +55,9 @@ const AnnotationBlock = observer(function ({
 
     const xStart = Math.max(0, Math.floor(offsetX / colWidth))
     const xEnd = Math.max(0, Math.ceil((offsetX + blockSize) / colWidth))
-    const str = data?.slice(xStart, xEnd)
+    const str = data.slice(xStart, xEnd)
     for (let i = 0; str && i < str.length; i++) {
-      const letter = str[i]
+      const letter = str[i]!
       const color = colorScheme[letter.toUpperCase()]
       if (bgColor) {
         const x = i * colWidth + offsetX - (offsetX % colWidth)

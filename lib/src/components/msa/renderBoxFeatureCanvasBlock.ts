@@ -65,7 +65,7 @@ function drawTiles({
     } = node
     const y = x!
 
-    const entry = tidyFilteredGatheredInterProAnnotations?.[name]
+    const entry = tidyFilteredGatheredInterProAnnotations[name]
 
     let j = 0
     if (entry) {
@@ -73,8 +73,8 @@ function drawTiles({
         const m1 = model.seqCoordToRowSpecificGlobalCoord(name, start - 1)
         const m2 = model.seqCoordToRowSpecificGlobalCoord(name, end)
         const x = m1 * colWidth
-        ctx.fillStyle = fillPalette[accession]
-        ctx.strokeStyle = strokePalette[accession]
+        ctx.fillStyle = fillPalette[accession]!
+        ctx.strokeStyle = strokePalette[accession]!
         const h = subFeatureRows ? 4 : rowHeight
         const t = y - rowHeight + (subFeatureRows ? j * h : 0)
         const lw = colWidth * (m2 - m1)

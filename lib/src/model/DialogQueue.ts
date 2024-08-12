@@ -8,7 +8,6 @@ export function DialogQueueSessionMixin() {
   return types
     .model('DialogQueueSessionMixin', {})
     .volatile(() => ({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       queueOfDialogs: [] as [DialogComponentType, any][],
     }))
     .views(self => ({

@@ -34,7 +34,9 @@ const UserProvidedDomainsDialog = observer(function ({
     <Dialog
       maxWidth="xl"
       title="Open protein domains from file"
-      onClose={() => handleClose()}
+      onClose={() => {
+        handleClose()
+      }}
       open
     >
       <DialogContent>
@@ -48,7 +50,9 @@ const UserProvidedDomainsDialog = observer(function ({
             <FormControl component="fieldset">
               <RadioGroup
                 value={choice}
-                onChange={event => setChoice(event.target.value)}
+                onChange={event => {
+                  setChoice(event.target.value)
+                }}
               >
                 <FormControlLabel value="url" control={<Radio />} label="URL" />
                 <FormControlLabel
@@ -66,7 +70,9 @@ const UserProvidedDomainsDialog = observer(function ({
                 <TextField
                   label="URL"
                   value={interProURL}
-                  onChange={event => setInterProURL(event.target.value)}
+                  onChange={event => {
+                    setInterProURL(event.target.value)
+                  }}
                 />
               </div>
             ) : null}
@@ -81,7 +87,7 @@ const UserProvidedDomainsDialog = observer(function ({
                     type="file"
                     hidden
                     onChange={({ target }) => {
-                      const file = target?.files?.[0]
+                      const file = target.files?.[0]
                       if (file) {
                         setFile(file)
                       }
@@ -106,7 +112,7 @@ const UserProvidedDomainsDialog = observer(function ({
                   : await jsonfetch(interProURL)
 
                 model.setInterProAnnotations(
-                  Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
+                  Object.fromEntries(ret.results.map(r => [r.xref[0]!.id, r])),
                 )
                 model.setShowDomains(true)
                 getSession(model).notify(

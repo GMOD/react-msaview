@@ -357,7 +357,7 @@ export function getClustalXColor(
   row: string,
   col: number,
 ) {
-  const l = model.columns[row][col]
+  const l = model.columns[row]![col]!
   const {
     W = 0,
     L = 0,
@@ -504,7 +504,7 @@ export function getPercentIdentityColor(
   row: string,
   col: number,
 ) {
-  const l = model.columns[row][col]
+  const l = model.columns[row]![col]!
   const entries = Object.entries(stats)
   let ent = 0
   let letter = ''

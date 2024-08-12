@@ -37,16 +37,41 @@ const ImportFormExamples = observer(function ({
 }: {
   model: MsaViewModel
 }) {
+  function l2(uri1?: string, uri2?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      try {
+        await load(
+          model,
+          uri1
+            ? {
+                uri: uri1,
+                locationType: 'UriLocation',
+              }
+            : undefined,
+          uri2
+            ? {
+                uri: uri2,
+                locationType: 'UriLocation',
+              }
+            : undefined,
+        )
+      } catch (e) {
+        console.error(e)
+        model.setError(e)
+      }
+    })()
+  }
   return (
     <ul>
       <ListItem
         model={model}
-        onClick={() =>
-          load(model, undefined, {
-            uri: 'https://jbrowse.org/genomes/newicktrees/sarscov2phylo.pub.ft.nh',
-            locationType: 'UriLocation',
-          })
-        }
+        onClick={() => {
+          l2(
+            undefined,
+            'https://jbrowse.org/genomes/newicktrees/sarscov2phylo.pub.ft.nh',
+          )
+        }}
       >
         230k COVID-19 samples (tree only)
       </ListItem>
@@ -68,74 +93,60 @@ const ImportFormExamples = observer(function ({
       </ListItem>
       <ListItem
         model={model}
-        onClick={() =>
-          load(model, {
-            uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/pfam-cov2.stock',
-            locationType: 'UriLocation',
-          })
-        }
+        onClick={() => {
+          l2(
+            'https://jbrowse.org/genomes/multiple_sequence_alignments/pfam-cov2.stock',
+          )
+        }}
       >
         PFAM SARS-CoV2 multi-stockholm
       </ListItem>
       <ListItem
         model={model}
-        onClick={() =>
-          load(model, {
-            uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
-            locationType: 'UriLocation',
-          })
-        }
+        onClick={() => {
+          l2(
+            'https://jbrowse.org/genomes/multiple_sequence_alignments/Lysine.stock',
+          )
+        }}
       >
         Lysine stockholm file
       </ListItem>
       <ListItem
         model={model}
-        onClick={() =>
-          load(model, {
-            uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
-            locationType: 'UriLocation',
-          })
-        }
+        onClick={() => {
+          l2(
+            'https://jbrowse.org/genomes/multiple_sequence_alignments/PF01601_full.txt',
+          )
+        }}
       >
         PF01601 stockholm file (SARS-CoV2 spike protein)
       </ListItem>
       <ListItem
         model={model}
-        onClick={() =>
-          load(model, {
-            uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
-            locationType: 'UriLocation',
-          })
-        }
+        onClick={() => {
+          l2(
+            'https://jbrowse.org/genomes/multiple_sequence_alignments/europe_covid.fa',
+          )
+        }}
       >
         Europe COVID full genomes (LR883044.1 and 199 other sequences)
       </ListItem>
       <ListItem
         model={model}
-        onClick={() =>
-          load(
-            model,
-            {
-              uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
-              locationType: 'UriLocation',
-            },
-            {
-              uri: 'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
-              locationType: 'UriLocation',
-            },
+        onClick={() => {
+          l2(
+            'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.fa',
+            'https://jbrowse.org/genomes/multiple_sequence_alignments/rhv_test-only.aligned_with_mafft_auto.nh',
           )
-        }
+        }}
       >
         MAFFT+VeryFastTree(17.9k samples)
       </ListItem>
       <ListItem
         model={model}
-        onClick={() =>
-          load(model, {
-            uri: 'https://jbrowse.org/demos/ttc39a.mfa',
-            locationType: 'UriLocation',
-          })
-        }
+        onClick={() => {
+          l2('https://jbrowse.org/demos/ttc39a.mfa')
+        }}
       >
         Human BLAST results mfa
       </ListItem>

@@ -50,6 +50,7 @@ const TreeCanvasBlock = observer(function ({
   const w2 = width * highResScaleFactor
   const h2 = height * highResScaleFactor
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
   const vref = useCallback(
     (arg: HTMLCanvasElement) => {
       model.incrementRef()
@@ -136,7 +137,9 @@ const TreeCanvasBlock = observer(function ({
         <TreeBranchMenu
           node={branchMenu}
           model={model}
-          onClose={() => setBranchMenu(undefined)}
+          onClose={() => {
+            setBranchMenu(undefined)
+          }}
         />
       ) : null}
 
@@ -144,7 +147,9 @@ const TreeCanvasBlock = observer(function ({
         <TreeNodeMenu
           node={toggleNodeMenu}
           model={model}
-          onClose={() => setToggleNodeMenu(undefined)}
+          onClose={() => {
+            setToggleNodeMenu(undefined)
+          }}
         />
       ) : null}
 
@@ -166,7 +171,7 @@ const TreeCanvasBlock = observer(function ({
 
           const data = hoverBranchClickMap(event)
           if (data?.id) {
-            setBranchMenu({ ...data, x, y })
+            setBranchMenu({ x, y, id: data.id, name: data.name })
           }
 
           const data2 = hoverNameClickMap(event)
@@ -174,7 +179,9 @@ const TreeCanvasBlock = observer(function ({
             setToggleNodeMenu({ ...data2, x, y })
           }
         }}
-        onMouseLeave={() => setHoverElt(undefined)}
+        onMouseLeave={() => {
+          setHoverElt(undefined)
+        }}
         ref={vref}
       />
       <canvas

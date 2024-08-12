@@ -5,7 +5,13 @@ import { version } from '../../version'
 
 export default function AboutDialog({ onClose }: { onClose: () => void }) {
   return (
-    <Dialog onClose={() => onClose()} open title="About this plugin">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open
+      title="About this plugin"
+    >
       <DialogContent>
         <Typography>
           MSAView {version} (

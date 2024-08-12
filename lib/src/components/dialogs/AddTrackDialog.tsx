@@ -12,7 +12,7 @@ import type { FileLocation } from '@jbrowse/core/util/types'
 import { observer } from 'mobx-react'
 import type { MsaViewModel } from '../../model'
 
-export default observer(function ({
+const AddTrackDialog = observer(function ({
   model,
   onClose,
   open,
@@ -26,7 +26,13 @@ export default observer(function ({
   const [currentOption, setCurrentOption] = useState('')
 
   return (
-    <Dialog onClose={() => onClose()} open={open} title="Add track">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open={open}
+      title="Add track"
+    >
       <DialogContent>
         <Typography>
           Open relevant per-alignment tracks e.g. protein domains
@@ -62,7 +68,9 @@ export default observer(function ({
           <Button
             color="secondary"
             variant="contained"
-            onClick={() => onClose()}
+            onClick={() => {
+              onClose()
+            }}
           >
             Cancel
           </Button>
@@ -71,3 +79,5 @@ export default observer(function ({
     </Dialog>
   )
 })
+
+export default AddTrackDialog

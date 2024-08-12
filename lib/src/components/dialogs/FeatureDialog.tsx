@@ -57,12 +57,12 @@ const Table = observer(function ({ model }: { model: MsaViewModel }) {
                 <input
                   type="checkbox"
                   checked={featureFilters.get(accession) ?? false}
-                  onChange={() =>
+                  onChange={() => {
                     model.setFilter(
                       accession,
                       !model.featureFilters.get(accession),
                     )
-                  }
+                  }}
                 />
               </td>
               <td>{accession}</td>
@@ -94,7 +94,9 @@ const FeatureTypeDialog = observer(function ({
 }) {
   return (
     <Dialog
-      onClose={() => onClose()}
+      onClose={() => {
+        onClose()
+      }}
       open
       title="Feature filters"
       maxWidth="xl"

@@ -32,7 +32,9 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       <Spacer />
       <HeaderStatusArea model={model} />
       <IconButton
-        onClick={() => model.queueDialog(onClose => [AboutDialog, { onClose }])}
+        onClick={() => {
+          model.queueDialog(onClose => [AboutDialog, { onClose }])
+        }}
       >
         <Help />
       </IconButton>

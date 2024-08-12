@@ -16,7 +16,7 @@ export default class ClustalMSA {
   }
 
   getWidth() {
-    return this.MSA.alns[0].seq.length
+    return this.MSA.alns[0]!.seq.length
   }
 
   getRowData() {

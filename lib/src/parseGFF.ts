@@ -8,23 +8,25 @@ export function parseGFF(str?: string) {
         f.split('\t')
 
       return {
-        seq_id,
-        source,
-        type,
-        start: +start,
-        end: +end,
-        score: +score,
-        strand,
-        phase,
+        seq_id: seq_id!,
+        source: source!,
+        type: type!,
+        start: +start!,
+        end: +end!,
+        score: +score!,
+        strand: strand!,
+        phase: phase!,
         ...Object.fromEntries(
-          col9
+          col9!
             .split(';')
             .map(f => f.trim())
             .filter(f => !!f)
             .map(f => f.split('='))
             .map(([key, val]) => [
-              key.trim(),
-              decodeURIComponent(val).trim().split(',').join(' '),
+              key!.trim(),
+              val
+                ? decodeURIComponent(val).trim().split(',').join(' ')
+                : undefined,
             ]),
         ),
       }

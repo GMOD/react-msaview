@@ -28,14 +28,16 @@ onSnapshot(mymodel, snap => {
 })
 
 // used in ViewContainer files to get the width
-export function useWidthSetter(view: { setWidth: (arg: number) => void }) {
+function useWidthSetter(view: { setWidth: (arg: number) => void }) {
   const [ref, { width }] = useMeasure()
   useEffect(() => {
     if (width && isAlive(view)) {
       // sets after a requestAnimationFrame
       // https://stackoverflow.com/a/58701523/2129219 avoids ResizeObserver
       // loop error being shown during development
-      requestAnimationFrame(() => view.setWidth(width))
+      requestAnimationFrame(() => {
+        view.setWidth(width)
+      })
     }
   }, [view, width])
   return ref

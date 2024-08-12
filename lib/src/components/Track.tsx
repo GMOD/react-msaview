@@ -24,7 +24,7 @@ export const TrackLabel = observer(function ({
   track,
 }: {
   model: MsaViewModel
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   track: any
 }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>()
@@ -53,7 +53,9 @@ export const TrackLabel = observer(function ({
           width: trackLabelHeight,
           height: trackLabelHeight,
         }}
-        onClick={event => setAnchorEl(event.currentTarget)}
+        onClick={event => {
+          setAnchorEl(event.currentTarget)
+        }}
       >
         <ArrowDropDownIcon />
       </IconButton>
@@ -62,7 +64,9 @@ export const TrackLabel = observer(function ({
           anchorEl={anchorEl}
           transitionDuration={0}
           open
-          onClose={() => setAnchorEl(undefined)}
+          onClose={() => {
+            setAnchorEl(undefined)
+          }}
         >
           <MenuItem
             dense
@@ -96,7 +100,7 @@ const Track = observer(function ({
   track,
 }: {
   model: MsaViewModel
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   track: any
 }) {
   const { resizeHandleWidth } = model

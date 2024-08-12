@@ -20,10 +20,17 @@ export default function LaunchDomainViewDialog({
     <Dialog
       maxWidth="xl"
       title="Launch protein view"
-      onClose={() => handleClose()}
+      onClose={() => {
+        handleClose()
+      }}
       open
     >
-      <Tabs value={choice} onChange={(_, val) => setChoice(val)}>
+      <Tabs
+        value={choice}
+        onChange={(_, val) => {
+          setChoice(val)
+        }}
+      >
         <Tab value={0} label="Automatic lookup" />
         <Tab value={1} label="Manual" />
       </Tabs>

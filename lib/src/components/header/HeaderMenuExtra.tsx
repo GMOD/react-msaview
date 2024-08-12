@@ -36,32 +36,38 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
         {
           label: 'Return to import form',
           icon: FolderOpen,
-          onClick: () => model.reset(),
+          onClick: () => {
+            model.reset()
+          },
         },
         {
           label: 'Settings',
-          onClick: () =>
-            model.queueDialog(onClose => [SettingsDialog, { model, onClose }]),
+          onClick: () => {
+            model.queueDialog(onClose => [SettingsDialog, { model, onClose }])
+          },
           icon: Settings,
         },
         {
           label: 'Metadata',
-          onClick: () =>
-            model.queueDialog(onClose => [MetadataDialog, { model, onClose }]),
+          onClick: () => {
+            model.queueDialog(onClose => [MetadataDialog, { model, onClose }])
+          },
           icon: Assignment,
         },
         {
           label: 'Extra tracks',
-          onClick: () =>
-            model.queueDialog(onClose => [TracklistDialog, { model, onClose }]),
+          onClick: () => {
+            model.queueDialog(onClose => [TracklistDialog, { model, onClose }])
+          },
           icon: List,
         },
 
         {
           label: 'Export SVG',
           icon: PhotoCamera,
-          onClick: () =>
-            model.queueDialog(onClose => [ExportSVGDialog, { onClose, model }]),
+          onClick: () => {
+            model.queueDialog(onClose => [ExportSVGDialog, { onClose, model }])
+          },
         },
         {
           label: 'Features/protein domains',
@@ -70,20 +76,22 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
             {
               label: 'Open domains...',
               icon: FolderOpen,
-              onClick: () =>
+              onClick: () => {
                 model.queueDialog(handleClose => [
                   UserProvidedDomainsDialog,
                   { handleClose, model },
-                ]),
+                ])
+              },
             },
             {
               label: 'Query InterProScan for domains...',
               icon: Search,
-              onClick: () =>
+              onClick: () => {
                 model.queueDialog(handleClose => [
                   InterProScanDialog,
                   { handleClose, model },
-                ]),
+                ])
+              },
             },
             {
               label: `Show domains${noDomains ? ' (no domains loaded)' : ''}`,
@@ -91,7 +99,9 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
               icon: Visibility,
               checked: actuallyShowDomains ? showDomains : false,
               type: 'checkbox',
-              onClick: () => model.setShowDomains(!showDomains),
+              onClick: () => {
+                model.setShowDomains(!showDomains)
+              },
             },
             {
               label: `Use sub-row layout${noDomains ? ' (no domains loaded)' : ''}`,
@@ -99,7 +109,9 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
               checked: actuallyShowDomains ? subFeatureRows : false,
               icon: Sort,
               type: 'checkbox',
-              onClick: () => model.setSubFeatureRows(!subFeatureRows),
+              onClick: () => {
+                model.setSubFeatureRows(!subFeatureRows)
+              },
             },
             {
               label: `Filter domains${noDomains ? ' (no domains loaded)' : ''}`,
@@ -114,7 +126,7 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
             },
           ],
         },
-        ...(model.extraViewMenuItems?.() || []),
+        ...model.extraViewMenuItems(),
       ]}
     >
       <MoreVert />

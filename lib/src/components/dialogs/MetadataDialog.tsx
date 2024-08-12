@@ -21,7 +21,14 @@ const MetadataDialog = observer(function ({
   const { header } = model
 
   return (
-    <Dialog onClose={() => onClose()} open title="Metadata" maxWidth="xl">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open
+      title="Metadata"
+      maxWidth="xl"
+    >
       <DialogContent>
         <Attributes attributes={header} />
         <BaseCard title="sequence">

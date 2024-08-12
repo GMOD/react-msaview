@@ -151,7 +151,9 @@ const InterProScanDialog = observer(function ({
     <Dialog
       maxWidth="xl"
       title="Query InterProScan API for domains"
-      onClose={() => handleClose()}
+      onClose={() => {
+        handleClose()
+      }}
       open
     >
       <DialogContent>
@@ -159,7 +161,11 @@ const InterProScanDialog = observer(function ({
           This will run InterProScan via the InterProScan API on all rows of the
           current MSA
         </Typography>
-        <Button onClick={() => setShow(!show)}>
+        <Button
+          onClick={() => {
+            setShow(!show)
+          }}
+        >
           {show ? 'Hide' : 'Show'} advanced options
         </Button>
         {show ? (
@@ -169,18 +175,18 @@ const InterProScanDialog = observer(function ({
               <Button
                 variant="contained"
                 color="secondary"
-                onClick={() =>
+                onClick={() => {
                   setVals(vals.map(v => ({ ...v, checked: false })))
-                }
+                }}
               >
                 Select none
               </Button>
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() =>
+                onClick={() => {
                   setVals(vals.map(v => ({ ...v, checked: true })))
-                }
+                }}
               >
                 Select all
               </Button>
@@ -196,7 +202,7 @@ const InterProScanDialog = observer(function ({
                           type="checkbox"
                           key={name}
                           checked={checked}
-                          onChange={() =>
+                          onChange={() => {
                             setVals(
                               vals.map(e =>
                                 e.name === name
@@ -204,7 +210,7 @@ const InterProScanDialog = observer(function ({
                                   : e,
                               ),
                             )
-                          }
+                          }}
                         />
                       </td>
                       <td>{name}</td>
@@ -220,7 +226,9 @@ const InterProScanDialog = observer(function ({
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => handleClose()}
+          onClick={() => {
+            handleClose()
+          }}
         >
           Cancel
         </Button>
@@ -245,7 +253,9 @@ const InterProScanDialog = observer(function ({
                     .filter(f => !!f[1])
                     .map(row => `>${row[0]}\n${row[1]}`)
                     .join('\n'),
-                  onProgress: arg => model.setStatus(arg),
+                  onProgress: arg => {
+                    model.setStatus(arg)
+                  },
                   model,
                 })
               } catch (e) {

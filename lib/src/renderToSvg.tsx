@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { when } from 'mobx'
@@ -153,13 +154,11 @@ function CoreRendering({
 
       <g
         clipPath={`url(#${clipId1})`}
-        /* eslint-disable-next-line react/no-danger */
         dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
       />
       <g
         clipPath={`url(#${clipId2})`}
         transform={`translate(${treeAreaWidth} 0)`}
-        /* eslint-disable-next-line react/no-danger */
         dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}
       />
     </>

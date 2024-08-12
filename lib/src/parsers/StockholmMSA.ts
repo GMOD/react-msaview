@@ -7,9 +7,9 @@ interface StockholmEntry {
     DE?: string[]
     NH?: string[]
   }
-  gs: {
+  gs?: {
     AC: Record<string, string>
-    DR: Record<string, string>
+    DR?: Record<string, string>
   }
   gc?: {
     SS_cons?: string
@@ -33,11 +33,11 @@ export default class StockholmMSA {
   }
 
   getRow(name: string) {
-    return this.MSA?.seqdata[name] || ''
+    return this.MSA.seqdata[name] || ''
   }
 
   getWidth() {
-    const name = Object.keys(this.MSA?.seqdata)[0]
+    const name = Object.keys(this.MSA.seqdata)[0]!
     return this.getRow(name).length
   }
 
@@ -56,7 +56,7 @@ export default class StockholmMSA {
   getRowData(rowName: string) {
     return {
       name: rowName,
-      accession: this.MSA.gs?.AC?.[rowName],
+      accession: this.MSA.gs?.AC[rowName],
       dbxref: this.MSA.gs?.DR?.[rowName],
     }
   }
@@ -74,10 +74,10 @@ export default class StockholmMSA {
       .map(([id, dr]) => [id, pdbRegex.exec(dr)] as const)
       .filter((item): item is [string, RegExpExecArray] => !!item[1])
       .map(([id, match]) => {
-        const pdb = match[1].toLowerCase()
-        const chain = match[2]
-        const startPos = +match[3]
-        const endPos = +match[4]
+        const pdb = match[1]!.toLowerCase()
+        const chain = match[2]!
+        const startPos = +match[3]!
+        const endPos = +match[4]!
         return { id, pdb, chain, startPos, endPos }
       })
 
@@ -93,7 +93,7 @@ export default class StockholmMSA {
   }
 
   getTree(): NodeWithIds {
-    const tree = this.MSA?.gf?.NH?.[0]
+    const tree = this.MSA.gf.NH?.[0]
     return tree
       ? generateNodeIds(parseNewick(tree))
       : {

@@ -38,7 +38,7 @@ async function runInterProScan({
     method: 'POST',
     body: new URLSearchParams({
       email: 'colin.diesh@gmail.com',
-      sequence: `${seq}`,
+      sequence: seq,
       programs: programs.join(','),
     }),
   })
@@ -47,7 +47,7 @@ async function runInterProScan({
     jobId,
     onProgress,
   })
-  return loadInterProScanResultsWithStatus({ jobId, model })
+  await loadInterProScanResultsWithStatus({ jobId, model })
 }
 
 export function loadInterProScanResults(jobId: string) {
@@ -65,6 +65,7 @@ async function wait({
 }) {
   const url = `${base}/iprscan5/status/${jobId}`
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     while (true) {
       for (let i = 0; i < 10; i++) {
         await timeout(1000)
@@ -101,14 +102,13 @@ export async function launchInterProScan({
   try {
     onProgress({ msg: `Launching ${algorithm} MSA` })
     if (algorithm === 'interproscan') {
-      const result = await runInterProScan({
+      await runInterProScan({
         seq,
         onJobId,
         onProgress,
         programs,
         model,
       })
-      return result
     }
     throw new Error('unknown algorithm')
   } finally {
@@ -130,7 +130,7 @@ export async function loadInterProScanResultsWithStatus({
     })
     const ret = await loadInterProScanResults(jobId)
     model.setInterProAnnotations(
-      Object.fromEntries(ret.results.map(r => [r.xref[0].id, r])),
+      Object.fromEntries(ret.results.map(r => [r.xref[0]!.id, r])),
     )
     model.setShowDomains(true)
     getSession(model).notify(`Loaded interproscan ${jobId} results`, 'success')

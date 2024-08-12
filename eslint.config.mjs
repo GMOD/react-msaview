@@ -1,60 +1,26 @@
-import { fixupConfigRules } from '@eslint/compat'
-import globals from 'globals'
-import tsParser from '@typescript-eslint/parser'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import js from '@eslint/js'
-import { FlatCompat } from '@eslint/eslintrc'
+import eslint from '@eslint/js'
+import eslintPluginReact from 'eslint-plugin-react'
+import eslintPluginReactHooks from 'eslint-plugin-react-hooks'
+import eslintPluginReactRefresh from 'eslint-plugin-react-refresh'
+import eslintPluginUnicorn from 'eslint-plugin-unicorn'
+import tseslint from 'typescript-eslint'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-})
-
-export default [
+export default tseslint.config(
   {
     ignores: [
-      '**/coverage',
-      '**/node_modules/',
-      '**/dist/',
-      '**/bundle/',
-      '**/.eslintrc.js',
+      '**/build/**/*',
+      '**/dist/**/*',
+      '**/esm/**/*',
+      '**/public/**/*',
+      '**/bundle/**/*',
       'lib/output-version.js',
     ],
   },
-  ...fixupConfigRules(
-    compat.extends(
-      'eslint:recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@typescript-eslint/recommended-type-checked',
-      'plugin:@typescript-eslint/stylistic-type-checked',
-      'plugin:unicorn/recommended',
-      'plugin:react/recommended',
-      'plugin:react-hooks/recommended',
-      'plugin:prettier/recommended',
-    ),
-  ),
   {
     languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-        ...globals.jest,
-      },
-
-      parser: tsParser,
-      ecmaVersion: 5,
-      sourceType: 'commonjs',
-
       parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-
-        project: './tsconfig.json',
+        project: ['./tsconfig.json'],
+        tsconfigRootDir: import.meta.dirname,
       },
     },
 
@@ -63,38 +29,55 @@ export default [
         version: 'detect',
       },
     },
-
+  },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  ...tseslint.configs.stylisticTypeChecked,
+  ...tseslint.configs.strictTypeChecked,
+  eslintPluginReact.configs.flat.recommended,
+  {
+    plugins: {
+      'react-hooks': eslintPluginReactHooks,
+    },
+    rules: eslintPluginReactHooks.configs.recommended.rules,
+  },
+  eslintPluginUnicorn.configs['flat/recommended'],
+  {
+    // in main config for TSX/JSX source files
+    plugins: {
+      'react-refresh': eslintPluginReactRefresh,
+    },
+    rules: {},
+  },
+  {
     rules: {
-      'no-redeclare': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-base-to-string': 'off',
-      '@typescript-eslint/prefer-nullish-coalescing': 'off',
-      '@typescript-eslint/no-empty-function': 'off',
-      '@typescript-eslint/no-unused-vars': [
+      'no-empty': 'off',
+      'no-console': [
         'warn',
         {
-          argsIgnorePattern: '^_',
-          ignoreRestSiblings: true,
-          caughtErrors: 'none',
+          allow: ['error', 'warn'],
         },
       ],
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/restrict-template-expressions': 'off',
-      '@typescript-eslint/restrict-plus-operands': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-      '@typescript-eslint/require-await': 'off',
-      '@typescript-eslint/unbound-method': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      'no-unexpected-multiline': 'error',
+      'no-underscore-dangle': 'off',
+      curly: 'error',
+      semi: ['error', 'never'],
+      'spaced-comment': [
+        'error',
+        'always',
+        {
+          markers: ['/'],
+        },
+      ],
+
+      'react-refresh/only-export-components': 'warn',
+      'react/no-unescaped-entities': 'off',
+      'react/prop-types': 'off',
+
+      'unicorn/prefer-structured-clone': 'off',
       'unicorn/no-new-array': 'off',
+      'unicorn/no-empty-file': 'off',
       'unicorn/prefer-type-error': 'off',
+      'unicorn/prefer-modern-math-apis': 'off',
       'unicorn/prefer-node-protocol': 'off',
       'unicorn/no-unreadable-array-destructuring': 'off',
       'unicorn/no-abusive-eslint-disable': 'off',
@@ -123,39 +106,45 @@ export default [
       'unicorn/relative-url-style': 'off',
       'unicorn/prefer-math-trunc': 'off',
       'unicorn/prefer-query-selector': 'off',
+      'unicorn/no-negated-condition': 'off',
       'unicorn/switch-case-braces': 'off',
       'unicorn/prefer-switch': 'off',
       'unicorn/better-regex': 'off',
       'unicorn/no-for-loop': 'off',
       'unicorn/escape-case': 'off',
       'unicorn/prefer-number-properties': 'off',
-      curly: 'error',
-      'no-use-before-define': 'off',
-      'no-global-assign': 'warn',
+      'unicorn/no-process-exit': 'off',
+      'unicorn/prefer-at': 'off',
+      'unicorn/prefer-string-replace-all': 'off',
+      'unicorn/no-array-reduce': 'off',
 
-      'no-console': [
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-unnecessary-type-parameters': 'off',
+      '@typescript-eslint/no-base-to-string': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/restrict-plus-operands': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/no-extraneous-class': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-dynamic-delete': 'off',
+      '@typescript-eslint/no-unused-vars': [
         'warn',
         {
-          allow: ['error', 'warn'],
-        },
-      ],
-
-      'no-debugger': 'warn',
-      'no-undef': 'error',
-      'react/no-danger': 'warn',
-      'react/prop-types': 'off',
-      'react/destructuring-assignment': 'error',
-      'react/no-unused-prop-types': 'error',
-      'react/no-unused-state': 'error',
-      'react/prefer-stateless-function': 'error',
-
-      'spaced-comment': [
-        'error',
-        'always',
-        {
-          markers: ['/'],
+          argsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          caughtErrors: 'none',
         },
       ],
     },
   },
-]
+)

@@ -19,30 +19,46 @@ const ZoomControls = observer(function ZoomControls({
 }) {
   return (
     <>
-      <IconButton onClick={() => model.zoomIn()}>
+      <IconButton
+        onClick={() => {
+          model.zoomIn()
+        }}
+      >
         <ZoomIn />
       </IconButton>
-      <IconButton onClick={() => model.zoomOut()}>
+      <IconButton
+        onClick={() => {
+          model.zoomOut()
+        }}
+      >
         <ZoomOut />
       </IconButton>
       <CascadingMenuButton
         menuItems={[
           {
             label: 'Zoom in horizontal',
-            onClick: () => model.zoomInHorizontal(),
+            onClick: () => {
+              model.zoomInHorizontal()
+            },
           },
           {
             label: 'Zoom in vertical',
-            onClick: () => model.zoomInVertical(),
+            onClick: () => {
+              model.zoomInVertical()
+            },
           },
           {
             label: 'Zoom out horizontal',
-            onClick: () => model.zoomOutHorizontal(),
+            onClick: () => {
+              model.zoomOutHorizontal()
+            },
           },
 
           {
             label: 'Zoom out vertical',
-            onClick: () => model.zoomOutVertical(),
+            onClick: () => {
+              model.zoomOutVertical()
+            },
           },
           {
             label: 'Reset zoom to default',

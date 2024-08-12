@@ -11,7 +11,7 @@ import {
 import type { MsaViewModel } from '../../../model'
 import SequenceTextArea from '../../SequenceTextArea'
 
-export default observer(function ({
+const TreeNodeInfoDialog = observer(function ({
   info,
   model,
   nodeName,
@@ -26,7 +26,14 @@ export default observer(function ({
   const metadata = treeMetadata[nodeName]
   const [name, sequence] = rows.find(f => f[0] === nodeName)!
   return (
-    <Dialog onClose={() => onClose()} open title="Tree node info" maxWidth="xl">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open
+      title="Tree node info"
+      maxWidth="xl"
+    >
       <DialogContent>
         <BaseCard title="Attributes">
           <Attributes attributes={{ nodeName, ...info }} />
@@ -43,3 +50,5 @@ export default observer(function ({
     </Dialog>
   )
 })
+
+export default TreeNodeInfoDialog

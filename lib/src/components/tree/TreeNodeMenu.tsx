@@ -58,7 +58,7 @@ const TreeMenu = observer(function ({
             model.toggleCollapsed(node.id)
           } else {
             if (node.id.endsWith('-leafnode')) {
-              model.toggleCollapsed2(`${node.id}`)
+              model.toggleCollapsed2(node.id)
             } else {
               model.toggleCollapsed2(`${node.id}-leafnode`)
             }

@@ -6,7 +6,8 @@
     "app"
   ],
   "scripts": {
-    "lint": "eslint --report-unused-disable-directives --max-warnings 0 ."
+    "lint": "eslint --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@emotion/react": "^11.13.0",
@@ -37,7 +38,8 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-hooks": "next",
+    "eslint-plugin-react-refresh": "^0.4.9",
     "eslint-plugin-unicorn": "^55.0.0",
     "globals": "^15.9.0",
     "mobx": "^6.13.1",
@@ -54,6 +56,7 @@
     "tss-react": "^4.9.12",
     "tsx": "^4.17.0",
     "typescript": "^5.3.3",
+    "typescript-eslint": "^8.0.1",
     "vite": "^5.0.10"
   }
 }

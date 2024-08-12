@@ -59,11 +59,11 @@
  */
 export default function parse(s: string) {
   const ancestors = []
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   let tree = {} as Record<string, any>
   const tokens = s.split(/\s*(;|\(|\)|,|:)\s*/)
   for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i]
+    const token = tokens[i]!
     const subtree = {}
     switch (token) {
       case '(': // new branchset
@@ -81,7 +81,7 @@ export default function parse(s: string) {
       case ':': // optional length next
         break
       default: {
-        const x = tokens[i - 1]
+        const x = tokens[i - 1]!
         if (x === ')' || x === '(' || x === ',') {
           tree.name = token
         } else if (x === ':') {

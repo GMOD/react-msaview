@@ -94,7 +94,9 @@ const MSACanvasBlock = observer(function ({
           model.setMouseClickPos(x, y)
         }
       }}
-      onMouseLeave={() => model.setMousePos()}
+      onMouseLeave={() => {
+        model.setMousePos()
+      }}
       width={blockSize * highResScaleFactor}
       height={blockSize * highResScaleFactor}
       style={{

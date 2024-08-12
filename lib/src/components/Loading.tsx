@@ -19,7 +19,13 @@ const Reset = observer(function ({
   return (
     <div>
       <ErrorMessage error={error} />
-      <Button variant="contained" color="primary" onClick={() => model.reset()}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => {
+          model.reset()
+        }}
+      >
         Return to import form
       </Button>
     </div>

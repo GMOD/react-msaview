@@ -50,9 +50,11 @@ const TreeBranchMenu = observer(function ({
       <MenuItem
         dense
         onClick={() => {
-          model.showOnly === node.id
-            ? model.setShowOnly(undefined)
-            : model.setShowOnly(node.id)
+          if (model.showOnly === node.id) {
+            model.setShowOnly(undefined)
+          } else {
+            model.setShowOnly(node.id)
+          }
           onClose()
         }}
       >

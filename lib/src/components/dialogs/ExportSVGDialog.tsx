@@ -28,7 +28,13 @@ export default function ExportSVGDialog({
   const [error, setError] = useState<unknown>()
   const theme = useTheme()
   return (
-    <Dialog onClose={() => onClose()} open title="Export SVG">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open
+      title="Export SVG"
+    >
       <DialogContent>
         {error ? <ErrorMessage error={error} /> : null}
         <Typography>Settings:</Typography>
@@ -36,14 +42,18 @@ export default function ExportSVGDialog({
           label="Include minimap?"
           disabled={exportType === 'entire'}
           checked={includeMinimap}
-          onChange={() => setIncludeMinimap(!includeMinimap)}
+          onChange={() => {
+            setIncludeMinimap(!includeMinimap)
+          }}
         />
         <div>
           <FormControl>
             <FormLabel>Export type</FormLabel>
             <RadioGroup
               value={exportType}
-              onChange={event => setExportType(event.target.value)}
+              onChange={event => {
+                setExportType(event.target.value)
+              }}
             >
               <FormControlLabel
                 value="entire"
@@ -63,24 +73,33 @@ export default function ExportSVGDialog({
         <Button
           variant="contained"
           color="primary"
-          onClick={async () => {
-            try {
-              await model.exportSVG({
-                theme,
-                includeMinimap:
-                  exportType === 'entire' ? false : includeMinimap,
-                exportType,
-              })
-            } catch (e) {
-              console.error(e)
-              setError(e)
-            }
-            onClose()
+          onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            ;(async () => {
+              try {
+                await model.exportSVG({
+                  theme,
+                  includeMinimap:
+                    exportType === 'entire' ? false : includeMinimap,
+                  exportType,
+                })
+              } catch (e) {
+                console.error(e)
+                setError(e)
+              }
+              onClose()
+            })()
           }}
         >
           Submit
         </Button>
-        <Button variant="contained" color="secondary" onClick={() => onClose()}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => {
+            onClose()
+          }}
+        >
           Cancel
         </Button>
       </DialogActions>
