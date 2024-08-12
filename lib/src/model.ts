@@ -53,6 +53,10 @@ import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
 import type { InterProScanResults } from './launchInterProScan'
+import {
+  globalCoordToRowSpecificSeqCoord,
+  globalCoordToBlanksIncorporatedCoord,
+} from './rowCoordinateCalculations'
 
 export interface Accession {
   accession: string
@@ -700,7 +704,8 @@ function stateModelFactory() {
       get blanks() {
         const { hideGaps, realAllowedGappyness } = self
         const blanks = []
-        if (!hideGaps) {
+        console.log({ hideGaps })
+        if (hideGaps) {
           const strs = this.leaves
             .map(leaf => this.MSA?.getRow(leaf.data.name))
             .filter((item): item is string => !!item)
@@ -1079,26 +1084,22 @@ function stateModelFactory() {
         return self.msaAreaWidth < self.totalWidth
       },
 
+      get rowNamesSet() {
+        return new Map(self.rowNames.map((r, idx) => [r, idx]))
+      },
+
       /**
        * #method
-       * return a row-specific sequence coordinate, skipping gaps, given a global
-       * coordinate
+       * return a row-specific sequence coordinate, skipping gaps, given a
+       * global coordinate
        */
       globalCoordToRowSpecificSeqCoord(rowName: string, position: number) {
-        const { rowNames, rows } = self
-        const index = rowNames.indexOf(rowName)
-        if (index !== -1 && rows[index]) {
-          const row = rows[index][1]
-
-          let k = 0
-          for (let i = 0; i < position; i++) {
-            if (row[i] !== '-' || self.blanksSet.has(i)) {
-              k++
-            } else if (k >= position) {
-              break
-            }
-          }
-          return k
+        const { rows, blanks } = self
+        const index = this.rowNamesSet.get(rowName)
+        const position2 = globalCoordToBlanksIncorporatedCoord(blanks, position)
+        if (index !== undefined) {
+          const rowSeq = rows[index][1]
+          return globalCoordToRowSpecificSeqCoord(rowSeq, position2)
         }
         return 0
       },
