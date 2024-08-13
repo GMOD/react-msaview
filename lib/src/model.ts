@@ -54,8 +54,7 @@ import { TreeF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
 import type { InterProScanResults } from './launchInterProScan'
 import {
-  globalCoordToRowSpecificSeqCoord,
-  globalCoordToBlanksIncorporatedCoord,
+  mouseOverCoordToGlobalCoord,
   globalCoordToRowSpecificCoord,
 } from './rowCoordinateCalculations'
 
@@ -1100,15 +1099,34 @@ function stateModelFactory() {
 
       /**
        * #method
+       * return a row-specific letter, or undefined if gap
+       */
+      mouseOverCoordToRowLetter(rowName: string, position: number) {
+        const { rowMap, blanks } = self
+        return rowMap.get(rowName)?.[
+          mouseOverCoordToGlobalCoord(blanks, position)
+        ]
+      },
+
+      /**
+       * #method
        * return a row-specific sequence coordinate, skipping gaps, given a
        * global coordinate
        */
-      globalCoordToRowSpecificSeqCoord(rowName: string, position: number) {
+      mouseOverCoordToGapRemovedRowCoord(rowName: string, position: number) {
         const { rowMap, blanks } = self
         const seq = rowMap.get(rowName)
-        return seq !== undefined
-          ? globalCoordToRowSpecificCoord(seq, position, blanks)
-          : 0
+        if (seq !== undefined) {
+          const pos2 = mouseOverCoordToGlobalCoord(blanks, position)
+          const pos1 = globalCoordToRowSpecificCoord(seq, pos2)
+          if (seq[pos1] === '-' || !seq[pos1]) {
+            return undefined
+          } else {
+            return pos1
+          }
+        } else {
+          return undefined
+        }
       },
 
       /**

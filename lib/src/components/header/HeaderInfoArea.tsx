@@ -13,13 +13,14 @@ const useStyles = makeStyles()({
   },
 })
 
-const HeaderInfoArea = observer(({ model }: { model: MsaViewModel }) => {
+const HeaderInfoArea = observer(function ({ model }: { model: MsaViewModel }) {
   const { mouseOverRowName, mouseCol } = model
   const { classes } = useStyles()
   return mouseOverRowName && mouseCol !== undefined ? (
     <Typography className={classes.margin}>
       {mouseOverRowName}:
-      {model.globalCoordToRowSpecificSeqCoord(mouseOverRowName, mouseCol)}
+      {model.mouseOverCoordToGapRemovedRowCoord(mouseOverRowName, mouseCol)} (
+      {model.mouseOverCoordToRowLetter(mouseOverRowName, mouseCol)})
     </Typography>
   ) : null
 })

@@ -28,7 +28,7 @@ export function renderMouseover({
   ctx.clearRect(0, 0, width, height)
   if (mouseCol !== undefined) {
     ctx.fillStyle = hoverColor
-    ctx.fillRect((mouseCol - 1) * colWidth + scrollX, 0, colWidth, height)
+    ctx.fillRect(mouseCol * colWidth + scrollX, 0, colWidth, height)
   }
   if (mouseRow !== undefined) {
     ctx.fillStyle = hoverColor
@@ -36,7 +36,7 @@ export function renderMouseover({
   }
   if (mouseClickCol !== undefined) {
     ctx.fillStyle = highlightColor
-    ctx.fillRect((mouseClickCol - 1) * colWidth + scrollX, 0, colWidth, height)
+    ctx.fillRect(mouseClickCol * colWidth + scrollX, 0, colWidth, height)
   }
   if (mouseClickRow !== undefined) {
     ctx.fillStyle = highlightColor
@@ -44,6 +44,6 @@ export function renderMouseover({
   }
   if (mouseCol2 !== undefined) {
     ctx.fillStyle = highlightColor
-    ctx.fillRect((mouseCol2 - 1) * colWidth + scrollX, 0, colWidth, height)
+    ctx.fillRect(mouseCol2 * colWidth + scrollX, 0, colWidth, height)
   }
 }

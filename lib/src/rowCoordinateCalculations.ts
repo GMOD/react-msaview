@@ -1,12 +1,11 @@
-export function globalCoordToBlanksIncorporatedCoord(
-  blanks: number[],
-  position: number,
-) {
-  let i = 0
-  let j = 0
-  let k = 0
-  for (; i < position; i++, k++) {
-    if (blanks[j] - 1 === k) {
+export function mouseOverCoordToGlobalCoord(blanks: number[], pos: number) {
+  let i = 0 // 'mouse over coord'
+  let j = 0 // 'position in blanks array'
+  let k = 0 // 'global coord'/return value
+
+  for (; i < pos; i++, k++) {
+    // skip multiple gaps in a row
+    while (blanks[j] - 1 === k) {
       j++
       k++
     }
@@ -14,26 +13,14 @@ export function globalCoordToBlanksIncorporatedCoord(
   return k
 }
 
-export function globalCoordToRowSpecificSeqCoord(
-  seq: string,
-  position: number,
-) {
+export function globalCoordToRowSpecificCoord(seq: string, pos: number) {
   let k = 0
-  for (let i = 0; i < position; i++) {
+  for (let i = 0; i < pos; i++) {
     if (seq[i] !== '-') {
       k++
-    } else if (k >= position) {
+    } else if (k >= pos) {
       break
     }
   }
   return k
-}
-
-export function globalCoordToRowSpecificCoord(
-  seq: string,
-  position: number,
-  blanks: number[],
-) {
-  const position2 = globalCoordToBlanksIncorporatedCoord(blanks, position)
-  return globalCoordToRowSpecificSeqCoord(seq, position2)
 }

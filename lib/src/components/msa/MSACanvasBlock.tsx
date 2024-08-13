@@ -75,7 +75,7 @@ const MSACanvasBlock = observer(function ({
         const { left, top } = ref.current.getBoundingClientRect()
         const mouseX = event.clientX - left + offsetX
         const mouseY = event.clientY - top + offsetY
-        const x = Math.floor(mouseX / colWidth) + 1
+        const x = Math.floor(mouseX / colWidth)
         const y = Math.floor(mouseY / rowHeight)
         model.setMousePos(x, y)
       }}
