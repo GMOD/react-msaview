@@ -170,7 +170,7 @@ const MSASettings = observer(function MSASettings({
         onChange={() => {
           model.setHideGaps(!hideGaps)
         }}
-        label={`Hide columns that are ${100 - allowedGappyness}% gaps`}
+        label={`Hide columns that are ${allowedGappyness}% gaps`}
       />
       {hideGaps ? (
         <div className={classes.flex}>

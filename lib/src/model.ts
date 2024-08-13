@@ -56,6 +56,7 @@ import type { InterProScanResults } from './launchInterProScan'
 import {
   globalCoordToRowSpecificSeqCoord,
   globalCoordToBlanksIncorporatedCoord,
+  globalCoordToRowSpecificCoord,
 } from './rowCoordinateCalculations'
 
 export interface Accession {
@@ -704,7 +705,6 @@ function stateModelFactory() {
       get blanks() {
         const { hideGaps, realAllowedGappyness } = self
         const blanks = []
-        console.log({ hideGaps })
         if (hideGaps) {
           const strs = this.leaves
             .map(leaf => this.MSA?.getRow(leaf.data.name))
@@ -739,6 +739,13 @@ function stateModelFactory() {
         return this.leaves
           .map(leaf => [leaf.data.name, MSA?.getRow(leaf.data.name)] as const)
           .filter((f): f is [string, string] => !!f[1])
+      },
+
+      /**
+       * #getter
+       */
+      get rowMap() {
+        return new Map(this.rows)
       },
       /**
        * #getter
@@ -1084,6 +1091,9 @@ function stateModelFactory() {
         return self.msaAreaWidth < self.totalWidth
       },
 
+      /**
+       * #getter
+       */
       get rowNamesSet() {
         return new Map(self.rowNames.map((r, idx) => [r, idx]))
       },
@@ -1094,14 +1104,11 @@ function stateModelFactory() {
        * global coordinate
        */
       globalCoordToRowSpecificSeqCoord(rowName: string, position: number) {
-        const { rows, blanks } = self
-        const index = this.rowNamesSet.get(rowName)
-        const position2 = globalCoordToBlanksIncorporatedCoord(blanks, position)
-        if (index !== undefined) {
-          const rowSeq = rows[index][1]
-          return globalCoordToRowSpecificSeqCoord(rowSeq, position2)
-        }
-        return 0
+        const { rowMap, blanks } = self
+        const seq = rowMap.get(rowName)
+        return seq !== undefined
+          ? globalCoordToRowSpecificCoord(seq, position, blanks)
+          : 0
       },
 
       /**

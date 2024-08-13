@@ -4,15 +4,14 @@ export function globalCoordToBlanksIncorporatedCoord(
 ) {
   let i = 0
   let j = 0
-  while (i++ < position) {
-    if (blanks[j] < position) {
-      i++
+  let k = 0
+  for (; i < position; i++, k++) {
+    if (blanks[j] - 1 === k) {
       j++
-    } else {
-      break
+      k++
     }
   }
-  return i
+  return k
 }
 
 export function globalCoordToRowSpecificSeqCoord(
@@ -28,4 +27,13 @@ export function globalCoordToRowSpecificSeqCoord(
     }
   }
   return k
+}
+
+export function globalCoordToRowSpecificCoord(
+  seq: string,
+  position: number,
+  blanks: number[],
+) {
+  const position2 = globalCoordToBlanksIncorporatedCoord(blanks, position)
+  return globalCoordToRowSpecificSeqCoord(seq, position2)
 }
