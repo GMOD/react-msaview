@@ -5,7 +5,7 @@ export function mouseOverCoordToGlobalCoord(blanks: number[], pos: number) {
 
   for (; i < pos; i++, k++) {
     // skip multiple gaps in a row
-    while (blanks[j] - 1 === k) {
+    while (j < blanks.length && blanks[j]! - 1 === k) {
       j++
       k++
     }

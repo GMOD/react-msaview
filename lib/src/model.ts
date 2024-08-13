@@ -1119,11 +1119,7 @@ function stateModelFactory() {
         if (seq !== undefined) {
           const pos2 = mouseOverCoordToGlobalCoord(blanks, position)
           const pos1 = globalCoordToRowSpecificCoord(seq, pos2)
-          if (seq[pos1] === '-' || !seq[pos1]) {
-            return undefined
-          } else {
-            return pos1
-          }
+          return seq[pos1] === '-' || !seq[pos1] ? undefined : pos1
         } else {
           return undefined
         }
