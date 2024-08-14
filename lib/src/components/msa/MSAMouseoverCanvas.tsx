@@ -6,7 +6,11 @@ import { autorun } from 'mobx'
 import type { MsaViewModel } from '../../model'
 import { renderMouseover } from './renderMSAMouseover'
 
-const MSAMouseoverCanvas = observer(({ model }: { model: MsaViewModel }) => {
+const MSAMouseoverCanvas = observer(function ({
+  model,
+}: {
+  model: MsaViewModel
+}) {
   const ref = useRef<HTMLCanvasElement>(null)
   const { height, width } = model
   useEffect(() => {

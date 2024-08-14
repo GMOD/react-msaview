@@ -2,13 +2,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 import type { MsaViewModel } from '../../model'
 
+interface ClickCoord {
+  clientX: number
+  scrollX: number
+}
+
 const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
-  const [mouseDown, setMouseDown] = useState<{
-    clientX: number
-    scrollX: number
-  }>()
-  const scheduled = useRef(false)
+  const [mouseDown, setMouseDown] = useState<ClickCoord>()
   const [hovered, setHovered] = useState(false)
+  const scheduled = useRef(false)
   const { scrollX, msaAreaWidth, minimapHeight, colWidth, numColumns } = model
   const unit = msaAreaWidth / numColumns / colWidth
   const left = -scrollX
@@ -48,11 +50,17 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   const barHeight = 12
   const polygonHeight = minimapHeight - barHeight
   return (
-    <div style={{ position: 'relative', height: minimapHeight, width: '100%' }}>
+    <div
+      style={{
+        position: 'relative',
+        height: minimapHeight,
+        width: '100%',
+      }}
+    >
       <div
         style={{
-          boxSizing: 'border-box',
           height: barHeight,
+          boxSizing: 'border-box',
           border: '1px solid #555',
         }}
       />

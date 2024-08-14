@@ -597,7 +597,7 @@ function stateModelFactory() {
       /**
        * #getter
        */
-      get menuItems() {
+      menuItems() {
         return []
       },
       /**

@@ -495,8 +495,8 @@ export function getClustalXColor(
 // info http://www.jalview.org/help/html/colourSchemes/clustal.html
 // modifications:
 // reference to clustalX source code scheme modifies what the jalview.org
-// scheme says there the jalview.org colorscheme says WLVIMAFCHP but it
-// should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
+// scheme says there the jalview.org colorscheme says WLVIMAFCHP but it should
+// be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getPercentIdentityColor(
   stats: Record<string, number>,
   total: number,

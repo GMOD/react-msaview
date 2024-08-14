@@ -13,7 +13,13 @@ const urlParams = new URLSearchParams(window.location.search)
 const val = urlParams.get('data')
 
 const mymodel = AppGlobal.create(
-  val ? JSON.parse(val) : { msaview: { type: 'MsaView' } },
+  val
+    ? JSON.parse(val)
+    : {
+        msaview: {
+          type: 'MsaView',
+        },
+      },
 )
 
 let lastTime = 0
