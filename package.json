@@ -3,7 +3,8 @@
   "license": "MIT",
   "workspaces": [
     "lib",
-    "app"
+    "app",
+    "app2"
   ],
   "scripts": {
     "lint": "eslint --report-unused-disable-directives --max-warnings 0",

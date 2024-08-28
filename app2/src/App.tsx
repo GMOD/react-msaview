@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { observer } from 'mobx-react'
 import { isAlive, onSnapshot } from 'mobx-state-tree'
-import { MSAView } from 'react-msaview'
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { ThemeProvider } from '@mui/material/styles'
 import useMeasure from '@jbrowse/core/util/useMeasure'
 
 // locals
-import AppGlobal, { AppModel } from './model'
+import AppGlobal from './model'
 
 const urlParams = new URLSearchParams(window.location.search)
 const val = urlParams.get('data')
