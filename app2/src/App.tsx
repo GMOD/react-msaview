@@ -155,12 +155,16 @@ const App = observer(function () {
           cols={80}
           rows={20}
           value={sequence}
-          onChange={event => setSequence(event.target.value)}
+          onChange={event => {
+            setSequence(event.target.value)
+          }}
         />
         <div>
           <button
             type="button"
-            onClick={() => setSequence('>FASTA\nMPKIIEAIYENGVFKPLQKVDLKEGE')}
+            onClick={() => {
+              setSequence('>FASTA\nMPKIIEAIYENGVFKPLQKVDLKEGE')
+            }}
           >
             Example
           </button>
