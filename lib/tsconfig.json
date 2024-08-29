@@ -5,6 +5,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "noUncheckedIndexedAccess": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "module": "esnext",
