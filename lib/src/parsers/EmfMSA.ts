@@ -1,11 +1,11 @@
-import { parse } from 'emf-js'
+import { parseEmfAln } from 'emf-js'
 import type { NodeWithIds } from '../util'
 
 export default class EmfMSA {
-  private MSA: ReturnType<typeof parse>
+  private MSA: ReturnType<typeof parseEmfAln>
 
   constructor(text: string) {
-    this.MSA = parse(text)
+    this.MSA = parseEmfAln(text)
   }
 
   getMSA() {
@@ -13,7 +13,7 @@ export default class EmfMSA {
   }
 
   getRow(name: string): string {
-    return this.MSA.find(aln => aln.species === name)?.seq || ''
+    return this.MSA.find(aln => aln.protein === name)?.seq || ''
   }
 
   getWidth() {
@@ -29,7 +29,7 @@ export default class EmfMSA {
   }
 
   getNames() {
-    return this.MSA.map(aln => aln.species)
+    return this.MSA.map(aln => aln.protein)
   }
 
   getStructures() {

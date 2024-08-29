@@ -58,6 +58,7 @@ import {
   mouseOverCoordToGlobalCoord,
   globalCoordToRowSpecificCoord,
 } from './rowCoordinateCalculations'
+import EmfTree from './parsers/EmfTree'
 
 export interface Accession {
   accession: string
@@ -636,14 +637,25 @@ function stateModelFactory() {
        * #getter
        */
       get tree(): NodeWithIds {
-        const ret = self.data.tree
-          ? generateNodeIds(parseNewick(self.data.tree))
-          : this.MSA?.getTree() || {
-              noTree: true,
-              branchset: [],
-              id: 'empty',
-              name: 'empty',
-            }
+        const text = self.data.tree
+        let ret: NodeWithIds
+        if (text) {
+          let t: string
+          if (text.startsWith('SEQ')) {
+            const r = new EmfTree(text)
+            t = r.data.tree
+          } else {
+            t = text
+          }
+          ret = generateNodeIds(parseNewick(t))
+        } else {
+          ret = this.MSA?.getTree() || {
+            noTree: true,
+            branchset: [],
+            id: 'empty',
+            name: 'empty',
+          }
+        }
         return reparseTree(ret)
       },
       /**

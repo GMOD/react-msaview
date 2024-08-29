@@ -46,7 +46,7 @@
     "copy-to-clipboard": "^3.3.1",
     "d3-array": "^3.2.3",
     "d3-hierarchy": "^3.1.2",
-    "emf-js": "^1.0.0",
+    "emf-js": "^2.0.0",
     "eslint": "^9.8.0",
     "file-saver": "^2.0.5",
     "pako": "^2.1.0",
