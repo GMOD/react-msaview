@@ -226,7 +226,11 @@ function stateModelFactory() {
          * data from the loaded tree/msa/treeMetadata, generally loaded by
          * autorun
          */
-        data: types.optional(DataModelF(), { tree: '', msa: '' }),
+        data: types.optional(DataModelF(), {
+          tree: '',
+          msa: '',
+          treeMetadata: '',
+        }),
 
         /**
          * #property
@@ -478,7 +482,7 @@ function stateModelFactory() {
       /**
        * #action
        */
-      setData(data: { msa?: string; tree?: string }) {
+      setData(data: { msa?: string; tree?: string; treeMetadata?: string }) {
         self.data = cast(data)
       },
 
@@ -651,7 +655,7 @@ function stateModelFactory() {
         } else {
           ret = this.MSA?.getTree() || {
             noTree: true,
-            branchset: [],
+            children: [],
             id: 'empty',
             name: 'empty',
           }
@@ -676,10 +680,10 @@ function stateModelFactory() {
        * #getter
        */
       get root() {
-        let hier = hierarchy(this.tree, d => d.branchset)
-          // todo: investigate whether needed, typescript says branchset always true
+        let hier = hierarchy(this.tree, d => d.children)
+          // todo: investigate whether needed, typescript says children always true
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          .sum(d => (d.branchset ? 0 : 1))
+          .sum(d => (d.children ? 0 : 1))
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
         if (self.showOnly) {

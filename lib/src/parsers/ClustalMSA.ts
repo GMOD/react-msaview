@@ -44,10 +44,10 @@ export default class ClustalMSA {
       id: 'root',
       name: 'root',
       noTree: true,
-      branchset: this.getNames().map(name => ({
+      children: this.getNames().map(name => ({
         id: name,
         name,
-        branchset: [],
+        children: [],
       })),
     }
   }

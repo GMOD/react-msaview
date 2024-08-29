@@ -22,7 +22,7 @@ const mymodel = AppGlobal.create(
       },
 )
 
-let lastTime = 0
+const lastTime = 0
 // onSnapshot(mymodel, snap => {
 //   const now = Date.now()
 //   if (now - lastTime >= 1000) {
