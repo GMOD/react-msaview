@@ -42,6 +42,7 @@ import TextTrack from './components/TextTrack'
 
 // parsers
 import ClustalMSA from './parsers/ClustalMSA'
+import EmfMSA from './parsers/EmfMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
@@ -614,11 +615,13 @@ function stateModelFactory() {
         if (text) {
           if (Stockholm.sniff(text)) {
             return new StockholmMSA(text, self.currentAlignment)
-          }
-          if (text.startsWith('>')) {
+          } else if (text.startsWith('>')) {
             return new FastaMSA(text)
+          } else if (text.startsWith('SEQ')) {
+            return new EmfMSA(text)
+          } else {
+            return new ClustalMSA(text)
           }
-          return new ClustalMSA(text)
         }
         return null
       },

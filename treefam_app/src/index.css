@@ -1,3 +1,10 @@
+html {
+  /* https://dev.to/madsstoumann/dark-mode-in-3-lines-of-css-and-other-adventures-1ljj */
+  background-color: Canvas;
+  color: CanvasText;
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,11 +12,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* https://dev.to/madsstoumann/dark-mode-in-3-lines-of-css-and-other-adventures-1ljj */
-  background-color: Canvas;
-  color: CanvasText;
-  color-scheme: dark;
 }
 
 code {

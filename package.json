@@ -4,7 +4,8 @@
   "workspaces": [
     "lib",
     "app",
-    "app2"
+    "app2",
+    "treefam_app"
   ],
   "scripts": {
     "lint": "eslint --report-unused-disable-directives --max-warnings 0",
@@ -17,8 +18,8 @@
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.8.0",
     "@jbrowse/core": "^2.13.1",
-    "@mui/icons-material": "^6.0.0",
-    "@mui/material": "^6.0.0",
+    "@mui/icons-material": "^5.0.0",
+    "@mui/material": "^5.0.0",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
