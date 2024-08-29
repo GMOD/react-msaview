@@ -5,6 +5,7 @@ import { ThemeProvider } from '@mui/material/styles'
 
 import useSWR from 'swr'
 import ReactMSAView from './ReactMSAView'
+import Button from './Button'
 
 async function jsonfetch(url: string, arg?: RequestInit) {
   const res = await fetch(url, arg)
@@ -25,7 +26,10 @@ async function textfetch(url: string, arg?: RequestInit) {
 }
 
 async function fetcher(url: string) {
-  return textfetch(`${url}.aln.emf`)
+  return {
+    msa: await textfetch(`${url}.aln.emf`),
+    tree: await textfetch(`${url}.nh.emf`),
+  }
 }
 
 const App = observer(function () {
@@ -35,47 +39,44 @@ const App = observer(function () {
     `./treefam_family_data/${treeFamId}`,
     fetcher,
   )
-  console.log({ data, isLoading, error })
 
   return (
     <div>
-      {error ? (
-        <div style={{ color: 'red' }}>{`${error}`}</div>
-      ) : isLoading ? (
-        <div>Loading...</div>
-      ) : data ? (
-        <ReactMSAView data={data} />
-      ) : null}
-      <div>
+      <div className="m-2 p-2">
         <label htmlFor="query">Enter TreeFam ID:</label>
         <input
           id="query"
+          className="bg-gray-200 shadow border rounded"
           type="text"
           value={val}
           onChange={event => {
             setVal(event.target.value)
           }}
         />
-      </div>
 
-      <div>
-        <button
-          type="button"
+        <Button
           onClick={() => {
             setVal('TF105041')
+            setTreeFamId('TF105041')
           }}
         >
           Example
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           onClick={() => {
             setTreeFamId(val)
           }}
         >
           Submit
-        </button>
+        </Button>
       </div>
+      {error ? (
+        <div style={{ color: 'red' }}>{`${error}`}</div>
+      ) : isLoading ? (
+        <div>Loading...</div>
+      ) : data ? (
+        <ReactMSAView msa={data.msa} tree={data.tree} />
+      ) : null}
     </div>
   )
 })

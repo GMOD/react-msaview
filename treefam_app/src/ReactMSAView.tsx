@@ -2,6 +2,8 @@ import { isAlive, onSnapshot } from 'mobx-state-tree'
 import useMeasure from '@jbrowse/core/util/useMeasure'
 import { useEffect } from 'react'
 import AppModel from './model'
+import { MSAView } from 'react-msaview'
+import { observer } from 'mobx-react'
 
 // locals
 // import AppGlobal from './model'
@@ -37,7 +39,24 @@ const mymodel = AppModel.create({
     type: 'MsaView',
   },
 })
+mymodel.msaview.setHeight(800)
 
-export default function ReactMSAView({ data }: { data: string }) {
-  return <pre>{data}</pre>
-}
+const ReactMSAView = observer(function ({
+  msa,
+  tree,
+}: {
+  msa: string
+  tree: string
+}) {
+  const ref = useWidthSetter(mymodel.msaview)
+  useEffect(() => {
+    mymodel.msaview.setData({ msa, tree })
+  }, [msa, tree])
+  return (
+    <div ref={ref} style={{ width: '100%' }}>
+      <MSAView model={mymodel.msaview} />
+    </div>
+  )
+})
+
+export default ReactMSAView
