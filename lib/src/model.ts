@@ -152,7 +152,7 @@ function stateModelFactory() {
          * #property
          * height of each row, px
          */
-        rowHeight: 20,
+        rowHeight: 18,
 
         /**
          * #property
@@ -170,7 +170,7 @@ function stateModelFactory() {
          * #property
          * width of columns, px
          */
-        colWidth: 16,
+        colWidth: 14,
 
         /**
          * #property

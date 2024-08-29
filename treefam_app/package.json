@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "aws s3 sync --delete . s3://jbrowse.org/demos/msafam/",
+    "postdeploy": "aws cloudfront create-invalidation --distribution-id E13LGELJOT4GQO --paths \"/demos/msafam/*\""
   },
   "dependencies": {
     "@emotion/react": "^11.10.8",

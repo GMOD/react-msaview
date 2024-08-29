@@ -2,43 +2,39 @@ import { useState } from 'react'
 import { observer } from 'mobx-react'
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { ThemeProvider } from '@mui/material/styles'
+import { ErrorMessage } from '@jbrowse/core/ui'
 
 import useSWR from 'swr'
+
 import ReactMSAView from './ReactMSAView'
 import Button from './Button'
-
-async function jsonfetch(url: string, arg?: RequestInit) {
-  const res = await fetch(url, arg)
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status} from ${url}: ${await res.text()}`)
-  }
-
-  return res.json()
-}
+import { ungzip } from 'pako'
 
 async function textfetch(url: string, arg?: RequestInit) {
   const res = await fetch(url, arg)
   if (!res.ok) {
     throw new Error(`HTTP ${res.status} from ${url}: ${await res.text()}`)
   }
-
-  return res.text()
+  return ungzip(await res.arrayBuffer(), { to: 'string' })
 }
 
 async function fetcher(url: string) {
-  return {
-    msa: await textfetch(`${url}.aln.emf`),
-    tree: await textfetch(`${url}.nh.emf`),
-  }
+  return url
+    ? {
+        msa: await textfetch(
+          `https://jbrowse.org/demos/treefam_family_data/${url}.aln.emf.gz`,
+        ),
+        tree: await textfetch(
+          `https://jbrowse.org/demos/treefam_family_data/${url}.nh.emf.gz`,
+        ),
+      }
+    : undefined
 }
 
 const App = observer(function () {
   const [val, setVal] = useState('')
   const [treeFamId, setTreeFamId] = useState('')
-  const { data, isLoading, error } = useSWR(
-    `./treefam_family_data/${treeFamId}`,
-    fetcher,
-  )
+  const { data, isLoading, error } = useSWR(treeFamId, fetcher)
 
   return (
     <div>
@@ -71,7 +67,7 @@ const App = observer(function () {
         </Button>
       </div>
       {error ? (
-        <div style={{ color: 'red' }}>{`${error}`}</div>
+        <ErrorMessage error={error} />
       ) : isLoading ? (
         <div>Loading...</div>
       ) : data ? (
