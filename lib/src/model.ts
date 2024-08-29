@@ -769,7 +769,7 @@ function stateModelFactory() {
        * #getter
        */
       get fontSize() {
-        return Math.min(Math.max(6, self.rowHeight - 8), 18)
+        return Math.min(Math.max(6, self.rowHeight - 3), 18)
       },
       /**
        * #getter
