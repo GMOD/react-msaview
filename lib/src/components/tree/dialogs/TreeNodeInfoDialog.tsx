@@ -24,7 +24,7 @@ const TreeNodeInfoDialog = observer(function ({
 }) {
   const { treeMetadata, rows } = model
   const metadata = treeMetadata[nodeName]
-  const [name, sequence] = rows.find(f => f[0] === nodeName)!
+  const res = rows.find(f => f[0] === nodeName)
   return (
     <Dialog
       onClose={() => {
@@ -39,7 +39,11 @@ const TreeNodeInfoDialog = observer(function ({
           <Attributes attributes={{ nodeName, ...info }} />
         </BaseCard>
         <BaseCard title="Sequence">
-          <SequenceTextArea str={[[name, sequence]]} />
+          {res ? (
+            <SequenceTextArea str={[res]} />
+          ) : (
+            <div>Sequence not found</div>
+          )}
         </BaseCard>
         {metadata ? (
           <BaseCard title="Extra metadata">

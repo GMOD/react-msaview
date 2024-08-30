@@ -14,7 +14,7 @@ export function transform<T>(
 }
 
 interface Node {
-  branchset?: Node[]
+  children?: Node[]
   name?: string
   [key: string]: unknown
 }
@@ -22,7 +22,7 @@ interface Node {
 export interface NodeWithIds {
   id: string
   name: string
-  branchset: NodeWithIds[]
+  children: NodeWithIds[]
   length?: number
   noTree?: boolean
 }
@@ -30,7 +30,7 @@ export interface NodeWithIds {
 export interface NodeWithIdsAndLength {
   id: string
   name: string
-  branchset: NodeWithIdsAndLength[]
+  children: NodeWithIdsAndLength[]
   noTree?: boolean
   length: number
 }
@@ -46,8 +46,8 @@ export function generateNodeIds(
     ...tree,
     id,
     name: tree.name || id,
-    branchset:
-      tree.branchset?.map((b, i) =>
+    children:
+      tree.children?.map((b, i) =>
         generateNodeIds(b, `${id}-${i}`, depth + 1),
       ) || [],
   }

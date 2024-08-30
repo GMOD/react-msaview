@@ -42,6 +42,7 @@ import TextTrack from './components/TextTrack'
 
 // parsers
 import ClustalMSA from './parsers/ClustalMSA'
+import EmfMSA from './parsers/EmfMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import FastaMSA from './parsers/FastaMSA'
 import parseNewick from './parseNewick'
@@ -57,6 +58,7 @@ import {
   mouseOverCoordToGlobalCoord,
   globalCoordToRowSpecificCoord,
 } from './rowCoordinateCalculations'
+import EmfTree from './parsers/EmfTree'
 
 export interface Accession {
   accession: string
@@ -150,7 +152,7 @@ function stateModelFactory() {
          * #property
          * height of each row, px
          */
-        rowHeight: 20,
+        rowHeight: 18,
 
         /**
          * #property
@@ -168,7 +170,7 @@ function stateModelFactory() {
          * #property
          * width of columns, px
          */
-        colWidth: 16,
+        colWidth: 14,
 
         /**
          * #property
@@ -224,7 +226,11 @@ function stateModelFactory() {
          * data from the loaded tree/msa/treeMetadata, generally loaded by
          * autorun
          */
-        data: types.optional(DataModelF(), { tree: '', msa: '' }),
+        data: types.optional(DataModelF(), {
+          tree: '',
+          msa: '',
+          treeMetadata: '',
+        }),
 
         /**
          * #property
@@ -476,7 +482,7 @@ function stateModelFactory() {
       /**
        * #action
        */
-      setData(data: { msa?: string; tree?: string }) {
+      setData(data: { msa?: string; tree?: string; treeMetadata?: string }) {
         self.data = cast(data)
       },
 
@@ -614,11 +620,13 @@ function stateModelFactory() {
         if (text) {
           if (Stockholm.sniff(text)) {
             return new StockholmMSA(text, self.currentAlignment)
-          }
-          if (text.startsWith('>')) {
+          } else if (text.startsWith('>')) {
             return new FastaMSA(text)
+          } else if (text.startsWith('SEQ')) {
+            return new EmfMSA(text)
+          } else {
+            return new ClustalMSA(text)
           }
-          return new ClustalMSA(text)
         }
         return null
       },
@@ -633,14 +641,25 @@ function stateModelFactory() {
        * #getter
        */
       get tree(): NodeWithIds {
-        const ret = self.data.tree
-          ? generateNodeIds(parseNewick(self.data.tree))
-          : this.MSA?.getTree() || {
-              noTree: true,
-              branchset: [],
-              id: 'empty',
-              name: 'empty',
-            }
+        const text = self.data.tree
+        let ret: NodeWithIds
+        if (text) {
+          let t: string
+          if (text.startsWith('SEQ')) {
+            const r = new EmfTree(text)
+            t = r.data.tree
+          } else {
+            t = text
+          }
+          ret = generateNodeIds(parseNewick(t))
+        } else {
+          ret = this.MSA?.getTree() || {
+            noTree: true,
+            children: [],
+            id: 'empty',
+            name: 'empty',
+          }
+        }
         return reparseTree(ret)
       },
       /**
@@ -661,10 +680,10 @@ function stateModelFactory() {
        * #getter
        */
       get root() {
-        let hier = hierarchy(this.tree, d => d.branchset)
-          // todo: investigate whether needed, typescript says branchset always true
+        let hier = hierarchy(this.tree, d => d.children)
+          // todo: investigate whether needed, typescript says children always true
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          .sum(d => (d.branchset ? 0 : 1))
+          .sum(d => (d.children ? 0 : 1))
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
         if (self.showOnly) {
@@ -766,7 +785,7 @@ function stateModelFactory() {
        * #getter
        */
       get fontSize() {
-        return Math.min(Math.max(6, self.rowHeight - 8), 18)
+        return Math.min(Math.max(6, self.rowHeight - 3), 18)
       },
       /**
        * #getter

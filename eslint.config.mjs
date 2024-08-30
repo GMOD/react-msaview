@@ -72,6 +72,7 @@ export default tseslint.config(
       'react-refresh/only-export-components': 'warn',
       'react/no-unescaped-entities': 'off',
       'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
 
       'unicorn/prefer-structured-clone': 'off',
       'unicorn/no-new-array': 'off',

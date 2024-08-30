@@ -1,10 +1,11 @@
-import { parse } from 'clustal-js'
+import { parseEmfAln } from 'emf-js'
 import type { NodeWithIds } from '../util'
-export default class ClustalMSA {
-  private MSA: ReturnType<typeof parse>
+
+export default class EmfMSA {
+  private MSA: ReturnType<typeof parseEmfAln>
 
   constructor(text: string) {
-    this.MSA = parse(text)
+    this.MSA = parseEmfAln(text)
   }
 
   getMSA() {
@@ -12,11 +13,11 @@ export default class ClustalMSA {
   }
 
   getRow(name: string): string {
-    return this.MSA.alns.find(aln => aln.id === name)?.seq || ''
+    return this.MSA.find(aln => aln.protein === name)?.seq || ''
   }
 
   getWidth() {
-    return this.MSA.alns[0]!.seq.length
+    return this.MSA[0]!.seq.length
   }
 
   getRowData() {
@@ -24,11 +25,11 @@ export default class ClustalMSA {
   }
 
   getHeader() {
-    return this.MSA.header
+    return ''
   }
 
   getNames() {
-    return this.MSA.alns.map(aln => aln.id)
+    return this.MSA.map(aln => aln.protein)
   }
 
   getStructures() {
@@ -53,7 +54,7 @@ export default class ClustalMSA {
   }
 
   get seqConsensus() {
-    return this.MSA.consensus
+    return undefined
   }
   get secondaryStructureConsensus() {
     return undefined

@@ -34,13 +34,13 @@
  * Converted to JSON:
  * {
  *   name: "F",
- *   branchset: [
+ *   children: [
  *     {name: "A", length: 0.1},
  *     {name: "B", length: 0.2},
  *     {
  *       name: "E",
  *       length: 0.5,
- *       branchset: [
+ *       children: [
  *         {name: "C", length: 0.3},
  *         {name: "D", length: 0.4}
  *       ]
@@ -50,9 +50,9 @@
  *
  * Converted to JSON, but with no names or lengths:
  * {
- *   branchset: [
+ *   children: [
  *     {}, {}, {
- *       branchset: [{}, {}]
+ *       children: [{}, {}]
  *     }
  *   ]
  * }
@@ -66,13 +66,13 @@ export default function parse(s: string) {
     const token = tokens[i]!
     const subtree = {}
     switch (token) {
-      case '(': // new branchset
-        tree.branchset = [subtree]
+      case '(': // new children
+        tree.children = [subtree]
         ancestors.push(tree)
         tree = subtree
         break
       case ',': // another branch
-        ancestors.at(-1)?.branchset.push(subtree)
+        ancestors.at(-1)?.children.push(subtree)
         tree = subtree
         break
       case ')': // optional name next

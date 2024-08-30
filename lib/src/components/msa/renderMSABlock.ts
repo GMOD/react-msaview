@@ -110,35 +110,37 @@ function drawTiles({
       data: { name },
     } = node
     const y = node.x!
-    const str = columns[name]!.slice(xStart, xEnd)
-    for (let i = 0; i < str.length; i++) {
-      const letter = str[i]!
-      const color =
-        colorSchemeName === 'clustalx_protein_dynamic'
-          ? getClustalXColor(
-              colStats[xStart + i]!,
-              colStatsSums[xStart + i]!,
-              model,
-              name,
-              xStart + i,
-            )
-          : colorSchemeName === 'percent_identity_dynamic'
-            ? getPercentIdentityColor(
+    const str = columns[name]?.slice(xStart, xEnd)
+    if (str) {
+      for (let i = 0; i < str.length; i++) {
+        const letter = str[i]!
+        const color =
+          colorSchemeName === 'clustalx_protein_dynamic'
+            ? getClustalXColor(
                 colStats[xStart + i]!,
                 colStatsSums[xStart + i]!,
                 model,
                 name,
                 xStart + i,
               )
-            : colorScheme[letter.toUpperCase()]
-      if (bgColor) {
-        ctx.fillStyle = color || theme.palette.background.default
-        ctx.fillRect(
-          i * colWidth + offsetX - (offsetX % colWidth),
-          y - rowHeight,
-          colWidth,
-          rowHeight,
-        )
+            : colorSchemeName === 'percent_identity_dynamic'
+              ? getPercentIdentityColor(
+                  colStats[xStart + i]!,
+                  colStatsSums[xStart + i]!,
+                  model,
+                  name,
+                  xStart + i,
+                )
+              : colorScheme[letter.toUpperCase()]
+        if (bgColor) {
+          ctx.fillStyle = color || theme.palette.background.default
+          ctx.fillRect(
+            i * colWidth + offsetX - (offsetX % colWidth),
+            y - rowHeight,
+            colWidth,
+            rowHeight,
+          )
+        }
       }
     }
   }
@@ -178,22 +180,24 @@ function drawText({
         data: { name },
       } = node
       const y = node.x!
-      const str = columns[name]!.slice(xStart, xEnd)
-      for (let i = 0; i < str.length; i++) {
-        const letter = str[i]!
-        const color = colorScheme[letter.toUpperCase()]
-        const contrast = contrastLettering
-          ? contrastScheme[letter.toUpperCase()] || 'black'
-          : 'black'
-        const x = i * colWidth + offsetX - (offsetX % colWidth)
+      const str = columns[name]?.slice(xStart, xEnd)
+      if (str) {
+        for (let i = 0; i < str.length; i++) {
+          const letter = str[i]!
+          const color = colorScheme[letter.toUpperCase()]
+          const contrast = contrastLettering
+            ? contrastScheme[letter.toUpperCase()] || 'black'
+            : 'black'
+          const x = i * colWidth + offsetX - (offsetX % colWidth)
 
-        // note: -rowHeight/4 matches +rowHeight/4 in tree
-        ctx.fillStyle = actuallyShowDomains
-          ? 'black'
-          : bgColor
-            ? contrast
-            : color || 'black'
-        ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
+          // note: -rowHeight/4 matches +rowHeight/4 in tree
+          ctx.fillStyle = actuallyShowDomains
+            ? 'black'
+            : bgColor
+              ? contrast
+              : color || 'black'
+          ctx.fillText(letter, x + colWidth / 2, y - rowHeight / 4)
+        }
       }
     }
   }

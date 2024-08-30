@@ -3,11 +3,11 @@ import type { NodeWithIds } from './util'
 export function reparseTree(tree: NodeWithIds): NodeWithIds {
   return {
     ...tree,
-    branchset: tree.branchset.map(r =>
-      r.branchset.length
+    children: tree.children.map(r =>
+      r.children.length
         ? reparseTree(r)
         : {
-            branchset: [r],
+            children: [r],
             id: `${r.id}-leafnode`,
             name: `${r.name}-hidden`,
           },
