@@ -1,4 +1,4 @@
-import { isAlive, onSnapshot } from 'mobx-state-tree'
+import { isAlive } from 'mobx-state-tree'
 import useMeasure from '@jbrowse/core/util/useMeasure'
 import { useEffect } from 'react'
 import AppModel from './model'
@@ -7,19 +7,6 @@ import { observer } from 'mobx-react'
 import { MenuItem, Slider, TextField, Typography } from '@mui/material'
 import colorSchemes from './colorSchemes'
 import Checkbox2 from './Checkbox2'
-
-// locals
-// import AppGlobal from './model'
-// let lastTime = 0
-// onSnapshot(mymodel, snap => {
-//   const now = Date.now()
-//   if (now - lastTime >= 1000) {
-//     lastTime = now
-//     const url = new URL(window.document.URL)
-//     url.searchParams.set('data', JSON.stringify(snap))
-//     window.history.replaceState(null, '', url.toString())
-//   }
-// })
 
 // used in ViewContainer files to get the width
 function useWidthSetter(view: { setWidth: (arg: number) => void }) {

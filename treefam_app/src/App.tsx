@@ -48,7 +48,7 @@ async function fetcher(id: string) {
 }
 
 interface TreeNode {
-  children: TreeNode[]
+  children?: TreeNode[]
   sequence?: {
     mol_seq: { seq: string }
     id: { accession: string }[]
@@ -70,12 +70,15 @@ function gatherTree(tree: TreeNode, arr: Row[]) {
     for (const child of tree.children) {
       if (child.sequence) {
         const seq = child.sequence.mol_seq.seq
-        const id = child.sequence.id[0].accession
-        arr.push({
-          id,
-          seq,
-          species: child.taxonomy.common_name || child.taxonomy.scientific_name,
-        })
+        const id = child.sequence.id[0]?.accession
+        if (id) {
+          arr.push({
+            id,
+            seq,
+            species:
+              child.taxonomy.common_name || child.taxonomy.scientific_name,
+          })
+        }
       }
       gatherTree(child, arr)
     }
@@ -155,7 +158,7 @@ const App = observer(function () {
                   if (type === 'treeFam') {
                     setVal('TF105041')
                     setId('TF105041')
-                  } else if (type === 'geneTree') {
+                  } else {
                     setVal('ENSGT00390000003602')
                     setId('ENSGT00390000003602')
                   }
@@ -189,9 +192,9 @@ const App = observer(function () {
         {id ? (
           type === 'geneTree' ? (
             <GeneTreeId geneTreeId={id} />
-          ) : type === 'treeFam' ? (
+          ) : (
             <TreeFamId treeFamId={id} />
-          ) : null
+          )
         ) : null}
       </div>
     </div>

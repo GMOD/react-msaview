@@ -147,8 +147,6 @@ export function renderTreeLabels({
     marginLeft,
     leaves,
     noTree,
-    // eslint-disable-next-line  @typescript-eslint/no-unused-vars
-    rowHeight: _rowHeight, // this is needed for redrawing after zoom change
   } = model
   const by = blockSizeYOverride || blockSize
   if (labelsAlignRight) {
@@ -250,6 +248,8 @@ export function renderTreeCanvas({
     showTreeText,
     marginLeft,
     nref,
+    // eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    rowHeight: _rowHeight, // this is needed for redrawing after zoom change
   } = model
   const by = blockSizeYOverride || blockSize
 
