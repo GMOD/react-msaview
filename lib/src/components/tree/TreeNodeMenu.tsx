@@ -13,11 +13,17 @@ const TreeMenu = observer(function ({
   onClose,
   model,
 }: {
-  node: { x: number; y: number; name: string; id: string }
+  node: {
+    x: number
+    y: number
+    name: string
+    id: string
+  }
   model: MsaViewModel
   onClose: () => void
 }) {
   const { collapsed, collapsedLeaves } = model
+  const { name } = node
   return (
     <Menu
       anchorReference="anchorPosition"
@@ -31,7 +37,7 @@ const TreeMenu = observer(function ({
       onClose={onClose}
     >
       <MenuItem dense disabled>
-        {node.name}
+        {name}
       </MenuItem>
 
       <MenuItem
@@ -40,9 +46,9 @@ const TreeMenu = observer(function ({
           model.queueDialog(onClose => [
             TreeNodeInfoDialog,
             {
-              info: model.getRowData(node.name),
+              info: model.getRowData(name),
               model,
-              nodeName: node.name,
+              nodeName: name,
               onClose,
             },
           ])
