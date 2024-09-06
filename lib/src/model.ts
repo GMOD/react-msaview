@@ -574,15 +574,6 @@ function stateModelFactory() {
       },
 
       /**
-       * #method
-       */
-      getRowData(name: string) {
-        return {
-          data: this.MSA?.getRowData(name),
-        }
-      },
-
-      /**
        * #getter
        */
       get alignmentNames() {
@@ -1281,6 +1272,16 @@ function stateModelFactory() {
             colord(val).darken(0.1).toHex(),
           ]),
         )
+      },
+
+      /**
+       * #method
+       */
+      getRowData(name: string) {
+        return {
+          data: self.MSA?.getRowData(name),
+          treeMetadata: self.treeMetadata[name],
+        }
       },
     }))
     .actions(self => ({
