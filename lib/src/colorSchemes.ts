@@ -1,5 +1,6 @@
 import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
+import { blue, green, red, grey, orange } from '@mui/material/colors'
 import { transform } from './util'
 
 extend([namesPlugin])
@@ -132,6 +133,13 @@ const colorSchemes = {
     G: '#e5994c',
     T: '#19cc19',
     U: '#19cc19',
+  },
+  jbrowse_dna: {
+    A: green[500],
+    C: blue[500],
+    G: orange[500],
+    T: red[500],
+    U: red[500],
   },
   jalview_buried: {
     A: '#00a35c',
