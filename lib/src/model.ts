@@ -135,7 +135,7 @@ function stateModelFactory() {
         /**
          * #property
          */
-        hideGaps: true,
+        hideGaps: false,
 
         /**
          * #property
@@ -770,7 +770,10 @@ function stateModelFactory() {
        * #getter
        */
       get columns2d() {
-        return this.rows.map(r => r[1]).map(str => skipBlanks(this.blanks, str))
+        const { hideGaps } = self
+        return this.rows
+          .map(r => r[1])
+          .map(str => (hideGaps ? skipBlanks(this.blanks, str) : str))
       },
       /**
        * #getter
@@ -1067,12 +1070,17 @@ function stateModelFactory() {
        * #getter
        */
       get adapterTrackModels(): BasicTrack[] {
+        const { rowHeight, MSA, hideGaps, blanks } = self
         return (
-          self.MSA?.tracks.map(t => ({
+          MSA?.tracks.map(t => ({
             model: {
               ...t,
-              data: t.data ? skipBlanks(self.blanks, t.data) : undefined,
-              height: self.rowHeight,
+              data: t.data
+                ? hideGaps
+                  ? skipBlanks(blanks, t.data)
+                  : t.data
+                : undefined,
+              height: rowHeight,
             } as TextTrackModel,
             ReactComponent: TextTrack,
           })) || []
@@ -1426,10 +1434,12 @@ function stateModelFactory() {
         addDisposer(
           self,
           autorun(() => {
-            // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
-            self.colStats
-            // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
-            self.colStatsSums
+            if (self.colorSchemeName.includes('dynamic')) {
+              // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
+              self.colStats
+              // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
+              self.colStatsSums
+            }
             // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
             self.columns
           }),
