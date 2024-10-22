@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import { Button, Typography } from '@mui/material'
-import { ErrorBoundary } from 'react-error-boundary'
+import { ErrorBoundary } from '@jbrowse/core/ui/ErrorBoundary'
 import { ErrorMessage } from '@jbrowse/core/ui'
 
 // locals
@@ -38,7 +38,7 @@ const Loading = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <div>
       <ErrorBoundary
-        fallbackRender={props => <Reset model={model} error={props.error} />}
+        FallbackComponent={e => <Reset model={model} error={e.error} />}
       >
         {dataInitialized ? (
           isLoading ? (

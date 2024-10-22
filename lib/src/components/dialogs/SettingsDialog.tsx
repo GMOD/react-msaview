@@ -59,50 +59,50 @@ const TreeSettings = observer(function TreeSettings({
       <h1>Tree options</h1>
       <Checkbox2
         checked={showBranchLen}
+        label="Show branch length?"
         onChange={() => {
           model.setShowBranchLen(!showBranchLen)
         }}
-        label="Show branch length?"
       />
 
       <Checkbox2
         checked={drawNodeBubbles}
+        label="Draw clickable bubbles on tree branches?"
         onChange={() => {
           model.setDrawNodeBubbles(!drawNodeBubbles)
         }}
-        label="Draw clickable bubbles on tree branches?"
       />
       <Checkbox2
         checked={drawTree}
+        label="Show tree?"
         onChange={() => {
           model.setDrawTree(!drawTree)
         }}
-        label="Show tree?"
       />
 
       <Checkbox2
         checked={labelsAlignRight}
+        label="Tree labels align right?"
         onChange={() => {
           model.setLabelsAlignRight(!labelsAlignRight)
         }}
-        label="Tree labels align right?"
       />
 
       <Checkbox2
         checked={drawLabels}
+        label="Draw labels"
         onChange={() => {
           model.setDrawLabels(!drawLabels)
         }}
-        label="Draw labels"
       />
       {noTree ? null : (
         <div>
           <Checkbox2
             checked={treeWidthMatchesArea}
+            label="Make tree width fit to tree area?"
             onChange={() => {
               model.setTreeWidthMatchesArea(!treeWidthMatchesArea)
             }}
-            label="Make tree width fit to tree area?"
           />
           {treeWidthMatchesArea ? null : (
             <div className={classes.flex}>
@@ -146,35 +146,37 @@ const MSASettings = observer(function MSASettings({
       <h1>MSA options</h1>
       <Checkbox2
         checked={drawMsaLetters}
+        label="Draw letters"
         onChange={() => {
           model.setDrawMsaLetters(!drawMsaLetters)
         }}
-        label="Draw letters"
       />
       <Checkbox2
         checked={bgColor}
+        label="Color background tiles of MSA?"
         onChange={() => {
           model.setBgColor(!bgColor)
         }}
-        label="Color background tiles of MSA?"
       />
       <Checkbox2
         checked={contrastLettering}
+        label="Use contrast lettering"
         onChange={() => {
           model.setContrastLettering(!contrastLettering)
         }}
-        label="Use contrast lettering"
       />
       <Checkbox2
         checked={hideGaps}
+        label="Enable hiding gappy columns?"
         onChange={() => {
           model.setHideGaps(!hideGaps)
         }}
-        label={`Hide columns that are ${allowedGappyness}% gaps`}
       />
       {hideGaps ? (
         <div className={classes.flex}>
-          <Typography>Allowed gappyness ({100 - allowedGappyness}%)</Typography>
+          <Typography>
+            Hide columns with more than {allowedGappyness}% gaps
+          </Typography>
           <Slider
             className={classes.field}
             min={1}
@@ -240,21 +242,21 @@ const SettingsDialog = observer(function ({
   return (
     <Dialog
       open
+      title="Settings"
+      maxWidth="xl"
       onClose={() => {
         onClose()
       }}
-      title="Settings"
-      maxWidth="xl"
     >
       <DialogContent className={classes.minw}>
         <SettingsContent model={model} />
         <DialogActions>
           <Button
+            variant="contained"
+            color="primary"
             onClick={() => {
               onClose()
             }}
-            variant="contained"
-            color="primary"
           >
             Submit
           </Button>

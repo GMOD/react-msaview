@@ -5,7 +5,7 @@ import { types } from 'mobx-state-tree'
  */
 function x() {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
-export function TreeF() {
+export function TreeModelF() {
   return types
     .model({
       /**

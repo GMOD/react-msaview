@@ -118,6 +118,7 @@ export default tseslint.config(
       'unicorn/prefer-at': 'off',
       'unicorn/prefer-string-replace-all': 'off',
       'unicorn/no-array-reduce': 'off',
+      'unicorn/prefer-global-this': 'off',
 
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -138,6 +139,7 @@ export default tseslint.config(
       '@typescript-eslint/no-extraneous-class': 'off',
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-dynamic-delete': 'off',
+      '@typescript-eslint/no-deprecated': 'off',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {

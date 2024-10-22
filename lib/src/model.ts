@@ -51,7 +51,7 @@ import colorSchemes from './colorSchemes'
 // models
 import { DataModelF } from './model/DataModel'
 import { DialogQueueSessionMixin } from './model/DialogQueue'
-import { TreeF } from './model/treeModel'
+import { TreeModelF } from './model/treeModel'
 import { MSAModelF } from './model/msaModel'
 import type { InterProScanResults } from './launchInterProScan'
 import {
@@ -95,7 +95,7 @@ function stateModelFactory() {
   return types
     .compose(
       DialogQueueSessionMixin(),
-      TreeF(),
+      TreeModelF(),
       MSAModelF(),
       types.model('MsaView', {
         /**
@@ -236,6 +236,10 @@ function stateModelFactory() {
          * #property
          */
         featureFilters: types.map(types.boolean),
+        /**
+         * #property
+         */
+        relativeTo: types.maybe(types.string),
       }),
     )
     .volatile(() => ({
@@ -330,13 +334,18 @@ function stateModelFactory() {
 
       /**
        * #volatile
-       *
        */
       interProAnnotations: undefined as
         | undefined
         | Record<string, InterProScanResults>,
     }))
     .actions(self => ({
+      /**
+       * #action
+       */
+      drawRelativeTo(id: string) {
+        self.relativeTo = id
+      },
       /**
        * #action
        */

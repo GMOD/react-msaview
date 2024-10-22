@@ -59,7 +59,7 @@ width of columns, px
 // type signature
 number
 // code
-colWidth: 16
+colWidth: 14
 ```
 
 #### property: contrastLettering
@@ -89,7 +89,11 @@ autorun
 // type signature
 IOptionalIType<IModelType<{ tree: IMaybe<ISimpleType<string>>; msa: IMaybe<ISimpleType<string>>; treeMetadata: IMaybe<ISimpleType<string>>; }, { ...; }, _NotCustomized, { ...; }>, [...]>
 // code
-data: types.optional(DataModelF(), { tree: '', msa: '' })
+data: types.optional(DataModelF(), {
+          tree: '',
+          msa: '',
+          treeMetadata: '',
+        })
 ```
 
 #### property: drawMsaLetters
@@ -134,9 +138,9 @@ height: types.optional(types.number, 550)
 
 ```js
 // type signature
-true
+false
 // code
-hideGaps: true
+hideGaps: false
 ```
 
 #### property: id
@@ -162,6 +166,15 @@ IMaybe<ISnapshotProcessor<ITypeUnion<ModelCreationType<ExtractCFromProps<{ locat
 msaFilehandle: types.maybe(FileLocation)
 ```
 
+#### property: relativeTo
+
+```js
+// type signature
+IMaybe<ISimpleType<string>>
+// code
+relativeTo: types.maybe(types.string)
+```
+
 #### property: rowHeight
 
 height of each row, px
@@ -170,7 +183,7 @@ height of each row, px
 // type signature
 number
 // code
-rowHeight: 20
+rowHeight: 18
 ```
 
 #### property: scrollX
@@ -437,7 +450,7 @@ number
 
 ```js
 // type
-any[]
+() => any[]
 ```
 
 #### getter: mouseOverRowName
@@ -451,7 +464,7 @@ any
 
 ```js
 // type
-;ClustalMSA | StockholmMSA | FastaMSA
+;ClustalMSA | EmfMSA | StockholmMSA | FastaMSA
 ```
 
 #### getter: msaAreaHeight
@@ -493,6 +506,13 @@ boolean
 number
 ```
 
+#### getter: realAllowedGappyness
+
+```js
+// type
+number
+```
+
 #### getter: root
 
 ```js
@@ -500,11 +520,25 @@ number
 HierarchyNode<any>
 ```
 
+#### getter: rowMap
+
+```js
+// type
+Map<unknown, unknown>
+```
+
 #### getter: rowNames
 
 ```js
 // type
 string[]
+```
+
+#### getter: rowNamesSet
+
+```js
+// type
+Map<string, number>
 ```
 
 #### getter: rows
@@ -563,25 +597,25 @@ boolean
 { [k: string]: string; }
 ```
 
-#### getter: tidyInterProAnnotations
+#### getter: tidyFilteredGatheredInterProAnnotations
 
 ```js
 // type
-any[]
+Record<string, unknown[]>
 ```
 
-#### getter: tidyFilteredAnnotations
+#### getter: tidyFilteredInterProAnnotations
 
 ```js
 // type
 any
 ```
 
-#### getter: tidyFilteredGatheredAnnotations
+#### getter: tidyInterProAnnotations
 
 ```js
 // type
-Record<string, unknown[]>
+any[]
 ```
 
 #### getter: tidyInterProAnnotationTypes
@@ -685,17 +719,26 @@ extraViewMenuItems: () => any[]
 
 ```js
 // type signature
-getRowData: (name: string) => { data: any; }
+getRowData: (name: string) => { data: any; treeMetadata: any; }
 ```
 
-#### method: globalCoordToRowSpecificSeqCoord
+#### method: mouseOverCoordToGapRemovedRowCoord
 
-return a row-specific sequence coordinate, skipping gaps, given a global
-coordinate
+return a row-specific sequence coordinate, skipping gaps, given a
+global coordinate
 
 ```js
 // type signature
-globalCoordToRowSpecificSeqCoord: (rowName: string, position: number) => number
+mouseOverCoordToGapRemovedRowCoord: (rowName: string, position: number) => number
+```
+
+#### method: mouseOverCoordToRowLetter
+
+return a row-specific letter, or undefined if gap
+
+```js
+// type signature
+mouseOverCoordToRowLetter: (rowName: string, position: number) => any
 ```
 
 #### method: seqCoordToRowSpecificGlobalCoord
@@ -722,6 +765,13 @@ doScrollX: (deltaX: number) => void
 ```js
 // type signature
 doScrollY: (deltaY: number) => void
+```
+
+#### action: drawRelativeTo
+
+```js
+// type signature
+drawRelativeTo: (id: string) => void
 ```
 
 #### action: exportSVG
@@ -788,7 +838,7 @@ setCurrentAlignment: (n: number) => void
 
 ```js
 // type signature
-setData: (data: { msa?: string; tree?: string; }) => void
+setData: (data: { msa?: string; tree?: string; treeMetadata?: string; }) => void
 ```
 
 #### action: setDrawMsaLetters
