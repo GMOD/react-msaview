@@ -174,9 +174,7 @@ const MSASettings = observer(function MSASettings({
       />
       {hideGaps ? (
         <div className={classes.flex}>
-          <Typography>
-            Hide columns with more than {allowedGappyness}% gaps
-          </Typography>
+          <Typography>Hide columns w/ &gt;{allowedGappyness}% gaps</Typography>
           <Slider
             className={classes.field}
             min={1}

@@ -6,19 +6,16 @@ import { version } from '../../version'
 export default function AboutDialog({ onClose }: { onClose: () => void }) {
   return (
     <Dialog
+      open
+      title="About"
       onClose={() => {
         onClose()
       }}
-      open
-      title="About this plugin"
     >
       <DialogContent>
         <Typography>
           MSAView {version} (
-          <Link href="https://github.com/gmod/jbrowse-plugin-msaview">
-            Github
-          </Link>
-          )
+          <Link href="https://github.com/gmod/react-msaview">Github</Link>)
         </Typography>
 
         <ul>

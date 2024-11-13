@@ -36,7 +36,7 @@ const TreeCanvasBlock = observer(function ({
   offsetY: number
 }) {
   const theme = useTheme()
-  const ref = useRef<HTMLCanvasElement>()
+  const ref = useRef<HTMLCanvasElement>(null)
   const clickMap = useRef(new RBush<ClickEntry>())
   const mouseoverRef = useRef<HTMLCanvasElement>(null)
   const [branchMenu, setBranchMenu] = useState<TooltipData>()
