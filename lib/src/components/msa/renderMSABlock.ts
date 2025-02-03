@@ -1,10 +1,11 @@
-import type { HierarchyNode } from 'd3-hierarchy'
-import type { Theme } from '@mui/material'
 
 // locals
-import type { MsaViewModel } from '../../model'
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
+
+import type { MsaViewModel } from '../../model'
 import type { NodeWithIdsAndLength } from '../../util'
+import type { Theme } from '@mui/material'
+import type { HierarchyNode } from 'd3-hierarchy'
 
 export function renderMSABlock({
   model,

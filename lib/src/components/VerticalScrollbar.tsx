@@ -1,7 +1,11 @@
-import { observer } from 'mobx-react'
 import React, { useEffect, useRef, useState } from 'react'
-import type { MsaViewModel } from '../model'
+
+import { observer } from 'mobx-react'
+
 import { clamp } from '../util'
+
+import type { MsaViewModel } from '../model'
+
 
 const VerticalScrollbar = observer(({ model }: { model: MsaViewModel }) => {
   const { msaAreaHeight, scrollY, totalHeight } = model

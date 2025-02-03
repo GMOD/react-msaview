@@ -1,8 +1,8 @@
-import type { HierarchyNode } from 'd3-hierarchy'
 
 // locals
 import type { MsaViewModel } from '../../model'
 import type { NodeWithIdsAndLength } from '../../util'
+import type { HierarchyNode } from 'd3-hierarchy'
 
 export function renderBoxFeatureCanvasBlock({
   model,

@@ -1,4 +1,5 @@
 import eslint from '@eslint/js'
+import importPlugin from 'eslint-plugin-import'
 import eslintPluginReact from 'eslint-plugin-react'
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks'
 import eslintPluginReactRefresh from 'eslint-plugin-react-refresh'
@@ -34,6 +35,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...tseslint.configs.stylisticTypeChecked,
   ...tseslint.configs.strictTypeChecked,
+  importPlugin.flatConfigs.recommended,
   eslintPluginReact.configs.flat.recommended,
   {
     plugins: {
@@ -146,6 +148,38 @@ export default tseslint.config(
           argsIgnorePattern: '^_',
           ignoreRestSiblings: true,
           caughtErrors: 'none',
+        },
+      ],
+
+      'import/no-unresolved': 'off',
+      'import/order': [
+        'error',
+        {
+          named: true,
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+          },
+          groups: [
+            'builtin',
+            ['external', 'internal'],
+            ['parent', 'sibling', 'index', 'object'],
+            'type',
+          ],
+          pathGroups: [
+            {
+              group: 'builtin',
+              pattern: 'react',
+              position: 'before',
+            },
+            {
+              group: 'external',
+              pattern: '@mui/icons-material',
+              position: 'after',
+            },
+          ],
+
+          pathGroupsExcludedImportTypes: ['react'],
         },
       ],
     },

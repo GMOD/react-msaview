@@ -1,6 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
-import { makeStyles } from 'tss-react/mui'
+
 import { Dialog } from '@jbrowse/core/ui'
 import {
   Button,
@@ -11,10 +10,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { observer } from 'mobx-react'
+import { makeStyles } from 'tss-react/mui'
 
-import type { MsaViewModel } from '../../model'
 import colorSchemes from '../../colorSchemes'
 import Checkbox2 from '../Checkbox2'
+
+import type { MsaViewModel } from '../../model'
 
 const useStyles = makeStyles()(theme => ({
   field: {

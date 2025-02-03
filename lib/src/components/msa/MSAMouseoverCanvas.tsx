@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react'
-import { observer } from 'mobx-react'
+
 import { autorun } from 'mobx'
+import { observer } from 'mobx-react'
 
 // locals
-import type { MsaViewModel } from '../../model'
 import { renderMouseover } from './renderMSAMouseover'
+
+import type { MsaViewModel } from '../../model'
 
 const MSAMouseoverCanvas = observer(function ({
   model,

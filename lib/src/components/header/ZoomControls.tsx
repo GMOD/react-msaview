@@ -1,16 +1,17 @@
 import React from 'react'
+
+import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
+import MoreVert from '@mui/icons-material/MoreVert'
+import RestartAlt from '@mui/icons-material/RestartAlt'
+import ZoomIn from '@mui/icons-material/ZoomIn'
+import ZoomOut from '@mui/icons-material/ZoomOut'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
-import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
 // locals
 import { MsaViewModel } from '../../model'
 
 // icons
-import ZoomIn from '@mui/icons-material/ZoomIn'
-import ZoomOut from '@mui/icons-material/ZoomOut'
-import MoreVert from '@mui/icons-material/MoreVert'
-import RestartAlt from '@mui/icons-material/RestartAlt'
 
 const ZoomControls = observer(function ZoomControls({
   model,

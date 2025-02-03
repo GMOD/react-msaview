@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
-import { observer } from 'mobx-react'
+
+import { Dialog } from '@jbrowse/core/ui'
+import { getSession } from '@jbrowse/core/util'
 import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
+import { observer } from 'mobx-react'
 
 // locals
-import type { MsaViewModel } from '../../model'
-import { getSession } from '@jbrowse/core/util'
 import { launchInterProScan } from '../../launchInterProScan'
-import { Dialog } from '@jbrowse/core/ui'
+
+import type { MsaViewModel } from '../../model'
 
 const InterProScanDialog = observer(function ({
   handleClose,

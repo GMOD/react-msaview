@@ -1,5 +1,6 @@
-import type { DialogComponentType } from '@jbrowse/core/util'
 import { types } from 'mobx-state-tree'
+
+import type { DialogComponentType } from '@jbrowse/core/util'
 
 /**
  * #stateModel DialogQueueSessionMixin

@@ -1,5 +1,7 @@
 import React from 'react'
+
 import { observer } from 'mobx-react'
+
 import type { MsaViewModel } from '../../model'
 
 const MinimapSVG = observer(({ model }: { model: MsaViewModel }) => {

@@ -1,64 +1,53 @@
 import React from 'react'
-import type { Buffer } from 'buffer'
-import { autorun, transaction } from 'mobx'
-import { type Instance, cast, types, addDisposer } from 'mobx-state-tree'
-import { hierarchy, cluster, type HierarchyNode } from 'd3-hierarchy'
-import { ascending } from 'd3-array'
-import Stockholm from 'stockholm-js'
-import { saveAs } from 'file-saver'
-import type { Theme } from '@mui/material'
-import { ungzip } from 'pako'
 
-// jbrowse
-import { FileLocation, ElementId } from '@jbrowse/core/util/types/mst'
-import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
-import { openLocation } from '@jbrowse/core/util/io'
 import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
+import { openLocation } from '@jbrowse/core/util/io'
+import { ElementId, FileLocation } from '@jbrowse/core/util/types/mst'
+import { colord } from 'colord'
+import { ascending } from 'd3-array'
+import { cluster, hierarchy } from 'd3-hierarchy'
+import { saveAs } from 'file-saver'
+import { autorun, transaction } from 'mobx'
+import { addDisposer, cast, types } from 'mobx-state-tree'
+import { ungzip } from 'pako'
+import Stockholm from 'stockholm-js'
 
-export function isGzip(buf: Buffer) {
-  return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
-}
-
-// locals
+import { blocksX, blocksY } from './calculateBlocks'
+import colorSchemes from './colorSchemes'
+import TextTrack from './components/TextTrack'
+import palettes from './ggplotPalettes'
+import { measureTextCanvas } from './measureTextCanvas'
+import { DataModelF } from './model/DataModel'
+import { DialogQueueSessionMixin } from './model/DialogQueue'
+import { MSAModelF } from './model/msaModel'
+import { TreeModelF } from './model/treeModel'
+import parseNewick from './parseNewick'
+import ClustalMSA from './parsers/ClustalMSA'
+import EmfMSA from './parsers/EmfMSA'
+import EmfTree from './parsers/EmfTree'
+import FastaMSA from './parsers/FastaMSA'
+import StockholmMSA from './parsers/StockholmMSA'
+import { reparseTree } from './reparseTree'
+import {
+  globalCoordToRowSpecificCoord,
+  mouseOverCoordToGlobalCoord,
+} from './rowCoordinateCalculations'
 import {
   clamp,
   collapse,
   generateNodeIds,
+  len,
   maxLength,
   setBrLength,
   skipBlanks,
-  type NodeWithIds,
-  type NodeWithIdsAndLength,
-  len,
 } from './util'
-import { colord } from 'colord'
-import { reparseTree } from './reparseTree'
-import { blocksX, blocksY } from './calculateBlocks'
-import { measureTextCanvas } from './measureTextCanvas'
-import palettes from './ggplotPalettes'
 
-// components
-import TextTrack from './components/TextTrack'
-
-// parsers
-import ClustalMSA from './parsers/ClustalMSA'
-import EmfMSA from './parsers/EmfMSA'
-import StockholmMSA from './parsers/StockholmMSA'
-import FastaMSA from './parsers/FastaMSA'
-import parseNewick from './parseNewick'
-import colorSchemes from './colorSchemes'
-
-// models
-import { DataModelF } from './model/DataModel'
-import { DialogQueueSessionMixin } from './model/DialogQueue'
-import { TreeModelF } from './model/treeModel'
-import { MSAModelF } from './model/msaModel'
 import type { InterProScanResults } from './launchInterProScan'
-import {
-  mouseOverCoordToGlobalCoord,
-  globalCoordToRowSpecificCoord,
-} from './rowCoordinateCalculations'
-import EmfTree from './parsers/EmfTree'
+import type { NodeWithIds, NodeWithIdsAndLength } from './util'
+import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
+import type { Theme } from '@mui/material'
+import type { HierarchyNode } from 'd3-hierarchy'
+import type { Instance } from 'mobx-state-tree'
 
 export interface Accession {
   accession: string
@@ -83,6 +72,10 @@ export interface ITextTrack {
 }
 
 export type BasicTrack = ITextTrack
+
+export function isGzip(buf: Uint8Array) {
+  return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
+}
 
 /**
  * #stateModel MsaView

@@ -1,20 +1,23 @@
 import React, { useState } from 'react'
+
 import { Dialog, ErrorMessage } from '@jbrowse/core/ui'
 import {
   Button,
-  DialogContent,
   DialogActions,
-  FormControlLabel,
+  DialogContent,
   FormControl,
+  FormControlLabel,
   FormLabel,
-  RadioGroup,
   Radio,
+  RadioGroup,
   Typography,
   useTheme,
 } from '@mui/material'
+
 // locals
-import type { MsaViewModel } from '../../model'
 import Checkbox2 from '../Checkbox2'
+
+import type { MsaViewModel } from '../../model'
 
 export default function ExportSVGDialog({
   model,

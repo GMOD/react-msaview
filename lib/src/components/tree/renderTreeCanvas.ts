@@ -1,8 +1,8 @@
-import type RBush from 'rbush'
+import type { MsaViewModel } from '../../model'
 import type { Theme } from '@mui/material'
+import type RBush from 'rbush'
 
 // locals
-import type { MsaViewModel } from '../../model'
 
 export const padding = 600
 

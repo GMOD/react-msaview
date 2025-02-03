@@ -1,18 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react'
-import { createRoot } from 'react-dom/client'
-import { when } from 'mobx'
+
 import { renderToStaticMarkup } from '@jbrowse/core/util'
-import type { Theme } from '@mui/material'
+import { when } from 'mobx'
+
 
 // locals
-import type { MsaViewModel } from './model'
-import { renderTreeCanvas } from './components/tree/renderTreeCanvas'
-import { renderMSABlock } from './components/msa/renderMSABlock'
-import { colorContrast } from './util'
-
 import MinimapSVG from './components/minimap/MinimapSVG'
 import { renderBoxFeatureCanvasBlock } from './components/msa/renderBoxFeatureCanvasBlock'
+import { renderMSABlock } from './components/msa/renderMSABlock'
+import { renderTreeCanvas } from './components/tree/renderTreeCanvas'
+import { colorContrast } from './util'
+
+import type { MsaViewModel } from './model'
+import type { Theme } from '@mui/material'
 
 export async function renderToSvg(
   model: MsaViewModel,
@@ -81,7 +82,6 @@ async function render({
         />
       </Wrapper>
     </SvgWrapper>,
-    createRoot,
   )
 }
 

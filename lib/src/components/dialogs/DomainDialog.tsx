@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+
 import { Dialog } from '@jbrowse/core/ui'
 import { Tab, Tabs } from '@mui/material'
 
 // locals
 import InterProScanPanel from './InterProScanDialog'
-import UserProvidedResultPanel from './UserProvidedDomainsDialog'
 import TabPanel from './TabPanel'
+import UserProvidedResultPanel from './UserProvidedDomainsDialog'
+
 import type { MsaViewModel } from '../../model'
 
 export default function LaunchDomainViewDialog({

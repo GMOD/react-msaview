@@ -1,6 +1,7 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+
 import { Select } from '@mui/material'
+import { observer } from 'mobx-react'
 
 // locals
 import type { MsaViewModel } from '../../model'

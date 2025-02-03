@@ -1,11 +1,13 @@
 import React from 'react'
-import { Typography, Link } from '@mui/material'
+
+import { Link, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
 // locals
-import type { MsaViewModel } from '../../model'
-import { smallTree, smallMSA, smallMSAOnly } from './data/seq2'
+import { smallMSA, smallMSAOnly, smallTree } from './data/seq2'
 import { load } from './util'
+
+import type { MsaViewModel } from '../../model'
 
 function ListItem({
   onClick,

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
+
+import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
+import useMeasure from '@jbrowse/core/util/useMeasure'
+import { ThemeProvider } from '@mui/material/styles'
 import { observer } from 'mobx-react'
 import { isAlive, onSnapshot } from 'mobx-state-tree'
 import { MSAView } from 'react-msaview'
-import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
-import { ThemeProvider } from '@mui/material/styles'
-import useMeasure from '@jbrowse/core/util/useMeasure'
 
 // locals
 import AppGlobal, { AppModel } from './model'

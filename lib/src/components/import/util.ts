@@ -1,5 +1,5 @@
-import type { FileLocation } from '@jbrowse/core/util'
 import type { MsaViewModel } from '../../model'
+import type { FileLocation } from '@jbrowse/core/util'
 
 export async function load(
   model: MsaViewModel,

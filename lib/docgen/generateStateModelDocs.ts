@@ -1,12 +1,14 @@
+import fs from 'fs'
+
 import slugify from 'slugify'
+
 import {
-  rm,
+  extractWithComment,
   filter,
   getAllFiles,
   removeComments,
-  extractWithComment,
+  rm,
 } from './util.js'
-import fs from 'fs'
 
 interface Action {
   name: string

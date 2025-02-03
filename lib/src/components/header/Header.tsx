@@ -1,20 +1,17 @@
 import React, { lazy, useEffect } from 'react'
+
+import useMeasure from '@jbrowse/core/util/useMeasure'
+import Help from '@mui/icons-material/Help'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
-import useMeasure from '@jbrowse/core/util/useMeasure'
 
-// locals
-import type { MsaViewModel } from '../../model'
-
-// icons
-import Help from '@mui/icons-material/Help'
-
-// locals
-import ZoomControls from './ZoomControls'
-import MultiAlignmentSelector from './MultiAlignmentSelector'
 import HeaderInfoArea from './HeaderInfoArea'
-import HeaderStatusArea from './HeaderStatusArea'
 import HeaderMenuExtra from './HeaderMenuExtra'
+import HeaderStatusArea from './HeaderStatusArea'
+import MultiAlignmentSelector from './MultiAlignmentSelector'
+import ZoomControls from './ZoomControls'
+
+import type { MsaViewModel } from '../../model'
 
 const AboutDialog = lazy(() => import('../dialogs/AboutDialog'))
 

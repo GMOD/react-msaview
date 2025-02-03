@@ -1,6 +1,7 @@
+import { blue, green, orange, red } from '@mui/material/colors'
 import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
-import { blue, green, red, orange } from '@mui/material/colors'
+
 import { transform } from './util'
 
 extend([namesPlugin])

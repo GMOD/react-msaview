@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
-import { observer } from 'mobx-react'
-import { Button, Container, Grid, Typography } from '@mui/material'
+
 import { FileSelector } from '@jbrowse/core/ui'
+import { Button, Container, Grid, Typography } from '@mui/material'
+import { observer } from 'mobx-react'
+
+import ImportFormExamples from './ImportFormExamples'
+import { load } from './util'
+
+import type { MsaViewModel } from '../../model'
 import type { FileLocation } from '@jbrowse/core/util/types'
 
 // locals
-import type { MsaViewModel } from '../../model'
-import { load } from './util'
-import ImportFormExamples from './ImportFormExamples'
 
 const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
   const [msaFile, setMsaFile] = useState<FileLocation>()

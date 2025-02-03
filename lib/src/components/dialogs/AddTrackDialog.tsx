@@ -1,16 +1,18 @@
 import React, { useState } from 'react'
+
+import { Dialog, FileSelector } from '@jbrowse/core/ui'
 import {
-  DialogContent,
-  DialogActions,
   Button,
-  TextField,
+  DialogActions,
+  DialogContent,
   MenuItem,
+  TextField,
   Typography,
 } from '@mui/material'
-import { Dialog, FileSelector } from '@jbrowse/core/ui'
-import type { FileLocation } from '@jbrowse/core/util/types'
 import { observer } from 'mobx-react'
+
 import type { MsaViewModel } from '../../model'
+import type { FileLocation } from '@jbrowse/core/util/types'
 
 const AddTrackDialog = observer(function ({
   model,

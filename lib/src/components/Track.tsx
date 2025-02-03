@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect, lazy } from 'react'
-import normalizeWheel from 'normalize-wheel'
-import { observer } from 'mobx-react'
+import React, { lazy, useEffect, useRef, useState } from 'react'
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { IconButton, Menu, MenuItem } from '@mui/material'
+import { observer } from 'mobx-react'
+import normalizeWheel from 'normalize-wheel'
 import { makeStyles } from 'tss-react/mui'
 
 // icons
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
 // locals
 import type { MsaViewModel } from '../model'

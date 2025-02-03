@@ -1,4 +1,5 @@
 import { parseEmfAln } from 'emf-js'
+
 import type { NodeWithIds } from '../util'
 
 export default class EmfMSA {

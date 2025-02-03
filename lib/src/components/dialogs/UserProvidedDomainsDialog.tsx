@@ -1,23 +1,25 @@
 import React, { useState } from 'react'
-import { observer } from 'mobx-react'
+
+import { Dialog } from '@jbrowse/core/ui'
+import { getSession } from '@jbrowse/core/util'
 import {
   Button,
   DialogActions,
   DialogContent,
-  FormControlLabel,
   FormControl,
+  FormControlLabel,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from '@mui/material'
-import { getSession } from '@jbrowse/core/util'
-import { Dialog } from '@jbrowse/core/ui'
+import { observer } from 'mobx-react'
 
 // locals
-import type { MsaViewModel } from '../../model'
 import { jsonfetch } from '../../fetchUtils'
+
 import type { InterProScanResponse } from '../../launchInterProScan'
+import type { MsaViewModel } from '../../model'
 
 const UserProvidedDomainsDialog = observer(function ({
   handleClose,

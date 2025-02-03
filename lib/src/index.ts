@@ -1,2 +1,2 @@
 export { default as MSAView } from './components/Loading'
-export { default as MSAModelF, type MsaViewModel } from './model'
+export { type MsaViewModel, default as MSAModelF } from './model'

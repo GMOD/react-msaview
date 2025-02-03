@@ -1,13 +1,15 @@
-import React, { useEffect, useRef, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
+
 import { useTheme } from '@mui/material'
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 
 // locals
-import { renderMSABlock } from './renderMSABlock'
-import type { MsaViewModel } from '../../model'
-import { colorContrast } from '../../util'
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock'
+import { renderMSABlock } from './renderMSABlock'
+import { colorContrast } from '../../util'
+
+import type { MsaViewModel } from '../../model'
 
 const MSACanvasBlock = observer(function ({
   model,

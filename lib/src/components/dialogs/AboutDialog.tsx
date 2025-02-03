@@ -1,6 +1,8 @@
 import React from 'react'
+
 import { Dialog } from '@jbrowse/core/ui'
-import { DialogContent, Typography, Link } from '@mui/material'
+import { DialogContent, Link, Typography } from '@mui/material'
+
 import { version } from '../../version'
 
 export default function AboutDialog({ onClose }: { onClose: () => void }) {

@@ -1,15 +1,13 @@
 import React, { lazy } from 'react'
-import { observer } from 'mobx-react'
-import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 
-// icons
-import FolderOpen from '@mui/icons-material/FolderOpen'
-import Settings from '@mui/icons-material/Settings'
+import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 import Assignment from '@mui/icons-material/Assignment'
+import FolderOpen from '@mui/icons-material/FolderOpen'
 import List from '@mui/icons-material/List'
 import Menu from '@mui/icons-material/Menu'
+import Settings from '@mui/icons-material/Settings'
+import { observer } from 'mobx-react'
 
-// locals
 import type { MsaViewModel } from '../../model'
 
 // lazies

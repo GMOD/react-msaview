@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+
 import { mouseOverCoordToGlobalCoord } from './rowCoordinateCalculations'
 test('blanks3', () => {
   const blanks = [2, 5, 8]

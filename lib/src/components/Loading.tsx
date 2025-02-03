@@ -1,12 +1,14 @@
 import React from 'react'
-import { observer } from 'mobx-react'
-import { Button, Typography } from '@mui/material'
-import { ErrorBoundary } from '@jbrowse/core/ui/ErrorBoundary'
+
 import { ErrorMessage } from '@jbrowse/core/ui'
+import { ErrorBoundary } from '@jbrowse/core/ui/ErrorBoundary'
+import { Button, Typography } from '@mui/material'
+import { observer } from 'mobx-react'
 
 // locals
-import ImportForm from './import/ImportForm'
 import MSAView from './MSAView'
+import ImportForm from './import/ImportForm'
+
 import type { MsaViewModel } from '../model'
 
 const Reset = observer(function ({

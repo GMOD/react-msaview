@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
+
 import { Button, TextField } from '@mui/material'
-import { makeStyles } from 'tss-react/mui'
 import copy from 'copy-to-clipboard'
+import { makeStyles } from 'tss-react/mui'
 
 // locals
 import Checkbox2 from './Checkbox2'

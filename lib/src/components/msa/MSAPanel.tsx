@@ -1,9 +1,11 @@
 import React from 'react'
+
 import { observer } from 'mobx-react'
 
 // locals
 import MSACanvas from './MSACanvas'
 import MSAMouseoverCanvas from './MSAMouseoverCanvas'
+
 // types
 import type { MsaViewModel } from '../../model'
 

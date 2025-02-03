@@ -1,10 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+
 import { observer } from 'mobx-react'
 
 // locals
-import type { MsaViewModel } from '../../model'
-import MSACanvasBlock from './MSACanvasBlock'
 import Loading from './Loading'
+import MSACanvasBlock from './MSACanvasBlock'
+
+import type { MsaViewModel } from '../../model'
 
 const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const {
