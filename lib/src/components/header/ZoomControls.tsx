@@ -61,6 +61,13 @@ const ZoomControls = observer(function ZoomControls({
               model.zoomOutVertical()
             },
           },
+
+          {
+            label: 'Show entire view',
+            onClick: () => {
+              model.showEntire()
+            },
+          },
           {
             label: 'Reset zoom to default',
             icon: RestartAlt,

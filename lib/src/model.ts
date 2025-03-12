@@ -751,6 +751,12 @@ function stateModelFactory() {
           .map(leaf => [leaf.data.name, MSA?.getRow(leaf.data.name)] as const)
           .filter((f): f is [string, string] => !!f[1])
       },
+      /**
+       * #getter
+       */
+      get numRows() {
+        return this.rows.length
+      },
 
       /**
        * #getter
@@ -910,7 +916,11 @@ function stateModelFactory() {
        * #getter
        */
       get showMsaLetters() {
-        return self.drawMsaLetters && self.rowHeight >= 5
+        return (
+          self.drawMsaLetters &&
+          self.rowHeight >= 5 &&
+          self.colWidth > self.rowHeight / 2
+        )
       },
       /**
        * #getter
@@ -1348,6 +1358,15 @@ function stateModelFactory() {
        */
       setFilter(arg: string, flag: boolean) {
         self.featureFilters.set(arg, flag)
+      },
+      /**
+       * #action
+       */
+      showEntire() {
+        self.rowHeight = self.msaAreaHeight / self.numRows
+        self.colWidth = self.msaAreaWidth / self.numColumns
+        self.scrollX = 0
+        self.scrollY = 0
       },
 
       afterCreate() {
