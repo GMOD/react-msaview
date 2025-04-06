@@ -37,8 +37,8 @@
     "react-dom": ">=16.8.0"
   },
   "dependencies": {
-    "@mui/icons-material": "^6.0.2",
-    "@mui/material": "^6.0.2",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
     "clustal-js": "^2.0.0",
     "colord": "^2.9.3",
     "copy-to-clipboard": "^3.3.1",
