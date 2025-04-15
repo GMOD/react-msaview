@@ -115,7 +115,7 @@ const TreeSettings = observer(function TreeSettings({
                 max={600}
                 value={treeWidth}
                 onChange={(_, val) => {
-                  model.setTreeWidth(val as number)
+                  model.setTreeWidth(val)
                 }}
               />
             </div>
@@ -183,7 +183,7 @@ const MSASettings = observer(function MSASettings({
             max={100}
             value={allowedGappyness}
             onChange={(_, val) => {
-              model.setAllowedGappyness(val as number)
+              model.setAllowedGappyness(val)
             }}
           />
         </div>
@@ -196,7 +196,7 @@ const MSASettings = observer(function MSASettings({
           max={50}
           value={colWidth}
           onChange={(_, val) => {
-            model.setColWidth(val as number)
+            model.setColWidth(val)
           }}
         />
       </div>
@@ -208,7 +208,7 @@ const MSASettings = observer(function MSASettings({
           max={50}
           value={rowHeight}
           onChange={(_, val) => {
-            model.setRowHeight(val as number)
+            model.setRowHeight(val)
           }}
         />
       </div>
