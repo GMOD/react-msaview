@@ -10,8 +10,6 @@ import { load } from './util'
 import type { MsaViewModel } from '../../model'
 import type { FileLocation } from '@jbrowse/core/util/types'
 
-// locals
-
 const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
@@ -38,38 +36,32 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
       </div>
 
       <Grid container spacing={10} justifyContent="center" alignItems="center">
-        <Grid item>
-          <Typography>MSA file or URL</Typography>
-          <FileSelector location={msaFile} setLocation={setMsaFile} />
-          <Typography>Tree file or URL</Typography>
-          <FileSelector location={treeFile} setLocation={setTreeFile} />
-        </Grid>
+        <Typography>MSA file or URL</Typography>
+        <FileSelector location={msaFile} setLocation={setMsaFile} />
+        <Typography>Tree file or URL</Typography>
+        <FileSelector location={treeFile} setLocation={setTreeFile} />
 
-        <Grid item>
-          <Button
-            onClick={() => {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              ;(async () => {
-                try {
-                  await load(model, msaFile, treeFile)
-                } catch (e) {
-                  console.error(e)
-                  model.setError(e)
-                }
-              })()
-            }}
-            variant="contained"
-            color="primary"
-            disabled={!msaFile && !treeFile}
-          >
-            Open
-          </Button>
-        </Grid>
+        <Button
+          onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            ;(async () => {
+              try {
+                await load(model, msaFile, treeFile)
+              } catch (e) {
+                console.error(e)
+                model.setError(e)
+              }
+            })()
+          }}
+          variant="contained"
+          color="primary"
+          disabled={!msaFile && !treeFile}
+        >
+          Open
+        </Button>
 
-        <Grid item>
-          <Typography>Examples</Typography>
-          <ImportFormExamples model={model} />
-        </Grid>
+        <Typography>Examples</Typography>
+        <ImportFormExamples model={model} />
       </Grid>
     </Container>
   )
