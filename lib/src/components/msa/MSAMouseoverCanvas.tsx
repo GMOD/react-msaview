@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from 'react'
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 
-// locals
 import { renderMouseover } from './renderMSAMouseover'
 
 import type { MsaViewModel } from '../../model'

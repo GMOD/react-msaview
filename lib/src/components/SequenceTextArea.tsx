@@ -4,7 +4,6 @@ import { Button, TextField } from '@mui/material'
 import copy from 'copy-to-clipboard'
 import { makeStyles } from 'tss-react/mui'
 
-// locals
 import Checkbox2 from './Checkbox2'
 
 const useStyles = makeStyles()({

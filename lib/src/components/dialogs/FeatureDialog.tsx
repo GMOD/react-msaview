@@ -4,7 +4,6 @@ import { Dialog } from '@jbrowse/core/ui'
 import { Button, DialogContent } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import { getPalette } from '../../ggplotPalettes'
 
 import type { MsaViewModel } from '../../model'

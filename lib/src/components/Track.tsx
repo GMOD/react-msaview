@@ -8,7 +8,6 @@ import { makeStyles } from 'tss-react/mui'
 
 // icons
 
-// locals
 import type { MsaViewModel } from '../model'
 
 // lazies

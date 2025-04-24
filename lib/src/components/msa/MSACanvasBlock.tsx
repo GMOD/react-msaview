@@ -4,7 +4,6 @@ import { useTheme } from '@mui/material'
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 
-// locals
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock'
 import { renderMSABlock } from './renderMSABlock'
 import { colorContrast } from '../../util'

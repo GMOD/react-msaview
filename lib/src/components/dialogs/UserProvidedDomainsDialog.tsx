@@ -15,7 +15,6 @@ import {
 } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import { jsonfetch } from '../../fetchUtils'
 
 import type { InterProScanResponse } from '../../launchInterProScan'

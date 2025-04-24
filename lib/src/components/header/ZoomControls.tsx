@@ -8,7 +8,6 @@ import ZoomOut from '@mui/icons-material/ZoomOut'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import { MsaViewModel } from '../../model'
 
 // icons

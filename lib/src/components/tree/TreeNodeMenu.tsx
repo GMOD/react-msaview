@@ -3,7 +3,6 @@ import React, { lazy } from 'react'
 import { Menu, MenuItem } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import type { MsaViewModel } from '../../model'
 
 // lazies

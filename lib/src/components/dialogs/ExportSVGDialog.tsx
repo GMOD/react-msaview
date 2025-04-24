@@ -14,7 +14,6 @@ import {
   useTheme,
 } from '@mui/material'
 
-// locals
 import Checkbox2 from '../Checkbox2'
 
 import type { MsaViewModel } from '../../model'

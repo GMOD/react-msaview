@@ -3,7 +3,6 @@ import React from 'react'
 import { Link, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import { smallMSA, smallMSAOnly, smallTree } from './data/seq2'
 import { load } from './util'
 

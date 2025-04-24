@@ -5,7 +5,6 @@ import { ErrorBoundary } from '@jbrowse/core/ui/ErrorBoundary'
 import { Button, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import MSAView from './MSAView'
 import ImportForm from './import/ImportForm'
 

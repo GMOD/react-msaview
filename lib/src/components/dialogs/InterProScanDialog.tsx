@@ -5,7 +5,6 @@ import { getSession } from '@jbrowse/core/util'
 import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import { launchInterProScan } from '../../launchInterProScan'
 
 import type { MsaViewModel } from '../../model'

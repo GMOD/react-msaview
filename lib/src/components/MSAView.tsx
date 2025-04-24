@@ -2,7 +2,6 @@ import React, { Suspense } from 'react'
 
 import { observer } from 'mobx-react'
 
-// locals
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
 import VerticalScrollbar from './VerticalScrollbar'
 import Header from './header/Header'
@@ -12,7 +11,6 @@ import TreePanel from './tree/TreePanel'
 import TreeRuler from './tree/TreeRuler'
 
 import type { MsaViewModel } from '../model'
-
 
 const TopArea = observer(function ({ model }: { model: MsaViewModel }) {
   const { showHorizontalScrollbar } = model

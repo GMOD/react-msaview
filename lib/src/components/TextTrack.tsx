@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
 import { colorContrast } from '../util'
 
 import type { ITextTrack, MsaViewModel } from '../model'

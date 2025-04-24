@@ -4,8 +4,6 @@ import React from 'react'
 import { renderToStaticMarkup } from '@jbrowse/core/util'
 import { when } from 'mobx'
 
-
-// locals
 import MinimapSVG from './components/minimap/MinimapSVG'
 import { renderBoxFeatureCanvasBlock } from './components/msa/renderBoxFeatureCanvasBlock'
 import { renderMSABlock } from './components/msa/renderMSABlock'

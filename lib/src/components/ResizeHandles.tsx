@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { observer } from 'mobx-react'
 
-// locals
 import type { MsaViewModel } from '../model'
 
 export const VerticalResizeHandle = observer(function ({

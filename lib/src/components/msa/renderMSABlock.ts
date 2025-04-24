@@ -1,5 +1,3 @@
-
-// locals
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 
 import type { MsaViewModel } from '../../model'

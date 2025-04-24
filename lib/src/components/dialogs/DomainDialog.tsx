@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { Dialog } from '@jbrowse/core/ui'
 import { Tab, Tabs } from '@mui/material'
 
-// locals
 import InterProScanPanel from './InterProScanDialog'
 import TabPanel from './TabPanel'
 import UserProvidedResultPanel from './UserProvidedDomainsDialog'

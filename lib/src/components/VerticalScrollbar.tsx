@@ -6,7 +6,6 @@ import { clamp } from '../util'
 
 import type { MsaViewModel } from '../model'
 
-
 const VerticalScrollbar = observer(({ model }: { model: MsaViewModel }) => {
   const { msaAreaHeight, scrollY, totalHeight } = model
   const [hovered, setHovered] = useState(false)

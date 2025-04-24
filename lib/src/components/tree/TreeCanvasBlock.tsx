@@ -5,7 +5,6 @@ import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
 import RBush from 'rbush'
 
-// locals
 import TreeBranchMenu from './TreeBranchMenu'
 import TreeNodeMenu from './TreeNodeMenu'
 import { padding, renderTreeCanvas } from './renderTreeCanvas'

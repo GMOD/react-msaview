@@ -2,8 +2,6 @@ import type { MsaViewModel } from '../../model'
 import type { Theme } from '@mui/material'
 import type RBush from 'rbush'
 
-// locals
-
 export const padding = 600
 
 const extendBounds = 5
