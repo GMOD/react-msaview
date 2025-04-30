@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import { FileSelector } from '@jbrowse/core/ui'
-import { Button, Container, Grid, Typography } from '@mui/material'
+import { ErrorMessage, FileSelector } from '@jbrowse/core/ui'
+import { Button, Container, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import ImportFormExamples from './ImportFormExamples'
@@ -18,11 +18,7 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <Container>
       <div style={{ width: '50%' }}>
-        {error ? (
-          <div style={{ padding: 20 }}>
-            <Typography color="error">Error: {`${error}`}</Typography>
-          </div>
-        ) : null}
+        {error ? <ErrorMessage error={error} /> : null}
         <Typography>
           Open an MSA file (stockholm or clustal format) and/or a tree file
           (newick format).
@@ -35,34 +31,50 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
         </Typography>
       </div>
 
-      <Grid container spacing={10} justifyContent="center" alignItems="center">
-        <Typography>MSA file or URL</Typography>
-        <FileSelector location={msaFile} setLocation={setMsaFile} />
-        <Typography>Tree file or URL</Typography>
-        <FileSelector location={treeFile} setLocation={setTreeFile} />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 40,
+        }}
+      >
+        <div>
+          <div>
+            <Typography>MSA file or URL</Typography>
+            <FileSelector location={msaFile} setLocation={setMsaFile} />
+          </div>
+          <div>
+            <Typography>Tree file or URL</Typography>
+            <FileSelector location={treeFile} setLocation={setTreeFile} />
+          </div>
+        </div>
+        <div>
+          <Button
+            onClick={() => {
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+              ;(async () => {
+                try {
+                  await load(model, msaFile, treeFile)
+                } catch (e) {
+                  console.error(e)
+                  model.setError(e)
+                }
+              })()
+            }}
+            variant="contained"
+            color="primary"
+            disabled={!msaFile && !treeFile}
+          >
+            Open
+          </Button>
+        </div>
 
-        <Button
-          onClick={() => {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            ;(async () => {
-              try {
-                await load(model, msaFile, treeFile)
-              } catch (e) {
-                console.error(e)
-                model.setError(e)
-              }
-            })()
-          }}
-          variant="contained"
-          color="primary"
-          disabled={!msaFile && !treeFile}
-        >
-          Open
-        </Button>
-
-        <Typography>Examples</Typography>
-        <ImportFormExamples model={model} />
-      </Grid>
+        <div>
+          <Typography>Examples</Typography>
+          <ImportFormExamples model={model} />
+        </div>
+      </div>
     </Container>
   )
 })
