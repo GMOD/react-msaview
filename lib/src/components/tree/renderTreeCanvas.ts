@@ -239,9 +239,7 @@ export function renderTreeCanvas({
     noTree,
     drawTree,
     drawNodeBubbles,
-    treeWidth,
     highResScaleFactor,
-    blockSize,
     fontSize,
     showTreeText,
     marginLeft,
@@ -249,7 +247,6 @@ export function renderTreeCanvas({
     // eslint-disable-next-line  @typescript-eslint/no-unused-vars
     rowHeight: _rowHeight, // this is needed for redrawing after zoom change
   } = model
-  const by = blockSizeYOverride || blockSize
 
   ctx.resetTransform()
 
@@ -263,7 +260,6 @@ export function renderTreeCanvas({
       ? Number.NEGATIVE_INFINITY
       : highResScaleFactorOverride || highResScaleFactor
   ctx.scale(k, k)
-  ctx.clearRect(0, 0, treeWidth + padding, by)
   ctx.translate(marginLeft, -offsetY)
 
   const font = ctx.font

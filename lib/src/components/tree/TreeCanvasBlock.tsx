@@ -66,6 +66,13 @@ const TreeCanvasBlock = observer(function ({
     }
 
     return autorun(() => {
+      ctx.resetTransform()
+      ctx.clearRect(
+        0,
+        0,
+        (treeAreaWidth + padding) * highResScaleFactor,
+        blockSize * highResScaleFactor,
+      )
       renderTreeCanvas({
         ctx,
         model,
@@ -74,7 +81,7 @@ const TreeCanvasBlock = observer(function ({
         theme,
       })
     })
-  }, [model, offsetY, theme])
+  }, [model, blockSize, highResScaleFactor, treeAreaWidth, offsetY, theme])
 
   useEffect(() => {
     const ctx = mouseoverRef.current?.getContext('2d')

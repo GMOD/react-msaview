@@ -249,7 +249,7 @@ function stateModelFactory() {
        * high resolution scale factor, helps make canvas look better on hi-dpi
        * screens
        */
-      highResScaleFactor: 1,
+      highResScaleFactor: 2,
       /**
        * #volatile
        */
