@@ -17,7 +17,7 @@ const MultiAlignmentSelector = observer(function ({
       value={currentAlignment}
       size="small"
       onChange={event => {
-        model.setCurrentAlignment(+(event.target.value as string))
+        model.setCurrentAlignment(+event.target.value)
         model.setScrollX(0)
         model.setScrollY(0)
       }}
