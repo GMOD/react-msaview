@@ -13,10 +13,12 @@ import { colorContrast } from './util'
 import type { MsaViewModel } from './model'
 import type { Theme } from '@mui/material'
 
-export async function renderToSvg(
-  model: MsaViewModel,
-  opts: { theme: Theme; includeMinimap?: boolean; exportType: string },
-) {
+export interface ExportSvgOptions {
+  theme: Theme
+  includeMinimap?: boolean
+  exportType: string
+}
+export async function renderToSvg(model: MsaViewModel, opts: ExportSvgOptions) {
   await when(() => !!model.dataInitialized)
   const { width, height, scrollX, scrollY } = model
   const { exportType, theme, includeMinimap } = opts
