@@ -69,7 +69,15 @@ const MSACanvasBlock = observer(function ({
         model,
       })
     })
-  }, [model, offsetX, offsetY, theme, blockSize, contrastScheme])
+  }, [
+    model,
+    offsetX,
+    offsetY,
+    theme,
+    blockSize,
+    highResScaleFactor,
+    contrastScheme,
+  ])
 
   return (
     <canvas
