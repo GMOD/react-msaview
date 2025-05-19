@@ -1,2 +1,0 @@
-import{o,R as e,d as s,D as n}from"./index-DPWBesFv.js";import{A as l,B as i,S as c}from"./SequenceTextArea-CgswOKfc.js";import"./Checkbox2-CmkJJF4v.js";const p=o(function({model:t,onClose:a}){const{header:r}=t;return e.createElement(s.Dialog,{onClose:()=>{a()},open:!0,title:"Metadata",maxWidth:"xl"},e.createElement(n,null,e.createElement(l,{attributes:r}),e.createElement(i,{title:"sequence"},e.createElement(c,{str:t.rows}))))});export{p as default};
-//# sourceMappingURL=MetadataDialog-DpPOGW3u.js.map
