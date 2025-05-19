@@ -16,6 +16,13 @@ const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('../dialogs/TracklistDialog'))
 
 const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
+  const {
+    drawTree,
+    drawLabels,
+    labelsAlignRight,
+    drawNodeBubbles,
+    showBranchLen,
+  } = model
   return (
     <CascadingMenuButton
       menuItems={[
@@ -27,7 +34,58 @@ const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
           },
         },
         {
-          label: 'Settings',
+          label: 'Tree settings',
+          type: 'subMenu',
+          subMenu: [
+            {
+              label: 'Show branch length',
+              checked: showBranchLen,
+              type: 'checkbox',
+              onClick: () => {
+                model.setShowBranchLen(!showBranchLen)
+              },
+            },
+            {
+              label: 'Draw clickable node bubbles on tree branches',
+              checked: drawNodeBubbles,
+              type: 'checkbox',
+              onClick: () => {
+                model.setDrawNodeBubbles(!drawNodeBubbles)
+              },
+            },
+            {
+              label: 'Show tree',
+              checked: drawTree,
+              type: 'checkbox',
+              onClick: () => {
+                model.setDrawTree(!drawTree)
+              },
+            },
+            {
+              label: 'Tree labels align right',
+              type: 'checkbox',
+              checked: labelsAlignRight,
+              onClick: () => {
+                model.setLabelsAlignRight(!labelsAlignRight)
+              },
+            },
+            {
+              label: 'Draw labels',
+              type: 'checkbox',
+              checked: drawLabels,
+              onClick: () => {
+                model.setDrawLabels(!labelsAlignRight)
+              },
+            },
+          ],
+        },
+        {
+          label: 'MSA settings',
+          type: 'subMenu',
+          subMenu: [],
+        },
+        {
+          label: 'More settings',
           onClick: () => {
             model.queueDialog(onClose => [SettingsDialog, { model, onClose }])
           },

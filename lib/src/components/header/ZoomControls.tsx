@@ -10,8 +10,6 @@ import { observer } from 'mobx-react'
 
 import { MsaViewModel } from '../../model'
 
-// icons
-
 const ZoomControls = observer(function ZoomControls({
   model,
 }: {

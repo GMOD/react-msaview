@@ -45,58 +45,12 @@ const TreeSettings = observer(function TreeSettings({
   model: MsaViewModel
 }) {
   const { classes } = useStyles()
-  const {
-    drawTree,
-    drawLabels,
-    drawNodeBubbles,
-    labelsAlignRight,
-    noTree,
-    showBranchLen,
-    treeWidthMatchesArea,
-    treeWidth,
-  } = model
+  const { noTree, treeWidthMatchesArea, treeWidth } = model
 
   return (
     <div>
       <h1>Tree options</h1>
-      <Checkbox2
-        checked={showBranchLen}
-        label="Show branch length?"
-        onChange={() => {
-          model.setShowBranchLen(!showBranchLen)
-        }}
-      />
 
-      <Checkbox2
-        checked={drawNodeBubbles}
-        label="Draw clickable bubbles on tree branches?"
-        onChange={() => {
-          model.setDrawNodeBubbles(!drawNodeBubbles)
-        }}
-      />
-      <Checkbox2
-        checked={drawTree}
-        label="Show tree?"
-        onChange={() => {
-          model.setDrawTree(!drawTree)
-        }}
-      />
-
-      <Checkbox2
-        checked={labelsAlignRight}
-        label="Tree labels align right?"
-        onChange={() => {
-          model.setLabelsAlignRight(!labelsAlignRight)
-        }}
-      />
-
-      <Checkbox2
-        checked={drawLabels}
-        label="Draw labels"
-        onChange={() => {
-          model.setDrawLabels(!drawLabels)
-        }}
-      />
       {noTree ? null : (
         <div>
           <Checkbox2
