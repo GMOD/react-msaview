@@ -77,7 +77,10 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
               onClick: () => {
                 model.queueDialog(handleClose => [
                   UserProvidedDomainsDialog,
-                  { handleClose, model },
+                  {
+                    handleClose,
+                    model,
+                  },
                 ])
               },
             },
@@ -118,7 +121,10 @@ const HeaderMenuExtra = observer(({ model }: { model: MsaViewModel }) => {
               onClick: () => {
                 model.queueDialog(onClose => [
                   FeatureFilterDialog,
-                  { onClose, model },
+                  {
+                    onClose,
+                    model,
+                  },
                 ])
               },
             },

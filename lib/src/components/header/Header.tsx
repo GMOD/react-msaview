@@ -9,9 +9,11 @@ import HeaderInfoArea from './HeaderInfoArea'
 import HeaderMenuExtra from './HeaderMenuExtra'
 import HeaderStatusArea from './HeaderStatusArea'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
+import ZoomStar from './ZoomStar'
 import ZoomControls from './ZoomControls'
 
 import type { MsaViewModel } from '../../model'
+import ZoomMenu from './ZoomMenu'
 
 const AboutDialog = lazy(() => import('../dialogs/AboutDialog'))
 
@@ -24,7 +26,11 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
     <div ref={ref} style={{ display: 'flex' }}>
       <HeaderMenuExtra model={model} />
       <ZoomControls model={model} />
-      <MultiAlignmentSelector model={model} />
+      <ZoomStar model={model} />
+      <ZoomMenu model={model} />
+      <div style={{ margin: 'auto' }}>
+        <MultiAlignmentSelector model={model} />
+      </div>
       <HeaderInfoArea model={model} />
       <Spacer />
       <HeaderStatusArea model={model} />

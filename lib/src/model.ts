@@ -77,6 +77,9 @@ export function isGzip(buf: Uint8Array) {
   return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
 }
 
+const defaultRowHeight = 16
+const defaultColWidth = 12
+
 /**
  * #stateModel MsaView
  * extends
@@ -145,7 +148,7 @@ function stateModelFactory() {
          * #property
          * height of each row, px
          */
-        rowHeight: 18,
+        rowHeight: defaultRowHeight,
 
         /**
          * #property
@@ -163,7 +166,7 @@ function stateModelFactory() {
          * #property
          * width of columns, px
          */
-        colWidth: 14,
+        colWidth: defaultColWidth,
 
         /**
          * #property
@@ -937,6 +940,13 @@ function stateModelFactory() {
         self.drawMsaLetters = arg
       },
 
+      /**
+       * #action
+       */
+      resetZoom() {
+        self.setColWidth(defaultColWidth)
+        self.setRowHeight(defaultRowHeight)
+      },
       /**
        * #action
        */
