@@ -37,6 +37,8 @@ import {
   collapse,
   generateNodeIds,
   len,
+  localStorageGetBoolean,
+  localStorageSetBoolean,
   maxLength,
   setBrLength,
   skipBlanks,
@@ -253,6 +255,12 @@ function stateModelFactory() {
        * screens
        */
       highResScaleFactor: 2,
+
+      /**
+       * #volatile
+       * obtained from localStorage
+       */
+      showZoomStar: localStorageGetBoolean('msa-showZoomStar', true),
       /**
        * #volatile
        */
@@ -365,6 +373,12 @@ function stateModelFactory() {
        */
       setLoadingMSA(arg: boolean) {
         self.loadingMSA = arg
+      },
+      /**
+       * #volatile
+       */
+      setShowZoomStar(arg: boolean) {
+        self.showZoomStar = arg
       },
       /**
        * #action
@@ -1386,6 +1400,14 @@ function stateModelFactory() {
             for (const key of self.tidyInterProAnnotationTypes.keys()) {
               this.initFilter(key)
             }
+          }),
+        )
+
+        // autorun saves local settings
+        addDisposer(
+          self,
+          autorun(() => {
+            localStorageSetBoolean('msa-showZoomStar', self.showZoomStar)
           }),
         )
 

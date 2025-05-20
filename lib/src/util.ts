@@ -118,3 +118,24 @@ export function clamp(min: number, num: number, max: number) {
 export function len(a: { end: number; start: number }) {
   return a.end - a.start
 }
+
+export function localStorageGetItem(item: string) {
+  return typeof localStorage !== 'undefined'
+    ? localStorage.getItem(item)
+    : undefined
+}
+
+export function localStorageGetBoolean(key: string, defaultVal: boolean) {
+  return Boolean(
+    JSON.parse(localStorageGetItem(key) || JSON.stringify(defaultVal)),
+  )
+}
+
+export function localStorageSetItem(str: string, item: string) {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(str, item)
+  }
+}
+export function localStorageSetBoolean(key: string, value: boolean) {
+  localStorageSetItem(key, JSON.stringify(value))
+}

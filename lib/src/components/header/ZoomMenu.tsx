@@ -24,6 +24,14 @@ const ZoomMenu = observer(function ({ model }: { model: MsaViewModel }) {
             model.resetZoom()
           },
         },
+        {
+          label: 'Show extra zoom options',
+          checked: model.showZoomStar,
+          type: 'checkbox',
+          onClick: () => {
+            model.setShowZoomStar(!model.showZoomStar)
+          },
+        },
       ]}
     >
       <MoreVert />

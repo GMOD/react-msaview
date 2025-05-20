@@ -26,7 +26,7 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
     <div ref={ref} style={{ display: 'flex' }}>
       <HeaderMenuExtra model={model} />
       <ZoomControls model={model} />
-      <ZoomStar model={model} />
+      {model.showZoomStar ? <ZoomStar model={model} /> : null}
       <ZoomMenu model={model} />
       <div style={{ margin: 'auto' }}>
         <MultiAlignmentSelector model={model} />
