@@ -12,7 +12,7 @@ const ZoomMenu = observer(function ({ model }: { model: MsaViewModel }) {
     <CascadingMenuButton
       menuItems={[
         {
-          label: 'Show entire view',
+          label: 'Fit to view',
           onClick: () => {
             model.showEntire()
           },
