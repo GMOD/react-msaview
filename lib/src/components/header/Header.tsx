@@ -9,11 +9,11 @@ import HeaderInfoArea from './HeaderInfoArea'
 import HeaderMenuExtra from './HeaderMenuExtra'
 import HeaderStatusArea from './HeaderStatusArea'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
-import ZoomStar from './ZoomStar'
 import ZoomControls from './ZoomControls'
+import ZoomMenu from './ZoomMenu'
+import ZoomStar from './ZoomStar'
 
 import type { MsaViewModel } from '../../model'
-import ZoomMenu from './ZoomMenu'
 
 const AboutDialog = lazy(() => import('../dialogs/AboutDialog'))
 

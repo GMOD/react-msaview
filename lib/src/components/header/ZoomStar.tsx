@@ -1,6 +1,4 @@
 import React from 'react'
-import { makeStyles } from 'tss-react/mui'
-import { observer } from 'mobx-react'
 
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
 import ArrowDropUp from '@mui/icons-material/ArrowDropUp'
@@ -8,10 +6,13 @@ import ArrowLeft from '@mui/icons-material/ArrowLeft'
 import ArrowRight from '@mui/icons-material/ArrowRight'
 import ZoomIn from '@mui/icons-material/ZoomIn'
 import ZoomOut from '@mui/icons-material/ZoomOut'
+import { IconButton } from '@mui/material'
+import { observer } from 'mobx-react'
+import { makeStyles } from 'tss-react/mui'
+
+import { RestartAlt } from '@mui/icons-material'
 
 import type { MsaViewModel } from '../../model'
-import { IconButton } from '@mui/material'
-import { RestartAlt } from '@mui/icons-material'
 
 const useStyles = makeStyles()({
   dpad: {
@@ -48,7 +49,11 @@ const ZoomStar = observer(function ({ model }: { model: MsaViewModel }) {
       >
         X-
       </IconButton>
-      <IconButton onClick={() => model.resetZoom()}>
+      <IconButton
+        onClick={() => {
+          model.resetZoom()
+        }}
+      >
         <RestartAlt />
       </IconButton>
       <IconButton

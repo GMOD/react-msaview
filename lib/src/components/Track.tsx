@@ -6,8 +6,6 @@ import { observer } from 'mobx-react'
 import normalizeWheel from 'normalize-wheel'
 import { makeStyles } from 'tss-react/mui'
 
-
-
 import type { MsaViewModel } from '../model'
 
 // lazies

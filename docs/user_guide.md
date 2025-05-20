@@ -57,10 +57,8 @@ to use tiled scrolling.
 
 ### 3D protein structure viewer
 
-
 - Hovering over the various columns in the MSA highlights the position on the
   protein and vice-versa
-
 
 ### Reusability and availability
 
@@ -108,7 +106,6 @@ your own MSA file, Tree file, or combine both together
 
 Figure showing the "settings panel", showing color scheme editor and other
 settings
-
 
 ### Dynamic color schemes
 
