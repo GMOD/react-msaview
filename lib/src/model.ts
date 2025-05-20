@@ -81,6 +81,7 @@ export function isGzip(buf: Uint8Array) {
 
 const defaultRowHeight = 16
 const defaultColWidth = 12
+const showZoomStarKey = 'msa-showZoomStar'
 
 /**
  * #stateModel MsaView
@@ -260,7 +261,7 @@ function stateModelFactory() {
        * #volatile
        * obtained from localStorage
        */
-      showZoomStar: localStorageGetBoolean('msa-showZoomStar', true),
+      showZoomStar: localStorageGetBoolean(showZoomStarKey, true),
       /**
        * #volatile
        */
@@ -1407,7 +1408,7 @@ function stateModelFactory() {
         addDisposer(
           self,
           autorun(() => {
-            localStorageSetBoolean('msa-showZoomStar', self.showZoomStar)
+            localStorageSetBoolean(showZoomStarKey, self.showZoomStar)
           }),
         )
 
