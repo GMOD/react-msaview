@@ -6,6 +6,7 @@ import { ElementId, FileLocation } from '@jbrowse/core/util/types/mst'
 import { colord } from 'colord'
 import { ascending } from 'd3-array'
 import { cluster, hierarchy } from 'd3-hierarchy'
+import { parseEmfTree } from 'emf-js'
 import { saveAs } from 'file-saver'
 import { autorun, transaction } from 'mobx'
 import { addDisposer, cast, types } from 'mobx-state-tree'
@@ -15,16 +16,17 @@ import Stockholm from 'stockholm-js'
 import { blocksX, blocksY } from './calculateBlocks'
 import colorSchemes from './colorSchemes'
 import TextTrack from './components/TextTrack'
+import { flatToTree } from './flatToTree'
 import palettes from './ggplotPalettes'
 import { measureTextCanvas } from './measureTextCanvas'
 import { DataModelF } from './model/DataModel'
 import { DialogQueueSessionMixin } from './model/DialogQueue'
 import { MSAModelF } from './model/msaModel'
 import { TreeModelF } from './model/treeModel'
+import { parseAsn1 } from './parseAsn1'
 import parseNewick from './parseNewick'
 import ClustalMSA from './parsers/ClustalMSA'
 import EmfMSA from './parsers/EmfMSA'
-import EmfTree from './parsers/EmfTree'
 import FastaMSA from './parsers/FastaMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import { reparseTree } from './reparseTree'
@@ -36,6 +38,7 @@ import {
   clamp,
   collapse,
   generateNodeIds,
+  isGzip,
   len,
   localStorageGetBoolean,
   localStorageSetBoolean,
@@ -45,39 +48,17 @@ import {
 } from './util'
 
 import type { InterProScanResults } from './launchInterProScan'
-import type { NodeWithIds, NodeWithIdsAndLength } from './util'
+import type {
+  Accession,
+  BasicTrack,
+  NodeWithIds,
+  NodeWithIdsAndLength,
+  TextTrackModel,
+} from './types'
 import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import type { Theme } from '@mui/material'
 import type { HierarchyNode } from 'd3-hierarchy'
 import type { Instance } from 'mobx-state-tree'
-
-export interface Accession {
-  accession: string
-  name: string
-  description: string
-}
-export interface BasicTrackModel {
-  id: string
-  name: string
-  associatedRowName?: string
-  height: number
-}
-
-export interface TextTrackModel extends BasicTrackModel {
-  customColorScheme?: Record<string, string>
-  data: string
-}
-
-export interface ITextTrack {
-  ReactComponent: React.FC<any>
-  model: TextTrackModel
-}
-
-export type BasicTrack = ITextTrack
-
-export function isGzip(buf: Uint8Array) {
-  return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
-}
 
 const defaultRowHeight = 16
 const defaultColWidth = 12
@@ -653,25 +634,26 @@ function stateModelFactory() {
        */
       get tree(): NodeWithIds {
         const text = self.data.tree
-        let ret: NodeWithIds
         if (text) {
-          let t: string
-          if (text.startsWith('SEQ')) {
-            const r = new EmfTree(text)
-            t = r.data.tree
-          } else {
-            t = text
-          }
-          ret = generateNodeIds(parseNewick(t))
+          return text.startsWith('BioTreeContainer')
+            ? reparseTree(generateNodeIds(flatToTree(parseAsn1(text))))
+            : reparseTree(
+                generateNodeIds(
+                  parseNewick(
+                    text.startsWith('SEQ') ? parseEmfTree(text).tree : text,
+                  ),
+                ),
+              )
         } else {
-          ret = this.MSA?.getTree() || {
-            noTree: true,
-            children: [],
-            id: 'empty',
-            name: 'empty',
-          }
+          return reparseTree(
+            this.MSA?.getTree() || {
+              noTree: true,
+              children: [],
+              id: 'empty',
+              name: 'empty',
+            },
+          )
         }
-        return reparseTree(ret)
       },
       /**
        * #getter
@@ -691,6 +673,7 @@ function stateModelFactory() {
        * #getter
        */
       get root() {
+        console.log(this.tree)
         let hier = hierarchy(this.tree, d => d.children)
           // todo: investigate whether needed, typescript says children always true
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

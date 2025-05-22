@@ -1,5 +1,7 @@
-import type { NodeWithIds } from './util'
+import type { NodeWithIds } from './types'
 
+// this reparse routine helps to allow the app to hide/collapse a single
+// leafnode
 export function reparseTree(tree: NodeWithIds): NodeWithIds {
   return {
     ...tree,

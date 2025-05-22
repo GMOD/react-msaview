@@ -24,7 +24,8 @@
     "prepack": "npm run build",
     "postversion": "git push --follow-tags",
     "statedocs": "rm -rf apidocs && mkdir apidocs && node --experimental-strip-types docgen/generateStateModelDocs.ts",
-    "poststatedocs": "npm run format"
+    "poststatedocs": "npm run format",
+    "test": "vitest"
   },
   "peerDependencies": {
     "@jbrowse/core": ">=2.0.0",

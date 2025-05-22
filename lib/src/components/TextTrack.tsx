@@ -5,7 +5,8 @@ import { observer } from 'mobx-react'
 
 import { colorContrast } from '../util'
 
-import type { ITextTrack, MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
+import type { ITextTrack } from '../types'
 
 const AnnotationBlock = observer(function ({
   track,

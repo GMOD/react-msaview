@@ -1,6 +1,6 @@
 import { parseEmfAln } from 'emf-js'
 
-import type { NodeWithIds } from '../util'
+import type { NodeWithIds } from '../types'
 
 export default class EmfMSA {
   private MSA: ReturnType<typeof parseEmfAln>

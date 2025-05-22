@@ -1,0 +1,7687 @@
+BioTreeContainer ::= {
+  fdict {
+    {
+      id 0,
+      name "label"
+    },
+    {
+      id 1,
+      name "dist"
+    },
+    {
+      id 2,
+      name "seq-id"
+    },
+    {
+      id 3,
+      name "organism"
+    },
+    {
+      id 4,
+      name "seq-title"
+    },
+    {
+      id 5,
+      name "accession-nbr"
+    },
+    {
+      id 6,
+      name "blast-name"
+    },
+    {
+      id 7,
+      name "align-index"
+    },
+    {
+      id 8,
+      name "$NODE_COLOR"
+    },
+    {
+      id 9,
+      name "$LABEL_COLOR"
+    },
+    {
+      id 10,
+      name "$LABEL_BG_COLOR"
+    },
+    {
+      id 11,
+      name "$LABEL_TAG_COLOR"
+    },
+    {
+      id 12,
+      name "$NODE_COLLAPSED"
+    },
+    {
+      id 13,
+      name "node-info"
+    },
+    {
+      id 14,
+      name "leaf-count"
+    },
+    {
+      id 15,
+      name "common-name"
+    },
+    {
+      id 16,
+      name "$NODE_SIZE"
+    },
+    {
+      id 17,
+      name "$EDGE_COLOR"
+    }
+  },
+  nodes {
+    {
+      id 0,
+      features {
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "101"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 1,
+      parent 0,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Gouania willdenowi]"
+        },
+        {
+          featureid 1,
+          value "0.0477564"
+        },
+        {
+          featureid 2,
+          value "ref|XP_028299583.1"
+        },
+        {
+          featureid 3,
+          value "Gouania willdenowi"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Gouania willdenowi]"
+        },
+        {
+          featureid 5,
+          value "XP_028299583.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "blunt-snouted clingfish"
+        },
+        {
+          featureid 7,
+          value "60"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 2,
+      parent 0,
+      features {
+        {
+          featureid 1,
+          value "0.0477564"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "100"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 3,
+      parent 2,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4-like [Mugil cephalus]"
+        },
+        {
+          featureid 1,
+          value "0.0542539"
+        },
+        {
+          featureid 2,
+          value "ref|XP_047453511.1"
+        },
+        {
+          featureid 3,
+          value "Mugil cephalus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4-like [Mugil cephalus]"
+        },
+        {
+          featureid 5,
+          value "XP_047453511.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "flathead mullet"
+        },
+        {
+          featureid 7,
+          value "89"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 4,
+      parent 2,
+      features {
+        {
+          featureid 1,
+          value "0.00493695"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "99"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 5,
+      parent 4,
+      features {
+        {
+          featureid 1,
+          value "0.00363721"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "7"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 6,
+      parent 5,
+      features {
+        {
+          featureid 1,
+          value "0.00414685"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "6"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 7,
+      parent 6,
+      features {
+        {
+          featureid 1,
+          value "0.00471774"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "5"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 8,
+      parent 7,
+      features {
+        {
+          featureid 1,
+          value "0.00564527"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 9,
+      parent 8,
+      features {
+        {
+          featureid 1,
+          value "0.00355021"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 10,
+      parent 9,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Larimichthys
+ crocea]"
+        },
+        {
+          featureid 1,
+          value "0.0211447"
+        },
+        {
+          featureid 2,
+          value "ref|XP_027132400.1"
+        },
+        {
+          featureid 3,
+          value "Larimichthys crocea"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Larimichthys
+ crocea]"
+        },
+        {
+          featureid 5,
+          value "XP_027132400.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "large yellow croaker"
+        },
+        {
+          featureid 7,
+          value "74"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 11,
+      parent 9,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Echeneis naucrates]"
+        },
+        {
+          featureid 1,
+          value "0.0424893"
+        },
+        {
+          featureid 2,
+          value "ref|XP_029355149.1"
+        },
+        {
+          featureid 3,
+          value "Echeneis naucrates"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Echeneis naucrates]"
+        },
+        {
+          featureid 5,
+          value "XP_029355149.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "live sharksucker"
+        },
+        {
+          featureid 7,
+          value "86"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 12,
+      parent 8,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Seriola lalandi dorsalis]"
+        },
+        {
+          featureid 1,
+          value "0.019596"
+        },
+        {
+          featureid 2,
+          value "ref|XP_023272288.1"
+        },
+        {
+          featureid 3,
+          value "Seriola lalandi dorsalis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Seriola lalandi dorsalis]"
+        },
+        {
+          featureid 5,
+          value "XP_023272288.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "Seriola lalandi dorsalis"
+        },
+        {
+          featureid 7,
+          value "78"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 13,
+      parent 7,
+      features {
+        {
+          featureid 1,
+          value "0.0270474"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 14,
+      parent 13,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4-like [Morone saxatilis]"
+        },
+        {
+          featureid 1,
+          value "0.00478964"
+        },
+        {
+          featureid 2,
+          value "ref|XP_035508842.1"
+        },
+        {
+          featureid 3,
+          value "Morone saxatilis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4-like [Morone saxatilis]"
+        },
+        {
+          featureid 5,
+          value "XP_035508842.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "striped sea-bass"
+        },
+        {
+          featureid 7,
+          value "84"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 15,
+      parent 13,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Dicentrarchus
+ labrax]"
+        },
+        {
+          featureid 1,
+          value "0.0154144"
+        },
+        {
+          featureid 2,
+          value "ref|XP_051259242.1"
+        },
+        {
+          featureid 3,
+          value "Dicentrarchus labrax"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Dicentrarchus
+ labrax]"
+        },
+        {
+          featureid 5,
+          value "XP_051259242.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "European seabass"
+        },
+        {
+          featureid 7,
+          value "90"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 16,
+      parent 6,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein LDENG_00176490 [Lucifuga dentata]"
+        },
+        {
+          featureid 1,
+          value "0.0239964"
+        },
+        {
+          featureid 2,
+          value "gb|KAF7647148.1"
+        },
+        {
+          featureid 3,
+          value "Lucifuga dentata"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein LDENG_00176490 [Lucifuga dentata]"
+        },
+        {
+          featureid 5,
+          value "KAF7647148.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "toothed Cuban cusk-eel"
+        },
+        {
+          featureid 7,
+          value "98"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 17,
+      parent 5,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein Q5P01_026434 [Channa striata]"
+        },
+        {
+          featureid 1,
+          value "0.0320937"
+        },
+        {
+          featureid 2,
+          value "gb|KAK2815967.1"
+        },
+        {
+          featureid 3,
+          value "Channa striata"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein Q5P01_026434 [Channa striata]"
+        },
+        {
+          featureid 5,
+          value "KAK2815967.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "snakehead murrel"
+        },
+        {
+          featureid 7,
+          value "99"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 18,
+      parent 4,
+      features {
+        {
+          featureid 1,
+          value "0.0529062"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "92"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 19,
+      parent 18,
+      features {
+        {
+          featureid 1,
+          value "0.00727761"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "5"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 20,
+      parent 19,
+      features {
+        {
+          featureid 1,
+          value "0.0141141"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 21,
+      parent 20,
+      features {
+        {
+          featureid 1,
+          value "0.00916979"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 22,
+      parent 21,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Paramisgurnus dabryanus]"
+        },
+        {
+          featureid 1,
+          value "0.0412474"
+        },
+        {
+          featureid 2,
+          value "ref|XP_065104538.1"
+        },
+        {
+          featureid 3,
+          value "Paramisgurnus dabryanus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Paramisgurnus dabryanus]"
+        },
+        {
+          featureid 5,
+          value "XP_065104538.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "Paramisgurnus dabryanus"
+        },
+        {
+          featureid 7,
+          value "79"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 23,
+      parent 21,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein PO909_018607 [Leuciscus waleckii]"
+        },
+        {
+          featureid 1,
+          value "0.0281428"
+        },
+        {
+          featureid 2,
+          value "gb|XDV49334.1"
+        },
+        {
+          featureid 3,
+          value "Leuciscus waleckii"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein PO909_018607 [Leuciscus waleckii]"
+        },
+        {
+          featureid 5,
+          value "XDV49334.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "Amur ide"
+        },
+        {
+          featureid 7,
+          value "85"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 24,
+      parent 20,
+      features {
+        {
+          featureid 1,
+          value "0.0379654"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bony fishes"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        }
+      }
+    },
+    {
+      id 25,
+      parent 24,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein QTP86_033990 [Hemibagrus guttatus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "gb|KAK3566464.1"
+        },
+        {
+          featureid 3,
+          value "Hemibagrus guttatus"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein QTP86_033990 [Hemibagrus guttatus]"
+        },
+        {
+          featureid 5,
+          value "KAK3566464.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "Hemibagrus guttatus"
+        },
+        {
+          featureid 7,
+          value "95"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 26,
+      parent 24,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein QTP70_029540 [Hemibagrus guttatus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "gb|KAK3540312.1"
+        },
+        {
+          featureid 3,
+          value "Hemibagrus guttatus"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein QTP70_029540 [Hemibagrus guttatus]"
+        },
+        {
+          featureid 5,
+          value "KAK3540312.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "Hemibagrus guttatus"
+        },
+        {
+          featureid 7,
+          value "100"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 27,
+      parent 19,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Scleropages formosus]"
+        },
+        {
+          featureid 1,
+          value "0.0429552"
+        },
+        {
+          featureid 2,
+          value "ref|XP_018582246.1"
+        },
+        {
+          featureid 3,
+          value "Scleropages formosus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Scleropages formosus]"
+        },
+        {
+          featureid 5,
+          value "XP_018582246.1"
+        },
+        {
+          featureid 6,
+          value "bony fishes"
+        },
+        {
+          featureid 15,
+          value "Asian bonytongue"
+        },
+        {
+          featureid 7,
+          value "93"
+        },
+        {
+          featureid 8,
+          value "255 69 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 28,
+      parent 18,
+      features {
+        {
+          featureid 1,
+          value "0.0146818"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "87"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 29,
+      parent 28,
+      features {
+        {
+          featureid 1,
+          value "0.0270565"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "sharks & rays"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "173 255 47"
+        }
+      }
+    },
+    {
+      id 30,
+      parent 29,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Heptranchias perlo]"
+        },
+        {
+          featureid 1,
+          value "0.0172572"
+        },
+        {
+          featureid 2,
+          value "ref|XP_067846354.1"
+        },
+        {
+          featureid 3,
+          value "Heptranchias perlo"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Heptranchias perlo]"
+        },
+        {
+          featureid 5,
+          value "XP_067846354.1"
+        },
+        {
+          featureid 6,
+          value "sharks & rays"
+        },
+        {
+          featureid 15,
+          value "sharpnose sevengill shark"
+        },
+        {
+          featureid 7,
+          value "77"
+        },
+        {
+          featureid 8,
+          value "173 255 47"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 31,
+      parent 29,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Amblyraja radiata]"
+        },
+        {
+          featureid 1,
+          value "0.0340586"
+        },
+        {
+          featureid 2,
+          value "ref|XP_032884448.1"
+        },
+        {
+          featureid 3,
+          value "Amblyraja radiata"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Amblyraja radiata]"
+        },
+        {
+          featureid 5,
+          value "XP_032884448.1"
+        },
+        {
+          featureid 6,
+          value "sharks & rays"
+        },
+        {
+          featureid 15,
+          value "thorny skate"
+        },
+        {
+          featureid 7,
+          value "94"
+        },
+        {
+          featureid 8,
+          value "173 255 47"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 32,
+      parent 28,
+      features {
+        {
+          featureid 1,
+          value "0.0245692"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "85"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 33,
+      parent 32,
+      features {
+        {
+          featureid 1,
+          value "0.00985557"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "13"
+        }
+      }
+    },
+    {
+      id 34,
+      parent 33,
+      features {
+        {
+          featureid 1,
+          value "0.00576283"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds and lizards & snakes"
+        },
+        {
+          featureid 14,
+          value "11"
+        }
+      }
+    },
+    {
+      id 35,
+      parent 34,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X4 [Sphaerodactylus
+ townsendi]"
+        },
+        {
+          featureid 1,
+          value "0.0551301"
+        },
+        {
+          featureid 2,
+          value "ref|XP_048354446.1"
+        },
+        {
+          featureid 3,
+          value "Sphaerodactylus townsendi"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X4 [Sphaerodactylus
+ townsendi]"
+        },
+        {
+          featureid 5,
+          value "XP_048354446.1"
+        },
+        {
+          featureid 6,
+          value "lizards & snakes"
+        },
+        {
+          featureid 15,
+          value "Sphaerodactylus townsendi"
+        },
+        {
+          featureid 7,
+          value "44"
+        },
+        {
+          featureid 8,
+          value "119 136 153"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 36,
+      parent 34,
+      features {
+        {
+          featureid 1,
+          value "0.0341556"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "10"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 37,
+      parent 36,
+      features {
+        {
+          featureid 1,
+          value "0.003862"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "9"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 38,
+      parent 37,
+      features {
+        {
+          featureid 1,
+          value "0.000939349"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "8"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 39,
+      parent 38,
+      features {
+        {
+          featureid 1,
+          value "0.00387775"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "7"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 40,
+      parent 39,
+      features {
+        {
+          featureid 1,
+          value "0.00221618"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 41,
+      parent 40,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Tyto alba]"
+        },
+        {
+          featureid 1,
+          value "0.00856428"
+        },
+        {
+          featureid 2,
+          value "ref|XP_032853138.2"
+        },
+        {
+          featureid 3,
+          value "Tyto alba"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Tyto alba]"
+        },
+        {
+          featureid 5,
+          value "XP_032853138.2"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "common barn owl"
+        },
+        {
+          featureid 7,
+          value "69"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 42,
+      parent 40,
+      features {
+        {
+          featureid 1,
+          value "0.0178522"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 43,
+      parent 42,
+      features {
+        {
+          featureid 0,
+          value "SC5A9 protein [Melanocharis versteri]"
+        },
+        {
+          featureid 1,
+          value "0.0421678"
+        },
+        {
+          featureid 2,
+          value "gb|NXA92417.1"
+        },
+        {
+          featureid 3,
+          value "Melanocharis versteri"
+        },
+        {
+          featureid 4,
+          value "SC5A9 protein [Melanocharis versteri]"
+        },
+        {
+          featureid 5,
+          value "NXA92417.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "Fan-tailed berrypecker"
+        },
+        {
+          featureid 7,
+          value "82"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 44,
+      parent 42,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Pezoporus
+ flaviventris]"
+        },
+        {
+          featureid 1,
+          value "0.0411056"
+        },
+        {
+          featureid 2,
+          value "ref|XP_061307285.1"
+        },
+        {
+          featureid 3,
+          value "Pezoporus flaviventris"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Pezoporus
+ flaviventris]"
+        },
+        {
+          featureid 5,
+          value "XP_061307285.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "Pezoporus flaviventris"
+        },
+        {
+          featureid 7,
+          value "96"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 45,
+      parent 39,
+      features {
+        {
+          featureid 1,
+          value "0.00930184"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 46,
+      parent 45,
+      features {
+        {
+          featureid 1,
+          value "0.00538432"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 47,
+      parent 46,
+      features {
+        {
+          featureid 1,
+          value "0.00265117"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "birds"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        }
+      }
+    },
+    {
+      id 48,
+      parent 47,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform A [Patagioenas
+ fasciata monilis]"
+        },
+        {
+          featureid 1,
+          value "0.00355155"
+        },
+        {
+          featureid 2,
+          value "gb|OPJ82242.1"
+        },
+        {
+          featureid 3,
+          value "Patagioenas fasciata monilis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform A [Patagioenas
+ fasciata monilis]"
+        },
+        {
+          featureid 5,
+          value "OPJ82242.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "Patagioenas fasciata monilis"
+        },
+        {
+          featureid 7,
+          value "83"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 49,
+      parent 47,
+      features {
+        {
+          featureid 0,
+          value "Slc5a9 [Columba guinea]"
+        },
+        {
+          featureid 1,
+          value "0.0063009"
+        },
+        {
+          featureid 2,
+          value "gb|KAK2519786.1"
+        },
+        {
+          featureid 3,
+          value "Columba guinea"
+        },
+        {
+          featureid 4,
+          value "Slc5a9 [Columba guinea]"
+        },
+        {
+          featureid 5,
+          value "KAK2519786.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "speckled pigeon"
+        },
+        {
+          featureid 7,
+          value "75"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 50,
+      parent 46,
+      features {
+        {
+          featureid 0,
+          value "Sodium/glucose cotransporter 4 [Eudyptula albosignata]"
+        },
+        {
+          featureid 1,
+          value "0.0146721"
+        },
+        {
+          featureid 2,
+          value "gb|KAF1554115.1"
+        },
+        {
+          featureid 3,
+          value "Eudyptula albosignata"
+        },
+        {
+          featureid 4,
+          value "Sodium/glucose cotransporter 4 [Eudyptula albosignata]"
+        },
+        {
+          featureid 5,
+          value "KAF1554115.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "White-flippered penguin"
+        },
+        {
+          featureid 7,
+          value "71"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 51,
+      parent 45,
+      features {
+        {
+          featureid 0,
+          value "PREDICTED: sodium/glucose cotransporter 4-like [Nipponia
+ nippon]"
+        },
+        {
+          featureid 1,
+          value "0.00519046"
+        },
+        {
+          featureid 2,
+          value "ref|XP_009474726.1"
+        },
+        {
+          featureid 3,
+          value "Nipponia nippon"
+        },
+        {
+          featureid 4,
+          value "PREDICTED: sodium/glucose cotransporter 4-like [Nipponia
+ nippon]"
+        },
+        {
+          featureid 5,
+          value "XP_009474726.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "crested ibis"
+        },
+        {
+          featureid 7,
+          value "67"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 52,
+      parent 38,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Corvus hawaiiensis]"
+        },
+        {
+          featureid 1,
+          value "0.0165582"
+        },
+        {
+          featureid 2,
+          value "ref|XP_048168955.1"
+        },
+        {
+          featureid 3,
+          value "Corvus hawaiiensis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Corvus hawaiiensis]"
+        },
+        {
+          featureid 5,
+          value "XP_048168955.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "hawaiian crow"
+        },
+        {
+          featureid 7,
+          value "72"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 53,
+      parent 37,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Apteryx mantelli]"
+        },
+        {
+          featureid 1,
+          value "0.0258712"
+        },
+        {
+          featureid 2,
+          value "ref|XP_067157320.1"
+        },
+        {
+          featureid 3,
+          value "Apteryx mantelli"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Apteryx mantelli]"
+        },
+        {
+          featureid 5,
+          value "XP_067157320.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "North Island brown kiwi"
+        },
+        {
+          featureid 7,
+          value "80"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 54,
+      parent 36,
+      features {
+        {
+          featureid 0,
+          value "Sodium/glucose cotransporter 4 [Chlamydotis macqueenii]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "gb|KFP41522.1"
+        },
+        {
+          featureid 3,
+          value "Chlamydotis macqueenii"
+        },
+        {
+          featureid 4,
+          value "Sodium/glucose cotransporter 4 [Chlamydotis macqueenii]"
+        },
+        {
+          featureid 5,
+          value "KFP41522.1"
+        },
+        {
+          featureid 6,
+          value "birds"
+        },
+        {
+          featureid 15,
+          value "Macqueen's bustard"
+        },
+        {
+          featureid 7,
+          value "87"
+        },
+        {
+          featureid 8,
+          value "205 102 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 55,
+      parent 33,
+      features {
+        {
+          featureid 1,
+          value "0.0148991"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "snakes and lizards & snakes"
+        },
+        {
+          featureid 14,
+          value "2"
+        }
+      }
+    },
+    {
+      id 56,
+      parent 55,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Candoia aspera]"
+        },
+        {
+          featureid 1,
+          value "0.0458153"
+        },
+        {
+          featureid 2,
+          value "ref|XP_063153971.1"
+        },
+        {
+          featureid 3,
+          value "Candoia aspera"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Candoia aspera]"
+        },
+        {
+          featureid 5,
+          value "XP_063153971.1"
+        },
+        {
+          featureid 6,
+          value "snakes"
+        },
+        {
+          featureid 15,
+          value "Candoia aspera"
+        },
+        {
+          featureid 7,
+          value "76"
+        },
+        {
+          featureid 8,
+          value "0 250 154"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 57,
+      parent 55,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Anolis carolinensis]"
+        },
+        {
+          featureid 1,
+          value "0.032634"
+        },
+        {
+          featureid 2,
+          value "ref|XP_062834391.1"
+        },
+        {
+          featureid 3,
+          value "Anolis carolinensis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Anolis carolinensis]"
+        },
+        {
+          featureid 5,
+          value "XP_062834391.1"
+        },
+        {
+          featureid 6,
+          value "lizards & snakes"
+        },
+        {
+          featureid 15,
+          value "green anole"
+        },
+        {
+          featureid 7,
+          value "91"
+        },
+        {
+          featureid 8,
+          value "119 136 153"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 58,
+      parent 32,
+      features {
+        {
+          featureid 1,
+          value "0.0206625"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "72"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 59,
+      parent 58,
+      features {
+        {
+          featureid 1,
+          value "0.0260285"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "marsupials"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "139 0 0"
+        }
+      }
+    },
+    {
+      id 60,
+      parent 59,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X4 [Vombatus ursinus]"
+        },
+        {
+          featureid 1,
+          value "0.0255427"
+        },
+        {
+          featureid 2,
+          value "ref|XP_027694063.1"
+        },
+        {
+          featureid 3,
+          value "Vombatus ursinus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X4 [Vombatus ursinus]"
+        },
+        {
+          featureid 5,
+          value "XP_027694063.1"
+        },
+        {
+          featureid 6,
+          value "marsupials"
+        },
+        {
+          featureid 15,
+          value "common wombat"
+        },
+        {
+          featureid 7,
+          value "88"
+        },
+        {
+          featureid 8,
+          value "139 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 61,
+      parent 59,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Sarcophilus harrisii]"
+        },
+        {
+          featureid 1,
+          value "0.0247403"
+        },
+        {
+          featureid 2,
+          value "ref|XP_031805253.1"
+        },
+        {
+          featureid 3,
+          value "Sarcophilus harrisii"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Sarcophilus harrisii]"
+        },
+        {
+          featureid 5,
+          value "XP_031805253.1"
+        },
+        {
+          featureid 6,
+          value "marsupials"
+        },
+        {
+          featureid 15,
+          value "Tasmanian devil"
+        },
+        {
+          featureid 7,
+          value "97"
+        },
+        {
+          featureid 8,
+          value "139 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 62,
+      parent 58,
+      features {
+        {
+          featureid 1,
+          value "0.0180981"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "70"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 63,
+      parent 62,
+      features {
+        {
+          featureid 1,
+          value "0.0259591"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "rabbits & hares"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "175 127 255"
+        }
+      }
+    },
+    {
+      id 64,
+      parent 63,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X1 [Ochotona curzoniae]"
+        },
+        {
+          featureid 1,
+          value "0.0493464"
+        },
+        {
+          featureid 2,
+          value "ref|XP_040834616.1"
+        },
+        {
+          featureid 3,
+          value "Ochotona curzoniae"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X1 [Ochotona curzoniae]"
+        },
+        {
+          featureid 5,
+          value "XP_040834616.1"
+        },
+        {
+          featureid 6,
+          value "rabbits & hares"
+        },
+        {
+          featureid 15,
+          value "black-lipped pika"
+        },
+        {
+          featureid 7,
+          value "32"
+        },
+        {
+          featureid 8,
+          value "175 127 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 65,
+      parent 63,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X1 [Lepus europaeus]"
+        },
+        {
+          featureid 1,
+          value "0.041337"
+        },
+        {
+          featureid 2,
+          value "ref|XP_062049312.1"
+        },
+        {
+          featureid 3,
+          value "Lepus europaeus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X1 [Lepus europaeus]"
+        },
+        {
+          featureid 5,
+          value "XP_062049312.1"
+        },
+        {
+          featureid 6,
+          value "rabbits & hares"
+        },
+        {
+          featureid 15,
+          value "European hare"
+        },
+        {
+          featureid 7,
+          value "55"
+        },
+        {
+          featureid 8,
+          value "175 127 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 66,
+      parent 62,
+      features {
+        {
+          featureid 1,
+          value "0.00252252"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "68"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 67,
+      parent 66,
+      features {
+        {
+          featureid 1,
+          value "0.0627679"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 68,
+      parent 67,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Ictidomys tridecemlineatus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_040144565.1"
+        },
+        {
+          featureid 3,
+          value "Ictidomys tridecemlineatus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Ictidomys tridecemlineatus]"
+        },
+        {
+          featureid 5,
+          value "XP_040144565.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "thirteen-lined ground squirrel"
+        },
+        {
+          featureid 7,
+          value "56"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 69,
+      parent 67,
+      features {
+        {
+          featureid 0,
+          value "solute carrier family 5 member 9 [Ictidomys tridecemlineatus]"
+        },
+        {
+          featureid 1,
+          value "0.002558"
+        },
+        {
+          featureid 2,
+          value "gb|KAG3283111.1"
+        },
+        {
+          featureid 3,
+          value "Ictidomys tridecemlineatus"
+        },
+        {
+          featureid 4,
+          value "solute carrier family 5 member 9 [Ictidomys tridecemlineatus]"
+        },
+        {
+          featureid 5,
+          value "KAG3283111.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "thirteen-lined ground squirrel"
+        },
+        {
+          featureid 7,
+          value "66"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 70,
+      parent 66,
+      features {
+        {
+          featureid 1,
+          value "0.00269954"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "66"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 71,
+      parent 70,
+      features {
+        {
+          featureid 1,
+          value "0.00228741"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "59"
+        }
+      }
+    },
+    {
+      id 72,
+      parent 71,
+      features {
+        {
+          featureid 1,
+          value "0.00284975"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents and insectivores"
+        },
+        {
+          featureid 14,
+          value "20"
+        }
+      }
+    },
+    {
+      id 73,
+      parent 72,
+      features {
+        {
+          featureid 1,
+          value "0.00258128"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents and insectivores"
+        },
+        {
+          featureid 14,
+          value "11"
+        }
+      }
+    },
+    {
+      id 74,
+      parent 73,
+      features {
+        {
+          featureid 1,
+          value "0.00807983"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "rodents and insectivores"
+        },
+        {
+          featureid 14,
+          value "4"
+        }
+      }
+    },
+    {
+      id 75,
+      parent 74,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Castor canadensis]"
+        },
+        {
+          featureid 1,
+          value "0.041415"
+        },
+        {
+          featureid 2,
+          value "ref|XP_020041956.1"
+        },
+        {
+          featureid 3,
+          value "Castor canadensis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Castor canadensis]"
+        },
+        {
+          featureid 5,
+          value "XP_020041956.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "American beaver"
+        },
+        {
+          featureid 7,
+          value "27"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 76,
+      parent 74,
+      features {
+        {
+          featureid 1,
+          value "0.00240504"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents and insectivores"
+        },
+        {
+          featureid 14,
+          value "3"
+        }
+      }
+    },
+    {
+      id 77,
+      parent 76,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X1 [Erinaceus
+ europaeus]"
+        },
+        {
+          featureid 1,
+          value "0.062399"
+        },
+        {
+          featureid 2,
+          value "ref|XP_060061913.1"
+        },
+        {
+          featureid 3,
+          value "Erinaceus europaeus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X1 [Erinaceus
+ europaeus]"
+        },
+        {
+          featureid 5,
+          value "XP_060061913.1"
+        },
+        {
+          featureid 6,
+          value "insectivores"
+        },
+        {
+          featureid 15,
+          value "western European hedgehog"
+        },
+        {
+          featureid 7,
+          value "38"
+        },
+        {
+          featureid 8,
+          value "95 79 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 78,
+      parent 76,
+      features {
+        {
+          featureid 1,
+          value "0.0627076"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 79,
+      parent 78,
+      features {
+        {
+          featureid 0,
+          value "LOW QUALITY PROTEIN: sodium/glucose cotransporter 4-like
+ [Nannospalax galili]"
+        },
+        {
+          featureid 1,
+          value "0.0507767"
+        },
+        {
+          featureid 2,
+          value "ref|XP_008846306.1"
+        },
+        {
+          featureid 3,
+          value "Nannospalax galili"
+        },
+        {
+          featureid 4,
+          value "LOW QUALITY PROTEIN: sodium/glucose cotransporter 4-like
+ [Nannospalax galili]"
+        },
+        {
+          featureid 5,
+          value "XP_008846306.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "Upper Galilee mountains blind mole rat"
+        },
+        {
+          featureid 7,
+          value "24"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 80,
+      parent 78,
+      features {
+        {
+          featureid 0,
+          value "LOW QUALITY PROTEIN: sodium/glucose cotransporter 4-like
+ [Nannospalax galili]"
+        },
+        {
+          featureid 1,
+          value "0.0351602"
+        },
+        {
+          featureid 2,
+          value "ref|XP_008820526.1"
+        },
+        {
+          featureid 3,
+          value "Nannospalax galili"
+        },
+        {
+          featureid 4,
+          value "LOW QUALITY PROTEIN: sodium/glucose cotransporter 4-like
+ [Nannospalax galili]"
+        },
+        {
+          featureid 5,
+          value "XP_008820526.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "Upper Galilee mountains blind mole rat"
+        },
+        {
+          featureid 7,
+          value "45"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 81,
+      parent 73,
+      features {
+        {
+          featureid 1,
+          value "0.00695395"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "7"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 82,
+      parent 81,
+      features {
+        {
+          featureid 1,
+          value "0.00799763"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 83,
+      parent 82,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Rattus norvegicus]"
+        },
+        {
+          featureid 1,
+          value "0.0143683"
+        },
+        {
+          featureid 2,
+          value "ref|XP_063144184.1"
+        },
+        {
+          featureid 3,
+          value "Rattus norvegicus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Rattus norvegicus]"
+        },
+        {
+          featureid 5,
+          value "XP_063144184.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "Norway rat"
+        },
+        {
+          featureid 7,
+          value "33"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 84,
+      parent 82,
+      features {
+        {
+          featureid 1,
+          value "0.0126707"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 85,
+      parent 84,
+      features {
+        {
+          featureid 1,
+          value "0.0250761"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 86,
+      parent 85,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Mus musculus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_006503065.1"
+        },
+        {
+          featureid 3,
+          value "Mus musculus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Mus musculus]"
+        },
+        {
+          featureid 5,
+          value "XP_006503065.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "house mouse"
+        },
+        {
+          featureid 7,
+          value "41"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 87,
+      parent 85,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Mus musculus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|NP_663526.3"
+        },
+        {
+          featureid 3,
+          value "Mus musculus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Mus musculus]"
+        },
+        {
+          featureid 5,
+          value "NP_663526.3"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "house mouse"
+        },
+        {
+          featureid 7,
+          value "51"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 88,
+      parent 84,
+      features {
+        {
+          featureid 0,
+          value "Sodium/glucose cotransporter 4 [Apodemus speciosus]"
+        },
+        {
+          featureid 1,
+          value "0.0119736"
+        },
+        {
+          featureid 2,
+          value "dbj|GAB1288744.1"
+        },
+        {
+          featureid 3,
+          value "Apodemus speciosus"
+        },
+        {
+          featureid 4,
+          value "Sodium/glucose cotransporter 4 [Apodemus speciosus]"
+        },
+        {
+          featureid 5,
+          value "GAB1288744.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "large Japanese field mouse"
+        },
+        {
+          featureid 7,
+          value "50"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 89,
+      parent 81,
+      features {
+        {
+          featureid 1,
+          value "0.0171736"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 90,
+      parent 89,
+      features {
+        {
+          featureid 1,
+          value "0.00167039"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 91,
+      parent 90,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Myodes glareolus]"
+        },
+        {
+          featureid 1,
+          value "0.0337239"
+        },
+        {
+          featureid 2,
+          value "ref|XP_048309355.1"
+        },
+        {
+          featureid 3,
+          value "Myodes glareolus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Myodes glareolus]"
+        },
+        {
+          featureid 5,
+          value "XP_048309355.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "Bank vole"
+        },
+        {
+          featureid 7,
+          value "34"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 92,
+      parent 90,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Cricetulus griseus]"
+        },
+        {
+          featureid 1,
+          value "0.0213637"
+        },
+        {
+          featureid 2,
+          value "gb|ERE82871.1"
+        },
+        {
+          featureid 3,
+          value "Cricetulus griseus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Cricetulus griseus]"
+        },
+        {
+          featureid 5,
+          value "ERE82871.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "Chinese hamster"
+        },
+        {
+          featureid 7,
+          value "40"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 93,
+      parent 89,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X1 [Sigmodon hispidus]"
+        },
+        {
+          featureid 1,
+          value "0.0258852"
+        },
+        {
+          featureid 2,
+          value "gb|KAL1777084.1"
+        },
+        {
+          featureid 3,
+          value "Sigmodon hispidus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X1 [Sigmodon hispidus]"
+        },
+        {
+          featureid 5,
+          value "KAL1777084.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "hispid cotton rat"
+        },
+        {
+          featureid 7,
+          value "52"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 94,
+      parent 72,
+      features {
+        {
+          featureid 1,
+          value "0.00609026"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "9"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 95,
+      parent 94,
+      features {
+        {
+          featureid 1,
+          value "0.0477424"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 96,
+      parent 95,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X1 [Perognathus
+ longimembris pacificus]"
+        },
+        {
+          featureid 1,
+          value "0.0196851"
+        },
+        {
+          featureid 2,
+          value "ref|XP_048207225.1"
+        },
+        {
+          featureid 3,
+          value "Perognathus longimembris pacificus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X1 [Perognathus
+ longimembris pacificus]"
+        },
+        {
+          featureid 5,
+          value "XP_048207225.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "Pacific pocket mouse"
+        },
+        {
+          featureid 7,
+          value "29"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 97,
+      parent 95,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Dipodomys
+ spectabilis]"
+        },
+        {
+          featureid 1,
+          value "0.0291245"
+        },
+        {
+          featureid 2,
+          value "ref|XP_042540781.1"
+        },
+        {
+          featureid 3,
+          value "Dipodomys spectabilis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Dipodomys
+ spectabilis]"
+        },
+        {
+          featureid 5,
+          value "XP_042540781.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "banner-tailed kangaroo rat"
+        },
+        {
+          featureid 7,
+          value "65"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 98,
+      parent 94,
+      features {
+        {
+          featureid 1,
+          value "0.0121531"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "7"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 99,
+      parent 98,
+      features {
+        {
+          featureid 1,
+          value "0.0459646"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "5"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 100,
+      parent 99,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Cavia porcellus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_063100638.1"
+        },
+        {
+          featureid 3,
+          value "Cavia porcellus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Cavia porcellus]"
+        },
+        {
+          featureid 5,
+          value "XP_063100638.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "domestic guinea pig"
+        },
+        {
+          featureid 7,
+          value "46"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 101,
+      parent 99,
+      features {
+        {
+          featureid 1,
+          value "0.00466332"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 102,
+      parent 101,
+      features {
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 103,
+      parent 102,
+      features {
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 104,
+      parent 103,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X1 [Cavia porcellus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_063092502.1"
+        },
+        {
+          featureid 3,
+          value "Cavia porcellus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X1 [Cavia porcellus]"
+        },
+        {
+          featureid 5,
+          value "XP_063092502.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "domestic guinea pig"
+        },
+        {
+          featureid 7,
+          value "49"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 105,
+      parent 103,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X8 [Cavia porcellus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_063092509.1"
+        },
+        {
+          featureid 3,
+          value "Cavia porcellus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X8 [Cavia porcellus]"
+        },
+        {
+          featureid 5,
+          value "XP_063092509.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "domestic guinea pig"
+        },
+        {
+          featureid 7,
+          value "54"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 106,
+      parent 102,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X7 [Cavia porcellus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_063092508.1"
+        },
+        {
+          featureid 3,
+          value "Cavia porcellus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X7 [Cavia porcellus]"
+        },
+        {
+          featureid 5,
+          value "XP_063092508.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "domestic guinea pig"
+        },
+        {
+          featureid 7,
+          value "57"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 107,
+      parent 101,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Cavia porcellus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_063092504.1"
+        },
+        {
+          featureid 3,
+          value "Cavia porcellus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Cavia porcellus]"
+        },
+        {
+          featureid 5,
+          value "XP_063092504.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "domestic guinea pig"
+        },
+        {
+          featureid 7,
+          value "61"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 108,
+      parent 98,
+      features {
+        {
+          featureid 1,
+          value "0.0276769"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "rodents"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        }
+      }
+    },
+    {
+      id 109,
+      parent 108,
+      features {
+        {
+          featureid 0,
+          value "Sodium/glucose cotransporter 4 [Fukomys damarensis]"
+        },
+        {
+          featureid 1,
+          value "0.0203417"
+        },
+        {
+          featureid 2,
+          value "gb|KFO20908.1"
+        },
+        {
+          featureid 3,
+          value "Fukomys damarensis"
+        },
+        {
+          featureid 4,
+          value "Sodium/glucose cotransporter 4 [Fukomys damarensis]"
+        },
+        {
+          featureid 5,
+          value "KFO20908.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "Damara mole-rat"
+        },
+        {
+          featureid 7,
+          value "47"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 110,
+      parent 108,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Heterocephalus glaber]"
+        },
+        {
+          featureid 1,
+          value "0.0284678"
+        },
+        {
+          featureid 2,
+          value "ref|XP_004869353.1"
+        },
+        {
+          featureid 3,
+          value "Heterocephalus glaber"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Heterocephalus glaber]"
+        },
+        {
+          featureid 5,
+          value "XP_004869353.1"
+        },
+        {
+          featureid 6,
+          value "rodents"
+        },
+        {
+          featureid 15,
+          value "naked mole-rat"
+        },
+        {
+          featureid 7,
+          value "58"
+        },
+        {
+          featureid 8,
+          value "128 0 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 111,
+      parent 71,
+      features {
+        {
+          featureid 1,
+          value "0.00280067"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "39"
+        }
+      }
+    },
+    {
+      id 112,
+      parent 111,
+      features {
+        {
+          featureid 1,
+          value "0.00684353"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "35"
+        }
+      }
+    },
+    {
+      id 113,
+      parent 112,
+      features {
+        {
+          featureid 1,
+          value "0.0369119"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "insectivores"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "95 79 95"
+        }
+      }
+    },
+    {
+      id 114,
+      parent 113,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Suncus etruscus]"
+        },
+        {
+          featureid 1,
+          value "0.0557849"
+        },
+        {
+          featureid 2,
+          value "ref|XP_049630678.1"
+        },
+        {
+          featureid 3,
+          value "Suncus etruscus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Suncus etruscus]"
+        },
+        {
+          featureid 5,
+          value "XP_049630678.1"
+        },
+        {
+          featureid 6,
+          value "insectivores"
+        },
+        {
+          featureid 15,
+          value "white-toothed pygmy shrew"
+        },
+        {
+          featureid 7,
+          value "64"
+        },
+        {
+          featureid 8,
+          value "95 79 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 115,
+      parent 113,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4-like [Sorex araneus]"
+        },
+        {
+          featureid 1,
+          value "0.0639068"
+        },
+        {
+          featureid 2,
+          value "ref|XP_054995640.1"
+        },
+        {
+          featureid 3,
+          value "Sorex araneus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4-like [Sorex araneus]"
+        },
+        {
+          featureid 5,
+          value "XP_054995640.1"
+        },
+        {
+          featureid 6,
+          value "insectivores"
+        },
+        {
+          featureid 15,
+          value "European shrew"
+        },
+        {
+          featureid 7,
+          value "81"
+        },
+        {
+          featureid 8,
+          value "95 79 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 116,
+      parent 112,
+      features {
+        {
+          featureid 1,
+          value "0.00714319"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "33"
+        }
+      }
+    },
+    {
+      id 117,
+      parent 116,
+      features {
+        {
+          featureid 1,
+          value "0.00268523"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "14"
+        }
+      }
+    },
+    {
+      id 118,
+      parent 117,
+      features {
+        {
+          featureid 1,
+          value "0.00566364"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "11"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 119,
+      parent 118,
+      features {
+        {
+          featureid 1,
+          value "0.00706922"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 120,
+      parent 119,
+      features {
+        {
+          featureid 1,
+          value "0.0123613"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 121,
+      parent 120,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Neofelis nebulosa]"
+        },
+        {
+          featureid 1,
+          value "0.00227714"
+        },
+        {
+          featureid 2,
+          value "ref|XP_058573436.1"
+        },
+        {
+          featureid 3,
+          value "Neofelis nebulosa"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Neofelis nebulosa]"
+        },
+        {
+          featureid 5,
+          value "XP_058573436.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "Clouded leopard"
+        },
+        {
+          featureid 7,
+          value "13"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 122,
+      parent 120,
+      features {
+        {
+          featureid 1,
+          value "0.00237671"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 123,
+      parent 122,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Acinonyx jubatus]"
+        },
+        {
+          featureid 1,
+          value "0.00175724"
+        },
+        {
+          featureid 2,
+          value "ref|XP_053069896.1"
+        },
+        {
+          featureid 3,
+          value "Acinonyx jubatus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Acinonyx jubatus]"
+        },
+        {
+          featureid 5,
+          value "XP_053069896.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "cheetah"
+        },
+        {
+          featureid 7,
+          value "17"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 124,
+      parent 122,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Puma concolor]"
+        },
+        {
+          featureid 1,
+          value "0.0724186"
+        },
+        {
+          featureid 2,
+          value "ref|XP_025782554.1"
+        },
+        {
+          featureid 3,
+          value "Puma concolor"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Puma concolor]"
+        },
+        {
+          featureid 5,
+          value "XP_025782554.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "puma"
+        },
+        {
+          featureid 7,
+          value "92"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 125,
+      parent 119,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Hyaena hyaena]"
+        },
+        {
+          featureid 1,
+          value "0.0129333"
+        },
+        {
+          featureid 2,
+          value "ref|XP_039080583.1"
+        },
+        {
+          featureid 3,
+          value "Hyaena hyaena"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Hyaena hyaena]"
+        },
+        {
+          featureid 5,
+          value "XP_039080583.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "striped hyena"
+        },
+        {
+          featureid 7,
+          value "22"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 126,
+      parent 118,
+      features {
+        {
+          featureid 1,
+          value "0.00195789"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "7"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 127,
+      parent 126,
+      features {
+        {
+          featureid 1,
+          value "0.00543913"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "5"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 128,
+      parent 127,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Ursus arctos]"
+        },
+        {
+          featureid 1,
+          value "0.0235686"
+        },
+        {
+          featureid 2,
+          value "ref|XP_057166637.1"
+        },
+        {
+          featureid 3,
+          value "Ursus arctos"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Ursus arctos]"
+        },
+        {
+          featureid 5,
+          value "XP_057166637.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "brown bear"
+        },
+        {
+          featureid 7,
+          value "15"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 129,
+      parent 127,
+      features {
+        {
+          featureid 1,
+          value "0.00244857"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 130,
+      parent 129,
+      features {
+        {
+          featureid 1,
+          value "0.0137535"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 131,
+      parent 130,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Meles meles]"
+        },
+        {
+          featureid 1,
+          value "0.00409373"
+        },
+        {
+          featureid 2,
+          value "ref|XP_045872762.1"
+        },
+        {
+          featureid 3,
+          value "Meles meles"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Meles meles]"
+        },
+        {
+          featureid 5,
+          value "XP_045872762.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "Eurasian badger"
+        },
+        {
+          featureid 7,
+          value "5"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 132,
+      parent 130,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Mustela lutreola]"
+        },
+        {
+          featureid 1,
+          value "0.00915189"
+        },
+        {
+          featureid 2,
+          value "ref|XP_058992933.1"
+        },
+        {
+          featureid 3,
+          value "Mustela lutreola"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Mustela lutreola]"
+        },
+        {
+          featureid 5,
+          value "XP_058992933.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "European mink"
+        },
+        {
+          featureid 7,
+          value "10"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 133,
+      parent 129,
+      features {
+        {
+          featureid 1,
+          value "0.0316958"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 134,
+      parent 133,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Mirounga angustirostris]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_045751378.1"
+        },
+        {
+          featureid 3,
+          value "Mirounga angustirostris"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Mirounga angustirostris]"
+        },
+        {
+          featureid 5,
+          value "XP_045751378.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "Northern elephant seal"
+        },
+        {
+          featureid 7,
+          value "18"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 135,
+      parent 133,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein GH733_015369 [Mirounga leonina]"
+        },
+        {
+          featureid 1,
+          value "0.00727812"
+        },
+        {
+          featureid 2,
+          value "gb|KAF3819860.1"
+        },
+        {
+          featureid 3,
+          value "Mirounga leonina"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein GH733_015369 [Mirounga leonina]"
+        },
+        {
+          featureid 5,
+          value "KAF3819860.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "Southern elephant seal"
+        },
+        {
+          featureid 7,
+          value "73"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 136,
+      parent 126,
+      features {
+        {
+          featureid 1,
+          value "0.0401107"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "carnivores"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        }
+      }
+    },
+    {
+      id 137,
+      parent 136,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Canis lupus baileyi]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_072628315.1"
+        },
+        {
+          featureid 3,
+          value "Canis lupus baileyi"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Canis lupus baileyi]"
+        },
+        {
+          featureid 5,
+          value "XP_072628315.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "Mexican gray wolf"
+        },
+        {
+          featureid 7,
+          value "42"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 138,
+      parent 136,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Canis lupus dingo]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_048950330.1"
+        },
+        {
+          featureid 3,
+          value "Canis lupus dingo"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Canis lupus dingo]"
+        },
+        {
+          featureid 5,
+          value "XP_048950330.1"
+        },
+        {
+          featureid 6,
+          value "carnivores"
+        },
+        {
+          featureid 15,
+          value "dingo"
+        },
+        {
+          featureid 7,
+          value "59"
+        },
+        {
+          featureid 8,
+          value "191 159 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 139,
+      parent 117,
+      features {
+        {
+          featureid 1,
+          value "0.00598938"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "3"
+        }
+      }
+    },
+    {
+      id 140,
+      parent 139,
+      features {
+        {
+          featureid 1,
+          value "0.00581225"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "insectivores and even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "2"
+        }
+      }
+    },
+    {
+      id 141,
+      parent 140,
+      features {
+        {
+          featureid 0,
+          value "LOW QUALITY PROTEIN: sodium/glucose cotransporter 4
+ [Phacochoerus africanus]"
+        },
+        {
+          featureid 1,
+          value "0.040008"
+        },
+        {
+          featureid 2,
+          value "ref|XP_047645111.1"
+        },
+        {
+          featureid 3,
+          value "Phacochoerus africanus"
+        },
+        {
+          featureid 4,
+          value "LOW QUALITY PROTEIN: sodium/glucose cotransporter 4
+ [Phacochoerus africanus]"
+        },
+        {
+          featureid 5,
+          value "XP_047645111.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "Common warthog"
+        },
+        {
+          featureid 7,
+          value "7"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 142,
+      parent 140,
+      features {
+        {
+          featureid 0,
+          value "Sodium/glucose cotransporter 4 [Galemys pyrenaicus]"
+        },
+        {
+          featureid 1,
+          value "0.0585911"
+        },
+        {
+          featureid 2,
+          value "gb|KAG8505433.1"
+        },
+        {
+          featureid 3,
+          value "Galemys pyrenaicus"
+        },
+        {
+          featureid 4,
+          value "Sodium/glucose cotransporter 4 [Galemys pyrenaicus]"
+        },
+        {
+          featureid 5,
+          value "KAG8505433.1"
+        },
+        {
+          featureid 6,
+          value "insectivores"
+        },
+        {
+          featureid 15,
+          value "Galemys pyrenaicus"
+        },
+        {
+          featureid 7,
+          value "16"
+        },
+        {
+          featureid 8,
+          value "95 79 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 143,
+      parent 139,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein HPG69_012280 [Diceros bicornis minor]"
+        },
+        {
+          featureid 1,
+          value "0.0521427"
+        },
+        {
+          featureid 2,
+          value "gb|KAF5923190.1"
+        },
+        {
+          featureid 3,
+          value "Diceros bicornis minor"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein HPG69_012280 [Diceros bicornis minor]"
+        },
+        {
+          featureid 5,
+          value "KAF5923190.1"
+        },
+        {
+          featureid 6,
+          value "odd-toed ungulates"
+        },
+        {
+          featureid 15,
+          value "Diceros bicornis minor"
+        },
+        {
+          featureid 7,
+          value "6"
+        },
+        {
+          featureid 8,
+          value "30 144 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 144,
+      parent 116,
+      features {
+        {
+          featureid 1,
+          value "0.00250721"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "19"
+        }
+      }
+    },
+    {
+      id 145,
+      parent 144,
+      features {
+        {
+          featureid 1,
+          value "0.00652844"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "Multiple organisms"
+        },
+        {
+          featureid 14,
+          value "12"
+        }
+      }
+    },
+    {
+      id 146,
+      parent 145,
+      features {
+        {
+          featureid 1,
+          value "0.00636541"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales and whales & dolphins"
+        },
+        {
+          featureid 14,
+          value "11"
+        }
+      }
+    },
+    {
+      id 147,
+      parent 146,
+      features {
+        {
+          featureid 1,
+          value "0.0308665"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        }
+      }
+    },
+    {
+      id 148,
+      parent 147,
+      features {
+        {
+          featureid 1,
+          value "0.00499054"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        }
+      }
+    },
+    {
+      id 149,
+      parent 148,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Camelus bactrianus]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_045369767.1"
+        },
+        {
+          featureid 3,
+          value "Camelus bactrianus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Camelus bactrianus]"
+        },
+        {
+          featureid 5,
+          value "XP_045369767.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "Bactrian camel"
+        },
+        {
+          featureid 7,
+          value "8"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 150,
+      parent 148,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Camelus
+ dromedarius]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_064349677.1"
+        },
+        {
+          featureid 3,
+          value "Camelus dromedarius"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Camelus
+ dromedarius]"
+        },
+        {
+          featureid 5,
+          value "XP_064349677.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "Arabian camel"
+        },
+        {
+          featureid 7,
+          value "31"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 151,
+      parent 147,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Vicugna pacos]"
+        },
+        {
+          featureid 1,
+          value "0.00997289"
+        },
+        {
+          featureid 2,
+          value "ref|XP_072830595.1"
+        },
+        {
+          featureid 3,
+          value "Vicugna pacos"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Vicugna pacos]"
+        },
+        {
+          featureid 5,
+          value "XP_072830595.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "alpaca"
+        },
+        {
+          featureid 7,
+          value "70"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 152,
+      parent 146,
+      features {
+        {
+          featureid 1,
+          value "0.00964615"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales and whales & dolphins"
+        },
+        {
+          featureid 14,
+          value "8"
+        }
+      }
+    },
+    {
+      id 153,
+      parent 152,
+      features {
+        {
+          featureid 1,
+          value "0.00738144"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "6"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        }
+      }
+    },
+    {
+      id 154,
+      parent 153,
+      features {
+        {
+          featureid 1,
+          value "0.00263614"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        }
+      }
+    },
+    {
+      id 155,
+      parent 154,
+      features {
+        {
+          featureid 1,
+          value "0.00202071"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        }
+      }
+    },
+    {
+      id 156,
+      parent 155,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X4 [Ovis aries]"
+        },
+        {
+          featureid 1,
+          value "0.00047252"
+        },
+        {
+          featureid 2,
+          value "ref|XP_060264781.1"
+        },
+        {
+          featureid 3,
+          value "Ovis aries"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X4 [Ovis aries]"
+        },
+        {
+          featureid 5,
+          value "XP_060264781.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "sheep"
+        },
+        {
+          featureid 7,
+          value "12"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 157,
+      parent 155,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein ABFV05_001988 [Capra hircus]"
+        },
+        {
+          featureid 1,
+          value "0.00861858"
+        },
+        {
+          featureid 2,
+          value "gb|XDB48372.1"
+        },
+        {
+          featureid 3,
+          value "Capra hircus"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein ABFV05_001988 [Capra hircus]"
+        },
+        {
+          featureid 5,
+          value "XDB48372.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "goat"
+        },
+        {
+          featureid 7,
+          value "53"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 158,
+      parent 154,
+      features {
+        {
+          featureid 1,
+          value "0.000742905"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        }
+      }
+    },
+    {
+      id 159,
+      parent 158,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Oryx dammah]"
+        },
+        {
+          featureid 1,
+          value "0.0133447"
+        },
+        {
+          featureid 2,
+          value "ref|XP_040087155.1"
+        },
+        {
+          featureid 3,
+          value "Oryx dammah"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Oryx dammah]"
+        },
+        {
+          featureid 5,
+          value "XP_040087155.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "scimitar-horned oryx"
+        },
+        {
+          featureid 7,
+          value "11"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 160,
+      parent 158,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein MG293_001920 [Ovis ammon polii]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "gb|KAI4549590.1"
+        },
+        {
+          featureid 3,
+          value "Ovis ammon polii"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein MG293_001920 [Ovis ammon polii]"
+        },
+        {
+          featureid 5,
+          value "KAI4549590.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "Ovis ammon polii"
+        },
+        {
+          featureid 7,
+          value "30"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 161,
+      parent 153,
+      features {
+        {
+          featureid 1,
+          value "0.00677476"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        }
+      }
+    },
+    {
+      id 162,
+      parent 161,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein FD754_006437 [Muntiacus muntjak]"
+        },
+        {
+          featureid 1,
+          value "0.00992665"
+        },
+        {
+          featureid 2,
+          value "gb|KAB0362281.1"
+        },
+        {
+          featureid 3,
+          value "Muntiacus muntjak"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein FD754_006437 [Muntiacus muntjak]"
+        },
+        {
+          featureid 5,
+          value "KAB0362281.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "muntjak"
+        },
+        {
+          featureid 7,
+          value "14"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 163,
+      parent 161,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Bos taurus]"
+        },
+        {
+          featureid 1,
+          value "0.00754193"
+        },
+        {
+          featureid 2,
+          value "ref|NP_001192865.1"
+        },
+        {
+          featureid 3,
+          value "Bos taurus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Bos taurus]"
+        },
+        {
+          featureid 5,
+          value "NP_001192865.1"
+        },
+        {
+          featureid 6,
+          value "even-toed ungulates & whales"
+        },
+        {
+          featureid 15,
+          value "domestic cattle"
+        },
+        {
+          featureid 7,
+          value "35"
+        },
+        {
+          featureid 8,
+          value "255 0 255"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 164,
+      parent 152,
+      features {
+        {
+          featureid 1,
+          value "0.0193238"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "whales & dolphins"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "143 143 47"
+        }
+      }
+    },
+    {
+      id 165,
+      parent 164,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein EI555_009795 [Monodon monoceros]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "gb|TKC33942.1"
+        },
+        {
+          featureid 3,
+          value "Monodon monoceros"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein EI555_009795 [Monodon monoceros]"
+        },
+        {
+          featureid 5,
+          value "TKC33942.1"
+        },
+        {
+          featureid 6,
+          value "whales & dolphins"
+        },
+        {
+          featureid 15,
+          value "narwhal"
+        },
+        {
+          featureid 7,
+          value "20"
+        },
+        {
+          featureid 8,
+          value "143 143 47"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 166,
+      parent 164,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X1 [Monodon monoceros]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_029087106.1"
+        },
+        {
+          featureid 3,
+          value "Monodon monoceros"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X1 [Monodon monoceros]"
+        },
+        {
+          featureid 5,
+          value "XP_029087106.1"
+        },
+        {
+          featureid 6,
+          value "whales & dolphins"
+        },
+        {
+          featureid 15,
+          value "narwhal"
+        },
+        {
+          featureid 7,
+          value "21"
+        },
+        {
+          featureid 8,
+          value "143 143 47"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 167,
+      parent 145,
+      features {
+        {
+          featureid 0,
+          value "solute carrier family 5 member 9 [Rousettus aegyptiacus]"
+        },
+        {
+          featureid 1,
+          value "0.0312987"
+        },
+        {
+          featureid 2,
+          value "gb|KAF6508126.1"
+        },
+        {
+          featureid 3,
+          value "Rousettus aegyptiacus"
+        },
+        {
+          featureid 4,
+          value "solute carrier family 5 member 9 [Rousettus aegyptiacus]"
+        },
+        {
+          featureid 5,
+          value "KAF6508126.1"
+        },
+        {
+          featureid 6,
+          value "bats"
+        },
+        {
+          featureid 15,
+          value "Egyptian rousette"
+        },
+        {
+          featureid 7,
+          value "19"
+        },
+        {
+          featureid 8,
+          value "223 11 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 168,
+      parent 144,
+      features {
+        {
+          featureid 1,
+          value "0.00403713"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "bats and placentals"
+        },
+        {
+          featureid 14,
+          value "7"
+        }
+      }
+    },
+    {
+      id 169,
+      parent 168,
+      features {
+        {
+          featureid 1,
+          value "0.00286028"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "placentals and bats"
+        },
+        {
+          featureid 14,
+          value "5"
+        }
+      }
+    },
+    {
+      id 170,
+      parent 169,
+      features {
+        {
+          featureid 1,
+          value "0.007964"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bats"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "223 11 95"
+        }
+      }
+    },
+    {
+      id 171,
+      parent 170,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Phyllostomus
+ hastatus]"
+        },
+        {
+          featureid 1,
+          value "0.0164318"
+        },
+        {
+          featureid 2,
+          value "ref|XP_045713223.1"
+        },
+        {
+          featureid 3,
+          value "Phyllostomus hastatus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Phyllostomus
+ hastatus]"
+        },
+        {
+          featureid 5,
+          value "XP_045713223.1"
+        },
+        {
+          featureid 6,
+          value "bats"
+        },
+        {
+          featureid 15,
+          value "greater spear-nosed bat"
+        },
+        {
+          featureid 7,
+          value "9"
+        },
+        {
+          featureid 8,
+          value "223 11 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 172,
+      parent 170,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Desmodus rotundus]"
+        },
+        {
+          featureid 1,
+          value "0.028704"
+        },
+        {
+          featureid 2,
+          value "ref|XP_045060204.2"
+        },
+        {
+          featureid 3,
+          value "Desmodus rotundus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Desmodus rotundus]"
+        },
+        {
+          featureid 5,
+          value "XP_045060204.2"
+        },
+        {
+          featureid 6,
+          value "bats"
+        },
+        {
+          featureid 15,
+          value "common vampire bat"
+        },
+        {
+          featureid 7,
+          value "63"
+        },
+        {
+          featureid 8,
+          value "223 11 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 173,
+      parent 169,
+      features {
+        {
+          featureid 1,
+          value "0.025522"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "placentals"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        }
+      }
+    },
+    {
+      id 174,
+      parent 173,
+      features {
+        {
+          featureid 1,
+          value "0.0118767"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "placentals"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        }
+      }
+    },
+    {
+      id 175,
+      parent 174,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X3 [Manis pentadactyla]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_057356172.1"
+        },
+        {
+          featureid 3,
+          value "Manis pentadactyla"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X3 [Manis pentadactyla]"
+        },
+        {
+          featureid 5,
+          value "XP_057356172.1"
+        },
+        {
+          featureid 6,
+          value "placentals"
+        },
+        {
+          featureid 15,
+          value "Chinese pangolin"
+        },
+        {
+          featureid 7,
+          value "25"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 176,
+      parent 174,
+      features {
+        {
+          featureid 0,
+          value "Sodium/Glucose Cotransporter 4 [Manis pentadactyla]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "gb|KAI5139292.1"
+        },
+        {
+          featureid 3,
+          value "Manis pentadactyla"
+        },
+        {
+          featureid 4,
+          value "Sodium/Glucose Cotransporter 4 [Manis pentadactyla]"
+        },
+        {
+          featureid 5,
+          value "KAI5139292.1"
+        },
+        {
+          featureid 6,
+          value "placentals"
+        },
+        {
+          featureid 15,
+          value "Chinese pangolin"
+        },
+        {
+          featureid 7,
+          value "28"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 177,
+      parent 173,
+      features {
+        {
+          featureid 0,
+          value "hypothetical protein MC885_004934 [Smutsia gigantea]"
+        },
+        {
+          featureid 1,
+          value "0.0106995"
+        },
+        {
+          featureid 2,
+          value "gb|KAK2507223.1"
+        },
+        {
+          featureid 3,
+          value "Smutsia gigantea"
+        },
+        {
+          featureid 4,
+          value "hypothetical protein MC885_004934 [Smutsia gigantea]"
+        },
+        {
+          featureid 5,
+          value "KAK2507223.1"
+        },
+        {
+          featureid 6,
+          value "placentals"
+        },
+        {
+          featureid 15,
+          value "giant pangolin"
+        },
+        {
+          featureid 7,
+          value "26"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 178,
+      parent 168,
+      features {
+        {
+          featureid 1,
+          value "0.0327171"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "bats"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "223 11 95"
+        }
+      }
+    },
+    {
+      id 179,
+      parent 178,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 [Myotis myotis]"
+        },
+        {
+          featureid 1,
+          value "0.0208648"
+        },
+        {
+          featureid 2,
+          value "ref|XP_036207129.1"
+        },
+        {
+          featureid 3,
+          value "Myotis myotis"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 [Myotis myotis]"
+        },
+        {
+          featureid 5,
+          value "XP_036207129.1"
+        },
+        {
+          featureid 6,
+          value "bats"
+        },
+        {
+          featureid 15,
+          value "Myotis myotis"
+        },
+        {
+          featureid 7,
+          value "39"
+        },
+        {
+          featureid 8,
+          value "223 11 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 180,
+      parent 178,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X2 [Pipistrellus
+ kuhlii]"
+        },
+        {
+          featureid 1,
+          value "0.01942"
+        },
+        {
+          featureid 2,
+          value "ref|XP_036300702.1"
+        },
+        {
+          featureid 3,
+          value "Pipistrellus kuhlii"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X2 [Pipistrellus
+ kuhlii]"
+        },
+        {
+          featureid 5,
+          value "XP_036300702.1"
+        },
+        {
+          featureid 6,
+          value "bats"
+        },
+        {
+          featureid 15,
+          value "Kuhl's pipistrelle"
+        },
+        {
+          featureid 7,
+          value "68"
+        },
+        {
+          featureid 8,
+          value "223 11 95"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 181,
+      parent 111,
+      features {
+        {
+          featureid 1,
+          value "0.000282852"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "placentals"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        }
+      }
+    },
+    {
+      id 182,
+      parent 181,
+      features {
+        {
+          featureid 0,
+          value "PREDICTED: sodium/glucose cotransporter 4 isoform X1
+ [Galeopterus variegatus]"
+        },
+        {
+          featureid 1,
+          value "0.0539514"
+        },
+        {
+          featureid 2,
+          value "ref|XP_008566431.1"
+        },
+        {
+          featureid 3,
+          value "Galeopterus variegatus"
+        },
+        {
+          featureid 4,
+          value "PREDICTED: sodium/glucose cotransporter 4 isoform X1
+ [Galeopterus variegatus]"
+        },
+        {
+          featureid 5,
+          value "XP_008566431.1"
+        },
+        {
+          featureid 6,
+          value "placentals"
+        },
+        {
+          featureid 15,
+          value "Sunda flying lemur"
+        },
+        {
+          featureid 7,
+          value "48"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 183,
+      parent 181,
+      features {
+        {
+          featureid 1,
+          value "0.002798"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "placentals"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        }
+      }
+    },
+    {
+      id 184,
+      parent 183,
+      features {
+        {
+          featureid 0,
+          value "Sodium/glucose cotransporter 4 [Tupaia chinensis]"
+        },
+        {
+          featureid 1,
+          value "0.0298369"
+        },
+        {
+          featureid 2,
+          value "gb|ELW67058.1"
+        },
+        {
+          featureid 3,
+          value "Tupaia chinensis"
+        },
+        {
+          featureid 4,
+          value "Sodium/glucose cotransporter 4 [Tupaia chinensis]"
+        },
+        {
+          featureid 5,
+          value "ELW67058.1"
+        },
+        {
+          featureid 6,
+          value "placentals"
+        },
+        {
+          featureid 15,
+          value "Chinese tree shrew"
+        },
+        {
+          featureid 7,
+          value "23"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 185,
+      parent 183,
+      features {
+        {
+          featureid 1,
+          value "0.0087096"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "placentals"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        }
+      }
+    },
+    {
+      id 186,
+      parent 185,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X4 [Dasypus
+ novemcinctus]"
+        },
+        {
+          featureid 1,
+          value "0.0331039"
+        },
+        {
+          featureid 2,
+          value "ref|XP_071073562.1"
+        },
+        {
+          featureid 3,
+          value "Dasypus novemcinctus"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X4 [Dasypus
+ novemcinctus]"
+        },
+        {
+          featureid 5,
+          value "XP_071073562.1"
+        },
+        {
+          featureid 6,
+          value "placentals"
+        },
+        {
+          featureid 15,
+          value "nine-banded armadillo"
+        },
+        {
+          featureid 7,
+          value "37"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 187,
+      parent 185,
+      features {
+        {
+          featureid 0,
+          value "PREDICTED: sodium/glucose cotransporter 4 isoform X2
+ [Elephantulus edwardii]"
+        },
+        {
+          featureid 1,
+          value "0.052833"
+        },
+        {
+          featureid 2,
+          value "ref|XP_006879713.1"
+        },
+        {
+          featureid 3,
+          value "Elephantulus edwardii"
+        },
+        {
+          featureid 4,
+          value "PREDICTED: sodium/glucose cotransporter 4 isoform X2
+ [Elephantulus edwardii]"
+        },
+        {
+          featureid 5,
+          value "XP_006879713.1"
+        },
+        {
+          featureid 6,
+          value "placentals"
+        },
+        {
+          featureid 15,
+          value "Cape elephant shrew"
+        },
+        {
+          featureid 7,
+          value "43"
+        },
+        {
+          featureid 8,
+          value "0 100 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 188,
+      parent 70,
+      features {
+        {
+          featureid 1,
+          value "0.0127205"
+        },
+        {
+          featureid 12,
+          value "1"
+        },
+        {
+          featureid 0,
+          value "primates and unknown"
+        },
+        {
+          featureid 14,
+          value "7"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 189,
+      parent 188,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X5 [Eulemur rufifrons]"
+        },
+        {
+          featureid 1,
+          value "0.0240427"
+        },
+        {
+          featureid 2,
+          value "ref|XP_069336052.1"
+        },
+        {
+          featureid 3,
+          value "Eulemur rufifrons"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X5 [Eulemur rufifrons]"
+        },
+        {
+          featureid 5,
+          value "XP_069336052.1"
+        },
+        {
+          featureid 6,
+          value "primates"
+        },
+        {
+          featureid 15,
+          value "Bennett's brown lemur"
+        },
+        {
+          featureid 7,
+          value "36"
+        },
+        {
+          featureid 8,
+          value "0 255 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 190,
+      parent 188,
+      features {
+        {
+          featureid 1,
+          value "0.0252977"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "primates and unknown"
+        },
+        {
+          featureid 14,
+          value "6"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 191,
+      parent 190,
+      features {
+        {
+          featureid 0,
+          value "SLC5A9 isoform 2 [Pongo abelii]"
+        },
+        {
+          featureid 1,
+          value "0.00737265"
+        },
+        {
+          featureid 2,
+          value "gb|PNJ53786.1"
+        },
+        {
+          featureid 3,
+          value "Pongo abelii"
+        },
+        {
+          featureid 4,
+          value "SLC5A9 isoform 2 [Pongo abelii]"
+        },
+        {
+          featureid 5,
+          value "PNJ53786.1"
+        },
+        {
+          featureid 6,
+          value "primates"
+        },
+        {
+          featureid 15,
+          value "Sumatran orangutan"
+        },
+        {
+          featureid 7,
+          value "1"
+        },
+        {
+          featureid 8,
+          value "0 255 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 192,
+      parent 190,
+      features {
+        {
+          featureid 1,
+          value "0.00199573"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "primates and unknown"
+        },
+        {
+          featureid 14,
+          value "5"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 193,
+      parent 192,
+      features {
+        {
+          featureid 0,
+          value "SLC5A9 isoform 5 [Pan troglodytes]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "gb|PNI71621.1"
+        },
+        {
+          featureid 3,
+          value "Pan troglodytes"
+        },
+        {
+          featureid 4,
+          value "SLC5A9 isoform 5 [Pan troglodytes]"
+        },
+        {
+          featureid 5,
+          value "PNI71621.1"
+        },
+        {
+          featureid 6,
+          value "primates"
+        },
+        {
+          featureid 15,
+          value "chimpanzee"
+        },
+        {
+          featureid 7,
+          value "3"
+        },
+        {
+          featureid 8,
+          value "0 255 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 194,
+      parent 192,
+      features {
+        {
+          featureid 1,
+          value "0.00179617"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "primates and unknown"
+        },
+        {
+          featureid 14,
+          value "4"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 195,
+      parent 194,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform X5 [Pan troglodytes]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|XP_001164090.2"
+        },
+        {
+          featureid 3,
+          value "Pan troglodytes"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform X5 [Pan troglodytes]"
+        },
+        {
+          featureid 5,
+          value "XP_001164090.2"
+        },
+        {
+          featureid 6,
+          value "primates"
+        },
+        {
+          featureid 15,
+          value "chimpanzee"
+        },
+        {
+          featureid 7,
+          value "2"
+        },
+        {
+          featureid 8,
+          value "0 255 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 196,
+      parent 194,
+      features {
+        {
+          featureid 1,
+          value "0.00365811"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "primates and unknown"
+        },
+        {
+          featureid 14,
+          value "3"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 197,
+      parent 196,
+      features {
+        {
+          featureid 0,
+          value "unnamed protein product [Homo sapiens]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "dbj|BAG58877.1"
+        },
+        {
+          featureid 3,
+          value "Homo sapiens"
+        },
+        {
+          featureid 4,
+          value "unnamed protein product [Homo sapiens]"
+        },
+        {
+          featureid 5,
+          value "BAG58877.1"
+        },
+        {
+          featureid 6,
+          value "primates"
+        },
+        {
+          featureid 15,
+          value "human"
+        },
+        {
+          featureid 7,
+          value "62"
+        },
+        {
+          featureid 8,
+          value "0 255 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 198,
+      parent 196,
+      features {
+        {
+          featureid 1,
+          value "0.000945753"
+        },
+        {
+          featureid 12,
+          value "0"
+        },
+        {
+          featureid 0,
+          value "unknown and primates"
+        },
+        {
+          featureid 14,
+          value "2"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        }
+      }
+    },
+    {
+      id 199,
+      parent 198,
+      features {
+        {
+          featureid 0,
+          value "unnamed protein product"
+        },
+        {
+          featureid 1,
+          value "0.000137657"
+        },
+        {
+          featureid 2,
+          value "lcl|Query_7855214"
+        },
+        {
+          featureid 3,
+          value "unknown"
+        },
+        {
+          featureid 4,
+          value "unnamed protein product"
+        },
+        {
+          featureid 5,
+          value "Query_7855214"
+        },
+        {
+          featureid 6,
+          value "unknown"
+        },
+        {
+          featureid 15,
+          value "unknown"
+        },
+        {
+          featureid 7,
+          value "0"
+        },
+        {
+          featureid 8,
+          value "0 0 255"
+        },
+        {
+          featureid 10,
+          value "255 255 0"
+        },
+        {
+          featureid 11,
+          value "255 0 0"
+        },
+        {
+          featureid 13,
+          value "query"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    },
+    {
+      id 200,
+      parent 198,
+      features {
+        {
+          featureid 0,
+          value "sodium/glucose cotransporter 4 isoform 1 [Homo sapiens]"
+        },
+        {
+          featureid 1,
+          value "0"
+        },
+        {
+          featureid 2,
+          value "ref|NP_001128653.1"
+        },
+        {
+          featureid 3,
+          value "Homo sapiens"
+        },
+        {
+          featureid 4,
+          value "sodium/glucose cotransporter 4 isoform 1 [Homo sapiens]"
+        },
+        {
+          featureid 5,
+          value "NP_001128653.1"
+        },
+        {
+          featureid 6,
+          value "primates"
+        },
+        {
+          featureid 15,
+          value "human"
+        },
+        {
+          featureid 7,
+          value "4"
+        },
+        {
+          featureid 8,
+          value "0 255 0"
+        },
+        {
+          featureid 12,
+          value "0"
+        }
+      }
+    }
+  }
+}

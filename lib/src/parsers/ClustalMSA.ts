@@ -1,6 +1,7 @@
 import { parse } from 'clustal-js'
 
-import type { NodeWithIds } from '../util'
+import type { NodeWithIds } from '../types'
+
 export default class ClustalMSA {
   private MSA: ReturnType<typeof parse>
 

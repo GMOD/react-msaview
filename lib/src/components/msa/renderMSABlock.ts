@@ -1,7 +1,7 @@
 import { getClustalXColor, getPercentIdentityColor } from '../../colorSchemes'
 
 import type { MsaViewModel } from '../../model'
-import type { NodeWithIdsAndLength } from '../../util'
+import type { NodeWithIdsAndLength } from '../../types'
 import type { Theme } from '@mui/material'
 import type { HierarchyNode } from 'd3-hierarchy'
 

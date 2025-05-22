@@ -2,6 +2,7 @@ import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
 import { max } from 'd3-array'
 
+import type { Node, NodeWithIds } from './types'
 import type { Theme } from '@mui/material'
 import type { HierarchyNode } from 'd3-hierarchy'
 
@@ -12,28 +13,6 @@ export function transform<T>(
   cb: (arg0: [string, T]) => [string, T],
 ) {
   return Object.fromEntries(Object.entries(obj).map(cb))
-}
-
-interface Node {
-  children?: Node[]
-  name?: string
-  [key: string]: unknown
-}
-
-export interface NodeWithIds {
-  id: string
-  name: string
-  children: NodeWithIds[]
-  length?: number
-  noTree?: boolean
-}
-
-export interface NodeWithIdsAndLength {
-  id: string
-  name: string
-  children: NodeWithIdsAndLength[]
-  noTree?: boolean
-  length: number
 }
 
 export function generateNodeIds(
@@ -138,4 +117,8 @@ export function localStorageSetItem(str: string, item: string) {
 }
 export function localStorageSetBoolean(key: string, value: boolean) {
   localStorageSetItem(key, JSON.stringify(value))
+}
+
+export function isGzip(buf: Uint8Array) {
+  return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
 }
