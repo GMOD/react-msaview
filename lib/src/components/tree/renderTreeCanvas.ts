@@ -31,9 +31,15 @@ export function renderTree({
   theme: Theme
   blockSizeYOverride?: number
 }) {
-  const { hierarchy, showBranchLen, blockSize } = model
+  const {
+    hierarchy,
+    allBranchesLength0,
+    showBranchLen: showBranchLenPre,
+    blockSize,
+  } = model
   const by = blockSizeYOverride || blockSize
   ctx.strokeStyle = theme.palette.text.primary
+  const showBranchLen = allBranchesLength0 ? false : showBranchLenPre
   for (const link of hierarchy.links()) {
     const { source, target } = link
     if (target.height === 0 && !showBranchLen) {
@@ -77,12 +83,14 @@ export function renderNodeBubbles({
 }) {
   const {
     hierarchy,
-    showBranchLen,
+    showBranchLen: showBranchLenPre,
+    allBranchesLength0,
     collapsed,
     blockSize,
     marginLeft: ml,
   } = model
   const by = blockSizeYOverride || blockSize
+  const showBranchLen = allBranchesLength0 ? false : showBranchLenPre
   for (const node of hierarchy.descendants()) {
     const val = showBranchLen ? 'len' : 'y'
     // @ts-expect-error
@@ -131,7 +139,8 @@ export function renderTreeLabels({
 }) {
   const {
     fontSize,
-    showBranchLen,
+    showBranchLen: showBranchLenPre,
+    allBranchesLength0,
     treeMetadata,
     hierarchy,
     collapsed,
@@ -153,6 +162,7 @@ export function renderTreeLabels({
   } else {
     ctx.textAlign = 'start'
   }
+  const showBranchLen = allBranchesLength0 ? false : showBranchLenPre
   for (const node of leaves) {
     const {
       data: { name, id },

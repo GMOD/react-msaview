@@ -53,6 +53,5 @@ export function flatToTree(items: FlatItem[]): TreeNode {
     }
   })
 
-  console.log({ roots })
   return roots[0]!
 }

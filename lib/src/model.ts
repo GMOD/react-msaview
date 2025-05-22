@@ -635,15 +635,17 @@ function stateModelFactory() {
       get tree(): NodeWithIds {
         const text = self.data.tree
         if (text) {
-          return text.startsWith('BioTreeContainer')
-            ? reparseTree(generateNodeIds(flatToTree(parseAsn1(text))))
-            : reparseTree(
-                generateNodeIds(
-                  parseNewick(
+          console.log(flatToTree(parseAsn1(text)))
+          console.log(parseAsn1(text))
+          return reparseTree(
+            generateNodeIds(
+              text.startsWith('BioTreeContainer')
+                ? flatToTree(parseAsn1(text))
+                : parseNewick(
                     text.startsWith('SEQ') ? parseEmfTree(text).tree : text,
                   ),
-                ),
-              )
+            ),
+          )
         } else {
           return reparseTree(
             this.MSA?.getTree() || {
@@ -655,6 +657,7 @@ function stateModelFactory() {
           )
         }
       },
+
       /**
        * #getter
        */
@@ -846,6 +849,13 @@ function stateModelFactory() {
        */
       get leaves() {
         return this.hierarchy.leaves()
+      },
+
+      /**
+       * #getter
+       */
+      get allBranchesLength0() {
+        return this.hierarchy.links().every(s => !s.source.data.length)
       },
     }))
     .views(self => ({
