@@ -57,17 +57,6 @@ function App() {
 ```html
 <html>
   <head>
-    <script>
-      window.global = window
-    </script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react@17/umd/react.development.js"
-    ></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
-    ></script>
     <script
       crossorigin
       src="https://unpkg.com/react-msaview/bundle/index.js"
@@ -76,7 +65,7 @@ function App() {
   <body>
     <div id="root" />
     <script>
-      const { MSAView, MSAModel } = window.ReactMSAView
+      const { React, createRoot, MSAView, MSAModelF } = window.ReactMSAView
       const model = MSAModel.create({
         id: `${Math.random()}`,
         type: 'MsaView',
@@ -88,11 +77,8 @@ function App() {
 
       // choose MSA width, calculate width of div/rendering area if needed beforehand
       model.setWidth(1800)
-
-      ReactDOM.render(
-        React.createElement(MSAView, { model }),
-        document.getElementById('root'),
-      )
+      const root = createRoot(document.getElementById('root'))
+      root.render(React.createElement(MSAView, { model }))
     </script>
   </body>
 </html>
