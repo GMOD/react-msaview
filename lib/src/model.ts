@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
 import { openLocation } from '@jbrowse/core/util/io'
 import { ElementId, FileLocation } from '@jbrowse/core/util/types/mst'
@@ -635,8 +633,6 @@ function stateModelFactory() {
       get tree(): NodeWithIds {
         const text = self.data.tree
         if (text) {
-          console.log(flatToTree(parseAsn1(text)))
-          console.log(parseAsn1(text))
           return reparseTree(
             generateNodeIds(
               text.startsWith('BioTreeContainer')
@@ -676,7 +672,6 @@ function stateModelFactory() {
        * #getter
        */
       get root() {
-        console.log(this.tree)
         let hier = hierarchy(this.tree, d => d.children)
           // todo: investigate whether needed, typescript says children always true
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
