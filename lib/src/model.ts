@@ -1,4 +1,4 @@
-import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
+mport { groupBy, notEmpty, sum } from '@jbrowse/core/util'
 import { openLocation } from '@jbrowse/core/util/io'
 import { ElementId, FileLocation } from '@jbrowse/core/util/types/mst'
 import { colord } from 'colord'
@@ -89,6 +89,10 @@ function stateModelFactory() {
         /**
          * #property
          */
+        hideGaps: true,
+        /**
+         * #property
+         */
         allowedGappyness: 100,
         /**
          * #property
@@ -110,10 +114,6 @@ function stateModelFactory() {
          * #property
          */
         drawMsaLetters: true,
-        /**
-         * #property
-         */
-        hideGaps: false,
 
         /**
          * #property
@@ -240,7 +240,7 @@ function stateModelFactory() {
        * #volatile
        * obtained from localStorage
        */
-      showZoomStar: localStorageGetBoolean(showZoomStarKey, true),
+      showZoomStar: localStorageGetBoolean(showZoomStarKey, false),
       /**
        * #volatile
        */
