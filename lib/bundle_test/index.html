@@ -1,22 +1,11 @@
 <html>
   <head>
-    <script>
-      window.global = window
-    </script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react@18/umd/react.development.js"
-    ></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
-    ></script>
     <script crossorigin src="../bundle/index.js"></script>
   </head>
   <body>
     <div id="root" style="width: 1800px" />
     <script>
-      const { MSAView, MSAModelF } = window.ReactMSAView
+      const { React, createRoot, MSAView, MSAModelF } = window.ReactMSAView
       const model = MSAModelF().create({
         id: `${Math.random()}`,
         type: 'MsaView',
@@ -41,13 +30,11 @@
       //     msa:/*string of msa here */
       //   }
       // });
-      model.setWidth(1800)
 
       // choose MSA width, calculate width of div/rendering area if needed beforehand
-      ReactDOM.render(
-        React.createElement(MSAView, { model }),
-        document.getElementById('root'),
-      )
+      model.setWidth(1800)
+      const root = createRoot(document.getElementById('root'))
+      root.render(React.createElement(MSAView, { model }))
     </script>
   </body>
 </html>
