@@ -15,6 +15,9 @@ export default tseslint.config(
       '**/public/**/*',
       '**/bundle/**/*',
       'lib/output-version.js',
+      'babel.config.js',
+      'lib/webpack.config.js',
+      'lib/vite.config.ts',
     ],
   },
   {

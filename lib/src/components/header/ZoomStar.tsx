@@ -1,10 +1,9 @@
 import React from 'react'
 
+import RestartAlt from '@mui/icons-material/RestartAlt'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 import { makeStyles } from 'tss-react/mui'
-
-import RestartAlt from '@mui/icons-material/RestartAlt'
 
 import type { MsaViewModel } from '../../model'
 
