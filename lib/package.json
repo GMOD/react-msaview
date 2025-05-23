@@ -19,7 +19,7 @@
     "prebuild": "npm run clean",
     "prepublishOnly": "node output-version.js > src/version.ts && git add -A src && git commit -m '[skip ci] Bump version.ts'",
     "build:esm": "tsc",
-    "build:bundle": "rollup -c --bundleConfigAsCjs",
+    "build:bundle": "webpack",
     "build": "npm run build:esm && npm run build:bundle",
     "prepack": "npm run build",
     "postversion": "git push --follow-tags",
