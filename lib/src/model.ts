@@ -1,4 +1,4 @@
-mport { groupBy, notEmpty, sum } from '@jbrowse/core/util'
+import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
 import { openLocation } from '@jbrowse/core/util/io'
 import { ElementId, FileLocation } from '@jbrowse/core/util/types/mst'
 import { colord } from 'colord'
