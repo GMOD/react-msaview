@@ -155,7 +155,7 @@ const MSASettings = observer(function MSASettings({
       />
       <Checkbox2
         checked={bgColor}
-        label="Color background tiles of MSA?"
+        label="Color letters instead of background of tiles"
         onChange={() => {
           model.setBgColor(!bgColor)
         }}
