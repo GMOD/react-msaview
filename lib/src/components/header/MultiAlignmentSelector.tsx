@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Select } from '@mui/material'
+import { MenuItem, TextField } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import type { MsaViewModel } from '../../model'
@@ -12,8 +12,9 @@ const MultiAlignmentSelector = observer(function ({
 }) {
   const { currentAlignment, alignmentNames } = model
   return alignmentNames.length > 0 ? (
-    <Select
-      native
+    <TextField
+      select
+      variant="outlined"
       value={currentAlignment}
       size="small"
       onChange={event => {
@@ -23,11 +24,11 @@ const MultiAlignmentSelector = observer(function ({
       }}
     >
       {alignmentNames.map((option, index) => (
-        <option key={`${option}-${index}`} value={index}>
+        <MenuItem key={`${option}-${index}`} value={index}>
           {option}
-        </option>
+        </MenuItem>
       ))}
-    </Select>
+    </TextField>
   ) : null
 })
 export default MultiAlignmentSelector
