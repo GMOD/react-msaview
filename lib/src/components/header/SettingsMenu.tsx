@@ -9,7 +9,6 @@ import { observer } from 'mobx-react'
 
 import colorSchemes from '../../colorSchemes'
 
-
 import type { MsaViewModel } from '../../model'
 
 // lazies
@@ -32,6 +31,7 @@ const SettingsMenu = observer(({ model }: { model: MsaViewModel }) => {
   } = model
   return (
     <CascadingMenuButton
+      closeAfterItemClick={false}
       menuItems={[
         {
           label: 'Tree settings',
