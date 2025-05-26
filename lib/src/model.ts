@@ -117,11 +117,6 @@ function stateModelFactory() {
 
         /**
          * #property
-         */
-        drawTreeText: true,
-
-        /**
-         * #property
          * height of the div containing the view, px
          */
         height: types.optional(types.number, 550),
