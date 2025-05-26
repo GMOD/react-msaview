@@ -1,12 +1,14 @@
 import React, { lazy } from 'react'
 
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
-import Settings from '@mui/icons-material/Settings'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import GridOn from '@mui/icons-material/GridOn'
-import { observer } from 'mobx-react'
-import colorSchemes from '../../colorSchemes'
 import ColorLensIcon from '@mui/icons-material/ColorLens'
+import GridOn from '@mui/icons-material/GridOn'
+import Settings from '@mui/icons-material/Settings'
+import { observer } from 'mobx-react'
+
+import colorSchemes from '../../colorSchemes'
+
 
 import type { MsaViewModel } from '../../model'
 
