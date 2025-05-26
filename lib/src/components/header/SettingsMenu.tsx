@@ -106,9 +106,9 @@ const SettingsMenu = observer(({ model }: { model: MsaViewModel }) => {
               },
             },
             {
-              label: 'Color background tiles of MSA?',
+              label: 'Color letters instead of background of tiles',
               type: 'checkbox',
-              checked: bgColor,
+              checked: !bgColor,
               onClick: () => {
                 model.setBgColor(!bgColor)
               },
