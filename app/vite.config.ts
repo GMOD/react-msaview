@@ -8,4 +8,7 @@ export default defineConfig({
     sourcemap: true,
   },
   base: './',
+  server: {
+    open: true,
+  },
 })
