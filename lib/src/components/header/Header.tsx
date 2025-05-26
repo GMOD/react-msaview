@@ -6,7 +6,8 @@ import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import HeaderInfoArea from './HeaderInfoArea'
-import HeaderMenuExtra from './HeaderMenuExtra'
+import HeaderMenu from './HeaderMenu'
+import SettingsMenu from './SettingsMenu'
 import HeaderStatusArea from './HeaderStatusArea'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
 import ZoomControls from './ZoomControls'
@@ -24,7 +25,8 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
   }, [model, height])
   return (
     <div ref={ref} style={{ display: 'flex' }}>
-      <HeaderMenuExtra model={model} />
+      <HeaderMenu model={model} />
+      <SettingsMenu model={model} />
       <ZoomControls model={model} />
       {model.showZoomStar ? <ZoomStar model={model} /> : null}
       <ZoomMenu model={model} />
