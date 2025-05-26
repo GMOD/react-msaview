@@ -29,21 +29,39 @@ const HeaderMenu = observer(function ({ model }: { model: MsaViewModel }) {
         {
           label: 'Settings',
           onClick: () => {
-            model.queueDialog(onClose => [SettingsDialog, { model, onClose }])
+            model.queueDialog(onClose => [
+              SettingsDialog,
+              {
+                model,
+                onClose,
+              },
+            ])
           },
           icon: Settings,
         },
         {
           label: 'Metadata',
           onClick: () => {
-            model.queueDialog(onClose => [MetadataDialog, { model, onClose }])
+            model.queueDialog(onClose => [
+              MetadataDialog,
+              {
+                model,
+                onClose,
+              },
+            ])
           },
           icon: Assignment,
         },
         {
           label: 'Extra tracks',
           onClick: () => {
-            model.queueDialog(onClose => [TracklistDialog, { model, onClose }])
+            model.queueDialog(onClose => [
+              TracklistDialog,
+              {
+                model,
+                onClose,
+              },
+            ])
           },
           icon: List,
         },
