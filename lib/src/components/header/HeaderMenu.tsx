@@ -1,11 +1,9 @@
 import React, { lazy } from 'react'
 
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Assignment from '@mui/icons-material/Assignment'
 import FilterAlt from '@mui/icons-material/FilterAlt'
 import FolderOpen from '@mui/icons-material/FolderOpen'
-import GridOn from '@mui/icons-material/GridOn'
 import List from '@mui/icons-material/List'
 import MoreVert from '@mui/icons-material/Menu'
 import PhotoCamera from '@mui/icons-material/PhotoCamera'
