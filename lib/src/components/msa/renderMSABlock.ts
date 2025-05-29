@@ -34,6 +34,7 @@ export function renderMSABlock({
     highResScaleFactor,
     actuallyShowDomains,
     leaves,
+    bgColor,
   } = model
   const k = highResScaleFactorOverride || highResScaleFactor
   const bx = blockSizeXOverride || blockSize
@@ -42,7 +43,7 @@ export function renderMSABlock({
   ctx.scale(k, k)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
   ctx.textAlign = 'center'
-  ctx.font = ctx.font.replace(/\d+px/, `${fontSize}px`)
+  ctx.font = ctx.font.replace(/\d+px/, `${bgColor ? '' : 'bold '}${fontSize}px`)
 
   const yStart = Math.max(0, Math.floor((offsetY - rowHeight) / rowHeight))
   const yEnd = Math.max(0, Math.ceil((offsetY + by + rowHeight) / rowHeight))

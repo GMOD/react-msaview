@@ -712,7 +712,7 @@ function stateModelFactory() {
         if (hideGaps) {
           const strs = this.leaves
             .map(leaf => this.MSA?.getRow(leaf.data.name))
-            .filter((item): item is string => !!item)
+            .filter(notEmpty)
           if (strs.length) {
             for (let i = 0; i < strs[0]!.length; i++) {
               let counter = 0
