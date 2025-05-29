@@ -19,6 +19,7 @@ const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog'))
 const TracklistDialog = lazy(() => import('../dialogs/TracklistDialog'))
 const ExportSVGDialog = lazy(() => import('../dialogs/ExportSVGDialog'))
 const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog'))
+const SettingsDialog = lazy(() => import('../dialogs/SettingsDialog'))
 const UserProvidedDomainsDialog = lazy(
   () => import('../dialogs/UserProvidedDomainsDialog'),
 )
@@ -42,6 +43,18 @@ const HeaderMenu = observer(({ model }: { model: MsaViewModel }) => {
           onClick: () => {
             model.queueDialog(onClose => [
               MetadataDialog,
+              {
+                model,
+                onClose,
+              },
+            ])
+          },
+        },
+        {
+          label: 'More settings',
+          onClick: () => {
+            model.queueDialog(onClose => [
+              SettingsDialog,
               {
                 model,
                 onClose,
