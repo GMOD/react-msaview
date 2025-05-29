@@ -2,7 +2,7 @@ import { blue, green, orange, red } from '@mui/material/colors'
 import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
 
-import { transform } from './util'
+import { isBlank, transform } from './util'
 
 extend([namesPlugin])
 
@@ -518,7 +518,7 @@ export function getPercentIdentityColor(
   let ent = 0
   let letter = ''
   for (const entry of entries) {
-    if (entry[1] > ent && entry[0] !== '-') {
+    if (entry[1] > ent && !isBlank(entry[0])) {
       letter = entry[0]
       ent = entry[1]
     }

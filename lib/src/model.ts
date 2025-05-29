@@ -36,6 +36,7 @@ import {
   clamp,
   collapse,
   generateNodeIds,
+  isBlank,
   isGzip,
   len,
   localStorageGetBoolean,
@@ -716,7 +717,7 @@ function stateModelFactory() {
             for (let i = 0; i < strs[0]!.length; i++) {
               let counter = 0
               for (const str of strs) {
-                if (str[i] === '-') {
+                if (isBlank(str[i])) {
                   counter++
                 }
               }
@@ -1155,7 +1156,7 @@ function stateModelFactory() {
         if (seq !== undefined) {
           const pos2 = mouseOverCoordToGlobalCoord(blanks, position)
           const pos1 = globalCoordToRowSpecificCoord(seq, pos2)
-          return seq[pos1] === '-' || !seq[pos1] ? undefined : pos1
+          return isBlank(seq[pos1]) || !seq[pos1] ? undefined : pos1
         } else {
           return undefined
         }
@@ -1175,7 +1176,7 @@ function stateModelFactory() {
           let k = 0
           let i = 0
           for (; k < position; i++) {
-            if (row[i] !== '-') {
+            if (!isBlank(row[i])) {
               k++
             } else if (k >= position) {
               break

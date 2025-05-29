@@ -122,3 +122,7 @@ export function localStorageSetBoolean(key: string, value: boolean) {
 export function isGzip(buf: Uint8Array) {
   return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
 }
+
+export function isBlank(s?: string) {
+  return s === '-' || s === '.'
+}
