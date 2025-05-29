@@ -103,38 +103,40 @@ function drawTiles({
     rowHeight,
   } = model
 
-  for (const node of visibleLeaves) {
+  for (let i = 0, l1 = visibleLeaves.length; i < l1; i++) {
+    const node = visibleLeaves[i]!
     const {
       data: { name },
     } = node
     const y = node.x!
     const str = columns[name]?.slice(xStart, xEnd)
     if (str) {
-      for (let i = 0; i < str.length; i++) {
+      for (let i = 0, l2 = str.length; i < l2; i++) {
         const letter = str[i]!
-        const color =
-          colorSchemeName === 'clustalx_protein_dynamic'
-            ? getClustalXColor(
-                // use model.colStats dot notation here: delay use of colStats
-                // until absolutely needed
+        const r1 = colorSchemeName === 'clustalx_protein_dynamic'
+        const r2 = colorSchemeName === 'percent_identity_dynamic'
+        const color = r1
+          ? getClustalXColor(
+              // use model.colStats dot notation here: delay use of colStats
+              // until absolutely needed
+              model.colStats[xStart + i]!,
+              model.colStatsSums[xStart + i]!,
+              model,
+              name,
+              xStart + i,
+            )
+          : r2
+            ? getPercentIdentityColor(
+                // use model.colStats dot notation here: delay use of
+                // colStats until absolutely needed
                 model.colStats[xStart + i]!,
                 model.colStatsSums[xStart + i]!,
                 model,
                 name,
                 xStart + i,
               )
-            : colorSchemeName === 'percent_identity_dynamic'
-              ? getPercentIdentityColor(
-                  // use model.colStats dot notation here: delay use of
-                  // colStats until absolutely needed
-                  model.colStats[xStart + i]!,
-                  model.colStatsSums[xStart + i]!,
-                  model,
-                  name,
-                  xStart + i,
-                )
-              : colorScheme[letter.toUpperCase()]
-        if (bgColor) {
+            : colorScheme[letter.toUpperCase()]
+        if (bgColor || r1 || r2) {
           ctx.fillStyle = color || theme.palette.background.default
           ctx.fillRect(
             i * colWidth + offsetX - (offsetX % colWidth),
@@ -177,14 +179,15 @@ function drawText({
     rowHeight,
   } = model
   if (showMsaLetters) {
-    for (const node of visibleLeaves) {
+    for (let i = 0, l1 = visibleLeaves.length; i < l1; i++) {
+      const node = visibleLeaves[i]!
       const {
         data: { name },
       } = node
       const y = node.x!
       const str = columns[name]?.slice(xStart, xEnd)
       if (str) {
-        for (let i = 0; i < str.length; i++) {
+        for (let i = 0, l2 = str.length; i < l2; i++) {
           const letter = str[i]!
           const color = colorScheme[letter.toUpperCase()]
           const contrast = contrastLettering

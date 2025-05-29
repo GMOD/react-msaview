@@ -56,7 +56,8 @@ function drawTiles({
     tidyFilteredGatheredInterProAnnotations,
   } = model
 
-  for (const node of visibleLeaves) {
+  for (let i = 0, l1 = visibleLeaves.length; i < l1; i++) {
+    const node = visibleLeaves[i]!
     const {
       x,
       data: { name },
@@ -65,9 +66,9 @@ function drawTiles({
 
     const entry = tidyFilteredGatheredInterProAnnotations[name]
 
-    let j = 0
     if (entry) {
-      for (const { start, end, accession } of entry) {
+      for (let j = 0, l2 = entry.length; j < l2; j++) {
+        const { start, end, accession } = entry[j]!
         const m1 = model.seqCoordToRowSpecificGlobalCoord(name, start - 1)
         const m2 = model.seqCoordToRowSpecificGlobalCoord(name, end)
         const x = m1 * colWidth
@@ -78,7 +79,6 @@ function drawTiles({
         const lw = colWidth * (m2 - m1)
         ctx.fillRect(x, t, lw, h)
         ctx.strokeRect(x, t, lw, h)
-        j++
       }
     }
   }
