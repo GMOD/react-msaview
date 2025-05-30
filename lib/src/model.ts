@@ -1326,7 +1326,11 @@ function stateModelFactory() {
        * #action
        */
       reset() {
-        self.setData({ tree: '', msa: '' })
+        self.setData({
+          tree: '',
+          msa: '',
+        })
+        self.resetZoom()
         self.setError(undefined)
         self.setScrollY(0)
         self.setScrollX(0)
