@@ -811,11 +811,7 @@ function stateModelFactory() {
        * #getter
        */
       get colStatsSums() {
-        return Object.fromEntries(
-          Object.entries(this.colStats).map(([key, val]) => {
-            return [key, sum(Object.values(val))]
-          }),
-        )
+        return this.colStats.map(val => sum(Object.values(val)))
       },
       /**
        * #getter
