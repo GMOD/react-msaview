@@ -15,7 +15,7 @@ export function mouseOverCoordToGlobalCoord(blanks: number[], pos: number) {
 
 export function globalCoordToRowSpecificCoord(seq: string, pos: number) {
   let k = 0
-  for (let i = 0; i < pos; i++) {
+  for (let i = 0, l = seq.length; i < pos && i < l; i++) {
     if (seq[i] !== '-') {
       k++
     } else if (k >= pos) {

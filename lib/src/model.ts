@@ -1167,6 +1167,19 @@ function stateModelFactory() {
 
       /**
        * #method
+       * return a row-specific sequence coordinate, skipping gaps, given a
+       * global coordinate
+       */
+      mouseOverCoordToGapRemovedRowCoordOneBased(
+        rowName: string,
+        position: number,
+      ) {
+        const val = this.mouseOverCoordToGapRemovedRowCoord(rowName, position)
+        return val !== undefined ? val + 1 : undefined
+      },
+
+      /**
+       * #method
        * return a global coordinate given a row-specific sequence coordinate
        * which does not not include gaps
        */

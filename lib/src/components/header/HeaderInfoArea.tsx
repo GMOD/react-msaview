@@ -19,8 +19,11 @@ const HeaderInfoArea = observer(function ({ model }: { model: MsaViewModel }) {
   return mouseOverRowName && mouseCol !== undefined ? (
     <Typography className={classes.margin}>
       {mouseOverRowName}:
-      {model.mouseOverCoordToGapRemovedRowCoord(mouseOverRowName, mouseCol)} (
-      {model.mouseOverCoordToRowLetter(mouseOverRowName, mouseCol)})
+      {model.mouseOverCoordToGapRemovedRowCoordOneBased(
+        mouseOverRowName,
+        mouseCol,
+      )}{' '}
+      ({model.mouseOverCoordToRowLetter(mouseOverRowName, mouseCol)})
     </Typography>
   ) : null
 })
