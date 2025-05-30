@@ -36,7 +36,6 @@ import FastaMSA from './parsers/FastaMSA'
 import StockholmMSA from './parsers/StockholmMSA'
 import { reparseTree } from './reparseTree'
 import {
-  globalCoordToRowSpecificCoord,
   mouseOverCoordToGapRemovedRowCoord,
   mouseOverCoordToGlobalCoord,
 } from './rowCoordinateCalculations'
@@ -62,6 +61,7 @@ import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import type { Theme } from '@mui/material'
 import type { HierarchyNode } from 'd3-hierarchy'
 import type { Instance } from 'mobx-state-tree'
+import { seqCoordToRowSpecificGlobalCoord } from './seqCoordToRowSpecificGlobalCoord'
 
 const defaultRowHeight = 16
 const defaultColWidth = 12
@@ -632,24 +632,23 @@ function stateModelFactory() {
        */
       get tree(): NodeWithIds {
         const text = self.data.tree
-        return text
-          ? reparseTree(
-              generateNodeIds(
+
+        return reparseTree(
+          text
+            ? generateNodeIds(
                 text.startsWith('BioTreeContainer')
                   ? flatToTree(parseAsn1(text))
                   : parseNewick(
                       text.startsWith('SEQ') ? parseEmfTree(text).tree : text,
                     ),
-              ),
-            )
-          : reparseTree(
-              this.MSA?.getTree() || {
+              )
+            : this.MSA?.getTree() || {
                 noTree: true,
                 children: [],
                 id: 'empty',
                 name: 'empty',
               },
-            )
+        )
       },
 
       /**
@@ -718,14 +717,16 @@ function stateModelFactory() {
             .map(leaf => this.MSA?.getRow(leaf.data.name))
             .filter(notEmpty)
           if (strs.length) {
-            for (let i = 0; i < strs[0]!.length; i++) {
+            const s0len = strs[0]!.length
+            for (let i = 0; i < s0len; i++) {
               let counter = 0
-              for (const str of strs) {
-                if (isBlank(str[i])) {
+              const l = strs.length
+              for (let j = 0; j < l; j++) {
+                if (isBlank(strs[j]![i])) {
                   counter++
                 }
               }
-              if (counter / strs.length >= realAllowedGappyness / 100) {
+              if (counter / l >= realAllowedGappyness / 100) {
                 blanks.push(i)
               }
             }
@@ -1144,12 +1145,7 @@ function stateModelFactory() {
        */
       mouseOverCoordToRowLetter(rowName: string, pos: number) {
         const { rowMap, blanks } = self
-        return rowMap.get(rowName)?.[
-          mouseOverCoordToGlobalCoord({
-            blanks,
-            pos,
-          })
-        ]
+        return rowMap.get(rowName)?.[mouseOverCoordToGlobalCoord(blanks, pos)]
       },
 
       /**
@@ -1187,21 +1183,12 @@ function stateModelFactory() {
       seqCoordToRowSpecificGlobalCoord(rowName: string, position: number) {
         const { rowNames, rows } = self
         const index = rowNames.indexOf(rowName)
-        if (index !== -1 && rows[index]) {
-          const row = rows[index][1]
-
-          let k = 0
-          let i = 0
-          for (; k < position; i++) {
-            if (!isBlank(row[i])) {
-              k++
-            } else if (k >= position) {
-              break
-            }
-          }
-          return i
-        }
-        return 0
+        return index !== -1 && rows[index]
+          ? seqCoordToRowSpecificGlobalCoord({
+              row: rows[index][1],
+              position,
+            })
+          : 0
       },
     }))
 
