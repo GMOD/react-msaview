@@ -39,6 +39,7 @@ import {
   mouseOverCoordToGapRemovedRowCoord,
   mouseOverCoordToGlobalCoord,
 } from './rowCoordinateCalculations'
+import { seqCoordToRowSpecificGlobalCoord } from './seqCoordToRowSpecificGlobalCoord'
 import {
   collapse,
   generateNodeIds,
@@ -61,7 +62,6 @@ import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import type { Theme } from '@mui/material'
 import type { HierarchyNode } from 'd3-hierarchy'
 import type { Instance } from 'mobx-state-tree'
-import { seqCoordToRowSpecificGlobalCoord } from './seqCoordToRowSpecificGlobalCoord'
 
 const defaultRowHeight = 16
 const defaultColWidth = 12
