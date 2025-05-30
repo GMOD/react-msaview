@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { observer } from 'mobx-react'
 
-import { clamp } from '../util'
-
 import type { MsaViewModel } from '../model'
+import { clamp } from '@jbrowse/core/util'
 
 const VerticalScrollbar = observer(({ model }: { model: MsaViewModel }) => {
   const { msaAreaHeight, scrollY, totalHeight } = model
@@ -28,8 +27,8 @@ const VerticalScrollbar = observer(({ model }: { model: MsaViewModel }) => {
           window.requestAnimationFrame(() => {
             model.setScrollY(
               clamp(
-                -totalHeight,
                 mouseDown.scrollY - (event.clientY - mouseDown.clientY) / unit,
+                -totalHeight,
                 0,
               ),
             )

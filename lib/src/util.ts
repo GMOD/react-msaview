@@ -46,7 +46,7 @@ export function colorContrast(
 export function skipBlanks(blanks: number[], arg: string | string[]) {
   let s = ''
   let b = 0
-  for (let j = 0; j < arg.length; j++) {
+  for (let j = 0, l = arg.length; j < l; j++) {
     if (j === blanks[b]) {
       b++
     } else {
@@ -90,39 +90,12 @@ export function collapse(d: HierarchyNode<NodeWithIds>) {
   }
 }
 
-export function clamp(min: number, num: number, max: number) {
-  return Math.min(Math.max(num, min), max)
-}
-
 export function len(a: { end: number; start: number }) {
   return a.end - a.start
 }
 
-export function localStorageGetItem(item: string) {
-  return typeof localStorage !== 'undefined'
-    ? localStorage.getItem(item)
-    : undefined
-}
-
-export function localStorageGetBoolean(key: string, defaultVal: boolean) {
-  return Boolean(
-    JSON.parse(localStorageGetItem(key) || JSON.stringify(defaultVal)),
-  )
-}
-
-export function localStorageSetItem(str: string, item: string) {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(str, item)
-  }
-}
-export function localStorageSetBoolean(key: string, value: boolean) {
-  localStorageSetItem(key, JSON.stringify(value))
-}
-
-export function isGzip(buf: Uint8Array) {
-  return buf[0] === 31 && buf[1] === 139 && buf[2] === 8
-}
-
+// https://sonnhammer.sbc.su.se/Stockholm.html
+// gaps can be a . or - in stockholm
 export function isBlank(s?: string) {
   return s === '-' || s === '.'
 }

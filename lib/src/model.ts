@@ -1,4 +1,12 @@
-import { groupBy, notEmpty, sum } from '@jbrowse/core/util'
+import {
+  clamp,
+  fetchAndMaybeUnzipText,
+  groupBy,
+  localStorageGetBoolean,
+  localStorageSetBoolean,
+  notEmpty,
+  sum,
+} from '@jbrowse/core/util'
 import { openLocation } from '@jbrowse/core/util/io'
 import { ElementId, FileLocation } from '@jbrowse/core/util/types/mst'
 import { colord } from 'colord'
@@ -8,7 +16,6 @@ import { parseEmfTree } from 'emf-js'
 import { saveAs } from 'file-saver'
 import { autorun, transaction } from 'mobx'
 import { addDisposer, cast, types } from 'mobx-state-tree'
-import { ungzip } from 'pako'
 import Stockholm from 'stockholm-js'
 
 import { blocksX, blocksY } from './calculateBlocks'
@@ -33,14 +40,10 @@ import {
   mouseOverCoordToGlobalCoord,
 } from './rowCoordinateCalculations'
 import {
-  clamp,
   collapse,
   generateNodeIds,
   isBlank,
-  isGzip,
   len,
-  localStorageGetBoolean,
-  localStorageSetBoolean,
   maxLength,
   setBrLength,
   skipBlanks,
@@ -949,14 +952,14 @@ function stateModelFactory() {
        */
       zoomOutHorizontal() {
         self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
-        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        self.scrollX = clamp(self.scrollX, self.maxScrollX, 0)
       },
       /**
        * #action
        */
       zoomInHorizontal() {
         self.colWidth = Math.ceil(self.colWidth * 1.5)
-        self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+        self.scrollX = clamp(self.scrollX, self.maxScrollX, 0)
       },
       /**
        * #action
@@ -977,7 +980,7 @@ function stateModelFactory() {
         transaction(() => {
           self.colWidth = Math.ceil(self.colWidth * 1.5)
           self.rowHeight = Math.ceil(self.rowHeight * 1.5)
-          self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+          self.scrollX = clamp(self.scrollX, self.maxScrollX, 0)
         })
       },
       /**
@@ -987,7 +990,7 @@ function stateModelFactory() {
         transaction(() => {
           self.colWidth = Math.max(1, Math.floor(self.colWidth * 0.75))
           self.rowHeight = Math.max(1.5, Math.floor(self.rowHeight * 0.75))
-          self.scrollX = clamp(self.maxScrollX, self.scrollX, 0)
+          self.scrollX = clamp(self.scrollX, self.maxScrollX, 0)
         })
       },
       /**
@@ -1001,21 +1004,21 @@ function stateModelFactory() {
        * #action
        */
       doScrollY(deltaY: number) {
-        self.scrollY = clamp(-self.totalHeight + 10, self.scrollY + deltaY, 0)
+        self.scrollY = clamp(self.scrollY + deltaY, -self.totalHeight + 10, 0)
       },
 
       /**
        * #action
        */
       doScrollX(deltaX: number) {
-        self.scrollX = clamp(self.maxScrollX, self.scrollX + deltaX, 0)
+        self.scrollX = clamp(self.scrollX + deltaX, self.maxScrollX, 0)
       },
 
       /**
        * #action
        */
       setScrollX(n: number) {
-        self.scrollX = clamp(self.maxScrollX, n, 0)
+        self.scrollX = clamp(n, self.maxScrollX, 0)
       },
 
       /**
@@ -1444,9 +1447,10 @@ function stateModelFactory() {
             if (msaFilehandle) {
               try {
                 self.setLoadingMSA(true)
-                const res = await openLocation(msaFilehandle).readFile()
-                const buf = isGzip(res) ? ungzip(res) : res
-                const txt = new TextDecoder('utf8').decode(buf)
+                self.setError(undefined)
+                const txt = await fetchAndMaybeUnzipText(
+                  openLocation(msaFilehandle),
+                )
                 transaction(() => {
                   self.setMSA(txt)
                   if (msaFilehandle.locationType === 'BlobLocation') {
