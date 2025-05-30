@@ -2,6 +2,8 @@ import { expect, test } from 'vitest'
 
 import {
   globalCoordToRowSpecificCoord,
+  mouseOverCoordToGapRemovedCoord,
+  mouseOverCoordToGapRemovedRowCoord,
   mouseOverCoordToGlobalCoord,
 } from './rowCoordinateCalculations'
 
@@ -118,4 +120,38 @@ test('with all gaps in sequence', () => {
 test('with position exceeding sequence length', () => {
   const sequence = 'AC-GT'
   expect(globalCoordToRowSpecificCoord(sequence, 10)).toBe(4)
+})
+
+test('mouseOverCoordToGapRemovedCoord', () => {
+  const seq = 'AC--GT--CT'
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 0, blanks: [] }),
+  ).toBe(0)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 1, blanks: [] }),
+  ).toBe(1)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 2, blanks: [] }),
+  ).toBe(undefined)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 3, blanks: [] }),
+  ).toBe(undefined)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 4, blanks: [] }),
+  ).toBe(2)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 5, blanks: [] }),
+  ).toBe(3)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 6, blanks: [] }),
+  ).toBe(undefined)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 7, blanks: [] }),
+  ).toBe(undefined)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 8, blanks: [] }),
+  ).toBe(4)
+  expect(
+    mouseOverCoordToGapRemovedCoord({ seq, position: 9, blanks: [] }),
+  ).toBe(5)
 })

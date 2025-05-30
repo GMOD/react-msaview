@@ -37,6 +37,7 @@ import StockholmMSA from './parsers/StockholmMSA'
 import { reparseTree } from './reparseTree'
 import {
   globalCoordToRowSpecificCoord,
+  mouseOverCoordToGapRemovedRowCoord,
   mouseOverCoordToGlobalCoord,
 } from './rowCoordinateCalculations'
 import {
@@ -1141,10 +1142,13 @@ function stateModelFactory() {
        * #method
        * return a row-specific letter, or undefined if gap
        */
-      mouseOverCoordToRowLetter(rowName: string, position: number) {
+      mouseOverCoordToRowLetter(rowName: string, pos: number) {
         const { rowMap, blanks } = self
         return rowMap.get(rowName)?.[
-          mouseOverCoordToGlobalCoord(blanks, position)
+          mouseOverCoordToGlobalCoord({
+            blanks,
+            pos,
+          })
         ]
       },
 
@@ -1154,15 +1158,12 @@ function stateModelFactory() {
        * global coordinate
        */
       mouseOverCoordToGapRemovedRowCoord(rowName: string, position: number) {
-        const { rowMap, blanks } = self
-        const seq = rowMap.get(rowName)
-        if (seq !== undefined) {
-          const pos2 = mouseOverCoordToGlobalCoord(blanks, position)
-          const pos1 = globalCoordToRowSpecificCoord(seq, pos2)
-          return isBlank(seq[pos1]) || !seq[pos1] ? undefined : pos1
-        } else {
-          return undefined
-        }
+        return mouseOverCoordToGapRemovedRowCoord({
+          rowName,
+          position,
+          rowMap: self.rowMap,
+          blanks: self.blanks,
+        })
       },
 
       /**
@@ -1419,7 +1420,7 @@ function stateModelFactory() {
               try {
                 self.setLoadingTree(true)
                 self.setTree(
-                  await openLocation(treeFilehandle).readFile('utf8'),
+                  await fetchAndMaybeUnzipText(openLocation(treeFilehandle)),
                 )
                 if (treeFilehandle.locationType === 'BlobLocation') {
                   // clear filehandle after loading if from a local file
@@ -1442,7 +1443,9 @@ function stateModelFactory() {
             if (treeMetadataFilehandle) {
               try {
                 self.setTreeMetadata(
-                  await openLocation(treeMetadataFilehandle).readFile('utf8'),
+                  await fetchAndMaybeUnzipText(
+                    openLocation(treeMetadataFilehandle),
+                  ),
                 )
               } catch (e) {
                 console.error(e)
