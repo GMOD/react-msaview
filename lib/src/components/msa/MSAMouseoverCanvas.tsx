@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 
 import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
+import { isAlive } from 'mobx-state-tree'
 
 import { renderMouseover } from './renderMSAMouseover'
 
@@ -18,7 +19,9 @@ const MSAMouseoverCanvas = observer(function ({
     const ctx = ref.current?.getContext('2d')
     return ctx
       ? autorun(() => {
-          renderMouseover({ ctx, model })
+          if (isAlive(model)) {
+            renderMouseover({ ctx, model })
+          }
         })
       : undefined
   }, [model])
