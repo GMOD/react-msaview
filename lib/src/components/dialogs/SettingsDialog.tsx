@@ -30,6 +30,8 @@ const useStyles = makeStyles()(theme => ({
   },
 }))
 
+const toP = (s = 0) => +(+s).toFixed(1)
+
 const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <>
@@ -189,7 +191,7 @@ const MSASettings = observer(function MSASettings({
         </div>
       ) : null}
       <div className={classes.flex}>
-        <Typography>Column width ({colWidth}px)</Typography>
+        <Typography>Column width ({toP(colWidth)}px)</Typography>
         <Slider
           className={classes.field}
           min={1}
@@ -201,7 +203,7 @@ const MSASettings = observer(function MSASettings({
         />
       </div>
       <div className={classes.flex}>
-        <Typography>Row height ({rowHeight}px)</Typography>
+        <Typography>Row height ({toP(rowHeight)}px)</Typography>
         <Slider
           className={classes.field}
           min={1}
