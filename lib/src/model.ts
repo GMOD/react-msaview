@@ -1373,11 +1373,25 @@ function stateModelFactory() {
       /**
        * #action
        */
-      showEntire() {
+      fit() {
         self.rowHeight = self.msaAreaHeight / self.numRows
         self.colWidth = self.msaAreaWidth / self.numColumns
         self.scrollX = 0
         self.scrollY = 0
+      },
+      /**
+       * #action
+       */
+      fitVertically() {
+        self.rowHeight = self.msaAreaHeight / self.numRows
+        self.scrollY = 0
+      },
+      /**
+       * #action
+       */
+      fitHorizontally() {
+        self.colWidth = self.msaAreaWidth / self.numColumns
+        self.scrollX = 0
       },
 
       afterCreate() {

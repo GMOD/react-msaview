@@ -12,11 +12,24 @@ const ZoomMenu = observer(function ({ model }: { model: MsaViewModel }) {
     <CascadingMenuButton
       menuItems={[
         {
-          label: 'Fit to view',
+          label: 'Fit both vertically/horizontally',
           onClick: () => {
-            model.showEntire()
+            model.fit()
           },
         },
+        {
+          label: 'Fit vertically',
+          onClick: () => {
+            model.fitVertically()
+          },
+        },
+        {
+          label: 'Fit horizontally',
+          onClick: () => {
+            model.fitHorizontally()
+          },
+        },
+
         {
           label: 'Reset zoom to default',
           icon: RestartAlt,
