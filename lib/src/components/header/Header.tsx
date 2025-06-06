@@ -5,13 +5,11 @@ import Help from '@mui/icons-material/Help'
 import { IconButton } from '@mui/material'
 import { observer } from 'mobx-react'
 
-import ColorMenu from './ColorMenu'
+import SettingsMenu from './SettingsMenu'
 import HeaderInfoArea from './HeaderInfoArea'
 import HeaderMenu from './HeaderMenu'
 import HeaderStatusArea from './HeaderStatusArea'
-import MSAMenu from './MSAMenu'
 import MultiAlignmentSelector from './MultiAlignmentSelector'
-import TreeMenu from './TreeMenu'
 import ZoomControls from './ZoomControls'
 import ZoomMenu from './ZoomMenu'
 import ZoomStar from './ZoomStar'
@@ -28,9 +26,7 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <div ref={ref} style={{ display: 'flex' }}>
       <HeaderMenu model={model} />
-      <ColorMenu model={model} />
-      <TreeMenu model={model} />
-      <MSAMenu model={model} />
+      <SettingsMenu model={model} />
       <ZoomControls model={model} />
       {model.showZoomStar ? <ZoomStar model={model} /> : null}
       <ZoomMenu model={model} />
