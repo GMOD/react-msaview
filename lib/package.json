@@ -3,6 +3,11 @@
   "author": "Colin",
   "version": "4.4.2",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GMOD/react-msaview.git",
+    "directory": "lib"
+  },
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
