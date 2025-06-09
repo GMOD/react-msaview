@@ -1,8 +1,8 @@
 import React from 'react'
 
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
-import Palette from '@mui/icons-material/Palette'
 import AccountTree from '@mui/icons-material/AccountTree'
+import Palette from '@mui/icons-material/Palette'
 import Settings from '@mui/icons-material/Settings'
 import { observer } from 'mobx-react'
 
