@@ -66,14 +66,23 @@ function App() {
     <div id="root" />
     <script>
       const { React, createRoot, MSAView, MSAModelF } = window.ReactMSAView
-      const model = MSAModel.create({
-        id: `${Math.random()}`,
-        type: 'MsaView',
-      })
-      // can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
-      // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", msaFilehandle: {uri:'http://path/to/msa.stock'} });
-      // or pass a string of an msa/tree directly to the "data" field if not pointing to a URL
-      // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", data: {msa:/*string of msa here */} });
+
+      // option 1. can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
+      // const model = MSAModel.create({
+      //   id: `${Math.random()}`,
+      //   type: 'MsaView',
+      //   msaFilehandle: { uri: 'http://path/to/msa.stock' },
+      // })
+
+      // option 2. pass a string of an msa/tree directly to the "data" field if not pointing to a URL
+      // const model = MSAModel.create({
+      //   id: `${Math.random()}`,
+      //   type: 'MsaView',
+      //   data: {
+      //     msa: /* raw string of clustalw, stockholm, or multi-fasta alignment here */
+      //     tree: /* optional newick formatted tree */
+      //   },
+      // })
 
       // choose MSA width, calculate width of div/rendering area if needed beforehand
       model.setWidth(1800)
