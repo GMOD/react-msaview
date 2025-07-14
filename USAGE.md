@@ -156,7 +156,7 @@ https://github.com/GMOD/react-msaview/blob/main/lib/apidocs/MsaView.md
 
 You can also look at lib/src/model.ts for the full model source code
 
-The React-MSAView pacakge uses this 'model' extensively, instead of a 'prop'
+The React-MSAView package uses this 'model' extensively, instead of a 'prop'
 based API
 
 It is helpful to be knowledgeable of the way mobx+react inter-operate: you can
