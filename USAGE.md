@@ -56,9 +56,8 @@ function App() {
 
   const model = MSAModel.create({
     type: "MsaView",
-msaFilehandle: { uri: 'http://path/to/msa.stock' },
-        treeFilehandle: { uri: 'http://path/to/tree.nh' }
-
+    msaFilehandle: { uri: 'http://path/to/msa.stock' },
+    treeFilehandle: { uri: 'http://path/to/tree.nh' }
   });
 
   // choose MSA width, calculate width of div/rendering area if needed beforehand

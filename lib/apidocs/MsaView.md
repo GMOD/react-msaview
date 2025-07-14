@@ -29,8 +29,7 @@ allowedGappyness: 100
 
 #### property: collapsed
 
-array of tree parent nodes that are 'collapsed' (all children are
-hidden)
+array of tree parent nodes that are 'collapsed' (all children are hidden)
 
 ```js
 // type signature
@@ -41,8 +40,7 @@ collapsed: types.array(types.string)
 
 #### property: collapsedLeaves
 
-array of tree leaf nodes that are 'collapsed' (just that leaf node
-is hidden)
+array of tree leaf nodes that are 'collapsed' (just that leaf node is hidden)
 
 ```js
 // type signature
@@ -82,8 +80,7 @@ currentAlignment: 0
 
 #### property: data
 
-data from the loaded tree/msa/treeMetadata, generally loaded by
-autorun
+data from the loaded tree/msa/treeMetadata, generally loaded by autorun
 
 ```js
 // type signature
@@ -156,8 +153,8 @@ id: ElementId
 
 #### property: msaFilehandle
 
-filehandle object for the MSA (which could contain a tree e.g. with
-stockholm files)
+filehandle object for the MSA (which could contain a tree e.g. with stockholm
+files)
 
 ```js
 // type signature
@@ -350,7 +347,7 @@ Record<string, string>
 
 ```js
 // type
-Record < string, number > []
+;(Record < string, number > [])
 ```
 
 #### getter: colStatsSums
@@ -724,8 +721,8 @@ getRowData: (name: string) => { data: any; treeMetadata: any; }
 
 #### method: mouseOverCoordToGapRemovedRowCoord
 
-return a row-specific sequence coordinate, skipping gaps, given a
-global coordinate
+return a row-specific sequence coordinate, skipping gaps, given a global
+coordinate
 
 ```js
 // type signature
@@ -743,8 +740,8 @@ mouseOverCoordToRowLetter: (rowName: string, position: number) => any
 
 #### method: seqCoordToRowSpecificGlobalCoord
 
-return a global coordinate given a row-specific sequence coordinate
-which does not not include gaps
+return a global coordinate given a row-specific sequence coordinate which does
+not not include gaps
 
 ```js
 // type signature

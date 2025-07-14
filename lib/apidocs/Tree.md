@@ -56,9 +56,9 @@ labelsAlignRight: false
 
 #### property: showBranchLen
 
-use "branch length" e.g. evolutionary distance to draw tree branch
-lengths. if false, the layout is a "cladogram" that does not take into
-account evolutionary distances
+use "branch length" e.g. evolutionary distance to draw tree branch lengths. if
+false, the layout is a "cladogram" that does not take into account evolutionary
+distances
 
 ```js
 // type signature

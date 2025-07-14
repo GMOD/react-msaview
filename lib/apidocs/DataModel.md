@@ -10,10 +10,10 @@ our source code.
 
 [src/model/DataModel.ts](https://github.com/GMOD/react-msaview/blob/main/lib/src/model/DataModel.ts)
 
-the data stored for the model. this is sometimes temporary in the case that
-e.g. msaFilehandle is available on the parent model, because then the msa
-data will not be persisted in saved session snapshots, it will be fetched
-from msaFilehandle at startup
+the data stored for the model. this is sometimes temporary in the case that e.g.
+msaFilehandle is available on the parent model, because then the msa data will
+not be persisted in saved session snapshots, it will be fetched from
+msaFilehandle at startup
 
 ### DataModel - Properties
 
