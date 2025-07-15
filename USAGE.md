@@ -33,6 +33,8 @@ export default function App() {
 }
 ```
 
+example stackblitz here https://stackblitz.com/edit/vitejs-vite-qb9v874k?file=src%2FApp.tsx
+
 ## Using the react-msaview NPM component, point at remote files
 
 ```typescript
