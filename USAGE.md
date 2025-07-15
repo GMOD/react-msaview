@@ -6,16 +6,13 @@ Install react-msaview. Your app should have @jbrowse/core, @mui/material, react,
 react-dom since react-msaview uses these as peerDependencies
 
 ```sh
-
-$ yarn add react-msaview
-
+yarn add react-msaview @jbrowse/core @mui/material react react-dom
 ```
 
 ## Using the react-msaview NPM component, point at raw data
 
 ```typescript
-import { observer } from 'mobx-react'
-import { MSAView, MSAModel } from 'msaview'
+import { MSAView, MSAModel } from 'react-msaview'
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { ThemeProvider } from '@mui/material/styles'
 
@@ -46,8 +43,7 @@ function App() {
 ## Using the react-msaview NPM component, point at remote files
 
 ```typescript
-import { observer } from 'mobx-react'
-import { MSAView, MSAModel } from 'msaview'
+import { MSAView, MSAModel } from 'react-msaview'
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { ThemeProvider } from '@mui/material/styles'
 
