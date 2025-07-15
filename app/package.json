@@ -1,5 +1,5 @@
 {
-  "name": "app2",
+  "name": "app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,27 +11,23 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@emotion/react": "^11.10.8",
+    "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.10.8",
-    "@jbrowse/core": "^2.7.2",
-    "@mui/material": "^5.14.15",
-    "@mui/x-data-grid": "^6.17.0",
-    "@testing-library/jest-dom": "^6.1.3",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.5.1",
-    "@types/jest": "^29.5.1",
-    "@types/node": "^20.8.9",
+    "@jbrowse/core": "^3.0.1",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
+    "@mui/system": "^7.0.1",
+    "@vitejs/plugin-react": "^4.0.0",
     "buffer": "^6.0.3",
+    "eslint": "^9.8.0",
     "gh-pages": "^6.0.0",
     "mobx": "^6.9.0",
     "mobx-react": "^9.0.1",
-    "mobx-state-tree": "5.4.1",
-    "ngl": "^2.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-msaview": "^3.0.0",
+    "mobx-state-tree": "5.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-msaview": "^4.0.0",
     "rxjs": "^7.8.1",
-    "tss-react": "^4.8.3"
-  },
-  "devDependencies": {}
+    "tss-react": "^4.9.12"
+  }
 }

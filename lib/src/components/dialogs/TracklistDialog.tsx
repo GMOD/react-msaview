@@ -1,20 +1,20 @@
 import React from 'react'
+
 import { Dialog } from '@jbrowse/core/ui'
 import {
+  Button,
+  Checkbox,
+  DialogActions,
   DialogContent,
   FormControlLabel,
   FormGroup,
-  Checkbox,
-  DialogActions,
-  Button,
   Typography,
 } from '@mui/material'
 import { observer } from 'mobx-react'
 
-// locals
-import { MsaViewModel } from '../../model'
+import type { MsaViewModel } from '../../model'
 
-export default observer(function ({
+const TracklistDialog = observer(function ({
   model,
   onClose,
 }: {
@@ -24,7 +24,13 @@ export default observer(function ({
   const { tracks } = model
 
   return (
-    <Dialog onClose={() => onClose()} open title="Add track">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open
+      title="Add track"
+    >
       <DialogContent>
         <Typography>
           Open relevant per-alignment tracks e.g. protein domains
@@ -49,7 +55,13 @@ export default observer(function ({
           })}
         </FormGroup>
         <DialogActions>
-          <Button onClick={() => onClose()} variant="contained" color="primary">
+          <Button
+            onClick={() => {
+              onClose()
+            }}
+            variant="contained"
+            color="primary"
+          >
             Close
           </Button>
         </DialogActions>
@@ -57,3 +69,5 @@ export default observer(function ({
     </Dialog>
   )
 })
+
+export default TracklistDialog

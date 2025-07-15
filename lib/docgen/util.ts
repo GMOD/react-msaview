@@ -1,6 +1,7 @@
-import ts from 'typescript'
-import { promisify } from 'util'
 import { exec } from 'child_process'
+import { promisify } from 'util'
+
+import ts from 'typescript'
 const exec2 = promisify(exec)
 
 interface Node {
@@ -74,7 +75,7 @@ export function extractWithComment(
       'method',
     ]
     for (const entry of list) {
-      const type = '#' + entry
+      const type = `#${entry}`
       if (fulltext.includes(type) && r.comment.includes(type)) {
         cb({ type: entry, ...r })
       }
@@ -102,6 +103,6 @@ export function filter(str1: string, str2: string) {
 }
 
 export async function getAllFiles() {
-  const files = await exec2('git ls-files | grep "\\(t\\|j\\)sx\\?$"')
+  const files = await exec2(String.raw`git ls-files | grep "\(t\|j\)sx\?$"`)
   return files.stdout.split('\n').filter(f => !!f)
 }

@@ -1,61 +1,67 @@
 import React, { Suspense } from 'react'
+
 import { observer } from 'mobx-react'
 
-// locals
 import { HorizontalResizeHandle, VerticalResizeHandle } from './ResizeHandles'
-import { MsaViewModel } from '../model'
-import TreeRuler from './TreePanel/TreeRuler'
-import Header from './Header'
-import Track from './Track'
-import MSAPanel from './MSAPanel'
-import TreePanel from './TreePanel'
-import Minimap from './Minimap'
+import VerticalScrollbar from './VerticalScrollbar'
+import Header from './header/Header'
+import Minimap from './minimap/Minimap'
+import MSAPanel from './msa/MSAPanel'
+import TreePanel from './tree/TreePanel'
+import TreeRuler from './tree/TreeRuler'
 
-function TopArea({ model }: { model: MsaViewModel }) {
+import type { MsaViewModel } from '../model'
+
+const TopArea = observer(function ({ model }: { model: MsaViewModel }) {
+  const { showHorizontalScrollbar } = model
   return (
     <div style={{ display: 'flex' }}>
       <TreeRuler model={model} />
-      <Minimap model={model} />
+      {showHorizontalScrollbar ? <Minimap model={model} /> : null}
     </div>
   )
-}
-function MainArea({ model }: { model: MsaViewModel }) {
+})
+
+const MainArea = observer(function ({ model }: { model: MsaViewModel }) {
+  const { showVerticalScrollbar } = model
+
   return (
     <div style={{ display: 'flex' }}>
       <TreePanel model={model} />
       <VerticalResizeHandle model={model} />
       <MSAPanel model={model} />
+      {showVerticalScrollbar ? <VerticalScrollbar model={model} /> : null}
     </div>
   )
-}
+})
 
 const View = observer(function ({ model }: { model: MsaViewModel }) {
-  const { turnedOnTracks } = model
   return (
     <div style={{ position: 'relative' }}>
       <TopArea model={model} />
-      {turnedOnTracks?.map(track => (
-        <Track key={track.model.id} model={model} track={track} />
-      ))}
       <MainArea model={model} />
     </div>
   )
 })
 
 const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
-  const { height, DialogComponent, DialogProps } = model
+  const { height, viewInitialized, DialogComponent, DialogProps } = model
   return (
     <div>
-      <div style={{ height, overflow: 'hidden' }}>
-        <Header model={model} />
-        <View model={model} />
-      </div>
-      <HorizontalResizeHandle model={model} />
+      {viewInitialized ? (
+        <>
+          <div style={{ height, overflow: 'hidden' }}>
+            <Header model={model} />
+            <View model={model} />
+          </div>
+          <HorizontalResizeHandle model={model} />
 
-      {DialogComponent ? (
-        <Suspense fallback={null}>
-          <DialogComponent {...DialogProps} />
-        </Suspense>
+          {DialogComponent ? (
+            <Suspense fallback={null}>
+              <DialogComponent {...DialogProps} />
+            </Suspense>
+          ) : null}
+        </>
       ) : null}
     </div>
   )

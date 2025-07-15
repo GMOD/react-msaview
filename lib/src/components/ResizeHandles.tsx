@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
+
 import { observer } from 'mobx-react'
 
-// locals
-import { MsaViewModel } from '../model'
+import type { MsaViewModel } from '../model'
 
 export const VerticalResizeHandle = observer(function ({
   model,
@@ -57,12 +57,14 @@ export const VerticalResizeHandle = observer(function ({
   return (
     <div>
       <div
-        onMouseDown={() => setMouseDragging(true)}
+        onMouseDown={() => {
+          setMouseDragging(true)
+        }}
         style={{
           cursor: 'ew-resize',
           height: '100%',
           width: resizeHandleWidth,
-          background: `rgba(200,200,200)`,
+          background: 'rgba(200,200,200)',
           position: 'relative',
         }}
       />
@@ -123,12 +125,14 @@ export const HorizontalResizeHandle = observer(function ({
   return (
     <div>
       <div
-        onMouseDown={() => setMouseDragging(true)}
+        onMouseDown={() => {
+          setMouseDragging(true)
+        }}
         style={{
           cursor: 'ns-resize',
           width: '100%',
           height: resizeHandleWidth,
-          background: `rgba(200,200,200)`,
+          background: 'rgba(200,200,200)',
           position: 'relative',
         }}
       />

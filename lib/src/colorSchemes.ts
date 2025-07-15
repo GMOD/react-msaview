@@ -1,10 +1,13 @@
+import { blue, green, orange, red } from '@mui/material/colors'
 import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
-import { transform } from './util'
+
+import { isBlank, transform } from './util'
 
 extend([namesPlugin])
 
 const colorSchemes = {
+  none: {},
   clustal: {
     G: 'orange',
     P: 'orange',
@@ -131,6 +134,13 @@ const colorSchemes = {
     G: '#e5994c',
     T: '#19cc19',
     U: '#19cc19',
+  },
+  jbrowse_dna: {
+    A: green[500],
+    C: blue[500],
+    G: orange[500],
+    T: red[500],
+    U: red[500],
   },
   jalview_buried: {
     A: '#00a35c',
@@ -351,12 +361,12 @@ export default transform(colorSchemes, ([key, val]) => [
 // should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getClustalXColor(
   stats: Record<string, number>,
+  total: number,
   model: { columns: Record<string, string> },
   row: string,
   col: number,
 ) {
-  const total = Object.values(stats).reduce((a, b) => a + b, 0)
-  const l = model.columns[row][col]
+  const l = model.columns[row]![col]!
   const {
     W = 0,
     L = 0,
@@ -494,21 +504,21 @@ export function getClustalXColor(
 // info http://www.jalview.org/help/html/colourSchemes/clustal.html
 // modifications:
 // reference to clustalX source code scheme modifies what the jalview.org
-// scheme says there the jalview.org colorscheme says WLVIMAFCHP but it
-// should be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
+// scheme says there the jalview.org colorscheme says WLVIMAFCHP but it should
+// be WLVIMAFCHPY, colprot.xml says e.g. %#ACFHILMVWYPp" which has Y
 export function getPercentIdentityColor(
   stats: Record<string, number>,
+  total: number,
   model: { columns: Record<string, string> },
   row: string,
   col: number,
 ) {
-  const total = Object.values(stats).reduce((a, b) => a + b, 0)
-  const l = model.columns[row][col]
+  const l = model.columns[row]![col]!
   const entries = Object.entries(stats)
   let ent = 0
   let letter = ''
   for (const entry of entries) {
-    if (entry[1] > ent && entry[0] !== '-') {
+    if (entry[1] > ent && !isBlank(entry[0])) {
       letter = entry[0]
       ent = entry[1]
     }

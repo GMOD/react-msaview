@@ -1,38 +1,40 @@
 <html>
   <head>
-    <script>
-      window.global = window
-    </script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react@17/umd/react.development.js"
-    ></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
-    ></script>
     <script crossorigin src="../bundle/index.js"></script>
   </head>
   <body>
-    <div id="root" />
+    <div id="root" style="width: 1800px" />
     <script>
-      const { MSAView, MSAModel } = window.ReactMSAView
-      const model = MSAModel.create({
+      const { React, createRoot, MSAView, MSAModelF } = window.ReactMSAView
+      const model = MSAModelF().create({
         id: `${Math.random()}`,
         type: 'MsaView',
       })
-      // can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
-      // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", msaFilehandle: {uri:'http://path/to/msa.stock'} });
-      // or pass a string of an msa/tree directly to the "data" field if not pointing to a URL
-      // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", data: {msa:/*string of msa here */} });
+
+      // can pass msaFilehandle and treeFilehandle if you want to point at a
+      // URL of a MSA/tree
+
+      // const model = MSAModel.create({
+      //   id: `${Math.random()}`,
+      //   type: "MsaView",
+      //   msaFilehandle: {uri:'http://path/to/msa.stock'}
+      // });
+
+      // or pass a string of an msa/tree directly to the "data" field if not
+      // pointing to a URL
+
+      // const model = MSAModel.create({
+      //   id: `${Math.random()}`,
+      //   type: "MsaView",
+      //   data: {
+      //     msa:/*string of msa here */
+      //   }
+      // });
 
       // choose MSA width, calculate width of div/rendering area if needed beforehand
       model.setWidth(1800)
-
-      ReactDOM.render(
-        React.createElement(MSAView, { model }),
-        document.getElementById('root'),
-      )
+      const root = createRoot(document.getElementById('root'))
+      root.render(React.createElement(MSAView, { model }))
     </script>
   </body>
 </html>

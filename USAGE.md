@@ -1,73 +1,70 @@
 # Usage
 
-## Using react-msaview in an external app
+## Using react-msaview NPM package as a React component
 
-Install react-msaview. Your app should have @jbrowse/core, @mui/material, react,
-react-dom since react-msaview uses these as peerDependencies
+Install react-msaview. There are several peerDependencies also, listed below
 
 ```sh
-
-$ yarn add react-msaview
-
+yarn add react-msaview @jbrowse/core @mui/material react react-dom @emotion/styled @emotion/react
 ```
 
-Example script using the react-msaview package:
+## Using the react-msaview NPM component, point at remote files
 
 ```typescript
-import { observer } from 'mobx-react'
-import { MSAView, MSAModel } from 'msaview'
-import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
-import { ThemeProvider } from '@mui/material/styles'
+import { MSAView, MSAModelF } from 'react-msaview';
 
-function App() {
-  const theme = createJBrowseTheme()
-
-  const model = MSAModel.create({ id: `${Math.random()}`, type: 'MsaView' })
-  // can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
-  //
-  // const model = MSAModel.create({
-  //   id: `${Math.random()}`,
-  //   type: "MsaView",
-  //   msaFilehandle: {uri:'http://path/to/msa.stock'}
-  // });
-  //
-  // or pass a string of an msa/tree directly to the "data" field if not pointing to a URL
-  //
-  // const model = MSAModel.create({
-  //   id: `${Math.random()}`,
-  //   type: "MsaView",
-  //   data: {msa:/*string of msa here */}
-  // });
+export default function App() {
+  const model = MSAModelF().create({
+    type: 'MsaView',
+    data: {
+      msa: 'string containing stockholm, clustalw, or multi-fasta msa here',
+      tree: 'string containing newick formatted tree here',
+    },
+  });
 
   // choose MSA width, calculate width of div/rendering area if needed beforehand
-  model.setWidth(1800)
+  model.setWidth(1800);
 
   return (
-    <ThemeProvider theme={theme}>
-      <div style={{ border: '1px solid black', margin: 20 }}>
-        <MSAView model={model} />
-      </div>
-    </ThemeProvider>
-  )
+    <div style={{ border: '1px solid black', margin: 20 }}>
+      <MSAView model={model} />
+    </div>
+  );
 }
 ```
 
-## Using react-msaview in a plain HTML file with UMD bundle
+example stackblitz here https://stackblitz.com/edit/vitejs-vite-qb9v874k?file=src%2FApp.tsx
+
+## Using the react-msaview NPM component, point at remote files
+
+```typescript
+import { MSAView, MSAModelF } from 'react-msaview';
+
+export default function App() {
+  const model = MSAModelF().create({
+    type: 'MsaView',
+    data: {
+      msa: 'https://jbrowse.org/genomes/multiple_sequence_alignments/pfam-cov2.stock',
+      locationType: 'UriLocation',
+    },
+  });
+
+  // choose MSA width, calculate width of div/rendering area if needed beforehand
+  model.setWidth(1800);
+
+  return (
+    <div style={{ border: '1px solid black', margin: 20 }}>
+      <MSAView model={model} />
+    </div>
+  );
+}
+```
+
+## Using react-msaview in a plain HTML file with UMD bundle, point at URLs
 
 ```html
 <html>
   <head>
-    <script>
-      window.global = window
-    </script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react@17/umd/react.development.js"
-    ></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
-    ></script>
     <script
       crossorigin
       src="https://unpkg.com/react-msaview/bundle/index.js"
@@ -76,41 +73,37 @@ function App() {
   <body>
     <div id="root" />
     <script>
-      const { MSAView, MSAModel } = window.ReactMSAView
-      const model = MSAModel.create({
-        id: `${Math.random()}`,
+      const { React, createRoot, MSAView, MSAModelF } = window.ReactMSAView
+      const model = MSAModelF().create({
         type: 'MsaView',
+        msaFilehandle: { uri: 'http://path/to/msa.stock' },
+        treeFilehandle: { uri: 'http://path/to/tree.nh' },
       })
-      // can pass msaFilehandle and treeFilehandle if you want to point at a URL of a MSA/tree
-      // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", msaFilehandle: {uri:'http://path/to/msa.stock'} });
-      // or pass a string of an msa/tree directly to the "data" field if not pointing to a URL
-      // const model = MSAModel.create({ id: `${Math.random()}`, type: "MsaView", data: {msa:/*string of msa here */} });
 
       // choose MSA width, calculate width of div/rendering area if needed beforehand
       model.setWidth(1800)
-
-      ReactDOM.render(
-        React.createElement(MSAView, { model }),
-        document.getElementById('root'),
-      )
+      const root = createRoot(document.getElementById('root'))
+      root.render(React.createElement(MSAView, { model }))
     </script>
   </body>
 </html>
 ```
 
+
+
 ## API
 
-The following fields can be passed as constructor aka the MSAModel.create
-function
-
-This document shows all the properties you can pass to the model.create
-function, as well as getters, methods, and actions on the model.
+See here for complete auto-generated API docs for the MSA view model
 https://github.com/GMOD/react-msaview/blob/main/lib/apidocs/MsaView.md
 
-See lib/src/model.ts for the full model source code. It is helpful to be
-knowledgeable of the way mobx+react inter-operate: you can write components that
-"observe" (by wrapping a component with the mobx-react observe function) the
-state of the model using React and mobx-state-tree
+You can also look at lib/src/model.ts for the full model source code
+
+The React-MSAView package uses this 'model' extensively, instead of a 'prop'
+based API
+
+It is helpful to be knowledgeable of the way mobx+react interoperate: you can
+write components that "observe" (by wrapping a component with the mobx-react
+observe function) the state of the model using React and mobx-state-tree
 
 For example, if you wanted to know what base the user was hovering over. You can
 get an intro to basic React and mobx-state-tree + observer concepts in this

@@ -1,18 +1,20 @@
 import React, { useState } from 'react'
+
+import { Dialog, FileSelector } from '@jbrowse/core/ui'
 import {
-  DialogContent,
-  DialogActions,
   Button,
-  TextField,
+  DialogActions,
+  DialogContent,
   MenuItem,
+  TextField,
   Typography,
 } from '@mui/material'
-import { Dialog, FileSelector } from '@jbrowse/core/ui'
-import { FileLocation } from '@jbrowse/core/util/types'
 import { observer } from 'mobx-react'
-import { MsaViewModel } from '../../model'
 
-export default observer(function ({
+import type { MsaViewModel } from '../../model'
+import type { FileLocation } from '@jbrowse/core/util/types'
+
+const AddTrackDialog = observer(function ({
   model,
   onClose,
   open,
@@ -26,7 +28,13 @@ export default observer(function ({
   const [currentOption, setCurrentOption] = useState('')
 
   return (
-    <Dialog onClose={() => onClose()} open={open} title="Add track">
+    <Dialog
+      onClose={() => {
+        onClose()
+      }}
+      open={open}
+      title="Add track"
+    >
       <DialogContent>
         <Typography>
           Open relevant per-alignment tracks e.g. protein domains
@@ -51,7 +59,6 @@ export default observer(function ({
             onClick={() => {
               model.setError(undefined)
               if (trackFile) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 model.setMSAFilehandle(trackFile)
               }
             }}
@@ -63,7 +70,9 @@ export default observer(function ({
           <Button
             color="secondary"
             variant="contained"
-            onClick={() => onClose()}
+            onClick={() => {
+              onClose()
+            }}
           >
             Cancel
           </Button>
@@ -72,3 +81,5 @@ export default observer(function ({
     </Dialog>
   )
 })
+
+export default AddTrackDialog

@@ -1,5 +1,7 @@
 import { parse } from 'clustal-js'
-import { NodeWithIds } from '../util'
+
+import type { NodeWithIds } from '../types'
+
 export default class ClustalMSA {
   private MSA: ReturnType<typeof parse>
 
@@ -11,12 +13,12 @@ export default class ClustalMSA {
     return this.MSA
   }
 
-  getRow(name: string) {
+  getRow(name: string): string {
     return this.MSA.alns.find(aln => aln.id === name)?.seq || ''
   }
 
   getWidth() {
-    return this.MSA.alns[0].seq.length
+    return this.MSA.alns[0]!.seq.length
   }
 
   getRowData() {
@@ -44,10 +46,10 @@ export default class ClustalMSA {
       id: 'root',
       name: 'root',
       noTree: true,
-      branchset: this.getNames().map(name => ({
+      children: this.getNames().map(name => ({
         id: name,
         name,
-        branchset: [],
+        children: [],
       })),
     }
   }

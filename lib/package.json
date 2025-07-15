@@ -1,9 +1,15 @@
 {
   "name": "react-msaview",
   "author": "Colin",
-  "version": "3.1.7",
+  "version": "4.4.3",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GMOD/react-msaview.git",
+    "directory": "lib"
+  },
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "files": [
     "dist",
     "bundle",
@@ -14,15 +20,17 @@
   },
   "scripts": {
     "clean": "rimraf dist",
+    "format": "prettier --write .",
     "prebuild": "npm run clean",
     "prepublishOnly": "node output-version.js > src/version.ts && git add -A src && git commit -m '[skip ci] Bump version.ts'",
     "build:esm": "tsc",
-    "build:bundle": "rollup -c --bundleConfigAsCjs",
+    "build:bundle": "webpack",
     "build": "npm run build:esm && npm run build:bundle",
     "prepack": "npm run build",
     "postversion": "git push --follow-tags",
-    "prestatedocs": "yarn tsc --build docgen/tsconfig.json",
-    "statedocs": "rm -rf apidocs && mkdir apidocs && node docgen/dist/generateStateModelDocs.js"
+    "statedocs": "rm -rf apidocs && mkdir apidocs && node --experimental-strip-types docgen/generateStateModelDocs.ts",
+    "poststatedocs": "npm run format",
+    "test": "vitest"
   },
   "peerDependencies": {
     "@jbrowse/core": ">=2.0.0",
@@ -31,21 +39,23 @@
     "mobx": ">=6.0.0",
     "mobx-react": ">=7.0.0",
     "mobx-state-tree": ">=5.0.0",
-    "react": ">=17.0.0",
-    "react-dom": ">=17.0.0"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "dependencies": {
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
     "clustal-js": "^2.0.0",
     "colord": "^2.9.3",
     "copy-to-clipboard": "^3.3.1",
     "d3-array": "^3.2.3",
     "d3-hierarchy": "^3.1.2",
+    "emf-js": "^2.0.0",
     "file-saver": "^2.0.5",
-    "normalize-wheel": "^1.0.1",
+    "pako": "^2.1.0",
     "pixi.js": "^8.0.0",
     "rbush": "^3.0.1",
     "stockholm-js": "^1.0.10",
-    "svgcanvas": "^2.5.0",
-    "tss-react": "^4.8.3"
+    "svgcanvas": "^2.5.0"
   }
 }

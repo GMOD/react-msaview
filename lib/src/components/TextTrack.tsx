@@ -1,9 +1,12 @@
-import React, { useRef, useMemo, useEffect } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
+
 import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
-// locals
-import { MsaViewModel, ITextTrack } from '../model'
+
 import { colorContrast } from '../util'
+
+import type { MsaViewModel } from '../model'
+import type { ITextTrack } from '../types'
 
 const AnnotationBlock = observer(function ({
   track,
@@ -55,9 +58,9 @@ const AnnotationBlock = observer(function ({
 
     const xStart = Math.max(0, Math.floor(offsetX / colWidth))
     const xEnd = Math.max(0, Math.ceil((offsetX + blockSize) / colWidth))
-    const str = data?.slice(xStart, xEnd)
+    const str = data.slice(xStart, xEnd)
     for (let i = 0; str && i < str.length; i++) {
-      const letter = str[i]
+      const letter = str[i]!
       const color = colorScheme[letter.toUpperCase()]
       if (bgColor) {
         const x = i * colWidth + offsetX - (offsetX % colWidth)

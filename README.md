@@ -13,12 +13,6 @@ See https://gmod.github.io/react-msaview
 This page is a deployment of the `app` directory in this repo, which uses the
 `react-msaview` NPM package, and additionally adds the 3-D structure viewer
 
-## Screenshot
-
-![](docs/media/image20.png)
-
-![](docs/media/image15.png)
-
 ## Developers
 
 The lib folder contains the NPM package, and the `app` folder contains an

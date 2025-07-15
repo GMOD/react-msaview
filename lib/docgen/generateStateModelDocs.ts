@@ -1,12 +1,14 @@
+import fs from 'fs'
+
 import slugify from 'slugify'
+
 import {
-  rm,
+  extractWithComment,
   filter,
   getAllFiles,
   removeComments,
-  extractWithComment,
+  rm,
 } from './util.js'
-import fs from 'fs'
 
 interface Action {
   name: string
@@ -45,8 +47,7 @@ interface StateModel {
 }
 
 function generateStateModelDocs(files: string[]) {
-  // eslint-disable-next-line no-undef
-  const cwd = process.cwd() + '/'
+  const cwd = `${process.cwd()}/`
   const contents = {} as Record<string, StateModel>
   extractWithComment(files, obj => {
     const fn = obj.filename
@@ -60,8 +61,8 @@ function generateStateModelDocs(files: string[]) {
       filename: fn2,
     }
     const current = contents[fn]
-    const name = rm(obj.comment, '#' + obj.type) || obj.name
-    const docs = filter(filter(obj.comment, '#' + obj.type), '#category')
+    const name = rm(obj.comment, `#${obj.type}`) || obj.name
+    const docs = filter(filter(obj.comment, `#${obj.type}`), '#category')
     const code = removeComments(obj.node)
     const id = slugify(name, { lower: true })
 
@@ -112,13 +113,11 @@ function generateStateModelDocs(files: string[]) {
   Object.values(contents).forEach(
     ({ model, getters, properties, actions, methods, filename }) => {
       if (model) {
-        const getterstr =
-          `${getters.length ? `### ${model.name} - Getters` : ''}\n` +
-          getters
-            .sort((a, b) => a.name.localeCompare(b.name))
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map(({ name, docs, signature }: any) => {
-              return `#### getter: ${name}
+        const getterstr = `${getters.length ? `### ${model.name} - Getters` : ''}\n${getters
+          .sort((a, b) => a.name.localeCompare(b.name))
+
+          .map(({ name, docs, signature }: any) => {
+            return `#### getter: ${name}
 
 ${docs}
 
@@ -127,16 +126,14 @@ ${docs}
 ${signature || ''}
 \`\`\`
 `
-            })
-            .join('\n')
+          })
+          .join('\n')}`
 
-        const methodstr =
-          `${methods.length ? `### ${model.name} - Methods` : ''}\n` +
-          methods
-            .sort((a, b) => a.name.localeCompare(b.name))
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map(({ name, docs, signature }: any) => {
-              return `#### method: ${name}
+        const methodstr = `${methods.length ? `### ${model.name} - Methods` : ''}\n${methods
+          .sort((a, b) => a.name.localeCompare(b.name))
+
+          .map(({ name, docs, signature }: any) => {
+            return `#### method: ${name}
 
 ${docs}
 
@@ -145,16 +142,14 @@ ${docs}
 ${name}: ${signature || ''}
 \`\`\`
 `
-            })
-            .join('\n')
+          })
+          .join('\n')}`
 
-        const propertiesstr =
-          `${properties.length ? `### ${model.name} - Properties` : ''}\n` +
-          properties
-            .sort((a, b) => a.name.localeCompare(b.name))
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map(({ name, docs, code, signature }: any) => {
-              return `#### property: ${name}
+        const propertiesstr = `${properties.length ? `### ${model.name} - Properties` : ''}\n${properties
+          .sort((a, b) => a.name.localeCompare(b.name))
+
+          .map(({ name, docs, code, signature }: any) => {
+            return `#### property: ${name}
 
 ${docs}
 
@@ -165,16 +160,14 @@ ${signature || ''}
 ${code}
 \`\`\`
 `
-            })
-            .join('\n')
+          })
+          .join('\n')}`
 
-        const actionstr =
-          `${actions.length ? `### ${model.name} - Actions` : ''}\n` +
-          actions
-            .sort((a, b) => a.name.localeCompare(b.name))
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map(({ name, docs, signature }: any) => {
-              return `#### action: ${name}
+        const actionstr = `${actions.length ? `### ${model.name} - Actions` : ''}\n${actions
+          .sort((a, b) => a.name.localeCompare(b.name))
+
+          .map(({ name, docs, signature }: any) => {
+            return `#### action: ${name}
 
 ${docs}
 
@@ -183,13 +176,14 @@ ${docs}
 ${name}: ${signature || ''}
 \`\`\`
 `
-            })
-            .join('\n')
+          })
+          .join('\n')}`
 
-        const dir = `apidocs`
+        const dir = 'apidocs'
         try {
-          fs.mkdirSync(dir)
+          fs.mkdirSync(dir, { recursive: true })
         } catch (e) {
+          console.error(e)
           /* do nothing*/
         }
         fs.writeFileSync(

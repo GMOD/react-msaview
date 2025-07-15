@@ -1,18 +1,23 @@
 import React from 'react'
+
 import { Dialog } from '@jbrowse/core/ui'
-import { DialogContent, Typography, Link } from '@mui/material'
+import { DialogContent, Link, Typography } from '@mui/material'
+
 import { version } from '../../version'
 
 export default function AboutDialog({ onClose }: { onClose: () => void }) {
   return (
-    <Dialog onClose={() => onClose()} open title="About this plugin">
+    <Dialog
+      open
+      title="About"
+      onClose={() => {
+        onClose()
+      }}
+    >
       <DialogContent>
         <Typography>
           MSAView {version} (
-          <Link href="https://github.com/gmod/jbrowse-plugin-msaview">
-            Github
-          </Link>
-          )
+          <Link href="https://github.com/gmod/react-msaview">Github</Link>)
         </Typography>
 
         <ul>

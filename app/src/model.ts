@@ -1,16 +1,11 @@
-import { MSAModel } from 'react-msaview'
-import { types, Instance } from 'mobx-state-tree'
+import { types } from 'mobx-state-tree'
+import { MSAModelF } from 'react-msaview'
 
-const App = types
-  .model({
-    msaview: MSAModel,
-    nglSelection: types.optional(types.string, ''),
-  })
-  .actions(self => ({
-    setNGLSelection(sel: string) {
-      self.nglSelection = sel
-    },
-  }))
+import type { Instance } from 'mobx-state-tree'
+
+const App = types.model({
+  msaview: MSAModelF(),
+})
 
 export default App
 export type AppModel = Instance<typeof App>

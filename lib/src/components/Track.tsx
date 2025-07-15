@@ -1,15 +1,14 @@
-import React, { useState, useRef, useEffect, lazy, Suspense } from 'react'
-import normalizeWheel from 'normalize-wheel'
-import { observer } from 'mobx-react'
+import React, { lazy, useEffect, useRef, useState } from 'react'
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { IconButton, Menu, MenuItem } from '@mui/material'
+import { observer } from 'mobx-react'
+import normalizeWheel from 'normalize-wheel'
 import { makeStyles } from 'tss-react/mui'
 
-// icons
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import type { MsaViewModel } from '../model'
 
-// locals
-import { MsaViewModel } from '../model'
-
+// lazies
 const TrackInfoDialog = lazy(() => import('./dialogs/TrackInfoDialog'))
 
 const useStyles = makeStyles()({
@@ -23,12 +22,11 @@ export const TrackLabel = observer(function ({
   track,
 }: {
   model: MsaViewModel
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   track: any
 }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>()
-  const [trackInfoDialogOpen, setTrackInfoDialogOpen] = useState(false)
-  const { rowHeight, treeAreaWidth: width } = model
+  const { drawLabels, rowHeight, treeAreaWidth: width } = model
   const {
     height,
     model: { name },
@@ -46,14 +44,16 @@ export const TrackLabel = observer(function ({
         fontSize: trackLabelHeight,
       }}
     >
-      {name}{' '}
+      {drawLabels ? name : ''}{' '}
       <IconButton
         className={classes.button}
         style={{
           width: trackLabelHeight,
           height: trackLabelHeight,
         }}
-        onClick={event => setAnchorEl(event.currentTarget)}
+        onClick={event => {
+          setAnchorEl(event.currentTarget)
+        }}
       >
         <ArrowDropDownIcon />
       </IconButton>
@@ -62,7 +62,9 @@ export const TrackLabel = observer(function ({
           anchorEl={anchorEl}
           transitionDuration={0}
           open
-          onClose={() => setAnchorEl(undefined)}
+          onClose={() => {
+            setAnchorEl(undefined)
+          }}
         >
           <MenuItem
             dense
@@ -76,21 +78,16 @@ export const TrackLabel = observer(function ({
           <MenuItem
             dense
             onClick={() => {
-              setTrackInfoDialogOpen(true)
+              model.queueDialog(onClose => [
+                TrackInfoDialog,
+                { onClose, model: track.model },
+              ])
               setAnchorEl(undefined)
             }}
           >
             Get info
           </MenuItem>
         </Menu>
-      ) : null}
-      {trackInfoDialogOpen ? (
-        <Suspense fallback={null}>
-          <TrackInfoDialog
-            model={track.model}
-            onClose={() => setTrackInfoDialogOpen(false)}
-          />
-        </Suspense>
       ) : null}
     </div>
   )
@@ -101,7 +98,7 @@ const Track = observer(function ({
   track,
 }: {
   model: MsaViewModel
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   track: any
 }) {
   const { resizeHandleWidth } = model

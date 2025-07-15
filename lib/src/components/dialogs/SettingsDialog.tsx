@@ -1,22 +1,22 @@
 import React from 'react'
-import { observer } from 'mobx-react'
-import { makeStyles } from 'tss-react/mui'
+
 import { Dialog } from '@jbrowse/core/ui'
 import {
   Button,
-  Checkbox,
   DialogActions,
   DialogContent,
-  FormControlLabel,
-  FormControlLabelProps,
   MenuItem,
   Slider,
   TextField,
   Typography,
 } from '@mui/material'
+import { observer } from 'mobx-react'
+import { makeStyles } from 'tss-react/mui'
 
-import { MsaViewModel } from '../../model'
 import colorSchemes from '../../colorSchemes'
+import Checkbox2 from '../Checkbox2'
+
+import type { MsaViewModel } from '../../model'
 
 const useStyles = makeStyles()(theme => ({
   field: {
@@ -25,32 +25,12 @@ const useStyles = makeStyles()(theme => ({
   flex: {
     display: 'flex',
   },
+  minw: {
+    width: '80em',
+  },
 }))
 
-function FormControlLabel2(rest: FormControlLabelProps) {
-  return (
-    <div>
-      <FormControlLabel {...rest} />
-    </div>
-  )
-}
-
-function Checkbox2({
-  checked,
-  label,
-  onChange,
-}: {
-  checked: boolean
-  label: string
-  onChange: () => void
-}) {
-  return (
-    <FormControlLabel2
-      control={<Checkbox checked={checked} onChange={onChange} />}
-      label={label}
-    />
-  )
-}
+const toP = (s = 0) => +(+s).toFixed(1)
 
 const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
   return (
@@ -69,6 +49,7 @@ const TreeSettings = observer(function TreeSettings({
   const { classes } = useStyles()
   const {
     drawTree,
+    drawLabels,
     drawNodeBubbles,
     labelsAlignRight,
     noTree,
@@ -82,36 +63,52 @@ const TreeSettings = observer(function TreeSettings({
       <h1>Tree options</h1>
       <Checkbox2
         checked={showBranchLen}
-        onChange={() => model.setShowBranchLen(!showBranchLen)}
         label="Show branch length?"
+        onChange={() => {
+          model.setShowBranchLen(!showBranchLen)
+        }}
       />
 
       <Checkbox2
         checked={drawNodeBubbles}
-        onChange={() => model.setDrawNodeBubbles(!drawNodeBubbles)}
         label="Draw clickable bubbles on tree branches?"
+        onChange={() => {
+          model.setDrawNodeBubbles(!drawNodeBubbles)
+        }}
       />
       <Checkbox2
         checked={drawTree}
-        onChange={() => model.setDrawTree(!drawTree)}
         label="Show tree?"
+        onChange={() => {
+          model.setDrawTree(!drawTree)
+        }}
       />
 
       <Checkbox2
         checked={labelsAlignRight}
-        onChange={() => model.setLabelsAlignRight(!labelsAlignRight)}
         label="Tree labels align right?"
+        onChange={() => {
+          model.setLabelsAlignRight(!labelsAlignRight)
+        }}
       />
-      {!noTree ? (
+
+      <Checkbox2
+        checked={drawLabels}
+        label="Draw labels"
+        onChange={() => {
+          model.setDrawLabels(!drawLabels)
+        }}
+      />
+      {noTree ? null : (
         <div>
           <Checkbox2
             checked={treeWidthMatchesArea}
-            onChange={() =>
-              model.setTreeWidthMatchesArea(!treeWidthMatchesArea)
-            }
             label="Make tree width fit to tree area?"
+            onChange={() => {
+              model.setTreeWidthMatchesArea(!treeWidthMatchesArea)
+            }}
           />
-          {!treeWidthMatchesArea ? (
+          {treeWidthMatchesArea ? null : (
             <div className={classes.flex}>
               <Typography>Tree width ({treeWidth}px)</Typography>
               <Slider
@@ -119,12 +116,14 @@ const TreeSettings = observer(function TreeSettings({
                 min={50}
                 max={600}
                 value={treeWidth}
-                onChange={(_, val) => model.setTreeWidth(val as number)}
+                onChange={(_, val) => {
+                  model.setTreeWidth(val)
+                }}
               />
             </div>
-          ) : null}
+          )}
         </div>
-      ) : null}
+      )}
     </div>
   )
 })
@@ -135,36 +134,84 @@ const MSASettings = observer(function MSASettings({
   model: MsaViewModel
 }) {
   const { classes } = useStyles()
-  const { bgColor, colWidth, colorSchemeName, rowHeight } = model
+  const {
+    bgColor,
+    contrastLettering,
+    colWidth,
+    allowedGappyness,
+    drawMsaLetters,
+    colorSchemeName,
+    hideGaps,
+    rowHeight,
+  } = model
 
   return (
     <div>
       <h1>MSA options</h1>
-
+      <Checkbox2
+        checked={drawMsaLetters}
+        label="Draw letters"
+        onChange={() => {
+          model.setDrawMsaLetters(!drawMsaLetters)
+        }}
+      />
       <Checkbox2
         checked={bgColor}
-        onChange={() => model.setBgColor(!bgColor)}
-        label="Color background tiles of MSA?"
+        label="Color letters instead of background of tiles"
+        onChange={() => {
+          model.setBgColor(!bgColor)
+        }}
       />
-
+      <Checkbox2
+        checked={contrastLettering}
+        label="Use contrast lettering"
+        onChange={() => {
+          model.setContrastLettering(!contrastLettering)
+        }}
+      />
+      <Checkbox2
+        checked={hideGaps}
+        label="Enable hiding gappy columns?"
+        onChange={() => {
+          model.setHideGaps(!hideGaps)
+        }}
+      />
+      {hideGaps ? (
+        <div className={classes.flex}>
+          <Typography>Hide columns w/ &gt;{allowedGappyness}% gaps</Typography>
+          <Slider
+            className={classes.field}
+            min={1}
+            max={100}
+            value={allowedGappyness}
+            onChange={(_, val) => {
+              model.setAllowedGappyness(val)
+            }}
+          />
+        </div>
+      ) : null}
       <div className={classes.flex}>
-        <Typography>Column width ({colWidth}px)</Typography>
+        <Typography>Column width ({toP(colWidth)}px)</Typography>
         <Slider
           className={classes.field}
           min={1}
           max={50}
           value={colWidth}
-          onChange={(_, val) => model.setColWidth(val as number)}
+          onChange={(_, val) => {
+            model.setColWidth(val)
+          }}
         />
       </div>
       <div className={classes.flex}>
-        <Typography>Row height ({rowHeight}px)</Typography>
+        <Typography>Row height ({toP(rowHeight)}px)</Typography>
         <Slider
           className={classes.field}
           min={1}
           max={50}
           value={rowHeight}
-          onChange={(_, val) => model.setRowHeight(val as number)}
+          onChange={(_, val) => {
+            model.setRowHeight(val)
+          }}
         />
       </div>
 
@@ -172,7 +219,9 @@ const MSASettings = observer(function MSASettings({
         select
         label="Color scheme"
         value={colorSchemeName}
-        onChange={event => model.setColorSchemeName(event.target.value)}
+        onChange={event => {
+          model.setColorSchemeName(event.target.value)
+        }}
       >
         {Object.keys(colorSchemes).map(option => (
           <MenuItem key={option} value={option}>
@@ -191,12 +240,26 @@ const SettingsDialog = observer(function ({
   model: MsaViewModel
   onClose: () => void
 }) {
+  const { classes } = useStyles()
   return (
-    <Dialog open onClose={() => onClose()} title="Settings">
-      <DialogContent>
+    <Dialog
+      open
+      title="Settings"
+      maxWidth="xl"
+      onClose={() => {
+        onClose()
+      }}
+    >
+      <DialogContent className={classes.minw}>
         <SettingsContent model={model} />
         <DialogActions>
-          <Button onClick={() => onClose()} variant="contained" color="primary">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              onClose()
+            }}
+          >
             Submit
           </Button>
         </DialogActions>

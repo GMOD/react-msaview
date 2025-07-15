@@ -1,8 +1,10 @@
-import { HierarchyNode } from 'd3-hierarchy'
-import { max } from 'd3-array'
-import { Theme } from '@mui/material'
 import { colord, extend } from 'colord'
 import namesPlugin from 'colord/plugins/names'
+import { max } from 'd3-array'
+
+import type { Node, NodeWithIds } from './types'
+import type { Theme } from '@mui/material'
+import type { HierarchyNode } from 'd3-hierarchy'
 
 extend([namesPlugin])
 
@@ -11,28 +13,6 @@ export function transform<T>(
   cb: (arg0: [string, T]) => [string, T],
 ) {
   return Object.fromEntries(Object.entries(obj).map(cb))
-}
-
-interface Node {
-  branchset?: Node[]
-  name?: string
-  [key: string]: unknown
-}
-
-export interface NodeWithIds {
-  id: string
-  name: string
-  branchset: NodeWithIds[]
-  length?: number
-  noTree?: boolean
-}
-
-export interface NodeWithIdsAndLength {
-  id: string
-  name: string
-  branchset: NodeWithIdsAndLength[]
-  noTree?: boolean
-  length: number
 }
 
 export function generateNodeIds(
@@ -46,8 +26,8 @@ export function generateNodeIds(
     ...tree,
     id,
     name: tree.name || id,
-    branchset:
-      tree.branchset?.map((b, i) =>
+    children:
+      tree.children?.map((b, i) =>
         generateNodeIds(b, `${id}-${i}`, depth + 1),
       ) || [],
   }
@@ -63,43 +43,10 @@ export function colorContrast(
   ])
 }
 
-export function parseGFF(str?: string) {
-  return str
-    ?.split('\n')
-    .map(f => f.trim())
-    .filter(f => !!f && !f.startsWith('#'))
-    .map(f => {
-      const [seq_id, source, type, start, end, score, strand, phase, col9] =
-        f.split('\t')
-
-      return {
-        seq_id,
-        source,
-        type,
-        start: +start,
-        end: +end,
-        score: +score,
-        strand,
-        phase,
-        ...Object.fromEntries(
-          col9
-            .split(';')
-            .map(f => f.trim())
-            .filter(f => !!f)
-            .map(f => f.split('='))
-            .map(([key, val]) => [
-              key.trim(),
-              decodeURIComponent(val).trim().split(',').join(' '),
-            ]),
-        ),
-      }
-    })
-}
-
 export function skipBlanks(blanks: number[], arg: string | string[]) {
   let s = ''
   let b = 0
-  for (let j = 0; j < arg.length; j++) {
+  for (let j = 0, l = arg.length; j < l; j++) {
     if (j === blanks[b]) {
       b++
     } else {
@@ -139,12 +86,16 @@ export function collapse(d: HierarchyNode<NodeWithIds>) {
     // @ts-expect-error
     d._children = d.children
     // @ts-expect-error
-    d._children.forEach(collapse)
-    // @ts-expect-error
     d.children = null
   }
 }
 
-export function clamp(min: number, num: number, max: number) {
-  return Math.min(Math.max(num, min), max)
+export function len(a: { end: number; start: number }) {
+  return a.end - a.start
+}
+
+// https://sonnhammer.sbc.su.se/Stockholm.html
+// gaps can be a . or - in stockholm
+export function isBlank(s?: string) {
+  return s === '-' || s === '.'
 }

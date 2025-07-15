@@ -1,24 +1,27 @@
-import React, { Suspense, lazy } from 'react'
-import { observer } from 'mobx-react'
-import { onSnapshot } from 'mobx-state-tree'
-import { MSAView } from 'react-msaview'
+import React, { useEffect } from 'react'
+
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
+import useMeasure from '@jbrowse/core/util/useMeasure'
 import { ThemeProvider } from '@mui/material/styles'
+import { observer } from 'mobx-react'
+import { isAlive, onSnapshot } from 'mobx-state-tree'
+import { MSAView } from 'react-msaview'
 
 // locals
 import AppGlobal, { AppModel } from './model'
-
-// lazies
-const ProteinPanel = lazy(() => import('./ProteinPanel'))
 
 const urlParams = new URLSearchParams(window.location.search)
 const val = urlParams.get('data')
 
 const mymodel = AppGlobal.create(
-  val ? JSON.parse(val) : { msaview: { type: 'MsaView' } },
+  val
+    ? JSON.parse(val)
+    : {
+        msaview: {
+          type: 'MsaView',
+        },
+      },
 )
-
-mymodel.msaview.setWidth(window.innerWidth)
 
 let lastTime = 0
 onSnapshot(mymodel, snap => {
@@ -31,23 +34,30 @@ onSnapshot(mymodel, snap => {
   }
 })
 
-// Handle window resizing
-window.addEventListener('resize', () => {
-  mymodel.msaview.setWidth(window.innerWidth)
-})
+// used in ViewContainer files to get the width
+function useWidthSetter(view: { setWidth: (arg: number) => void }) {
+  const [ref, { width }] = useMeasure()
+  useEffect(() => {
+    if (width && isAlive(view)) {
+      // sets after a requestAnimationFrame
+      // https://stackoverflow.com/a/58701523/2129219 avoids ResizeObserver
+      // loop error being shown during development
+      requestAnimationFrame(() => {
+        view.setWidth(width)
+      })
+    }
+  }, [view, width])
+  return ref
+}
 
-const App = observer(({ model }: { model: AppModel }) => {
+const App = observer(function ({ model }: { model: AppModel }) {
   const { msaview } = model
+  const ref = useWidthSetter(msaview)
   return (
     <div>
-      <div style={{ border: '1px solid black', margin: 20 }}>
+      <div ref={ref} style={{ border: '1px solid black', margin: 20 }}>
         <MSAView model={msaview} />
       </div>
-      {msaview.selectedStructures.length ? (
-        <Suspense fallback={null}>
-          <ProteinPanel model={model} />
-        </Suspense>
-      ) : null}
       <div style={{ height: 500 }} />
     </div>
   )

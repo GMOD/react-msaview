@@ -1,21 +1,25 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react'
-import { createRoot } from 'react-dom/client'
-import { when } from 'mobx'
+
 import { renderToStaticMarkup } from '@jbrowse/core/util'
-import { Theme } from '@mui/material'
+import { when } from 'mobx'
 
-// locals
-import { MsaViewModel } from './model'
-import { renderTreeCanvas } from './components/TreePanel/renderTreeCanvas'
-import { renderMSABlock } from './components/MSAPanel/renderMSABlock'
+import MinimapSVG from './components/minimap/MinimapSVG'
+import { renderBoxFeatureCanvasBlock } from './components/msa/renderBoxFeatureCanvasBlock'
+import { renderMSABlock } from './components/msa/renderMSABlock'
+import { renderTreeCanvas } from './components/tree/renderTreeCanvas'
 import { colorContrast } from './util'
-import MinimapSVG from './components/MinimapSVG'
 
-export async function renderToSvg(
-  model: MsaViewModel,
-  opts: { theme: Theme; includeMinimap?: boolean; exportType: string },
-) {
-  await when(() => !!model.initialized)
+import type { MsaViewModel } from './model'
+import type { Theme } from '@mui/material'
+
+export interface ExportSvgOptions {
+  theme: Theme
+  includeMinimap?: boolean
+  exportType: string
+}
+export async function renderToSvg(model: MsaViewModel, opts: ExportSvgOptions) {
+  await when(() => !!model.dataInitialized)
   const { width, height, scrollX, scrollY } = model
   const { exportType, theme, includeMinimap } = opts
 
@@ -29,7 +33,8 @@ export async function renderToSvg(
       offsetX: 0,
       includeMinimap,
     })
-  } else if (exportType === 'viewport') {
+  }
+  if (exportType === 'viewport') {
     return render({
       width,
       height,
@@ -39,9 +44,8 @@ export async function renderToSvg(
       offsetX: -scrollX,
       includeMinimap,
     })
-  } else {
-    throw new Error('unknown export type')
   }
+  throw new Error('unknown export type')
 }
 
 async function render({
@@ -78,33 +82,8 @@ async function render({
         />
       </Wrapper>
     </SvgWrapper>,
-    createRoot,
   )
 }
-
-// function renderMultiline({ model }: { model: MsaViewModel }) {
-//   const { treeAreaWidth, height } = model
-//   const clipId = 'tree'
-//   return (
-//     <Wrapper model={model}>
-//       <defs>
-//         <clipPath id={clipId}>
-//           <rect x={0} y={0} width={treeAreaWidth} height={height} />
-//         </clipPath>
-//       </defs>
-//       <g
-//         clipPath={`url(#${clipId})`}
-//         /* eslint-disable-next-line react/no-danger */
-//         dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
-//       />
-//       <g
-//         transform={`translate(${treeAreaWidth} 0)`}
-//         /* eslint-disable-next-line react/no-danger */
-//         dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}
-//       />
-//     </Wrapper>
-//   )
-// }
 
 function CoreRendering({
   model,
@@ -126,11 +105,21 @@ function CoreRendering({
     height: number,
   ) => CanvasRenderingContext2D & { getSvg: () => { innerHTML: string } }
 }) {
-  const clipId = 'tree'
+  const clipId1 = 'tree'
+  const clipId2 = 'msa'
   const { treeAreaWidth, colorScheme } = model
   const contrastScheme = colorContrast(colorScheme, theme)
   const ctx1 = Context(width, height)
   const ctx2 = Context(width, height)
+  renderBoxFeatureCanvasBlock({
+    ctx: ctx2,
+    offsetX,
+    offsetY,
+    model,
+    blockSizeYOverride: height,
+    highResScaleFactorOverride: 1,
+  })
+  const msaAreaWidth = width - treeAreaWidth
   renderTreeCanvas({
     model,
     offsetY,
@@ -146,25 +135,30 @@ function CoreRendering({
     offsetX,
     contrastScheme,
     ctx: ctx2,
-    blockSizeXOverride: width - treeAreaWidth,
+    blockSizeXOverride: msaAreaWidth,
     blockSizeYOverride: height,
     highResScaleFactorOverride: 1,
   })
   return (
     <>
       <defs>
-        <clipPath id={clipId}>
+        <clipPath id={clipId1}>
           <rect x={0} y={0} width={treeAreaWidth} height={height} />
         </clipPath>
       </defs>
+      <defs>
+        <clipPath id={clipId2}>
+          <rect x={0} y={0} width={msaAreaWidth} height={height} />
+        </clipPath>
+      </defs>
+
       <g
-        clipPath={`url(#${clipId})`}
-        /* eslint-disable-next-line react/no-danger */
+        clipPath={`url(#${clipId1})`}
         dangerouslySetInnerHTML={{ __html: ctx1.getSvg().innerHTML }}
       />
       <g
+        clipPath={`url(#${clipId2})`}
         transform={`translate(${treeAreaWidth} 0)`}
-        /* eslint-disable-next-line react/no-danger */
         dangerouslySetInnerHTML={{ __html: ctx2.getSvg().innerHTML }}
       />
     </>
@@ -214,5 +208,5 @@ function SvgWrapper({
 }
 
 function NullWrapper({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return children
 }

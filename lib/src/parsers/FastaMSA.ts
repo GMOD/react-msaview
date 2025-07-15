@@ -1,4 +1,4 @@
-import { NodeWithIds } from '../util'
+import type { NodeWithIds } from '../types'
 
 function parseSmallFasta(text: string) {
   return text
@@ -6,7 +6,7 @@ function parseSmallFasta(text: string) {
     .filter(t => /\S/.test(t))
     .map(entryText => {
       const [defLine, ...seqLines] = entryText.split('\n')
-      const [id, ...description] = defLine.split(' ')
+      const [id, ...description] = defLine!.split(' ')
       const descriptionStr = description.join(' ')
       const seqLinesStr = seqLines.join('')
       const sequence = seqLinesStr.replaceAll(/\s/g, '')
@@ -18,7 +18,7 @@ export default class FastaMSA {
   constructor(text: string) {
     this.MSA = {
       seqdata: Object.fromEntries(
-        parseSmallFasta(text).map(m => [`${m.id}`, m.sequence]),
+        parseSmallFasta(text).map(m => [m.id, m.sequence]),
       ),
     }
   }
@@ -36,11 +36,11 @@ export default class FastaMSA {
   }
 
   getRow(name: string) {
-    return this.MSA?.seqdata[name] || ''
+    return this.MSA.seqdata[name] || ''
   }
 
   getWidth() {
-    const name = Object.keys(this.MSA?.seqdata)[0]
+    const name = Object.keys(this.MSA.seqdata)[0]!
     return this.getRow(name).length
   }
 
@@ -61,9 +61,9 @@ export default class FastaMSA {
       id: 'root',
       name: 'root',
       noTree: true,
-      branchset: this.getNames().map(name => ({
+      children: this.getNames().map(name => ({
         id: name,
-        branchset: [],
+        children: [],
         name,
       })),
     }
