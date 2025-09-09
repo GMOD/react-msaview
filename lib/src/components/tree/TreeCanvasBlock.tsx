@@ -93,13 +93,32 @@ const TreeCanvasBlock = observer(function ({
     ctx.clearRect(0, 0, treeAreaWidth + padding, blockSize)
     ctx.translate(0, -offsetY)
 
+    // Highlight tree element being directly hovered
     if (hoverElt) {
       const { minX, maxX, minY, maxY } = hoverElt
 
       ctx.fillStyle = 'rgba(0,0,0,0.1)'
       ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
     }
-  }, [hoverElt, offsetY, blockSize, treeAreaWidth])
+
+    // Highlight tree row corresponding to MSA mouseover
+    const { mouseOverRowName } = model
+    if (mouseOverRowName) {
+      // Find the tree node that corresponds to the hovered MSA row
+      const matchingEntry = clickMap.current.search({
+        minX: 0,
+        maxX: treeAreaWidth + padding,
+        minY: -offsetY,
+        maxY: blockSize - offsetY,
+      }).find(entry => entry.name === mouseOverRowName && !entry.branch)
+
+      if (matchingEntry) {
+        const { minX, maxX, minY, maxY } = matchingEntry
+        ctx.fillStyle = 'rgba(255,165,0,0.2)' // Orange highlight for MSA sync
+        ctx.fillRect(0, minY, treeAreaWidth + padding, maxY - minY)
+      }
+    }
+  }, [hoverElt, offsetY, blockSize, treeAreaWidth, model.mouseOverRowName])
 
   function hoverBranchClickMap(event: React.MouseEvent) {
     const x = event.nativeEvent.offsetX
@@ -171,7 +190,19 @@ const TreeCanvasBlock = observer(function ({
 
           const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
           ref.current.style.cursor = ret ? 'pointer' : 'default'
-          setHoverElt(hoverNameClickMap(event))
+          const hoveredNode = hoverNameClickMap(event)
+          setHoverElt(hoveredNode)
+          
+          // Sync with MSA: when hovering over a tree node, highlight corresponding MSA row
+          if (hoveredNode && hoveredNode.name) {
+            const rowIndex = model.rowNamesSet.get(hoveredNode.name)
+            if (rowIndex !== undefined) {
+              model.setMousePos(undefined, rowIndex)
+            }
+          } else {
+            // Clear MSA highlight when not hovering over a tree node
+            model.setMousePos(undefined, undefined)
+          }
         }}
         onClick={event => {
           const { clientX: x, clientY: y } = event
@@ -188,6 +219,8 @@ const TreeCanvasBlock = observer(function ({
         }}
         onMouseLeave={() => {
           setHoverElt(undefined)
+          // Clear MSA highlight when leaving tree area
+          model.setMousePos(undefined, undefined)
         }}
         ref={vref}
       />
