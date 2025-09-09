@@ -195,7 +195,7 @@ const InterProScanDialog = observer(function ({
             <table>
               <tbody>
                 {vals
-                  .sort((a, b) => a.category.localeCompare(b.category))
+                  .toSorted((a, b) => a.category.localeCompare(b.category))
                   .map(({ name, checked, category }) => (
                     <tr key={name}>
                       <td>

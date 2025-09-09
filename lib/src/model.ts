@@ -673,6 +673,7 @@ function stateModelFactory() {
           // todo: investigate whether needed, typescript says children always true
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           .sum(d => (d.children ? 0 : 1))
+          // eslint-disable-next-line unicorn/no-array-sort
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
         if (self.showOnly) {
@@ -1243,7 +1244,7 @@ function stateModelFactory() {
             }
           }
         }
-        return ret.sort((a, b) => len(b) - len(a))
+        return ret.toSorted((a, b) => len(b) - len(a))
       },
       /**
        * #getter
