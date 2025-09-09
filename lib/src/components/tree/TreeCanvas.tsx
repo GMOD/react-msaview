@@ -92,9 +92,20 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
             ctx.resetTransform()
             ctx.clearRect(0, 0, treeAreaWidth, height)
 
+            // Highlight reference row (relativeTo) persistently
+            const { relativeTo, leaves, rowHeight } = model
+            if (relativeTo) {
+              const referenceLeaf = leaves.find(leaf => leaf.data.name === relativeTo)
+              if (referenceLeaf) {
+                const y = referenceLeaf.x! + scrollY
+                ctx.fillStyle = 'rgba(0,128,255,0.3)' // Blue highlight for reference row
+                ctx.fillRect(0, y - rowHeight / 2, treeAreaWidth, rowHeight)
+              }
+            }
+
             // Highlight tree row corresponding to MSA mouseover
-            const { mouseOverRowName, leaves, rowHeight } = model
-            if (mouseOverRowName) {
+            const { mouseOverRowName } = model
+            if (mouseOverRowName && mouseOverRowName !== relativeTo) {
               // Find the leaf node that matches the hovered row
               const matchingLeaf = leaves.find(leaf => leaf.data.name === mouseOverRowName)
               if (matchingLeaf) {

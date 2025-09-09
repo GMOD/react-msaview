@@ -85,6 +85,17 @@ const TreeMenu = observer(function ({
       >
         Indicate differences from this row
       </MenuItem>
+      {model.relativeTo ? (
+        <MenuItem
+          dense
+          onClick={() => {
+            model.drawRelativeTo(undefined)
+            onClose()
+          }}
+        >
+          Clear reference row
+        </MenuItem>
+      ) : null}
     </Menu>
   )
 })

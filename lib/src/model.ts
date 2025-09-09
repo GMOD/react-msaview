@@ -327,7 +327,7 @@ function stateModelFactory() {
       /**
        * #action
        */
-      drawRelativeTo(id: string) {
+      drawRelativeTo(id: string | undefined) {
         self.relativeTo = id
       },
       /**
@@ -1526,6 +1526,75 @@ function stateModelFactory() {
         ...rest
       } = snap
 
+      // Default values to filter out
+      const defaults = {
+        // Main model defaults
+        showDomains: false,
+        hideGaps: true,
+        allowedGappyness: 100,
+        contrastLettering: true,
+        subFeatureRows: false,
+        drawMsaLetters: true,
+        height: 550,
+        rowHeight: defaultRowHeight,
+        scrollY: 0,
+        scrollX: 0,
+        colWidth: defaultColWidth,
+        currentAlignment: 0,
+        // MSA model defaults
+        bgColor: true,
+        colorSchemeName: 'maeditor',
+        // Tree model defaults
+        drawLabels: true,
+        labelsAlignRight: false,
+        treeAreaWidth: 400,
+        treeWidth: 300,
+        treeWidthMatchesArea: true,
+        showBranchLen: true,
+        drawTree: true,
+        drawNodeBubbles: true,
+      }
+
+      // Properties that should always be included even if they match defaults
+      const alwaysInclude = new Set(['id', 'type', 'relativeTo'])
+
+      // Filter out properties that match default values
+      function filterDefaults(obj: Record<string, any>): Record<string, any> {
+        const filtered: Record<string, any> = {}
+        for (const [key, value] of Object.entries(obj)) {
+          // Always include essential properties
+          if (alwaysInclude.has(key)) {
+            filtered[key] = value
+            continue
+          }
+
+          // Skip if value matches default
+          if (defaults[key as keyof typeof defaults] === value) {
+            continue
+          }
+          
+          // Handle nested objects
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            const filteredNested = filterDefaults(value)
+            // Only include nested object if it has non-default properties
+            if (Object.keys(filteredNested).length > 0) {
+              filtered[key] = filteredNested
+            }
+          } else if (Array.isArray(value)) {
+            // Only include arrays that aren't empty
+            if (value.length > 0) {
+              filtered[key] = value
+            }
+          } else {
+            // Include non-default primitives
+            filtered[key] = value
+          }
+        }
+        return filtered
+      }
+
+      const filteredRest = filterDefaults(rest)
+
       // remove the MSA/tree data from the tree if the filehandle available in
       // which case it can be reloaded on refresh
       return {
@@ -1534,7 +1603,7 @@ function stateModelFactory() {
           ...(result.msaFilehandle ? {} : { msa }),
           ...(result.treeMetadataFilehandle ? {} : { treeMetadata }),
         },
-        ...rest,
+        ...filteredRest,
       }
     })
 }

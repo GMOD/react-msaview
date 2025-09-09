@@ -2,6 +2,7 @@ import type { MsaViewModel } from '../../model'
 
 const hoverColor = 'rgba(0,0,0,0.15)'
 const highlightColor = 'rgba(128,128,0,0.2)'
+const referenceColor = 'rgba(0,128,255,0.3)' // Blue highlight for reference row
 
 export function renderMouseover({
   ctx,
@@ -23,9 +24,21 @@ export function renderMouseover({
     mouseCol2,
     mouseClickRow,
     mouseClickCol,
+    relativeTo,
+    rowNamesSet,
   } = model
   ctx.resetTransform()
   ctx.clearRect(0, 0, width, height)
+  
+  // Highlight reference row (relativeTo) persistently
+  if (relativeTo) {
+    const referenceRowIndex = rowNamesSet.get(relativeTo)
+    if (referenceRowIndex !== undefined) {
+      ctx.fillStyle = referenceColor
+      ctx.fillRect(0, referenceRowIndex * rowHeight + scrollY, width, rowHeight)
+    }
+  }
+  
   if (mouseCol !== undefined) {
     ctx.fillStyle = hoverColor
     ctx.fillRect(mouseCol * colWidth + scrollX, 0, colWidth, height)
