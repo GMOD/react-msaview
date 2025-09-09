@@ -13,7 +13,7 @@ export default class Layout {
     }
   >
 
-  public maxHeightReached: boolean
+  public maxHeightReached = false
 
   private maxHeight: number
 
@@ -26,7 +26,6 @@ export default class Layout {
   }: {
     maxHeight?: number
   } = {}) {
-    this.maxHeightReached = false
     this.rbush = new RBush()
     this.rectangles = new Map()
     this.maxHeight = Math.ceil(maxHeight)

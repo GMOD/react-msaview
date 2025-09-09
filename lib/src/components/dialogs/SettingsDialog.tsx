@@ -30,7 +30,7 @@ const useStyles = makeStyles()(theme => ({
   },
 }))
 
-const toP = (s = 0) => +(+s).toFixed(1)
+const toP = (s = 0) => +s.toFixed(1)
 
 const SettingsContent = observer(function ({ model }: { model: MsaViewModel }) {
   return (

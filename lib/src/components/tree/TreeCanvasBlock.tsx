@@ -93,6 +93,7 @@ const TreeCanvasBlock = observer(function ({
     ctx.clearRect(0, 0, treeAreaWidth + padding, blockSize)
     ctx.translate(0, -offsetY)
 
+    // Highlight tree element being directly hovered
     if (hoverElt) {
       const { minX, maxX, minY, maxY } = hoverElt
 
@@ -169,9 +170,29 @@ const TreeCanvasBlock = observer(function ({
             return
           }
 
-          const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
-          ref.current.style.cursor = ret ? 'pointer' : 'default'
-          setHoverElt(hoverNameClickMap(event))
+          const hoveredLeaf = hoverNameClickMap(event)
+          const hoveredBranch = hoverBranchClickMap(event)
+          const hoveredAny = hoveredLeaf || hoveredBranch
+
+          ref.current.style.cursor = hoveredAny ? 'pointer' : 'default'
+          setHoverElt(hoveredLeaf) // Only show direct hover highlight for leaf nodes
+
+          // Handle tree node hover for multi-row highlighting
+          if (hoveredAny) {
+            model.setHoveredTreeNode(hoveredAny.id)
+
+            // For leaf nodes, also set single row highlight for backward compatibility
+            if (hoveredLeaf?.name) {
+              const rowIndex = model.rowNamesSet.get(hoveredLeaf.name)
+              if (rowIndex !== undefined) {
+                model.setMousePos(undefined, rowIndex)
+              }
+            }
+          } else {
+            // Clear all highlighting when not hovering over any tree node
+            model.setHoveredTreeNode(undefined)
+            model.setMousePos(undefined, undefined)
+          }
         }}
         onClick={event => {
           const { clientX: x, clientY: y } = event
@@ -188,6 +209,9 @@ const TreeCanvasBlock = observer(function ({
         }}
         onMouseLeave={() => {
           setHoverElt(undefined)
+          // Clear all highlighting when leaving tree area
+          model.setHoveredTreeNode(undefined)
+          model.setMousePos(undefined, undefined)
         }}
         ref={vref}
       />

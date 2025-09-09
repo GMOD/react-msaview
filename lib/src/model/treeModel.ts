@@ -70,14 +70,14 @@ export function TreeModelF() {
        * set tree area width (px)
        */
       setTreeAreaWidth(n: number) {
-        self.treeAreaWidth = n
+        self.treeAreaWidth = Math.round(n)
       },
       /**
        * #action
        * set tree width (px)
        */
       setTreeWidth(n: number) {
-        self.treeWidth = n
+        self.treeWidth = Math.round(n)
       },
 
       /**

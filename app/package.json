@@ -17,7 +17,6 @@
     "@mui/icons-material": "^7.0.1",
     "@mui/material": "^7.0.1",
     "@mui/system": "^7.0.1",
-    "@vitejs/plugin-react": "^4.0.0",
     "buffer": "^6.0.3",
     "eslint": "^9.8.0",
     "gh-pages": "^6.0.0",

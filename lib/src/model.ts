@@ -291,6 +291,14 @@ function stateModelFactory() {
 
       /**
        * #volatile
+       * the currently hovered tree node ID and its descendant leaf names
+       */
+      hoveredTreeNode: undefined as
+        | { nodeId: string; descendantNames: string[] }
+        | undefined,
+
+      /**
+       * #volatile
        * a dummy variable that is incremented when ref changes so autorun for
        * drawing canvas commands will run
        */
@@ -327,7 +335,7 @@ function stateModelFactory() {
       /**
        * #action
        */
-      drawRelativeTo(id: string) {
+      drawRelativeTo(id: string | undefined) {
         self.relativeTo = id
       },
       /**
@@ -395,6 +403,31 @@ function stateModelFactory() {
       setMousePos(col?: number, row?: number) {
         self.mouseCol = col
         self.mouseRow = row
+      },
+
+      /**
+       * #action
+       * set hovered tree node and its descendants
+       */
+      setHoveredTreeNode(nodeId?: string) {
+        if (!nodeId) {
+          self.hoveredTreeNode = undefined
+          return
+        }
+
+        // Find the node in the hierarchy
+        const node = (self as any).hierarchy.find(
+          (n: any) => n.data.id === nodeId,
+        )
+        if (!node) {
+          self.hoveredTreeNode = undefined
+          return
+        }
+
+        // Get all descendant leaf names
+        const descendantNames = node.leaves().map((leaf: any) => leaf.data.name)
+
+        self.hoveredTreeNode = { nodeId, descendantNames }
       },
       /**
        * #action
@@ -673,6 +706,7 @@ function stateModelFactory() {
           // todo: investigate whether needed, typescript says children always true
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           .sum(d => (d.children ? 0 : 1))
+          // eslint-disable-next-line unicorn/no-array-sort
           .sort((a, b) => ascending(a.data.length || 1, b.data.length || 1))
 
         if (self.showOnly) {
@@ -911,7 +945,7 @@ function stateModelFactory() {
        * #getter
        */
       get maxScrollX() {
-        return -self.totalWidth + (self.msaAreaWidth - 100)
+        return Math.min(-self.totalWidth + (self.msaAreaWidth - 100), 0)
       },
       /**
        * #getter
@@ -1009,7 +1043,7 @@ function stateModelFactory() {
        * #action
        */
       doScrollX(deltaX: number) {
-        self.scrollX = clamp(self.scrollX + deltaX, self.maxScrollX, 0)
+        this.setScrollX(self.scrollX + deltaX)
       },
 
       /**
@@ -1243,7 +1277,7 @@ function stateModelFactory() {
             }
           }
         }
-        return ret.sort((a, b) => len(b) - len(a))
+        return ret.toSorted((a, b) => len(b) - len(a))
       },
       /**
        * #getter
@@ -1525,6 +1559,75 @@ function stateModelFactory() {
         ...rest
       } = snap
 
+      // Default values to filter out
+      const defaults = {
+        // Main model defaults
+        showDomains: false,
+        hideGaps: true,
+        allowedGappyness: 100,
+        contrastLettering: true,
+        subFeatureRows: false,
+        drawMsaLetters: true,
+        height: 550,
+        rowHeight: defaultRowHeight,
+        scrollY: 0,
+        scrollX: 0,
+        colWidth: defaultColWidth,
+        currentAlignment: 0,
+        // MSA model defaults
+        bgColor: true,
+        colorSchemeName: 'maeditor',
+        // Tree model defaults
+        drawLabels: true,
+        labelsAlignRight: false,
+        treeAreaWidth: 400,
+        treeWidth: 300,
+        treeWidthMatchesArea: true,
+        showBranchLen: true,
+        drawTree: true,
+        drawNodeBubbles: true,
+      }
+
+      // Properties that should always be included even if they match defaults
+      const alwaysInclude = new Set(['id', 'type', 'relativeTo'])
+
+      // Filter out properties that match default values
+      function filterDefaults(obj: Record<string, any>): Record<string, any> {
+        const filtered: Record<string, any> = {}
+        for (const [key, value] of Object.entries(obj)) {
+          // Always include essential properties
+          if (alwaysInclude.has(key)) {
+            filtered[key] = value
+            continue
+          }
+
+          // Skip if value matches default
+          if (defaults[key as keyof typeof defaults] === value) {
+            continue
+          }
+
+          // Handle nested objects
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            const filteredNested = filterDefaults(value)
+            // Only include nested object if it has non-default properties
+            if (Object.keys(filteredNested).length > 0) {
+              filtered[key] = filteredNested
+            }
+          } else if (Array.isArray(value)) {
+            // Only include arrays that aren't empty
+            if (value.length > 0) {
+              filtered[key] = value
+            }
+          } else {
+            // Include non-default primitives
+            filtered[key] = value
+          }
+        }
+        return filtered
+      }
+
+      const filteredRest = filterDefaults(rest)
+
       // remove the MSA/tree data from the tree if the filehandle available in
       // which case it can be reloaded on refresh
       return {
@@ -1533,7 +1636,7 @@ function stateModelFactory() {
           ...(result.msaFilehandle ? {} : { msa }),
           ...(result.treeMetadataFilehandle ? {} : { treeMetadata }),
         },
-        ...rest,
+        ...filteredRest,
       }
     })
 }

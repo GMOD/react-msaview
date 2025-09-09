@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import useMeasure from '@jbrowse/core/util/useMeasure'
 import { ThemeProvider } from '@mui/material/styles'
 import { observer } from 'mobx-react'
-import { isAlive, onSnapshot } from 'mobx-state-tree'
+import { isAlive } from 'mobx-state-tree'
 import { MSAView } from 'react-msaview'
 
 // locals
@@ -15,24 +15,17 @@ const val = urlParams.get('data')
 
 const mymodel = AppGlobal.create(
   val
-    ? JSON.parse(val)
+    ? JSON.parse(val) || {
+        msaview: {
+          type: 'MsaView',
+        },
+      }
     : {
         msaview: {
           type: 'MsaView',
         },
       },
 )
-
-let lastTime = 0
-onSnapshot(mymodel, snap => {
-  const now = Date.now()
-  if (now - lastTime >= 1000) {
-    lastTime = now
-    const url = new URL(window.document.URL)
-    url.searchParams.set('data', JSON.stringify(snap))
-    window.history.replaceState(null, '', url.toString())
-  }
-})
 
 // used in ViewContainer files to get the width
 function useWidthSetter(view: { setWidth: (arg: number) => void }) {

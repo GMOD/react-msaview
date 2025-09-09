@@ -114,7 +114,7 @@ function generateStateModelDocs(files: string[]) {
     ({ model, getters, properties, actions, methods, filename }) => {
       if (model) {
         const getterstr = `${getters.length ? `### ${model.name} - Getters` : ''}\n${getters
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .toSorted((a, b) => a.name.localeCompare(b.name))
 
           .map(({ name, docs, signature }: any) => {
             return `#### getter: ${name}
@@ -130,7 +130,7 @@ ${signature || ''}
           .join('\n')}`
 
         const methodstr = `${methods.length ? `### ${model.name} - Methods` : ''}\n${methods
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .toSorted((a, b) => a.name.localeCompare(b.name))
 
           .map(({ name, docs, signature }: any) => {
             return `#### method: ${name}
@@ -146,7 +146,7 @@ ${name}: ${signature || ''}
           .join('\n')}`
 
         const propertiesstr = `${properties.length ? `### ${model.name} - Properties` : ''}\n${properties
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .toSorted((a, b) => a.name.localeCompare(b.name))
 
           .map(({ name, docs, code, signature }: any) => {
             return `#### property: ${name}
@@ -164,7 +164,7 @@ ${code}
           .join('\n')}`
 
         const actionstr = `${actions.length ? `### ${model.name} - Actions` : ''}\n${actions
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .toSorted((a, b) => a.name.localeCompare(b.name))
 
           .map(({ name, docs, signature }: any) => {
             return `#### action: ${name}
