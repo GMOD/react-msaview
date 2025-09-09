@@ -173,16 +173,16 @@ const TreeCanvasBlock = observer(function ({
           const hoveredLeaf = hoverNameClickMap(event)
           const hoveredBranch = hoverBranchClickMap(event)
           const hoveredAny = hoveredLeaf || hoveredBranch
-          
+
           ref.current.style.cursor = hoveredAny ? 'pointer' : 'default'
           setHoverElt(hoveredLeaf) // Only show direct hover highlight for leaf nodes
-          
+
           // Handle tree node hover for multi-row highlighting
           if (hoveredAny) {
             model.setHoveredTreeNode(hoveredAny.id)
-            
+
             // For leaf nodes, also set single row highlight for backward compatibility
-            if (hoveredLeaf && hoveredLeaf.name) {
+            if (hoveredLeaf?.name) {
               const rowIndex = model.rowNamesSet.get(hoveredLeaf.name)
               if (rowIndex !== undefined) {
                 model.setMousePos(undefined, rowIndex)

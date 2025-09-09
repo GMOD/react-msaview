@@ -416,14 +416,16 @@ function stateModelFactory() {
         }
 
         // Find the node in the hierarchy
-        const node = self.hierarchy.find(n => n.data.id === nodeId)
+        const node = (self as any).hierarchy.find(
+          (n: any) => n.data.id === nodeId,
+        )
         if (!node) {
           self.hoveredTreeNode = undefined
           return
         }
 
         // Get all descendant leaf names
-        const descendantNames = node.leaves().map(leaf => leaf.data.name)
+        const descendantNames = node.leaves().map((leaf: any) => leaf.data.name)
 
         self.hoveredTreeNode = { nodeId, descendantNames }
       },

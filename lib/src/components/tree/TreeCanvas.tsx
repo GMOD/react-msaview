@@ -95,7 +95,9 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
             // Highlight reference row (relativeTo) persistently
             const { relativeTo, leaves, rowHeight, hoveredTreeNode } = model
             if (relativeTo) {
-              const referenceLeaf = leaves.find(leaf => leaf.data.name === relativeTo)
+              const referenceLeaf = leaves.find(
+                leaf => leaf.data.name === relativeTo,
+              )
               if (referenceLeaf) {
                 const y = referenceLeaf.x! + scrollY
                 ctx.fillStyle = 'rgba(0,128,255,0.3)' // Blue highlight for reference row
@@ -107,7 +109,9 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
             if (hoveredTreeNode) {
               ctx.fillStyle = 'rgba(255,165,0,0.2)' // Orange highlight for tree hover
               for (const descendantName of hoveredTreeNode.descendantNames) {
-                const matchingLeaf = leaves.find(leaf => leaf.data.name === descendantName)
+                const matchingLeaf = leaves.find(
+                  leaf => leaf.data.name === descendantName,
+                )
                 if (matchingLeaf) {
                   const y = matchingLeaf.x! + scrollY
                   ctx.fillRect(0, y - rowHeight / 2, treeAreaWidth, rowHeight)
@@ -117,9 +121,15 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
 
             // Highlight single tree row corresponding to MSA mouseover (if not part of multi-row hover)
             const { mouseOverRowName } = model
-            if (mouseOverRowName && mouseOverRowName !== relativeTo && !hoveredTreeNode?.descendantNames.includes(mouseOverRowName)) {
+            if (
+              mouseOverRowName &&
+              mouseOverRowName !== relativeTo &&
+              !hoveredTreeNode?.descendantNames.includes(mouseOverRowName)
+            ) {
               // Find the leaf node that matches the hovered row
-              const matchingLeaf = leaves.find(leaf => leaf.data.name === mouseOverRowName)
+              const matchingLeaf = leaves.find(
+                leaf => leaf.data.name === mouseOverRowName,
+              )
               if (matchingLeaf) {
                 const y = matchingLeaf.x! + scrollY
                 ctx.fillStyle = 'rgba(255,165,0,0.2)' // Orange highlight for MSA sync

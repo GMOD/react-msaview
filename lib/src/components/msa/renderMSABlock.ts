@@ -105,7 +105,9 @@ function drawTiles({
   } = model
 
   // Get reference sequence if relativeTo is set
-  const referenceSeq = relativeTo ? columns[relativeTo]?.slice(xStart, xEnd) : null
+  const referenceSeq = relativeTo
+    ? columns[relativeTo]?.slice(xStart, xEnd)
+    : null
 
   for (let i = 0, l1 = visibleLeaves.length; i < l1; i++) {
     const node = visibleLeaves[i]!
@@ -117,10 +119,11 @@ function drawTiles({
     if (str) {
       for (let i = 0, l2 = str.length; i < l2; i++) {
         const letter = str[i]!
-        
+
         // Use a muted background for positions that match reference
-        const isMatchingReference = referenceSeq && name !== relativeTo && letter === referenceSeq[i]
-        
+        const isMatchingReference =
+          referenceSeq && name !== relativeTo && letter === referenceSeq[i]
+
         const r1 = colorSchemeName === 'clustalx_protein_dynamic'
         const r2 = colorSchemeName === 'percent_identity_dynamic'
         const color = r1
@@ -146,8 +149,8 @@ function drawTiles({
             : colorScheme[letter.toUpperCase()]
         if (bgColor || r1 || r2) {
           // Use a very light background for matching positions in relative mode
-          const finalColor = isMatchingReference 
-            ? theme.palette.action.hover 
+          const finalColor = isMatchingReference
+            ? theme.palette.action.hover
             : color || theme.palette.background.default
           ctx.fillStyle = finalColor
           ctx.fillRect(
@@ -193,7 +196,9 @@ function drawText({
   } = model
 
   // Get reference sequence if relativeTo is set
-  const referenceSeq = relativeTo ? columns[relativeTo]?.slice(xStart, xEnd) : null
+  const referenceSeq = relativeTo
+    ? columns[relativeTo]?.slice(xStart, xEnd)
+    : null
 
   if (showMsaLetters) {
     for (let i = 0, l1 = visibleLeaves.length; i < l1; i++) {
@@ -206,13 +211,14 @@ function drawText({
       if (str) {
         for (let i = 0, l2 = str.length; i < l2; i++) {
           const letter = str[i]!
-          
+
           // Check if this position matches the reference
-          const isMatchingReference = referenceSeq && name !== relativeTo && letter === referenceSeq[i]
-          
+          const isMatchingReference =
+            referenceSeq && name !== relativeTo && letter === referenceSeq[i]
+
           // Show dot for matching positions, original letter for differences
           const displayLetter = isMatchingReference ? '.' : letter
-          
+
           const color = colorScheme[letter.toUpperCase()]
           const contrast = contrastLettering
             ? contrastScheme[letter.toUpperCase()] || 'black'

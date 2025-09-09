@@ -31,7 +31,7 @@ export function renderMouseover({
   } = model
   ctx.resetTransform()
   ctx.clearRect(0, 0, width, height)
-  
+
   // Highlight reference row (relativeTo) persistently
   if (relativeTo) {
     const referenceRowIndex = rowNamesSet.get(relativeTo)
@@ -40,7 +40,7 @@ export function renderMouseover({
       ctx.fillRect(0, referenceRowIndex * rowHeight + scrollY, width, rowHeight)
     }
   }
-  
+
   // Highlight multiple rows when hovering over tree nodes with children
   if (hoveredTreeNode) {
     ctx.fillStyle = multiRowHoverColor
@@ -51,7 +51,7 @@ export function renderMouseover({
       }
     }
   }
-  
+
   if (mouseCol !== undefined) {
     ctx.fillStyle = hoverColor
     ctx.fillRect(mouseCol * colWidth + scrollX, 0, colWidth, height)
