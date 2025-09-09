@@ -170,19 +170,27 @@ const TreeCanvasBlock = observer(function ({
             return
           }
 
-          const ret = hoverNameClickMap(event) || hoverBranchClickMap(event)
-          ref.current.style.cursor = ret ? 'pointer' : 'default'
-          const hoveredNode = hoverNameClickMap(event)
-          setHoverElt(hoveredNode)
+          const hoveredLeaf = hoverNameClickMap(event)
+          const hoveredBranch = hoverBranchClickMap(event)
+          const hoveredAny = hoveredLeaf || hoveredBranch
           
-          // Sync with MSA: when hovering over a tree node, highlight corresponding MSA row
-          if (hoveredNode && hoveredNode.name) {
-            const rowIndex = model.rowNamesSet.get(hoveredNode.name)
-            if (rowIndex !== undefined) {
-              model.setMousePos(undefined, rowIndex)
+          ref.current.style.cursor = hoveredAny ? 'pointer' : 'default'
+          setHoverElt(hoveredLeaf) // Only show direct hover highlight for leaf nodes
+          
+          // Handle tree node hover for multi-row highlighting
+          if (hoveredAny) {
+            model.setHoveredTreeNode(hoveredAny.id)
+            
+            // For leaf nodes, also set single row highlight for backward compatibility
+            if (hoveredLeaf && hoveredLeaf.name) {
+              const rowIndex = model.rowNamesSet.get(hoveredLeaf.name)
+              if (rowIndex !== undefined) {
+                model.setMousePos(undefined, rowIndex)
+              }
             }
           } else {
-            // Clear MSA highlight when not hovering over a tree node
+            // Clear all highlighting when not hovering over any tree node
+            model.setHoveredTreeNode(undefined)
             model.setMousePos(undefined, undefined)
           }
         }}
@@ -201,7 +209,8 @@ const TreeCanvasBlock = observer(function ({
         }}
         onMouseLeave={() => {
           setHoverElt(undefined)
-          // Clear MSA highlight when leaving tree area
+          // Clear all highlighting when leaving tree area
+          model.setHoveredTreeNode(undefined)
           model.setMousePos(undefined, undefined)
         }}
         ref={vref}

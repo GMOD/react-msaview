@@ -291,6 +291,14 @@ function stateModelFactory() {
 
       /**
        * #volatile
+       * the currently hovered tree node ID and its descendant leaf names
+       */
+      hoveredTreeNode: undefined as
+        | { nodeId: string; descendantNames: string[] }
+        | undefined,
+
+      /**
+       * #volatile
        * a dummy variable that is incremented when ref changes so autorun for
        * drawing canvas commands will run
        */
@@ -395,6 +403,29 @@ function stateModelFactory() {
       setMousePos(col?: number, row?: number) {
         self.mouseCol = col
         self.mouseRow = row
+      },
+
+      /**
+       * #action
+       * set hovered tree node and its descendants
+       */
+      setHoveredTreeNode(nodeId?: string) {
+        if (!nodeId) {
+          self.hoveredTreeNode = undefined
+          return
+        }
+
+        // Find the node in the hierarchy
+        const node = self.hierarchy.find(n => n.data.id === nodeId)
+        if (!node) {
+          self.hoveredTreeNode = undefined
+          return
+        }
+
+        // Get all descendant leaf names
+        const descendantNames = node.leaves().map(leaf => leaf.data.name)
+
+        self.hoveredTreeNode = { nodeId, descendantNames }
       },
       /**
        * #action
@@ -912,7 +943,7 @@ function stateModelFactory() {
        * #getter
        */
       get maxScrollX() {
-        return -self.totalWidth + (self.msaAreaWidth - 100)
+        return Math.min(-self.totalWidth + (self.msaAreaWidth - 100), 0)
       },
       /**
        * #getter
@@ -1010,7 +1041,7 @@ function stateModelFactory() {
        * #action
        */
       doScrollX(deltaX: number) {
-        self.scrollX = clamp(self.scrollX + deltaX, self.maxScrollX, 0)
+        this.setScrollX(self.scrollX + deltaX)
       },
 
       /**
@@ -1572,7 +1603,7 @@ function stateModelFactory() {
           if (defaults[key as keyof typeof defaults] === value) {
             continue
           }
-          
+
           // Handle nested objects
           if (value && typeof value === 'object' && !Array.isArray(value)) {
             const filteredNested = filterDefaults(value)
