@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 
+import { autorun } from 'mobx'
 import { observer } from 'mobx-react'
+import { isAlive } from 'mobx-state-tree'
 
 import TreeCanvasBlock from './TreeCanvasBlock'
 import { padding } from './renderTreeCanvas'
@@ -9,10 +11,11 @@ import type { MsaViewModel } from '../../model'
 
 const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLDivElement>(null)
+  const mouseoverRef = useRef<HTMLCanvasElement>(null)
   const scheduled = useRef(false)
   const deltaY = useRef(0)
   const prevY = useRef<number>(0)
-  const { treeWidth, height, blocksY } = model
+  const { treeWidth, height, blocksY, treeAreaWidth, scrollY } = model
   const [mouseDragging, setMouseDragging] = useState(false)
 
   useEffect(() => {
@@ -80,6 +83,31 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
     return cleanup
   }, [model, mouseDragging])
 
+  // Global tree mouseover effect
+  useEffect(() => {
+    const ctx = mouseoverRef.current?.getContext('2d')
+    return ctx
+      ? autorun(() => {
+          if (isAlive(model)) {
+            ctx.resetTransform()
+            ctx.clearRect(0, 0, treeAreaWidth, height)
+
+            // Highlight tree row corresponding to MSA mouseover
+            const { mouseOverRowName, leaves, rowHeight } = model
+            if (mouseOverRowName) {
+              // Find the leaf node that matches the hovered row
+              const matchingLeaf = leaves.find(leaf => leaf.data.name === mouseOverRowName)
+              if (matchingLeaf) {
+                const y = matchingLeaf.x! + scrollY
+                ctx.fillStyle = 'rgba(255,165,0,0.2)' // Orange highlight for MSA sync
+                ctx.fillRect(0, y - rowHeight / 2, treeAreaWidth, rowHeight)
+              }
+            }
+          }
+        })
+      : undefined
+  }, [model, treeAreaWidth, height, scrollY])
+
   function mouseDown(event: React.MouseEvent) {
     // check if clicking a draggable element or a resize handle
     const target = event.target as HTMLElement
@@ -117,6 +145,20 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
       {blocksY.map(block => (
         <TreeCanvasBlock key={block} model={model} offsetY={block} />
       ))}
+      <canvas
+        ref={mouseoverRef}
+        width={treeAreaWidth}
+        height={height}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: treeAreaWidth,
+          height,
+          zIndex: 1000,
+          pointerEvents: 'none',
+        }}
+      />
     </div>
   )
 })

@@ -100,25 +100,7 @@ const TreeCanvasBlock = observer(function ({
       ctx.fillStyle = 'rgba(0,0,0,0.1)'
       ctx.fillRect(minX, minY, maxX - minX, maxY - minY)
     }
-
-    // Highlight tree row corresponding to MSA mouseover
-    const { mouseOverRowName } = model
-    if (mouseOverRowName) {
-      // Find the tree node that corresponds to the hovered MSA row
-      const matchingEntry = clickMap.current.search({
-        minX: 0,
-        maxX: treeAreaWidth + padding,
-        minY: -offsetY,
-        maxY: blockSize - offsetY,
-      }).find(entry => entry.name === mouseOverRowName && !entry.branch)
-
-      if (matchingEntry) {
-        const { minX, maxX, minY, maxY } = matchingEntry
-        ctx.fillStyle = 'rgba(255,165,0,0.2)' // Orange highlight for MSA sync
-        ctx.fillRect(0, minY, treeAreaWidth + padding, maxY - minY)
-      }
-    }
-  }, [hoverElt, offsetY, blockSize, treeAreaWidth, model.mouseOverRowName])
+  }, [hoverElt, offsetY, blockSize, treeAreaWidth])
 
   function hoverBranchClickMap(event: React.MouseEvent) {
     const x = event.nativeEvent.offsetX

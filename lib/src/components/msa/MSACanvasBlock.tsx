@@ -91,7 +91,14 @@ const MSACanvasBlock = observer(function ({
         const mouseY = event.clientY - top + offsetY
         const x = Math.floor(mouseX / colWidth)
         const y = Math.floor(mouseY / rowHeight)
-        model.setMousePos(x, y)
+        
+        // Only set mouse position if within valid MSA bounds
+        if (x >= 0 && x < model.numColumns && y >= 0 && y < model.numRows) {
+          model.setMousePos(x, y)
+        } else {
+          // Clear mouse position when outside bounds
+          model.setMousePos(undefined, undefined)
+        }
       }}
       onClick={event => {
         if (!ref.current) {
