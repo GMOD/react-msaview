@@ -79,7 +79,7 @@ const TreeMenu = observer(function ({
       <MenuItem
         dense
         onClick={() => {
-          model.drawRelativeTo(node.id)
+          model.drawRelativeTo(node.name)
           onClose()
         }}
       >
