@@ -9,6 +9,11 @@ nobody has to work it out again.
 
 ## Open, roughly in the order I would argue for them
 
+- [Scales and guides](ideas/scales-and-guides.md): the colour object
+  jbrowse-components declares, with `linear`, `log` and `threshold` scales, a
+  gradient legend, an axis guide, and the `bar`, `point`, `text` and column
+  `strip` marks they unlock. Step 1 fixes two strips over one palette colouring
+  a shared value two ways.
 - [Layers that take data](ideas/data-layers.md): the viewer as an agent's render
   target. `columnTracks`, `highlights`, GFF `color=`, row strips, `rowTint`,
   `export-svg --spec`, the `customColorScheme` letter map and the JSON
