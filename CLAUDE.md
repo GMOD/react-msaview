@@ -49,7 +49,7 @@ Adding one means a file there plus an entry in `website/src/lib/tutorials.ts`;
 `website/src/pages/tutorials/[slug].astro` globs the directory and `index.astro`
 reads the list. Write a tutorial instead of a viewer feature whenever the work
 is data preparation. See `viewer-not-analysis-tool` in the memory and
-`agent-docs/ideas/data-layers.md`.
+`agent-docs/reference/data-layers.md`.
 
 The index is the site's gallery, and it is cards only — every piece of content
 under `/tutorials` is a page of its own. Each entry names a `thumb`, one of that

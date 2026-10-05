@@ -1,3 +1,8 @@
+---
+name: scales-and-guides
+description: The colour object jbrowse-components declares, with linear, log and threshold scales, a gradient legend, an axis guide, and the bar, point, text and column strip marks they unlock. Step 1 fixes two strips over one palette colouring a shared value two ways.
+---
+
 # Scales and guides
 
 Every scale in react-msaview is categorical. `resolveScale` in
@@ -9,7 +14,7 @@ support and a bar per row are each blocked on the same missing piece. This
 document adopts the colour object jbrowse-components' displays declare, adds the
 continuous and threshold scales it names, gives every scale its guide, a legend
 or an axis, and lists the marks those unlock.
-[panels-and-marks](panels-and-marks.md) holds the vocabulary of panels, marks
+[panels-and-marks](../../reference/panels-and-marks.md) holds the vocabulary of panels, marks
 and channels this builds on.
 
 Two target figures, in order of work:

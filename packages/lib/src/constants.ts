@@ -93,7 +93,7 @@ export const defaultOverviewHeight = 120
 // Neighbor joining does not run above this many rows. The distance matrix is
 // O(n^2*L) and the join loop O(n^3), both on the main thread with no progress
 // and no cancel: 400 rows measured 1.5s, 800 rows 10s, and 1600 would be about
-// seventy. See agent-docs/ideas/neighbor-joining-scaling.md.
+// seventy. See agent-docs/reference/neighbor-joining-scaling.md.
 export const maxNeighborJoiningRows = 500
 
 // The opacity a `rowTint` encoding draws its scale's color at, so the residues
