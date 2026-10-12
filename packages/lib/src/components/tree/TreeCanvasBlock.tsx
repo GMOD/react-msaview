@@ -121,7 +121,7 @@ const TreeCanvasBlock = observer(function ({
 
       {anchor ? (
         <BaseTooltip clientPoint={anchor.clientPoint}>
-          {anchor.value.name}
+          {anchor.value.label ?? anchor.value.name}
         </BaseTooltip>
       ) : null}
     </>

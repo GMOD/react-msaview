@@ -2,6 +2,8 @@ import Flatbush from 'flatbush'
 
 export interface ClickEntry {
   name: string
+  /** the text a tip label draws, which may be cut short */
+  label?: string
   id: string
   branch?: boolean
   minX: number

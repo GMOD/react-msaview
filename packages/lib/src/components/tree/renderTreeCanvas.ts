@@ -417,6 +417,8 @@ function renderTreeLabels({
         : 0
       const fit = (room: number) =>
         ellipsize(text => ctx.measureText(text).width, displayName, room)
+      // a label cut to nothing still gets a click box the font size wide
+      const boxWidth = (width: number) => Math.max(width, fontSize)
 
       ctx.fillStyle = tipLabelColors?.get(name) ?? theme.palette.text.primary
       if (labelsAlignRight) {
@@ -439,11 +441,12 @@ function renderTreeLabels({
         // the tree area width instead put the target smallPadding off the label
         const labelRight = offset + marginLeft
         clickMap?.insert({
-          minX: labelRight - width,
+          minX: labelRight - boxWidth(width),
           maxX: labelRight,
           minY: yp - emHeight,
           maxY: yp,
           name,
+          label: displayName,
           id,
         })
       } else {
@@ -452,10 +455,11 @@ function renderTreeLabels({
         ctx.fillText(text, labelX, yp)
         clickMap?.insert({
           minX: labelX + marginLeft,
-          maxX: labelX + width + marginLeft,
+          maxX: labelX + boxWidth(width) + marginLeft,
           minY: yp - emHeight,
           maxY: yp,
           name,
+          label: displayName,
           id,
         })
       }

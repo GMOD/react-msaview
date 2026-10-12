@@ -354,6 +354,13 @@ describe('leaf label truncation', () => {
       expect(hit.maxX).toBeLessThanOrEqual(
         model.marginLeft + model.treeAreaWidthMinusMargin,
       )
+      expect(hit.label).toBe(long)
+    })
+
+    it(`keeps a box to point at for a ${side}-aligned label cut to nothing`, () => {
+      const { model, drawn, hit } = renderNarrow(labelsAlignRight, 70)
+      expect(drawn).not.toContain(long)
+      expect(hit.maxX - hit.minX).toBeGreaterThanOrEqual(model.fontSize)
     })
   }
 })
