@@ -29,7 +29,8 @@ labels alone.}
 
 \item{tree_area_width}{Width of the tree and label gutter in pixels.}
 
-\item{auto_tree_area_width}{Size that gutter to the labels it holds.}
+\item{auto_tree_area_width}{Size that gutter to the labels and the tree
+it holds (default TRUE).}
 
 \item{allowed_gappyness}{Hide columns that are at least this percent gaps.}
 

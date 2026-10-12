@@ -283,7 +283,6 @@ export default function LoadByAccession() {
               : 'clustalx_protein_dynamic'
           }
           drawTree={family.tree !== undefined}
-          autoTreeAreaWidth={family.tree === undefined}
           height={500}
         />
       ) : null}

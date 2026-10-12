@@ -331,7 +331,8 @@ scale_residue_color <- function(scheme = NULL, encoding = NULL) {
 #'   labels alone.
 #' @param show_branch_len Draw branch lengths. FALSE draws a cladogram.
 #' @param tree_area_width Width of the tree and label gutter in pixels.
-#' @param auto_tree_area_width Size that gutter to the labels it holds.
+#' @param auto_tree_area_width Size that gutter to the labels and the tree
+#'   it holds (default TRUE).
 #' @param allowed_gappyness Hide columns that are at least this percent gaps.
 #' @param hide_header Leave out the viewer's toolbar.
 #' @return A layer to add to a viewer with \code{+}.

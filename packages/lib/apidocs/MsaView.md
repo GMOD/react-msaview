@@ -69,6 +69,7 @@ that declares it.
 [autoTreeAreaWidth](./Tree.md#property-autotreeareawidth)
 
 **Actions:** [setTreeAreaWidth](./Tree.md#action-settreeareawidth),
+[fitTreeAreaWidth](./Tree.md#action-fittreeareawidth),
 [setTreeWidth](./Tree.md#action-settreewidth),
 [setLabelsAlignRight](./Tree.md#action-setlabelsalignright),
 [setDrawTree](./Tree.md#action-setdrawtree),
@@ -929,6 +930,17 @@ residue letters do
 featureLabels: Map<Annotation, string> | undefined
 ```
 
+#### getter: fittedTreeAreaWidth
+
+the treeAreaWidth autoTreeAreaWidth holds, which is the widest label plus a tree
+that widens with its depth, up to maxTreeAreaShare of the view. The label is
+measured at the largest font so a vertical zoom leaves the alignment where it
+is, and the renderer ellipsizes any label the cap leaves too little room
+
+```js
+fittedTreeAreaWidth: number
+```
+
 #### getter: fontSize
 
 ```js
@@ -1097,6 +1109,14 @@ max topological depth to a tip, used to scale cladogram x-positions
 
 ```js
 maxDepthToLeaf: number
+```
+
+#### getter: maxLabelWidth
+
+the widest label at labelReferenceFontSize
+
+```js
+maxLabelWidth: number
 ```
 
 #### getter: maxScrollX

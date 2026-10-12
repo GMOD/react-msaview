@@ -105,9 +105,9 @@ export interface MSAViewerProps {
   rowPanels?: RowPanelSpec[]
   /** draw the phylogenetic tree (default true); false leaves a labels-only gutter */
   drawTree?: boolean
-  /** fixed width (px) of the tree/label area */
+  /** fixed width (px) of the tree/label area; turns autoTreeAreaWidth off */
   treeAreaWidth?: number
-  /** auto-size the tree/label area to the labels (used when drawTree is false) */
+  /** size the tree/label area to the labels plus the tree (default true) */
   autoTreeAreaWidth?: boolean
   /** draw branch lengths (default true); false draws a cladogram */
   showBranchLen?: boolean
@@ -303,7 +303,7 @@ function Viewer({
       ...(rowPanels ? { rowPanels } : {}),
       ...(drawTree !== undefined ? { drawTree } : {}),
       ...(treeAreaWidth ? { treeAreaWidth } : {}),
-      ...(autoTreeAreaWidth ? { autoTreeAreaWidth } : {}),
+      ...(autoTreeAreaWidth !== undefined ? { autoTreeAreaWidth } : {}),
       ...(showBranchLen !== undefined ? { showBranchLen } : {}),
       ...(treeOrder ? { treeOrder } : {}),
       ...(treeRoot ? { treeRoot } : {}),
@@ -356,6 +356,11 @@ function Viewer({
       model.setTreeAreaWidth(treeAreaWidth)
     }
   }, [model, treeAreaWidth])
+  useEffect(() => {
+    if (autoTreeAreaWidth !== undefined) {
+      model.setAutoTreeAreaWidth(autoTreeAreaWidth)
+    }
+  }, [model, autoTreeAreaWidth])
   useEffect(() => {
     if (showBranchLen !== undefined) {
       model.setShowBranchLen(showBranchLen)

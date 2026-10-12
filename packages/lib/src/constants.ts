@@ -58,6 +58,7 @@ export const minFeatureLabelHeight = 9
 // Tree labels are measured once at this size and scaled to the current font
 // size, so a vertical zoom never re-measures the tree.
 export const labelReferenceFontSize = 16
+export const maxFontSize = 18
 
 // Zoom limits, px per cell. maxCellSize caps both smooth zoom and the stepwise
 // zoom-in buttons (which otherwise grow unbounded). minColWidth/minRowHeight are
@@ -76,6 +77,9 @@ export const defaultDrawLabels = true
 export const defaultLabelsAlignRight = false
 export const defaultTreeAreaWidth = 400
 export const defaultTreeWidth = 300
+export const minTreeWidth = 50
+export const maxTreeAreaShare = 0.4
+export const defaultAutoTreeAreaWidth = true
 export const defaultShowBranchLen = true
 export const treeOrders = [
   'branchLength',

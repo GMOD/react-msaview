@@ -19,12 +19,11 @@ objects in our source code.
 
 #### property: autoTreeAreaWidth
 
-auto-size treeAreaWidth to fit the row labels (plus the tree, if drawn) instead
-of using a fixed width. useful when there is no tree, so the label gutter isn't
-padded out to the default 400px
+size treeAreaWidth to the row labels plus the tree, if drawn. Setting
+treeAreaWidth, in the snapshot, by prop or by dragging the divider, turns it off
 
 ```js
-autoTreeAreaWidth: stripDefault(types.boolean, false)
+autoTreeAreaWidth: stripDefault(types.boolean, defaultAutoTreeAreaWidth)
 ```
 
 #### property: drawLabels
@@ -124,6 +123,14 @@ treeWidth: stripDefault(types.number, defaultTreeWidth)
 ```
 
 ### Tree - Actions
+
+#### action: fitTreeAreaWidth
+
+set tree area width (px) and leave autoTreeAreaWidth on
+
+```js
+fitTreeAreaWidth: (n: number) => void
+```
 
 #### action: setAutoTreeAreaWidth
 

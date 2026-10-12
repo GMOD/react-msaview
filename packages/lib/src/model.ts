@@ -59,12 +59,15 @@ import {
   defaultTreeWidth,
   labelReferenceFontSize,
   maxCellSize,
+  maxFontSize,
+  maxTreeAreaShare,
   maxInlineSnapshotBytes as defaultMaxInlineSnapshotBytes,
   maxNeighborJoiningRows,
   minColWidth,
   minLetterColWidth,
   minLetterRowHeight,
   minRowHeight,
+  minTreeWidth,
   rowPanelHeaderHeight,
   rowTintAlpha,
   scrollZoomAxes,
@@ -2282,7 +2285,7 @@ function stateModelFactory({
        * #getter
        */
       get fontSize() {
-        return Math.min(Math.max(6, self.rowHeight - 3), 18)
+        return Math.min(Math.max(6, self.rowHeight - 3), maxFontSize)
       },
       /**
        * #getter
@@ -2673,7 +2676,11 @@ function stateModelFactory({
         return self.fontSize / labelReferenceFontSize
       },
 
-      get labelsWidth() {
+      /**
+       * #getter
+       * the widest label at labelReferenceFontSize
+       */
+      get maxLabelWidth() {
         // a loop, not Math.max(...): spreading passes one argument per leaf,
         // and the ~125k argument limit throws RangeError on the 230k-tip COVID
         // tree
@@ -2683,7 +2690,35 @@ function stateModelFactory({
             max = width
           }
         }
-        return max * this.labelWidthScale
+        return max
+      },
+
+      get labelsWidth() {
+        return this.maxLabelWidth * this.labelWidthScale
+      },
+
+      /**
+       * #getter
+       * the treeAreaWidth autoTreeAreaWidth holds, which is the widest label
+       * plus a tree that widens with its depth, up to maxTreeAreaShare of the
+       * view. The label is measured at the largest font so a vertical zoom
+       * leaves the alignment where it is, and the renderer ellipsizes any
+       * label the cap leaves too little room
+       */
+      get fittedTreeAreaWidth() {
+        const labels =
+          (this.maxLabelWidth * maxFontSize) / labelReferenceFontSize +
+          self.marginLeft +
+          12 +
+          self.cladeGutterWidth
+        const tree =
+          self.noTree || !self.drawTree
+            ? 0
+            : clamp(self.maxDepthToLeaf * 12, 80, 250)
+        const cap = self.viewInitialized
+          ? self.width * maxTreeAreaShare
+          : Infinity
+        return Math.min(labels + tree, cap)
       },
 
       /**
@@ -4943,20 +4978,16 @@ function stateModelFactory({
           }),
         )
 
-        // with autoTreeAreaWidth and no tree drawn, size the tree area to the
-        // labels. Gated on noTree/!drawTree so it does not loop with the
-        // treeWidth autorun below
         addDisposer(
           self,
           autorun(() => {
+            // labels a zoom hid measure 0, which is no reason to narrow
             if (
               self.autoTreeAreaWidth &&
-              (self.noTree || !self.drawTree) &&
-              self.labelsWidth
+              self.numRows > 0 &&
+              (self.showTreeText || !self.drawLabels)
             ) {
-              self.setTreeAreaWidth(
-                self.labelsWidth + self.marginLeft + 12 + self.cladeGutterWidth,
-              )
+              self.fitTreeAreaWidth(self.fittedTreeAreaWidth)
             }
           }),
         )
@@ -4978,7 +5009,7 @@ function stateModelFactory({
             pinnedAreaWidth = undefined
             self.setTreeWidth(
               Math.max(
-                50,
+                minTreeWidth,
                 areaWidth -
                   labelsWidth -
                   10 -
@@ -4990,10 +5021,20 @@ function stateModelFactory({
         )
       },
     }))
+    .preProcessSnapshot(snap =>
+      // a width written before autoTreeAreaWidth existed is one someone chose
+      snap?.treeAreaWidth !== undefined && snap.autoTreeAreaWidth === undefined
+        ? { ...snap, autoTreeAreaWidth: false }
+        : snap,
+    )
     .postProcessSnapshot(({ data, columnTracks, ...rest }) => ({
       // stripDefault handles per-property defaults; this drops inline documents
-      // whose filehandle can refetch them
+      // whose filehandle can refetch them, and the widths autoTreeAreaWidth
+      // derives
       ...rest,
+      ...(rest.autoTreeAreaWidth === false
+        ? {}
+        : { treeAreaWidth: undefined, treeWidth: undefined }),
       ...smallColumnTracks(columnTracks, maxInlineSnapshotBytes),
       data: {
         ...(rest.treeFilehandle ? {} : { tree: data.tree }),

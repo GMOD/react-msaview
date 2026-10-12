@@ -8,6 +8,7 @@ import {
 } from '../msa/renderHighlights.ts'
 import { referenceColor } from '../overlayColors.ts'
 import { bracketBarWidth, bracketGap } from './cladeBrackets.ts'
+import { ellipsize } from './ellipsize.ts'
 
 import type { HierarchyNode } from '../../hierarchy.ts'
 import type { MsaViewModel } from '../../model.ts'
@@ -418,16 +419,27 @@ function renderTreeLabels({
       }
 
       const measured = labelWidthMap.get(name)
-      const width =
+      const fullWidth =
         measured === undefined
           ? ctx.measureText(displayName).width
           : measured * labelWidthScale
+      const fit = (room: number) =>
+        ellipsize(
+          text => ctx.measureText(text).width,
+          displayName,
+          fullWidth,
+          room,
+        )
 
       ctx.fillStyle = tipLabelColors?.get(name) ?? theme.palette.text.primary
       if (labelsAlignRight) {
         const smallPadding = 2
         const offset = treeAreaWidthMinusMargin - smallPadding
-        if (drawTree && !noTree) {
+        const drawsLeader = drawTree && !noTree
+        const { text, width } = fit(
+          offset - (drawsLeader ? xp + radius + 2 + smallPadding : 0),
+        )
+        if (drawsLeader) {
           // beginPath is load-bearing: without it every leader line re-strokes
           // all the ones before it, which is quadratic in the label count
           ctx.beginPath()
@@ -435,7 +447,7 @@ function renderTreeLabels({
           ctx.lineTo(offset - smallPadding - width, y)
           ctx.stroke()
         }
-        ctx.fillText(displayName, offset, yp)
+        ctx.fillText(text, offset, yp)
         // everything here is drawn under translate(marginLeft), so the click box
         // has to be the text's own right edge in that same space -- taking
         // treeAreaWidth instead put the target smallPadding off the label
@@ -450,7 +462,8 @@ function renderTreeLabels({
         })
       } else {
         const labelX = noTree ? 2 : xp + d
-        ctx.fillText(displayName, labelX, yp)
+        const { text, width } = fit(treeAreaWidthMinusMargin - labelX)
+        ctx.fillText(text, labelX, yp)
         clickMap?.insert({
           minX: labelX + marginLeft,
           maxX: labelX + width + marginLeft,

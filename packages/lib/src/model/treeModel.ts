@@ -10,6 +10,7 @@ import {
   defaultShowBranchLen,
   defaultTreeOrder,
   defaultShowTreeOverview,
+  defaultAutoTreeAreaWidth,
   defaultTreeAreaWidth,
   defaultTreeWidth,
   treeOrders,
@@ -100,11 +101,11 @@ export function TreeModelF() {
 
       /**
        * #property
-       * auto-size treeAreaWidth to fit the row labels (plus the tree, if drawn)
-       * instead of using a fixed width. useful when there is no tree, so the
-       * label gutter isn't padded out to the default 400px
+       * size treeAreaWidth to the row labels plus the tree, if drawn. Setting
+       * treeAreaWidth, in the snapshot, by prop or by dragging the divider,
+       * turns it off
        */
-      autoTreeAreaWidth: stripDefault(types.boolean, false),
+      autoTreeAreaWidth: stripDefault(types.boolean, defaultAutoTreeAreaWidth),
     })
     .actions(self => ({
       /**
@@ -112,6 +113,14 @@ export function TreeModelF() {
        * set tree area width (px)
        */
       setTreeAreaWidth(n: number) {
+        self.autoTreeAreaWidth = false
+        self.treeAreaWidth = Math.round(n)
+      },
+      /**
+       * #action
+       * set tree area width (px) and leave autoTreeAreaWidth on
+       */
+      fitTreeAreaWidth(n: number) {
         self.treeAreaWidth = Math.round(n)
       },
       /**

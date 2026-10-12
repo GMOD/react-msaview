@@ -189,8 +189,9 @@ Default 100, which hides nothing.}
 
 \item{tree_area_width}{Width of the tree and label gutter in pixels.}
 
-\item{auto_tree_area_width}{Logical. Size that gutter to the labels it
-holds. Pair with \code{draw_tree = FALSE}.}
+\item{auto_tree_area_width}{Logical. Size that gutter to the labels and
+the tree it holds (default \code{TRUE}). \code{tree_area_width} turns it
+off.}
 
 \item{residue_encoding}{Which channel \code{color_scheme} paints:
 \code{"fill"} (default) colors each cell's background, and \code{"color"}

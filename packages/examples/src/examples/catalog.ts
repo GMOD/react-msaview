@@ -75,8 +75,8 @@ export const catalog: CatalogEntry[] = [
     description:
       'Drive the mounted viewer from props (a diff toggle, an expand button, ' +
       'a color-scheme switch) with no model API and no remount, as a page ' +
-      'embedding one panel usually needs. drawTree={false} with ' +
-      'autoTreeAreaWidth sizes the gutter to the labels alone.',
+      'embedding one panel usually needs. With drawTree={false}, the gutter ' +
+      'fits the labels alone.',
   },
   {
     id: 'YourOwnControls',

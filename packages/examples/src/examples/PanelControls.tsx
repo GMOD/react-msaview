@@ -9,9 +9,7 @@ import { insulinMSA } from './data'
 // A page embedding one panel usually shows less than the standalone app, with
 // its own controls on the rest. Every toggle here is a prop, and the viewer
 // applies it to the mounted model with no remount, no refetch and no model API.
-//
-// With no tree to draw, `drawTree={false}` plus `autoTreeAreaWidth` sizes the
-// gutter to the labels alone.
+// With `drawTree={false}`, the gutter fits the labels alone.
 export default function PanelControls() {
   const [expanded, setExpanded] = useState(false)
   const [diff, setDiff] = useState(true)
@@ -57,7 +55,6 @@ export default function PanelControls() {
         relativeTo={diff ? 'Human' : undefined}
         height={expanded ? 560 : 300}
         drawTree={false}
-        autoTreeAreaWidth
       />
     </div>
   )

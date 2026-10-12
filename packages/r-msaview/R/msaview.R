@@ -139,8 +139,9 @@
 #' @param draw_tree Logical. If \code{TRUE} (default), draw the phylogeny. If
 #'   \code{FALSE}, leave a gutter holding the row labels alone.
 #' @param tree_area_width Width of the tree and label gutter in pixels.
-#' @param auto_tree_area_width Logical. Size that gutter to the labels it
-#'   holds. Pair with \code{draw_tree = FALSE}.
+#' @param auto_tree_area_width Logical. Size that gutter to the labels and
+#'   the tree it holds (default \code{TRUE}). \code{tree_area_width} turns it
+#'   off.
 #' @param residue_encoding Which channel \code{color_scheme} paints:
 #'   \code{"fill"} (default) colors each cell's background, and \code{"color"}
 #'   colors the letters, which lets a domain overlay mark each span with a bar

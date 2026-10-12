@@ -64,7 +64,7 @@ case. `highlights` and `column_tracks` take the JSON shapes in
 | `draw_tree`, `show_branch_len`   | booleans, default `True`                                                                  |
 | `tree_order`                     | `"branchLength"` (default), `"input"`, `"ladderize"` or `"ladderizeReverse"`              |
 | `tree_root`                      | `"midpoint"`, or outgroup tip names: one name or a list                                   |
-| `tree_area_width`                | pixels; `auto_tree_area_width` sizes it to the labels                                     |
+| `tree_area_width`                | pixels; turns off `auto_tree_area_width`, which fits it to the labels and tree            |
 | `residue_encoding`               | `"fill"` (default) paints the cell; `"color"` paints the letter                           |
 | `hide_header`                    | boolean, default `False`                                                                  |
 | `theme`                          | `"auto"` (default), `"light"`, `"dark"` or MUI theme options                              |
