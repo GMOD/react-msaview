@@ -4,6 +4,22 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.0.0](https://github.com/GMOD/JBrowseMSA/compare/v8.4.1...v9.0.0) (2026-10-12)
+
+### Documentation
+
+- Regenerate MsaView apidocs for the tree-area fit ([836b3ba](https://github.com/GMOD/JBrowseMSA/commit/836b3bad502d7b53157590bf966c3b2c3ac52076))
+
+### Other Changes
+
+- Port the jbrowse-components member rendering ([f943d86](https://github.com/GMOD/JBrowseMSA/commit/f943d86b5f3c4e79451c3b427622b3bae773bcda))
+- Scales-and-guides design, the colour object and the guides it needs ([79b2491](https://github.com/GMOD/JBrowseMSA/commit/79b2491ff347811f12ffd1c9255b5fb048c2b4c4))
+- Triage agent-docs into reference, ideas and handoffs ([8bfbe7c](https://github.com/GMOD/JBrowseMSA/commit/8bfbe7c9f9702355ed18c6b07decea609446c6ba))
+- Fit the tree area to its labels and tree by default, ellipsize overflow ([2ade8d7](https://github.com/GMOD/JBrowseMSA/commit/2ade8d7a66a97e45993790844ce8bb49fdffaa07))
+- Fit the tree area as a computed width, measured at one label font ([3c25c46](https://github.com/GMOD/JBrowseMSA/commit/3c25c46c6862d8d054ee757dbb7b79df28e24f44))
+- Tip labels: the tooltip names the drawn label, a cut label keeps a box ([7079b77](https://github.com/GMOD/JBrowseMSA/commit/7079b776483051d467826ea5e4de153c4e86f9c5))
+- Format the triaged agent-docs ([085babd](https://github.com/GMOD/JBrowseMSA/commit/085babdf93343e1e8d6a632a965b6c6736eda4c3))
+
 ## [8.4.1](https://github.com/GMOD/JBrowseMSA/compare/v8.4.0...v8.4.1) (2026-09-25)
 
 ### Bug Fixes
