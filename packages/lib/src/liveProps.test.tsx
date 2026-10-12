@@ -43,7 +43,11 @@ let root: Root
 
 beforeAll(() => {
   HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement) {
-    return { canvas: this } as unknown as CanvasRenderingContext2D
+    return {
+      canvas: this,
+      font: '10px sans-serif',
+      measureText: (text: string) => ({ width: text.length * 6 }),
+    } as unknown as CanvasRenderingContext2D
   } as unknown as typeof HTMLCanvasElement.prototype.getContext
 })
 
@@ -117,7 +121,15 @@ test('the tree gutter follows drawTree and treeAreaWidth', () => {
   const model = show({ drawTree: true, treeAreaWidth: 200 })
   show({ drawTree: false, treeAreaWidth: 132 })
   expect(model.drawTree).toBe(false)
-  expect(model.treeAreaWidth).toBe(132)
+  expect(model.effectiveTreeAreaWidth).toBe(132)
+})
+
+test('with no treeAreaWidth the gutter fits, and the prop wins over the fit', () => {
+  const model = show({})
+  expect(model.treeAreaWidth).toBeUndefined()
+  expect(model.effectiveTreeAreaWidth).toBe(model.fittedTreeAreaWidth)
+  show({ treeAreaWidth: model.fittedTreeAreaWidth + 50 })
+  expect(model.effectiveTreeAreaWidth).toBe(model.fittedTreeAreaWidth + 50)
 })
 
 test('residueEncoding follows the prop, and the flip keeps the scroll position', () => {

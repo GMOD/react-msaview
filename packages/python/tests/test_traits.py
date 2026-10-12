@@ -42,7 +42,6 @@ def test_defaults_leave_every_prop_to_the_viewer():
         "selection": None,
         "draw_tree": True,
         "tree_area_width": None,
-        "auto_tree_area_width": None,
         "show_branch_len": True,
         "tree_order": None,
         "tree_root": None,

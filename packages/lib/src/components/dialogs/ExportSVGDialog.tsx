@@ -49,7 +49,7 @@ const ExportSVGDialog = observer(function ({
   const {
     totalWidth,
     totalHeight,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     rowPanelsWidth,
     turnedOnTracks,
     totalTrackAreaHeight,
@@ -59,7 +59,7 @@ const ExportSVGDialog = observer(function ({
     treeOverviewHeight,
   } = model
   const hasTracks = turnedOnTracks.length > 0
-  const entireWidth = totalWidth + treeAreaWidth + rowPanelsWidth
+  const entireWidth = totalWidth + effectiveTreeAreaWidth + rowPanelsWidth
   const entireHeight =
     totalHeight +
     (includeTracks ? totalTrackAreaHeight : 0) +

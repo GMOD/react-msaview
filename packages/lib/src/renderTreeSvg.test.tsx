@@ -55,9 +55,11 @@ test('the reference row tints the tree as it does on screen', async () => {
     theme: createJBrowseTheme(),
     exportType: 'entire',
   })
-  const { rowHeight, treeAreaWidth } = model
+  const { rowHeight, effectiveTreeAreaWidth } = model
   const tints = (svg.match(/<rect[^>]*>/g) ?? []).filter(
-    r => r.includes('rgb(0,128,255)') && r.includes(`width="${treeAreaWidth}"`),
+    r =>
+      r.includes('rgb(0,128,255)') &&
+      r.includes(`width="${effectiveTreeAreaWidth}"`),
   )
   expect(tints).toHaveLength(1)
   expect(tints[0]).toContain(`y="${2 * rowHeight}"`)

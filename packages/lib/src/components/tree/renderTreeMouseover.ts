@@ -11,7 +11,7 @@ export function renderTreeMouseover({
 }) {
   const {
     rowHeight,
-    treeAreaWidth: width,
+    effectiveTreeAreaWidth: width,
     height,
     scrollY,
     mouseRow,

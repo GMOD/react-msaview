@@ -56,10 +56,10 @@ import {
   defaultShowDomainLegend,
   defaultShowDomains,
   defaultSubFeatureRows,
-  defaultTreeWidth,
-  labelReferenceFontSize,
+  fontSizeFor,
+  labelFitFontSize,
   maxCellSize,
-  maxFontSize,
+  maxFitTreeWidth,
   maxTreeAreaShare,
   maxInlineSnapshotBytes as defaultMaxInlineSnapshotBytes,
   maxNeighborJoiningRows,
@@ -68,6 +68,7 @@ import {
   minLetterRowHeight,
   minRowHeight,
   minTreeWidth,
+  pxPerTreeDepth,
   rowPanelHeaderHeight,
   rowTintAlpha,
   scrollZoomAxes,
@@ -98,7 +99,6 @@ import {
   sort,
   sum as hierarchySum,
 } from './hierarchy.ts'
-import { measureTextCanvas } from './measureTextCanvas.ts'
 import { DataModelF } from './model/DataModel.ts'
 import { DialogQueueSessionMixin } from './model/DialogQueue.ts'
 import { MSAModelF } from './model/msaModel.ts'
@@ -117,6 +117,7 @@ import { resolveScale } from './scales.ts'
 import { buildSeqPosIndex } from './seqPosToGlobalCol.ts'
 import { maxBitsFor } from './sequenceLogo.ts'
 import { stripDefault } from './stripDefault.ts'
+import { treeTips, widestLabel } from './tipLabels.ts'
 import {
   computeRowInsertions,
   dropBlanks,
@@ -531,7 +532,6 @@ export const preservedOnReset = new Set([
   'drawNodeLabels',
   'showTreeOverview',
   'overviewHeight',
-  'autoTreeAreaWidth',
   'turnedOffTracks',
   'trackHeights',
   'hideGaps',
@@ -1807,10 +1807,10 @@ function stateModelFactory({
        * the row table: extra fields per row, keyed by row name, which the
        * `encodings` channels read. It is stored as the JSON string
        * `data.treeMetadata`, the name that travels in existing links, so the
-       * inline size limit and `treeMetadataFilehandle` cover it. labelWidthMap
-       * reads it on every layout, so a malformed user-supplied file returns {}
-       * instead of throwing out of rendering, and every field is a string by
-       * the time a scale sorts it.
+       * inline size limit and `treeMetadataFilehandle` cover it. The tree area
+       * fit reads it on every layout, so a malformed user-supplied file
+       * returns {} instead of throwing out of rendering, and every field is a
+       * string by the time a scale sorts it.
        */
       get rowData(): Record<string, Record<string, string> | undefined> {
         const text = self.data.treeMetadata
@@ -1941,11 +1941,107 @@ function stateModelFactory({
        * where no clade draws a bar or a label.
        */
       get cladeGutterWidth() {
-        return cladeGutterWidth({
-          clades: this.resolvedClades,
-          rowHeight: self.rowHeight,
-          fontSize: this.fontSize,
-        })
+        return cladeGutterWidth(self.clades)
+      },
+      /**
+       * #getter
+       * whether a tree draws beside the labels: false for a file with no
+       * tree, and with drawTree off
+       */
+      get treeDrawn() {
+        return self.drawTree && !this.noTree
+      },
+      /**
+       * #getter
+       * the leaf names of the whole tree and its depth in levels. The fit
+       * reads these, so a collapse or a focus leaves the tree area as it is
+       */
+      get treeTips() {
+        return treeTips(this.tree)
+      },
+      /**
+       * #getter
+       * the widest tip label at labelFitFontSize, measured whether or not a
+       * zoom hides the labels
+       */
+      get maxTipLabelWidth() {
+        return widestLabel(
+          this.treeTips.names.map(name => this.rowDataOf(name)?.genome || name),
+          labelFitFontSize,
+        )
+      },
+      /**
+       * #getter
+       * the px the tip labels take across the tree area: the widest label at
+       * labelFitFontSize and the gaps either side of it, or 0 with drawLabels
+       * off
+       */
+      get labelColumnWidth() {
+        return self.drawLabels
+          ? this.maxTipLabelWidth + (this.treeDrawn ? 10 : 6)
+          : 0
+      },
+      /**
+       * #getter
+       * the tree area width while treeAreaWidth is undefined: the label column
+       * beside a tree that widens with its depth, up to maxTreeAreaShare of the
+       * view, or the room the row panels leave where there is no alignment.
+       * Where that binds, the tree keeps minTreeWidth and the renderer
+       * ellipsizes the labels
+       */
+      get fittedTreeAreaWidth() {
+        const chrome = self.marginLeft + this.cladeGutterWidth
+        const tree = this.treeDrawn
+          ? (self.treeWidth ??
+            clamp(
+              this.treeTips.depth * pxPerTreeDepth,
+              minTreeWidth,
+              maxFitTreeWidth,
+            ))
+          : 0
+        const fit = chrome + tree + this.labelColumnWidth
+        const room = self.viewInitialized
+          ? this.numColumns > 0
+            ? self.width * maxTreeAreaShare
+            : self.width - this.rowPanelsWidth - self.resizeHandleWidth
+          : Infinity
+        const cap = Math.max(room, chrome + Math.min(tree, minTreeWidth))
+        return Math.ceil(Math.min(fit, cap))
+      },
+      /**
+       * #getter
+       * the width of the area the tree and its labels draw in, px:
+       * treeAreaWidth where set, the fit otherwise
+       */
+      get effectiveTreeAreaWidth() {
+        return self.treeAreaWidth ?? this.fittedTreeAreaWidth
+      },
+      /**
+       * #getter
+       * the width of the tree, px: treeWidth where set, otherwise the tree
+       * area less the label column, which a zoom hiding the labels gives to
+       * the tree
+       */
+      get effectiveTreeWidth() {
+        const labels = this.showTreeText ? this.labelColumnWidth : 0
+        return (
+          self.treeWidth ??
+          Math.max(
+            minTreeWidth,
+            Math.floor(
+              this.effectiveTreeAreaWidth -
+                self.marginLeft -
+                this.cladeGutterWidth -
+                labels,
+            ),
+          )
+        )
+      },
+      /**
+       * #getter
+       */
+      get showTreeText() {
+        return self.drawLabels && self.rowHeight >= minLetterRowHeight
       },
       /**
        * #getter
@@ -2128,7 +2224,7 @@ function stateModelFactory({
       get msaAreaWidth() {
         return (
           self.width -
-          self.treeAreaWidth -
+          this.effectiveTreeAreaWidth -
           this.rowPanelsWidth -
           self.resizeHandleWidth
         )
@@ -2140,7 +2236,9 @@ function stateModelFactory({
        * margin and the bracket gutter
        */
       get treeAreaWidthMinusMargin() {
-        return self.treeAreaWidth - self.marginLeft - this.cladeGutterWidth
+        return (
+          this.effectiveTreeAreaWidth - self.marginLeft - this.cladeGutterWidth
+        )
       },
       /**
        * #getter
@@ -2285,7 +2383,7 @@ function stateModelFactory({
        * #getter
        */
       get fontSize() {
-        return Math.min(Math.max(6, self.rowHeight - 3), maxFontSize)
+        return fontSizeFor(self.rowHeight)
       },
       /**
        * #getter
@@ -2391,17 +2489,18 @@ function stateModelFactory({
       /**
        * #getter
        * `root` laid out on new nodes in row and branch-length units, read in
-       * pixels through `rowHeight` and `treeWidth`. A zoom leaves it and every
-       * node in it as they are, and an observer reading a node's `x` or `len`
-       * observes the size it scales by.
+       * pixels through `rowHeight` and `effectiveTreeWidth`. A zoom leaves it
+       * and every node in it as they are, and an observer reading a node's `x`
+       * or `len` observes the size it scales by.
        */
       get treeLayout() {
+        const treeWidth = () => this.effectiveTreeWidth
         return layoutTree(this.root, {
           get rowHeight() {
             return self.rowHeight
           },
           get treeWidth() {
-            return self.treeWidth
+            return treeWidth()
           },
         })
       },
@@ -2439,11 +2538,11 @@ function stateModelFactory({
 
       /**
        * #getter
-       * x-position of the farthest tip in a phylogram, px: treeWidth, or 0 for
-       * a tree with no branch lengths (drawn as a cladogram)
+       * x-position of the farthest tip in a phylogram, px: effectiveTreeWidth,
+       * or 0 for a tree with no branch lengths (drawn as a cladogram)
        */
       get maxBranchLength() {
-        return this.rootToTipLength ? self.treeWidth : 0
+        return this.rootToTipLength ? this.effectiveTreeWidth : 0
       },
 
       /**
@@ -2453,7 +2552,9 @@ function stateModelFactory({
        */
       get pxPerBranchLength() {
         const max = this.rootToTipLength
-        return this.showBranchLenEffective && max ? self.treeWidth / max : 0
+        return this.showBranchLenEffective && max
+          ? this.effectiveTreeWidth / max
+          : 0
       },
 
       /**
@@ -2499,12 +2600,6 @@ function stateModelFactory({
           self.colWidth >= minLetterColWidth &&
           self.colWidth > self.rowHeight / 2
         )
-      },
-      /**
-       * #getter
-       */
-      get showTreeText() {
-        return self.drawLabels && self.rowHeight >= minLetterRowHeight
       },
     }))
     .views(self => {
@@ -2642,85 +2737,6 @@ function stateModelFactory({
       }
     })
     .views(self => ({
-      /**
-       * #getter
-       */
-      get labelWidthMap() {
-        const { showTreeText, leaves } = self
-        // gated on the renderer's label condition, so hidden labels reserve no
-        // gutter. Measured once at a reference size and scaled by
-        // labelWidthScale: re-measuring per vertical-zoom frame cost ~200ms on a
-        // 50k-leaf tree
-        return showTreeText
-          ? new Map(
-              leaves.map(node => {
-                const { name } = node.data
-                // `||`, matching renderTreeLabels: an empty genome falls back
-                // to the row name
-                const displayName = self.rowDataOf(name)?.genome || name
-                return [
-                  name,
-                  measureTextCanvas(displayName, labelReferenceFontSize),
-                ] as const
-              }),
-            )
-          : new Map<string, number>()
-      },
-
-      /**
-       * #getter
-       * factor turning a labelWidthMap entry into its width at the current
-       * font size
-       */
-      get labelWidthScale() {
-        return self.fontSize / labelReferenceFontSize
-      },
-
-      /**
-       * #getter
-       * the widest label at labelReferenceFontSize
-       */
-      get maxLabelWidth() {
-        // a loop, not Math.max(...): spreading passes one argument per leaf,
-        // and the ~125k argument limit throws RangeError on the 230k-tip COVID
-        // tree
-        let max = 0
-        for (const width of this.labelWidthMap.values()) {
-          if (width > max) {
-            max = width
-          }
-        }
-        return max
-      },
-
-      get labelsWidth() {
-        return this.maxLabelWidth * this.labelWidthScale
-      },
-
-      /**
-       * #getter
-       * the treeAreaWidth autoTreeAreaWidth holds, which is the widest label
-       * plus a tree that widens with its depth, up to maxTreeAreaShare of the
-       * view. The label is measured at the largest font so a vertical zoom
-       * leaves the alignment where it is, and the renderer ellipsizes any
-       * label the cap leaves too little room
-       */
-      get fittedTreeAreaWidth() {
-        const labels =
-          (this.maxLabelWidth * maxFontSize) / labelReferenceFontSize +
-          self.marginLeft +
-          12 +
-          self.cladeGutterWidth
-        const tree =
-          self.noTree || !self.drawTree
-            ? 0
-            : clamp(self.maxDepthToLeaf * 12, 80, 250)
-        const cap = self.viewInitialized
-          ? self.width * maxTreeAreaShare
-          : Infinity
-        return Math.min(labels + tree, cap)
-      },
-
       /**
        * #getter
        */
@@ -3215,7 +3231,7 @@ function stateModelFactory({
       get treeScaleBar() {
         return scaleBarLength(
           self.pxPerBranchLength,
-          self.treeAreaWidth - self.marginLeft * 2,
+          self.effectiveTreeAreaWidth - self.marginLeft * 2,
         )
       },
       /**
@@ -4977,64 +4993,12 @@ function stateModelFactory({
             self.columns
           }),
         )
-
-        addDisposer(
-          self,
-          autorun(() => {
-            // labels a zoom hid measure 0, which is no reason to narrow
-            if (
-              self.autoTreeAreaWidth &&
-              self.numRows > 0 &&
-              (self.showTreeText || !self.drawLabels)
-            ) {
-              self.fitTreeAreaWidth(self.fittedTreeAreaWidth)
-            }
-          }),
-        )
-
-        // treeWidth follows the tree area less the labels. A non-default
-        // snapshot treeWidth (jbrowse-plugin-msaview opens at 100 in a 200px
-        // area) is kept until the tree area changes. Not a getter, because
-        // labelsWidth is measured off leaves laid out against treeWidth.
-        let pinnedAreaWidth =
-          self.treeWidth === defaultTreeWidth ? undefined : self.treeAreaWidth
-        addDisposer(
-          self,
-          autorun(() => {
-            const areaWidth = self.treeAreaWidth
-            const labelsWidth = self.labelsWidth
-            if (pinnedAreaWidth === areaWidth) {
-              return
-            }
-            pinnedAreaWidth = undefined
-            self.setTreeWidth(
-              Math.max(
-                minTreeWidth,
-                areaWidth -
-                  labelsWidth -
-                  10 -
-                  self.marginLeft -
-                  self.cladeGutterWidth,
-              ),
-            )
-          }),
-        )
       },
     }))
-    .preProcessSnapshot(snap =>
-      // a width written before autoTreeAreaWidth existed is one someone chose
-      snap?.treeAreaWidth !== undefined && snap.autoTreeAreaWidth === undefined
-        ? { ...snap, autoTreeAreaWidth: false }
-        : snap,
-    )
     .postProcessSnapshot(({ data, columnTracks, ...rest }) => ({
       // stripDefault handles per-property defaults; this drops inline documents
-      // whose filehandle can refetch them, and the widths autoTreeAreaWidth
-      // derives
+      // whose filehandle can refetch them
       ...rest,
-      ...(rest.autoTreeAreaWidth === false
-        ? {}
-        : { treeAreaWidth: undefined, treeWidth: undefined }),
       ...smallColumnTracks(columnTracks, maxInlineSnapshotBytes),
       data: {
         ...(rest.treeFilehandle ? {} : { tree: data.tree }),

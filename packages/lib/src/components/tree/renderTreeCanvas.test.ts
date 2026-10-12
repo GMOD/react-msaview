@@ -146,19 +146,21 @@ describe('renderTreeCanvas horizontal extent', () => {
     // a lengthless newick forces cladogram mode; scaling it by the (zero) max
     // branch length would stack every node on x=0 as one vertical line
     const { xs, model } = drawnTree('((a,b),(c,d));')
-    expect(Math.max(...xs)).toBe(model.treeWidth)
+    expect(Math.max(...xs)).toBe(model.effectiveTreeWidth)
   })
 
   it('scales a phylogram by branch length', () => {
     const { xs, model } = drawnTree('((a:0.1,b:0.2):0.3,(c:0.4,d:0.5):0.6);')
-    expect(Math.max(...xs)).toBeCloseTo(model.treeWidth)
+    expect(Math.max(...xs)).toBeCloseTo(model.effectiveTreeWidth)
   })
 
   // labels off means no label gutter to reserve, so the tips reach the far edge
   // of the tree area rather than stopping at the default treeWidth
   it('hands the label gutter to the tree when labels are off', () => {
     const { model } = drawnTree('((a,b),(c,d));')
-    expect(model.treeWidth).toBe(model.treeAreaWidth - 10 - model.marginLeft)
+    expect(model.effectiveTreeWidth).toBe(
+      model.effectiveTreeAreaWidth - model.marginLeft,
+    )
   })
 })
 
@@ -296,6 +298,64 @@ describe('leaf label click targets', () => {
       expect(drawn).toContain(hit.minX)
     }
   })
+})
+
+describe('leaf label truncation', () => {
+  const bounds = { minX: 0, minY: 0, maxX: 10000, maxY: 10000 }
+  const long = 'Caenorhabditis_elegans_query'
+  function renderNarrow(labelsAlignRight: boolean, treeAreaWidth: number) {
+    const model = stateModelFactory().create({
+      type: 'MsaView',
+      data: { msa: `>${long}\nA\n>b\nA`, tree: `(${long}:1,b:1);` },
+      treeAreaWidth,
+      treeWidth: 40,
+    })
+    model.setWidth(1000)
+    model.setLabelsAlignRight(labelsAlignRight)
+    model.setDrawNodeBubbles(false)
+
+    const drawn: string[] = []
+    const ctx = {
+      font: '12px sans-serif',
+      measureText: (text: string) => ({ width: text.length * 6 }),
+      beginPath() {},
+      stroke() {},
+      setLineDash() {},
+      resetTransform() {},
+      scale() {},
+      translate() {},
+      moveTo() {},
+      lineTo() {},
+      fillText(text: string) {
+        drawn.push(text)
+      },
+    } as unknown as RenderCtx
+
+    const clickMap = new ClickMapIndex()
+    renderTreeCanvas({
+      model,
+      ctx,
+      clickMap,
+      offsetY: 0,
+      theme: {
+        palette: { text: { primary: '#000' }, background: { default: '#fff' } },
+      } as Theme,
+    })
+    const hits = clickMap.search(bounds).filter(h => !h.branch)
+    return { model, drawn, hit: hits.find(h => h.name === long)! }
+  }
+
+  for (const labelsAlignRight of [false, true]) {
+    const side = labelsAlignRight ? 'right' : 'left'
+    it(`ends a ${side}-aligned label that overruns the area in an ellipsis`, () => {
+      const { model, drawn, hit } = renderNarrow(labelsAlignRight, 160)
+      const cut = drawn.find(text => text.endsWith('…'))!
+      expect(long.startsWith(cut.slice(0, -1))).toBe(true)
+      expect(hit.maxX).toBeLessThanOrEqual(
+        model.marginLeft + model.treeAreaWidthMinusMargin,
+      )
+    })
+  }
 })
 
 describe('block edge padding', () => {

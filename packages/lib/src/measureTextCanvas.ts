@@ -1,7 +1,7 @@
 import { setFontSize } from './setFontSize.ts'
 
-// Cached across calls: labelWidthMap measures every leaf label on every layout,
-// and both createElement and getContext are far more expensive than measureText.
+// Cached across calls, since both createElement and getContext are far more
+// expensive than measureText.
 // `null` records that this environment has no 2d context, so the lookup is not
 // retried on every label.
 let ctxHandle: CanvasRenderingContext2D | null | undefined

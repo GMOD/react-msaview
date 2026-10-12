@@ -38,10 +38,10 @@ test('showing only a clade does not shorten its branch', () => {
 test('the tree spans the tree width whenever it has branch lengths', () => {
   const model = makeModel('((a:1,b:2):5,(c:1,d:3):1);')
   expect(model.allBranchesLength0).toBe(false)
-  expect(model.maxBranchLength).toBe(model.treeWidth)
+  expect(model.maxBranchLength).toBe(model.effectiveTreeWidth)
 
-  model.setTreeAreaWidth(model.treeAreaWidth + 200)
-  expect(model.maxBranchLength).toBe(model.treeWidth)
+  model.setTreeAreaWidth(model.effectiveTreeAreaWidth + 200)
+  expect(model.maxBranchLength).toBe(model.effectiveTreeWidth)
 })
 
 test('a flat tree with lengths is still a phylogram', () => {
@@ -57,9 +57,9 @@ test('the scale bar reads the extent the layout drew', () => {
   // and a unit of branch length is treeWidth over the root-to-tip extent
   const model = makeModel('((a:1,b:2):5,(c:1,d:3):1):4;')
   expect(model.rootToTipLength).toBe(7)
-  expect(model.pxPerBranchLength).toBe(model.treeWidth / 7)
+  expect(model.pxPerBranchLength).toBe(model.effectiveTreeWidth / 7)
   const farthest = Math.max(...model.leaves.map(l => l.len!))
-  expect(farthest).toBeCloseTo(model.treeWidth)
+  expect(farthest).toBeCloseTo(model.effectiveTreeWidth)
 })
 
 test('a tree with no lengths draws as a cladogram', () => {
@@ -80,18 +80,18 @@ test('a tree width that came with the snapshot is honoured', () => {
     treeWidth: 100,
   })
   model.setWidth(800)
-  expect(model.treeWidth).toBe(100)
+  expect(model.effectiveTreeWidth).toBe(100)
 
   // dragging the tree area hands the width back to the layout
   model.setTreeAreaWidth(400)
-  expect(model.treeWidth).not.toBe(100)
+  expect(model.effectiveTreeWidth).not.toBe(100)
 })
 
 test('without one, the tree width follows the tree area', () => {
   const model = makeModel('((a:1,b:2):5,(c:1,d:3):1);')
-  const before = model.treeWidth
-  model.setTreeAreaWidth(model.treeAreaWidth + 100)
-  expect(model.treeWidth).toBe(before + 100)
+  const before = model.effectiveTreeWidth
+  model.setTreeAreaWidth(model.effectiveTreeAreaWidth + 100)
+  expect(model.effectiveTreeWidth).toBe(before + 100)
 })
 
 test('an observer of the tip positions alone follows a vertical zoom', () => {

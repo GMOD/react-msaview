@@ -74,7 +74,7 @@ test('a rowTint encoding washes the row in the tree and the alignment', async ()
       scale: { map: { bird: '#0000ff' } },
     },
   ])
-  const { rowHeight, treeAreaWidth, totalWidth } = model
+  const { rowHeight, effectiveTreeAreaWidth, totalWidth } = model
   expect(model.rowTints).toEqual([
     undefined,
     undefined,
@@ -90,7 +90,7 @@ test('a rowTint encoding washes the row in the tree and the alignment', async ()
       r.includes(`y="${2 * rowHeight}"`),
   )
   expect(washes.map(r => /width="([^"]+)"/.exec(r)?.[1])).toEqual(
-    expect.arrayContaining([`${treeAreaWidth}`, `${totalWidth}`]),
+    expect.arrayContaining([`${effectiveTreeAreaWidth}`, `${totalWidth}`]),
   )
   expect(washes).toHaveLength(2)
 })

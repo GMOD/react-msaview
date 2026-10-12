@@ -55,10 +55,14 @@ export const minLetterColWidth = 5
 // sub-row band or a features panel over small rows
 export const minFeatureLabelHeight = 9
 
-// Tree labels are measured once at this size and scaled to the current font
-// size, so a vertical zoom never re-measures the tree.
-export const labelReferenceFontSize = 16
-export const maxFontSize = 18
+export function fontSizeFor(rowHeight: number) {
+  return Math.min(Math.max(6, rowHeight - 3), 18)
+}
+
+// The fitted tree area measures the tip labels and the clade labels at the
+// font a default row draws, so a vertical zoom leaves the alignment in place.
+// A larger font ellipsizes the labels.
+export const labelFitFontSize = fontSizeFor(defaultRowHeight)
 
 // Zoom limits, px per cell. maxCellSize caps both smooth zoom and the stepwise
 // zoom-in buttons (which otherwise grow unbounded). minColWidth/minRowHeight are
@@ -75,11 +79,14 @@ export const defaultShowColumnStats = true
 // Tree model defaults
 export const defaultDrawLabels = true
 export const defaultLabelsAlignRight = false
-export const defaultTreeAreaWidth = 400
-export const defaultTreeWidth = 300
-export const minTreeWidth = 50
-export const maxTreeAreaShare = 0.4
-export const defaultAutoTreeAreaWidth = true
+// The fitted tree area gives the tree pxPerTreeDepth per level of its depth,
+// between minTreeWidth and maxFitTreeWidth, beside the widest label, and takes
+// at most maxTreeAreaShare of a view with an alignment. Where the share binds,
+// the tree keeps minTreeWidth and the labels ellipsize.
+export const minTreeWidth = 70
+export const maxFitTreeWidth = 160
+export const pxPerTreeDepth = 10
+export const maxTreeAreaShare = 0.3
 export const defaultShowBranchLen = true
 export const treeOrders = [
   'branchLength',

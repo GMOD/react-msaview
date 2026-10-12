@@ -124,17 +124,17 @@ test('the header offers a go-to box', () => {
 })
 
 test('dragging the tree divider widens the tree area', async () => {
-  const before = model.treeAreaWidth
+  const before = model.effectiveTreeAreaWidth
   await drag(byCursor('ew-resize')[0]!, { x: 60 })
-  expect(model.treeAreaWidth).toBe(before + 60)
+  expect(model.effectiveTreeAreaWidth).toBe(before + 60)
 })
 
 test('a divider takes a drag from just beside it', async () => {
   const [zone] = byCursor('ew-resize')[0]!.children
   expect((zone as HTMLElement).style.left).toBe('-4px')
-  const before = model.treeAreaWidth
+  const before = model.effectiveTreeAreaWidth
   await drag(zone as HTMLElement, { x: 30 })
-  expect(model.treeAreaWidth).toBe(before + 30)
+  expect(model.effectiveTreeAreaWidth).toBe(before + 30)
 })
 
 test('dragging the view divider grows the view', async () => {
@@ -310,7 +310,7 @@ test('the tree gutter carries a scale bar, and the ruler track draws', async () 
   expect(container.textContent).toContain(
     scaleBarLength(
       model.pxPerBranchLength,
-      model.treeAreaWidth - model.marginLeft * 2,
+      model.effectiveTreeAreaWidth - model.marginLeft * 2,
     )!.label,
   )
 

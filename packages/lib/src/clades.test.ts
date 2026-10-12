@@ -129,7 +129,7 @@ test('no bracket mark leaves no gutter', () => {
   const model = makeModel([{ mrca: ['A', 'B'], tips: 2, mark: 'highlight' }])
   expect(model.cladeGutterWidth).toBe(0)
   expect(model.treeAreaWidthMinusMargin).toBe(
-    model.treeAreaWidth - model.marginLeft,
+    model.effectiveTreeAreaWidth - model.marginLeft,
   )
 })
 
@@ -141,7 +141,9 @@ test('a bracket reserves a gutter the tip labels stay clear of', () => {
   expect(bar.cladeGutterWidth).toBeGreaterThan(0)
   expect(labelled.cladeGutterWidth).toBeGreaterThan(bar.cladeGutterWidth)
   expect(labelled.treeAreaWidthMinusMargin).toBe(
-    labelled.treeAreaWidth - labelled.marginLeft - labelled.cladeGutterWidth,
+    labelled.effectiveTreeAreaWidth -
+      labelled.marginLeft -
+      labelled.cladeGutterWidth,
   )
 })
 
@@ -242,4 +244,22 @@ test('a range record cannot collapse or focus, so it is dropped', () => {
   expect(model.resolvedClades).toEqual([])
   expect(model.collapsed).toEqual([])
   expect(model.showOnly).toBeUndefined()
+})
+
+test('the bracket gutter holds still across a zoom and a focus', () => {
+  const model = makeModel([
+    { mrca: ['A', 'B'], tips: 2, mark: 'bracket', label: 'clade I' },
+  ])
+  const gutter = model.cladeGutterWidth
+  const area = model.effectiveTreeAreaWidth
+  for (const rowHeight of [10, 30, 16]) {
+    model.setRowHeight(rowHeight)
+    expect(model.cladeGutterWidth).toBe(gutter)
+    expect(model.effectiveTreeAreaWidth).toBe(area)
+  }
+  model.setShowOnly(
+    model.leaves.find(l => l.data.name === 'C')!.parent!.data.id,
+  )
+  expect(model.cladeGutterWidth).toBe(gutter)
+  expect(model.effectiveTreeAreaWidth).toBe(area)
 })

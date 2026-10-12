@@ -1,19 +1,24 @@
 // @vitest-environment jsdom
+import { autorun } from 'mobx'
 import { expect, test } from 'vitest'
 
 import MSAModelF from './model.ts'
 
 // jsdom has no 2d context, so measureTextCanvas falls back to an estimate. Only
-// the width matters here, so a stub keeps the test about tree size.
+// the width matters here, so a stub keeps the test about tree size, and counts
+// the labels it measures.
+let measured = 0
 HTMLCanvasElement.prototype.getContext = (() => ({
   font: '12px sans-serif',
-  measureText: (t: string) => ({ width: t.length * 7 }),
+  measureText: (t: string) => {
+    measured++
+    return { width: t.length * 7 }
+  },
 })) as unknown as typeof HTMLCanvasElement.prototype.getContext
 
 // The import form ships a "230k COVID-19 samples (tree only)" example, so a tree
-// this size is a supported input rather than a hypothetical. Every leaf gets a
-// measured label, and anything that then reduces over them per row has to do it
-// without passing one argument per row.
+// this size is a supported input, and anything that reduces over its rows has
+// to do it without passing one argument per row.
 function flatNewick(n: number) {
   return `(${Array.from({ length: n }, (_, i) => `s${i}:0.1`).join(',')});`
 }
@@ -26,10 +31,9 @@ test('a tree far past the argument limit still lays out', () => {
   model.setWidth(1000)
 
   expect(model.numRows).toBe(200_000)
-  // 's199999' is the longest name, at 7 chars * 7px, scaled from the reference
-  // font size the labels are measured at down to the current one (13/16)
-  expect(model.labelsWidth).toBeCloseTo((49 * 13) / 16)
-  expect(model.treeWidth).toBeGreaterThan(0)
+  // 's199999' is among the longest names, at 7 chars * 7px
+  expect(model.maxTipLabelWidth).toBe(49)
+  expect(model.effectiveTreeWidth).toBeGreaterThan(0)
 })
 
 test('re-hovering the same tree node does not re-walk the tree', () => {
@@ -53,15 +57,22 @@ test('re-hovering the same tree node does not re-walk the tree', () => {
   expect(model.hoveredTreeNode).toBeUndefined()
 })
 
-test('a vertical zoom does not re-measure every label', () => {
+test('the fit measures a few of the longest labels, and a zoom none', () => {
   const model = MSAModelF().create({
     type: 'MsaView',
     data: { tree: flatNewick(200_000) },
   })
   model.setWidth(1000)
 
-  const before = model.labelWidthMap
+  measured = 0
+  const dispose = autorun(() => {
+    void model.effectiveTreeAreaWidth
+  })
+  const first = measured
+  expect(first).toBeGreaterThan(0)
+  expect(first).toBeLessThanOrEqual(100)
   model.setRowHeight(24)
-  expect(model.labelWidthMap).toBe(before)
-  expect(model.labelsWidth).toBeCloseTo((49 * 18) / 16)
+  model.setRowHeight(4)
+  expect(measured).toBe(first)
+  dispose()
 })

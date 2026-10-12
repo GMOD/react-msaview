@@ -24,14 +24,14 @@ const CladeLabels = observer(function ({ model }: { model: MsaViewModel }) {
     resolvedClades,
     cladeGutterWidth,
     rowHeight,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     fontSize,
   } = model
   const theme = useTheme()
   if (cladeGutterWidth === 0) {
     return null
   }
-  const gutterLeft = treeAreaWidth - cladeGutterWidth
+  const gutterLeft = effectiveTreeAreaWidth - cladeGutterWidth
   return (
     <>
       {resolvedClades.map((clade, index) => {
@@ -49,7 +49,7 @@ const CladeLabels = observer(function ({ model }: { model: MsaViewModel }) {
               position: 'absolute',
               left,
               top: rows[0] * rowHeight,
-              width: treeAreaWidth - left - bracketGap,
+              width: effectiveTreeAreaWidth - left - bracketGap,
               height: cladeHeight(clade, rowHeight),
               display: 'flex',
               alignItems: 'center',

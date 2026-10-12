@@ -2,14 +2,14 @@ const ellipsis = '…'
 
 /**
  * the longest prefix of `text`, plus an ellipsis, that measures at most
- * `room` px; `width` is the full text's measured width
+ * `room` px
  */
 export function ellipsize(
   measure: (text: string) => number,
   text: string,
-  width: number,
   room: number,
 ) {
+  const width = measure(text)
   if (width <= room) {
     return { text, width }
   }

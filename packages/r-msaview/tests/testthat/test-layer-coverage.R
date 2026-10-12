@@ -186,8 +186,7 @@ test_that("every prop-carrying msaview argument has a layer", {
     stat_msa_diff("a"),
     theme_msa("dark", col_width = 1, row_height = 1, draw_tree = TRUE,
               show_branch_len = TRUE, tree_area_width = 1,
-              auto_tree_area_width = TRUE, allowed_gappyness = 1,
-              hide_header = TRUE)
+              allowed_gappyness = 1, hide_header = TRUE)
   )
   reached <- unique(unlist(lapply(layers, function(l) {
     c(names(l$set), names(l$append))
@@ -210,8 +209,7 @@ test_that("every prop-carrying msaview argument has a layer", {
     relative_to = "a", region = list(start = 1, end = 2),
     selection = list(start = 1, end = 2), col_width = 1,
     row_height = 1, allowed_gappyness = 1, draw_tree = TRUE,
-    tree_area_width = 1, auto_tree_area_width = TRUE,
-    residue_encoding = "color", theme = "dark", hide_header = TRUE
+    tree_area_width = 1, residue_encoding = "color", theme = "dark", hide_header = TRUE
   )
   # msa and tree are the viewer itself, so they stay arguments
   base <- c("msa", "tree", "msaFilehandle", "treeFilehandle")

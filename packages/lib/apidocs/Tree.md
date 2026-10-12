@@ -17,15 +17,6 @@ objects in our source code.
 
 ### Tree - Properties
 
-#### property: autoTreeAreaWidth
-
-size treeAreaWidth to the row labels plus the tree, if drawn. Setting
-treeAreaWidth, in the snapshot, by prop or by dragging the divider, turns it off
-
-```js
-autoTreeAreaWidth: stripDefault(types.boolean, defaultAutoTreeAreaWidth)
-```
-
 #### property: drawLabels
 
 ```js
@@ -94,10 +85,11 @@ showTreeOverview: stripDefault(types.boolean, defaultShowTreeOverview)
 
 #### property: treeAreaWidth
 
-width of the area the tree is drawn in, px
+width of the area the tree and its labels draw in, px. Undefined fits the area
+to the labels and the tree; `effectiveTreeAreaWidth` reads the width either way
 
 ```js
-treeAreaWidth: stripDefault(types.number, defaultTreeAreaWidth)
+treeAreaWidth: types.maybe(types.number)
 ```
 
 #### property: treeOrder
@@ -115,28 +107,14 @@ treeOrder: stripDefault(
 
 #### property: treeWidth
 
-width of the tree within the treeArea, px. automatically synced to fit within
-treeAreaWidth
+width of the tree within the tree area, px. Undefined gives the tree the area
+less the labels; `effectiveTreeWidth` reads the width either way
 
 ```js
-treeWidth: stripDefault(types.number, defaultTreeWidth)
+treeWidth: types.maybe(types.number)
 ```
 
 ### Tree - Actions
-
-#### action: fitTreeAreaWidth
-
-set tree area width (px) and leave autoTreeAreaWidth on
-
-```js
-fitTreeAreaWidth: (n: number) => void
-```
-
-#### action: setAutoTreeAreaWidth
-
-```js
-setAutoTreeAreaWidth: (arg: boolean) => void
-```
 
 #### action: setDrawLabels
 
@@ -190,10 +168,11 @@ setShowTreeOverview: (arg: boolean) => void
 
 #### action: setTreeAreaWidth
 
-set tree area width (px)
+set the tree area width, px, or undefined to fit it to the labels and the tree.
+The tree then fills the area less the labels
 
 ```js
-setTreeAreaWidth: (n: number) => void
+setTreeAreaWidth: (n: number | undefined) => void
 ```
 
 #### action: setTreeOrder
@@ -204,8 +183,8 @@ setTreeOrder: (order: TreeOrder) => void
 
 #### action: setTreeWidth
 
-set tree width (px)
+set the tree width, px, or undefined to fill the tree area less the labels
 
 ```js
-setTreeWidth: (n: number) => void
+setTreeWidth: (n: number | undefined) => void
 ```

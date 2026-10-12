@@ -7,9 +7,15 @@ import TreeCanvas from './TreeCanvas.tsx'
 import type { MsaViewModel } from '../../model.ts'
 
 const TreePanel = observer(function ({ model }: { model: MsaViewModel }) {
-  const { treeAreaWidth } = model
+  const { effectiveTreeAreaWidth } = model
   return (
-    <div style={{ overflow: 'hidden', flexShrink: 0, width: treeAreaWidth }}>
+    <div
+      style={{
+        overflow: 'hidden',
+        flexShrink: 0,
+        width: effectiveTreeAreaWidth,
+      }}
+    >
       <TreeCanvas model={model} />
     </div>
   )

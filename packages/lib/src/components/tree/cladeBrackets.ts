@@ -1,6 +1,7 @@
+import { labelFitFontSize } from '../../constants.ts'
 import { measureTextCanvas } from '../../measureTextCanvas.ts'
 
-import type { ResolvedClade } from '../../types.ts'
+import type { Clade, ResolvedClade } from '../../types.ts'
 
 // The bar of the bracket mark and the space around it, in px.
 export const bracketBarWidth = 3
@@ -11,7 +12,7 @@ export const bracketGap = 4
 export const maxCladeGutterWidth = 140
 
 /** whether a clade draws in the gutter: a bracket, or a highlight with a label */
-export function cladeInGutter(clade: ResolvedClade) {
+export function cladeInGutter(clade: Pick<Clade, 'mark' | 'label'>) {
   return (
     clade.mark === 'bracket' || (clade.mark === 'highlight' && !!clade.label)
   )
@@ -35,7 +36,7 @@ export function cladeLabelHorizontal(
 }
 
 /** the px between the left edge of the gutter and the label's own column */
-export function cladeLabelOffset(clade: ResolvedClade) {
+export function cladeLabelOffset(clade: Pick<Clade, 'mark'>) {
   return clade.mark === 'bracket'
     ? bracketGap + bracketBarWidth + bracketGap
     : bracketGap
@@ -43,27 +44,19 @@ export function cladeLabelOffset(clade: ResolvedClade) {
 
 /**
  * The gutter the bracket mark needs at the right of the tree area: the bar plus
- * the widest label at the tree font, zero where no clade draws there, and at
- * most maxCladeGutterWidth.
+ * the widest label read across at labelFitFontSize, zero where no clade draws
+ * there, and at most maxCladeGutterWidth. The records size it, so a zoom, a
+ * collapse or a focus leaves it as it is, and a renderer clips a label that
+ * outgrows it.
  */
-export function cladeGutterWidth({
-  clades,
-  rowHeight,
-  fontSize,
-}: {
-  clades: ResolvedClade[]
-  rowHeight: number
-  fontSize: number
-}) {
+export function cladeGutterWidth(clades: Pick<Clade, 'mark' | 'label'>[]) {
   let widest = 0
   for (const clade of clades) {
     if (!cladeInGutter(clade)) {
       continue
     }
     const text = clade.label
-      ? cladeLabelHorizontal(clade, rowHeight, fontSize)
-        ? measureTextCanvas(clade.label, fontSize)
-        : fontSize
+      ? measureTextCanvas(clade.label, labelFitFontSize)
       : 0
     widest = Math.max(widest, cladeLabelOffset(clade) + text + bracketGap)
   }

@@ -29,10 +29,10 @@ test('the hover band scales to the device pixel ratio', () => {
 
   renderTreeMouseover({ ctx, model })
 
-  const { treeAreaWidth, height, rowHeight, scrollY } = model
+  const { effectiveTreeAreaWidth, height, rowHeight, scrollY } = model
   expect(calls).toEqual([
-    `clearRect 0,0,${treeAreaWidth * 2},${height * 2}`,
+    `clearRect 0,0,${effectiveTreeAreaWidth * 2},${height * 2}`,
     'scale 2,2',
-    `fillRect 0,${rowHeight + scrollY},${treeAreaWidth},${rowHeight}`,
+    `fillRect 0,${rowHeight + scrollY},${effectiveTreeAreaWidth},${rowHeight}`,
   ])
 })

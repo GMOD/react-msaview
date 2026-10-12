@@ -330,9 +330,8 @@ scale_residue_color <- function(scheme = NULL, encoding = NULL) {
 #' @param draw_tree Draw the phylogeny. FALSE leaves a gutter holding the row
 #'   labels alone.
 #' @param show_branch_len Draw branch lengths. FALSE draws a cladogram.
-#' @param tree_area_width Width of the tree and label gutter in pixels.
-#' @param auto_tree_area_width Size that gutter to the labels and the tree
-#'   it holds (default TRUE).
+#' @param tree_area_width Width of the tree and label gutter in pixels. Unset,
+#'   the gutter fits the labels and the tree.
 #' @param allowed_gappyness Hide columns that are at least this percent gaps.
 #' @param hide_header Leave out the viewer's toolbar.
 #' @return A layer to add to a viewer with \code{+}.
@@ -344,12 +343,12 @@ scale_residue_color <- function(scheme = NULL, encoding = NULL) {
 #' @export
 theme_msa <- function(theme = NULL, col_width = NULL, row_height = NULL,
                       draw_tree = NULL, show_branch_len = NULL,
-                      tree_area_width = NULL, auto_tree_area_width = NULL,
-                      allowed_gappyness = NULL, hide_header = NULL) {
+                      tree_area_width = NULL, allowed_gappyness = NULL,
+                      hide_header = NULL) {
   msa_layer(set = list(
     theme = theme, colWidth = col_width, rowHeight = row_height,
     drawTree = draw_tree, showBranchLen = show_branch_len,
-    treeAreaWidth = tree_area_width, autoTreeAreaWidth = auto_tree_area_width,
+    treeAreaWidth = tree_area_width,
     allowedGappyness = allowed_gappyness, hideHeader = hide_header
   ))
 }

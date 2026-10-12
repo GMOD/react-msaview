@@ -173,10 +173,16 @@ the numbers behind it.
   tree, `hideGapsEffective` and the alignment all read is the one the branch
   menu writes. `cladeGutterWidth` in `components/tree/cladeBrackets.ts` is the
   column the bracket takes out of the right of the tree area, which the tip
-  labels and the `treeWidth` autorun both give way to, so the bar lands between
-  the labels and the first row panel. The canvas draws the bar and the label is
-  DOM text (`CladeLabels.tsx`) on screen and a `<text>` in the export, since the
-  canvas layer has no rotation.
+  labels and the tree both give way to, so the bar lands between the labels and
+  the first row panel. The canvas draws the bar and the label is DOM text
+  (`CladeLabels.tsx`) on screen and a `<text>` in the export, since the canvas
+  layer has no rotation.
+- `treeAreaWidth` and `treeWidth` are undefined until a snapshot, a prop or the
+  divider sets them, and undefined fits the tree area to the labels and the
+  tree. Read `effectiveTreeAreaWidth` and `effectiveTreeWidth`. The fit measures
+  the labels and the clade gutter at `labelFitFontSize` over the whole tree, so
+  a zoom, a collapse or a focus leaves the alignment where it is, and the
+  renderer ellipsizes a label that outgrows its room.
 - `model.legends` is the one list both legend renderings read:
   `components/msa/AnnotationLegend.tsx` on screen and `LegendSVG` in
   `renderToSvg.tsx` for the export. A producer contributes

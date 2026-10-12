@@ -48,7 +48,7 @@ const TrackColumnIndicator = observer(function ({
     mouseClickCol,
     colWidth,
     scrollX,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     rowPanelsWidth,
     resizeHandleWidth,
     totalTrackAreaHeight,
@@ -72,7 +72,7 @@ const TrackColumnIndicator = observer(function ({
     <div
       style={{
         position: 'absolute',
-        left: treeAreaWidth + rowPanelsWidth + resizeHandleWidth,
+        left: effectiveTreeAreaWidth + rowPanelsWidth + resizeHandleWidth,
         top: 0,
         width: msaCanvasWidth,
         height: totalTrackAreaHeight,

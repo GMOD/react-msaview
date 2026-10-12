@@ -383,9 +383,8 @@ function renderTreeLabels({
     treeAreaWidthMinusMargin,
     marginLeft,
     noTree,
-    labelWidthMap,
-    labelWidthScale,
   } = model
+  const treeDrawn = drawTree && !noTree
   const by = blockSizeYOverride ?? blockSize
   // labels only exist for leaves, which are laid out top to bottom, so take the
   // same slice the MSA renderer uses instead of walking every tip per block
@@ -413,33 +412,20 @@ function renderTreeLabels({
       // fontSize/4 below the row center, the baseline the alignment letters
       // share
       const yp = y + fontSize / 4
-      let xp = 0
-      if (!noTree) {
-        xp = getNodeX(node, showBranchLen, tipX, maxDepthToLeaf) ?? 0
-      }
-
-      const measured = labelWidthMap.get(name)
-      const fullWidth =
-        measured === undefined
-          ? ctx.measureText(displayName).width
-          : measured * labelWidthScale
+      const xp = treeDrawn
+        ? (getNodeX(node, showBranchLen, tipX, maxDepthToLeaf) ?? 0)
+        : 0
       const fit = (room: number) =>
-        ellipsize(
-          text => ctx.measureText(text).width,
-          displayName,
-          fullWidth,
-          room,
-        )
+        ellipsize(text => ctx.measureText(text).width, displayName, room)
 
       ctx.fillStyle = tipLabelColors?.get(name) ?? theme.palette.text.primary
       if (labelsAlignRight) {
         const smallPadding = 2
         const offset = treeAreaWidthMinusMargin - smallPadding
-        const drawsLeader = drawTree && !noTree
         const { text, width } = fit(
-          offset - (drawsLeader ? xp + radius + 2 + smallPadding : 0),
+          offset - (treeDrawn ? xp + radius + 2 + smallPadding : 0),
         )
-        if (drawsLeader) {
+        if (treeDrawn) {
           // beginPath is load-bearing: without it every leader line re-strokes
           // all the ones before it, which is quadratic in the label count
           ctx.beginPath()
@@ -450,7 +436,7 @@ function renderTreeLabels({
         ctx.fillText(text, offset, yp)
         // everything here is drawn under translate(marginLeft), so the click box
         // has to be the text's own right edge in that same space -- taking
-        // treeAreaWidth instead put the target smallPadding off the label
+        // the tree area width instead put the target smallPadding off the label
         const labelRight = offset + marginLeft
         clickMap?.insert({
           minX: labelRight - width,
@@ -461,7 +447,7 @@ function renderTreeLabels({
           id,
         })
       } else {
-        const labelX = noTree ? 2 : xp + d
+        const labelX = treeDrawn ? xp + d : 2
         const { text, width } = fit(treeAreaWidthMinusMargin - labelX)
         ctx.fillText(text, labelX, yp)
         clickMap?.insert({
@@ -515,12 +501,12 @@ function renderCladeHighlights({
     hierarchy,
     showBranchLenEffective: showBranchLen,
     rowHeight,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     marginLeft,
     blockSize,
   } = model
   const by = blockSizeYOverride ?? blockSize
-  const right = treeAreaWidth - marginLeft
+  const right = effectiveTreeAreaWidth - marginLeft
   for (const { rows, color, mark } of resolvedClades) {
     if (mark !== 'highlight') {
       continue
@@ -561,7 +547,7 @@ function renderCladeBrackets({
     resolvedClades,
     cladeGutterWidth,
     rowHeight,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     marginLeft,
     blockSize,
   } = model
@@ -570,7 +556,7 @@ function renderCladeBrackets({
   }
   const by = blockSizeYOverride ?? blockSize
   const x =
-    treeAreaWidth -
+    effectiveTreeAreaWidth -
     marginLeft -
     cladeGutterWidth +
     bracketGap +
@@ -613,7 +599,7 @@ function renderRowHighlights({
     rowTints,
     referenceRowIndex,
     rowHeight,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     marginLeft,
     blockSize,
   } = model
@@ -621,7 +607,12 @@ function renderRowHighlights({
   const pad = blockPad(model)
   const placed: LabelBox[] = []
   const fillRow = (index: number) => {
-    ctx.fillRect(-marginLeft, index * rowHeight, treeAreaWidth, rowHeight)
+    ctx.fillRect(
+      -marginLeft,
+      index * rowHeight,
+      effectiveTreeAreaWidth,
+      rowHeight,
+    )
   }
   if (rowTints) {
     const top = Math.max(0, Math.floor((offsetY - pad) / rowHeight))
@@ -660,8 +651,8 @@ function renderRowHighlights({
         label,
         x: -marginLeft + 2,
         y: first * rowHeight,
-        spanWidth: treeAreaWidth,
-        bounds: { min: -marginLeft, max: treeAreaWidth - marginLeft },
+        spanWidth: effectiveTreeAreaWidth,
+        bounds: { min: -marginLeft, max: effectiveTreeAreaWidth - marginLeft },
         placed,
       })
     }
@@ -711,14 +702,18 @@ export function renderTreeCanvas({
 
   // memoized on the model and shared across the tree/bubble/label passes (and
   // across all tree blocks) rather than re-traversing the hierarchy in each
-  const { maxBranchLength, maxDepthToLeaf, showBranchLenEffective, treeWidth } =
-    model
+  const {
+    maxBranchLength,
+    maxDepthToLeaf,
+    showBranchLenEffective,
+    effectiveTreeWidth,
+  } = model
   // pixel x of the tips. A phylogram scales branch lengths so the longest
   // root-to-tip path lands at maxBranchLength; a cladogram ignores lengths and
   // spreads topological depth across the whole tree area instead. Reusing
   // maxBranchLength for the cladogram would pin every node to x=0 for a tree
   // with no branch lengths -- which is exactly what forces cladogram mode.
-  const tipX = showBranchLenEffective ? maxBranchLength : treeWidth
+  const tipX = showBranchLenEffective ? maxBranchLength : effectiveTreeWidth
   // built once for all three passes: each of them asks about a different node on
   // every block of every redraw, and `collapsed` is a list
   const collapsedSet = new Set(model.collapsed)

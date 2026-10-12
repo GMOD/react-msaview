@@ -90,7 +90,7 @@ function getLayout(model: MsaViewModel, opts: ExportSvgOptions): Layout {
     scrollY,
     totalWidth,
     totalHeight,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     rowPanelsWidth,
     rowPanelsHeaderHeight,
     totalTrackAreaHeight,
@@ -117,7 +117,7 @@ function getLayout(model: MsaViewModel, opts: ExportSvgOptions): Layout {
     rowPanelsHeaderHeight,
     treeOverviewHeight + (treeScaleBar ? treeScaleBarHeight : 0),
   )
-  const gutterWidth = treeAreaWidth + rowPanelsWidth
+  const gutterWidth = effectiveTreeAreaWidth + rowPanelsWidth
 
   // width stays content-only; the legend occupies an extra column added at the
   // svg root in MsaSvg. The viewport export takes the alignment canvas's own
@@ -195,7 +195,7 @@ function MsaSvg({
   layers: LayerMap
 }) {
   const { width, trackHeight, includeMinimap, legendWidth, topHeight } = layout
-  const { treeAreaWidth, rowPanelsWidth } = model
+  const { effectiveTreeAreaWidth, rowPanelsWidth } = model
   const totalWidth = width + legendWidth
   const legendTop = topHeight
   // a short alignment with many legend entries has a key taller than its rows,
@@ -241,7 +241,7 @@ function MsaSvg({
           {includeMinimap ? (
             <g
               id="minimap-panel"
-              transform={`translate(${treeAreaWidth + rowPanelsWidth} 0)`}
+              transform={`translate(${effectiveTreeAreaWidth + rowPanelsWidth} 0)`}
             >
               <MinimapSVG model={model} theme={theme} />
             </g>
@@ -288,20 +288,20 @@ function TreeOverviewSVG({
   Context: typeof ContextType
   layers: LayerMap
 }) {
-  const { treeAreaWidth, overviewHeight, id } = model
-  const ctx = new Context(treeAreaWidth, overviewHeight)
+  const { effectiveTreeAreaWidth, overviewHeight, id } = model
+  const ctx = new Context(effectiveTreeAreaWidth, overviewHeight)
   renderTreeOverview({
     model,
     ctx,
     theme,
-    width: treeAreaWidth,
+    width: effectiveTreeAreaWidth,
     height: overviewHeight,
   })
   return (
     <ClipGroup
       panelId="tree-overview"
       clipId={`tree-overview-${id}`}
-      width={treeAreaWidth}
+      width={effectiveTreeAreaWidth}
       height={overviewHeight}
       ctx={ctx}
       layers={layers}
@@ -349,14 +349,14 @@ function RowPanelHeadersSVG({
   theme: Theme
   bandHeight: number
 }) {
-  const { resolvedRowPanels, treeAreaWidth, fontSize } = model
+  const { resolvedRowPanels, effectiveTreeAreaWidth, fontSize } = model
   const y = bandHeight - 4
   return resolvedRowPanels.length === 0 ? null : (
     <g id="rowpanel-headers">
       {resolvedRowPanels.map(panel => {
         const across = headerRunsAcross(panel.width)
         const size = across ? fontSize : Math.min(fontSize, panel.width)
-        const center = treeAreaWidth + panel.offsetX + panel.width / 2
+        const center = effectiveTreeAreaWidth + panel.offsetX + panel.width / 2
         const x = across ? center : center + size / 3
         const room = across ? panel.width : y - LEGEND_PAD
         const maxChars = Math.floor(room / (size * CHAR_WIDTH))
@@ -409,13 +409,13 @@ function CladeLabelsSVG({
     resolvedClades,
     cladeGutterWidth,
     rowHeight,
-    treeAreaWidth,
+    effectiveTreeAreaWidth,
     fontSize,
   } = model
   if (cladeGutterWidth === 0) {
     return null
   }
-  const gutterLeft = treeAreaWidth - cladeGutterWidth
+  const gutterLeft = effectiveTreeAreaWidth - cladeGutterWidth
   return (
     <g id="clade-labels">
       {resolvedClades.map((clade, index) => {
@@ -427,7 +427,9 @@ function CladeLabelsSVG({
         const top = rows[0] * rowHeight - offsetY
         const height = cladeHeight(clade, rowHeight)
         const horizontal = cladeLabelHorizontal(clade, rowHeight, fontSize)
-        const room = horizontal ? treeAreaWidth - left - bracketGap : height
+        const room = horizontal
+          ? effectiveTreeAreaWidth - left - bracketGap
+          : height
         const x = horizontal ? left : left + fontSize
         const y = horizontal ? top + height / 2 + fontSize / 3 : top + height
         return (
@@ -520,9 +522,9 @@ interface LayerProps {
 
 function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
   const { contentHeight, offsetX, offsetY, msaAreaWidth } = layout
-  const { treeAreaWidth, rowPanelsWidth, id } = model
+  const { effectiveTreeAreaWidth, rowPanelsWidth, id } = model
 
-  const treeCtx = new Context(treeAreaWidth, contentHeight)
+  const treeCtx = new Context(effectiveTreeAreaWidth, contentHeight)
   renderTreeCanvas({
     model,
     theme,
@@ -588,7 +590,7 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
       <ClipGroup
         panelId="tree-panel"
         clipId={`tree-${id}`}
-        width={treeAreaWidth}
+        width={effectiveTreeAreaWidth}
         height={contentHeight}
         ctx={treeCtx}
         layers={layers}
@@ -600,7 +602,7 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
           clipId={`rowpanels-${id}`}
           width={rowPanelsWidth}
           height={contentHeight}
-          transform={`translate(${treeAreaWidth} 0)`}
+          transform={`translate(${effectiveTreeAreaWidth} 0)`}
           ctx={rowPanelsCtx}
           layers={layers}
         />
@@ -610,7 +612,7 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
         clipId={`msa-${id}`}
         width={msaAreaWidth}
         height={contentHeight}
-        transform={`translate(${treeAreaWidth + rowPanelsWidth} 0)`}
+        transform={`translate(${effectiveTreeAreaWidth + rowPanelsWidth} 0)`}
         ctx={msaCtx}
         layers={layers}
         underlay={raster}
@@ -677,7 +679,7 @@ function rasterBackground({
 
 function TrackRendering({ model, theme, layout, Context, layers }: LayerProps) {
   const { trackHeight, offsetX, msaAreaWidth } = layout
-  const { treeAreaWidth, rowPanelsWidth, id } = model
+  const { effectiveTreeAreaWidth, rowPanelsWidth, id } = model
 
   const ctx = new Context(msaAreaWidth, trackHeight)
   renderAllTracks({
@@ -692,7 +694,7 @@ function TrackRendering({ model, theme, layout, Context, layers }: LayerProps) {
   return (
     <>
       <TrackLabelsSVG model={model} theme={theme} />
-      <g transform={`translate(${treeAreaWidth + rowPanelsWidth} 0)`}>
+      <g transform={`translate(${effectiveTreeAreaWidth + rowPanelsWidth} 0)`}>
         <ClipGroup
           panelId="tracks-panel"
           clipId={`tracks-${id}`}
@@ -716,7 +718,7 @@ function TrackLabelsSVG({
   model: MsaViewModel
   theme: Theme
 }) {
-  const { turnedOnTracks, treeAreaWidth, fontSize, drawLabels } = model
+  const { turnedOnTracks, effectiveTreeAreaWidth, fontSize, drawLabels } = model
   if (!drawLabels) {
     return null
   }
@@ -734,7 +736,7 @@ function TrackLabelsSVG({
         return size < 5 ? null : (
           <text
             key={id}
-            x={treeAreaWidth - 4}
+            x={effectiveTreeAreaWidth - 4}
             y={baseline}
             fontSize={size}
             textAnchor="end"

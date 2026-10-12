@@ -62,7 +62,7 @@ test('the focused subtree is a box on it', async () => {
   // the box spans the tree column, in the lower half of the band: C and D are
   // the last two of the four tips
   const box = drawn.at(-1)!
-  expect(box).toContain(`width="${model.treeAreaWidth - 1}"`)
+  expect(box).toContain(`width="${model.effectiveTreeAreaWidth - 1}"`)
   expect(Number(/ y="([\d.-]+)"/.exec(box)?.[1])).toBeGreaterThanOrEqual(
     model.overviewHeight / 2 - 1,
   )

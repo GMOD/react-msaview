@@ -109,7 +109,6 @@ class MSAView(anywidget.AnyWidget):
     selection = traitlets.Dict(default_value=None, allow_none=True).tag(sync=True)
     draw_tree = traitlets.Bool(True).tag(sync=True)
     tree_area_width = traitlets.Float(None, allow_none=True).tag(sync=True)
-    auto_tree_area_width = traitlets.Bool(None, allow_none=True).tag(sync=True)
     show_branch_len = traitlets.Bool(True).tag(sync=True)
     tree_order = traitlets.Enum(
         ["branchLength", "input", "ladderize", "ladderizeReverse"],

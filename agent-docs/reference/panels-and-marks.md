@@ -570,12 +570,12 @@ One day, and the H5 figure is complete.
 
 Shipped 2026-09-16 as the `bracket`, `collapse` and `focus` marks.
 `cladeGutterWidth` carves the gutter out of the right of the tree area, so the
-tip labels and `treeWidth` both give way to it and the bar lands clear of the
-row panels. `renderCladeBrackets` draws the bar on the tree canvas, which the
-export shares, and the label is DOM text in `CladeLabels.tsx` on screen and a
-`<text>` from `CladeLabelsSVG` in the export, turned on its side for a clade
-shorter than the font. The seeding runs once in `afterCreate`, so an expand
-sticks for the session.
+tip labels and the tree both give way to it and the bar lands clear of the row
+panels. `renderCladeBrackets` draws the bar on the tree canvas, which the export
+shares, and the label is DOM text in `CladeLabels.tsx` on screen and a `<text>`
+from `CladeLabelsSVG` in the export, turned on its side for a clade shorter than
+the font. The seeding runs once in `afterCreate`, so an expand sticks for the
+session.
 
 ## Sequence
 

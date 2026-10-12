@@ -37,9 +37,9 @@ const TreeCanvasBlock = observer(function ({
   )
   const hovered = anchor?.value
 
-  const { treeAreaWidth, blockSize, highResScaleFactor } = model
-  // TreePanel clips to treeAreaWidth, so a wider canvas is wasted backing store
-  const width = treeAreaWidth
+  const { effectiveTreeAreaWidth, blockSize, highResScaleFactor } = model
+  // TreePanel clips to the tree area, so a wider canvas is wasted backing store
+  const width = effectiveTreeAreaWidth
   const height = blockSize
 
   const canvasWidth = width * highResScaleFactor

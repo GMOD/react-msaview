@@ -77,7 +77,7 @@ test('the strips draw a cell per row in the scale colors', async () => {
 
 test('each header draws over its column, turned on its side', async () => {
   const { model, svg } = await exportWith(panels)
-  const { treeAreaWidth } = model
+  const { effectiveTreeAreaWidth } = model
   const headers = [
     ...svg.matchAll(/<text([^>]*rotate\(-90[^>]*)>([^<]*)<\/text>/g),
   ].map(m => ({ attrs: m[1]!, text: m[2]! }))
@@ -86,7 +86,7 @@ test('each header draws over its column, turned on its side', async () => {
   expect(headers.map(h => h.text)).toEqual(['HA', 'NA se…'])
   const x = (attrs: string) => Number(/x="([^"]+)"/.exec(attrs)?.[1])
   expect(x(headers[1]!.attrs) - x(headers[0]!.attrs)).toBe(12)
-  expect(x(headers[0]!.attrs)).toBeGreaterThan(treeAreaWidth)
+  expect(x(headers[0]!.attrs)).toBeGreaterThan(effectiveTreeAreaWidth)
 })
 
 test('a panel wider than the header band writes its header across', async () => {

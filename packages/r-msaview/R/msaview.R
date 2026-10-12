@@ -138,10 +138,8 @@
 #'   Default 100, which hides nothing.
 #' @param draw_tree Logical. If \code{TRUE} (default), draw the phylogeny. If
 #'   \code{FALSE}, leave a gutter holding the row labels alone.
-#' @param tree_area_width Width of the tree and label gutter in pixels.
-#' @param auto_tree_area_width Logical. Size that gutter to the labels and
-#'   the tree it holds (default \code{TRUE}). \code{tree_area_width} turns it
-#'   off.
+#' @param tree_area_width Width of the tree and label gutter in pixels. Unset,
+#'   the gutter fits the labels and the tree.
 #' @param residue_encoding Which channel \code{color_scheme} paints:
 #'   \code{"fill"} (default) colors each cell's background, and \code{"color"}
 #'   colors the letters, which lets a domain overlay mark each span with a bar
@@ -267,8 +265,8 @@ msaview <- function(msa = NULL, tree = NULL, gff = NULL, color_scheme = NULL,
                     region = NULL, selection = NULL,
                     col_width = NULL, row_height = NULL,
                     allowed_gappyness = NULL, draw_tree = NULL,
-                    tree_area_width = NULL, auto_tree_area_width = NULL,
-                    residue_encoding = NULL, theme = NULL, hide_header = NULL,
+                    tree_area_width = NULL, residue_encoding = NULL,
+                    theme = NULL, hide_header = NULL,
                     height = NULL, width = NULL, element_id = NULL) {
   check_residue_encoding(residue_encoding)
 
@@ -308,7 +306,6 @@ msaview <- function(msa = NULL, tree = NULL, gff = NULL, color_scheme = NULL,
   props$allowedGappyness <- allowed_gappyness
   props$drawTree <- draw_tree
   props$treeAreaWidth <- tree_area_width
-  props$autoTreeAreaWidth <- auto_tree_area_width
   props$residueEncoding <- residue_encoding
   props$theme <- theme
   props$hideHeader <- hide_header

@@ -79,7 +79,7 @@ test('a clade draws in the tree panel and across the alignment', async () => {
   const { model, svg } = await exportWith([
     { mrca: ['C', 'D'], tips: 2, mark: 'highlight', color: 'rgb(1, 2, 3)' },
   ])
-  const { rowHeight, treeAreaWidth, totalWidth } = model
+  const { rowHeight, effectiveTreeAreaWidth, totalWidth } = model
   expect(model.resolvedClades[0]!.rows).toEqual([2, 3])
 
   const drawn = rects(svg, 'rgb(1,2,3)')
@@ -96,7 +96,7 @@ test('a clade draws in the tree panel and across the alignment', async () => {
   // and runs to its right edge
   const rectangle = drawn.find(r => r !== band)!
   expect(rectangle.x).toBeGreaterThan(0)
-  expect(rectangle.x + rectangle.width).toBe(treeAreaWidth)
+  expect(rectangle.x + rectangle.width).toBe(effectiveTreeAreaWidth)
 })
 
 test('a clade over the whole tree draws under the branches', async () => {
@@ -119,12 +119,12 @@ test('a bracket draws its bar in the gutter with the label beside it', async () 
       label: 'clade II',
     },
   ])
-  const { rowHeight, treeAreaWidth, cladeGutterWidth } = model
+  const { rowHeight, effectiveTreeAreaWidth, cladeGutterWidth } = model
   expect(cladeGutterWidth).toBeGreaterThan(0)
 
   const drawn = bar(svg, 'rgb(1, 2, 3)')!
-  expect(drawn.x).toBeGreaterThan(treeAreaWidth - cladeGutterWidth)
-  expect(drawn.x).toBeLessThan(treeAreaWidth)
+  expect(drawn.x).toBeGreaterThan(effectiveTreeAreaWidth - cladeGutterWidth)
+  expect(drawn.x).toBeLessThan(effectiveTreeAreaWidth)
   expect(drawn.top).toBeGreaterThanOrEqual(2 * rowHeight)
   expect(drawn.bottom).toBeLessThanOrEqual(4 * rowHeight)
 

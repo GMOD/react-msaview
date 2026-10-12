@@ -101,7 +101,7 @@ test('a tree and a GFF with no alignment export the panel and no columns', async
   expect(svg).toContain('<g id="msa-panel">')
   expect(panelGroup(svg)).toContain('<path')
   expect(Number(/<svg width="(\d+)"/.exec(svg)?.[1])).toBe(
-    model.treeAreaWidth + model.rowPanelsWidth + 120,
+    model.effectiveTreeAreaWidth + model.rowPanelsWidth + 120,
   )
   expect(svg).toContain('<g id="rowpanel-headers">')
   expect(svg).toContain('>neighborhood<')
@@ -113,6 +113,6 @@ test('an alignment beside the panel keeps both', async () => {
   expect(model.numColumns).toBe(7)
   expect(panelGroup(svg).match(/<path/g)).toHaveLength(4)
   expect(svg).toContain(
-    `transform="translate(${model.treeAreaWidth + model.rowPanelsWidth} 0)"`,
+    `transform="translate(${model.effectiveTreeAreaWidth + model.rowPanelsWidth} 0)"`,
   )
 })

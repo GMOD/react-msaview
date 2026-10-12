@@ -44,7 +44,7 @@ const TrackLabel = observer(function TrackLabel({
   const closeMenu = () => {
     setAnchorEl(undefined)
   }
-  const { drawLabels, fontSize, treeAreaWidth: width } = model
+  const { drawLabels, fontSize, effectiveTreeAreaWidth: width } = model
   const {
     model: { name, height },
   } = track

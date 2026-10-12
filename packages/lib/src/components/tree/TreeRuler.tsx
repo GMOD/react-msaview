@@ -13,13 +13,17 @@ import type { MsaViewModel } from '../../model.ts'
 // scale bar: without one the branch lengths are drawn to a scale nothing
 // states.
 const TreeRuler = observer(({ model }: { model: MsaViewModel }) => {
-  const { treeAreaWidth, marginLeft, treeScaleBar: bar } = model
+  const { effectiveTreeAreaWidth, marginLeft, treeScaleBar: bar } = model
   const theme = useTheme()
 
   return (
-    <div style={{ flexShrink: 0, width: treeAreaWidth }}>
+    <div style={{ flexShrink: 0, width: effectiveTreeAreaWidth }}>
       {bar ? (
-        <svg width={treeAreaWidth} height={h} style={{ display: 'block' }}>
+        <svg
+          width={effectiveTreeAreaWidth}
+          height={h}
+          style={{ display: 'block' }}
+        >
           <ScaleBarSVG
             bar={bar}
             marginLeft={marginLeft}

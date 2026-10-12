@@ -11,7 +11,6 @@ theme_msa(
   draw_tree = NULL,
   show_branch_len = NULL,
   tree_area_width = NULL,
-  auto_tree_area_width = NULL,
   allowed_gappyness = NULL,
   hide_header = NULL
 )
@@ -27,10 +26,8 @@ labels alone.}
 
 \item{show_branch_len}{Draw branch lengths. FALSE draws a cladogram.}
 
-\item{tree_area_width}{Width of the tree and label gutter in pixels.}
-
-\item{auto_tree_area_width}{Size that gutter to the labels and the tree
-it holds (default TRUE).}
+\item{tree_area_width}{Width of the tree and label gutter in pixels. Unset,
+the gutter fits the labels and the tree.}
 
 \item{allowed_gappyness}{Hide columns that are at least this percent gaps.}
 

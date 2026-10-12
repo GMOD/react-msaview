@@ -23,7 +23,7 @@ test('the model reports pixels per unit of branch length', () => {
   model.setWidth(1000)
 
   // the deepest root-to-tip path is 0.05 + 0.2, and it spans the tree area
-  expect(model.pxPerBranchLength).toBeCloseTo(model.treeWidth / 0.3)
+  expect(model.pxPerBranchLength).toBeCloseTo(model.effectiveTreeWidth / 0.3)
 
   model.setShowBranchLen(false)
   expect(model.pxPerBranchLength).toBe(0)

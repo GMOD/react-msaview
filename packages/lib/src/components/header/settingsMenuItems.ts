@@ -76,7 +76,7 @@ export function treeSettingsMenuItems(model: MsaViewModel): MenuItem[] {
     drawNodeBubbles,
     drawNodeLabels,
     drawLabels,
-    autoTreeAreaWidth,
+    treeAreaWidth,
     showTreeOverview,
     treeOrder,
     treeRoot,
@@ -146,8 +146,12 @@ export function treeSettingsMenuItems(model: MsaViewModel): MenuItem[] {
     toggle('Draw labels', drawLabels, arg => {
       model.setDrawLabels(arg)
     }),
-    toggle('Fit tree area to labels and tree', autoTreeAreaWidth, arg => {
-      model.setAutoTreeAreaWidth(arg)
-    }),
+    toggle(
+      'Fit tree area to labels and tree',
+      treeAreaWidth === undefined,
+      arg => {
+        model.setTreeAreaWidth(arg ? undefined : model.effectiveTreeAreaWidth)
+      },
+    ),
   ]
 }

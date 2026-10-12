@@ -59,8 +59,7 @@ Props:
 | `allowedGappyness`  | `number`                 | Hide columns at least this percent gaps (default 100, hide nothing)                 |
 | `relativeTo`        | `string`                 | Row name to diff every other row against; matches draw as `.`                       |
 | `drawTree`          | `boolean`                | Draw the phylogeny (default true); false leaves a label gutter                      |
-| `treeAreaWidth`     | `number`                 | Fixed width of the tree/label gutter                                                |
-| `autoTreeAreaWidth` | `boolean`                | Size that gutter to the labels; pair with `drawTree: false`                         |
+| `treeAreaWidth`     | `number`                 | Fixed width of the tree/label gutter; unset fits it to the labels and the tree      |
 | `columnTracks`      | `ColumnTrackSpec[]`      | Tracks supplied as data (see below)                                                 |
 | `highlights`        | `Highlight[]`            | Labeled highlights (see below)                                                      |
 | `highlightColumns`  | `number[]`               | Columns (0-based) under a persistent overlay                                        |
@@ -197,7 +196,6 @@ return (
       gffFilehandle={{ uri: gffUrl, locationType: 'UriLocation' }}
       colorScheme="clustalx_dna"
       drawTree={false}
-      autoTreeAreaWidth
       relativeTo={diff ? referenceRow : undefined}
       height={expanded ? 760 : 420}
     />
@@ -206,10 +204,9 @@ return (
 ```
 
 Both toggles update the mounted viewer, so flipping one does not re-fetch the
-alignment. Use `drawTree={false}` with `autoTreeAreaWidth` whenever there is no
-tree to draw, such as for a reference-projected reconstruction with no
-meaningful guide tree. Without `autoTreeAreaWidth` the gutter keeps its full
-default width.
+alignment. Use `drawTree={false}` whenever there is no tree to draw, such as for
+a reference-projected reconstruction with no meaningful guide tree. The gutter
+then fits the labels alone.
 
 The component pulls in `@jbrowse/core`, MUI and mobx and renders to canvas, so
 in a server-rendered app (Next.js, Astro, Remix) load it on the client only,

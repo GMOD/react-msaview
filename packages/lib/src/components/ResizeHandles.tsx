@@ -22,7 +22,7 @@ export const VerticalResizeHandle = observer(function ({
     <DragHandle
       axis="x"
       variant="resizer"
-      getStart={() => model.treeAreaWidth}
+      getStart={() => model.effectiveTreeAreaWidth}
       onDrag={onDrag}
       style={{ width: model.resizeHandleWidth }}
     />

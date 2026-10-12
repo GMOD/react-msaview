@@ -10,9 +10,6 @@ import {
   defaultShowBranchLen,
   defaultTreeOrder,
   defaultShowTreeOverview,
-  defaultAutoTreeAreaWidth,
-  defaultTreeAreaWidth,
-  defaultTreeWidth,
   treeOrders,
 } from '../constants.ts'
 import { stripDefault } from '../stripDefault.ts'
@@ -37,16 +34,19 @@ export function TreeModelF() {
 
       /**
        * #property
-       * width of the area the tree is drawn in, px
+       * width of the area the tree and its labels draw in, px. Undefined fits
+       * the area to the labels and the tree; `effectiveTreeAreaWidth` reads
+       * the width either way
        */
-      treeAreaWidth: stripDefault(types.number, defaultTreeAreaWidth),
+      treeAreaWidth: types.maybe(types.number),
 
       /**
        * #property
-       * width of the tree within the treeArea, px. automatically synced to
-       * fit within treeAreaWidth
+       * width of the tree within the tree area, px. Undefined gives the tree
+       * the area less the labels; `effectiveTreeWidth` reads the width either
+       * way
        */
-      treeWidth: stripDefault(types.number, defaultTreeWidth),
+      treeWidth: types.maybe(types.number),
 
       /**
        * #property
@@ -98,37 +98,24 @@ export function TreeModelF() {
        * height of the tree overview band, px
        */
       overviewHeight: stripDefault(types.number, defaultOverviewHeight),
-
-      /**
-       * #property
-       * size treeAreaWidth to the row labels plus the tree, if drawn. Setting
-       * treeAreaWidth, in the snapshot, by prop or by dragging the divider,
-       * turns it off
-       */
-      autoTreeAreaWidth: stripDefault(types.boolean, defaultAutoTreeAreaWidth),
     })
     .actions(self => ({
       /**
        * #action
-       * set tree area width (px)
+       * set the tree area width, px, or undefined to fit it to the labels and
+       * the tree. The tree then fills the area less the labels
        */
-      setTreeAreaWidth(n: number) {
-        self.autoTreeAreaWidth = false
-        self.treeAreaWidth = Math.round(n)
+      setTreeAreaWidth(n: number | undefined) {
+        self.treeAreaWidth = n === undefined ? undefined : Math.round(n)
+        self.treeWidth = undefined
       },
       /**
        * #action
-       * set tree area width (px) and leave autoTreeAreaWidth on
+       * set the tree width, px, or undefined to fill the tree area less the
+       * labels
        */
-      fitTreeAreaWidth(n: number) {
-        self.treeAreaWidth = Math.round(n)
-      },
-      /**
-       * #action
-       * set tree width (px)
-       */
-      setTreeWidth(n: number) {
-        self.treeWidth = Math.round(n)
+      setTreeWidth(n: number | undefined) {
+        self.treeWidth = n === undefined ? undefined : Math.round(n)
       },
 
       /**
@@ -142,12 +129,6 @@ export function TreeModelF() {
        */
       setDrawTree(arg: boolean) {
         self.drawTree = arg
-      },
-      /**
-       * #action
-       */
-      setAutoTreeAreaWidth(arg: boolean) {
-        self.autoTreeAreaWidth = arg
       },
 
       /**

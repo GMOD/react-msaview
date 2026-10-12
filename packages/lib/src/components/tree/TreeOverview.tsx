@@ -21,10 +21,10 @@ import type { MsaViewModel } from '../../model.ts'
  * moving across it costs are a blit and two boxes.
  */
 const TreeOverview = observer(function ({ model }: { model: MsaViewModel }) {
-  const { treeAreaWidth, overviewHeight, highResScaleFactor } = model
+  const { effectiveTreeAreaWidth, overviewHeight, highResScaleFactor } = model
   const theme = useTheme()
   const [hover, setHover] = useState<{ id: string; rows: [number, number] }>()
-  const width = Math.round(treeAreaWidth * highResScaleFactor)
+  const width = Math.round(effectiveTreeAreaWidth * highResScaleFactor)
   const height = Math.round(overviewHeight * highResScaleFactor)
 
   const ref = useCanvasAutorun({
@@ -34,12 +34,17 @@ const TreeOverview = observer(function ({ model }: { model: MsaViewModel }) {
       const image = treeOverviewImage({
         model,
         theme,
-        width: treeAreaWidth,
+        width: effectiveTreeAreaWidth,
         height: overviewHeight,
         scale: highResScaleFactor,
       })
       ctx.scale(highResScaleFactor, highResScaleFactor)
-      const box = { model, ctx, width: treeAreaWidth, height: overviewHeight }
+      const box = {
+        model,
+        ctx,
+        width: effectiveTreeAreaWidth,
+        height: overviewHeight,
+      }
       if (image) {
         ctx.drawImage(
           image,
@@ -86,7 +91,7 @@ const TreeOverview = observer(function ({ model }: { model: MsaViewModel }) {
         display: 'block',
         flexShrink: 0,
         cursor: 'pointer',
-        width: treeAreaWidth,
+        width: effectiveTreeAreaWidth,
         height: overviewHeight,
       }}
       onMouseMove={event => {

@@ -59,7 +59,7 @@ test('a malformed row table degrades to empty rather than throwing', () => {
   model.setData({ msa, treeMetadata: '{not json' })
 
   // the table comes from a user-supplied file, and consumers of this computed
-  // run during layout/render (labelWidthMap measures every label), so a parse
+  // run during layout and render (the tree area fit measures labels), so a parse
   // failure must not throw out of them
   expect(model.rowData).toEqual({})
   expect(() => model.getRowData('seq1')).not.toThrow()

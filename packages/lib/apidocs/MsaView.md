@@ -65,15 +65,12 @@ that declares it.
 [drawNodeBubbles](./Tree.md#property-drawnodebubbles),
 [drawNodeLabels](./Tree.md#property-drawnodelabels),
 [showTreeOverview](./Tree.md#property-showtreeoverview),
-[overviewHeight](./Tree.md#property-overviewheight),
-[autoTreeAreaWidth](./Tree.md#property-autotreeareawidth)
+[overviewHeight](./Tree.md#property-overviewheight)
 
 **Actions:** [setTreeAreaWidth](./Tree.md#action-settreeareawidth),
-[fitTreeAreaWidth](./Tree.md#action-fittreeareawidth),
 [setTreeWidth](./Tree.md#action-settreewidth),
 [setLabelsAlignRight](./Tree.md#action-setlabelsalignright),
 [setDrawTree](./Tree.md#action-setdrawtree),
-[setAutoTreeAreaWidth](./Tree.md#action-setautotreeareawidth),
 [setShowBranchLen](./Tree.md#action-setshowbranchlen),
 [setTreeOrder](./Tree.md#action-settreeorder),
 [setDrawNodeBubbles](./Tree.md#action-setdrawnodebubbles),
@@ -891,6 +888,24 @@ the cells take a fixed color per letter, from the built-in table or from
 dynamicColorSchemeName: string | undefined
 ```
 
+#### getter: effectiveTreeAreaWidth
+
+the width of the area the tree and its labels draw in, px: treeAreaWidth where
+set, the fit otherwise
+
+```js
+effectiveTreeAreaWidth: number
+```
+
+#### getter: effectiveTreeWidth
+
+the width of the tree, px: treeWidth where set, otherwise the tree area less the
+label column, which a zoom hiding the labels gives to the tree
+
+```js
+effectiveTreeWidth: number
+```
+
 #### getter: featureAlignShifts
 
 the shift an `align` transform gives each row, keyed by the feature name it
@@ -932,10 +947,9 @@ featureLabels: Map<Annotation, string> | undefined
 
 #### getter: fittedTreeAreaWidth
 
-the treeAreaWidth autoTreeAreaWidth holds, which is the widest label plus a tree
-that widens with its depth, up to maxTreeAreaShare of the view. The label is
-measured at the largest font so a vertical zoom leaves the alignment where it
-is, and the renderer ellipsizes any label the cap leaves too little room
+the tree area width while treeAreaWidth is undefined: the label column beside a
+tree that widens with its depth, up to maxTreeAreaShare of the view. Where the
+share binds, the tree keeps minTreeWidth and the renderer ellipsizes the labels
 
 ```js
 fittedTreeAreaWidth: number
@@ -1047,18 +1061,13 @@ insertionPositions: Map<string, { pos: number; letters: string; }[]>
 isLoading: boolean
 ```
 
-#### getter: labelWidthMap
+#### getter: labelColumnWidth
+
+the px the tip labels take across the tree area: the widest label at
+labelFitFontSize and the gaps either side of it, or 0 with drawLabels off
 
 ```js
-labelWidthMap: Map<string, number>
-```
-
-#### getter: labelWidthScale
-
-factor turning a labelWidthMap entry into its width at the current font size
-
-```js
-labelWidthScale: number
+labelColumnWidth: number
 ```
 
 #### getter: leaves
@@ -1096,8 +1105,8 @@ mappedStructures: {
 
 #### getter: maxBranchLength
 
-x-position of the farthest tip in a phylogram, px: treeWidth, or 0 for a tree
-with no branch lengths (drawn as a cladogram)
+x-position of the farthest tip in a phylogram, px: effectiveTreeWidth, or 0 for
+a tree with no branch lengths (drawn as a cladogram)
 
 ```js
 maxBranchLength: number
@@ -1109,14 +1118,6 @@ max topological depth to a tip, used to scale cladogram x-positions
 
 ```js
 maxDepthToLeaf: number
-```
-
-#### getter: maxLabelWidth
-
-the widest label at labelReferenceFontSize
-
-```js
-maxLabelWidth: number
 ```
 
 #### getter: maxScrollX
@@ -1133,6 +1134,15 @@ most-negative allowed scrollY, which keeps the last row in view
 
 ```js
 maxScrollY: number
+```
+
+#### getter: maxTipLabelWidth
+
+the widest tip label at labelFitFontSize, measured whether or not a zoom hides
+the labels
+
+```js
+maxTipLabelWidth: number
 ```
 
 #### getter: mouseOverDomains
@@ -1320,9 +1330,9 @@ rootToTipLength: number
 the row table: extra fields per row, keyed by row name, which the `encodings`
 channels read. It is stored as the JSON string `data.treeMetadata`, the name
 that travels in existing links, so the inline size limit and
-`treeMetadataFilehandle` cover it. labelWidthMap reads it on every layout, so a
-malformed user-supplied file returns {} instead of throwing out of rendering,
-and every field is a string by the time a scale sorts it.
+`treeMetadataFilehandle` cover it. The tree area fit reads it on every layout,
+so a malformed user-supplied file returns {} instead of throwing out of
+rendering, and every field is a string by the time a scale sorts it.
 
 ```js
 rowData: Record<string, Record<string, string> | undefined>
@@ -1565,12 +1575,21 @@ the bracket gutter
 treeAreaWidthMinusMargin: number
 ```
 
+#### getter: treeDrawn
+
+the tree drawn beside the labels, which a file with no tree or drawTree off
+leaves out
+
+```js
+treeDrawn: boolean
+```
+
 #### getter: treeLayout
 
 `root` laid out on new nodes in row and branch-length units, read in pixels
-through `rowHeight` and `treeWidth`. A zoom leaves it and every node in it as
-they are, and an observer reading a node's `x` or `len` observes the size it
-scales by.
+through `rowHeight` and `effectiveTreeWidth`. A zoom leaves it and every node in
+it as they are, and an observer reading a node's `x` or `len` observes the size
+it scales by.
 
 ```js
 treeLayout: { root: LaidOutNode<NodeWithIds>; leaves: LaidOutNode<NodeWithIds>[]; rootToTipLength: number; }
@@ -1630,6 +1649,15 @@ the tree area is too narrow for one
 
 ```js
 treeScaleBar: { step: number; px: number; label: string; } | undefined
+```
+
+#### getter: treeTips
+
+the leaf names of the whole tree and its depth in levels. The fit reads these,
+so a collapse or a focus leaves the tree area as it is
+
+```js
+treeTips: { names: string[]; depth: number; }
 ```
 
 #### getter: turnedOnTracks

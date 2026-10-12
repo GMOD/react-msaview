@@ -48,7 +48,6 @@ export interface Traits {
   selection: MsaSelection | null
   draw_tree: boolean
   tree_area_width: number | null
-  auto_tree_area_width: boolean | null
   show_branch_len: boolean
   tree_order: TreeOrder | null
   tree_root: string | string[] | null
@@ -87,7 +86,6 @@ export const INPUT_TRAITS = [
   'selection',
   'draw_tree',
   'tree_area_width',
-  'auto_tree_area_width',
   'show_branch_len',
   'tree_order',
   'tree_root',
@@ -151,7 +149,6 @@ export function propsFromModel(model: Model, doc?: Document): MSAViewerProps {
     selection: optional(model.get('selection')),
     drawTree: model.get('draw_tree'),
     treeAreaWidth: optional(model.get('tree_area_width')),
-    autoTreeAreaWidth: optional(model.get('auto_tree_area_width')),
     showBranchLen: model.get('show_branch_len'),
     treeOrder: optional(model.get('tree_order')),
     treeRoot: treeRoot(model.get('tree_root')),

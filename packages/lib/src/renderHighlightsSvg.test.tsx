@@ -78,12 +78,12 @@ test('a row set tints the row in the tree and the alignment', async () => {
   const { model, svg } = await exportWith([
     { rows: ['seq3'], label: 'odd one out', color: 'rgb(7, 7, 7)' },
   ])
-  const { rowHeight, treeAreaWidth, totalWidth } = model
+  const { rowHeight, effectiveTreeAreaWidth, totalWidth } = model
   const tints = rects(svg).filter(
     r => r.includes('rgb(7, 7, 7)') && r.includes(`y="${2 * rowHeight}"`),
   )
   expect(tints.map(r => /width="([^"]+)"/.exec(r)?.[1])).toEqual(
-    expect.arrayContaining([`${treeAreaWidth}`, `${totalWidth}`]),
+    expect.arrayContaining([`${effectiveTreeAreaWidth}`, `${totalWidth}`]),
   )
   expect(svg).toContain('>odd one out<')
 })
