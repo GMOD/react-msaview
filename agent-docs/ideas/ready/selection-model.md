@@ -1,6 +1,8 @@
 ---
 name: selection-model
-description: The selection shipped; trim-to-selection, selective export and the MSA editor build on it next.
+description:
+  The selection shipped; trim-to-selection, selective export and the MSA editor
+  build on it next.
 ---
 
 # A selection model
@@ -18,9 +20,9 @@ the block as FASTA, zooms to it or clears it. `MSAViewer` takes a `selection`
 prop and reports changes through `onSelectionChange`, R takes `selection =` and
 `geom_msa_selection()`, and Python has a two-way `selection` trait.
 
-The MSA editor sketched in `../../handoffs/dna-msa-comparative-genomics.md` (the grant)
-needs this selection first, since a user has to select an exon boundary before
-dragging it.
+The MSA editor sketched in `../../handoffs/dna-msa-comparative-genomics.md` (the
+grant) needs this selection first, since a user has to select an exon boundary
+before dragging it.
 
 ## What builds on it next, cheapest first
 

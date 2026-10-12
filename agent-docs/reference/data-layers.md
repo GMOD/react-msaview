@@ -169,8 +169,8 @@ agent produces one that does not.
 - Motif search and the codon view are things an agent computes and pushes as
   highlights and tracks. The `CodonView` example computes its codons in the host
   page and hands the viewer column tracks and a GFF.
-- [selection-model](../ideas/ready/selection-model.md) covers the human-to-agent direction: the
-  person selects cells, the snapshot stores the selection, and the agent reads
-  it back. The selection shipped 2026-09-25.
+- [selection-model](../ideas/ready/selection-model.md) covers the human-to-agent
+  direction: the person selects cells, the snapshot stores the selection, and
+  the agent reads it back. The selection shipped 2026-09-25.
 - [neighbor-joining-scaling](neighbor-joining-scaling.md) loses urgency, since
   an agent can supply the tree as an input.
