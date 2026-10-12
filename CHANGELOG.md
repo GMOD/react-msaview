@@ -6,6 +6,12 @@ were written by hand and are kept at the bottom.
 
 ## [9.0.0](https://github.com/GMOD/JBrowseMSA/compare/v8.4.1...v9.0.0) (2026-10-12)
 
+### Breaking Changes
+
+- The tree area fits its labels and tree by default, so the sidebar stays compact; a label that outgrows its room ends in an ellipsis
+- The `autoTreeAreaWidth` prop is gone from `MSAViewer`, the Python widget and the R package, since the fit it turned on is now the default
+- `model.treeAreaWidth` and `model.treeWidth` are undefined until a snapshot, a prop or the divider sets them; read `effectiveTreeAreaWidth` and `effectiveTreeWidth` instead
+
 ### Documentation
 
 - Regenerate MsaView apidocs for the tree-area fit ([836b3ba](https://github.com/GMOD/JBrowseMSA/commit/836b3bad502d7b53157590bf966c3b2c3ac52076))
