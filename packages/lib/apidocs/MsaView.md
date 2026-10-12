@@ -948,8 +948,9 @@ featureLabels: Map<Annotation, string> | undefined
 #### getter: fittedTreeAreaWidth
 
 the tree area width while treeAreaWidth is undefined: the label column beside a
-tree that widens with its depth, up to maxTreeAreaShare of the view. Where the
-share binds, the tree keeps minTreeWidth and the renderer ellipsizes the labels
+tree that widens with its depth, up to maxTreeAreaShare of the view, or the room
+the row panels leave where there is no alignment. Where that binds, the tree
+keeps minTreeWidth and the renderer ellipsizes the labels
 
 ```js
 fittedTreeAreaWidth: number
@@ -1577,8 +1578,8 @@ treeAreaWidthMinusMargin: number
 
 #### getter: treeDrawn
 
-the tree drawn beside the labels, which a file with no tree or drawTree off
-leaves out
+whether a tree draws beside the labels: false for a file with no tree, and with
+drawTree off
 
 ```js
 treeDrawn: boolean
