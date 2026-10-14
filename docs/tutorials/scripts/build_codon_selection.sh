@@ -366,7 +366,6 @@ best = min((s[4], i + 1, s) for i, s in enumerate(residue_site) if call(s) == 'p
 print(f'strongest positive site: human {best[1]}, alpha={best[2][0]:.3g}, beta={best[2][1]:.3g}, p={best[0]:.4f}')
 alpha, beta, _, _, p, _ = residue_site[331]
 print(f'human 332: alpha={alpha:.2f}, beta={beta:.2f}, beta/alpha={beta / alpha:.1f}, p={p:.2f}')
-print(f'human 371: alpha={residue_site[370][0]:.0f}, beta={residue_site[370][1]:.3g}')
 
 window = regions['V1 patch'][1] - regions['V1 patch'][0] + 1
 starts = range(len(residue_site) - window + 1)
