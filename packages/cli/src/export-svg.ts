@@ -158,7 +158,7 @@ export async function exportSvg({
   enableStaticRendering(true)
   // jsdom provides document/window/SVGElement needed by svgcanvas and
   // measureTextCanvas; installHeadlessRenderEnv fills in what jsdom omits
-  const { JSDOM } = await loadJsdom()
+  const JSDOM = await loadJsdom()
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>')
   const g = globalThis as Record<string, unknown>
   g.window = dom.window
