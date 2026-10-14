@@ -16,16 +16,18 @@ function getCtx() {
   return ctxHandle
 }
 
-// Rough average glyph width as a fraction of the font size for the sans-serif
-// stack the tree labels use. Only reached where there is no canvas to measure
-// with (jsdom, SSR); estimating the label gutter beats throwing out of the
-// layout getters that read this on every render.
-const fallbackGlyphWidthRatio = 0.6
+/**
+ * Rough average glyph width as a fraction of the font size for the sans-serif
+ * stack the labels use. measureTextCanvas falls back on it where there is no
+ * canvas to measure with (jsdom, SSR), and the headless render environment's
+ * `measureText` reports it.
+ */
+export const CHAR_WIDTH_RATIO = 0.6
 
 export function measureTextCanvas(text: string, fontSize: number) {
   const ctx = getCtx()
   if (!ctx) {
-    return text.length * fontSize * fallbackGlyphWidthRatio
+    return text.length * fontSize * CHAR_WIDTH_RATIO
   }
   setFontSize(ctx, fontSize)
   return ctx.measureText(text).width

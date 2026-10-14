@@ -9,7 +9,7 @@
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { beforeAll, expect, test } from 'vitest'
 
-import { CHAR_WIDTH_RATIO } from './headlessRenderEnv.ts'
+import { CHAR_WIDTH_RATIO } from './measureTextCanvas.ts'
 import { renderToSvg } from './renderToSvg.tsx'
 import { createTestModel, installSvgTestEnv } from './svgTestUtil.ts'
 

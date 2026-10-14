@@ -16,6 +16,7 @@ import { renderRowPanels } from './components/rowpanels/renderRowPanel.ts'
 import { renderAllTracks } from './components/tracks/drawTracks.ts'
 import ScaleBarSVG from './components/tree/ScaleBarSVG.tsx'
 import { cladeLabelBoxes } from './components/tree/cladeBrackets.ts'
+import { ellipsize } from './components/tree/ellipsize.ts'
 import { renderTreeCanvas } from './components/tree/renderTreeCanvas.ts'
 import { renderTreeOverview } from './components/tree/renderTreeOverview.ts'
 import { treeScaleBarHeight } from './constants.ts'
@@ -38,10 +39,6 @@ import type { ExportSvgOptions, Layout } from './exportLayout.ts'
 import type { MsaViewModel } from './model.ts'
 import type { Context as ContextType } from '@jbrowse/svgcanvas'
 import type { Theme } from '@mui/material'
-
-// the width of a character as a fraction of the font size, close enough for a
-// sans-serif average
-const CHAR_WIDTH = 0.6
 
 export type { ExportSvgOptions } from './exportLayout.ts'
 
@@ -248,7 +245,6 @@ function RowPanelHeadersSVG({
         const center = effectiveTreeAreaWidth + panel.offsetX + panel.width / 2
         const x = across ? center : center + size / 3
         const room = across ? panel.width : y - LEGEND_PAD
-        const maxChars = Math.floor(room / (size * CHAR_WIDTH))
         return size < 5 ? null : (
           <text
             key={panel.id}
@@ -260,9 +256,10 @@ function RowPanelHeadersSVG({
             fontSize={size}
             fill={theme.palette.text.primary}
           >
-            {panel.header.length > maxChars
-              ? `${panel.header.slice(0, Math.max(1, maxChars - 1))}…`
-              : panel.header}
+            {
+              ellipsize(t => measureTextCanvas(t, size), panel.header, room)
+                .text
+            }
           </text>
         )
       })}
@@ -270,21 +267,11 @@ function RowPanelHeadersSVG({
   )
 }
 
-// A label past the room it has, cut to what fits with an ellipsis. The measure
-// is the one cladeGutterWidth sizes the gutter with, so a label the gutter
-// holds keeps every character.
-function clipCladeLabel(label: string, room: number, fontSize: number) {
-  const width = measureTextCanvas(label, fontSize)
-  if (width <= room) {
-    return label
-  }
-  const fits = Math.floor((label.length * room) / width)
-  return `${label.slice(0, Math.max(1, fits - 1))}…`
-}
-
 // Each bracket's label in the gutter beside its bar, where the live view puts
 // it (see CladeLabels). The canvas layer draws the bar; a label longer than the
 // gutter or the clade is clipped, since text that overruns runs off the figure.
+// cladeGutterWidth sizes the gutter with the same measureTextCanvas, so a label
+// the gutter holds keeps every character.
 function CladeLabelsSVG({
   model,
   theme,
@@ -313,11 +300,13 @@ function CladeLabelsSVG({
             fontSize={fontSize}
             fill={box.color ?? theme.palette.text.primary}
           >
-            {clipCladeLabel(
-              box.label,
-              box.horizontal ? box.width : box.height,
-              fontSize,
-            )}
+            {
+              ellipsize(
+                t => measureTextCanvas(t, fontSize),
+                box.label,
+                box.horizontal ? box.width : box.height,
+              ).text
+            }
           </text>
         )
       })}
@@ -340,9 +329,7 @@ function LegendSVG({
   const boxHeight = legendHeight(rows)
   // the column is capped at LEGEND_MAX_W, so a name too long for it has to be
   // clipped here -- text that overruns the reserved width runs off the figure
-  const maxChars = Math.floor(
-    (width - LEGEND_TEXT_X - LEGEND_PAD) / LEGEND_CHAR_W,
-  )
+  const room = width - LEGEND_TEXT_X - LEGEND_PAD
   return (
     <g>
       <rect
@@ -375,9 +362,7 @@ function LegendSVG({
               fontWeight={row.color ? undefined : 'bold'}
               fill={theme.palette.text.primary}
             >
-              {row.label.length > maxChars
-                ? `${row.label.slice(0, Math.max(1, maxChars - 1))}…`
-                : row.label}
+              {ellipsize(t => t.length * LEGEND_CHAR_W, row.label, room).text}
             </text>
           </g>
         )

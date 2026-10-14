@@ -12,6 +12,8 @@
  * leaves the rest undefined -- every emitted transform then carries `NaN` in its
  * x components, which no assertion on a drawn x-position can survive.
  */
+import { CHAR_WIDTH_RATIO } from './measureTextCanvas.ts'
+
 class HeadlessDOMMatrix {
   a: number
   b: number
@@ -118,6 +120,3 @@ export interface MeasureContext {
   font: string
   measureText(text: string): { width: number }
 }
-
-/** the per-character width factor `measureText` above reports */
-export const CHAR_WIDTH_RATIO = 0.6

@@ -11,10 +11,8 @@ export { renderToSvg } from './renderToSvg.tsx'
 export type { ExportSvgOptions } from './renderToSvg.tsx'
 // renderToSvg outside a browser needs DOM bits jsdom omits; react-msaview-cli
 // and the README figure generator both drive it that way
-export {
-  CHAR_WIDTH_RATIO,
-  installHeadlessRenderEnv,
-} from './headlessRenderEnv.ts'
+export { installHeadlessRenderEnv } from './headlessRenderEnv.ts'
+export { CHAR_WIDTH_RATIO } from './measureTextCanvas.ts'
 // the row count above which calculateNeighborJoiningTreeFromMSA throws, for
 // hosts gating their own menu item
 export { maxNeighborJoiningRows } from './constants.ts'
