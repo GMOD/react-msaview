@@ -34,14 +34,33 @@ widget <- msaview(
 )
 widget
 # htmlwidgets::saveWidget(widget, "alignment.html")  # self-contained HTML
-# msaview_save(widget, "alignment.pdf")               # static figure, see below
+# msaview_plot(widget)                                # ggplot2 figure, see below
 ```
 
-### Static figures
+### ggplot2 figures
 
-`msaview_save()` writes the widget as an SVG, or as a PNG or PDF through the
-[rsvg](https://cran.r-project.org/package=rsvg) package, with every layer the
-widget draws:
+`msaview_plot()` draws the same widget with ggplot2, so `ggsave()`, themes and
+patchwork apply:
+
+- The viewer's own model runs in an embedded QuickJS engine (the
+  [QuickJSR](https://cran.r-project.org/package=QuickJSR) package), so collapsed
+  clades, hidden gappy columns, color schemes, domains, highlights and
+  `relative_to` all come out as they do on screen. No Node or browser runs
+- `msaview_layout()` returns the tables behind the figure (rows, letter colors,
+  tree segments, domains, highlights, clades, conservation) for your own layers
+- A widget knitted into a PDF or Word document from R Markdown or Quarto prints
+  as this figure
+
+```r
+library(ggplot2)
+p <- msaview_plot(widget, conservation = TRUE)
+ggsave("alignment.pdf", p, width = 8, height = 2)
+```
+
+### SVG from the viewer's own renderer
+
+`msaview_save()` writes the SVG the viewer exports, or a PNG or PDF of it
+through the [rsvg](https://cran.r-project.org/package=rsvg) package:
 
 - It needs Node.js, and runs `npx react-msaview-cli` unless
   `options(msaview.cli = ...)` names another copy

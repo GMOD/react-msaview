@@ -8,21 +8,29 @@ Description: Interactive viewer for multiple sequence alignments and
     R/Bioconductor objects (phylo, DNAStringSet, AAStringSet,
     MultipleAlignment) and integrates with ggtree/treeio. Supports
     FASTA, Stockholm, Clustal, and Newick formats. Renders as an
-    htmlwidget in RStudio, R Markdown, Quarto, and Shiny.
+    htmlwidget in RStudio, R Markdown, Quarto, and Shiny, or as a
+    'ggplot2' figure: the viewer's own model runs in an embedded
+    'QuickJS' engine and returns what it would draw as data frames.
 License: MIT + file LICENSE
 URL: https://github.com/GMOD/JBrowseMSA
 BugReports: https://github.com/GMOD/JBrowseMSA/issues
 Imports:
+    grDevices,
     htmlwidgets (>= 1.5.0),
     jsonlite,
-    tools
+    stats,
+    tools,
+    utils
 Suggests:
     ape,
     treeio,
     Biostrings,
     ggtree,
     shiny,
+    ggplot2 (>= 3.5.0),
     knitr,
+    patchwork,
+    QuickJSR,
     rsvg,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

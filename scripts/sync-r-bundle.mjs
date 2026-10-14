@@ -24,6 +24,7 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const src = path.join(rootDir, 'packages/lib/bundle/index.js')
 const rPkg = path.join(rootDir, 'packages/r-msaview')
 const dest = path.join(rPkg, 'inst/htmlwidgets/lib/react-msaview.umd.js')
+const coreDest = path.join(rPkg, 'inst/js/msaview-core.js')
 const yamlPath = path.join(rPkg, 'inst/htmlwidgets/msaview.yaml')
 const descriptionPath = path.join(rPkg, 'DESCRIPTION')
 
@@ -40,8 +41,8 @@ export function readLibVersion() {
 }
 
 /** the version stamped into the vendored bundle, or undefined if unstamped */
-export function readBundleVersion() {
-  const fd = fs.openSync(dest, 'r')
+export function readBundleVersion(file = dest) {
+  const fd = fs.openSync(file, 'r')
   try {
     const buf = Buffer.alloc(200)
     const n = fs.readSync(fd, buf, 0, buf.length, 0)
@@ -104,6 +105,7 @@ function check() {
   const version = readLibVersion()
   const problems = [
     ['bundle banner', readBundleVersion()],
+    ['msaview-core.js banner', readBundleVersion(coreDest)],
     ['msaview.yaml version', readYamlVersion()],
     ['DESCRIPTION version', readDescriptionVersion()],
   ].filter(([, found]) => found !== version)
@@ -113,7 +115,7 @@ function check() {
       console.error(`${what} is ${found ?? '(missing)'}, expected ${version}`)
     }
     console.error(
-      '\nThe R package vendors the UMD bundle. Run `pnpm build && pnpm sync:r-bundle`',
+      '\nThe R package vendors the UMD bundle and the QuickJS core. Run `pnpm build && pnpm sync:r-bundle`',
     )
     process.exit(1)
   }

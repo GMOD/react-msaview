@@ -124,6 +124,7 @@ run('pnpm --filter msaview-widget build')
 // was current the last time someone remembered to copy it across
 console.log('\nSyncing the R package bundle...')
 run('node scripts/sync-r-bundle.mjs')
+run('node scripts/build-r-core.mjs')
 
 // Commit the version bump, tag, and push. The pushed tag triggers publish.yml
 // (npm and PyPI), and the push to main triggers deploy-docs.yml (GitHub Pages).
