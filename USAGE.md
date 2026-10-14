@@ -215,10 +215,24 @@ with `React.lazy` inside a `Suspense` or the framework's equivalent.
 ## Advanced: model-based API
 
 For state the props do not cover, such as hiding gappy columns, collapsing
-clades or reading what the user selected, use the model. `onModel` hands over
-the model `MSAViewer` built, which keeps the width measurement and theme the
-component provides. To build the model yourself, use `MSAModelF` and render it
-with `MSAView`, which leaves setting the width to you:
+clades or reading what the user selected, use the model. A `ref` on `MSAViewer`
+holds the model it built, and `onModel` reports each one, so the component still
+measures the width and provides the theme. When a new alignment or tree builds a
+new model, the ref holds that one.
+
+```tsx
+const viewer = useRef<MsaViewModel>(null)
+
+return (
+  <>
+    <button onClick={() => viewer.current?.setHideGaps(true)}>Hide gaps</button>
+    <MSAViewer ref={viewer} msaUrl={msaUrl} />
+  </>
+)
+```
+
+To build the model yourself, use `MSAModelF` and render it with `MSAView`, which
+leaves setting the width to you:
 
 ```tsx
 import { MSAView, MSAModelF } from 'react-msaview'

@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 
 import useMeasure from '@jbrowse/core/util/useMeasure'
 import { destroy, isAlive } from '@jbrowse/mobx-state-tree'
@@ -35,6 +41,7 @@ import type {
 } from '../types.ts'
 import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import type { ThemeOptions } from '@mui/material/styles'
+import type { ForwardedRef } from 'react'
 
 export interface MSAViewerProps {
   msa?: string
@@ -185,18 +192,22 @@ function sameSource(a: DataSource, b: DataSource) {
 /**
  * A new alignment or tree needs a new model, so the viewer remounts when one
  * of those props changes and keeps its model across every other change,
- * including a new annotation file.
+ * including a new annotation file. A `ref` holds the current model.
  */
-export default function MSAViewer(props: MSAViewerProps) {
-  const resolved = { ...props, ...fileLocations(props) }
-  const { msa, tree, msaFilehandle, treeFilehandle } = resolved
-  const source = { msa, tree, msaFilehandle, treeFilehandle }
-  const [shown, setShown] = useState({ source, generation: 0 })
-  if (!sameSource(shown.source, source)) {
-    setShown({ source, generation: shown.generation + 1 })
-  }
-  return <Viewer key={shown.generation} {...resolved} />
-}
+const MSAViewer = forwardRef<MsaViewModel, MSAViewerProps>(
+  function MSAViewer(props, ref) {
+    const resolved = { ...props, ...fileLocations(props) }
+    const { msa, tree, msaFilehandle, treeFilehandle } = resolved
+    const source = { msa, tree, msaFilehandle, treeFilehandle }
+    const [shown, setShown] = useState({ source, generation: 0 })
+    if (!sameSource(shown.source, source)) {
+      setShown({ source, generation: shown.generation + 1 })
+    }
+    return <Viewer key={shown.generation} modelRef={ref} {...resolved} />
+  },
+)
+
+export default MSAViewer
 
 function useModelReaction<
   K extends 'hoveredCell' | 'clickedCell' | 'viewport' | 'selection',
@@ -438,7 +449,10 @@ function useSyncedProps(model: MsaViewModel, props: MSAViewerProps) {
   })
 }
 
-function Viewer(props: MSAViewerProps) {
+function Viewer({
+  modelRef,
+  ...props
+}: MSAViewerProps & { modelRef: ForwardedRef<MsaViewModel> }) {
   const {
     region,
     theme,
@@ -484,6 +498,8 @@ function Viewer(props: MSAViewerProps) {
   useModelReaction(model, 'clickedCell', onCellClick)
   useModelReaction(model, 'viewport', onViewportChange)
   useModelReaction(model, 'selection', onSelectionChange)
+
+  useImperativeHandle(modelRef, () => model, [model])
 
   const latestOnModel = useRef(onModel)
   useEffect(() => {

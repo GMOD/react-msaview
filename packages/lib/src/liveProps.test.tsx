@@ -312,6 +312,28 @@ test('a new alignment builds a new model', () => {
   expect(captured!.rowNames).toEqual(['a', 'b'])
 })
 
+test('a ref holds the current model, as onModel reports it', () => {
+  const ref = React.createRef<MsaViewModel>()
+  const reported: MsaViewModel[] = []
+  const render = (text: string) => {
+    act(() => {
+      root.render(
+        <MSAViewer ref={ref} msa={text} onModel={m => reported.push(m)} />,
+      )
+    })
+  }
+  render(msa)
+  expect(ref.current).toBe(captured)
+  render('>a\nMK\n>b\nMR\n')
+  expect(ref.current).toBe(captured)
+  expect(ref.current!.rowNames).toEqual(['a', 'b'])
+  expect(reported).toEqual([reported[0], ref.current])
+  act(() => {
+    root.unmount()
+  })
+  expect(ref.current).toBeNull()
+})
+
 test('a new gff keeps the model and its view, and removing it clears the annotations', () => {
   const gff = (end: number) =>
     `##gff-version 3\nhuman\tpfam\tdomain\t2\t${end}\t.\t.\t.\tName=d`
