@@ -46,8 +46,8 @@ widget draws:
 - It needs Node.js, and runs `npx react-msaview-cli` unless
   `options(msaview.cli = ...)` names another copy
 - No browser runs, so it works in a batch job or on a server
-- `width` sets the view's pixel width; the whole alignment is drawn whatever
-  its length
+- `width` sets the view's pixel width; the whole alignment is drawn whatever its
+  length
 
 ```r
 msaview_save(widget, "alignment.svg")
