@@ -38,7 +38,7 @@ export const catalog: CatalogEntry[] = [
     name: 'Zero-config viewer',
     category: 'Getting started',
     description:
-      'The simplest usage: pass alignment + tree text as strings to MSAViewer.',
+      'MSAViewer with msaFilehandle and treeFilehandle pointing at a hosted alignment and tree.',
   },
   {
     id: 'LoadFromUrl',
