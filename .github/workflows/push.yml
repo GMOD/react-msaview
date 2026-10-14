@@ -25,6 +25,10 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # the CLI's PNG and PDF export tests shell out to rsvg-convert
+      - name: Install librsvg
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+
       - name: Test
         run: pnpm test
 
