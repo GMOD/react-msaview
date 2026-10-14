@@ -73,12 +73,13 @@ export async function renderToSvg(model: MsaViewModel, opts: ExportSvgOptions) {
       layers={layers}
     />,
   )
+  // innerHTML serializes as HTML, and an XML parser rejects its &nbsp;
   return svgSafeColors(
     markup.replaceAll(/<g data-layer="([^"]+)"><\/g>/g, (match, id: string) => {
       const ctx = layers.get(id)
       return ctx ? `<g id="${id}">${ctx.getSvg().innerHTML}</g>` : match
     }),
-  )
+  ).replaceAll('&nbsp;', '&#160;')
 }
 
 function MsaSvg({
@@ -118,6 +119,9 @@ function MsaSvg({
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox={`0 0 ${totalWidth} ${height}`}
+      // the canvas layers name sans-serif on each glyph; the legend, labels
+      // and headers inherit it here instead of an editor's default serif
+      fontFamily="sans-serif"
     >
       {/* every layer below draws in the theme's colors, so the page has to be
           the theme's background too -- a hardcoded white one turns a dark-theme

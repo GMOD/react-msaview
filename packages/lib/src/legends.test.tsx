@@ -181,6 +181,21 @@ test('two channels over one field produce one legend', () => {
   expect(model.legends.map(l => l.title)).toEqual(['clade'])
 })
 
+test('a non-breaking space in a label leaves the export valid XML', async () => {
+  const svg = await exportEntire(
+    modelWithLegends([
+      {
+        id: 'nbsp',
+        title: 'Domain',
+        entries: [{ id: 'a', label: 'dom one', color: '#ff0000' }],
+      },
+    ]),
+  )
+  const doc = new DOMParser().parseFromString(svg, 'image/svg+xml')
+  expect(doc.querySelector('parsererror')).toBeNull()
+  expect(doc.documentElement.getAttribute('font-family')).toBe('sans-serif')
+})
+
 test('the export dialog quotes the size the export draws', async () => {
   const model = modelWithLegends([lineage, segment])
   const theme = createJBrowseTheme()
