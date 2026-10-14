@@ -64,7 +64,6 @@ export interface ArcTrackModel extends BasicTrackModel {
 }
 
 export interface BasicTrack {
-  ReactComponent: React.FC<any>
   model: TextTrackModel & BarTrackModel & ArcTrackModel
 }
 

@@ -34,7 +34,6 @@ import { columnCountsFromRows, letterOfResidueSlot } from './columnCounts.ts'
 import { columnStats } from './columnStats.ts'
 import { packDomainLanes } from './components/msa/packDomainLanes.ts'
 import { visibleColRange } from './components/msa/visibleColRange.ts'
-import TrackBlocks from './components/tracks/TrackBlocks.tsx'
 import { cladeGutterWidth } from './components/tree/cladeBrackets.ts'
 import { scaleBarLength } from './components/tree/scaleBar.ts'
 import {
@@ -2793,7 +2792,6 @@ function stateModelFactory({
                   data: content?.data,
                   arcs: content?.arcs,
                 },
-                ReactComponent: TrackBlocks,
               }
             })
             columnTrackModels.set(track, computedModel)
@@ -2855,7 +2853,6 @@ function stateModelFactory({
             data: hideGapsEffective ? skipBlanks(blanks, t.data!) : t.data,
             height: rowHeight,
           },
-          ReactComponent: TrackBlocks,
         }))
       },
 
@@ -2878,7 +2875,6 @@ function stateModelFactory({
                   height: self.trackHeight('arc'),
                   arcs,
                 },
-                ReactComponent: TrackBlocks,
               },
             ]
           : []
@@ -2926,7 +2922,6 @@ function stateModelFactory({
             heightKey: resizableKinds.has(model.kind) ? model.kind : undefined,
             height: self.trackHeight(model.kind),
           },
-          ReactComponent: TrackBlocks,
         }))
       },
 

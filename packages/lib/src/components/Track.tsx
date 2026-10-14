@@ -8,6 +8,7 @@ import { observer } from 'mobx-react'
 
 import { useWheelScroll } from '../useWheelScroll.ts'
 import { onMsaKey } from './msa/msaKeys.ts'
+import TrackBlocks from './tracks/TrackBlocks.tsx'
 import TrackTooltipContent from './tracks/TrackTooltipContent.tsx'
 import { useTrackHover } from './tracks/useTrackHover.ts'
 
@@ -184,7 +185,7 @@ const Track = observer(function ({
           onMouseLeave()
         }}
       >
-        <track.ReactComponent model={model} track={track} />
+        <TrackBlocks model={model} track={track} />
         {anchor ? (
           <BaseTooltip clientPoint={anchor.clientPoint}>
             <TrackTooltipContent
