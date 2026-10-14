@@ -6,6 +6,7 @@ import { enableStaticRendering } from 'mobx-react'
 import { annotationTextToGFF } from 'msa-parsers'
 
 import { fetchWithRetry } from './fetchWithRetry.ts'
+import { checkConverter, figureFormat, writeFigure } from './writeFigure.ts'
 
 import type { MSAFormat } from 'msa-parsers'
 import type { MSAViewerProps, MsaSpec } from 'react-msaview'
@@ -118,6 +119,7 @@ export async function exportSvg({
   tracks,
   viewport,
   minimap,
+  scale,
 }: {
   specFile?: string
   propsFile?: string
@@ -136,7 +138,10 @@ export async function exportSvg({
   tracks?: string[]
   viewport?: boolean
   minimap?: boolean
+  scale?: number
 }) {
+  const outputFormat = figureFormat(outputFile)
+  checkConverter(outputFormat)
   const { MSAModelF, renderToSvg, installHeadlessRenderEnv, resolveTheme } =
     await import('react-msaview')
 
@@ -221,5 +226,5 @@ export async function exportSvg({
       (!!tracks || !!specFile || !!propsFile) &&
       model.turnedOnTracks.length > 0,
   })
-  fs.writeFileSync(outputFile, svg)
+  writeFigure({ svg, file: outputFile, format: outputFormat, scale })
 }

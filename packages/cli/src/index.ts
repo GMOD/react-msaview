@@ -71,6 +71,9 @@ const options = {
     type: 'boolean',
     default: false,
   },
+  scale: {
+    type: 'string',
+  },
   local: {
     type: 'boolean',
     default: false,
@@ -175,7 +178,7 @@ COMMANDS:
   residue-mappings
                   Build the residueMappings layer relating alignment rows to
                   PDB chains (SIFTS) or AlphaFold models
-  export-svg      Export alignment as SVG (no browser required)
+  export-svg      Export alignment as SVG, PNG or PDF (no browser required)
 
 OPTIONS (interproscan):
   -o, --output <file>           Output GFF file (default: domains.gff)
@@ -241,7 +244,10 @@ OPTIONS (export-svg):
   --format <name>               Force the MSA format instead of sniffing it
   --tree <file>                 Newick tree file (optional)
   --gff <file>                  Domain or exon GFF, or InterProScan JSON (optional)
-  -o, --output <file>           Output SVG file (default: alignment.svg)
+  -o, --output <file>           Output file; .svg, .png or .pdf picks the
+                                format, and PNG and PDF need rsvg-convert from
+                                librsvg (default: alignment.svg)
+  --scale <n>                   Pixels per SVG unit in a PNG (default: 2)
   --color-scheme <name>         Color scheme (default: maeditor)
   --theme <light|dark>          Page and text colors (default: light, or the
                                 theme --props names)
@@ -265,6 +271,7 @@ EXAMPLES:
   react-msaview-cli export-svg --msa alignment.fasta --gff domains.gff --color-scheme clustalx_protein_dynamic -o alignment.svg
   react-msaview-cli export-svg --msa alignment.fasta --tracks conservation,position-ruler -o alignment.svg
   react-msaview-cli export-svg --msa alignment.fasta --viewport --minimap -o viewport.svg
+  react-msaview-cli export-svg --msa alignment.fasta --tree tree.nwk -o figure.pdf
 
   react-msaview-cli interproscan alignment.fasta -o domains.gff
   react-msaview-cli interproscan alignment.fasta -o domains.gff --docker
@@ -387,6 +394,7 @@ async function main() {
       tracks: values.tracks !== undefined ? readList(values.tracks) : undefined,
       viewport: values.viewport,
       minimap: values.minimap,
+      scale: readOptional('scale', values.scale),
     })
     console.log(`wrote ${outputFile}`)
   } else if (command === 'interproscan') {

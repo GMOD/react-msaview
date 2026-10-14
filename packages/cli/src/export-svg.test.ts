@@ -129,3 +129,34 @@ test('--spec reads a shorthand msa path beside the spec, and --msa overrides it'
   expect(svg).toContain('other1')
   expect(svg).not.toContain('seq1')
 })
+
+test('-o picks the format from its extension', async () => {
+  const msaFile = write('fmt.fa', MSA)
+  const png = path.join(dir, 'out.png')
+  const pdf = path.join(dir, 'out.pdf')
+  await exportSvg({ msaFile, outputFile: png, scale: 1 })
+  await exportSvg({ msaFile, outputFile: pdf })
+  expect(fs.readFileSync(png).subarray(1, 4).toString()).toBe('PNG')
+  expect(fs.readFileSync(pdf).subarray(0, 5).toString()).toBe('%PDF-')
+  const small = fs.statSync(png).size
+  await exportSvg({ msaFile, outputFile: png, scale: 3 })
+  expect(fs.statSync(png).size).toBeGreaterThan(small)
+  await expect(
+    exportSvg({ msaFile, outputFile: path.join(dir, 'out.jpg') }),
+  ).rejects.toThrow('.svg, .png or .pdf')
+})
+
+test('a PNG without rsvg-convert names librsvg before rendering', async () => {
+  const pathEnv = process.env.PATH
+  process.env.PATH = dir
+  try {
+    await expect(
+      exportSvg({
+        msaFile: write('norsvg.fa', MSA),
+        outputFile: path.join(dir, 'norsvg.png'),
+      }),
+    ).rejects.toThrow('install librsvg')
+  } finally {
+    process.env.PATH = pathEnv
+  }
+})

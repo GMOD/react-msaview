@@ -10,14 +10,15 @@ The CLI has two groups of commands, and the second draws what the first writes:
   a RefSeq transcript's exon model (`genestructure`), and relate rows to 3D
   structures (`residue-mappings`).
 - **Render**: draw the alignment, its tree, and those annotations to a
-  standalone SVG (`export-svg`). The command runs the web viewer's renderer
-  headlessly, so the figure matches what the app shows.
+  standalone SVG, PNG or PDF (`export-svg`). The command runs the web viewer's
+  renderer headlessly, so the figure matches what the app shows.
 
 ## Prerequisites
 
 - NodeJS v22+
 
-`export-svg`, `interpro` and `residue-mappings` need nothing else.
+`export-svg`, `interpro` and `residue-mappings` need nothing else, except that
+`export-svg` writes PNG and PDF through `rsvg-convert` from librsvg.
 `interproscan` needs a backend to scan with: the EBI web API (the default, no
 install), Docker, Singularity, or a local InterProScan (see
 [interproscan](#interproscan)).
@@ -79,7 +80,8 @@ react-msaview-cli export-svg --msa <file> [options]
 | `--msa <file>`           | MSA file (FASTA, Stockholm, Clustal, A3M, EMF) | _required_      |
 | `--tree <file>`          | Newick tree file                               |                 |
 | `--gff <file>`           | Domain or exon GFF, or InterProScan JSON       |                 |
-| `-o, --output <file>`    | Output SVG file path                           | `alignment.svg` |
+| `-o, --output <file>`    | Output file: `.svg`, `.png` or `.pdf`          | `alignment.svg` |
+| `--scale <n>`            | Pixels per SVG unit in a PNG                   | `2`             |
 | `--color-scheme <name>`  | Color scheme                                   | `maeditor`      |
 | `--col-width <px>`       | Width of one alignment column                  | `12`            |
 | `--row-height <px>`      | Height of one alignment row                    | `16`            |
@@ -169,11 +171,16 @@ so conserved columns stand out by color. `nucleotide`, `clustalx_dna`,
 The SVG grows with the alignment: a 10-row by 856-column figure is about 700KB.
 The background is one embedded image where @napi-rs/canvas is installed, and a
 rectangle per cell where it is not. The letters, the tree and the annotations
-are vector either way. To convert to PNG or PDF for a journal:
+are vector either way.
+
+An `-o` ending in `.png` or `.pdf` converts the SVG with `rsvg-convert` from
+librsvg (`apt install librsvg2-bin`, `brew install librsvg`). A PDF keeps the
+letters, the tree and the annotations vector. `--scale` sets the pixels per SVG
+unit of a PNG, 2 by default:
 
 ```bash
-rsvg-convert -w 2000 alignment.svg -o alignment.png
-inkscape alignment.svg --export-filename=alignment.pdf
+react-msaview-cli export-svg --msa kinases.aln --tree kinases.nwk -o kinases.pdf
+react-msaview-cli export-svg --msa kinases.aln --scale 4 -o kinases.png
 ```
 
 The same input gives the same bytes, so CI can regenerate a figure and diff it.
