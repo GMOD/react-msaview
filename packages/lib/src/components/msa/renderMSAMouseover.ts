@@ -1,5 +1,8 @@
 import { clickColor, hoverColor, multiRowHoverColor } from '../overlayColors.ts'
-import { renderPersistentHighlights } from './renderHighlights.ts'
+import {
+  renderPersistentHighlights,
+  renderSelection,
+} from './renderHighlights.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { Theme } from '@mui/material'
@@ -49,6 +52,7 @@ export function renderMouseover({
     width,
     height,
   })
+  renderSelection({ ctx, model, offsetX: -scrollX, offsetY: -scrollY, height })
 
   // every tip under a hovered tree node stays lit
   ctx.fillStyle = multiRowHoverColor

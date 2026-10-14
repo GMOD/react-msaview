@@ -215,8 +215,8 @@ export function renderSelection({
 
 /**
  * The overlay parts that come from the snapshot: the reference row's tint, a
- * bordered band per run of highlighted columns, the `highlights` layer and the
- * selected block. The live overlay draws these under its hover and click
+ * bordered band per run of highlighted columns and the `highlights` layer. The
+ * live overlay draws these under the selected block and its hover and click
  * bands; the SVG export draws only these.
  */
 export function renderPersistentHighlights({
@@ -255,5 +255,4 @@ export function renderPersistentHighlights({
   }
 
   renderHighlights({ ctx, model, theme, offsetX, offsetY, width, height })
-  renderSelection({ ctx, model, offsetX, offsetY, height })
 }

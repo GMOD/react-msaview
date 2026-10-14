@@ -1,15 +1,17 @@
 // @vitest-environment jsdom
 //
-// The SVG export draws the selected block as a bordered band over the rows and
-// columns it covers.
+// The live overlay draws the selected block as a bordered band over the rows
+// and columns it covers, and the SVG export leaves it out.
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { enableStaticRendering } from 'mobx-react'
 import { beforeAll, expect, test } from 'vitest'
 
+import { renderSelection } from './components/msa/renderHighlights.ts'
 import { installHeadlessRenderEnv } from './headlessRenderEnv.ts'
 import MSAModelF from './model.ts'
 import { renderToSvg } from './renderToSvg.tsx'
 
+import type { RenderCtx } from './components/renderCtx.ts'
 import type { MsaSelection } from './types.ts'
 
 beforeAll(() => {
@@ -26,7 +28,7 @@ ACDEFGHIKL
 >seq4
 ACDEFGHIKL`
 
-async function exportWith(selection?: MsaSelection) {
+function modelWith(selection?: MsaSelection) {
   const model = MSAModelF().create({
     id: 'block-svg-test',
     type: 'MsaView',
@@ -36,50 +38,46 @@ async function exportWith(selection?: MsaSelection) {
     selection,
   })
   model.setWidth(800)
-  const svg = await renderToSvg(model, {
-    theme: createJBrowseTheme(),
-    exportType: 'entire',
-  })
-  return { model, svg }
+  return model
 }
 
-const bands = (svg: string) =>
-  (svg.match(/<rect[^>]*>/g) ?? []).filter(r => r.includes('rgb(25,118,210)'))
-const fills = (svg: string) =>
-  bands(svg).filter(r => r.includes('fill="rgb(25,118,210)"'))
+function drawnRects(selection: MsaSelection) {
+  const model = modelWith(selection)
+  const fills: number[][] = []
+  const strokes: number[][] = []
+  const ctx = {
+    fillRect: (...r: number[]) => fills.push(r),
+    strokeRect: (...r: number[]) => strokes.push(r),
+  } as unknown as RenderCtx
+  renderSelection({ ctx, model, offsetX: 0, offsetY: 0, height: 400 })
+  return { model, fills, strokes }
+}
 
-test('the selected block exports as a band over its cells', async () => {
-  const { model, svg } = await exportWith({
+test('the selected block draws as a bordered band over its cells', () => {
+  const { model, fills, strokes } = drawnRects({
     start: 3,
     end: 5,
     rows: ['seq2', 'seq3'],
   })
   const { colWidth, rowHeight } = model
-  const geometry = [
-    `x="${2 * colWidth}"`,
-    `y="${rowHeight}"`,
-    `width="${3 * colWidth}"`,
-    `height="${2 * rowHeight}"`,
-  ]
-  const [fill, border] = bands(svg)
-  for (const attribute of geometry) {
-    expect(fill).toContain(attribute)
-    expect(border).toContain(attribute)
-  }
-  expect(border).toContain('stroke="rgb(25,118,210)"')
+  const band = [2 * colWidth, rowHeight, 3 * colWidth, 2 * rowHeight]
+  expect(fills).toEqual([band])
+  expect(strokes).toEqual([band])
 })
 
-test('rows apart in the display export as one band each', async () => {
-  const { model, svg } = await exportWith({
+test('rows apart in the display draw as one band each', () => {
+  const { model, fills } = drawnRects({
     start: 1,
     end: 2,
     rows: ['seq1', 'seq4'],
   })
-  const ys = fills(svg).map(r => /y="([^"]+)"/.exec(r)?.[1])
-  expect(ys).toEqual(['0', `${3 * model.rowHeight}`])
+  expect(fills.map(r => r[1])).toEqual([0, 3 * model.rowHeight])
 })
 
-test('no selection exports no band', async () => {
-  const { svg } = await exportWith()
-  expect(bands(svg)).toEqual([])
+test('the SVG export leaves the selected block out', async () => {
+  const svg = await renderToSvg(
+    modelWith({ start: 3, end: 5, rows: ['seq2', 'seq3'] }),
+    { theme: createJBrowseTheme(), exportType: 'entire' },
+  )
+  expect(svg).not.toContain('rgb(25,118,210)')
 })
