@@ -94,6 +94,24 @@ test('--spec draws the columnTracks example from docs/layers.md', async () => {
   expect(svg).toContain('#6a51a3')
 })
 
+test('--props draws what MSAViewer draws from the same props', async () => {
+  const propsFile = write(
+    'props.json',
+    JSON.stringify({
+      msa: MSA,
+      gff: '##gff-version 3\nseq1\tsrc\tdomain\t2\t8\t.\t.\t.\tName=Propdomain',
+      theme: 'dark',
+      highlights: [{ start: 3, end: 4, label: 'Site' }],
+    }),
+  )
+  const svg = await render({ propsFile })
+  expect(svg).toContain('Propdomain')
+  expect(svg).toContain('Site')
+  const light = await render({ propsFile, theme: 'light' })
+  const background = (s: string) => /<rect[^>]*fill="([^"]+)"/.exec(s)![1]
+  expect(background(svg)).not.toBe(background(light))
+})
+
 test('--spec reads a shorthand msa path beside the spec, and --msa overrides it', async () => {
   write('spec-rows.fa', MSA)
   const specFile = write(

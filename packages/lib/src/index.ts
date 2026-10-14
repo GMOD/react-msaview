@@ -29,6 +29,8 @@ export type {
 export { default as MSAView } from './components/Loading.tsx'
 export { default as MSAViewer } from './components/MSAViewer.tsx'
 export type { MSAViewerProps } from './components/MSAViewer.tsx'
+// the snapshot MSAViewer builds from its props, for the CLI's --props
+export { resolveTheme, viewerSnapshot } from './viewerSnapshot.ts'
 export { mount } from './mount.tsx'
 export { defineMsaElement } from './element.ts'
 export { useMsaSvgFigure } from './useMsaSvgFigure.ts'

@@ -1,7 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { JSDOM } from 'jsdom'
 import { enableStaticRendering } from 'mobx-react'
 import { annotationTextToGFF } from 'msa-parsers'
@@ -9,7 +8,7 @@ import { annotationTextToGFF } from 'msa-parsers'
 import { fetchWithRetry } from './fetchWithRetry.ts'
 
 import type { MSAFormat } from 'msa-parsers'
-import type { MsaSpec } from 'react-msaview'
+import type { MSAViewerProps, MsaSpec } from 'react-msaview'
 
 /**
  * jsdom has no pixels, so without this the export draws a <rect> per cell and a
@@ -58,29 +57,53 @@ async function readLocation(location: Location, baseDir: string) {
 }
 
 /**
- * The spec file as a snapshot, with every filehandle read into `data` so the
- * model is complete on create. A relative path resolves against the spec
- * file's directory.
+ * Reads every filehandle of a snapshot into `data`, so the model is complete on
+ * create. A relative path resolves against `baseDir`.
  */
-async function readSpec(specFile: string) {
-  const expandSpec = (await import('react-msaview')).expandSpec
-  const json = JSON.parse(fs.readFileSync(specFile, 'utf8')) as {
-    msaview?: MsaSpec
-  } & MsaSpec
-  const snapshot = expandSpec(json.msaview ?? json)
+async function inlineFilehandles(
+  snapshot: Record<string, unknown>,
+  baseDir: string,
+) {
   const data = { ...(snapshot.data as Record<string, string> | undefined) }
   for (const [key, field] of FILEHANDLES) {
     const location = snapshot[key] as Location | undefined
     if (location) {
-      data[field] ??= await readLocation(location, path.dirname(specFile))
+      data[field] ??= await readLocation(location, baseDir)
       delete snapshot[key]
     }
   }
   return { ...snapshot, data }
 }
 
+async function readSpec(specFile: string) {
+  const { expandSpec } = await import('react-msaview')
+  const json = JSON.parse(fs.readFileSync(specFile, 'utf8')) as {
+    msaview?: MsaSpec
+  } & MsaSpec
+  return inlineFilehandles(
+    expandSpec(json.msaview ?? json),
+    path.dirname(specFile),
+  )
+}
+
+/**
+ * The props an `MSAViewer` takes, as the R and Python widgets send them, read
+ * into the snapshot that component would create
+ */
+async function readProps(propsFile: string) {
+  const { viewerSnapshot } = await import('react-msaview')
+  const props = JSON.parse(fs.readFileSync(propsFile, 'utf8')) as MSAViewerProps
+  const { type: _, ...snapshot } = viewerSnapshot(props)
+  return {
+    snapshot: await inlineFilehandles(snapshot, path.dirname(propsFile)),
+    theme: props.theme,
+  }
+}
+
 export async function exportSvg({
   specFile,
+  propsFile,
+  theme: themeName,
   msaFile,
   treeFile,
   gffFile,
@@ -97,6 +120,8 @@ export async function exportSvg({
   minimap,
 }: {
   specFile?: string
+  propsFile?: string
+  theme?: 'light' | 'dark'
   msaFile?: string
   treeFile?: string
   gffFile?: string
@@ -112,7 +137,7 @@ export async function exportSvg({
   viewport?: boolean
   minimap?: boolean
 }) {
-  const { MSAModelF, renderToSvg, installHeadlessRenderEnv } =
+  const { MSAModelF, renderToSvg, installHeadlessRenderEnv, resolveTheme } =
     await import('react-msaview')
 
   enableStaticRendering(true)
@@ -125,9 +150,10 @@ export async function exportSvg({
   installHeadlessRenderEnv(dom.window)
   await installNodeCanvas(g)
 
-  const theme = createJBrowseTheme()
+  const fromProps = propsFile ? await readProps(propsFile) : undefined
+  const theme = resolveTheme(themeName ?? fromProps?.theme)
   const spec: Record<string, unknown> & { data?: Record<string, string> } =
-    specFile ? await readSpec(specFile) : {}
+    fromProps?.snapshot ?? (specFile ? await readSpec(specFile) : {})
   const data = { ...spec.data }
   if (msaFile) {
     data.msa = fs.readFileSync(msaFile, 'utf8')
@@ -143,7 +169,7 @@ export async function exportSvg({
   }
   if (!data.msa && !data.tree) {
     throw new Error(
-      'nothing to draw: give --msa, or a --spec with an msa or a tree',
+      'nothing to draw: give --msa, or a --spec or --props with an msa or a tree',
     )
   }
 
@@ -191,7 +217,9 @@ export async function exportSvg({
     theme,
     exportType: viewport ? 'viewport' : 'entire',
     includeMinimap: minimap,
-    includeTracks: (!!tracks || !!specFile) && model.turnedOnTracks.length > 0,
+    includeTracks:
+      (!!tracks || !!specFile || !!propsFile) &&
+      model.turnedOnTracks.length > 0,
   })
   fs.writeFileSync(outputFile, svg)
 }

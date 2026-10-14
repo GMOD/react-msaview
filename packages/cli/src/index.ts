@@ -36,6 +36,12 @@ const options = {
   spec: {
     type: 'string',
   },
+  props: {
+    type: 'string',
+  },
+  theme: {
+    type: 'string',
+  },
   'color-scheme': {
     type: 'string',
   },
@@ -228,13 +234,17 @@ OPTIONS (residue-mappings):
 OPTIONS (export-svg):
   --spec <file.json>            MsaView spec or snapshot, with any layer from
                                 docs/layers.md; the flags below override it
+  --props <file.json>           MSAViewer props, as the R and Python widgets
+                                send them, in place of --spec
   --msa <file>                  MSA file (FASTA, Stockholm, Clustal, A3M, EMF)
-                                [required without --spec]
+                                [required without --spec or --props]
   --format <name>               Force the MSA format instead of sniffing it
   --tree <file>                 Newick tree file (optional)
   --gff <file>                  Domain or exon GFF, or InterProScan JSON (optional)
   -o, --output <file>           Output SVG file (default: alignment.svg)
   --color-scheme <name>         Color scheme (default: maeditor)
+  --theme <light|dark>          Page and text colors (default: light, or the
+                                theme --props names)
   --width <px>                  Canvas width in pixels (default: 1200)
   --height <px>                 Canvas height in pixels (default: 600)
   --tree-area-width <px>        Tree panel width in pixels (optional)
@@ -343,13 +353,22 @@ async function main() {
   const format = readFormat(values.format)
 
   if (command === 'export-svg') {
-    if (!values.msa && !values.spec) {
-      console.error('Error: --msa <file> or --spec <file.json> is required')
+    if (!values.msa && !values.spec && !values.props) {
+      console.error(
+        'Error: --msa <file>, --spec <file.json> or --props <file.json> is required',
+      )
+      process.exit(1)
+    }
+    const theme = values.theme
+    if (theme !== undefined && theme !== 'light' && theme !== 'dark') {
+      console.error(`Error: --theme is light or dark, not "${theme}"`)
       process.exit(1)
     }
     const outputFile = values.output ?? 'alignment.svg'
     await exportSvg({
       specFile: values.spec,
+      propsFile: values.props,
+      theme,
       msaFile: values.msa,
       treeFile: values.tree,
       gffFile: values.gff,
