@@ -28,21 +28,11 @@ One dated Nextstrain build, plus the three files this page writes from it.
 
 ## 1. The build, and the sample
 
-The auspice JSON holds a root sequence and one mutation list per branch. Copying
-the root down the tree and applying each branch's mutations reconstructs every
-tip, and Nextstrain numbers every mutation against the same reference, so the
-tips come out already aligned:
-
-```python
-def apply_muts(seq, muts):
-    edited = bytearray(seq)
-    for mut in muts or []:
-        m = MUT_RE.match(mut)
-        if m:
-            _, pos, alt = m.groups()
-            edited[int(pos) - 1] = ord(alt)
-    return bytes(edited)
-```
+The auspice JSON holds a root sequence and one mutation list per branch, and the
+script reconstructs every tip from them the way
+[the RSV tutorial](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#1-reconstruct-the-alignment-from-the-tree)
+does: the root copied down each path, one base overwritten per mutation, every
+tip in the reference's coordinates.
 
 The sample is every 24th tip whose record names a GenBank accession and a
 collecting state, which keeps the proportions of the whole build with no seed to
@@ -136,10 +126,9 @@ the table gives the row it points at.
 
 ## 3. Labels and branches colored by state
 
-An `encodings` record names the channel to paint and the field feeding it. The
-`tipLabel` channel colors the label beside each tip, and the `branch` channel
-gives an internal node the field value its tips agree on and colors the edge
-above it:
+The `tipLabel` and `branch` channels, which the
+[RSV tutorial](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#9-tip-labels-colored-by-clade)
+points at its clade field, read the state field here:
 
 ```json
 "encodings": [
@@ -233,11 +222,12 @@ them.
 
 ## 6. Three groups marked in the gutter
 
-A `clades` record marks a group of rows. `mrca` names two tips whose common
-ancestor is the group and `tips` is the leaf count the producer measured under
-that ancestor; `range` names the first and last row of a run that is not a
-clade. `highlight` fills the rows, and `bracket` draws a bar with the record's
-label in the gutter at the right of the tree area:
+A `clades` record marks a group of rows. `mrca` and `tips` address a clade the
+way the
+[RSV tutorial's rectangle](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#13-a-rectangle-over-one-clade)
+does, and `range` names the first and last row of a run that is not a clade.
+`highlight` fills the rows, and `bracket` draws a bar with the record's label in
+the gutter at the right of the tree area:
 
 ```json
 "clades": [
@@ -270,10 +260,7 @@ largest all-California clade: 38 of the 111 California tips, display rows 45-82
 ```
 
 The same 138 tips carry NP 119V, M1 82N and NS1 67G, so one bracket covers all
-three sites. The viewer resolves each `mrca` pair to their common ancestor,
-counts the leaves under it and compares the count with the record's `tips`.
-Writing 137 there drops the mark, so a re-estimated tree loses it rather than
-moving it somewhere else.
+three sites.
 
 [![](../media/influenza_surveillance_figure-clades.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1700%2C%22treeAreaWidth%22%3A430%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22state%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22host%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22Avian%22%3A%22%234e79a7%22%2C%22Cattle%22%3A%22%238c6d31%22%2C%22Human%22%3A%22%23e15759%22%2C%22Nonhuman%20Mammal%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A12%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB2%20670%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB1%20517%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PA%20432%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22HA%20147%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NP%20119%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NA%2071%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22M1%2082%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NS1%2067%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%5D%2C%22clades%22%3A%5B%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22highlight%22%2C%22color%22%3A%22%23ffd54f%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23a16207%22%2C%22label%22%3A%22NP%20119V%2C%20138%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fchicken%2FCA%2F24-031667-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037821-002-original%2F2024%22%5D%2C%22tips%22%3A38%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23c2410c%22%2C%22label%22%3A%22California%2C%2038%22%7D%2C%7B%22range%22%3A%5B%22A%2Fcattle%2FID%2F25-012902-006-original%2F2025%22%2C%22A%2Fcattle%2FID%2F26G09268-001-original%2F2026%22%5D%2C%22tips%22%3A17%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%231d4ed8%22%2C%22label%22%3A%22Idaho%2C%2017%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
@@ -398,7 +385,6 @@ redistributed, so this page stays on the GenBank-and-SRA build.
 
 ## See also
 
-- [Coloring an RSV phylogeny by its metadata](https://gmod.org/JBrowseMSA/tutorials/phylogeny_metadata)
 - [An RSV phylogeny from a public Nextstrain build](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale)
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
 - [User guide](https://gmod.org/JBrowseMSA/guide)
