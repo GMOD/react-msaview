@@ -54,7 +54,8 @@ msaview_layout <- function(widget) {
   if (!inherits(widget, "msaview")) {
     stop("widget must be a viewer made by msaview()")
   }
-  out <- js_context()$call("msaviewFigure", as.character(props_json(widget$x$props)))
+  props <- inline_remote(widget$x$props)
+  out <- js_context()$call("msaviewFigure", as.character(props_json(props)))
   raw <- jsonlite::fromJSON(out, simplifyVector = FALSE)
   tree <- raw$tree
   structure(
@@ -85,6 +86,22 @@ msaview_layout <- function(widget) {
     ),
     class = "msaview_layout"
   )
+}
+
+# QuickJS fetches nothing, so R reads each URL the props name into the text
+# prop the viewer would have filled from it
+inline_remote <- function(props) {
+  for (layer in c("msa", "tree", "gff")) {
+    url_prop <- paste0(layer, "Url")
+    handle_prop <- paste0(layer, "Filehandle")
+    url <- props[[handle_prop]]$uri %||% props[[url_prop]]
+    if (!is.null(url) && is.null(props[[layer]])) {
+      props[[layer]] <- paste(readLines(url, warn = FALSE), collapse = "\n")
+    }
+    props[[url_prop]] <- NULL
+    props[[handle_prop]] <- NULL
+  }
+  props
 }
 
 #' @export

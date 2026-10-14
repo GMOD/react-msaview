@@ -43,6 +43,24 @@ test_that("domains and highlights land in visible columns", {
   expect_equal(lay$highlights$label, "site")
 })
 
+test_that("R reads a URL the props name, since QuickJS fetches nothing", {
+  fasta <- tempfile(fileext = ".fa")
+  writeLines(msa, fasta)
+  props <- inline_remote(list(
+    msaUrl = paste0("file://", fasta),
+    treeFilehandle = list(uri = paste0("file://", fasta))
+  ))
+  expect_equal(props$msa, msa)
+  expect_null(props$msaUrl)
+  expect_null(props$treeFilehandle)
+})
+
+test_that("highlight_columns draws as 1-based column highlights", {
+  lay <- msaview_layout(msaview(msa = msa, highlight_columns = c(2, 3, 6)))
+  expect_equal(lay$highlights$start, c(2, 6))
+  expect_equal(lay$highlights$end, c(3, 6))
+})
+
 test_that("the plot builds, with the tree beside the alignment", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("patchwork")
