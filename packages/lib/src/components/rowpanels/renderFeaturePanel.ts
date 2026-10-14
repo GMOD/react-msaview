@@ -2,8 +2,14 @@ import { contrastTextFn } from '../../util.ts'
 import { getVisibleLeaves } from '../getVisibleLeaves.ts'
 import { drawFeatureSpans, spanRows } from '../msa/drawFeatureSpans.ts'
 
+import type { HierarchyNode } from '../../hierarchy.ts'
 import type { MsaViewModel } from '../../model.ts'
-import type { ResolvedFeaturePanel, RowPanelSpan } from '../../types.ts'
+import type {
+  NodeWithIdsAndLength,
+  ResolvedFeaturePanel,
+  RowPanelSpan,
+} from '../../types.ts'
+import type { SpanSource } from '../msa/drawFeatureSpans.ts'
 import type { RenderCtx } from '../renderCtx.ts'
 import type { Theme } from '@mui/material'
 
@@ -46,10 +52,26 @@ export function renderFeaturePanel({
 
   drawFeatureSpans<RowPanelSpan>({
     ctx,
-    rows: spanRows(
+    ...featurePanelSource(
+      model,
+      panel,
       getVisibleLeaves({ model, offsetY, blockSizeY: by }),
-      panel.spans,
     ),
+    contrastText: contrastTextFn(theme),
+    xMin: 0,
+    xMax: panel.width,
+  })
+}
+
+/** a features panel's spans over `leaves`, in panel pixels, a lane apiece */
+export function featurePanelSource(
+  model: MsaViewModel,
+  panel: ResolvedFeaturePanel,
+  leaves: HierarchyNode<NodeWithIdsAndLength>[],
+): SpanSource<RowPanelSpan> {
+  const { rowHeight } = model
+  return {
+    rows: spanRows(leaves, panel.spans),
     layout: {
       height: laneCount => Math.max(1, rowHeight / laneCount - rowPadding),
       top: (y, lane, h) =>
@@ -59,8 +81,5 @@ export function renderFeaturePanel({
     xOf: span => [span.xStart, span.xEnd],
     colors: panel.colors,
     labelOf: span => panel.labels?.get(span.annotation),
-    contrastText: contrastTextFn(theme),
-    xMin: 0,
-    xMax: panel.width,
-  })
+  }
 }

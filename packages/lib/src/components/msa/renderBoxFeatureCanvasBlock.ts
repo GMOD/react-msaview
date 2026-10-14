@@ -3,9 +3,11 @@ import { contrastTextFn } from '../../util.ts'
 import { getVisibleLeaves } from '../getVisibleLeaves.ts'
 import { drawFeatureSpans, spanRows } from './drawFeatureSpans.ts'
 
+import type { HierarchyNode } from '../../hierarchy.ts'
 import type { MsaViewModel } from '../../model.ts'
-import type { DomainBand } from '../../types.ts'
+import type { DomainBand, NodeWithIdsAndLength } from '../../types.ts'
 import type { RenderCtx } from '../renderCtx.ts'
+import type { SpanSource } from './drawFeatureSpans.ts'
 import type { Theme } from '@mui/material'
 
 export function renderBoxFeatureCanvasBlock({
@@ -27,20 +29,8 @@ export function renderBoxFeatureCanvasBlock({
   blockSizeXOverride?: number
   blockSizeYOverride?: number
 }) {
-  const {
-    blockSize,
-    rowHeight,
-    highResScaleFactor,
-    actuallyShowDomains,
-    subFeatureRows,
-    colWidth,
-    featureColors,
-    featureLabels,
-    segmentLabels,
-    showMsaLetters,
-    domainUnderline,
-    domainBands,
-  } = model
+  const { blockSize, rowHeight, highResScaleFactor, actuallyShowDomains } =
+    model
   if (!actuallyShowDomains) {
     return
   }
@@ -51,6 +41,38 @@ export function renderBoxFeatureCanvasBlock({
   ctx.scale(k, k)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
 
+  drawFeatureSpans<DomainBand>({
+    ctx,
+    ...domainOverlaySource(
+      model,
+      getVisibleLeaves({ model, offsetY, blockSizeY: by }),
+    ),
+    contrastText: contrastTextFn(theme),
+    xMin: offsetX,
+    xMax: offsetX + bx,
+  })
+}
+
+/**
+ * The domain overlay's spans over `leaves`, in alignment pixels: filled rows,
+ * an underline bar, or thin sub-rows, as `domainUnderline` and
+ * `subFeatureRows` decide.
+ */
+export function domainOverlaySource(
+  model: MsaViewModel,
+  leaves: HierarchyNode<NodeWithIdsAndLength>[],
+): SpanSource<DomainBand> {
+  const {
+    rowHeight,
+    subFeatureRows,
+    colWidth,
+    featureColors,
+    featureLabels,
+    segmentLabels,
+    showMsaLetters,
+    domainUnderline,
+    domainBands,
+  } = model
   // the plain and underline modes give every band the same height; a sub-row
   // band is thinner, and how thin depends on how many lanes its row needs
   const barHeight = domainUnderline
@@ -67,12 +89,8 @@ export function renderBoxFeatureCanvasBlock({
   // carrying the gene model are often not the first ones in the alignment
   const labelled = drawSegmentLabels ? new Set<string>() : undefined
 
-  drawFeatureSpans<DomainBand>({
-    ctx,
-    rows: spanRows(
-      getVisibleLeaves({ model, offsetY, blockSizeY: by }),
-      domainBands,
-    ),
+  return {
+    rows: spanRows(leaves, domainBands),
     layout: {
       // sub-rows are thin, but a row whose lanes would spill onto the row below
       // shares out the row height between them instead
@@ -98,8 +116,5 @@ export function renderBoxFeatureCanvasBlock({
         ? segmentLabels.get(band.annotation.accession)
         : undefined),
     labelDrawn: band => labelled?.add(band.annotation.accession),
-    contrastText: contrastTextFn(theme),
-    xMin: offsetX,
-    xMax: offsetX + bx,
-  })
+  }
 }
