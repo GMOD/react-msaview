@@ -1,11 +1,11 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-import { JSDOM } from 'jsdom'
 import { enableStaticRendering } from 'mobx-react'
 import { annotationTextToGFF } from 'msa-parsers'
 
 import { fetchWithRetry } from './fetchWithRetry.ts'
+import { loadJsdom } from './loadJsdom.ts'
 import { checkConverter, figureFormat, writeFigure } from './writeFigure.ts'
 
 import type { MSAFormat } from 'msa-parsers'
@@ -158,6 +158,7 @@ export async function exportSvg({
   enableStaticRendering(true)
   // jsdom provides document/window/SVGElement needed by svgcanvas and
   // measureTextCanvas; installHeadlessRenderEnv fills in what jsdom omits
+  const { JSDOM } = await loadJsdom()
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>')
   const g = globalThis as Record<string, unknown>
   g.window = dom.window
