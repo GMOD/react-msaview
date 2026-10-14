@@ -61,11 +61,3 @@ test('a fill covering the whole context paints over, it does not clear', () => {
   expect(svg).toContain('#123456')
   expect(svg).toContain('fill-opacity="0.28"')
 })
-
-test('clearRect over the whole context still clears it', () => {
-  const ctx = new Context(100, 50)
-  ctx.fillText('A', 1, 1)
-  ctx.clearRect(0, 0, 100, 50)
-
-  expect(ctx.getSvg().innerHTML).not.toContain('>A<')
-})

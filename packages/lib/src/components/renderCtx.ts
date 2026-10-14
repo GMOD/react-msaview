@@ -8,7 +8,6 @@ export type RenderCtx = Pick<
   CanvasRenderingContext2D,
   | 'arc'
   | 'beginPath'
-  | 'clearRect'
   | 'closePath'
   | 'fill'
   | 'fillRect'

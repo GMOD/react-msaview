@@ -408,42 +408,6 @@ export class Context {
     this.__applyStyleToCurrentElement('stroke')
   }
 
-  clearRect(x: number, y: number, width: number, height: number) {
-    const { a, b, c, d, e, f } = this.getTransform()
-    if (
-      a === 1 &&
-      b === 0 &&
-      c === 0 &&
-      d === 1 &&
-      e === 0 &&
-      f === 0 &&
-      x === 0 &&
-      y === 0 &&
-      width === this.width &&
-      height === this.height
-    ) {
-      this.__clearCanvas()
-      return
-    }
-    const rect = this.__createElement(
-      'rect',
-      { x, y, width, height, fill: '#FFFFFF' },
-      true,
-    )
-    this.__applyTransformation(rect)
-    this.__closestGroupOrSvg().appendChild(rect)
-  }
-
-  __clearCanvas() {
-    this.__root.removeChild(this.__root.childNodes[0]!)
-    this.__currentElement = this.__document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      'g',
-    )
-    this.__root.appendChild(this.__currentElement)
-    this.__groupStack = []
-  }
-
   __parsedFont() {
     const hit = this.__fontCache.get(this.font)
     if (hit) {
