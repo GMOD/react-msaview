@@ -16,22 +16,26 @@ same 567 columns as the antigenic sites that change every few years.
 - ClustalW, `apt install clustalw` on Debian or Ubuntu, `brew install clustal-w`
   on macOS
 
-Every figure below links to the live view it captured.
-
 ## Where the data comes from
 
-NCBI protein records, one per vaccine strain, fetched by accession so a rerun
-aligns the same sequences.
+NCBI protein records, one per vaccine strain as
+[WHO published them](https://www.who.int/teams/global-influenza-programme/vaccines/who-recommendations),
+fetched by accession so a rerun aligns the same sequences. The commands below
+fetch these, so there is nothing to download by hand.
 
-- the records, in one request:
+- all 25 records in one request, shown here with the first and last accession:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=AFG71887.1,YGK08660.1&rettype=fasta&retmode=text
-- the strains, as WHO published them:
-  https://www.who.int/teams/global-influenza-programme/vaccines/who-recommendations
-- the alignment the commands below write, hosted so the figures can link to it:
+- the alignment the commands below write, which the link in step 9 opens:
   https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-ha.aln
 - its tree: https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-ha.nh
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
 - the layers the notebook computed:
   https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-layers.json
+
+</details>
 
 ## 1. The strains
 
@@ -366,23 +370,37 @@ whole.
 
 ## Reproduce it end to end
 
+[`build_flu_drift.py`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_flu_drift.py)
+runs the steps above in a plain Python process, without the widget:
+
+1. It fetches the 25 HA0 records from NCBI in one request, aligns them with
+   ClustalW, and puts the rows back in year order, since ClustalW writes them in
+   guide-tree order.
+2. It builds a neighbor-joining tree from the alignment's own distances, rooted
+   on the 1968 strain, and correlates each strain's distance from the root with
+   its year as a date check.
+3. It counts how often each column changed from one strain to the next, and
+   reads site B and the fusion peptide year by year.
+4. It writes the drift track and the bands on the two regions as a layers file,
+   and the `#data=` link that opens them over the hosted alignment.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_flu_drift.py
 python build_flu_drift.py out/
 ```
 
-The script runs every command above and writes `out/h3n2-ha.aln`,
-`out/h3n2-ha.nh` and `out/h3n2-layers.json`, the files the links on this page
-open. The numbers quoted here are the ones it prints.
+The script writes `out/h3n2-ha.aln`, `out/h3n2-ha.nh` and
+`out/h3n2-layers.json`, the files the links on this page open, and prints the
+numbers quoted here.
 
 ## See also
 
-- [Python package](https://gmod.org/JBrowseMSA/python-package), with the example
-  notebooks and every trait
+- [Python package](https://gmod.org/JBrowseMSA/python-package)
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
 - [A protease family in R](https://gmod.org/JBrowseMSA/tutorials/r_protease_triad)
-- [JBrowse 2 integration](https://gmod.org/JBrowseMSA/tutorials/jbrowse_integration),
-  which opens an alignment beside a genome and a structure
+- [JBrowse 2 integration](https://gmod.org/JBrowseMSA/tutorials/jbrowse_integration)
 
 ## References
 

@@ -14,25 +14,30 @@ draws.
 
 ## Prerequisites
 
-- Python 3, standard library only, nothing to install
-- nothing to read along: every figure below links to the live view it captured
+- Python 3, standard library only
 
 ## Where the data comes from
 
 Nextstrain's RSV-A build, updated 2024-07-16: a tree over 1,840 genomes, one
 ancestral sequence, the nucleotide substitutions on every branch between them,
-and the metadata of every tip.
+and the metadata of every tip. The build script fetches it, so there is nothing
+to download by hand.
 
 - the auspice JSON itself: https://data.nextstrain.org/rsv_a_genome.json
-- the full-tip alignment the build script reconstructs from it, sliced to the
-  _G_ gene, hosted so the figures can link to it:
-  https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.aln
-- its tree: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.nh
 - the subsampled whole-genome alignment the later figures use:
   https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.aln
 - its tree: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.nh
 - the subsample's row table:
   https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample-rowdata.json
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the full-tip alignment the build script reconstructs from the JSON, sliced to
+  the _G_ gene: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.aln
+- its tree: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.nh
+
+</details>
 
 ## The genome
 
@@ -414,13 +419,28 @@ which is the last field of the row name the tree already carried.
 
 ## Reproduce it end to end
 
+[`build_phylogeny_at_scale.py`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_phylogeny_at_scale.py)
+is the script step 1 runs, and it builds every file on this page:
+
+1. It fetches Nextstrain's RSV-A build and rebuilds each tip's genome from the
+   root sequence and the substitutions on the tip's root-to-tip path, so the
+   rows come out aligned without an aligner.
+2. It writes all 1,840 tips sliced to the _G_ gene, and every 10th tip as whole
+   genomes, each with a tree pruned to its tips.
+3. It writes the subsample's clade, country, region and year as a row table
+   keyed by row name, the names the alignment and the tree carry.
+4. It prints the numbers the page quotes: the clade to collapse, the variable
+   columns per gene, the edges each field colors, and one tip checked against
+   its raw metadata.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_phylogeny_at_scale.py
 python3 build_phylogeny_at_scale.py .
 ```
 
-The argument is the directory to write to. The script fetches the Nextstrain
-build, writes the five files above there, and prints every number on this page.
+The argument is the directory to write to.
 
 ## See also
 

@@ -9,7 +9,8 @@ those landmarks between kinases imatinib inhibits and kinases it does not.
 
 ## Prerequisites
 
-- `curl`, `python3`
+- `curl`
+- `python3`
 - docker, to run HMMER and FastTree as biocontainers
   (`quay.io/biocontainers/hmmer`, `quay.io/biocontainers/fasttree`); both are
   also on `apt` and `brew`
@@ -17,21 +18,28 @@ those landmarks between kinases imatinib inhibits and kinases it does not.
 ## Where the data comes from
 
 The kinase list and the sequences are UniProt's; the domain the alignment is
-built on is Pfam's, as InterPro serves it.
+built on is Pfam's, as InterPro serves it. The build script fetches these, so
+there is nothing to download by hand.
 
 - UniProt's own classification of the human and mouse kinomes, release 2026_03:
   https://www.uniprot.org/docs/pkinfam.txt
-- One UniProt sequence per accession, batched through the `/stream` endpoint:
+- one UniProt sequence per accession through the `/stream` endpoint, which the
+  script batches 50 accessions to a request, for example:
   https://rest.uniprot.org/uniprotkb/stream?query=accession:P00519&format=fasta
-- The Pfam protein kinase domain HMM, PF00069, as InterPro serves it:
+- the Pfam protein kinase domain HMM, PF00069, as InterPro serves it:
   https://www.ebi.ac.uk/interpro/api/entry/pfam/PF00069/?annotation=hmm
-- The alignment, tree and row metadata the figures below load, hosted so they
-  can link to it:
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the alignment the figures below load:
   https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.afa
 - its tree:
   https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.nwk
 - and its row metadata (kinase group, UniProt accession):
   https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket-metadata.json
+
+</details>
 
 ## 1. Name the human kinome
 
@@ -226,15 +234,28 @@ from it and queries its API live
 
 ## Reproduce it end to end
 
+[`build_kinase_pocket.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_kinase_pocket.sh)
+runs steps 1 to 4 above in order:
+
+1. It reads UniProt's kinase classification, keeps the human entries and the
+   group each sits under, and fetches every one's sequence from UniProt.
+2. HMMER scores each sequence against Pfam's Pkinase HMM and keeps those that
+   clear Pfam's gathering threshold, which drops the atypical kinases whose fold
+   the model does not describe.
+3. `hmmalign` aligns the kinase domain of each kept sequence to the HMM, and the
+   script strips the insert states, leaving the HMM's 262 columns.
+4. FastTree infers a tree from the alignment, and the script writes each gene's
+   kinase group and UniProt accession as the row metadata.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_kinase_pocket.sh
 bash build_kinase_pocket.sh
 ```
 
 With no arguments the script writes `kinase-pocket.afa`, `kinase-pocket.nwk` and
-`kinase-pocket-metadata.json` in the working directory, printing every number
-this page quotes. See [Prerequisites](#prerequisites) for what it needs on
-`PATH`.
+`kinase-pocket-metadata.json` in the working directory.
 
 ## See also
 

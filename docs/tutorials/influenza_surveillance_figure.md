@@ -12,19 +12,25 @@ export.
 
 ## Prerequisites
 
-- Python 3, standard library only, nothing to install
-- nothing to read along: every figure below links to the live view it captured
+- Python 3, standard library only
 
 ## Where the data comes from
 
-One dated Nextstrain build, plus the three files this page writes from it.
+One dated snapshot of Nextstrain's H5N1 cattle-outbreak genome build. The build
+script fetches it, so there is nothing to download by hand.
 
 - the build every field and every sequence comes from, pinned to 2026-09-15:
   https://nextstrain.org/avian-flu/h5n1-cattle-outbreak/genome@2026-09-15
-- the HA alignment this page writes, 204 rows:
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the HA alignment, 204 rows:
   https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1-ha.fa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1.nwk
 - the row table: https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1-rowdata.json
+
+</details>
 
 ## 1. The build, and the sample
 
@@ -368,15 +374,29 @@ the question step 5 asks before the data did.
 
 ## Reproduce it end to end
 
+[`build_influenza_surveillance_figure.py`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_influenza_surveillance_figure.py)
+runs every step of this page in one pass:
+
+1. It fetches the pinned build and reconstructs every tip from it, the root
+   sequence copied down each path with one base overwritten per mutation.
+2. It samples every 24th tip whose record names a GenBank accession and a
+   collecting state, and picks for each segment the amino-acid site whose minor
+   state the most sampled tips carry.
+3. It writes the row table, the HA coding sequence of each sampled tip as the
+   alignment, and the build's own tree pruned to the sample.
+4. It prints what the later steps read off the tree: how far each field follows
+   it, the groups a clade record can mark, the clade to collapse and one tip
+   read against the build.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_influenza_surveillance_figure.py
 python3 build_influenza_surveillance_figure.py .
 ```
 
-The argument is the directory to work in. The script fetches the pinned build
-there, writes `h5n1-ha.fa`, `h5n1.nwk` and `h5n1-rowdata.json` beside it, and
-prints every number on this page. The pin makes a rerun write the same files, so
-the row indices and tip names in the snapshots above keep resolving.
+The argument is the directory to work in. The pin makes a rerun write the same
+files, so the row indices and tip names in the snapshots above keep resolving.
 
 The build is assembled from GenBank and SRA. The per-segment builds that carry a
 GenoFLU lineage per tip, `avian-flu/h5n1/<segment>/2y`, draw on GISAID as well,

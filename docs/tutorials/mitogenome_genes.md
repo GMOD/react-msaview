@@ -15,27 +15,32 @@ arrow in the alignment's columns, filled by complex and labeled by name.
   aligner.
 - Python 3, for the step that reshapes RefSeq's GFF3
 
-Every figure below links to the live view it captured.
-
 ## Where the data comes from
 
 Eight mammal mitochondrial genomes as RefSeq holds them, with RefSeq's own
-annotation of each.
+annotation of each. The commands below fetch these, so there is nothing to
+download by hand.
 
-- one genome per accession:
+- one genome per accession, for example:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_012920.1&rettype=fasta&retmode=text
-- its annotation as GFF3:
+- its annotation as GFF3, for example:
   https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_012920.1&report=gff3&retmode=text
+
+Both endpoints serve one accession per request, so the eight genomes take eight
+requests to each.
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
 - the eight genomes before alignment, right-padded to one width so the viewer
   opens them:
   https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito-unaligned.afa
-- the alignment the commands below write, hosted so the figures can link to it:
+- the alignment the commands below write:
   https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito.nwk
 - its genes: https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito-genes.gff
 
-Both endpoints serve one accession per request, so the eight genomes take eight
-requests to each.
+</details>
 
 ## The genomes
 
@@ -389,6 +394,22 @@ Human	RefSeq	gene	5904	7445	.	+	.	Name=COX1;complex=IV
 5904 to 7445 on the plus strand in both files.
 
 ## Reproduce it end to end
+
+[`build_mitogenome_genes.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_mitogenome_genes.sh)
+runs the commands above in order:
+
+1. It fetches each genome and its RefSeq GFF3 from NCBI and names each FASTA
+   record by its label, since the viewer draws the label down the side and
+   column 1 of the gene GFF has to match it.
+2. ClustalW aligns the genomes and infers a neighbor-joining tree from the
+   alignment.
+3. It reshapes RefSeq's GFF3 into one gene GFF: every gene named and stranded,
+   each protein-coding gene tagged with its respiratory complex, and the control
+   region after the last gene.
+4. It projects each gene through its row's gaps into alignment columns and
+   prints how far the starts and ends spread across the eight rows.
+
+It needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_mitogenome_genes.sh

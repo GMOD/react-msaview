@@ -10,25 +10,33 @@ stay where they were.
 
 ## Prerequisites
 
-- `curl`, `python3`, and ClustalW (`apt install clustalw`)
-- twelve whole-genome annotations, about 3 MB each; NCBI takes 20 to 30 seconds
-  to serve one, and the script caches them
-- nothing to read along: every figure below links to the live view it captured
+- `curl`
+- python3, standard library only
+- ClustalW, `apt install clustalw` on Debian or Ubuntu, `brew install clustal-w`
+  on macOS. ClustalW both aligns and infers a tree, so this page needs no other
+  aligner.
 
 ## Where the data comes from
 
-RefSeq's own annotation of each genome, and the three files this page writes
-from it.
+RefSeq's own annotation of each of the twelve genomes. The build script fetches
+these, so there is nothing to download by hand. Each annotation is about 3 MB
+and NCBI takes 20 to 30 seconds to serve one, so the script caches them.
 
-- one GFF3 per genome, from the NCBI sequence viewer, for example
+- one GFF3 per genome, from the NCBI sequence viewer, for example:
   https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_000913.3&report=gff3&retmode=text
 - the TrpB proteins, from NCBI efetch by the `protein_id` on each _trpB_ CDS
   line
-- the neighborhood GFF this page writes, 176 genes over twelve rows:
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the neighborhood GFF, 176 genes over twelve rows:
   https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trp-neighborhoods.gff
 - the TrpB alignment:
   https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trpB.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trpB.nwk
+
+</details>
 
 ## 1. The window around trpB
 
@@ -272,15 +280,29 @@ their own origin.
 
 ## Reproduce it end to end
 
+[`build_gene_neighborhoods.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_gene_neighborhoods.sh)
+runs every step above, from the genome list to the _trpE_ shifts:
+
+1. It fetches RefSeq's GFF3 for each genome into `raw/`, where a rerun finds it
+   and skips the download.
+2. It cuts 8 kb either side of _trpB_ out of each genome, turns the window so
+   _trpB_ points right, names the genes RefSeq gives only a product, and writes
+   one GFF row per genome.
+3. It fetches the twelve TrpB proteins from NCBI, and ClustalW aligns them and
+   infers a neighbor-joining tree from the alignment.
+4. It shifts each row to start at _trpE_, as the viewer's `align` transform
+   does, and prints where _trpD_ starts after the shift.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_gene_neighborhoods.sh
 bash build_gene_neighborhoods.sh
 ```
 
 The script writes the twelve-row TSV itself when none is given, so it runs with
-no arguments. It fetches each annotation into `raw/`, where a rerun finds it,
-and writes `trp-neighborhoods.gff`, `trpB.afa` and `trpB.nwk` beside it, along
-with every number on this page.
+no arguments. It writes `trp-neighborhoods.gff`, `trpB.afa` and `trpB.nwk` into
+the current directory and prints every number on this page.
 
 ## See also
 

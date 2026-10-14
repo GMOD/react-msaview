@@ -17,22 +17,28 @@ in a browser.
 - Bioconductor: `BiocManager::install(c("Biostrings", "DECIPHER"))`
 - CRAN: `install.packages(c("ape", "jsonlite", "htmlwidgets"))`
 
-Every figure below links to the live view it captured.
-
 ## Where the data comes from
 
 UniProtKB, twice: once for the feature table that says where each domain starts
-and which residues carry the charge-relay system, once for the sequences.
+and which residues carry the charge-relay system, once for the sequences. The
+commands below fetch these, so there is nothing to download by hand.
 
-- the feature table for all fourteen accessions in one request:
+- the feature table for all fourteen accessions in one request, shown here with
+  two of them:
   https://rest.uniprot.org/uniprotkb/accessions?accessions=P00766,P07477&fields=accession,ft_domain,ft_act_site,ft_disulfid&format=tsv
 - the sequences, from the same endpoint:
   https://rest.uniprot.org/uniprotkb/accessions?accessions=P00766,P07477&format=fasta
-- the alignment the commands below write, hosted so the figures can link to it:
+- the alignment the commands below write, which the link in step 10 opens:
   https://gmod.org/JBrowseMSA/demo/data/proteases/proteases.aln
 - its tree: https://gmod.org/JBrowseMSA/demo/data/proteases/proteases.nh
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
 - the layers R computed:
   https://gmod.org/JBrowseMSA/demo/data/proteases/proteases-layers.json
+
+</details>
 
 ## 1. The proteins
 
@@ -355,19 +361,34 @@ the names on the way in, so the widget above works either way.
 
 ## Reproduce it end to end
 
+[`build_r_protease_triad.R`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_r_protease_triad.R)
+runs the R above in order:
+
+1. It reads the S1 domain bounds, the charge-relay residues and the disulfide
+   bonds of all fourteen proteins from UniProt in one request, then fetches the
+   sequences and cuts each chain to its domain.
+2. DECIPHER aligns the domains, and ape builds a neighbor-joining tree from the
+   alignment's own distances.
+3. It scores every column by mean pairwise BLOSUM62, finds chymotrypsinogen's
+   His57, Asp102 and Ser195 columns, and prints the letter every row carries
+   there beside whether UniProt annotates a charge-relay system for it.
+4. It draws the result with `msaview()`, saves the widget, and writes the same
+   layers as JSON and as a URL for the web viewer.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_r_protease_triad.R
 Rscript build_r_protease_triad.R out/
 ```
 
-The script runs every command above and writes `out/proteases.aln`,
-`out/proteases.nh`, `out/proteases-layers.json` and `out/proteases.html`. The
-numbers quoted here are the ones it prints.
+The script writes `out/proteases.aln`, `out/proteases.nh`,
+`out/proteases-layers.json` and `out/proteases.html`. The numbers quoted here
+are the ones it prints.
 
 ## See also
 
-- [R package](https://gmod.org/JBrowseMSA/r-package), including the Shiny inputs
-  a clicked cell sets
+- [R package](https://gmod.org/JBrowseMSA/r-package)
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
 - [Influenza drift in a notebook](https://gmod.org/JBrowseMSA/tutorials/notebook_flu_drift)
 - [A protein family from a list of accessions](https://gmod.org/JBrowseMSA/tutorials/protein_family)

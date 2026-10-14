@@ -19,23 +19,26 @@ section reads two columns of the models residue by residue.
   aligner.
 - python3, standard library only
 
-Every figure below links to the live view it captured.
-
 ## Where the data comes from
 
 Fourteen UniProtKB entries and their AlphaFold models. AlphaFold DB is keyed on
-UniProt accession, so one accession fetches the sequence and the model both.
+UniProt accession, so one accession fetches the sequence and the model both. The
+commands below fetch these, so there is nothing to download by hand.
 
-- all fourteen sequences, one request:
+- every sequence in one request, shown here with two of the fourteen accessions:
   https://rest.uniprot.org/uniprotkb/accessions?accessions=Q13148,Q921F2&format=fasta
-- the AlphaFold record for an accession, which names its files:
+- one AlphaFold record per accession, which names its files, for example:
   https://alphafold.ebi.ac.uk/api/prediction/Q13148
-- the model whose B-factor column holds the pLDDT:
-  https://alphafold.ebi.ac.uk/files/AF-Q13148-F1-model_v6.pdb
+- the model that record names, whose B-factor column holds the pLDDT, for
+  example: https://alphafold.ebi.ac.uk/files/AF-Q13148-F1-model_v6.pdb
 - the Pfam matches of the human sequence:
   https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q13148
-- the row table the commands below start from, hosted so the figures can link to
-  it: https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-rows.tsv
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the row table the commands below start from:
+  https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-rows.tsv
 - the alignment they write:
   https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp.nwk
@@ -45,6 +48,8 @@ UniProt accession, so one accession fetches the sequence and the model both.
   https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-rowdata.json
 - the tracks and the highlights, the layers the links below carry:
   https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-layers.json
+
+</details>
 
 ## 1. Name the rows
 
@@ -384,6 +389,22 @@ The final view: the two tracks above, the four strips beside the tree, the Pfam
 bands in blue and each row's runs under pLDDT 50 in orange.
 
 ## Reproduce it end to end
+
+[`build_alphafold_confidence.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_alphafold_confidence.sh)
+runs the commands and the Python above in order:
+
+1. It fetches the fourteen sequences from UniProt in one request and names each
+   FASTA record by its species label, since every layer names its row by that
+   label.
+2. ClustalW aligns the records and infers a neighbor-joining tree from the
+   alignment.
+3. It downloads each accession's AlphaFold model and the Pfam matches of the
+   human sequence, and stops if a model's sequence differs from its row.
+4. It writes the layers: the mean pLDDT per column and its band as tracks, the
+   Pfam domains as highlights, each row's runs under 50 as a GFF and each row's
+   band per domain for the strips, then prints the residue check of step 8.
+
+It needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_alphafold_confidence.sh

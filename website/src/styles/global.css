@@ -179,6 +179,15 @@ body.app-layout .site-footer {
   margin-top: 8px;
 }
 
+.prose details {
+  margin: 1em 0;
+}
+
+.prose summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
 .prose pre {
   background: var(--bg-soft);
   padding: 14px;

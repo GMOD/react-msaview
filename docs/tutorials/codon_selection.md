@@ -20,7 +20,9 @@ should call conserved.
 
 ## Prerequisites
 
-- `curl`, `python3`
+- `curl`
+- `unzip`
+- `python3`
 - `docker`, for MACSE, FastTree and HyPhy (each pulled from
   [biocontainers](https://biocontainers.pro) on first run)
 - [NCBI Datasets command line tools](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/)
@@ -29,19 +31,31 @@ should call conserved.
 
 ## Where the data comes from
 
-- _TRIM5_ orthologs for human Gene ID 85363, fetched with the NCBI Datasets CLI
-  over the Datasets v2 API:
+_TRIM5_ orthologs from NCBI Gene, as the Datasets v2 API serves them for human
+Gene ID 85363. The commands below fetch these, so there is nothing to download
+by hand.
+
+- the orthologs with their genes, coding sequences and proteins, fetched with
+  the NCBI Datasets CLI:
   https://api.ncbi.nlm.nih.gov/datasets/v2/gene/id/85363/download
-- Domain boundaries on the canonical human _TRIM5_ protein (UniProtKB Q9C035),
-  read from InterPro's precomputed matches: the RING and B-box zinc fingers from
-  Pfam, https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q9C035/,
-  and the full B30.2/SPRY domain from the wider PROSITE profile call,
-  https://www.ebi.ac.uk/interpro/api/entry/profile/protein/uniprot/Q9C035/
-  (Pfam's own SPRY entry stops short of the domain's N-terminal variable loops)
-- the codon alignment the commands below write, hosted so the figures can link
-  to it: https://gmod.org/JBrowseMSA/demo/data/trim5/trim5-cds.stock
+
+The domain boundaries this page uses on the canonical human _TRIM5_ protein
+(UniProtKB Q9C035) come from InterPro's precomputed matches: the RING and B-box
+zinc fingers from Pfam,
+https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q9C035/, and the
+full B30.2/SPRY domain from the wider PROSITE profile call,
+https://www.ebi.ac.uk/interpro/api/entry/profile/protein/uniprot/Q9C035/. Pfam's
+own SPRY entry stops short of the domain's N-terminal variable loops.
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the codon alignment the commands below write:
+  https://gmod.org/JBrowseMSA/demo/data/trim5/trim5-cds.stock
 - its exon structure:
   https://gmod.org/JBrowseMSA/demo/data/trim5/trim5-exons.gff
+
+</details>
 
 ## 1. Every ortholog NCBI knows about
 
@@ -251,6 +265,24 @@ control on the left has few dN/dS bars above it, and R332 and the SPRY V1 patch
 on the right sit under the densest bars.
 
 ## Reproduce it end to end
+
+[`build_codon_selection.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_codon_selection.sh)
+runs the alignment, tree, exon and FEL steps above in order:
+
+1. It downloads every _TRIM5_ ortholog from NCBI Datasets and keeps one coding
+   sequence per species: the curated `NM_` transcript where one exists, else the
+   predicted one closest in length to the human isoform. It drops any that
+   translates with an internal stop codon.
+2. MACSE aligns the coding sequences codon by codon, the script blanks each
+   row's own stop codon, and FastTree infers a tree from the protein
+   translation. The script writes the alignment and the tree together as one
+   Stockholm file.
+3. `react-msaview-cli genestructure` projects the exons of the human MANE Select
+   transcript onto every row.
+4. HyPhy FEL fits a synonymous and a non-synonymous rate at every codon, and the
+   script writes their ratio, clamped at 5, as the values of the dN/dS track.
+
+It needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_codon_selection.sh

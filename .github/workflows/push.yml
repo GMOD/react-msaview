@@ -49,6 +49,11 @@ jobs:
       - name: Check the guide's live links match their specs
         run: pnpm check:guide-links
 
+      # the section shape docs/tutorials/CLAUDE.md sets: who fetches the data,
+      # what the build script does, no hosted output posing as a download
+      - name: Check the tutorials keep their shape
+        run: pnpm check:tutorials
+
       # what npm would receive: every manifest's bin/main/types/exports has to
       # exist in the tarball
       - name: Check the packs

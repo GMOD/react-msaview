@@ -14,22 +14,24 @@ which reads the same parent on both sides of the junction.
 
 - `curl`
 - Docker, which the script uses to run MAFFT 7.525 and FastTree 2.2.0 from their
-  biocontainers images. Nothing else is installed.
+  biocontainers images.
 - Python 3, standard library only
-
-Every figure below links to the live view it captured.
 
 ## Where the data comes from
 
 Twelve norovirus GII genomes as GenBank holds them, sequence and annotation
-both.
+both. The commands below fetch these, so there is nothing to download by hand.
 
 - all twelve genomes, one request:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=MK773584.1,MK762638.1,LC175468.1,NC_039476.1,KY771081.1,MK752935.1,MG892974.3,KJ196281.1,KJ196296.1,KY486271.1,NC_040876.1,NC_039475.1&rettype=fasta&retmode=text
 - the same twelve as GenBank flatfiles, which carry the CDS spans:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=MK773584.1,MK762638.1,LC175468.1,NC_039476.1,KY771081.1,MK752935.1,MG892974.3,KJ196281.1,KJ196296.1,KY486271.1,NC_040876.1,NC_039475.1&rettype=gb&retmode=text
-- the row table the commands below start from, hosted so the figures can link to
-  it: https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-rows.tsv
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the row table the commands below start from:
+  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-rows.tsv
 - the alignment they write:
   https://gmod.org/JBrowseMSA/demo/data/norovirus/noro.afa
 - the tree from the ORF1 columns:
@@ -40,10 +42,12 @@ both.
   https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-orfs.gff
 - each row's closer parent in 200-base windows:
   https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-parents.gff
-- the 600 columns either side of the junction:
+- the 600 columns centered on the junction, 300 either side:
   https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-junction.afa
 - the identity tracks, the layers the links below carry:
   https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-layers.json
+
+</details>
 
 ## 1. Name the rows
 
@@ -321,6 +325,23 @@ The alignment, the ORF2 tree and the parent windows, with ORF2 as a pale band
 and the crossing as a line through it.
 
 ## Reproduce it end to end
+
+[`build_norovirus_recombination.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_norovirus_recombination.sh)
+runs the steps above in order:
+
+1. It fetches the twelve genomes and their GenBank records from NCBI in two
+   requests, and writes the sequences under their labels and each genome's three
+   ORFs as a GFF.
+2. MAFFT aligns the whole genomes, and FastTree builds one tree from the ORF1
+   columns and another from the ORF2 columns, since a recombinant sits in a
+   different clade on each side of the junction.
+3. It scores every row against the two parents, writing the closer parent in
+   200-base windows as a GFF and the identity to each parent across the junction
+   as bar tracks.
+4. It counts the bases the recombinant and the control share with each parent in
+   the 500 columns either side of the crossing, the check against the raw data.
+
+It needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_norovirus_recombination.sh

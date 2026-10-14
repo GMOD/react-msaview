@@ -18,21 +18,26 @@ any variable position in the data.
   aligner.
 - python3, standard library only
 
-Every figure below links to the live view it captured.
-
 ## Where the data comes from
 
 Two files of the AMRFinderPlus database, and four this page writes from them.
+The build script fetches the two, so there is nothing to download by hand.
 
 - the catalog, one row per allele with its phenotype and protein accession:
   https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/ReferenceGeneCatalog.txt
 - the reference proteins the catalog's accessions point at:
   https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMRProt.fa
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
 - the 46 selected alleles:
   https://gmod.org/JBrowseMSA/demo/data/tem/tem-alleles.tsv
 - their alignment: https://gmod.org/JBrowseMSA/demo/data/tem/tem.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/tem/tem.nwk
 - the row table: https://gmod.org/JBrowseMSA/demo/data/tem/tem-rowdata.json
+
+</details>
 
 ## 1. Pick the alleles
 
@@ -288,14 +293,29 @@ bands in one view.
 
 ## Reproduce it end to end
 
+[`build_tem_alleles.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_tem_alleles.sh)
+runs the commands above in order:
+
+1. It downloads the catalog and the reference proteins, then keeps the twelve
+   lowest-numbered alleles of each of the four phenotypes the catalog spells
+   out, which are the ones described first.
+2. ClustalW aligns the alleles and infers a neighbor-joining tree from the
+   alignment.
+3. It maps each Ambler position through the TEM-1 row, checks it against the
+   residue the reviews name there, and writes the row table of the phenotype and
+   the residue every allele carries at those positions.
+4. It picks the control position, reports the largest clade of the tree holding
+   one phenotype only, and reads a few named alleles straight out of the
+   unaligned NCBI sequences to check the row table.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_tem_alleles.sh
 bash build_tem_alleles.sh
 ```
 
-The script downloads the catalog and the reference proteins, selects the
-alleles, aligns them, infers the tree, writes the row table and prints every
-number on this page.
+The script prints every number on this page.
 
 ## See also
 

@@ -16,18 +16,19 @@ human to zebrafish, and ends on a link that opens the result.
   `quay.io/biocontainers/mafft:7.525--h031d066_1` and
   `quay.io/biocontainers/fasttree:2.1.11--h031d066_4`. The build script takes
   either.
-- nothing to read along: every figure below links to the live view it captured
 
 ## Where the data comes from
 
 Sequences from NCBI RefSeq, the clinical classifications from ClinVar, the
 predictions from AlphaMissense as the AlphaFold entry publishes them, and one
-saturation screen from MaveDB.
+saturation screen from MaveDB. The commands below fetch these, so there is
+nothing to download by hand.
 
 - the 660 vertebrate orthologs NCBI lists for _TP53_, GeneID 7157, the source of
   the accession list below:
   https://api.ncbi.nlm.nih.gov/datasets/v2alpha/gene/id/7157/orthologs?taxon_filter=vertebrates
-- one protein per accession, all fifteen in one request:
+- one protein per accession, all fifteen in one request, shown here with the
+  human accession only:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=NP_000537.3&rettype=fasta&retmode=text
 - ClinVar's _TP53_ missense records, searched and then summarized:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmax=5000&term=TP53%5Bgene%5D+AND+%22missense+variant%22%5Bmolecular+consequence%5D
@@ -37,13 +38,20 @@ saturation screen from MaveDB.
   https://alphafold.ebi.ac.uk/files/AF-P04637-F1-aa-substitutions.csv
 - the Giacomelli 2018 screen, scores for 8,274 variants, CC0:
   https://api.mavedb.org/api/v1/score-sets/urn:mavedb:00000068-a-1/scores
-- the domain boundaries the bands draw, as UniProt annotates them:
-  https://rest.uniprot.org/uniprotkb/P04637.json?fields=ft_domain,ft_region
-- the alignment the commands below write, hosted so the figures can link to it:
+- the alignment the commands below write, which the link in step 7 opens:
   https://gmod.org/JBrowseMSA/demo/data/p53/p53-vertebrates.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/p53/p53-vertebrates.nh
+
+The build script writes the domain bands in as residue numbers, taken from
+[UniProt's annotation of P04637](https://rest.uniprot.org/uniprotkb/P04637.json?fields=ft_domain,ft_region).
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
 - the three tracks, as the viewer takes them:
   https://gmod.org/JBrowseMSA/demo/data/p53/p53-layers.json
+
+</details>
 
 ## 1. Name the rows
 
@@ -424,17 +432,30 @@ nucleotide changes are two records.
 
 ## Reproduce it end to end
 
+[`build_p53_variant_effects.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_p53_variant_effects.sh)
+runs the steps above in order:
+
+1. It writes the fifteen accessions, fetches the proteins from NCBI in one
+   request, aligns them with MAFFT and infers a tree with FastTree.
+2. It counts the missense alleles ClinVar classifies as pathogenic or likely
+   pathogenic at each residue of the human row, reading the classification off
+   each record, since the search term also matches conflicting ones.
+3. It averages the AlphaMissense score over the substitutions at each residue,
+   and the Giacomelli screen's score over the variants at each residue.
+4. It prints the hotspot and region tables, writes the three tracks and the
+   domain bands as a layers file, and writes the `#data=` link.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_p53_variant_effects.sh
 bash build_p53_variant_effects.sh out/
 ```
 
-The script writes the accession list, fetches and aligns the sequences, builds
-the three tracks, prints every table above, and leaves the link in
-`out/p53-link.url`. [Prerequisites](#prerequisites) lists the tools it needs,
-and it runs the biocontainers when MAFFT and FastTree are not on PATH. ClinVar
-is updated weekly, so its counts drift between runs where the alignment and the
-two files with a fixed release do not.
+The script leaves the link in `out/p53-link.url`, and runs the biocontainers
+when MAFFT and FastTree are not on PATH. ClinVar is updated weekly, so its
+counts change between runs where the alignment and the two files with a fixed
+release do not.
 
 [Here is what that link opens](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A560%2C%22treeAreaWidth%22%3A140%2C%22colWidth%22%3A2.6%2C%22rowHeight%22%3A15%2C%22relativeTo%22%3A%22Human%22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fp53%2Fp53-vertebrates.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fp53%2Fp53-vertebrates.nh%22%7D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22Human%22%2C%22start%22%3A102%2C%22end%22%3A292%2C%22label%22%3A%22DNA-binding%22%2C%22color%22%3A%22rgba(255%2C140%2C0%2C0.15)%22%7D%2C%7B%22row%22%3A%22Human%22%2C%22start%22%3A325%2C%22end%22%3A356%2C%22label%22%3A%22Oligomerization%22%2C%22color%22%3A%22rgba(255%2C140%2C0%2C0.15)%22%7D%5D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22clinvar%22%2C%22name%22%3A%22ClinVar%20pathogenic%20missense%22%2C%22kind%22%3A%22bar%22%2C%22row%22%3A%22Human%22%2C%22color%22%3A%22%23c0392b%22%2C%22height%22%3A60%2C%22max%22%3A8%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2%2C1%2C0%2C0%2C2%2C4%2C3%2C0%2C6%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C2%2C1%2C5%2C0%2C0%2C2%2C2%2C3%2C1%2C1%2C4%2C0%2C0%2C2%2C0%2C0%2C2%2C0%2C3%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C6%2C2%2C0%2C0%2C1%2C1%2C3%2C6%2C2%2C0%2C1%2C0%2C2%2C1%2C1%2C0%2C0%2C2%2C0%2C0%2C2%2C1%2C3%2C0%2C3%2C3%2C1%2C3%2C5%2C1%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C4%2C3%2C1%2C1%2C1%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3%2C2%2C1%2C1%2C0%2C1%2C0%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3%2C0%2C4%2C0%2C2%2C4%2C6%2C2%2C3%2C5%2C2%2C0%2C4%2C5%2C4%2C1%2C6%2C2%2C1%2C2%2C0%2C1%2C3%2C0%2C0%2C0%2C2%2C1%2C0%2C0%2C0%2C0%2C0%2C2%2C3%2C3%2C0%2C1%2C4%2C1%2C3%2C6%2C0%2C2%2C1%2C1%2C3%2C0%2C3%2C8%2C3%2C1%2C0%2C2%2C2%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C1%2C0%2C0%2C5%2C0%2C0%2C0%2C1%2C1%2C0%2C2%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%5D%7D%2C%7B%22id%22%3A%22alphamissense%22%2C%22name%22%3A%22AlphaMissense%20mean%20(x100)%22%2C%22kind%22%3A%22bar%22%2C%22row%22%3A%22Human%22%2C%22color%22%3A%22%231565c0%22%2C%22height%22%3A60%2C%22max%22%3A100%2C%22values%22%3A%5B49%2C27%2C19%2C11%2C12%2C14%2C18%2C10%2C12%2C14%2C28%2C17%2C40%2C57%2C73%2C65%2C65%2C68%2C95%2C29%2C30%2C72%2C95%2C21%2C24%2C60%2C39%2C21%2C18%2C17%2C18%2C16%2C17%2C12%2C11%2C13%2C14%2C13%2C14%2C21%2C22%2C20%2C17%2C20%2C16%2C16%2C15%2C14%2C17%2C17%2C15%2C13%2C37%2C29%2C11%2C19%2C16%2C11%2C11%2C12%2C14%2C20%2C14%2C12%2C11%2C20%2C13%2C19%2C15%2C14%2C12%2C13%2C15%2C17%2C14%2C17%2C15%2C19%2C20%2C17%2C15%2C15%2C22%2C22%2C19%2C22%2C20%2C24%2C17%2C23%2C67%2C41%2C46%2C66%2C63%2C37%2C90%2C98%2C63%2C35%2C36%2C20%2C76%2C15%2C99%2C13%2C58%2C48%2C98%2C26%2C81%2C57%2C97%2C43%2C17%2C64%2C87%2C68%2C90%2C98%2C96%2C92%2C73%2C81%2C98%2C91%2C95%2C23%2C13%2C81%2C56%2C97%2C84%2C97%2C98%2C87%2C86%2C81%2C91%2C84%2C94%2C93%2C89%2C66%2C81%2C57%2C77%2C26%2C20%2C13%2C90%2C69%2C17%2C52%2C70%2C49%2C91%2C98%2C87%2C88%2C94%2C87%2C95%2C89%2C48%2C54%2C52%2C76%2C76%2C68%2C92%2C87%2C98%2C78%2C99%2C100%2C98%2C97%2C100%2C96%2C85%2C50%2C38%2C52%2C32%2C74%2C52%2C32%2C83%2C87%2C71%2C47%2C99%2C95%2C89%2C95%2C91%2C96%2C95%2C81%2C20%2C25%2C69%2C48%2C98%2C24%2C64%2C93%2C17%2C23%2C84%2C56%2C99%2C92%2C91%2C93%2C70%2C89%2C76%2C91%2C77%2C27%2C92%2C87%2C57%2C92%2C58%2C35%2C54%2C68%2C75%2C87%2C85%2C87%2C74%2C93%2C96%2C100%2C95%2C98%2C99%2C100%2C94%2C100%2C100%2C98%2C97%2C100%2C99%2C93%2C93%2C59%2C91%2C91%2C87%2C92%2C93%2C99%2C87%2C22%2C21%2C94%2C24%2C76%2C83%2C99%2C98%2C36%2C61%2C97%2C93%2C93%2C99%2C95%2C100%2C97%2C100%2C100%2C99%2C100%2C100%2C97%2C84%2C60%2C98%2C96%2C47%2C62%2C13%2C18%2C56%2C34%2C17%2C17%2C11%2C9%2C9%2C16%2C11%2C15%2C13%2C18%2C20%2C17%2C81%2C75%2C26%2C26%2C23%2C13%2C12%2C14%2C16%2C18%2C18%2C14%2C15%2C15%2C47%2C54%2C46%2C19%2C13%2C34%2C24%2C50%2C56%2C88%2C36%2C87%2C48%2C93%2C63%2C98%2C73%2C40%2C89%2C90%2C45%2C60%2C88%2C51%2C36%2C81%2C77%2C55%2C79%2C75%2C87%2C31%2C54%2C67%2C23%2C18%2C17%2C16%2C25%2C22%2C13%2C15%2C15%2C16%2C20%2C18%2C15%2C20%2C25%2C13%2C15%2C56%2C21%2C47%2C45%2C21%2C16%2C16%2C15%2C21%2C16%2C20%2C66%2C47%2C13%2C26%2C19%2C66%2C13%2C28%2C18%2C16%2C47%2C54%2C66%5D%7D%2C%7B%22id%22%3A%22mavedb%22%2C%22name%22%3A%22MaveDB%20nutlin-3%2C%20p53WT%22%2C%22kind%22%3A%22bar%22%2C%22row%22%3A%22Human%22%2C%22color%22%3A%22%232e7d32%22%2C%22height%22%3A60%2C%22max%22%3A2%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.64%2C0%2C0.12%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.05%2C0%2C0%2C0.2%2C0.41%2C0%2C0%2C0%2C0%2C0.07%2C0.02%2C0.79%2C0%2C0.65%2C0.27%2C1.63%2C0.13%2C1.41%2C0.05%2C1.27%2C0%2C0%2C0%2C0.05%2C0%2C0.12%2C0.45%2C0.21%2C0.41%2C0.4%2C0.84%2C0.81%2C1.43%2C1.5%2C0.08%2C0.06%2C1.22%2C1.04%2C1.73%2C1.07%2C1.42%2C1.3%2C0.82%2C0.5%2C0.5%2C0.79%2C0.41%2C1.21%2C0.39%2C1.37%2C0.74%2C1.16%2C0.61%2C1.07%2C0.47%2C0.39%2C0.56%2C1.47%2C1.34%2C0.03%2C0.71%2C1.31%2C0.28%2C1.36%2C1%2C1.39%2C0.79%2C1.35%2C0.8%2C1.83%2C0.85%2C0.25%2C0.04%2C0.21%2C0.78%2C0.36%2C0%2C0.64%2C0.72%2C1.69%2C1.03%2C1.24%2C1.98%2C1.1%2C0.57%2C1.99%2C0.76%2C0.65%2C0.26%2C0.11%2C0.36%2C0.24%2C0.27%2C0.1%2C0.06%2C0.47%2C0.78%2C0.13%2C0.11%2C1.35%2C1.55%2C1.44%2C0.7%2C1.26%2C0.11%2C0.07%2C0%2C0%2C0%2C0.86%2C0.25%2C1.77%2C0%2C0.01%2C0.97%2C0.01%2C0.06%2C0.89%2C0.72%2C1.22%2C1.14%2C1.46%2C1.4%2C0.64%2C1.25%2C0.45%2C1.51%2C0.41%2C0.31%2C0.61%2C0.3%2C0.1%2C0.41%2C0.29%2C0.16%2C0.68%2C0.47%2C0.6%2C1.42%2C0.48%2C1.39%2C0.55%2C1.66%2C1.06%2C1.86%2C0.76%2C1.31%2C1.31%2C1.71%2C0.91%2C1.74%2C2.16%2C1.97%2C0.93%2C1.5%2C2.08%2C0.96%2C1.41%2C0.28%2C1.25%2C1.23%2C1.42%2C0.76%2C1.42%2C1.37%2C0.92%2C0.52%2C0.46%2C0.69%2C0.53%2C0.5%2C0.81%2C1.65%2C1%2C0.87%2C0.85%2C1.53%2C1.28%2C1.48%2C1.49%2C1.71%2C1.76%2C0.52%2C0.38%2C1.98%2C0%2C0.86%2C0.63%2C0.96%2C0.03%2C0%2C1%2C1.84%2C0%2C0.1%2C0.18%2C0.13%2C0.21%2C0.03%2C0.12%2C0.36%2C0.39%2C0.33%2C0.38%2C0.56%2C0.4%2C0.6%2C0.51%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%5D%7D%5D%7D%7D>),
 against the hosted copy of this alignment.

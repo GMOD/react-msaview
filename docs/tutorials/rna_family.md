@@ -16,28 +16,33 @@ The pipeline runs `curl`, `python3`, `cmsearch`, `cmalign` and FastTree.
 - Infernal 1.1 for `cmsearch` and `cmalign`, `apt install infernal` on Debian or
   Ubuntu, `brew install infernal` on macOS
 - FastTree, `apt install fasttree`, or `brew install fasttree`
-- nothing to read along: every figure below links to the live view it captured
 
 ## Where the data comes from
 
 Rfam release 15.1 for the family, NCBI RefSeq for the genomes and their
-annotation, and the RCSB PDB for one crystal structure.
+annotation, and the RCSB PDB for one crystal structure. The commands below and
+the build script fetch these, so there is nothing to download by hand.
 
 - the RF00162 covariance model: https://rfam.org/family/RF00162/cm
 - the RF00162 seed alignment, 457 curated sequences with the consensus
   structure: https://rfam.org/family/RF00162/alignment/stockholm
-- one RefSeq genome per request, here Bacillus subtilis 168:
+- one RefSeq genome per request, for example Bacillus subtilis 168:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_000964.3&rettype=fasta&retmode=text
   The other five are NC_003869.1, NC_003030.1, NC_003210.1, NC_007795.1 and
   NC_009089.1.
 - the annotation of a 1500 nt window of one of those records, which names the
-  gene a hit leads:
+  gene a hit leads, one request per hit, for example:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_000964.3&seq_start=1179185&seq_stop=1180684&strand=2&rettype=ft&retmode=text
 - the sequence of the crystallized aptamer, PDB 2GIS:
   https://www.rcsb.org/fasta/entry/2GIS
-- the finished alignment every link on this page opens, rehosted because
-  rfam.org sends no `Access-Control-Allow-Origin` header and a browser cannot
-  read it: https://gmod.org/JBrowseMSA/demo/data/rna/sam-riboswitch.sto
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the finished alignment every link on this page opens:
+  https://gmod.org/JBrowseMSA/demo/data/rna/sam-riboswitch.sto
+
+</details>
 
 ## The family
 
@@ -325,14 +330,31 @@ specific column out of 98, the one `SS_cons` names, and these five did not.
 
 ## Reproduce it end to end
 
+[`build_rna_family.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_rna_family.sh)
+runs the commands above in order:
+
+1. It fetches the RF00162 covariance model and seed alignment from Rfam and the
+   six genomes from NCBI, then searches the genomes with the model at the
+   family's own curated threshold.
+2. It names each hit by the first gene downstream on the same strand, asking
+   NCBI for the annotation of a 1500 nt window per hit, and cuts the hit
+   sequences out of the genomes.
+3. `cmalign` aligns the hits to the model's consensus columns, and the script
+   copies the seed's consensus structure and SAM contacts onto those columns,
+   which puts back the pseudoknot the model cannot carry.
+4. FastTree infers a tree from the alignment, the script writes both into one
+   Stockholm file, and it re-derives the base pairs from the alignment alone to
+   check the structure against the rows.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_rna_family.sh
 bash build_rna_family.sh out/
 ```
 
-The script fetches the model, the seed and the six genomes, runs every command
-above and writes `out/sam-riboswitch.sto`, the file the links on this page open.
-The numbers quoted here are the ones it prints.
+The script writes `out/sam-riboswitch.sto`, the file the links on this page
+open, and the numbers quoted here are the ones it prints.
 
 ## See also
 

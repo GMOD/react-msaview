@@ -19,19 +19,22 @@ on the surface, which touch nothing.
 - python3 with Biopython, `pip install biopython`, for the contacts and the
   solvent exposure
 
-Every figure below links to the live view it captured.
-
 ## Where the data comes from
 
 Twenty-two globin proteins as NCBI RefSeq holds them, and one crystal structure
-from RCSB.
+from RCSB. The commands below fetch the sequences, and the build script fetches
+the structure that step 6 reads as `2hhb.cif`.
 
-- all 22 protein sequences, one request:
+- all 22 protein sequences in one request, shown here with the human pair only:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=NP_000549.1,NP_000509.1&rettype=fasta&retmode=text
 - the human deoxyhemoglobin tetramer, PDB 2HHB, as mmCIF:
   https://files.rcsb.org/download/2HHB.cif
-- the row table the commands below start from, hosted so the figures can link to
-  it: https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-rows.tsv
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the row table the commands below start from:
+  https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-rows.tsv
 - the alignment they write:
   https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.nwk
@@ -39,6 +42,8 @@ from RCSB.
   https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-subunits.gff
 - the contacts and the chain mappings, the layers the links below carry:
   https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-layers.json
+
+</details>
 
 ## 1. Name the rows
 
@@ -343,6 +348,23 @@ model.rowResidue('2HHB', 42, 'A') // Human, residue 43
 ```
 
 ## Reproduce it end to end
+
+[`build_protein_complex.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_protein_complex.sh)
+runs the steps above in order:
+
+1. It fetches the 22 proteins from NCBI in one request and writes one FASTA per
+   subunit with the species label as the defline, so the two files pair up by
+   name.
+2. ClustalW aligns each subunit on its own, the script concatenates alpha and
+   beta per species with a GFF marking each subunit's span, and ClustalW infers
+   a neighbor-joining tree from the concatenation.
+3. It fetches PDB 2HHB, finds every residue pair within 4 Å across the two
+   interfaces, classes the other human residues as buried or exposed, and writes
+   the arcs, the classes and the chain mappings as layers.
+4. It reports how conserved each class is across the eleven rows, and prints the
+   letters every row carries at one contact pair per interface.
+
+It needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_protein_complex.sh

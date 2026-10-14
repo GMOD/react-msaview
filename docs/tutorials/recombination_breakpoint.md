@@ -14,22 +14,25 @@ that inherits from neither parent, run through the same scan.
 - ClustalW, `apt install clustalw` on Debian or Ubuntu, `brew install clustal-w`
   on macOS. ClustalW both aligns and infers a tree, so this page needs no other
   aligner.
-- Python 3, standard library only, nothing to install
-
-Every figure below links to the live view it captured.
+- Python 3, standard library only
 
 ## Where the data comes from
 
 Five SARS-CoV-2 genomes as GenBank holds them, and NCBI's own annotation of the
-reference.
+reference. The commands below and the build script fetch these, so there is
+nothing to download by hand.
 
 - all five genomes, one request:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_045512.2,OQ859938.1,OP911098.1,PV014247.1,PQ577962.1&rettype=fasta&retmode=text
 - the reference annotation as GFF3:
   https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&report=gff3&retmode=text
-- the row table the commands below start from, hosted so the figures can link to
-  it: https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-rows.tsv
-- the alignment they write:
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the row table step 1 writes:
+  https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-rows.tsv
+- the alignment:
   https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant.nwk
 - the genes:
@@ -38,6 +41,8 @@ reference.
   https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-rbd.afa
 - the tracks the scan writes, the layers the links below carry:
   https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-layers.json
+
+</details>
 
 ## 1. Name the rows
 
@@ -314,14 +319,30 @@ T. At 22,942 XBB.1 reads G, the base BM.1.1.1 carries, and BJ.1 reads T.
 
 ## Reproduce it end to end
 
+[`build_recombination_breakpoint.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_recombination_breakpoint.sh)
+runs the commands above in order:
+
+1. It fetches the five genomes in one efetch request and the reference
+   annotation as GFF3, and relabels each sequence to its row name.
+2. ClustalW aligns the genomes and infers a neighbor-joining tree from the
+   alignment, which takes about four minutes on five whole genomes.
+3. It projects each reference gene through the alignment, so every row carries
+   the span in its own coordinates, and adds the receptor-binding domain and
+   motif the same way.
+4. It scans the XBB.1 row and the BA.5 control against each parent, pins the
+   breakpoint with the informative sites, cuts the receptor-binding domain out
+   of the alignment, and writes the tracks the figure links carry.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_recombination_breakpoint.sh
 bash build_recombination_breakpoint.sh
 ```
 
 With no arguments the script writes the row table above and builds every file
-beside it, printing every number on this page. Pass your own table to do the
-same for another recombinant and another pair of parents:
+beside it. Pass your own table to do the same for another recombinant and
+another pair of parents:
 
 ```bash
 bash build_recombination_breakpoint.sh my-rows.tsv out/

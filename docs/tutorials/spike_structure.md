@@ -18,15 +18,16 @@ and one chain.
 - FastTree, `apt install fasttree`, or `brew install fasttree`
 - [react-msaview-cli](https://gmod.org/JBrowseMSA/cli) for the domain GFF,
   `npm install -g react-msaview-cli`, NodeJS v22+
-- nothing to read along: every figure below links to the live view it captured
 
 ## Where the data comes from
 
 Eleven spike glycoproteins as NCBI holds them, the UniProtKB entry for the
 SARS-CoV-2 one, InterPro release 110.0 for the domains, and PDBe for everything
-about the structure.
+about the structure. The commands below fetch these, so there is nothing to
+download by hand.
 
-- all eleven protein sequences, one request:
+- all eleven protein sequences in one efetch request, shown here with one
+  accession, for example:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=YP_009724390.1&rettype=fasta&retmode=text
 - the UniProtKB entry, for its sequence and its feature table:
   https://rest.uniprot.org/uniprotkb/P0DTC2.json
@@ -40,15 +41,20 @@ about the structure.
   https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6vxx
 - the structure itself, for a structure viewer:
   https://files.rcsb.org/download/6VXX.cif
-- the alignment the commands below write, hosted so the figures can link to it:
-  https://gmod.org/JBrowseMSA/demo/data/spike/spike.afa
+
+Every PDBe and UniProt endpoint here serves a single record per request and
+sends `Access-Control-Allow-Origin: *`.
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the alignment: https://gmod.org/JBrowseMSA/demo/data/spike/spike.afa
 - its tree: https://gmod.org/JBrowseMSA/demo/data/spike/spike.nwk
 - its domains: https://gmod.org/JBrowseMSA/demo/data/spike/spike-domains.gff
 - the three layers, as the build script wrote them:
   https://gmod.org/JBrowseMSA/demo/data/spike/spike-layers.json
 
-Every API endpoint here serves a single record per request and sends
-`Access-Control-Allow-Origin: *`.
+</details>
 
 ## 1. Name the rows
 
@@ -467,14 +473,30 @@ model.rowResidue('6VXX', 700) // SARS-CoV-2, residue 681
 
 ## Reproduce it end to end
 
+[`build_spike_structure.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_spike_structure.sh)
+runs the commands above in order:
+
+1. It fetches the eleven protein sequences in one efetch request and relabels
+   each record by its virus, the label that travels into the tree tips, the GFF
+   seq_id and the `row` field of every layer.
+2. MAFFT aligns the sequences and FastTree infers a tree from the alignment.
+3. `react-msaview-cli interpro` writes the domain GFF from InterPro's
+   precomputed matches, keyed by UniProtKB accession, and drops the domains of
+   any row whose NCBI record and UniProt entry differ in length.
+4. It reads UniProt's feature table, the SIFTS residue correspondence and PDBe's
+   polymer coverage of 6VXX chain A, writes them as the snapshot layers, and
+   checks the insert and the unresolved loop against the raw sequence.
+
+It needs the tools under [Prerequisites](#prerequisites).
+
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_spike_structure.sh
 bash build_spike_structure.sh
 ```
 
 With no arguments the script writes the row table above and builds all four
-files beside it, printing every number on this page. Pass your own table to do
-the same for another family and another structure:
+files beside it. Pass your own table to do the same for another family and
+another structure:
 
 ```bash
 bash build_spike_structure.sh my-rows.tsv out/
