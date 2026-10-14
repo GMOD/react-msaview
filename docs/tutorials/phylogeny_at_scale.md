@@ -6,19 +6,22 @@ magnitude bigger: one tip per genome sequenced that season, thousands of them,
 related by descent within one species. This page takes one such tree, a public
 Nextstrain build of respiratory syncytial virus, reconstructs an alignment and
 tree from it that an alignment viewer can open, and shows how collapsing,
-subsampling and zooming make 1,840 rows readable.
+subsampling and zooming make 1,840 rows readable. It then writes the clade,
+country, region and year Nextstrain records for each genome as a row table, and
+colors the tip labels, the tree edges and the rows from it, which is ggtree's
+`groupClade`, `aes(color = group)` and `geom_hilight` done as data the viewer
+draws.
 
 ## Prerequisites
 
-- `curl`
 - Python 3, standard library only, nothing to install
 - nothing to read along: every figure below links to the live view it captured
 
 ## Where the data comes from
 
 Nextstrain's RSV-A build, updated 2024-07-16: a tree over 1,840 genomes, one
-ancestral sequence, and the nucleotide substitutions on every branch between
-them.
+ancestral sequence, the nucleotide substitutions on every branch between them,
+and the metadata of every tip.
 
 - the auspice JSON itself: https://data.nextstrain.org/rsv_a_genome.json
 - the full-tip alignment the build script reconstructs from it, sliced to the
@@ -28,6 +31,8 @@ them.
 - the subsampled whole-genome alignment the later figures use:
   https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.aln
 - its tree: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.nh
+- the subsample's row table:
+  https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample-rowdata.json
 
 ## The genome
 
@@ -48,14 +53,23 @@ uses:
 
 ```python
 def reconstruct(node, seq):
-    for m in node["branch_attrs"]["mutations"].get("nuc", []):
-        pos, alt = int(m[1:-1]), m[-1]
-        seq = seq[: pos - 1] + alt + seq[pos:]
+    muts = node.get("branch_attrs", {}).get("mutations", {}).get("nuc", [])
+    if muts:
+        seq = bytearray(seq)
+        for m in muts:
+            _ref, pos, alt = MUT_RE.match(m).groups()
+            seq[int(pos) - 1] = ord(alt)
+        seq = bytes(seq)
+    na = node.get("node_attrs", {})
     if not node.get("children"):
-        tips.append((node["name"], seq))
+        tips.append((label_for(na, node["name"]), seq, na))
     else:
         for child in node["children"]:
             reconstruct(child, seq)
+```
+
+```bash
+python3 build_phylogeny_at_scale.py .
 ```
 
 ```
@@ -67,7 +81,8 @@ L gene 8532-15029 (6498 nt)
 The rows come out already aligned: a substitution changes a base without moving
 anything around it, and this dataset carries no insertion relative to the
 reference. A deletion becomes a run of gap characters at a fixed position, which
-fits an alignment column.
+fits an alignment column. Each row is named `accession|clade|country|year`, four
+fields `label_for` reads off the tip's `node_attrs`.
 
 ## 2. The whole tree at once
 
@@ -115,22 +130,7 @@ The subsample has 184 rows, and at this row height every strain name beside the
 tree is legible. Only one of the 24 Nextstrain clades in the full tree has no
 representative left.
 
-## 5. Group rows by clade
-
-Each tip's name carries its clade, so the names in the hosted file give the rows
-of each clade. A `highlights` entry for each of the six largest clades tints
-their rows as bands without reordering them.
-
-[![](../media/scale-clade-groups.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1472%2C%22treeAreaWidth%22%3A130%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22highlights%22%3A%5B%7B%22rows%22%3A%5B%22hRSV%2FA%2FGermany%2F12-02800%2F2012%7CA.D%7CGermany%7C2012%22%2C%22270101030%7CA.D%7CSouth_Africa%7C2018%22%2C%22MN078115%7CA.D%7CUSA%7C2011%22%2C%22270101055%7CA.D%7CSouth_Africa%7C2018%22%2C%22RSVA%2FUSA%2FACRI-037%2F2016%7CA.D%7CUSA%7C2016%22%2C%22p1306-121310721A%7CA.D%7CUSA%7C2013%22%2C%22MH828499%7CA.D%7CVietnam%7C2015%22%2C%22KX765902%7CA.D%7CNew_Zealand%7C2014%22%2C%22MZ221194%7CA.D%7CChina%7C2018%22%2C%22MK749884%7CA.D%7CNicaragua%7C2016%22%2C%22MH828495%7CA.D%7CVietnam%7C2014%22%2C%22SE01A-0172-V02%7CA.D%7CSpain%7C2020%22%2C%22390103016%7CA.D%7CItaly%7C2020%22%2C%22MH760647%7CA.D%7CAustralia%7C2015%22%2C%22KX765916%7CA.D%7CNew_Zealand%7C2015%22%2C%22p1306-121310709A%7CA.D%7CUSA%7C2012%22%2C%22UU02-0045-D04%7CA.D%7CNetherlands%7C2018%22%2C%22HRSV%2FA%2FArgentina%2FBA-HNRG-112%2F2015%7CA.D%7CArgentina%7C2015%22%2C%22HRSV%2FA%2FPhilippines%2F99058%2F2019%7CA.D%7CPhilippines%7C2019%22%2C%22010102023%7CA.D%7CCanada%7C2018%22%2C%22MN536999%7CA.D%7CUSA%7C2015%22%2C%22810103038%7CA.D%7CJapan%7C2019%22%2C%22MK749895%7CA.D%7CNicaragua%7C2016%22%2C%22MH760606%7CA.D%7CAustralia%7C2013%22%2C%22MH760629%7CA.D%7CAustralia%7C2016%22%2C%22KU950654%7CA.D%7CUSA%7C2012%22%2C%22MW160747%7CA.D%7CAustralia%7C2016%22%2C%22Zam-NDL060_2018-03-21%7CA.D%7CZambia%7C2018%22%2C%22UU02-0055-D03%7CA.D%7CNetherlands%7C2018%22%2C%22KX765887%7CA.D%7CNew_Zealand%7C2015%22%2C%22330102006%7CA.D%7CFrance%7C2018%22%2C%22hRSV%2FA%2FGermany%2F18-03012%2F2018%7CA.D%7CGermany%7C2018%22%2C%22330103019%7CA.D%7CFrance%7C2019%22%2C%22b37%7CA.D%7CUSA%7C2016%22%2C%22HRSV%2FA%2FArgentina%2FBA-HNRG-215%2F2016%7CA.D%7CArgentina%7C2016%22%2C%22KEN%2FKILIFI%2FWGS%2F1119_15%2F12%2F2012%7CA.D%7CKenya%7C2012%22%2C%22KEN%2FKILIFI%2FWGS%2F1071_14%2F08%2F2012%7CA.D%7CKenya%7C2012%22%2C%22MN536993%7CA.D%7CUSA%7C2015%22%5D%2C%22color%22%3A%22rgba(21%2C101%2C192%2C0.4)%22%2C%22label%22%3A%22A.D%20(38)%22%7D%2C%7B%22rows%22%3A%5B%22OQ941767%7CA.D.1%7CAustralia%7C2018%22%2C%22RSV-A%2Fhuman%2FUSA%2FWA-S23267%2F2019%7CA.D.1%7CUSA%7C2019%22%2C%22390103014%7CA.D.1%7CItaly%7C2020%22%2C%22358102024%7CA.D.1%7CFinland%7C2019%22%2C%22340102003%7CA.D.1%7CSpain%7C2018%22%2C%22OX02-9657-V01%7CA.D.1%7CUnited_Kingdom%7C2020%22%2C%22UU02-0012-V01%7CA.D.1%7CNetherlands%7C2017%22%2C%22hRSV%2FA%2FGermany%2F19-02346%2F2019%7CA.D.1%7CGermany%7C2019%22%2C%22hRSV-A-G43Q68M3%7CA.D.1%7CUSA%7C2023%22%2C%22RSV-A%2Fhuman%2FUSA%2FWA-S23254%2F2019%7CA.D.1%7CUSA%7C2019%22%2C%22OX02-8260-D03%7CA.D.1%7CUnited_Kingdom%7C2019%22%2C%22358103041%7CA.D.1%7CFinland%7C2020%22%2C%22RSV-A%2FMX%2FUANL-92777%2F2023%7CA.D.1%7CMexico%7C2023%22%2C%22340103016%7CA.D.1%7CSpain%7C2019%22%2C%22MZ151854%7CA.D.1%7CRussia%7C2020%22%2C%22DW-RAT-036%7CA.D.1%7CAustralia%7C2022%22%2C%22RSV-A%2Fhuman%2FUSA%2FWA-S23245%2F2019%7CA.D.1%7CUSA%7C2019%22%2C%22550102148%7CA.D.1%7CBrazil%7C2019%22%2C%22340103038%7CA.D.1%7CSpain%7C2020%22%2C%22070103033%7CA.D.1%7CRussia%7C2020%22%2C%22550102102%7CA.D.1%7CBrazil%7C2019%22%2C%22MN-MDH-RSVA-00391%7CA.D.1%7CUSA%7C2023%22%2C%22Kilifi%2FRSVA%2FHF20179_2022-03-01%7CA.D.1%7CKenya%7C2022%22%2C%22RSV-A%2Fhuman%2FUSA%2FWA-S25218%2F2020%7CA.D.1%7CUSA%7C2020%22%2C%22Kilifi%2FRSVA%2FHF20205_2022-04-13%7CA.D.1%7CKenya%7C2022%22%5D%2C%22color%22%3A%22rgba(46%2C125%2C50%2C0.4)%22%2C%22label%22%3A%22A.D.1%20(25)%22%7D%2C%7B%22rows%22%3A%5B%22JF920047%7CA.3.1%7CUSA%7C2008%22%2C%22OK649601%7CA.3.1%7CBrazil%7C2008%22%2C%22hRSV%2FA%2FGermany%2F10-03936%2F2010%7CA.3.1%7CGermany%7C2010%22%2C%22VN-390-7%2F10%7CA.3.1%7CVietnam%7C2010%22%2C%22RSV597%7CA.3.1%7CNetherlands%7C2007%22%2C%22KX655662%7CA.3.1%7CJordan%7C2011%22%2C%22KF530261%7CA.3.1%7CGermany%7C2008%22%2C%22KEN%2FKILIFI%2FWGS%2F1022_28%2F12%2F2011%7CA.3.1%7CKenya%7C2011%22%2C%22KEN%2FKILIFI%2FWGS%2F1045_10%2F04%2F2012%7CA.3.1%7CKenya%7C2012%22%2C%22Kilifi_11863_15_RSVA_2010%7CA.3.1%7CKenya%7C2010%22%2C%22KJ627360%7CA.3.1%7CPeru%7C2009%22%2C%22KJ627250%7CA.3.1%7CPeru%7C2010%22%2C%22VN-795-7%2F10%7CA.3.1%7CVietnam%7C2010%22%2C%22VN-784-5%2F10%7CA.3.1%7CVietnam%7C2010%22%2C%22JF920054%7CA.3.1%7CUSA%7C2010%22%2C%22KX655665%7CA.3.1%7CJordan%7C2013%22%2C%22KJ627259%7CA.3.1%7CPeru%7C2011%22%2C%22MH760594%7CA.3.1%7CAustralia%7C2010%22%2C%22hRSV%2FA%2FGermany%2F11-01819%2F2011%7CA.3.1%7CGermany%7C2011%22%2C%22hRSV%2FA%2FGermany%2F09-03766%2F2009%7CA.3.1%7CGermany%7C2009%22%2C%22MF001054%7CA.3.1%7CUSA%7C2015%22%2C%22KU962879%7CA.3.1%7CChina%7C2008%22%5D%2C%22color%22%3A%22rgba(198%2C40%2C40%2C0.4)%22%2C%22label%22%3A%22A.3.1%20(22)%22%7D%2C%7B%22rows%22%3A%5B%22330103036%7CA.D.3%7CFrance%7C2019%22%2C%22OX02-9767-D09%7CA.D.3%7CUnited_Kingdom%7C2020%22%2C%22MZ151852%7CA.D.3%7CRussia%7C2020%22%2C%22PP411979%7CA.D.3%7CThailand%7C2023%22%2C%22RSVA%2F20200035%2FBJ%2FCHN%2F2020.01.09%7CA.D.3%7CChina%7C2020%22%2C%22UU01A-0060-V02%7CA.D.3%7CNetherlands%7C2018%22%2C%22010203004%7CA.D.3%7CCanada%7C2019%22%2C%22SE02-0023-V01%7CA.D.3%7CSpain%7C2020%22%2C%22hRSV%2FA%2FGermany%2F22-01517%2F2021%7CA.D.3%7CGermany%7C2021%22%2C%22550102180%7CA.D.3%7CBrazil%7C2019%22%2C%22610102013%7CA.D.3%7CAustralia%7C2019%22%2C%22RSVA%2F20190070%2FBJ%2FCHN%2F2019.01.15%7CA.D.3%7CChina%7C2019%22%2C%22hRSV%2FA%2FGermany%2F23-00760%2F2022%7CA.D.3%7CGermany%7C2022%22%5D%2C%22color%22%3A%22rgba(106%2C27%2C154%2C0.4)%22%2C%22label%22%3A%22A.D.3%20(13)%22%7D%2C%7B%22rows%22%3A%5B%22KP258733%7CA.3%7CUSA%7C1984%22%2C%22KJ723464%7CA.3%7CUSA%7C1989%22%2C%22OK649678%7CA.3%7CUSA%7C2005%22%2C%22KU316126%7CA.3%7CUSA%7C1984%22%2C%22OK649659%7CA.3%7CCanada%7C1995%22%2C%22OK649592%7CA.3%7CUSA%7C1994%22%2C%2207-040054%7CA.3%7CNetherlands%7C2007%22%2C%22hRSV%2FA%2FUSA%2F7E2%2F2010%7CA.3%7CUSA%7C2010%22%2C%22Kilifi_10891_58_RSVA_2006%7CA.3%7CKenya%7C2006%22%2C%22KJ627260%7CA.3%7CPeru%7C2008%22%2C%22hRSV%2FA%2FGermany%2F05-00962%2F2005%7CA.3%7CGermany%7C2005%22%2C%22OK649664%7CA.3%7CKenya%7C2007%22%5D%2C%22color%22%3A%22rgba(239%2C108%2C0%2C0.4)%22%2C%22label%22%3A%22A.3%20(12)%22%7D%2C%7B%22rows%22%3A%5B%22490103017%7CA.D.2.2%7CGermany%7C2020%22%2C%22810103005%7CA.D.2.2%7CJapan%7C2019%22%2C%22810103019%7CA.D.2.2%7CJapan%7C2019%22%2C%22358101013%7CA.D.2.2%7CFinland%7C2018%22%2C%22358101010%7CA.D.2.2%7CFinland%7C2017%22%2C%22MK749911%7CA.D.2.2%7CNicaragua%7C2016%22%2C%22OQ941765%7CA.D.2.2%7CAustralia%7C2018%22%2C%22MW033958%7CA.D.2.2%7CUSA%7C2018%22%2C%22310101018%7CA.D.2.2%7CNetherlands%7C2017%22%2C%22UU02-0093-V01%7CA.D.2.2%7CNetherlands%7C2019%22%2C%22010203010%7CA.D.2.2%7CCanada%7C2019%22%2C%22OX02-8584-V01%7CA.D.2.2%7CUnited_Kingdom%7C2019%22%5D%2C%22color%22%3A%22rgba(0%2C131%2C143%2C0.4)%22%2C%22label%22%3A%22A.D.2.2%20(12)%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%7D%7D>)
-
-Six bands, one for each of the largest Nextstrain clades in the subsample,
-tinted over the alignment colors. Five are one solid run of rows. A.D splits
-into three separate bands, because sub-clades like A.D.1 and A.D.3 branch off
-from inside it, and tips without a more specific call keep the label A.D
-wherever they sit. The alignment is the full 15,225 nt genome at a small column
-width, wider than the viewport, so the viewer draws the minimap across the top.
-
-## 6. Zoom in on the variable end
+## 5. Zoom in on the variable end
 
 This view is at base resolution over columns 5442-5541, inside the _G_
 ectodomain, where every one of the 100 columns varies somewhere in the
@@ -142,7 +142,7 @@ Every column here carries more than one letter, and a block of rows in the
 middle of the window runs to gap. That gap is the deletion that showed up as a
 pale stripe in the whole-tree figure.
 
-## 7. Zoom in on the conserved end
+## 6. Zoom in on the conserved end
 
 The same view scrolled to columns 10132-10231, inside _L_.
 
@@ -151,7 +151,7 @@ The same view scrolled to columns 10132-10231, inside _L_.
 Almost every row reads the same letter down almost every column. A handful of
 rows carry a substitution, and no row in this window has a gap.
 
-## Check the counts
+## 7. Count the variable columns
 
 The build script counts, over each whole gene of the subsampled alignment and
 over the two 100-column windows above, how many columns hold more than one
@@ -161,7 +161,7 @@ letter:
 def variable_columns(seqs, start1, end1):
     count = 0
     for col in range(start1 - 1, end1):
-        alleles = {s[col] for s in seqs} - {"N"}
+        alleles = {s[col] for s in seqs} - {ord("N")}
         count += len(alleles) > 1
     return count
 ```
@@ -176,19 +176,255 @@ L coldspot (10132-10231): 15/100 variable columns
 Over each whole gene, _G_ is more than twice as variable as _L_: 63.4% of its
 columns differ somewhere in the subsample, against 27.7% of _L_'s.
 
+## 8. The row table
+
+A channel reads its field from a row table keyed by row name. Every tip in the
+auspice JSON has a `node_attrs` object, and four of its entries hold the fields
+the rest of this page draws with:
+
+```python
+def fields_for(node_attrs):
+    num_date = node_attrs.get("num_date", {}).get("value")
+    return {
+        "clade": node_attrs.get("clade_membership", {}).get("value", "NA"),
+        "country": node_attrs.get("country", {}).get("value", "NA"),
+        "region": node_attrs.get("region", {}).get("value", "NA"),
+        "year": str(int(num_date)) if num_date is not None else "NA",
+    }
+```
+
+The script writes one record per subsampled tip, keyed by its row name:
+
+```
+wrote ./rsv-sample-rowdata.json: 184 rows, 21 kB
+  clade: 23 distinct values
+  country: 28 distinct values
+  region: 7 distinct values
+  year: 37 distinct values
+  clade A.D: 38 rows
+  clade A.D.1: 25 rows
+  clade A.3.1: 22 rows
+  clade A.D.3: 13 rows
+  clade A.3: 12 rows
+  clade A.D.2.2: 12 rows
+```
+
+The 184 rows carry 23 distinct clade calls and 28 countries, and the file
+holding them is 21 kB. Percent-encoded into a link the table runs past 20,000
+characters, so the snapshot names the file instead, which keeps the link short,
+and the viewer fetches it at startup:
+
+```json
+{
+  "type": "MsaView",
+  "msaFilehandle": { "uri": "data/scale/rsv-sample.aln" },
+  "treeFilehandle": { "uri": "data/scale/rsv-sample.nh" },
+  "treeMetadataFilehandle": { "uri": "data/scale/rsv-sample-rowdata.json" }
+}
+```
+
+[![](../media/phylogeny_metadata-row-table.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A700%2C%22treeAreaWidth%22%3A560%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A18%2C%22drawLabels%22%3Atrue%2C%22scrollY%22%3A-1188%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample-rowdata.json%22%7D%7D%7D)
+
+Thirty-eight of the 184 rows at a row height that draws labels, with the table
+loaded and no channel reading it. Every tip label is in the theme's text color,
+and the callout names the four fields the table gives the row it points at.
+
+## 9. Tip labels colored by clade
+
+An `encodings` record names the channel to paint, the field feeding it and the
+scale between them. The `tipLabel` channel colors the label beside each tip:
+
+```json
+"encodings": [{ "channel": "tipLabel", "field": "clade" }]
+```
+
+With 23 clade calls in the table, the field runs past the end of every named
+palette, so leaving out `scale` gives each value an evenly spaced hue. The
+legend in the top right lists all 23 under the field's name. The script prints
+the display rows of each clade run of eight rows or more:
+
+```
+display rows 72-79: A.D
+display rows 80-92: A.D.3
+display rows 93-108: A.D
+```
+
+[![](../media/phylogeny_metadata-tip-labels.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A700%2C%22treeAreaWidth%22%3A560%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A18%2C%22drawLabels%22%3Atrue%2C%22scrollY%22%3A-1188%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22clade%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample-rowdata.json%22%7D%7D%7D)
+
+The same 38 rows with `drawLabels: true` and a row height of 18, scrolled to
+display row 66. The labels turn from green to purple on row 80, where the last
+A.D tip gives way to the first A.D.3 tip, and back to green on row 93. The
+legend carries one swatch per clade call.
+
+## 10. Branches colored by clade
+
+The `branch` channel gives an internal node the field value its tips agree on
+and colors the edge above it. Clade calls nest inside one another, so the tips
+under a node agree wherever a single named clade covers them:
+
+```json
+"encodings": [{ "channel": "branch", "field": "clade" }]
+```
+
+The build script counts the same thing off the tree it pruned:
+
+```
+pruned tree: 184 tips, 363 edges
+branch by clade: 293/363 edges colored, 109/179 of them above an internal node
+```
+
+Each of the 184 terminal edges takes a color, since one tip agrees with itself,
+which leaves the 179 internal edges as the count worth reading: 109 of them take
+a clade color.
+
+[![](../media/phylogeny_metadata-branch-clade.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1472%2C%22treeAreaWidth%22%3A700%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22clade%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample-rowdata.json%22%7D%7D%7D)
+
+All 184 rows at a row height of 8 with the tree area widened to 700 px. Color
+runs from the point where each clade splits off out to its tips: green for A.D,
+purple for A.D.3, magenta for A.D.5. The backbone from the root down to those
+splits draws black, because the tips under those deep nodes carry more than one
+clade call between them.
+
+## 11. Branches colored by country
+
+The `branch` channel over the `country` field asks whether the 28 countries fall
+on the tree the way the 23 clades do:
+
+```json
+"encodings": [{ "channel": "branch", "field": "country" }]
+```
+
+```
+branch by clade: 293/363 edges colored, 109/179 of them above an internal node
+branch by country: 207/363 edges colored, 23/179 of them above an internal node
+```
+
+Twenty-three of the 179 internal edges carry a country color, against 109 for
+clade.
+
+[![](../media/phylogeny_metadata-branch-country.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1472%2C%22treeAreaWidth%22%3A700%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22country%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample-rowdata.json%22%7D%7D%7D)
+
+The same view over the country field. Color reaches one or two edges deep at the
+tips, where a pair of genomes from one country sit together, and the tree inside
+each clade stays black. The run of pink at the top left is the one country
+cluster big enough to see at this scale, USA genomes on display rows 12 to 18
+sampled between 1981 and 1996.
+
+## 12. Rows tinted by clade
+
+The `rowTint` channel washes a color across the whole row, the tree gutter and
+the alignment together. One record draws a band for each of the 23 clades in the
+table:
+
+```json
+"encodings": [{ "channel": "rowTint", "field": "clade" }]
+```
+
+```
+display rows 109-117: A.D.1
+display rows 121-136: A.D.1
+display rows 146-157: A.D.2.2
+```
+
+[![](../media/phylogeny_metadata-row-tint.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1472%2C%22treeAreaWidth%22%3A130%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22rowTint%22%2C%22field%22%3A%22clade%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample-rowdata.json%22%7D%7D%7D)
+
+All 184 rows, each tint running from the left edge of the tree gutter across the
+alignment at 25% opacity, so the nucleotide colors under it stay readable. The
+purple band on rows 80 to 92 is A.D.3, with A.D green on either side of it. A.D
+splits into separate runs because sub-clades such as A.D.3 and A.D.1 branch off
+from inside it, and a tip with no more specific call keeps the label A.D
+wherever it sits. The blue band on rows 146 to 157 is A.D.2.2. The alignment is
+the whole genome at a small column width, wider than the viewport, so the viewer
+draws the minimap across the top.
+
+## 13. A rectangle over one clade
+
+A `clades` record marks a clade of the tree. `mrca` names two tips whose common
+ancestor is the clade, and `tips` is the leaf count the producer measured under
+that ancestor:
+
+```json
+"clades": [
+  {
+    "mrca": ["330103036|A.D.3|France|2019", "MZ151852|A.D.3|Russia|2020"],
+    "tips": 13,
+    "mark": "highlight",
+    "color": "#ffd54f"
+  }
+]
+```
+
+The script picks both names and the count. It walks the pruned tree for the
+clade calls whose tips are exactly the tips under one node, and takes the
+largest:
+
+```
+13 of the 23 clades are one node's tips
+largest of them: A.D.3, 13 tips
+  mrca tips: 330103036|A.D.3|France|2019 and MZ151852|A.D.3|Russia|2020
+A.D.3 spans display rows 80-92
+```
+
+The two names sit under different children of that node, so their common
+ancestor is the node itself whatever the tree does below them. The viewer
+resolves the ancestor, counts the leaves under it and compares the count with
+the 13 in the record. Writing 12 there drops the rectangle, so a re-rooted or
+re-estimated tree loses the mark while the count guards which clade it covers.
+
+[![](../media/phylogeny_metadata-clade-highlight.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A700%2C%22treeAreaWidth%22%3A560%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A18%2C%22drawLabels%22%3Atrue%2C%22scrollY%22%3A-1188%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22clade%22%7D%5D%2C%22clades%22%3A%5B%7B%22mrca%22%3A%5B%22330103036%7CA.D.3%7CFrance%7C2019%22%2C%22MZ151852%7CA.D.3%7CRussia%7C2020%22%5D%2C%22tips%22%3A13%2C%22mark%22%3A%22highlight%22%2C%22color%22%3A%22%23ffd54f%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample-rowdata.json%22%7D%7D%7D)
+
+The amber rectangle over display rows 80 to 92, starting at the branch point the
+two named tips share and running across the tree labels and the alignment. All
+13 labels inside it read A.D.3 and carry the purple the `tipLabel` channel gives
+that value.
+
+## 14. The link, and one row checked against the JSON
+
+Every layer above is a property of the view, so the whole figure travels in one
+link. The last one carries the three filehandles, two encodings and the clade
+record, and moves the tint to the `region` field, which adds a second legend:
+
+```json
+"encodings": [
+  { "channel": "tipLabel", "field": "clade" },
+  { "channel": "rowTint", "field": "region" }
+]
+```
+
+[![](../media/phylogeny_metadata-shared-link.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A700%2C%22treeAreaWidth%22%3A560%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A18%2C%22drawLabels%22%3Atrue%2C%22scrollY%22%3A-1188%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22clade%22%7D%2C%7B%22channel%22%3A%22rowTint%22%2C%22field%22%3A%22region%22%7D%5D%2C%22clades%22%3A%5B%7B%22mrca%22%3A%5B%22330103036%7CA.D.3%7CFrance%7C2019%22%2C%22MZ151852%7CA.D.3%7CRussia%7C2020%22%5D%2C%22tips%22%3A13%2C%22mark%22%3A%22highlight%22%2C%22color%22%3A%22%23ffd54f%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample.nh%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-sample-rowdata.json%22%7D%7D%7D)
+
+Labels colored by clade, rows tinted by region, the A.D.3 rectangle over rows 80
+to 92, and two legends stacked in the top right, one per field. The region tint
+changes color from row to row inside the rectangle, where the clade colors held
+one band. The red box marks the row the check below reads.
+
+The row in the box is the tip the build script prints last, with its entry in
+the auspice JSON beside the record the table gives it:
+
+```
+check tip: RSVA/20200035/BJ/CHN/2020.01.09|A.D.3|China|2020, display row 88
+  node_attrs: {"clade_membership": {"value": "A.D.3"}, "country": {"value": "China", "confidence": {"China": 1.0}, "entropy": -1.000088900581841e-12}, "region": {"value": "Asia"}, "num_date": {"value": 2020.0232240437158}}
+  row: {"clade": "A.D.3", "country": "China", "region": "Asia", "year": "2020"}
+```
+
+On screen that row has a purple label, the A.D.3 color in the clade legend; it
+sits inside the amber rectangle, whose 13 tips are the A.D.3 clade; and its tint
+is the Asia color in the region legend. The date rounds down to the year 2020,
+which is the last field of the row name the tree already carried.
+
 ## Reproduce it end to end
 
 ```bash
-curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_phylogeny_at_scale.sh
-bash build_phylogeny_at_scale.sh
+curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_phylogeny_at_scale.py
+python3 build_phylogeny_at_scale.py .
 ```
 
-With no arguments the script fetches the Nextstrain build, writes the four files
-above beside it, and prints every number on this page.
+The argument is the directory to write to. The script fetches the Nextstrain
+build, writes the five files above there, and prints every number on this page.
 
 ## See also
 
-- [Coloring an RSV phylogeny by its metadata](https://gmod.org/JBrowseMSA/tutorials/phylogeny_metadata)
+- [An H5N1 surveillance figure](https://gmod.org/JBrowseMSA/tutorials/influenza_surveillance_figure)
 - [A protein family from a list of accessions](https://gmod.org/JBrowseMSA/tutorials/protein_family)
 - [User guide](https://gmod.org/JBrowseMSA/guide)
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
@@ -203,3 +439,6 @@ above beside it, and prints every number on this page.
 - Goya S, Galiano M, Nauwelaers I, et al. Toward unified molecular surveillance
   of RSV: a proposal for genotype definition and nomenclature harmonized with
   WHO clinical severity groups. _Influenza Other Respir Viruses_ 14:274-285.
+- Yu G, Smith DK, Zhu H, Guan Y, Lam TT. ggtree: an R package for visualization
+  and annotation of phylogenetic trees with their covariates and other
+  associated data. _Methods Ecol Evol_ 8:28-36.

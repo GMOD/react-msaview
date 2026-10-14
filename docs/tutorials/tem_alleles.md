@@ -300,7 +300,7 @@ number on this page.
 ## See also
 
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
-- [Coloring an RSV phylogeny by its metadata](https://gmod.org/JBrowseMSA/tutorials/phylogeny_metadata)
+- [An RSV phylogeny from a public Nextstrain build](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale)
 - [An H5N1 surveillance figure](https://gmod.org/JBrowseMSA/tutorials/influenza_surveillance_figure)
 - [User guide](https://gmod.org/JBrowseMSA/guide)
 

@@ -33,7 +33,6 @@ import complexThumb from '../../../docs/media/protein_complex-4.png'
 import proteaseThumb from '../../../docs/media/r-protease-triad.png'
 import recombinantThumb from '../../../docs/media/recombination_breakpoint-2.png'
 import rnaThumb from '../../../docs/media/rna-family-overview.png'
-import scaleThumb from '../../../docs/media/scale-clade-groups.png'
 import spikeThumb from '../../../docs/media/spike-structure-final.png'
 import structureLinkThumb from '../../../docs/media/structure_link-spike.png'
 import temThumb from '../../../docs/media/tem_alleles-strips.png'
@@ -174,22 +173,10 @@ export const tutorials: Tutorial[] = [
   {
     slug: 'phylogeny_at_scale',
     category: 'Phylogenies and metadata',
-    navLabel: 'RSV at scale',
+    navLabel: 'RSV phylogeny',
     title: 'An RSV phylogeny from a public Nextstrain build',
     blurb:
-      'A Nextstrain tree of 1,840 RSV genomes, reconstructed to a G-gene alignment of every tip and a whole-genome one of every tenth, and opened at every scale from the whole tree to a single variable column.',
-    thumb: scaleThumb,
-    thumbAlt:
-      '1,840 RSV genomes as one alignment beside their tree, the clades reading as labeled bands of color',
-    thumbPosition: 'center',
-  },
-  {
-    slug: 'phylogeny_metadata',
-    category: 'Phylogenies and metadata',
-    navLabel: 'RSV metadata',
-    title: 'Coloring an RSV phylogeny by its metadata',
-    blurb:
-      "The clade, country, region and year Nextstrain records for each of 184 RSV genomes, written as a row table and read by the viewer's tip-label, branch and row-tint channels. Clade colors 109 of the 179 internal edges; country colors 23.",
+      "A Nextstrain tree of 1,840 RSV genomes, reconstructed to an alignment and opened at every scale from the whole tree to a single column, then colored from the clade, country, region and year Nextstrain records for each genome. Clade colors 109 of the subsample's 179 internal edges; country colors 23.",
     thumb: metadataThumb,
     thumbAlt:
       'RSV tip labels colored by Nextstrain clade, green A.D rows giving way to purple A.D.3 rows, with the clade legend beside them',

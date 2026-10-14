@@ -124,11 +124,12 @@ export default defineConfig({
   site: 'https://gmod.org',
   base: BASE,
   trailingSlash: 'ignore',
-  // /gallery was a wall of screenshots of the examples the live /examples page
-  // runs and the tutorials build. The tutorial index is the gallery now; this
-  // keeps the published links working.
+  // Retired pages, kept reachable at their published URLs. /gallery was a wall
+  // of screenshots of what /examples runs live and the tutorials build, and the
+  // RSV metadata tutorial is now the second half of phylogeny_at_scale.
   redirects: {
     '/gallery': `${BASE}/tutorials`,
+    '/tutorials/phylogeny_metadata': `${BASE}/tutorials/phylogeny_at_scale#8-the-row-table`,
   },
   // Astro's default HTML minifier strips whitespace-only text nodes between
   // elements, so `<strong>a</strong>\n<strong>b</strong>` renders as "ab" and

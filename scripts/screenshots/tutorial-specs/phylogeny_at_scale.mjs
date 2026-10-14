@@ -1,24 +1,16 @@
-// Figures for docs/tutorials/phylogeny_at_scale.md: an RSV-A whole-genome
-// phylogeny from Nextstrain, 1840 tips, reconstructed to one alignment in
-// reference coordinates by docs/tutorials/scripts/build_phylogeny_at_scale.sh.
+// Figures for docs/tutorials/phylogeny_at_scale.md: an RSV-A phylogeny from
+// Nextstrain, 1840 tips, reconstructed to one alignment in reference
+// coordinates, then its 184-tip subsample colored from a row table.
+// docs/tutorials/scripts/build_phylogeny_at_scale.py writes every hosted file
+// and prints every row index below.
 //
 // Two hosted datasets. The full one (every tip) is sliced to the G gene so the
 // file stays a few MB instead of the ~28 MB the whole genome would be at this
 // row count; the subsampled one (every 10th tip, pruned to match) carries the
-// whole genome, since the later figures scroll across it. Clade highlights are
-// read from the subsampled file's own headers, so a regenerated dataset changes
-// what the spec draws.
-
-import fs from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
+// whole genome, since the later figures scroll across it. The figure names
+// predate the merge of the metadata page into this one: --filter=scale,
+// phylogeny_metadata selects them all.
 import { fileSnap } from '../snap.mjs'
-
-const dataDir = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../../../packages/app/public/data/scale',
-)
 
 const FULL = {
   msaFilehandle: { uri: 'data/scale/rsv-full.aln' },
@@ -39,41 +31,55 @@ const G_HOTSPOT0 = 5441
 const L_COLDSPOT0 = 10131
 const COL_WIDTH_BASE = 14
 
-// The clade labels a tip carries are baked into its own row name (see
-// label_for in the build script): 'accession|clade|country|year'. The spec
-// reads them from the hosted file, so the list follows a regenerated dataset.
-function topClades(n) {
-  const text = fs.readFileSync(path.join(dataDir, 'rsv-sample.aln'), 'utf8')
-  const byClade = new Map()
-  for (const line of text.split('\n')) {
-    if (line.startsWith('>')) {
-      const row = line.slice(1).trim()
-      const clade = row.split('|')[1]
-      if (!byClade.has(clade)) {
-        byClade.set(clade, [])
-      }
-      byClade.get(clade).push(row)
-    }
-  }
-  return [...byClade.entries()]
-    .sort((a, b) => b[1].length - a[1].length)
-    .slice(0, n)
+const TABLED = {
+  ...SAMPLE,
+  treeMetadataFilehandle: { uri: 'data/scale/rsv-sample-rowdata.json' },
 }
 
-const CLADE_COLORS = [
-  'rgba(21,101,192,0.4)',
-  'rgba(46,125,50,0.4)',
-  'rgba(198,40,40,0.4)',
-  'rgba(106,27,154,0.4)',
-  'rgba(239,108,0,0.4)',
-  'rgba(0,131,143,0.4)',
-]
+// The readable window: 38 rows at 18px, starting on row 66. A.D holds rows
+// 72-79, A.D.3 rows 80-92 and A.D rows 93-108, so two clades meet twice inside
+// the frame.
+const ROW_H = 18
+const WINDOW_TOP = 66
+const READABLE = {
+  height: 700,
+  treeAreaWidth: 560,
+  colWidth: 0.3,
+  rowHeight: ROW_H,
+  drawLabels: true,
+  scrollY: -WINDOW_TOP * ROW_H,
+  colorSchemeName: 'nucleotide',
+}
 
-const cladeHighlights = topClades(6).map(([clade, rows], i) => ({
-  rows,
-  color: CLADE_COLORS[i],
-  label: `${clade} (${rows.length})`,
-}))
+// All 184 rows at once, with the tree area widened so the edges carrying a
+// branch color are visible.
+const WHOLE = {
+  height: 1472,
+  treeAreaWidth: 700,
+  colWidth: 0.3,
+  rowHeight: 8,
+  drawLabels: false,
+  colorSchemeName: 'nucleotide',
+}
+
+// 23 clades and 28 countries both run past the end of every named palette, so
+// each field's values take evenly spaced hues. Leaving `scale` out asks for
+// that default.
+const byClade = channel => ({ channel, field: 'clade' })
+
+// The largest clade whose tips are exactly the tips under one node. The two
+// names sit under different children of that node, so their common ancestor is
+// the node itself, and 13 is the leaf count the script measured under it.
+const AD3 = {
+  mrca: ['330103036|A.D.3|France|2019', 'MZ151852|A.D.3|Russia|2020'],
+  tips: 13,
+  mark: 'highlight',
+  color: '#ffd54f',
+}
+
+// One tip to read against the JSON it came from, on display row 88, inside
+// A.D.3.
+const CHECK_TIP = 'RSVA/20200035/BJ/CHN/2020.01.09|A.D.3|China|2020'
 
 export const specs = [
   {
@@ -144,28 +150,6 @@ export const specs = [
     clip: 'viewer',
   },
   {
-    name: 'scale-clade-groups',
-    // All 184 rows at once, tinted in tree order by the clade each tip
-    // carries in its own name: the six largest clades in the subsample,
-    // colored and labeled through `highlights`, with no row reordering. The
-    // alignment itself is the full 15225nt genome at a small colWidth, wider
-    // than the viewport, so the minimap bar draws across the top on its own.
-    viewportWidth: 1450,
-    viewportHeight: 1550,
-    url: fileSnap({
-      height: 1472,
-      treeAreaWidth: 130,
-      colWidth: 0.3,
-      rowHeight: 8,
-      drawLabels: false,
-      colorSchemeName: 'nucleotide',
-      highlights: cladeHighlights,
-      ...SAMPLE,
-    }),
-    settle: 2500,
-    clip: 'viewer',
-  },
-  {
     name: 'scale-zoom-variable',
     // Base resolution over columns 5442-5541, the 100nt window in G where
     // every column differs somewhere in the subsample.
@@ -200,5 +184,120 @@ export const specs = [
     }),
     settle: 2000,
     clip: 'viewer',
+  },
+  {
+    name: 'phylogeny_metadata-row-table',
+    // the table loaded and no channel reading it: every tip label draws in the
+    // theme's text color, and the callout names the four fields the table
+    // gives the row it points at
+    viewportWidth: 1300,
+    viewportHeight: 760,
+    url: fileSnap({ ...READABLE, ...TABLED }),
+    settle: 2500,
+    clip: 'viewer',
+    annotations: [
+      {
+        type: 'text',
+        text: 'clade A.D.3, country China, region Asia, year 2020',
+        fontSize: 15,
+        maxWidth: 300,
+        anchor: { col: 8, rowLabel: CHECK_TIP, alignX: 'left' },
+      },
+    ],
+  },
+  {
+    name: 'phylogeny_metadata-tip-labels',
+    // tipLabel by clade over the same window, so the label color changes where
+    // A.D gives way to A.D.3 on row 80 and back on row 93
+    viewportWidth: 1300,
+    viewportHeight: 760,
+    url: fileSnap({
+      ...READABLE,
+      encodings: [byClade('tipLabel')],
+      ...TABLED,
+    }),
+    settle: 2500,
+    clip: 'viewer',
+  },
+  {
+    name: 'phylogeny_metadata-branch-clade',
+    // branch by clade over all 184 rows: 293 of the 363 edges take a color,
+    // 109 of them above an internal node
+    viewportWidth: 1450,
+    viewportHeight: 1550,
+    url: fileSnap({
+      ...WHOLE,
+      encodings: [byClade('branch')],
+      ...TABLED,
+    }),
+    settle: 3000,
+    clip: 'viewer',
+  },
+  {
+    name: 'phylogeny_metadata-branch-country',
+    // the same view over the country field: 207 edges take a color and only 23
+    // of them are above an internal node
+    viewportWidth: 1450,
+    viewportHeight: 1550,
+    url: fileSnap({
+      ...WHOLE,
+      encodings: [{ channel: 'branch', field: 'country' }],
+      ...TABLED,
+    }),
+    settle: 3000,
+    clip: 'viewer',
+  },
+  {
+    name: 'phylogeny_metadata-row-tint',
+    // rowTint by clade over all 184 rows. The alignment is the whole genome at
+    // a small colWidth, wider than the viewport, so the minimap draws on top
+    viewportWidth: 1450,
+    viewportHeight: 1550,
+    url: fileSnap({
+      ...WHOLE,
+      treeAreaWidth: 130,
+      encodings: [byClade('rowTint')],
+      ...TABLED,
+    }),
+    settle: 3000,
+    clip: 'viewer',
+  },
+  {
+    name: 'phylogeny_metadata-clade-highlight',
+    // the A.D.3 rectangle over the readable window, with the tip labels
+    // colored so the rows it covers can be read against their clade
+    viewportWidth: 1300,
+    viewportHeight: 760,
+    url: fileSnap({
+      ...READABLE,
+      encodings: [byClade('tipLabel')],
+      clades: [AD3],
+      ...TABLED,
+    }),
+    settle: 2500,
+    clip: 'viewer',
+  },
+  {
+    name: 'phylogeny_metadata-shared-link',
+    // the link the page ends on: labels by clade, the row tint moved to the
+    // region field so it carries a second legend, the A.D.3 rectangle, and a
+    // box around the one row the page checks against the Nextstrain JSON
+    viewportWidth: 1300,
+    viewportHeight: 760,
+    url: fileSnap({
+      ...READABLE,
+      encodings: [byClade('tipLabel'), { channel: 'rowTint', field: 'region' }],
+      clades: [AD3],
+      ...TABLED,
+    }),
+    settle: 2500,
+    clip: 'viewer',
+    annotations: [
+      {
+        type: 'box',
+        anchor: { col: 0, colEnd: 900, rowLabel: CHECK_TIP },
+        strokeWidth: 3,
+      },
+    ],
   },
 ]

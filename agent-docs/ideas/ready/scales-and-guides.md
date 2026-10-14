@@ -24,7 +24,7 @@ panels, marks and channels this builds on.
 Two target figures, in order of work:
 
 - **A surveillance tree with a date strip.** The RSV tree of
-  `docs/tutorials/phylogeny_metadata.md` with its lineage strip, and beside it a
+  `docs/tutorials/phylogeny_at_scale.md` with its lineage strip, and beside it a
   strip of collection years through a `viridis` ramp with a gradient legend, and
   the tips coloured by the same ramp.
 - **A protein with per-residue confidence.** A kinase alignment with an
@@ -342,7 +342,7 @@ after 2. Building step 4 or 5 before step 2 puts a second value-scale reader in
 
 ## Tutorials
 
-The year strip joins `docs/tutorials/phylogeny_metadata.md`, whose `rowData`
+The year strip joins `docs/tutorials/phylogeny_at_scale.md`, whose `rowData`
 table already carries a `year` per RSV genome, as one more `strip` record with
 `scale: "linear"` and a pinned domain. The pLDDT track gets a tutorial of its
 own: `pLDDT` is the B-factor column of an AlphaFold model's mmCIF, one value per
