@@ -272,11 +272,17 @@ function paint(
 
 let supported: boolean | undefined
 
-// jsdom, and any browser without a 2d context, has no raster to draw; the
-// per-cell painter in renderMSABlock stays the fallback
-export function rasterSupported() {
+/**
+ * Whether the alignment background comes from the raster. The domain overlay
+ * paints its own boxes, letter-color mode has no background, and jsdom, like
+ * any browser without a 2d context, has no raster to draw; the per-cell
+ * painter in renderMSABlock covers all three.
+ */
+export function rasterApplies(
+  model: Pick<MsaViewModel, 'actuallyShowDomains' | 'bgColor'>,
+) {
   supported ??= !!makeRasterCanvas(1, 1)
-  return supported
+  return !model.actuallyShowDomains && model.bgColor && supported
 }
 
 interface RasterCache {

@@ -6,7 +6,7 @@ import { when } from 'mobx'
 import { visibleRowRange } from './components/getVisibleLeaves.ts'
 import MinimapSVG from './components/minimap/MinimapSVG.tsx'
 import { legendRows } from './components/msa/legendRows.ts'
-import { rasterImageHref, rasterSupported } from './components/msa/msaRaster.ts'
+import { rasterApplies, rasterImageHref } from './components/msa/msaRaster.ts'
 import { renderBoxFeatureCanvasBlock } from './components/msa/renderBoxFeatureCanvasBlock.ts'
 import { renderPersistentHighlights } from './components/msa/renderHighlights.ts'
 import { renderMSABlock } from './components/msa/renderMSABlock.ts'
@@ -498,9 +498,8 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
 }
 
 /**
- * The alignment background as a single <image>, under the live canvas's
- * conditions: no domain overlay boxes, background coloring on, and a canvas
- * that reads back.
+ * The alignment background as a single <image>, wherever the live canvas
+ * draws the raster.
  *
  * The vector path's <rect> per cell exhausts the heap on a real alignment. The
  * image is one pixel per cell, and image-rendering keeps the upscaled cell
@@ -516,8 +515,8 @@ function rasterBackground({
   layout: Layout
 }) {
   const { contentHeight, offsetX, offsetY, msaAreaWidth } = layout
-  const { colWidth, rowHeight, actuallyShowDomains, bgColor } = model
-  if (actuallyShowDomains || !bgColor || !rasterSupported()) {
+  const { colWidth, rowHeight } = model
+  if (!rasterApplies(model)) {
     return undefined
   }
   const { xStart, xEnd } = visibleColRange({
