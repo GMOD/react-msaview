@@ -8,6 +8,11 @@ import { domainOverlaySource } from '../../lib/src/components/msa/renderBoxFeatu
 import { tileColorFn } from '../../lib/src/components/msa/tileColor.ts'
 import { featurePanelSource } from '../../lib/src/components/rowpanels/renderFeaturePanel.ts'
 import { barTrackValues } from '../../lib/src/components/tracks/drawTracks.ts'
+import {
+  bracketBarWidth,
+  bracketGap,
+  cladeLabelBoxes,
+} from '../../lib/src/components/tree/cladeBrackets.ts'
 import { layoutTree } from '../../lib/src/hierarchy.ts'
 import { CHAR_WIDTH_RATIO } from '../../lib/src/measureTextCanvas.ts'
 import MSAModelF from '../../lib/src/model.ts'
@@ -215,6 +220,38 @@ function trackTables(model: Model) {
     }))
 }
 
+// the gutter at the right of the tree area, in its own px: each bracket's bar
+// as renderCladeBrackets draws it and each label in the box cladeLabelBoxes
+// gives it, its top in rows
+function cladeGutter(model: Model) {
+  const { cladeGutterWidth: width, effectiveTreeAreaWidth, rowHeight } = model
+  if (width === 0) {
+    return undefined
+  }
+  const bars = table('first', 'last', 'color')
+  for (const { rows, mark, markColor } of model.resolvedClades) {
+    if (mark === 'bracket') {
+      push(bars, {
+        first: rows[0] + 1,
+        last: rows[1] + 1,
+        color: hex(markColor),
+      })
+    }
+  }
+  const labels = table('label', 'left', 'top', 'height', 'horizontal', 'color')
+  for (const box of cladeLabelBoxes(model)) {
+    push(labels, {
+      label: box.label,
+      left: box.left - (effectiveTreeAreaWidth - width),
+      top: box.top / rowHeight,
+      height: box.height / rowHeight,
+      horizontal: box.horizontal,
+      color: hex(box.color),
+    })
+  }
+  return { width, barX: bracketGap + bracketBarWidth / 2, bars, labels }
+}
+
 function treeTables(model: Model) {
   const segments = table('x', 'y', 'xend', 'yend')
   const collapsed = table('x', 'y', 'group')
@@ -259,7 +296,12 @@ function treeTables(model: Model) {
       }
     }
   }
-  return { segments, collapsed, byLength }
+  return {
+    segments,
+    collapsed,
+    byLength,
+    scaleBar: byLength ? (model.treeScaleBar ?? null) : null,
+  }
 }
 
 function figure(propsJson: string) {
@@ -365,6 +407,7 @@ function figure(propsJson: string) {
       !model.subFeatureRows &&
       !model.domainUnderline,
     treeAreaWidth: model.effectiveTreeAreaWidth,
+    cladeGutter: cladeGutter(model) ?? null,
     tree: treeTables(model) ?? null,
     domains,
     highlights,

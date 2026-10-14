@@ -137,3 +137,20 @@ test_that("features and row panels come out as the mark the viewer draws", {
   ggplot2::ggsave(file, msaview_plot(w, tracks = FALSE), width = 6, height = 2)
   expect_gt(file.size(file), 1000)
 })
+
+test_that("a bracket clade and the tree's scale bar reach the figure", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("patchwork")
+  w <- msaview(msa = msa, tree = tree) +
+    geom_msa_clade(mrca = c("fish", "mouse"), tips = 2, mark = "bracket",
+                   label = "pair", color = "#1565c0")
+  lay <- msaview_layout(w)
+  gutter <- lay$clade_gutter
+  expect_equal(c(gutter$bars$first, gutter$bars$last), c(1, 2))
+  expect_equal(gutter$labels$label, "pair")
+  expect_gt(gutter$width, 0)
+  expect_false(is.null(lay$tree$scale_bar$step))
+  file <- tempfile(fileext = ".pdf")
+  ggplot2::ggsave(file, msaview_plot(w, tracks = FALSE), width = 6, height = 2)
+  expect_gt(file.size(file), 1000)
+})

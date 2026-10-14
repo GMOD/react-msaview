@@ -79,7 +79,14 @@ msaview_layout <- function(widget) {
       tree = if (!is.null(tree)) list(
         segments = as_frame(tree$segments),
         collapsed = as_frame(tree$collapsed),
-        by_length = isTRUE(tree$byLength)
+        by_length = isTRUE(tree$byLength),
+        scale_bar = tree$scaleBar
+      ),
+      clade_gutter = if (!is.null(raw$cladeGutter)) list(
+        width = raw$cladeGutter$width,
+        bar_x = raw$cladeGutter$barX,
+        bars = as_frame(raw$cladeGutter$bars),
+        labels = as_frame(raw$cladeGutter$labels)
       ),
       domains = as_frame(raw$domains),
       highlights = as_frame(raw$highlights),
@@ -226,6 +233,7 @@ msaview_plot <- function(x, letters = NULL, letter_size = 3, row_labels = NULL,
   shown <- pick_tracks(layout$tracks, tracks)
   legend <- layout$legend_rows
   if (length(shown) == 0 && is.null(layout$tree) &&
+      is.null(layout$clade_gutter) &&
       length(layout$row_panels) == 0 && is.null(legend)) {
     return(aln)
   }
@@ -235,6 +243,14 @@ msaview_plot <- function(x, letters = NULL, letter_size = 3, row_labels = NULL,
   if (!is.null(layout$tree)) {
     columns$tree <- list(plot = tree_plot(layout),
                          width = grid::unit(tree_width, "null"))
+  }
+  gutter <- layout$clade_gutter
+  if (!is.null(gutter)) {
+    columns$gutter <- list(
+      plot = gutter_plot(gutter, layout, letter_size),
+      width = grid::unit(tree_width * gutter$width / layout$tree_area_width,
+                         "null")
+    )
   }
   for (i in seq_along(layout$row_panels)) {
     panel <- layout$row_panels[[i]]
@@ -445,6 +461,49 @@ row_panel_plot <- function(panel, layout, letter_size) {
   p + span_layers(panel, letter_size, layout, x = identity)
 }
 
+# the clade bracket mark: a bar beside each clade's rows and its label, read
+# across the rows where they are taller than the font and up the bar where not
+gutter_plot <- function(gutter, layout, letter_size) {
+  p <- ggplot2::ggplot() + bare_theme() + row_scale(layout, FALSE) +
+    ggplot2::scale_x_continuous(limits = c(0, gutter$width), expand = c(0, 0)) +
+    ggplot2::coord_cartesian(clip = "off") +
+    ggplot2::theme(axis.text = ggplot2::element_blank())
+  bars <- gutter$bars
+  if (!is.null(bars)) {
+    bars$color[is.na(bars$color)] <- "#000000de"
+    p <- p + ggplot2::geom_segment(
+      data = bars,
+      ggplot2::aes(x = gutter$bar_x, xend = gutter$bar_x,
+                   y = -.data$first + 0.45, yend = -.data$last - 0.45),
+      colour = bars$color, linewidth = 1, lineend = "butt"
+    )
+  }
+  labels <- gutter$labels
+  if (!is.null(labels)) {
+    labels$color[is.na(labels$color)] <- "#000000de"
+    across <- labels[labels$horizontal, ]
+    up <- labels[!labels$horizontal, ]
+    if (nrow(across) > 0) {
+      p <- p + ggplot2::geom_text(
+        data = across,
+        ggplot2::aes(x = .data$left, y = -0.5 - .data$top - .data$height / 2,
+                     label = .data$label),
+        colour = across$color, hjust = 0, size = letter_size, family = "sans"
+      )
+    }
+    if (nrow(up) > 0) {
+      p <- p + ggplot2::geom_text(
+        data = up,
+        ggplot2::aes(x = .data$left, y = -0.5 - .data$top - .data$height,
+                     label = .data$label),
+        colour = up$color, hjust = 0, vjust = 1, angle = 90, size = letter_size,
+        family = "sans"
+      )
+    }
+  }
+  p
+}
+
 legend_plot <- function(rows) {
   rows$y <- -seq_len(nrow(rows))
   swatch <- rows[!is.na(rows$color), ]
@@ -510,7 +569,12 @@ clade_layers <- function(layout, m) {
 
 tree_plot <- function(layout) {
   t <- layout$tree
-  p <- ggplot2::ggplot() + bare_theme() + row_scale(layout, FALSE) +
+  n <- nrow(layout$rows)
+  # the rows' limits go on the coord, which clips nothing, so the scale bar can
+  # sit above the first row
+  p <- ggplot2::ggplot() + bare_theme() +
+    ggplot2::scale_y_continuous(breaks = NULL, expand = c(0, 0)) +
+    ggplot2::coord_cartesian(ylim = c(-n - 0.5, -0.5), clip = "off") +
     ggplot2::theme(axis.text = ggplot2::element_blank())
   cl <- layout$clades
   if (!is.null(cl)) {
@@ -537,6 +601,14 @@ tree_plot <- function(layout) {
       ggplot2::aes(x = .data$x, y = -.data$y, group = .data$group),
       fill = "grey70", colour = "grey30", linewidth = 0.3
     )
+  }
+  bar <- t$scale_bar
+  if (!is.null(bar)) {
+    p <- p +
+      ggplot2::annotate("segment", x = 0, xend = bar$step, y = 0, yend = 0,
+                        linewidth = 0.4) +
+      ggplot2::annotate("text", x = bar$step / 2, y = 0.15, label = bar$label,
+                        vjust = 0, size = 2.5, family = "sans")
   }
   p + ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.02, 0.02)))
 }
