@@ -9,6 +9,7 @@ pnpm media:status              what docs/media and media.lock disagree about
 pnpm media:pull [--force]      install every figure the manifest names
 pnpm media:push [--dry-run]    upload new bytes, then rewrite media.lock
 pnpm media:check               CI gate: manifest and worktree agree
+pnpm media:forget <file>...    retire a figure no page shows; the blob stays
 pnpm media:report --base <ref> what moved since <ref>, with before/after images
 pnpm media:stale               renderer commits since the last full regen
 ```

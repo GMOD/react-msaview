@@ -96,6 +96,24 @@ function printDiffs(diffs) {
   }
 }
 
+// Retires a figure no page shows any more. The blob stays in the store, so the
+// figure's old store URL keeps working.
+function cmdForget(names) {
+  if (names.length === 0) {
+    throw new Error('forget needs at least one docs/media file name')
+  }
+  const lock = readLock()
+  for (const file of names) {
+    const relPath = `docs/media/${path.basename(file)}`
+    if (!lock.delete(relPath)) {
+      throw new Error(`media.lock has no entry for ${relPath}`)
+    }
+    fs.rmSync(path.join(repoRoot, relPath), { force: true })
+    console.log(`forgot ${relPath}`)
+  }
+  writeLock(lock)
+}
+
 function cmdStatus() {
   printDiffs(diffManifests(readLock(), scanLocal()))
 }
@@ -353,6 +371,8 @@ const USAGE = `Usage: node scripts/media-store/media.mjs <command>
                            then rewrite media.lock. --dry-run lists them and
                            writes nothing
   check                    exit non-zero when docs/media and media.lock disagree
+  forget <file>...         drop a figure no page shows from media.lock and
+                           docs/media; the store keeps its blob
   report [--base <ref>]    markdown table of what the manifest changed since
                            <ref> (default HEAD), with links to both images
   stale                    the commits since the last regen of the figures as
@@ -380,6 +400,9 @@ async function main() {
       break
     case 'check':
       cmdCheck()
+      break
+    case 'forget':
+      cmdForget(process.argv.slice(3))
       break
     case 'report':
       cmdReport()
