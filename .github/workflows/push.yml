@@ -33,6 +33,11 @@ jobs:
       - name: Check the model API docs are current
         run: node scripts/check-apidocs.mjs
 
+      # the README SVGs are the export's own deterministic output, so a renderer
+      # change that moves them fails here until `pnpm figures` reruns
+      - name: Check the README figures match the renderer
+        run: pnpm figures:check
+
       # a figure whose page stopped showing it stays in docs/media and keeps
       # being regenerated, with nothing to notice; the deploy's link check only
       # catches the other direction

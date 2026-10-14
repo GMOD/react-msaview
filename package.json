@@ -36,6 +36,7 @@
     "format:check": "oxfmt --check . && prettier --check \"website/**/*.astro\"",
     "test": "vitest",
     "figures": "vitest run --config vitest.figures.config.ts",
+    "figures:check": "FIGURES_CHECK=1 vitest run --config vitest.figures.config.ts",
     "examples:gen": "node scripts/examples-gen/generate.mjs",
     "screenshots": "pnpm media:pull && node scripts/screenshots/writeExampleData.mjs && pnpm --filter app exec vite build && node scripts/screenshots/generate.mjs",
     "screenshots:all": "pnpm media:pull && node scripts/screenshots/generate-screenshots.mjs",

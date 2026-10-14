@@ -53,14 +53,20 @@ const LOCK_HEADER = `# The bytes for docs/media figures live in S3; this file is
 `
 
 // Tolerates a missing docs/media, which is what a fresh clone has once the
-// directory is gitignored and before the first pull.
+// directory is gitignored and before the first pull. A figure git tracks has
+// git for its store, so the manifest leaves it out and a pull never
+// overwrites a regenerated copy with the store's older one.
 function scanLocal() {
   const entries = new Map()
   if (!fs.existsSync(mediaDir)) {
     return entries
   }
+  const tracked = new Set(git(['ls-files', 'docs/media']).split('\n'))
   for (const file of fs.readdirSync(mediaDir).filter(f => extRe.test(f))) {
     const relPath = `docs/media/${file}`
+    if (tracked.has(relPath)) {
+      continue
+    }
     const buf = fs.readFileSync(path.join(mediaDir, file))
     entries.set(relPath, {
       path: relPath,

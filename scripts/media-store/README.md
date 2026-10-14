@@ -85,8 +85,7 @@ The root README and the `lib`, `cli`, `python` and `r-msaview` package READMEs
 link them by relative path, which GitHub resolves against the repo and npm
 rewrites to a raw URL. Gitignoring them breaks those images on both, with no
 build to catch it, and pointing the READMEs at store URLs does not help because
-a store URL carries the content hash and would go stale on the next regen. They
-are also the figures nobody regenerates:
+a store URL carries the content hash and would go stale on the next regen:
 
 ```
 cli-clustalx.png  cli-domains.png  cli-letters.png  cli-quickstart.png
@@ -94,6 +93,11 @@ example-domains.svg  example-protein.svg  r-nucleotide.svg  r-quickstart.svg
 python-quickstart.png  python-entropy-and-clicks.png
 ```
 
-`.gitignore` takes `docs/media/*` plus a `!` line for each. They stay in the
-manifest as well, which costs ten lines and keeps `media:check` asking one
-question about one directory.
+`.gitignore` takes `docs/media/*` plus a `!` line for each. Git is their store,
+so `media.lock` leaves them out and `media.mjs` skips every file git tracks. A
+pull therefore never overwrites a regenerated one with an older blob, and
+refreshing one takes a commit and no `media:push`.
+
+`pnpm figures` writes the four README SVGs with the viewer's SVG export under
+jsdom, byte for byte the same on every machine. CI runs `pnpm figures:check`,
+which fails when the renderer would draw any of them differently.

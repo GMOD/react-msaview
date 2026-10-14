@@ -4,6 +4,9 @@
  *
  * Run with:  pnpm figures   (from the repo root)
  *
+ * The output is deterministic, so CI runs `pnpm figures:check`, which fails
+ * when a committed figure differs from what the renderer draws now.
+ *
  * svgcanvas needs a few DOM bits jsdom omits — DOMMatrix/DOMPoint and a 2d
  * context for text metrics — so we polyfill the minimum it actually calls.
  */
@@ -101,6 +104,8 @@ test('generate README figures', async () => {
     '../../../docs/media',
   )
 
+  const check = !!process.env.FIGURES_CHECK
+  const stale: string[] = []
   for (const fig of figures) {
     const model = MSAModelF().create({
       // fixed id keeps the generated clipPath ids (and thus the SVG output)
@@ -121,7 +126,19 @@ test('generate README figures', async () => {
       includeMinimap: false,
       includeTracks: false,
     })
-    fs.writeFileSync(path.join(outDir, `${fig.name}.svg`), svg)
-    console.log(`wrote ${fig.name}.svg`)
+    const file = path.join(outDir, `${fig.name}.svg`)
+    if (check) {
+      if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== svg) {
+        stale.push(`${fig.name}.svg`)
+      }
+    } else {
+      fs.writeFileSync(file, svg)
+      console.log(`wrote ${fig.name}.svg`)
+    }
+  }
+  if (stale.length > 0) {
+    throw new Error(
+      `${stale.join(', ')} differ from what the renderer draws now; run pnpm figures and commit them`,
+    )
   }
 }, 60000)
