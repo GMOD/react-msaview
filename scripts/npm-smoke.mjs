@@ -14,7 +14,7 @@
  * point of the test: a second copy of MUI makes the viewer throw on a theme from
  * the other copy, and a second copy of mobx-state-tree kills the model with
  * "Identifier types can only be instantiated as direct child of a model type".
- * Keep this list and the one in USAGE.md identical.
+ * Keep this list and the ones in USAGE.md and packages/lib/README.md identical.
  *
  * Run it after a build: `pnpm build && node scripts/npm-smoke.mjs`.
  */

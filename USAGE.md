@@ -11,26 +11,11 @@ npm install react-msaview @jbrowse/core@next mobx@7 mobx-react@10 \
   @emotion/react @emotion/styled react react-dom
 ```
 
-The line pins the majors because the viewer shares mobx, mobx-state-tree and MUI
-with `@jbrowse/core`, and the app needs exactly one copy of each. With two
-copies of mobx-state-tree, the first render throws "Identifier types can only be
-instantiated as direct child of a model type". With two copies of MUI, a theme
-built by one copy reaches components from the other, which also throws. The
-versions above are the ones `@jbrowse/core` 5 depends on, and react-msaview
-needs mobx 7. Core 5 is published under the `next` tag until its release, after
-which `@jbrowse/core@5` replaces `@next`. Without the pins, npm resolves each
-peer to its own latest major and installs a second copy.
-
-CI installs exactly this line outside the workspace with plain npm and renders
-the snippet below in a headless browser (`scripts/npm-smoke.mjs`), so a broken
-install line fails CI.
-
 ```tsx
 import { MSAViewer } from 'react-msaview'
 
 export default function App() {
-  // backticks (template literal) so the \n become real newlines; a plain
-  // "..." JSX attribute would pass the literal characters \ and n instead
+  // backticks, so each \n becomes a newline
   return (
     <MSAViewer
       msa={`>human\nMKAANSE\n>mouse\nMKA-NSE`}
@@ -40,6 +25,9 @@ export default function App() {
   )
 }
 ```
+
+The install line pins the majors the viewer shares with `@jbrowse/core`;
+[Troubleshooting](#troubleshooting) lists the errors a second copy throws.
 
 Props:
 
@@ -372,6 +360,29 @@ whether the file writes it `k` or `K`. Every letter the map leaves out is
 uncolored, gaps included; list `-` and `.` to color them. The model stores the
 map as `customColorScheme`, and picking a scheme from the palette menu clears
 it.
+
+## Troubleshooting
+
+### Two copies of mobx-state-tree or MUI
+
+The viewer shares mobx, mobx-state-tree and MUI with `@jbrowse/core`, and the
+app needs exactly one copy of each. The install line in the
+[zero-config section](#zero-config-component-recommended) pins those majors.
+Without the pins, npm resolves each peer to its own latest major and installs a
+second copy:
+
+- Two copies of mobx-state-tree: the first render throws "Identifier types can
+  only be instantiated as direct child of a model type".
+- Two copies of MUI: a theme built by one copy reaches components from the
+  other, which also throws.
+
+The pinned versions are the ones `@jbrowse/core` 5 depends on, and react-msaview
+needs mobx 7. Core 5 is published under the `next` tag until its release, after
+which `@jbrowse/core@5` replaces `@next`.
+
+CI installs that line outside the workspace with plain npm and renders the quick
+start in a headless browser (`scripts/npm-smoke.mjs`), so a broken install line
+fails CI.
 
 ## API
 

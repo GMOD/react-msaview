@@ -8,11 +8,16 @@ many color schemes, and SVG export.
 
 ## Install
 
-The viewer shares mobx, mobx-state-tree and MUI with `@jbrowse/core` and needs
-one copy of each, so the install line pins those majors to what your
-`@jbrowse/core` depends on. The
-[usage & embedding guide](../../USAGE.md#zero-config-component-recommended) has
-the install line.
+```sh
+npm install react-msaview @jbrowse/core@next mobx@7 mobx-react@10 \
+  @jbrowse/mobx-state-tree@6 @mui/material@9 @mui/icons-material@9 \
+  @emotion/react @emotion/styled react react-dom
+```
+
+The line pins the mobx, mobx-state-tree and MUI majors the viewer shares with
+`@jbrowse/core`, so the app gets one copy of each. The
+[usage guide](https://github.com/GMOD/JBrowseMSA/blob/main/USAGE.md#troubleshooting)
+lists the errors a second copy throws.
 
 ## Quick start
 
@@ -33,15 +38,19 @@ export default function App() {
 
 `MSAViewer` creates the model, measures width, and applies the theme for you.
 For full control, use the `MSAModelF` / `MSAView` model-based API described in
-the [usage & embedding guide](../../USAGE.md).
+the
+[usage & embedding guide](https://github.com/GMOD/JBrowseMSA/blob/main/USAGE.md).
 
 ## Docs & links
 
-- [Usage & embedding guide](../../USAGE.md): props, model API, UMD bundle, R
+- [Usage & embedding guide](https://github.com/GMOD/JBrowseMSA/blob/main/USAGE.md):
+  props, model API, UMD bundle, R
 - [Live examples](https://gmod.org/JBrowseMSA/examples): runnable snippets
-- [Model API reference](apidocs/MsaView.md)
+- [Model API reference](https://github.com/GMOD/JBrowseMSA/blob/main/packages/lib/apidocs/MsaView.md)
 - [Main repository](https://github.com/GMOD/JBrowseMSA)
-- [CLI](../cli/): domain and exon GFFs, plus headless SVG export
-- [msa-parsers](../msa-parsers/): standalone parsing library
+- [CLI](https://github.com/GMOD/JBrowseMSA/tree/main/packages/cli): domain and
+  exon GFFs, plus headless SVG export
+- [msa-parsers](https://github.com/GMOD/JBrowseMSA/tree/main/packages/msa-parsers):
+  standalone parsing library
 - [ProteinBrowser](https://github.com/GMOD/proteinbrowser): protein analysis
   suite built on this viewer
