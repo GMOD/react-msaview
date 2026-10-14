@@ -3,6 +3,7 @@ import React, { useCallback, useRef } from 'react'
 import { observer } from 'mobx-react'
 
 import { useWheelScroll } from '../../useWheelScroll.ts'
+import { alignmentAriaLabel } from '../controls.ts'
 import Loading from './Loading.tsx'
 import MSACanvasBlock from './MSACanvasBlock.tsx'
 import { onMsaKey } from './msaKeys.ts'
@@ -54,7 +55,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       // col*colWidth + scrollX, row*rowHeight + scrollY
       data-testid="msa_canvas"
       tabIndex={0}
-      aria-label="Alignment. Arrow keys scroll, shift pages, + and - zoom, Home and End jump to the first and last column. Shift-drag selects cells, and Escape clears the selection."
+      aria-label={alignmentAriaLabel}
       onKeyDown={event => {
         if (onMsaKey(model, event)) {
           event.preventDefault()

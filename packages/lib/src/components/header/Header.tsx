@@ -22,7 +22,7 @@ import ZoomMenu from './ZoomMenu.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 
-const AboutDialog = lazy(() => import('../dialogs/AboutDialog.tsx'))
+const HelpDialog = lazy(() => import('../dialogs/HelpDialog.tsx'))
 
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
   const [ref, { height }] = useMeasure()
@@ -57,11 +57,11 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       <LoadWarnings model={model} />
       <UnshareableDataWarning model={model} />
       <StatusMessage model={model} variant="header" />
-      <Tooltip title="About">
+      <Tooltip title="Mouse & keyboard help">
         <IconButton
-          aria-label="About"
+          aria-label="Mouse & keyboard help"
           onClick={() => {
-            model.queueDialog(onClose => [AboutDialog, { onClose }])
+            model.queueDialog(onClose => [HelpDialog, { model, onClose }])
           }}
         >
           <Help />

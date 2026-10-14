@@ -58,6 +58,9 @@ you can read one site down the whole family.
 
 ## Navigating
 
+The **?** button at the right of the header lists every mouse gesture and key
+below, and links to the color scheme credits.
+
 - **Pan** by click-dragging the alignment, or scroll vertically/horizontally.
 - **Go to** a row, a column or a residue from the box in the header: a row name,
   which completes as you type, a column number as the ruler reads it, or
