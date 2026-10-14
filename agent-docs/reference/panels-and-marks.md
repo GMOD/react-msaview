@@ -461,10 +461,9 @@ legend listing the scale's values under the field's name.
 
 `mrca(hierarchy, names)` in `hierarchy.ts`, iterative for the reason that file
 states. The rectangle runs from `getNodeX` (`renderTreeCanvas.ts:71`) to the
-tree area edge across `[node.xMin!, node.xMax!]`, the span `clusterLayout` sets
-(`hierarchy.ts:78-95`). A clade spanning 500 rows crosses many `blocksY`, so the
-rectangle draws in every block whose range intersects it, clipped by the block.
-One day.
+tree area edge across `[node.xMin!, node.xMax!]`, the span `layoutTree` sets. A
+clade spanning 500 rows crosses many `blocksY`, so the rectangle draws in every
+block whose range intersects it, clipped by the block. One day.
 
 Shipped 2026-09-16 as the `clades` property with the `highlight` mark, reaching
 all four wrappers. `resolvedClades` gives each clade the rows it covers, and

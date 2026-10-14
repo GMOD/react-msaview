@@ -61,56 +61,6 @@ export function hierarchy<T>(
   return coreHierarchy(data, childrenAccessor)
 }
 
-export function clusterLayout<T>(
-  root: HierarchyNode<T>,
-  sizeX: number,
-  sizeY: number,
-) {
-  const leafNodes = leaves(root)
-  const n = leafNodes.length
-  const step = sizeX / n
-
-  for (let i = 0; i < n; i++) {
-    leafNodes[i]!.x = (i + 0.5) * step
-  }
-
-  // x of an internal node is the mean of its children's x, so process in
-  // post-order (children before parents). The subtree span comes from the same
-  // pass, for the block culls in the tree renderer.
-  const nodes = descendants(root)
-  for (let i = nodes.length - 1; i >= 0; i--) {
-    const node = nodes[i]!
-    if (node.children) {
-      let sum = 0
-      let min = Infinity
-      let max = -Infinity
-      for (const child of node.children) {
-        sum += child.x!
-        min = Math.min(min, child.xMin!)
-        max = Math.max(max, child.xMax!)
-      }
-      node.x = sum / node.children.length
-      node.xMin = min
-      node.xMax = max
-    } else {
-      node.xMin = node.x
-      node.xMax = node.x
-    }
-  }
-
-  const rootHeight = root.height
-  const stack = [{ node: root, depth: 0 }]
-  while (stack.length > 0) {
-    const { node, depth } = stack.pop()!
-    node.y = rootHeight === 0 ? sizeY : (depth / rootHeight) * sizeY
-    if (node.children) {
-      for (const child of node.children) {
-        stack.push({ node: child, depth: depth + 1 })
-      }
-    }
-  }
-}
-
 export interface TreeScale {
   readonly rowHeight: number
   readonly treeWidth: number
@@ -186,10 +136,10 @@ export class LaidOutNode<T> implements HierarchyNode<T> {
 }
 
 /**
- * The layout `clusterLayout` and `setBrLength` write, on new nodes: tips one
- * row apart, a parent at the mean of its children, and branch length measured
- * from the root, whose own branch is not drawn. A collapsed node records the
- * farthest tip of its hidden subtree, where the base of its triangle goes.
+ * The tree laid out on new nodes: tips one row apart, a parent at the mean of
+ * its children, and branch length measured from the root, whose own branch is
+ * not drawn. A collapsed node records the farthest tip of its hidden subtree,
+ * where the base of its triangle goes.
  */
 export function layoutTree<T extends { length?: number }>(
   root: HierarchyNode<T>,
@@ -329,39 +279,6 @@ export function calcDepthToLeaf<T>(node: HierarchyNode<T>): number {
   return node.depthToLeaf!
 }
 
-// Max root-to-leaf sum of branch lengths within the subtree at d. Negative
-// lengths are floored at zero, the same as setBrLength does when it lays the
-// tree out, so the extent this reports is the one that gets drawn
-export function maxLength(d: HierarchyNode): number {
-  const nodes = descendants(d)
-  const pathLen = new Map<HierarchyNode, number>()
-  for (let i = nodes.length - 1; i >= 0; i--) {
-    const n = nodes[i]!
-    let childMax = 0
-    if (n.children) {
-      for (const child of n.children) {
-        childMax = Math.max(childMax, pathLen.get(child)!)
-      }
-    }
-    pathLen.set(n, Math.max(n.data.length || 0, 0) + childMax)
-  }
-  return pathLen.get(d)!
-}
-
-export function setBrLength(d: HierarchyNode, y0: number, k: number) {
-  const stack = [{ node: d, y0 }]
-  while (stack.length > 0) {
-    const { node, y0: acc } = stack.pop()!
-    const next = acc + Math.max(node.data.length || 0, 0)
-    node.len = next * k
-    if (node.children) {
-      for (const child of node.children) {
-        stack.push({ node: child, y0: next })
-      }
-    }
-  }
-}
-
 /**
  * Every leaf by name, with a name two leaves share mapping to undefined: a tip
  * set naming it cannot say which tip it means.
@@ -416,7 +333,7 @@ export function mrca<T extends { name: string }>(
 
 /**
  * The deepest node whose subtree covers a run of rows, given in the row-space
- * coordinates clusterLayout writes to xMin/xMax. A subtree's leaves are one
+ * coordinates layoutTree writes to xMin/xMax. A subtree's leaves are one
  * contiguous run, so at most one child per level covers the run and the descent
  * visits the tree's depth rather than its nodes.
  */

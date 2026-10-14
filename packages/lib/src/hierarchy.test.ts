@@ -2,17 +2,15 @@ import { describe, expect, test } from 'vitest'
 
 import {
   calcDepthToLeaf,
-  clusterLayout,
   collapse,
   collapsedSubtreeMaxLength,
   find,
   hierarchy,
+  layoutTree,
   leafIndex,
   leaves,
-  maxLength,
   mrca,
   nodeCoveringRows,
-  setBrLength,
   sort,
   sum,
 } from './hierarchy.ts'
@@ -136,8 +134,13 @@ describe('mrca', () => {
 
 describe('nodeCoveringRows', () => {
   test('descends to the deepest node whose rows cover the run', () => {
-    const h = hierarchy(makeTree(), d => d.children)
-    clusterLayout(h, 40, 100)
+    const h = layoutTree(
+      hierarchy(makeTree(), d => d.children),
+      {
+        rowHeight: 10,
+        treeWidth: 100,
+      },
+    ).root
     // four tips over 40px of row space, so the tip centers are 5, 15, 25, 35
     expect(nodeCoveringRows(h, 5, 15).data.id).toBe('A')
     expect(nodeCoveringRows(h, 25, 25).data.id).toBe('B1')
@@ -279,14 +282,14 @@ describe('deep (caterpillar) trees do not overflow the stack', () => {
     expect(l.at(-1)!.data.name).toBe('leaf0')
   })
 
-  test('accumulation helpers (sum, find, maxLength, setBrLength, depth)', () => {
+  test('accumulation helpers (sum, find, layoutTree, depth)', () => {
     const h = hierarchy(makeDeepTree(depth), d => d.children)
     sum(h, d => (d.children.length > 0 ? 0 : 1))
     expect(h.value).toBe(depth + 1)
     expect(find(h, n => n.data.id === 'leaf0')?.data.name).toBe('leaf0')
-    expect(maxLength(h)).toBe(depth)
     expect(calcDepthToLeaf(h)).toBe(depth)
-    setBrLength(h, 0, 1)
-    expect(leaves(h).at(-1)!.len).toBe(depth)
+    const layout = layoutTree(h, { rowHeight: 1, treeWidth: depth })
+    expect(layout.rootToTipLength).toBe(depth - 1)
+    expect(layout.leaves.at(-1)!.len).toBe(depth)
   })
 })

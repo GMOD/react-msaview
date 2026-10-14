@@ -36,7 +36,7 @@ function inYBlock(y: number, offsetY: number, by: number, pad: number) {
 /**
  * Every node whose subtree reaches into the block, skipping the subtrees that
  * do not. A subtree's leaves are one contiguous run of rows, recorded by
- * clusterLayout as xMin/xMax, so a block of a 200k-tip tree visits a few dozen
+ * layoutTree as xMin/xMax, so a block of a 200k-tip tree visits a few dozen
  * nodes.
  *
  * A link out of a visited node is drawn even when its child is pruned, so a

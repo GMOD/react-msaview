@@ -82,8 +82,6 @@ import { featuresToAnnotations } from './featuresLayer.ts'
 import { fetchTextWithProgress, isAbortError } from './fetchUtils.ts'
 import { flatToTree } from './flatToTree.ts'
 import {
-  calcDepthToLeaf,
-  clusterLayout,
   collapse,
   find,
   forEachDescendant,
@@ -91,10 +89,8 @@ import {
   layoutTree,
   leafIndex,
   leaves,
-  maxLength,
   mrca,
   nodeCoveringRows,
-  setBrLength,
   sort,
   sum as hierarchySum,
 } from './hierarchy.ts'
@@ -791,8 +787,8 @@ function rootTree(tree: NodeWithIds, treeRoot: TreeRoot) {
     : tree
 }
 
-// the inclusive tip indices a node covers, from the row-space extent
-// clusterLayout writes to xMin/xMax as tip centers
+// the inclusive tip indices a node covers, from its xMin/xMax in a layout one
+// row per tip
 function tipRange(node: HierarchyNode): [number, number] {
   return [Math.round(node.xMin! - 0.5), Math.round(node.xMax! - 0.5)]
 }
@@ -2181,21 +2177,19 @@ function stateModelFactory({
         if (!self.showTreeOverview) {
           return undefined
         }
-        const root = buildTreeRoot(this.tree, {
-          collapsed: self.collapsed,
-          rotated: self.rotated,
-          order: self.treeOrder,
-        })
-        const numTips = leaves(root).length
-        clusterLayout(root, numTips, 1)
-        const rootLen = Math.max(root.data.length || 0, 0)
-        const extent = maxLength(root) - rootLen
-        setBrLength(root, -rootLen, extent ? 1 / extent : 0)
+        const layout = layoutTree(
+          buildTreeRoot(this.tree, {
+            collapsed: self.collapsed,
+            rotated: self.rotated,
+            order: self.treeOrder,
+          }),
+          { rowHeight: 1, treeWidth: 1 },
+        )
         return {
-          root,
-          numTips,
-          maxDepthToLeaf: calcDepthToLeaf(root),
-          showBranchLen: self.showBranchLen && extent > 0,
+          root: layout.root,
+          numTips: layout.leaves.length,
+          maxDepthToLeaf: layout.root.depthToLeaf,
+          showBranchLen: self.showBranchLen && layout.rootToTipLength > 0,
         }
       },
 
