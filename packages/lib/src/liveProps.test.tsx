@@ -217,6 +217,22 @@ test('highlightColumns counts columns a hidden gappy column does not shift', () 
   expect(band).toMatchObject({ startCol: 3, endCol: 3 })
 })
 
+test('an empty rowData table leaves the loaded table in place', () => {
+  const model = show({ rowData: { human: { host: 'primate' } } })
+  expect(model.rowData.human).toEqual({ host: 'primate' })
+  show({ rowData: {} })
+  expect(model.rowData.human).toEqual({ host: 'primate' })
+  show({ rowData: { human: { host: 'ape' } } })
+  expect(model.rowData.human).toEqual({ host: 'ape' })
+})
+
+test('dropping a scalar prop keeps the value the model holds', () => {
+  const model = show({ height: 300, colWidth: 12 })
+  show({})
+  expect(model.height).toBe(300)
+  expect(model.colWidth).toBe(12)
+})
+
 test('selection follows its prop and reports the changes made inside the viewer', () => {
   const reported: unknown[] = []
   const onSelectionChange = (selection: unknown) => reported.push(selection)

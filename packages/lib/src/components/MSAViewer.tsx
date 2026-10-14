@@ -216,34 +216,222 @@ function useModelReaction<
   )
 }
 
+interface SyncedProp {
+  read: (props: MSAViewerProps) => unknown
+  apply: (model: MsaViewModel, value: unknown, props: MSAViewerProps) => void
+  inSnapshot?: boolean
+}
+
+function synced<T>(
+  read: (props: MSAViewerProps) => T,
+  apply: (model: MsaViewModel, value: T, props: MSAViewerProps) => void,
+  { inSnapshot = false } = {},
+): SyncedProp {
+  return {
+    read,
+    apply: apply as SyncedProp['apply'],
+    inSnapshot,
+  }
+}
+
+function ifSet<T>(set: (model: MsaViewModel, value: T) => void) {
+  return (model: MsaViewModel, value: T | undefined) => {
+    if (value !== undefined) {
+      set(model, value)
+    }
+  }
+}
+
+/**
+ * How each prop reaches the mounted model. `inSnapshot` marks a prop the
+ * snapshot already applied, so only a later change reaches its setter.
+ */
+const syncedProps = [
+  synced(
+    p => p.height,
+    ifSet((m, v) => {
+      m.setHeight(v)
+    }),
+  ),
+  synced(
+    p => p.colWidth,
+    ifSet((m, v) => {
+      m.setColWidth(v)
+    }),
+  ),
+  synced(
+    p => p.rowHeight,
+    ifSet((m, v) => {
+      m.setRowHeight(v)
+    }),
+  ),
+  synced(
+    p => p.allowedGappyness,
+    ifSet((m, v) => {
+      m.setAllowedGappyness(v)
+    }),
+  ),
+  synced(
+    p => p.drawTree,
+    ifSet((m, v) => {
+      m.setDrawTree(v)
+    }),
+  ),
+  synced(
+    p => p.treeAreaWidth,
+    ifSet((m, v) => {
+      m.setTreeAreaWidth(v)
+    }),
+  ),
+  synced(
+    p => p.showBranchLen,
+    ifSet((m, v) => {
+      m.setShowBranchLen(v)
+    }),
+  ),
+  synced(
+    p => p.treeOrder,
+    ifSet((m, v) => {
+      m.setTreeOrder(v)
+    }),
+  ),
+  synced(
+    p => p.residueEncoding,
+    ifSet((m, v) => {
+      m.setBgColor(v === 'fill')
+    }),
+  ),
+  synced(
+    p => !!p.hideHeader,
+    (m, v) => {
+      m.setHideHeader(v)
+    },
+  ),
+  synced(
+    p => p.relativeTo,
+    (m, v) => {
+      m.drawRelativeTo(v)
+    },
+  ),
+  synced(
+    p => p.gffFilehandle,
+    (m, location, { gff }) => {
+      if (location) {
+        m.setGFFFilehandle(location)
+      } else {
+        m.setGFF(gff)
+      }
+    },
+    { inSnapshot: true },
+  ),
+  synced(
+    p => p.gff,
+    (m, v) => {
+      m.setGFF(v)
+    },
+    { inSnapshot: true },
+  ),
+  synced(
+    p => p.colorScheme,
+    (m, scheme) => {
+      if (typeof scheme === 'string') {
+        m.setColorSchemeName(scheme)
+      } else if (scheme) {
+        m.setCustomColorScheme(scheme.map)
+      }
+    },
+  ),
+  synced(viewerHighlights, (m, v) => {
+    m.setHighlights(v)
+  }),
+  synced(
+    p => p.features ?? [],
+    (m, v) => {
+      m.setFeatures(v)
+    },
+  ),
+  synced(
+    p => p.selection,
+    (m, v) => {
+      m.setSelection(v)
+    },
+  ),
+  synced(
+    p => p.treeRoot,
+    (m, v) => {
+      m.setTreeRoot(v)
+    },
+  ),
+  synced(
+    p => p.clades ?? [],
+    (m, v) => {
+      m.setClades(v)
+    },
+  ),
+  synced(
+    p => p.columnTracks ?? [],
+    (m, v) => {
+      m.setColumnTracks(v)
+    },
+  ),
+  synced(
+    p => p.residueMappings ?? [],
+    (m, v) => {
+      m.setResidueMappings(v)
+    },
+  ),
+  synced(
+    p => p.rowData,
+    (m, table) => {
+      if (table && Object.keys(table).length) {
+        m.setRowData(table)
+      }
+    },
+  ),
+  synced(
+    p => p.encodings ?? [],
+    (m, v) => {
+      m.setEncodings(v)
+    },
+  ),
+  synced(
+    p => p.rowPanels ?? [],
+    (m, v) => {
+      m.setRowPanels(v)
+    },
+  ),
+]
+
+/**
+ * Applies each prop whose content changed since the last render. Comparing
+ * JSON keys lets a host pass a freshly computed array every render, and
+ * applying only a changed prop keeps a change made inside the viewer across
+ * the host's next render. The model receives a parsed copy, never the host's
+ * own object.
+ */
+function useSyncedProps(model: MsaViewModel, props: MSAViewerProps) {
+  const applied = useRef<string[] | undefined>(undefined)
+  useEffect(() => {
+    const keys = syncedProps.map(({ read }) =>
+      JSON.stringify(read(props) ?? null),
+    )
+    applied.current ??= syncedProps.map(({ inSnapshot }, i) =>
+      inSnapshot ? keys[i]! : '',
+    )
+    const last = applied.current
+    syncedProps.forEach(({ apply }, i) => {
+      const key = keys[i]!
+      if (last[i] !== key) {
+        last[i] = key
+        apply(model, JSON.parse(key) ?? undefined, props)
+      }
+    })
+  })
+}
+
 function Viewer(props: MSAViewerProps) {
   const {
-    gff,
-    gffFilehandle,
-    colorScheme,
-    height,
-    colWidth,
-    rowHeight,
-    allowedGappyness,
-    highlightColumns,
-    highlights,
-    features,
-    clades,
-    relativeTo,
-    columnTracks,
-    residueMappings,
-    rowData,
-    encodings,
-    rowPanels,
-    drawTree,
-    residueEncoding,
-    treeAreaWidth,
-    showBranchLen,
-    treeOrder,
-    treeRoot,
     region,
-    selection,
-    hideHeader,
     theme,
     onCellHover,
     onCellClick,
@@ -268,142 +456,7 @@ function Viewer(props: MSAViewerProps) {
     }
   }, [model, width])
 
-  // Each effect depends only on its own prop, so a change made inside the
-  // viewer survives the host's next render.
-  useEffect(() => {
-    if (height !== undefined) {
-      model.setHeight(height)
-    }
-  }, [model, height])
-  useEffect(() => {
-    if (colWidth !== undefined) {
-      model.setColWidth(colWidth)
-    }
-  }, [model, colWidth])
-  useEffect(() => {
-    if (rowHeight !== undefined) {
-      model.setRowHeight(rowHeight)
-    }
-  }, [model, rowHeight])
-  useEffect(() => {
-    if (allowedGappyness !== undefined) {
-      model.setAllowedGappyness(allowedGappyness)
-    }
-  }, [model, allowedGappyness])
-  useEffect(() => {
-    if (drawTree !== undefined) {
-      model.setDrawTree(drawTree)
-    }
-  }, [model, drawTree])
-  useEffect(() => {
-    if (treeAreaWidth !== undefined) {
-      model.setTreeAreaWidth(treeAreaWidth)
-    }
-  }, [model, treeAreaWidth])
-  useEffect(() => {
-    if (showBranchLen !== undefined) {
-      model.setShowBranchLen(showBranchLen)
-    }
-  }, [model, showBranchLen])
-  useEffect(() => {
-    if (treeOrder !== undefined) {
-      model.setTreeOrder(treeOrder)
-    }
-  }, [model, treeOrder])
-  useEffect(() => {
-    if (residueEncoding !== undefined) {
-      model.setBgColor(residueEncoding === 'fill')
-    }
-  }, [model, residueEncoding])
-  useEffect(() => {
-    model.setHideHeader(!!hideHeader)
-  }, [model, hideHeader])
-  // unguarded, so removing the prop turns the reference diff off
-  useEffect(() => {
-    model.drawRelativeTo(relativeTo)
-  }, [model, relativeTo])
-
-  // The snapshot already holds the first gff and gffFilehandle, so these
-  // effects apply only a later change. Removing either one sets the text back
-  // to the gff prop, which clears the annotations when that is absent too.
-  const appliedGff = useRef(gff)
-  const gffFilehandleKey = JSON.stringify(gffFilehandle ?? null)
-  const appliedGffFilehandle = useRef(gffFilehandleKey)
-  useEffect(() => {
-    if (appliedGffFilehandle.current !== gffFilehandleKey) {
-      appliedGffFilehandle.current = gffFilehandleKey
-      const location = JSON.parse(gffFilehandleKey) as FileLocationType | null
-      if (location) {
-        model.setGFFFilehandle(location)
-      } else {
-        model.setGFF(appliedGff.current)
-      }
-    }
-  }, [model, gffFilehandleKey])
-  useEffect(() => {
-    if (appliedGff.current !== gff) {
-      appliedGff.current = gff
-      model.setGFF(gff)
-    }
-  }, [model, gff])
-
-  // keyed by content, since a host computing a layer inline passes a new array
-  // on every render
-  const colorSchemeKey = JSON.stringify(colorScheme ?? null)
-  useEffect(() => {
-    const scheme = JSON.parse(colorSchemeKey) as ColorScheme | null
-    if (typeof scheme === 'string') {
-      model.setColorSchemeName(scheme)
-    } else if (scheme) {
-      model.setCustomColorScheme(scheme.map)
-    }
-  }, [model, colorSchemeKey])
-  const highlightsKey = JSON.stringify(
-    viewerHighlights({ highlights, highlightColumns }),
-  )
-  useEffect(() => {
-    model.setHighlights(JSON.parse(highlightsKey))
-  }, [model, highlightsKey])
-  const featuresKey = JSON.stringify(features ?? [])
-  useEffect(() => {
-    model.setFeatures(JSON.parse(featuresKey))
-  }, [model, featuresKey])
-  const selectionKey = JSON.stringify(selection ?? null)
-  useEffect(() => {
-    model.setSelection(JSON.parse(selectionKey) ?? undefined)
-  }, [model, selectionKey])
-  const treeRootKey = JSON.stringify(treeRoot ?? null)
-  useEffect(() => {
-    model.setTreeRoot(JSON.parse(treeRootKey) ?? undefined)
-  }, [model, treeRootKey])
-  const cladesKey = JSON.stringify(clades ?? [])
-  useEffect(() => {
-    model.setClades(JSON.parse(cladesKey))
-  }, [model, cladesKey])
-  const columnTracksKey = JSON.stringify(columnTracks ?? [])
-  useEffect(() => {
-    model.setColumnTracks(JSON.parse(columnTracksKey))
-  }, [model, columnTracksKey])
-  const residueMappingsKey = JSON.stringify(residueMappings ?? [])
-  useEffect(() => {
-    model.setResidueMappings(JSON.parse(residueMappingsKey))
-  }, [model, residueMappingsKey])
-  const rowDataKey = JSON.stringify(rowData ?? {})
-  useEffect(() => {
-    const table = JSON.parse(rowDataKey)
-    // an empty table leaves whatever the snapshot or a filehandle loaded
-    if (Object.keys(table).length) {
-      model.setRowData(table)
-    }
-  }, [model, rowDataKey])
-  const encodingsKey = JSON.stringify(encodings ?? [])
-  useEffect(() => {
-    model.setEncodings(JSON.parse(encodingsKey))
-  }, [model, encodingsKey])
-  const rowPanelsKey = JSON.stringify(rowPanels ?? [])
-  useEffect(() => {
-    model.setRowPanels(JSON.parse(rowPanelsKey))
-  }, [model, rowPanelsKey])
+  useSyncedProps(model, props)
 
   const regionKey = JSON.stringify(region ?? null)
   useEffect(() => {
