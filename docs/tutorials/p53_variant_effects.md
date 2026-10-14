@@ -443,6 +443,7 @@ against the hosted copy of this alignment.
 
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
 - [A protein family from a list of accessions](https://gmod.org/JBrowseMSA/tutorials/protein_family)
+- [AlphaFold confidence across a protein family](https://gmod.org/JBrowseMSA/tutorials/alphafold_confidence)
 - [User guide](https://gmod.org/JBrowseMSA/guide)
 - [CLI](https://gmod.org/JBrowseMSA/cli)
 

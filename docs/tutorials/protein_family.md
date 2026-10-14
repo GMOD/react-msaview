@@ -381,6 +381,8 @@ bash build_protein_family.sh my-accessions.tsv out/
 - [CLI](https://gmod.org/JBrowseMSA/cli)
 - [User guide](https://gmod.org/JBrowseMSA/guide)
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
+- [Where p53's damaging variants fall](https://gmod.org/JBrowseMSA/tutorials/p53_variant_effects)
+- [The SARS-CoV-2 furin insert and PDB 6VXX](https://gmod.org/JBrowseMSA/tutorials/spike_structure)
 
 ## References
 

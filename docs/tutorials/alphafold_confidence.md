@@ -404,7 +404,7 @@ script's `SHORT` map name the domains the highlights and the strips carry.
 ## See also
 
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
-- [Reading variant effect predictions on p53](https://gmod.org/JBrowseMSA/tutorials/p53_variant_effects)
+- [Where p53's damaging variants fall](https://gmod.org/JBrowseMSA/tutorials/p53_variant_effects)
 - [Hemoglobin's two subunits and the interfaces between them](https://gmod.org/JBrowseMSA/tutorials/protein_complex)
 - [User guide](https://gmod.org/JBrowseMSA/guide)
 

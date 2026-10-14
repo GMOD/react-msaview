@@ -408,6 +408,7 @@ bash build_mitogenome_genes.sh my-rows.tsv out/
 - [Data layers](https://gmod.org/JBrowseMSA/layers)
 - [User guide](https://gmod.org/JBrowseMSA/guide)
 - [A protein family from a list of accessions](https://gmod.org/JBrowseMSA/tutorials/protein_family)
+- [Gene neighborhoods of the tryptophan operon](https://gmod.org/JBrowseMSA/tutorials/gene_neighborhoods)
 
 ## References
 
