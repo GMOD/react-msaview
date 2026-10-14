@@ -25,8 +25,10 @@ through `pnpm media:push`, which uploads the new bytes and rewrites
 `pnpm media:report --base main` renders the before and after. See
 `scripts/media-store/README.md`.
 
-No check compares a figure with the UI it shows, and every capture includes the
-viewer's header, so one header change stales every figure at once.
+No check compares a figure with the UI it shows. The generator hides the toolbar
+in a `clip: 'viewer'` capture and takes 38px off the spec's `height`, so a
+toolbar change restales the eight full-page captures, which show menus and
+dialogs. A spec that needs the toolbar in a viewer capture sets `header: true`.
 `pnpm media:stale` lists the commits since the last regen that rewrote at least
 half the figures and that touch what a capture draws from: the lib, the parsers,
 svgcanvas, the demo app and its data, and these specs, tests excluded.
@@ -88,6 +90,7 @@ Edit [`specs.mjs`](specs.mjs), or for a tutorial's figures add a module under
     { waitFor: '::-p-text(Tree options)' },
   ],
   clip: 'viewer',                  // 'viewer' = the [data-testid=msaview] box
+  header: true,                    // optional: keep the toolbar in a viewer clip
 }
 ```
 
