@@ -49,13 +49,13 @@ patchwork apply:
   clades, hidden gappy columns, color schemes, domains, highlights and
   `relative_to` all come out as they do on screen. No Node or browser runs
 - `msaview_layout()` returns the tables behind the figure (rows, letter colors,
-  tree segments, domains, highlights, clades, conservation) for your own layers
+  tree segments, domains, highlights, clades, column tracks) for your own layers
 - A widget knitted into a PDF or Word document from R Markdown or Quarto prints
   as this figure
 
 ```r
 library(ggplot2)
-p <- msaview_plot(widget, conservation = TRUE)
+p <- msaview_plot(widget, tracks = c("conservation", "sequence-logo"))
 ggsave("alignment.pdf", p, width = 8, height = 2)
 ```
 

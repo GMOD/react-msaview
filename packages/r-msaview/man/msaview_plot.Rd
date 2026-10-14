@@ -11,7 +11,7 @@ msaview_plot(
   letter_size = 3,
   row_labels = NULL,
   tree_width = 0.3,
-  conservation = FALSE
+  tracks = TRUE
 )
 
 \method{autoplot}{msaview}(object, ...)
@@ -29,16 +29,18 @@ there are at most 60 rows.}
 
 \item{tree_width}{The tree's width as a fraction of the alignment's.}
 
-\item{conservation}{Draw the conservation of each column as a bar track
-above the alignment.}
+\item{tracks}{The column tracks to draw above the alignment: `TRUE` for
+the ones the viewer shows, `FALSE` for none, or the ids or names of the
+ones to draw, such as `"sequence-logo"`, which the viewer hides by
+default. `msaview_layout(x)$tracks` lists them all.}
 
 \item{object}{A viewer from [msaview()].}
 
 \item{...}{Passed to [msaview_plot()].}
 }
 \value{
-A ggplot, or a patchwork of the tree, the alignment and the
-  conservation track when there is more than one panel.
+A ggplot, or a patchwork of the tree, the alignment and the tracks
+  when there is more than one panel.
 }
 \description{
 Draws an [msaview_layout()] with ggplot2: the alignment as a raster of

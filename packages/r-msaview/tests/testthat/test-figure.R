@@ -67,15 +67,46 @@ test_that("the plot builds, with the tree beside the alignment", {
   skip_if_not_installed("patchwork")
   w <- msaview(msa = msa, tree = tree, gff =
     "##gff-version 3\nhuman\tpfam\tdomain\t2\t4\t.\t.\t.\tName=Dom")
-  p <- msaview_plot(w, conservation = TRUE)
+  p <- msaview_plot(w, tracks = "sequence-logo")
   expect_s3_class(p, "patchwork")
   file <- tempfile(fileext = ".pdf")
   ggplot2::ggsave(file, p, width = 6, height = 2)
   expect_gt(file.size(file), 1000)
 
-  alone <- msaview_plot(msaview(msa = msa))
+  alone <- msaview_plot(msaview(msa = msa), tracks = FALSE)
   expect_s3_class(alone, "ggplot")
   built <- ggplot2::ggplot_build(alone)
   expect_true(any(vapply(built$data, function(d) "label" %in% names(d),
                          logical(1))))
+})
+
+test_that("the layout lists every track, flagging the ones the viewer shows", {
+  lay <- msaview_layout(msaview(msa = msa))
+  ids <- vapply(lay$tracks, function(t) t$id, character(1))
+  on <- vapply(lay$tracks, function(t) t$on, logical(1))
+  expect_equal(ids, c("conservation", "property-conservation", "sequence-logo"))
+  expect_equal(on, c(TRUE, TRUE, FALSE))
+  expect_length(lay$tracks[[1]]$values, 7)
+  logo <- lay$tracks[[3]]$letters
+  expect_true(all(logo$ymax > logo$ymin))
+  expect_lte(max(logo$ymax), lay$tracks[[3]]$max_bits)
+})
+
+test_that("a column track of your own reaches the figure", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("patchwork")
+  w <- msaview(msa = msa) +
+    geom_msa_track(c(0.1, 0.5, 1, 0, 0, 0.2, 0.9), name = "score") +
+    geom_msa_track(name = "pairs", kind = "arc",
+                   arcs = data.frame(start = 1, end = 5))
+  lay <- msaview_layout(w)
+  ids <- vapply(lay$tracks, function(t) t$id, character(1))
+  expect_true(all(c("score", "pairs") %in% ids))
+  arcs <- lay$tracks[[which(ids == "pairs")]]$arcs
+  expect_equal(c(arcs$start, arcs$end), c(1, 5))
+  p <- msaview_plot(w, tracks = c("score", "pairs", "sequence-logo"))
+  # three track rows and the alignment's, two panels each; patchwork holds the
+  # last panel outside its patches
+  expect_length(p$patches$plots, 7)
+  expect_error(msaview_plot(w, tracks = "nope"), "no track named 'nope'")
 })

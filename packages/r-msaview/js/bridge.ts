@@ -3,12 +3,15 @@ import './polyfills.ts'
 import { colord } from 'colord'
 
 import { tileColorFn } from '../../lib/src/components/msa/tileColor.ts'
+import { barTrackValues } from '../../lib/src/components/tracks/drawTracks.ts'
 import { layoutTree } from '../../lib/src/hierarchy.ts'
 import MSAModelF from '../../lib/src/model.ts'
+import { columnLogoStack } from '../../lib/src/sequenceLogo.ts'
 import { viewerSnapshot } from '../../lib/src/viewerSnapshot.ts'
 
 import type { MSAViewerProps } from '../../lib/src/components/MSAViewer.tsx'
 import type { LaidOutNode } from '../../lib/src/hierarchy.ts'
+import type { BasicTrack } from '../../lib/src/types.ts'
 import type { NodeWithIds } from '../../lib/src/types.ts'
 
 type Table = Record<string, unknown[]>
@@ -43,7 +46,84 @@ function contrastText(fill: string) {
   return 1.05 / (luminance(fill) + 0.05) >= 3 ? '#ffffff' : '#000000de'
 }
 
-function treeTables(model: ReturnType<ReturnType<typeof MSAModelF>['create']>) {
+type Model = ReturnType<ReturnType<typeof MSAModelF>['create']>
+
+function trackTable(model: Model, track: BasicTrack['model']) {
+  const { kind } = track
+  if (kind === 'bar') {
+    return {
+      color: hex(track.barColor ?? 'gray'),
+      values: barTrackValues(model, track.id),
+    }
+  }
+  if (kind === 'arc') {
+    const arcs = table('start', 'end', 'color')
+    for (const arc of track.arcs ?? []) {
+      push(arcs, {
+        start: arc.start + 1,
+        end: arc.end + 1,
+        color: hex(arc.color ?? track.arcColor),
+      })
+    }
+    return { arcs }
+  }
+  if (kind === 'logo') {
+    const { colStats, alphabetMaxBits: maxBits, colorScheme } = model
+    const letters = table('col', 'letter', 'ymin', 'ymax', 'color')
+    for (let col = 0; col < colStats.numColumns; col++) {
+      let bottom = 0
+      for (const { letter, bits } of columnLogoStack(colStats, col, maxBits)) {
+        push(letters, {
+          col: col + 1,
+          letter,
+          ymin: bottom,
+          ymax: bottom + bits,
+          color: hex(colorScheme[letter]),
+        })
+        bottom += bits
+      }
+    }
+    return { maxBits, letters }
+  }
+  if (kind === 'text') {
+    const scheme = track.customColorScheme ?? model.colorScheme
+    const cells = table('col', 'letter', 'fill', 'text')
+    const data = track.data ?? ''
+    for (let col = 0; col < data.length; col++) {
+      const letter = data[col]!
+      if (letter !== ' ') {
+        const fill = model.bgColor
+          ? hex(scheme[letter.toUpperCase()])
+          : undefined
+        push(cells, {
+          col: col + 1,
+          letter,
+          fill,
+          text: fill ? contrastText(fill) : '#000000de',
+        })
+      }
+    }
+    return { cells }
+  }
+  return undefined
+}
+
+// the ruler is left to the x axis, which numbers the same columns
+function trackTables(model: Model) {
+  const on = new Set(model.turnedOnTracks.map(t => t.model.id))
+  return model.tracks
+    .filter(t => t.model.kind !== 'ruler')
+    .map(({ model: track }) => ({
+      id: track.id,
+      name: track.name,
+      kind: track.kind,
+      on: on.has(track.id),
+      height: track.height,
+      ...trackTable(model, track),
+    }))
+}
+
+function treeTables(model: Model) {
   const segments = table('x', 'y', 'xend', 'yend')
   const collapsed = table('x', 'y', 'group')
   if (model.tree.noTree) {
@@ -193,7 +273,8 @@ function figure(propsJson: string) {
       label: entries.map(e => e.label),
       color: entries.map(e => hex(e.color)),
     })),
-    conservation: model.conservation,
+    rowHeight: model.rowHeight,
+    tracks: trackTables(model),
   })
 }
 
