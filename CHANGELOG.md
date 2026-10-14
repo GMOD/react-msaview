@@ -4,6 +4,100 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.1.0](https://github.com/GMOD/JBrowseMSA/compare/v9.0.0...v9.1.0) (2026-10-14)
+
+### Bug Fixes
+
+- Surface a failed layers fetch on the structure-link page ([a5f3e9a](https://github.com/GMOD/JBrowseMSA/commit/a5f3e9a7ad95959c8995e906d5c7e07a341a418f))
+
+### Chores
+
+- Drop four dependencies nothing imports ([e220c24](https://github.com/GMOD/JBrowseMSA/commit/e220c24baa86174927477a0d5af1675c0aee8dfd))
+
+### Documentation
+
+- Reflow the CLAUDE.md tutorials paragraph ([308bba2](https://github.com/GMOD/JBrowseMSA/commit/308bba2fe5f9ab996f571aad1e3c569f45e6aeed))
+- Point the H5N1 page at the RSV page instead of re-teaching it ([fb01956](https://github.com/GMOD/JBrowseMSA/commit/fb0195609eef117bf09c2a4d8379b8819f13634d))
+- Merge the RSV metadata page into phylogeny_at_scale ([9c02269](https://github.com/GMOD/JBrowseMSA/commit/9c022699d5406839d26f5629eddbbaa662ef9751))
+- Link the pages that pair up, and fix two wrong labels ([671127f](https://github.com/GMOD/JBrowseMSA/commit/671127f76a3d89ec074990933d2193e9ae3afc3f))
+- Regenerate MsaView apidocs ([488826d](https://github.com/GMOD/JBrowseMSA/commit/488826d7429e3da367d02757172fb0bad5ad97f2))
+- Every page in the shape check:tutorials holds, and the check in CI ([482f9c7](https://github.com/GMOD/JBrowseMSA/commit/482f9c73467c9dc6ed587ebbc8d4ac848c3efc1f))
+- The default row order is branch length, not ladderized ([a88755a](https://github.com/GMOD/JBrowseMSA/commit/a88755af93fbd78d290d8fa3815269b76c8d142c))
+- The influenza build script writes three files, not four ([9d1d9c1](https://github.com/GMOD/JBrowseMSA/commit/9d1d9c14e4683abe7801d2a3e015d94891c5088f))
+- Number the TEM build script's steps consecutively ([28e97df](https://github.com/GMOD/JBrowseMSA/commit/28e97dfdeca16401bba3e852937bc2f5446693e6))
+- Protein_complex downloads 2HHB.cif where step 6 reads it ([ef0add0](https://github.com/GMOD/JBrowseMSA/commit/ef0add0619f16f5398db4bf84267742d08c12469))
+- The kinase script prints every number its page quotes ([7d932a4](https://github.com/GMOD/JBrowseMSA/commit/7d932a4ab82242e52f300fc047bb820bb999d254))
+- Install line on the npm README, pinning rationale under Troubleshooting ([d49be30](https://github.com/GMOD/JBrowseMSA/commit/d49be30f755797c7a534b31696b2134d9e283940))
+
+### Features
+
+- One docs sidebar for the reference pages and the tutorials ([e9b7ae9](https://github.com/GMOD/JBrowseMSA/commit/e9b7ae9162cb39022e3021f14f1849f0ba2bb832))
+- Forget, to retire a figure no page shows ([9400d96](https://github.com/GMOD/JBrowseMSA/commit/9400d96edb82201699c77a788ece1db07ae26d24))
+- Check:tutorials, and the protein_family page in its shape ([8bbbd6f](https://github.com/GMOD/JBrowseMSA/commit/8bbbd6f24b4173fe6d98cac1ec21bbbd33f10b01))
+
+### Other Changes
+
+- Name the 9.0.0 breaking changes ([d8ac3c0](https://github.com/GMOD/JBrowseMSA/commit/d8ac3c04a1ca1950b745ce314a0041d3bab27e86))
+- Fix legend colors, NJ menu crash, stale filehandles, IUPAC detection ([9f2a27e](https://github.com/GMOD/JBrowseMSA/commit/9f2a27ea2ccb486b2a3070e6c96a26b1dd4064df))
+- Resolve tree-spelled row names in every row lookup ([2eb4e46](https://github.com/GMOD/JBrowseMSA/commit/2eb4e4628b7f7e0916c581b293f85f025c81b994))
+- Hide gaps under a focus, clamp dividers, keep alignment errors ([c2d2bcd](https://github.com/GMOD/JBrowseMSA/commit/c2d2bcd2015664d2b58d0612540a3cff53b03e86))
+- SVG export: one layout for the dialog and the figure ([0929266](https://github.com/GMOD/JBrowseMSA/commit/0929266f1e6083e28d4dfe2dee6f61871c3d7a9b))
+- No demo import form in a host's page ([e4ed11c](https://github.com/GMOD/JBrowseMSA/commit/e4ed11c7903d81c67388410f3b3520f70e0dd4df))
+- SVG export: valid XML around a non-breaking space, one font ([146c217](https://github.com/GMOD/JBrowseMSA/commit/146c2172953304d0f969db963b598400f4fb1033))
+- CLI export-svg --props: draw what MSAViewer draws ([4bfa9dc](https://github.com/GMOD/JBrowseMSA/commit/4bfa9dc823afe62caa836056c6057ed8f54ef016))
+- Msaview_save() writes a static SVG, PNG or PDF ([c19ac4e](https://github.com/GMOD/JBrowseMSA/commit/c19ac4e16c7cbf78b0caf91b9d1e620f04170ee0))
+- Format the R README ([fe9c281](https://github.com/GMOD/JBrowseMSA/commit/fe9c281ace95de49324bc948c307ae242fc4ec4c))
+- Msaview_plot() draws a viewer with ggplot2 through QuickJS ([228818e](https://github.com/GMOD/JBrowseMSA/commit/228818e2c34538783df3a5af44c983dd19db242e))
+- Header ? opens a mouse & keyboard help dialog ([225638d](https://github.com/GMOD/JBrowseMSA/commit/225638dc9ab95bd3dbda16a19cbeaa31107d70b6))
+- One zoom group, wheel mode in settings, no tree menu without a tree ([a4b8b8d](https://github.com/GMOD/JBrowseMSA/commit/a4b8b8dbcf283ddc680014daa7f417e2d60f0a03))
+- Zero-config caption names the filehandles it passes ([b82ebb0](https://github.com/GMOD/JBrowseMSA/commit/b82ebb044cdbe5457117b7f7fd607e9eed06fead))
+- CLI export-svg writes PNG and PDF by the -o extension ([794c712](https://github.com/GMOD/JBrowseMSA/commit/794c7129192385aa819c81d4a3a6427e160a1366))
+- CLI export-svg refuses an entire export past 500,000 letters ([8f48cbe](https://github.com/GMOD/JBrowseMSA/commit/8f48cbe885c137bbd6b24b24970f1f62e85a7621))
+- CLI export-svg measures text with @napi-rs/canvas when installed ([a665353](https://github.com/GMOD/JBrowseMSA/commit/a6653530da1a222661739146355227efed3dc906))
+- SVG export leaves out the shift-drag selection ([b1f38dd](https://github.com/GMOD/JBrowseMSA/commit/b1f38dd372db5e055f23c99ff25d73e933747763))
+- MSAView.save() writes an SVG, PNG or PDF ([3627fa1](https://github.com/GMOD/JBrowseMSA/commit/3627fa101cc8167d29398011292b94d1d72cadc3))
+- R README: msaview_save() and the CLI's letter limit ([91f7c12](https://github.com/GMOD/JBrowseMSA/commit/91f7c12b06264fe85b32c9cfe4d646a1089ceddf))
+- **BREAKING** HighlightColumns takes 1-based columns, drawn as highlights ([51350a4](https://github.com/GMOD/JBrowseMSA/commit/51350a4778eb7600bfc7a9c22d5cdbbf749b566c))
+- Range clades count the tips inside collapsed rows ([6a49de6](https://github.com/GMOD/JBrowseMSA/commit/6a49de6157c2c53fc0cfaf027c85e6ffbaebfda3))
+- Sync props to the model from one table ([4ee5961](https://github.com/GMOD/JBrowseMSA/commit/4ee596169711d89732f49aa84367863c66a0f49a))
+- MsaUrl, treeUrl and gffUrl props ([be56ff4](https://github.com/GMOD/JBrowseMSA/commit/be56ff4eb20985819813824405c3e6032ad980d8))
+- A ref holds the model ([7420100](https://github.com/GMOD/JBrowseMSA/commit/742010040042d83bc6cbae3f583a6a72991d68e2))
+- R figures read the URLs a widget names ([e0f6089](https://github.com/GMOD/JBrowseMSA/commit/e0f6089421d74b5661dd9dcbd7669fe78784123d))
+- Track renders TrackBlocks directly; drop BasicTrack.ReactComponent ([3856059](https://github.com/GMOD/JBrowseMSA/commit/3856059b4c9c79bf8659d70f1df8faab670e7e2b))
+- Tree overview lays out through layoutTree; drop clusterLayout ([aab2fa2](https://github.com/GMOD/JBrowseMSA/commit/aab2fa269efd76b7f13347a73f2e603a9fac220c))
+- Drop unused model members and the smallMSAOnly sample ([d5b6bd8](https://github.com/GMOD/JBrowseMSA/commit/d5b6bd8c1168e6eca97f574d7b38d4e0b21c4003))
+- Drop clearRect ([dcb62b3](https://github.com/GMOD/JBrowseMSA/commit/dcb62b38b25f7600145df235370d86e4432401c7))
+- Unexport file-local helpers; register colord names once ([b4f2a6f](https://github.com/GMOD/JBrowseMSA/commit/b4f2a6fdaf56a65d9c6d0b36e34ffb293dc0f796))
+- One cladeLabelBoxes for the live clade labels and the SVG export ([e9cfa41](https://github.com/GMOD/JBrowseMSA/commit/e9cfa41792f422c4032d327679e50240d3758b1e))
+- One rasterApplies for MSACanvasBlock and the SVG export ([b1795b5](https://github.com/GMOD/JBrowseMSA/commit/b1795b54b97c13b55a93a66c8e3fa2b53b520721))
+- SVG export clips text through ellipsize; one CHAR_WIDTH_RATIO ([03edc14](https://github.com/GMOD/JBrowseMSA/commit/03edc14dfc6326183f653e630b1609b8dfd69b18))
+- One makeOffscreenCanvas for the raster tiles and the tree overview ([23f08d7](https://github.com/GMOD/JBrowseMSA/commit/23f08d7b96feccf1fe61b186e08bac80a879cfc8))
+- Drop the x assertions and the tipX branch lint flags ([6aa4c3c](https://github.com/GMOD/JBrowseMSA/commit/6aa4c3c6b1cc121a201bb8386c4af541e85b2990))
+- Reword the rasterApplies doc comment ([17bc9e1](https://github.com/GMOD/JBrowseMSA/commit/17bc9e1414a5edf07ee0d9a9ce2706a3c11cae96))
+- R core bundle: drop the TrackBlocks stub the model no longer needs ([21a9496](https://github.com/GMOD/JBrowseMSA/commit/21a949638a2ce85ad802b400d5945ec92b0fc55c))
+- Keep the generated R core bundle out of oxfmt, prettier and typos ([7b1fb6a](https://github.com/GMOD/JBrowseMSA/commit/7b1fb6affaeb882ba7d55ede2be6f512cc0bc56e))
+- The R ggplot2 path and its QuickJS bundle ([08ef0df](https://github.com/GMOD/JBrowseMSA/commit/08ef0df4c4cf198d98d02fddb6fafe6bdf2e4118))
+- R package: CI publishes it to an r-dist branch; main tracks no bundle ([c4e634d](https://github.com/GMOD/JBrowseMSA/commit/c4e634de8c3e429bdc922683572d016c83808936))
+- README figures: git is their store, and CI checks them against the renderer ([0cceecc](https://github.com/GMOD/JBrowseMSA/commit/0cceecc5ca01b7cbad167c8d167fda3c4de7633b))
+- The script prints alignment, tree, exon and FEL site counts ([65f9958](https://github.com/GMOD/JBrowseMSA/commit/65f99581232a5c450181b31bdd55713447669d00))
+- Loading jsdom no longer breaks fetch's gzip decoding ([c5b7d77](https://github.com/GMOD/JBrowseMSA/commit/c5b7d7741330fc6078f4dd1a8fbcc14f6721ed84))
+- Drop MEME, correct three claims against a real FEL run ([6da12ff](https://github.com/GMOD/JBrowseMSA/commit/6da12ffd8db69335d39c7ec47489b76feeb31c31))
+- LoadJsdom returns the JSDOM class under a named type ([e268761](https://github.com/GMOD/JBrowseMSA/commit/e268761c0af9d4d13f0fb44ea5559904cd6ad381))
+- The Python and R jobs failing on main pass again ([547651b](https://github.com/GMOD/JBrowseMSA/commit/547651bb13b001ebe9884854310f68dfa3197072))
+- Install librsvg for the CLI's PNG and PDF export test ([054502f](https://github.com/GMOD/JBrowseMSA/commit/054502f780b34bfbc197bb471ffe7462d8f7d142))
+- One option list per command renders --help and the README tables ([0b6303e](https://github.com/GMOD/JBrowseMSA/commit/0b6303e1c4e9603645807de61a674e553b04917f))
+- R msaview_plot: draw every column track the viewer can ([749afca](https://github.com/GMOD/JBrowseMSA/commit/749afca3b33ac069280b36d1284e263a69eb6d9b))
+- Feature spans: featureSpanMarks returns the mark as geometry ([fd2e48b](https://github.com/GMOD/JBrowseMSA/commit/fd2e48b24a6825d28553d48baf7a687b5454a874))
+- R msaview_plot: row panels, the span mark and the viewer's legend ([4ab2f43](https://github.com/GMOD/JBrowseMSA/commit/4ab2f43fe2e98160b020a5b93d2dcf347abfecf4))
+- R msaview_plot: clade brackets and the tree's scale bar ([b904020](https://github.com/GMOD/JBrowseMSA/commit/b90402077fdd096a3a568cc2b1c1a2bc9f04a274))
+- R msaview_plot: map fill to each category, with real ggplot2 guides ([33ec0d0](https://github.com/GMOD/JBrowseMSA/commit/33ec0d096f1522728ab947e7781460c75f4b4b55))
+- A region naming a row opens with that row in the middle ([26f7018](https://github.com/GMOD/JBrowseMSA/commit/26f7018270f7eefe20d804b653c0ecf7f07c365e))
+- RevealRegion ([69dcc6f](https://github.com/GMOD/JBrowseMSA/commit/69dcc6fe2323e7a45953d0ff071d31f4ec90daac))
+
+### Refactoring
+
+- Build the linked JBrowse sessions from one helper ([a595b5e](https://github.com/GMOD/JBrowseMSA/commit/a595b5e7e7dc54f6495fc62b3e5727d97cc6243f))
+
 ## [9.0.0](https://github.com/GMOD/JBrowseMSA/compare/v8.4.1...v9.0.0) (2026-10-12)
 
 ### Breaking Changes
