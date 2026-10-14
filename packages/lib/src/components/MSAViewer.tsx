@@ -6,7 +6,11 @@ import { ThemeProvider } from '@mui/material/styles'
 import { compareStructural, reaction, when } from 'mobx'
 
 import MSAModelF from '../model.ts'
-import { resolveTheme, viewerSnapshot } from '../viewerSnapshot.ts'
+import {
+  resolveTheme,
+  viewerHighlights,
+  viewerSnapshot,
+} from '../viewerSnapshot.ts'
 import Loading from './Loading.tsx'
 
 import type { MsaViewModel } from '../model.ts'
@@ -52,7 +56,10 @@ export interface MSAViewerProps {
    * hide columns at least this percent gaps (default 100, i.e. hide nothing)
    */
   allowedGappyness?: number
-  /** alignment columns (0-based) to highlight with a persistent overlay */
+  /**
+   * alignment columns, 1-based like `highlights`, drawn as one `{start, end}`
+   * highlight per run of adjacent columns
+   */
   highlightColumns?: number[]
   /**
    * labeled highlights in 1-based inclusive coordinates: `{start, end}` for
@@ -351,7 +358,9 @@ function Viewer(props: MSAViewerProps) {
       model.setCustomColorScheme(scheme.map)
     }
   }, [model, colorSchemeKey])
-  const highlightsKey = JSON.stringify(highlights ?? [])
+  const highlightsKey = JSON.stringify(
+    viewerHighlights({ highlights, highlightColumns }),
+  )
   useEffect(() => {
     model.setHighlights(JSON.parse(highlightsKey))
   }, [model, highlightsKey])
@@ -395,10 +404,6 @@ function Viewer(props: MSAViewerProps) {
   useEffect(() => {
     model.setRowPanels(JSON.parse(rowPanelsKey))
   }, [model, rowPanelsKey])
-  const highlightColumnsKey = JSON.stringify(highlightColumns ?? null)
-  useEffect(() => {
-    model.setHighlightedColumns(JSON.parse(highlightColumnsKey) ?? undefined)
-  }, [model, highlightColumnsKey])
 
   const regionKey = JSON.stringify(region ?? null)
   useEffect(() => {

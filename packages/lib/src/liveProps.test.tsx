@@ -189,10 +189,32 @@ test('the data layers follow their props', () => {
     highlightColumns: [1, 2],
   })
 
-  expect(model.highlights.map(h => h.label)).toEqual(['motif'])
+  expect(model.highlights.map(h => h.label)).toEqual(['motif', undefined])
   expect(model.columnTracks.map(t => t.id)).toEqual(['t'])
   expect(model.mappedStructures.map(m => m.structure.id)).toEqual(['1ABC'])
-  expect(model.highlightedColumns).toEqual([1, 2])
+})
+
+test('highlightColumns draws 1-based columns as highlights, one per run', () => {
+  const model = show({
+    highlights: [{ start: 2, end: 2, label: 'site' }],
+    highlightColumns: [7, 3, 4, 5, 3],
+  })
+  expect(model.highlights).toEqual([
+    { start: 2, end: 2, label: 'site' },
+    { start: 3, end: 5 },
+    { start: 7, end: 7 },
+  ])
+  expect(model.highlightColumns).toBeUndefined()
+  expect(model.highlightedColumns).toBeUndefined()
+
+  show({ highlightColumns: [1] })
+  expect(model.highlights).toEqual([{ start: 1, end: 1 }])
+})
+
+test('highlightColumns counts columns a hidden gappy column does not shift', () => {
+  const model = show({ allowedGappyness: 50, highlightColumns: [5] })
+  const [band] = model.resolvedHighlights
+  expect(band).toMatchObject({ startCol: 3, endCol: 3 })
 })
 
 test('selection follows its prop and reports the changes made inside the viewer', () => {

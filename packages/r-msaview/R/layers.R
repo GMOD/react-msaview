@@ -82,8 +82,8 @@ field_of <- function(df, i, name) {
 #' and the viewer places the band on the columns those residues land in.
 #'
 #' @param data A data frame of highlights, or NULL to use the arguments.
-#' @param columns Alignment columns (1-based) to put under a persistent
-#'   overlay, as a numeric vector. Given on its own, it adds no band.
+#' @param columns Alignment columns (1-based) to highlight, as a numeric
+#'   vector. The viewer draws each run of adjacent columns as one band.
 #' @param start,end The span, 1-based and inclusive.
 #' @param row A row name, making the span residues of that row.
 #' @param rows Row names to tint whole rows.

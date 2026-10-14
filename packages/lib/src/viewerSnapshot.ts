@@ -1,7 +1,7 @@
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 
 import type { MSAViewerProps } from './components/MSAViewer.tsx'
-import type { ColorScheme } from './types.ts'
+import type { ColorScheme, Highlight } from './types.ts'
 
 export function colorSchemeSnapshot(scheme: ColorScheme | undefined) {
   return typeof scheme === 'string'
@@ -9,6 +9,31 @@ export function colorSchemeSnapshot(scheme: ColorScheme | undefined) {
     : scheme
       ? { customColorScheme: scheme.map }
       : {}
+}
+
+/**
+ * The `highlightColumns` prop as `highlights`: one `{start, end}` per run of
+ * adjacent 1-based alignment columns
+ */
+export function columnHighlights(columns: number[] = []) {
+  const sorted = [...new Set(columns)].sort((a, b) => a - b)
+  const runs: { start: number; end: number }[] = []
+  for (const column of sorted) {
+    const last = runs.at(-1)
+    if (last?.end === column - 1) {
+      last.end = column
+    } else {
+      runs.push({ start: column, end: column })
+    }
+  }
+  return runs
+}
+
+export function viewerHighlights({
+  highlights = [],
+  highlightColumns,
+}: Pick<MSAViewerProps, 'highlights' | 'highlightColumns'>): Highlight[] {
+  return [...highlights, ...columnHighlights(highlightColumns)]
 }
 
 export function resolveTheme(theme: MSAViewerProps['theme']) {
@@ -79,8 +104,9 @@ export function viewerSnapshot({
     ...(colWidth ? { colWidth } : {}),
     ...(rowHeight ? { rowHeight } : {}),
     ...(allowedGappyness !== undefined ? { allowedGappyness } : {}),
-    ...(highlightColumns ? { highlightColumns } : {}),
-    ...(highlights ? { highlights } : {}),
+    ...(highlights || highlightColumns
+      ? { highlights: viewerHighlights({ highlights, highlightColumns }) }
+      : {}),
     ...(features ? { features } : {}),
     ...(selection ? { selection } : {}),
     ...(clades ? { clades } : {}),

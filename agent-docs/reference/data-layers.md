@@ -150,7 +150,9 @@ agent produces one that does not.
 
 1. Column tracks from values. Shipped 2026-09-01 as `columnTracks`.
 2. Highlights in residue coordinates with labels. Shipped 2026-09-01 as
-   `highlights`; `highlightColumns` stays as the legacy 0-based column case.
+   `highlights`. The model's `highlightColumns` property stays in visible column
+   indices for jbrowse-plugin-msaview, and the `MSAViewer` prop of that name
+   takes 1-based columns and draws them as `highlights`.
 3. GFF `color`, then JSON features. `color=` shipped 2026-09-16 with the
    `featureFill` encoding, and the JSON `features` layer on 2026-09-25. A
    features record persists in the snapshot as JSON, so a host that computes its

@@ -81,8 +81,9 @@
 #'   \code{list(rows = c(...))} for whole rows, plus an optional
 #'   \code{label} and \code{color}. Drawn as a bordered band (or row tint)
 #'   with the label beside it.
-#' @param highlight_columns Alignment columns (1-based) to put under a
-#'   persistent overlay, as a numeric vector.
+#' @param highlight_columns Alignment columns (1-based) to highlight, as a
+#'   numeric vector. The viewer draws each run of adjacent columns as one
+#'   band, the way \code{highlights} draws a \code{start} and \code{end}.
 #' @param clades Clades of the tree to mark, each a list with \code{mrca} (tip
 #'   names whose most recent common ancestor is the clade) or \code{range}
 #'   (the first and last tip of a run, in display order), \code{tips} (the

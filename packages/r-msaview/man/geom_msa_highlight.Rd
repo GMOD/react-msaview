@@ -28,8 +28,8 @@ geom_msa_highlight(
 
 \item{color}{A CSS color for the band.}
 
-\item{columns}{Alignment columns (1-based) to put under a persistent
-overlay, as a numeric vector. Given on its own, it adds no band.}
+\item{columns}{Alignment columns (1-based) to highlight, as a numeric
+vector. The viewer draws each run of adjacent columns as one band.}
 }
 \value{
 A layer to add to a viewer with \code{+}.

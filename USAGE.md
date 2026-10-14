@@ -50,7 +50,7 @@ Props:
 | `treeAreaWidth`     | `number`                 | Fixed width of the tree/label gutter; unset fits it to the labels and the tree      |
 | `columnTracks`      | `ColumnTrackSpec[]`      | Tracks supplied as data (see below)                                                 |
 | `highlights`        | `Highlight[]`            | Labeled highlights (see below)                                                      |
-| `highlightColumns`  | `number[]`               | Columns (0-based) under a persistent overlay                                        |
+| `highlightColumns`  | `number[]`               | Columns (1-based, like `highlights`), one band per run of adjacent columns          |
 | `clades`            | `Clade[]`                | Tree clades with a mark over them                                                   |
 | `residueMappings`   | `ResidueMapping[]`       | Structure residue for each residue of a row                                         |
 | `rowData`           | `Record<string, ...>`    | Extra fields per row name, such as a lineage or a host                              |
