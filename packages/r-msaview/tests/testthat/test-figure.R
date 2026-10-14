@@ -132,7 +132,9 @@ test_that("features and row panels come out as the mark the viewer draws", {
   expect_equal(vapply(lay$row_panels, function(p) p$kind, ""),
                c("strip", "features"))
   expect_equal(lay$row_panels[[1]]$cells$row, 1:3)
-  expect_true(all(c("clade", "a", "b") %in% lay$legend_rows$label))
+  expect_equal(lay$row_panels[[1]]$title, "clade")
+  expect_equal(lay$row_panels[[1]]$cells$key, c("a", "a", "b"))
+  expect_setequal(unique(lay$features$shapes$key), c("genA", "genB"))
   file <- tempfile(fileext = ".pdf")
   ggplot2::ggsave(file, msaview_plot(w, tracks = FALSE), width = 6, height = 2)
   expect_gt(file.size(file), 1000)

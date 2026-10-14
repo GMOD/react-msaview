@@ -50,7 +50,10 @@ patchwork apply:
   `relative_to` all come out as they do on screen. No Node or browser runs
 - The figure draws the viewer's row panels (strips and gene arrows), its column
   tracks (conservation, the sequence logo, arcs, Stockholm text rows and your
-  own `geom_msa_track()`s) and its legend
+  own `geom_msa_track()`s)
+- Domains, gene arrows and strips map `fill` to their category through a
+  `scale_fill_manual()` seeded with the viewer's colors, so a `scale_fill_*()`
+  you add replaces it, and patchwork collects the legends
 - `msaview_layout()` returns the tables behind the figure (rows, letter colors,
   tree segments, feature shapes, row panels, highlights, clades, column tracks)
   for your own layers

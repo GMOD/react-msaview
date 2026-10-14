@@ -3,7 +3,6 @@ import './polyfills.ts'
 import { colord } from 'colord'
 
 import { featureSpanMarks } from '../../lib/src/components/msa/drawFeatureSpans.ts'
-import { legendRows } from '../../lib/src/components/msa/legendRows.ts'
 import { domainOverlaySource } from '../../lib/src/components/msa/renderBoxFeatureCanvasBlock.ts'
 import { tileColorFn } from '../../lib/src/components/msa/tileColor.ts'
 import { featurePanelSource } from '../../lib/src/components/rowpanels/renderFeaturePanel.ts'
@@ -13,6 +12,7 @@ import {
   bracketGap,
   cladeLabelBoxes,
 } from '../../lib/src/components/tree/cladeBrackets.ts'
+import { featureField } from '../../lib/src/featureFields.ts'
 import { layoutTree } from '../../lib/src/hierarchy.ts'
 import { CHAR_WIDTH_RATIO } from '../../lib/src/measureTextCanvas.ts'
 import MSAModelF from '../../lib/src/model.ts'
@@ -26,7 +26,7 @@ import type {
   SpanSource,
 } from '../../lib/src/components/msa/drawFeatureSpans.ts'
 import type { LaidOutNode } from '../../lib/src/hierarchy.ts'
-import type { BasicTrack } from '../../lib/src/types.ts'
+import type { Annotation, BasicTrack } from '../../lib/src/types.ts'
 import type { NodeWithIds } from '../../lib/src/types.ts'
 
 type Table = Record<string, unknown[]>
@@ -132,9 +132,16 @@ const measureText = (text: string, fontSize: number) =>
  * down from the first row's top edge, in rows; `x` stays in pixels for the
  * caller to scale.
  */
-function spanTables<T extends SpanBand>(model: Model, source: SpanSource<T>) {
+function spanTables<T extends SpanBand>(
+  model: Model,
+  source: SpanSource<T>,
+  field: string | undefined,
+) {
   const { rowHeight } = model
-  const shapes = table('group', 'x', 'y', 'fill', 'stroke')
+  // the value the fill scale reads, which R maps to a fill scale of its own
+  const keyOf = (a: Annotation) =>
+    (field === undefined ? undefined : featureField(a, field)) ?? a.name
+  const shapes = table('group', 'x', 'y', 'key', 'fill')
   const labels = table('x', 'y', 'label', 'color', 'size')
   // the source puts a row's top edge at y - rowHeight, its row center rowHeight
   // below the top of the figure
@@ -147,7 +154,7 @@ function spanTables<T extends SpanBand>(model: Model, source: SpanSource<T>) {
     xMax: Infinity,
   })
   for (const row of rows) {
-    for (const { fill, stroke, box, outline } of row.shapes) {
+    for (const { band, fill, box, outline } of row.shapes) {
       group++
       const points: [number, number][] = box
         ? [
@@ -162,8 +169,8 @@ function spanTables<T extends SpanBand>(model: Model, source: SpanSource<T>) {
           group,
           x,
           y: yOf(y),
+          key: keyOf(band.annotation),
           fill: hex(fill),
-          stroke: hex(stroke),
         })
       }
     }
@@ -177,30 +184,34 @@ function spanTables<T extends SpanBand>(model: Model, source: SpanSource<T>) {
       })
     }
   }
-  return { shapes, labels }
+  return { title: field ?? 'Domains', shapes, labels }
 }
 
 function rowPanelTables(model: Model) {
   return model.resolvedRowPanels.map(panel => {
-    const base = {
-      kind: panel.kind,
-      header: panel.header,
-      width: panel.width,
-      legendTitle: panel.legendTitle ?? null,
-    }
+    const base = { kind: panel.kind, header: panel.header, width: panel.width }
     if (panel.kind === 'strip') {
-      const cells = table('row', 'color')
+      const cells = table('row', 'key', 'color')
       model.leaves.forEach((leaf, i) => {
-        const color = panel.colors.get(leaf.data.name)
+        const { name } = leaf.data
+        const color = panel.colors.get(name)
         if (color) {
-          push(cells, { row: i + 1, color: hex(color) })
+          push(cells, {
+            row: i + 1,
+            key: model.rowData[name]?.[panel.field],
+            color: hex(color),
+          })
         }
       })
-      return { ...base, cells }
+      return { ...base, title: panel.legendTitle ?? panel.field, cells }
     }
     return {
       ...base,
-      ...spanTables(model, featurePanelSource(model, panel, model.leaves)),
+      ...spanTables(
+        model,
+        featurePanelSource(model, panel, model.leaves),
+        panel.field,
+      ),
     }
   })
 }
@@ -417,18 +428,15 @@ function figure(propsJson: string) {
       label: entries.map(e => e.label),
       color: entries.map(e => hex(e.color)),
     })),
-    legendRows: (() => {
-      const rows = table('label', 'color')
-      for (const { label, color } of legendRows(model.legends)) {
-        push(rows, { label, color: hex(color) })
-      }
-      return rows
-    })(),
     rowHeight: model.rowHeight,
     colWidth: model.colWidth,
     fontSize: model.fontSize,
     features: model.actuallyShowDomains
-      ? spanTables(model, domainOverlaySource(model, model.leaves))
+      ? spanTables(
+          model,
+          domainOverlaySource(model, model.leaves),
+          model.featureFillEncoding?.field,
+        )
       : null,
     rowPanels: rowPanelTables(model),
     tracks: trackTables(model),

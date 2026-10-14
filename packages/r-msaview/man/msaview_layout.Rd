@@ -12,23 +12,25 @@ msaview_layout(widget)
 \value{
 An `msaview_layout`: a list with `rows`, `colors`, `tree`,
   `domains`, `features`, `row_panels`, `highlights`, `clades`, `legends`,
-  `legend_rows`, `tracks`, `num_columns`, `row_height`, `col_width`,
-  `font_size`, `reference` and `fill_cells`. `features` and each features
-  panel carry the span mark as drawn: `shapes`, one polygon per span (an
-  arrow where the feature has a strand), and the `labels` that fit, in
-  pixels across and rows down. Each track is a list with
-  its `id`, `name`, `kind`, pixel `height`, whether the viewer shows it
-  (`on`), and its content: `values` for a bar, `letters` for a logo, `arcs`
-  for an arc and `cells` for a text track.
+  `tracks`, `clade_gutter`, `num_columns`, `row_height`, `col_width`,
+  `font_size`, `reference` and `fill_cells`.
+
+  `features` and each features panel hold `shapes`, one polygon per span
+  (an arrow where the feature has a strand) in pixels across and rows down,
+  with the `key` its fill scale reads; the `labels` that fit; and the
+  legend `title`. Each track is a list with its `id`, `name`, `kind`, pixel
+  `height`, whether the viewer shows it (`on`), and its content: `values`
+  for a bar, `letters` for a logo, `arcs` for an arc and `cells` for a text
+  track.
 }
 \description{
 Runs the viewer's own model, in an embedded QuickJS engine, over the
 widget's props and returns what it would draw as data frames: the rows in
 tree order, the color of each letter, the tree's segments, the domains,
 highlights and clades in visible columns, the legends and every column
-track the viewer can draw above the alignment. Collapsed clades, a focus, hidden gappy columns and the
-color scheme are all applied, as on screen. [msaview_plot()] draws the
-result.
+track the viewer can draw above the alignment. Collapsed clades, a focus,
+hidden gappy columns and the color scheme are all applied, as on screen.
+[msaview_plot()] draws the result.
 }
 \examples{
 \dontrun{
