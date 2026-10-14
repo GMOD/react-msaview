@@ -155,15 +155,55 @@ async function pullOne(entry) {
 // Plain queue + worker pool at concurrency 8, the same shape
 // scripts/screenshots/generate.mjs uses for its browser pool: no dependency
 // worth adding for the one loop this file needs.
+// Every hash media.lock has ever named. A local figure outside the set is a
+// regen nobody has pushed, and every script that reads docs/media pulls first,
+// so pulling over it would throw the work away without a word.
+function everLockedHashes(lock) {
+  const history = execFileSync(
+    'git',
+    ['log', '-p', '-U0', '--format=', '--', 'media.lock'],
+    { cwd: repoRoot, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 },
+  )
+  return new Set([
+    ...(history.match(/\b[0-9a-f]{64}\b/g) ?? []),
+    ...[...lock.values()].map(e => e.sha256),
+  ])
+}
+
 async function cmdPull() {
   const force = flag('force')
   const lock = readLock()
   const local = scanLocal()
-  const queue = [...lock.values()].filter(
-    e => force || local.get(e.path)?.sha256 !== e.sha256,
-  )
+  const known = force ? new Set() : everLockedHashes(lock)
+  const unpushed = []
+  const queue = [...lock.values()].filter(e => {
+    const have = local.get(e.path)?.sha256
+    if (force || have === undefined) {
+      return true
+    }
+    if (have === e.sha256) {
+      return false
+    }
+    if (!known.has(have)) {
+      unpushed.push(e.path)
+      return false
+    }
+    return true
+  })
+  if (unpushed.length > 0) {
+    console.warn(
+      `kept ${unpushed.length} figure(s) media.lock has never named: pnpm media:push uploads them, pnpm media:pull --force replaces them`,
+    )
+    for (const p of unpushed) {
+      console.warn(`  kept ${p}`)
+    }
+  }
   if (queue.length === 0) {
-    console.log('docs/media already matches media.lock')
+    console.log(
+      unpushed.length > 0
+        ? 'nothing to pull'
+        : 'docs/media already matches media.lock',
+    )
     return
   }
   console.log(`pulling ${queue.length} file(s), concurrency 8`)
@@ -335,8 +375,8 @@ const RENDER_INPUTS = [
 const git = args =>
   execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' })
 
-// No check compares a figure with the UI it shows, and every capture includes
-// the header, so a week of UI work once left 138 figures stale unnoticed
+// No check compares a figure with the UI it shows, so a week of UI work once
+// left 138 figures stale unnoticed
 function cmdStale() {
   const total = readLock().size
   const regen = lastFullRegen(
