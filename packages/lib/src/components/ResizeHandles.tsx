@@ -7,6 +7,8 @@ import DragHandle from './DragHandle.tsx'
 import type { MsaViewModel } from '../model.ts'
 import type { BasicTrack } from '../types.ts'
 
+const minViewHeight = 50
+
 export const VerticalResizeHandle = observer(function ({
   model,
 }: {
@@ -14,7 +16,12 @@ export const VerticalResizeHandle = observer(function ({
 }) {
   const onDrag = useCallback(
     (delta: number, startWidth: number) => {
-      model.setTreeAreaWidth(startWidth + delta)
+      model.setTreeAreaWidth(
+        Math.min(
+          Math.max(0, startWidth + delta),
+          model.width - model.resizeHandleWidth,
+        ),
+      )
     },
     [model],
   )
@@ -36,7 +43,7 @@ export const HorizontalResizeHandle = observer(function ({
 }) {
   const onDrag = useCallback(
     (delta: number, startHeight: number) => {
-      model.setHeight(startHeight + delta)
+      model.setHeight(Math.max(minViewHeight, startHeight + delta))
     },
     [model],
   )

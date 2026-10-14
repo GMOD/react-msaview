@@ -60,6 +60,23 @@ test('hiding gaps scans the full width when a collapsed clade holds the longest 
   expect(model.colStats.numColumns).toBe(5)
 })
 
+test('focusing a clade hides the columns all gaps within it', () => {
+  const model = MSAModelF().create({
+    type: 'MsaView',
+    msaFormat: 'fasta',
+    data: {
+      msa: '>a\nMKAANSE\n>b\nMKAANSE\n>c\nMK--NSE\n>d\nMK--NSE',
+      tree: '((a,b),(c,d));',
+    },
+    hideGaps: true,
+  })
+  model.setWidth(800)
+  expect(model.blanks).toEqual([])
+  model.setShowOnly(model.root.children![1]!.data.id)
+  expect(model.rowNames).toEqual(['c', 'd'])
+  expect(model.blanks).toEqual([2, 3])
+})
+
 test('a hidden row still has a sequence and coordinates', () => {
   const model = makeModel()
   const col = model.seqPosToGlobalCol('a', 3)

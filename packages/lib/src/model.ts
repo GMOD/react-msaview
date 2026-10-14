@@ -1661,12 +1661,16 @@ function stateModelFactory({
     .views(self => ({
       /**
        * #getter
-       * hideGaps takes effect when there are collapsed rows or allowedGappyness < 100
+       * hideGaps takes effect when a collapse or a focus hides rows, whose
+       * residues leave columns all gaps among the rest, or when
+       * allowedGappyness is under 100
        */
       get hideGapsEffective() {
         return (
           self.hideGaps &&
-          (self.collapsed.length > 0 || self.allowedGappyness < 100)
+          (self.collapsed.length > 0 ||
+            self.showOnly !== undefined ||
+            self.allowedGappyness < 100)
         )
       },
       /**
@@ -4880,7 +4884,9 @@ function stateModelFactory({
               }
               try {
                 setLoading?.(true)
-                self.setError(undefined)
+                if (!optional) {
+                  self.setError(undefined)
+                }
                 const text = await fetchTextWithProgress(
                   openLocation(filehandle),
                   status => {
