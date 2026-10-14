@@ -32,7 +32,34 @@ files.
 Section order: opening paragraph, `## Prerequisites`,
 `## Where the data comes from` (one bullet per file, ending in the raw URL), the
 steps, `## Reproduce it end to end`, `## See also` (bare links),
-`## References`.
+`## References`. `pnpm check:tutorials` holds the shape below.
+
+**Prerequisites lists what the reader installs**, one bullet per tool with its
+install line, and nothing else. A tool in it is one a fence on the page runs. No
+convenience pitch ("every figure below links to the live view", "nothing to
+install"): every page could say it, so it tells the reader nothing.
+
+**Where the data comes from opens on who fetches the files**, because a list of
+URLs under a provenance heading does not tell a reader whether to start
+downloading: "The commands below fetch these, so there is nothing to download by
+hand", or the same of the build script. One sentence before it names the release
+and cites it. The visible list is what those commands download. The files this
+repo hosts at `gmod.org/JBrowseMSA/demo/data/` stay visible only where a fence
+on the page reads them; the rest go in a `<details>` under the list, summarised
+"The files this page writes, hosted for the figure links", since a reader takes
+every visible bullet as something to get first. A bullet standing for one
+request of many says so and shows the one URL ("one sequence per accession, for
+example: ..."), rather than promising all of them.
+
+**Reproduce it end to end hands the script over with its reasoning.** Above the
+`curl` fence, a numbered list of three or four steps says what the script does,
+in the reader's terms and without commands, then one line points at
+[Prerequisites](#prerequisites) for what it needs. A tutorial teaches the
+method; the script only saves typing.
+
+**Repeated prose is load-bearing.** The ClustalW bullet and the "the label
+becomes the FASTA defline" sentence recur because each page reads from a cold
+start. Keep their wording consistent rather than cutting them.
 
 **Don't argue and don't preach.** Stop a section at the observation. No thesis
 paragraph, no naming a wrong inference to refute it, no "the honest result".

@@ -17,26 +17,30 @@ alignment's coordinates. Four commands produce the three files.
 - [react-msaview-cli](https://gmod.org/JBrowseMSA/cli),
   `npm install -g react-msaview-cli`, NodeJS v22+
 
-Every figure below links to the live view it captured.
-
 ## Where the data comes from
 
 Twelve NLRP1 orthologs as UniProtKB holds them, with Pfam matches from InterPro
-release 110.0.
+release 110.0. The commands below fetch these, so there is nothing to download
+by hand.
 
-- one protein sequence per accession:
+- one protein sequence per accession, for example:
   https://rest.uniprot.org/uniprotkb/Q9C000.fasta
-- precomputed Pfam matches for that accession:
+- precomputed Pfam matches per accession, for example:
   https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q9C000/
-- the twelve sequences before alignment, right-padded to one width so the viewer
-  opens them: https://gmod.org/JBrowseMSA/demo/data/nlrp1-unaligned.aln
-- the alignment the commands below write, hosted so the figures can link to it:
-  https://gmod.org/JBrowseMSA/demo/data/nlrp1.aln
-- its tree: https://gmod.org/JBrowseMSA/demo/data/nlrp1.nh
-- its domains: https://gmod.org/JBrowseMSA/demo/data/nlrp1-domains.gff
 
 Both endpoints serve one protein per request, so the whole family takes twelve
 requests to each.
+
+<details>
+<summary>The files this page writes, hosted for the figure links</summary>
+
+- the twelve sequences before alignment, right-padded to one width so the viewer
+  opens them: https://gmod.org/JBrowseMSA/demo/data/nlrp1-unaligned.aln
+- the alignment: https://gmod.org/JBrowseMSA/demo/data/nlrp1.aln
+- its tree: https://gmod.org/JBrowseMSA/demo/data/nlrp1.nh
+- its domains: https://gmod.org/JBrowseMSA/demo/data/nlrp1-domains.gff
+
+</details>
 
 ## The family
 
@@ -362,6 +366,19 @@ What that link opens: the three hosted files, and columns 39 to 113 banded and
 labelled PYD across all twelve rows.
 
 ## Reproduce it end to end
+
+[`build_protein_family.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_protein_family.sh)
+runs the four commands above in order:
+
+1. It fetches one sequence per accession from UniProt and names each FASTA
+   record by its label, since the label is what the viewer draws down the side.
+2. ClustalW aligns the records and infers a neighbor-joining tree from the
+   alignment.
+3. `react-msaview-cli interpro` reads InterPro's precomputed Pfam matches for
+   the same accessions and writes them as a GFF, each domain in its own
+   protein's residue numbering.
+
+It needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_protein_family.sh
