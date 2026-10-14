@@ -10,6 +10,7 @@ import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import { beforeAll, expect, test } from 'vitest'
 
 import AnnotationLegend from './components/msa/AnnotationLegend.tsx'
+import { exportPageSize, getLayout } from './exportLayout.ts'
 import MSAModelF from './model.ts'
 import { renderToStaticMarkup } from './renderToStaticMarkup.ts'
 import { renderToSvg } from './renderToSvg.tsx'
@@ -178,4 +179,16 @@ test('two channels over one field produce one legend', () => {
   ])
 
   expect(model.legends.map(l => l.title)).toEqual(['clade'])
+})
+
+test('the export dialog quotes the size the export draws', async () => {
+  const model = modelWithLegends([lineage, segment])
+  const theme = createJBrowseTheme()
+  const opts = { theme, exportType: 'entire' as const, includeTracks: true }
+  const svg = await renderToSvg(model, opts)
+  const size = exportPageSize(model, getLayout(model, opts))
+  expect(pageWidthOf(svg)).toBe(Math.round(size.width))
+  expect(Number(/<svg[^>]*height="(\d+)"/.exec(svg)![1])).toBe(
+    Math.round(size.height),
+  )
 })

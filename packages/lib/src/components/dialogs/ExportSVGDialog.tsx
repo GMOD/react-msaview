@@ -17,6 +17,7 @@ import {
 } from '@mui/material'
 import { observer } from 'mobx-react'
 
+import { exportPageSize, getLayout } from '../../exportLayout.ts'
 import Checkbox2 from '../Checkbox2.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
@@ -46,24 +47,12 @@ const ExportSVGDialog = observer(function ({
   const [error, setError] = useState<unknown>()
   const [exporting, setExporting] = useState(false)
   const theme = useTheme()
-  const {
-    totalWidth,
-    totalHeight,
-    effectiveTreeAreaWidth,
-    rowPanelsWidth,
-    turnedOnTracks,
-    totalTrackAreaHeight,
-    numColumns,
-    leaves,
-    showMsaLetters,
-    treeOverviewHeight,
-  } = model
+  const { turnedOnTracks, numColumns, leaves, showMsaLetters } = model
   const hasTracks = turnedOnTracks.length > 0
-  const entireWidth = totalWidth + effectiveTreeAreaWidth + rowPanelsWidth
-  const entireHeight =
-    totalHeight +
-    (includeTracks ? totalTrackAreaHeight : 0) +
-    treeOverviewHeight
+  const entire = exportPageSize(
+    model,
+    getLayout(model, { theme, exportType: 'entire', includeTracks }),
+  )
   // the background is one raster image whatever its size, so what the figure
   // actually costs is its residue letters: each is an svg element of its own.
   // Past roughly this many the export runs to tens of seconds and can exhaust
@@ -126,8 +115,8 @@ const ExportSVGDialog = observer(function ({
         </div>
         {isLargeExport ? (
           <Alert severity="warning" style={{ marginTop: 8 }}>
-            The entire MSA is {Math.round(entireWidth)}x
-            {Math.round(entireHeight)} pixels and draws{' '}
+            The entire MSA is {Math.round(entire.width)}x
+            {Math.round(entire.height)} pixels and draws{' '}
             {Math.round(glyphs / 1000)}k residue letters, each its own SVG
             element. Export may be slow or fail — zooming out far enough to hide
             the letters exports the same alignment as an image instead.

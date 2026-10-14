@@ -25,131 +25,31 @@ import {
 import { renderTreeCanvas } from './components/tree/renderTreeCanvas.ts'
 import { renderTreeOverview } from './components/tree/renderTreeOverview.ts'
 import { treeScaleBarHeight } from './constants.ts'
+import {
+  LEGEND_CHAR_W,
+  LEGEND_FONT,
+  LEGEND_PAD,
+  LEGEND_ROW_H,
+  LEGEND_SWATCH,
+  LEGEND_TEXT_X,
+  exportPageSize,
+  getLayout,
+  legendHeight,
+} from './exportLayout.ts'
 import { measureTextCanvas } from './measureTextCanvas.ts'
 import { renderToStaticMarkup, svgSafeColors } from './renderToStaticMarkup.ts'
 import { outlineColor } from './util.ts'
 
-import type { LegendRow } from './components/msa/legendRows.ts'
+import type { ExportSvgOptions, Layout } from './exportLayout.ts'
 import type { MsaViewModel } from './model.ts'
 import type { Context as ContextType } from '@jbrowse/svgcanvas'
 import type { Theme } from '@mui/material'
-
-export interface ExportSvgOptions {
-  theme: Theme
-  includeMinimap?: boolean
-  includeTracks?: boolean
-  exportType: 'entire' | 'viewport'
-}
-
-// legend geometry, shared by the width calculation and the renderer so the
-// reserved column on the right exactly fits the drawn legends
-const LEGEND_PAD = 8
-const LEGEND_ROW_H = 16
-const LEGEND_SWATCH = 12
-const LEGEND_FONT = 12
-const LEGEND_CHAR_W = 7
 
 // the width of a character as a fraction of the font size, close enough for a
 // sans-serif average
 const CHAR_WIDTH = 0.6
 
-const LEGEND_MAX_W = 360
-const LEGEND_TEXT_X = LEGEND_PAD + LEGEND_SWATCH + 6
-
-function getLegendWidth(rows: LegendRow[]) {
-  const maxLen = rows.reduce((a, r) => Math.max(a, r.label.length), 0)
-  const w = LEGEND_TEXT_X + LEGEND_PAD + maxLen * LEGEND_CHAR_W
-  return Math.min(LEGEND_MAX_W, Math.max(120, w))
-}
-
-function legendHeight(rows: LegendRow[]) {
-  return LEGEND_PAD * 2 + rows.length * LEGEND_ROW_H
-}
-
-// resolved sizes/offsets (in svg user units) for the chosen export, shared by
-// every layer; 'entire' renders the whole alignment unscrolled, 'viewport'
-// mirrors the live scroll position
-interface Layout {
-  width: number
-  msaAreaWidth: number
-  height: number
-  contentHeight: number
-  trackHeight: number
-  // the band the minimap, the row panel headers and the tree overview stacked
-  // on the scale bar share across the top
-  topHeight: number
-  offsetX: number
-  offsetY: number
-  includeMinimap: boolean
-  legendWidth: number
-}
-
-function getLayout(model: MsaViewModel, opts: ExportSvgOptions): Layout {
-  const {
-    scrollX,
-    scrollY,
-    totalWidth,
-    totalHeight,
-    effectiveTreeAreaWidth,
-    rowPanelsWidth,
-    rowPanelsHeaderHeight,
-    totalTrackAreaHeight,
-    minimapHeight,
-    msaAreaHeight,
-    msaCanvasWidth,
-    showHorizontalScrollbar,
-    treeOverviewHeight,
-    treeScaleBar,
-  } = model
-  const trackHeight = opts.includeTracks ? totalTrackAreaHeight : 0
-  // the minimap reflects the live viewport scroll position, so it's only
-  // meaningful for a viewport export, never for the entire alignment -- and
-  // only when the live view shows one at all, since a minimap over an alignment
-  // that already fits marks a viewport wider than the bar
-  const includeMinimap =
-    opts.exportType === 'viewport' &&
-    !!opts.includeMinimap &&
-    showHorizontalScrollbar
-  const rows = legendRows(model.legends)
-  const legendWidth = rows.length > 0 ? getLegendWidth(rows) : 0
-  const topHeight = Math.max(
-    includeMinimap ? minimapHeight : 0,
-    rowPanelsHeaderHeight,
-    treeOverviewHeight + (treeScaleBar ? treeScaleBarHeight : 0),
-  )
-  const gutterWidth = effectiveTreeAreaWidth + rowPanelsWidth
-
-  // width stays content-only; the legend occupies an extra column added at the
-  // svg root in MsaSvg. The viewport export takes the alignment canvas's own
-  // size rather than the widget's -- the widget box also covers the header, the
-  // resize handle and the scrollbars, and rendering that box exports rows and
-  // columns the scrollbars hide on screen
-  return opts.exportType === 'entire'
-    ? {
-        width: totalWidth + gutterWidth,
-        msaAreaWidth: totalWidth,
-        height: totalHeight + trackHeight + topHeight,
-        contentHeight: totalHeight,
-        trackHeight,
-        topHeight,
-        offsetX: 0,
-        offsetY: 0,
-        includeMinimap,
-        legendWidth,
-      }
-    : {
-        width: msaCanvasWidth + gutterWidth,
-        msaAreaWidth: msaCanvasWidth,
-        height: msaAreaHeight + topHeight + trackHeight,
-        contentHeight: msaAreaHeight,
-        trackHeight,
-        topHeight,
-        offsetX: -scrollX,
-        offsetY: -scrollY,
-        includeMinimap,
-        legendWidth,
-      }
-}
+export type { ExportSvgOptions } from './exportLayout.ts'
 
 export async function renderToSvg(model: MsaViewModel, opts: ExportSvgOptions) {
   // dataInitialized stays false while the model holds a load error, so waiting
@@ -196,17 +96,8 @@ function MsaSvg({
 }) {
   const { width, trackHeight, includeMinimap, legendWidth, topHeight } = layout
   const { effectiveTreeAreaWidth, rowPanelsWidth } = model
-  const totalWidth = width + legendWidth
+  const { width: totalWidth, height } = exportPageSize(model, layout)
   const legendTop = topHeight
-  // a short alignment with many legend entries has a key taller than its rows,
-  // and the page has to hold the whole key
-  const height =
-    legendWidth > 0
-      ? Math.max(
-          layout.height,
-          legendTop + legendHeight(legendRows(model.legends)),
-        )
-      : layout.height
   const props = { Context, model, theme, layout, layers }
 
   const body = (
@@ -728,7 +619,8 @@ function TrackLabelsSVG({
     const top = turnedOnTracks
       .slice(0, i)
       .reduce((acc, t) => acc + t.model.height, 0)
-    return { id, name, size, baseline: top + height / 2 + size / 3 }
+    // pinned to the top of the track, as the live view's flex row pins it
+    return { id, name, size, baseline: top + size * 0.8 }
   })
   return (
     <>

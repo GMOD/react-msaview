@@ -13,25 +13,9 @@ import {
   Typography,
 } from '@mui/material'
 import { observer } from 'mobx-react'
-import {
-  annotationsToGFF,
-  interProScanResponseToAnnotations,
-} from 'msa-parsers'
+import { annotationTextToGFF } from 'msa-parsers'
 
 import type { MsaViewModel } from '../../model.ts'
-import type { InterProScanResponse } from 'msa-parsers'
-
-// GFF3 as the CLI writes it, or the JSON an InterProScan run returns. Both
-// arrive as text and the model keeps GFF, so the JSON is converted on the way
-// in rather than given a second path through the model
-function toGFF(text: string) {
-  const trimmed = text.trimStart()
-  if (!trimmed.startsWith('{')) {
-    return text
-  }
-  const response: InterProScanResponse = JSON.parse(trimmed)
-  return annotationsToGFF(interProScanResponseToAnnotations(response))
-}
 
 async function fetchText(url: string) {
   const response = await fetch(url)
@@ -140,7 +124,7 @@ const AnnotationFileDialog = observer(function ({
                 // in the snapshot and the shared URL like every other layer. A
                 // filehandle left set would make the snapshot drop that text
                 model.setGFFFilehandle(undefined)
-                model.setGFF(toGFF(text))
+                model.setGFF(annotationTextToGFF(text))
                 model.setShowDomains(true)
                 handleClose()
               } catch (e) {
