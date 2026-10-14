@@ -1,6 +1,10 @@
 import { MSAViewer } from 'react-msaview'
 
-import { nlrp1DomainsGFF, nlrp1MSA, nlrp1Tree } from './exampleData'
+import {
+  nlrp1DomainsGFF,
+  nlrp1MSA,
+  nlrp1Tree,
+} from '../../../packages/examples/src/examples/data.ts'
 
 // A separate module so Viewer.tsx can import() it dynamically. Vite splits it
 // into a chunk that only desktop viewports fetch.

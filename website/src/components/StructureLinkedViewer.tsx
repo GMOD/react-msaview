@@ -1,14 +1,9 @@
-import {
-  Suspense,
-  lazy,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 
 import { compareStructural, reaction } from 'mobx'
 import { observer } from 'mobx-react'
+
+import { useDesktop } from '../lib/useDesktop'
 
 import type { Loci } from 'molstar/lib/mol-model/loci'
 import type { Structure } from 'molstar/lib/mol-model/structure'
@@ -304,6 +299,7 @@ export function StructureLinkedViewer({
   const overpaintQueue = useRef(Promise.resolve())
   const [model, setModel] = useState<MsaViewModel>()
   const [layers, setLayers] = useState<Layers>({})
+  const [layersError, setLayersError] = useState<string>()
   const [status, setStatus] = useState(idle)
   const [structureState, setStructureState] = useState('Loading structure')
   const structureLoaded = structureState === ''
@@ -311,11 +307,16 @@ export function StructureLinkedViewer({
   useEffect(() => {
     const controller = new AbortController()
     fetch(layersUrl, { signal: controller.signal })
-      .then(res => res.json() as Promise<Layers>)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`)
+        }
+        return res.json() as Promise<Layers>
+      })
       .then(setLayers)
       .catch((e: unknown) => {
         if (!controller.signal.aborted) {
-          setStatus(`Could not load ${layersUrl}: ${String(e)}`)
+          setLayersError(`Could not load ${layersUrl}: ${String(e)}`)
         }
       })
     return () => {
@@ -445,8 +446,8 @@ export function StructureLinkedViewer({
         )
         setStructureState('')
       } catch (e) {
-        console.error(e)
         if (!state.cancelled) {
+          console.error(e)
           setStructureState(`Could not load ${structureUrl}: ${String(e)}`)
         }
       }
@@ -590,7 +591,8 @@ export function StructureLinkedViewer({
           onCellClick={onCellClick}
         />
       </Suspense>
-      <div className="structure-link-canvas" ref={hostRef}>
+      <div className="structure-link-canvas">
+        <div className="structure-link-molstar" ref={hostRef} />
         {structureState ? (
           <p className="structure-link-loading">{structureState}</p>
         ) : null}
@@ -599,17 +601,14 @@ export function StructureLinkedViewer({
       <p className="structure-link-status" aria-live="polite">
         {status}
       </p>
+      {layersError ? (
+        <p className="structure-link-problem" role="alert">
+          {layersError}
+        </p>
+      ) : null}
       {model ? <MappingNotes model={model} structureId={structureId} /> : null}
     </div>
   )
-}
-
-const desktopQuery = window.matchMedia('(min-width: 641px)')
-const subscribe = (cb: () => void) => {
-  desktopQuery.addEventListener('change', cb)
-  return () => {
-    desktopQuery.removeEventListener('change', cb)
-  }
 }
 
 export interface Dataset extends StructureLinkedViewerProps {
@@ -626,11 +625,7 @@ export default function StructureLinkedDatasets({
   fallbackSrc: string
   fallbackAlt: string
 }) {
-  const desktop = useSyncExternalStore(
-    subscribe,
-    () => desktopQuery.matches,
-    () => false,
-  )
+  const desktop = useDesktop()
   const [chosen, setChosen] = useState(datasets[0]?.id)
   const [colorByConservation, setColorByConservation] = useState(false)
   const dataset = datasets.find(d => d.id === chosen) ?? datasets[0]
