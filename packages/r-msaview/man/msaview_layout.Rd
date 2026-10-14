@@ -11,8 +11,12 @@ msaview_layout(widget)
 }
 \value{
 An `msaview_layout`: a list with `rows`, `colors`, `tree`,
-  `domains`, `highlights`, `clades`, `legends`, `tracks`, `num_columns`,
-  `row_height`, `reference` and `fill_cells`. Each track is a list with
+  `domains`, `features`, `row_panels`, `highlights`, `clades`, `legends`,
+  `legend_rows`, `tracks`, `num_columns`, `row_height`, `col_width`,
+  `font_size`, `reference` and `fill_cells`. `features` and each features
+  panel carry the span mark as drawn: `shapes`, one polygon per span (an
+  arrow where the feature has a strand), and the `labels` that fit, in
+  pixels across and rows down. Each track is a list with
   its `id`, `name`, `kind`, pixel `height`, whether the viewer shows it
   (`on`), and its content: `values` for a bar, `letters` for a logo, `arcs`
   for an arc and `cells` for a text track.

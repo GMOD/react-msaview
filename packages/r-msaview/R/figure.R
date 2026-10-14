@@ -45,8 +45,12 @@ as_frame <- function(x) {
 #'
 #' @param widget A viewer from [msaview()], with any layers added.
 #' @return An `msaview_layout`: a list with `rows`, `colors`, `tree`,
-#'   `domains`, `highlights`, `clades`, `legends`, `tracks`, `num_columns`,
-#'   `row_height`, `reference` and `fill_cells`. Each track is a list with
+#'   `domains`, `features`, `row_panels`, `highlights`, `clades`, `legends`,
+#'   `legend_rows`, `tracks`, `num_columns`, `row_height`, `col_width`,
+#'   `font_size`, `reference` and `fill_cells`. `features` and each features
+#'   panel carry the span mark as drawn: `shapes`, one polygon per span (an
+#'   arrow where the feature has a strand), and the `labels` that fit, in
+#'   pixels across and rows down. Each track is a list with
 #'   its `id`, `name`, `kind`, pixel `height`, whether the viewer shows it
 #'   (`on`), and its content: `values` for a bar, `letters` for a logo, `arcs`
 #'   for an arc and `cells` for a text track.
@@ -85,14 +89,31 @@ msaview_layout <- function(widget) {
         label = vapply(l$label, as.character, character(1)),
         color = vapply(l$color, as.character, character(1))
       )),
+      features = parse_spans(raw$features),
+      row_panels = lapply(raw$rowPanels, function(p) c(
+        list(kind = p$kind, header = p$header, width = p$width,
+             cells = as_frame(p$cells)),
+        parse_spans(p)
+      )),
+      legend_rows = as_frame(raw$legendRows),
       tracks = lapply(raw$tracks, parse_track),
       num_columns = raw$numColumns,
       row_height = raw$rowHeight,
+      col_width = raw$colWidth,
+      font_size = raw$fontSize,
       reference = raw$reference,
-      fill_cells = isTRUE(raw$fillCells)
+      fill_cells = isTRUE(raw$fillCells),
+      letter_mode = isTRUE(raw$letterMode),
+      letters_over_domains = isTRUE(raw$lettersOverDomains),
+      tree_area_width = raw$treeAreaWidth
     ),
     class = "msaview_layout"
   )
+}
+
+parse_spans <- function(x) {
+  if (is.null(x)) return(NULL)
+  list(shapes = as_frame(x$shapes), labels = as_frame(x$labels))
 }
 
 parse_track <- function(t) {
@@ -203,20 +224,44 @@ msaview_plot <- function(x, letters = NULL, letter_size = 3, row_labels = NULL,
   aln <- alignment_plot(layout, letters, letter_size,
                         row_labels %||% (nrow(layout$rows) <= 60))
   shown <- pick_tracks(layout$tracks, tracks)
-  has_tree <- !is.null(layout$tree)
-  if (length(shown) == 0 && !has_tree) {
+  legend <- layout$legend_rows
+  if (length(shown) == 0 && is.null(layout$tree) &&
+      length(layout$row_panels) == 0 && is.null(legend)) {
     return(aln)
   }
-  need("patchwork", "A figure with a tree or a track")
-  track_panels <- lapply(shown, track_plot, layout = layout)
-  left <- c(rep(list(patchwork::plot_spacer()), length(shown)),
-            list(if (has_tree) tree_plot(layout) else patchwork::plot_spacer()))
+  need("patchwork", "A figure with a tree, a row panel, a legend or a track")
+  # one column per panel left to right, and the track rows above the main one
+  columns <- list()
+  if (!is.null(layout$tree)) {
+    columns$tree <- list(plot = tree_plot(layout),
+                         width = grid::unit(tree_width, "null"))
+  }
+  for (i in seq_along(layout$row_panels)) {
+    panel <- layout$row_panels[[i]]
+    columns[[paste0("panel", i)]] <- list(
+      plot = row_panel_plot(panel, layout, letter_size),
+      width = grid::unit(tree_width * panel$width / layout$tree_area_width,
+                         "null")
+    )
+  }
+  columns$aln <- list(plot = aln, width = grid::unit(1, "null"))
+  if (!is.null(legend)) {
+    chars <- max(nchar(legend$label))
+    columns$legend <- list(plot = legend_plot(legend),
+                           width = grid::unit(0.6 + 0.16 * chars, "cm"))
+  }
+  track_rows <- lapply(shown, function(track) {
+    lapply(names(columns), function(name) {
+      if (name == "aln") track_plot(track, layout) else patchwork::plot_spacer()
+    })
+  })
+  plots <- c(unlist(track_rows, recursive = FALSE),
+             lapply(columns, function(col) col$plot))
   heights <- c(vapply(shown, function(t) t$height, numeric(1)),
                max(nrow(layout$rows), 1) * layout$row_height)
   patchwork::wrap_plots(
-    c(rbind(left, c(track_panels, list(aln)))),
-    ncol = 2, byrow = TRUE, heights = heights,
-    widths = c(if (has_tree) tree_width else 0, 1)
+    plots, ncol = length(columns), byrow = TRUE, heights = heights,
+    widths = do.call(grid::unit.c, lapply(columns, function(col) col$width))
   )
 }
 
@@ -291,6 +336,7 @@ alignment_plot <- function(layout, letters, letter_size, row_labels) {
   draw_letters <- if (is.null(letters)) n * m <= 4000 else letters
 
   p <- ggplot2::ggplot() + bare_theme() + row_scale(layout, row_labels) +
+    ggplot2::scale_fill_identity() + ggplot2::scale_colour_identity() +
     ggplot2::scale_x_continuous(limits = c(0.5, m + 0.5), expand = c(0, 0),
                                 breaks = column_breaks(m), position = "top")
   if (layout$fill_cells && n > 0 && m > 0) {
@@ -304,46 +350,14 @@ alignment_plot <- function(layout, letters, letter_size, row_labels) {
   }
 
   domains <- layout$domains
-  if (!is.null(domains)) {
-    values <- stats::setNames(domains$fill, domains$label)
-    values <- values[!duplicated(names(values))]
-    p <- p +
-      ggplot2::geom_rect(
-        data = domains,
-        aes(xmin = .data$start - 0.5, xmax = .data$end + 0.5,
-            ymin = -.data$row - 0.5, ymax = -.data$row + 0.5,
-            fill = .data$label),
-        colour = domains$stroke, alpha = if (layout$fill_cells) 0.35 else 0.8,
-        linewidth = 0.3
-      ) +
-      ggplot2::scale_fill_manual(name = domain_legend_title(layout),
-                                 values = values)
-  }
+  p <- p + span_layers(layout$features, letter_size, layout,
+                       x = function(x) x / layout$col_width + 0.5)
 
   if (draw_letters && n > 0 && m > 0) {
-    cells <- data.frame(
-      x = as.vector(col(letter_mat)), y = -as.vector(row(letter_mat)),
-      letter = as.vector(letter_mat),
-      color = as.vector(
-        if (layout$fill_cells) cell_colors(layout, letter_mat, "text")
-        else fills
-      ),
-      match = as.vector(matches),
-      stringsAsFactors = FALSE
-    )
-    cells <- cells[!is.na(cells$letter), ]
-    cells$letter[cells$match] <- "."
-    cells$color[is.na(cells$color) | cells$match] <- "#000000de"
-    if (!is.null(domains) && layout$fill_cells) {
-      over <- vapply(seq_len(nrow(cells)), function(i) {
-        any(domains$row == -cells$y[i] & domains$start <= cells$x[i] &
-              domains$end >= cells$x[i])
-      }, logical(1))
-      cells$color[over] <- "#000000de"
-    }
     p <- p + ggplot2::geom_text(
-      data = cells, aes(x = .data$x, y = .data$y, label = .data$letter),
-      colour = cells$color, size = letter_size, family = "sans"
+      data = letter_cells(layout, letter_mat, matches),
+      aes(x = .data$x, y = .data$y, label = .data$letter, colour = .data$color),
+      size = letter_size, family = "sans"
     )
   }
 
@@ -351,11 +365,106 @@ alignment_plot <- function(layout, letters, letter_size, row_labels) {
   p
 }
 
-domain_legend_title <- function(layout) {
-  for (legend in layout$legends) {
-    if (any(legend$label %in% layout$domains$label)) return(legend$title)
+# each letter's color as renderMSABlock picks it: against the domain box under
+# it, the reference wash, its own colored cell, or the plain background, and
+# in letter-color mode the scheme's color darkened until it reads
+letter_cells <- function(layout, letter_mat, matches) {
+  primary <- "#000000de"
+  color <- if (layout$fill_cells) {
+    cell_colors(layout, letter_mat, "text")
+  } else if (layout$letter_mode) {
+    cell_colors(layout, letter_mat, "letterColor")
+  } else {
+    matrix(primary, nrow(letter_mat), ncol(letter_mat))
   }
-  NULL
+  color[is.na(color) | matches] <- primary
+  domains <- layout$domains
+  if (layout$letters_over_domains && !is.null(domains)) {
+    for (i in seq_len(nrow(domains))) {
+      cols <- seq(domains$start[i], min(domains$end[i], ncol(color)))
+      color[domains$row[i], cols] <- domains$text[i]
+    }
+  }
+  cells <- data.frame(
+    x = as.vector(col(letter_mat)), y = -as.vector(row(letter_mat)),
+    letter = as.vector(letter_mat), color = as.vector(color),
+    match = as.vector(matches), stringsAsFactors = FALSE
+  )
+  cells$letter[cells$match] <- "."
+  cells[!is.na(cells$letter), ]
+}
+
+# the span mark as the bridge laid it out: rows down from the top, x through
+# the caller's mapping from pixels
+span_layers <- function(spans, letter_size, layout, x) {
+  if (is.null(spans$shapes)) return(list())
+  shapes <- spans$shapes
+  shapes$x <- x(shapes$x)
+  shapes$y <- -shapes$y - 0.5
+  layers <- list(
+    ggplot2::geom_polygon(
+      data = shapes,
+      ggplot2::aes(x = .data$x, y = .data$y, group = .data$group,
+                   fill = .data$fill, colour = .data$stroke),
+      linewidth = 0.3
+    )
+  )
+  labels <- spans$labels
+  if (!is.null(labels)) {
+    labels$x <- x(labels$x)
+    labels$y <- -labels$y - 0.5
+    size <- letter_size * labels$size * layout$row_height / layout$font_size
+    layers <- c(layers, list(ggplot2::geom_text(
+      data = labels,
+      ggplot2::aes(x = .data$x, y = .data$y, label = .data$label),
+      colour = labels$color, size = size, family = "sans"
+    )))
+  }
+  layers
+}
+
+row_panel_plot <- function(panel, layout, letter_size) {
+  n <- nrow(layout$rows)
+  p <- ggplot2::ggplot() + bare_theme() + row_scale(layout, FALSE) +
+    ggplot2::scale_fill_identity() + ggplot2::scale_colour_identity() +
+    ggplot2::scale_x_continuous(limits = c(0, panel$width), expand = c(0, 0),
+                                position = "top", breaks = NULL,
+                                name = panel$header) +
+    ggplot2::theme(axis.text = ggplot2::element_blank(),
+                   axis.title.x.top = ggplot2::element_text(size = 8, angle = 90,
+                                                            hjust = 0))
+  cells <- panel$cells
+  if (!is.null(cells)) {
+    p <- p + ggplot2::geom_rect(
+      data = cells,
+      ggplot2::aes(xmin = 0, xmax = panel$width,
+                   ymin = -.data$row - 0.5, ymax = -.data$row + 0.5),
+      fill = cells$color
+    )
+  }
+  p + span_layers(panel, letter_size, layout, x = identity)
+}
+
+legend_plot <- function(rows) {
+  rows$y <- -seq_len(nrow(rows))
+  swatch <- rows[!is.na(rows$color), ]
+  ggplot2::ggplot() +
+    ggplot2::geom_tile(
+      data = swatch, ggplot2::aes(x = 0, y = .data$y),
+      width = 0.8, height = 0.8, fill = swatch$color, colour = "grey40",
+      linewidth = 0.2
+    ) +
+    ggplot2::geom_text(
+      data = rows,
+      ggplot2::aes(x = ifelse(is.na(.data$color), -0.4, 0.7), y = .data$y,
+                   label = .data$label),
+      hjust = 0, size = 2.8, family = "sans",
+      fontface = ifelse(is.na(rows$color), "bold", "plain")
+    ) +
+    ggplot2::scale_x_continuous(limits = c(-0.5, 12), expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(limits = c(-max(nrow(rows), 12) - 0.5, -0.5),
+                                expand = c(0, 0)) +
+    ggplot2::theme_void()
 }
 
 highlight_layers <- function(layout) {

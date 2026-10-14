@@ -2,14 +2,24 @@ import './polyfills.ts'
 
 import { colord } from 'colord'
 
+import { featureSpanMarks } from '../../lib/src/components/msa/drawFeatureSpans.ts'
+import { legendRows } from '../../lib/src/components/msa/legendRows.ts'
+import { domainOverlaySource } from '../../lib/src/components/msa/renderBoxFeatureCanvasBlock.ts'
 import { tileColorFn } from '../../lib/src/components/msa/tileColor.ts'
+import { featurePanelSource } from '../../lib/src/components/rowpanels/renderFeaturePanel.ts'
 import { barTrackValues } from '../../lib/src/components/tracks/drawTracks.ts'
 import { layoutTree } from '../../lib/src/hierarchy.ts'
+import { CHAR_WIDTH_RATIO } from '../../lib/src/measureTextCanvas.ts'
 import MSAModelF from '../../lib/src/model.ts'
 import { columnLogoStack } from '../../lib/src/sequenceLogo.ts'
+import { adjustColorForContrast } from '../../lib/src/util.ts'
 import { viewerSnapshot } from '../../lib/src/viewerSnapshot.ts'
 
 import type { MSAViewerProps } from '../../lib/src/components/MSAViewer.tsx'
+import type {
+  SpanBand,
+  SpanSource,
+} from '../../lib/src/components/msa/drawFeatureSpans.ts'
 import type { LaidOutNode } from '../../lib/src/hierarchy.ts'
 import type { BasicTrack } from '../../lib/src/types.ts'
 import type { NodeWithIds } from '../../lib/src/types.ts'
@@ -108,6 +118,88 @@ function trackTable(model: Model, track: BasicTrack['model']) {
   return undefined
 }
 
+// QuickJS has no fonts, so a label fits by the export's 0.6em fallback
+const measureText = (text: string, fontSize: number) =>
+  text.length * fontSize * CHAR_WIDTH_RATIO
+
+/**
+ * The span mark as polygons and labels, in the source's pixels. `y` counts
+ * down from the first row's top edge, in rows; `x` stays in pixels for the
+ * caller to scale.
+ */
+function spanTables<T extends SpanBand>(model: Model, source: SpanSource<T>) {
+  const { rowHeight } = model
+  const shapes = table('group', 'x', 'y', 'fill', 'stroke')
+  const labels = table('x', 'y', 'label', 'color', 'size')
+  // the source puts a row's top edge at y - rowHeight, its row center rowHeight
+  // below the top of the figure
+  const yOf = (y: number) => (y + rowHeight / 2) / rowHeight
+  let group = 0
+  const rows = featureSpanMarks({
+    ...source,
+    measureText,
+    xMin: -Infinity,
+    xMax: Infinity,
+  })
+  for (const row of rows) {
+    for (const { fill, stroke, box, outline } of row.shapes) {
+      group++
+      const points: [number, number][] = box
+        ? [
+            [box.x, box.y],
+            [box.x + box.w, box.y],
+            [box.x + box.w, box.y + box.h],
+            [box.x, box.y + box.h],
+          ]
+        : outline!
+      for (const [x, y] of points) {
+        push(shapes, {
+          group,
+          x,
+          y: yOf(y),
+          fill: hex(fill),
+          stroke: hex(stroke),
+        })
+      }
+    }
+    for (const { text, x, y, fill } of row.labels) {
+      push(labels, {
+        x,
+        y: yOf(y),
+        label: text,
+        color: contrastText(hex(fill)!),
+        size: row.fontSize / rowHeight,
+      })
+    }
+  }
+  return { shapes, labels }
+}
+
+function rowPanelTables(model: Model) {
+  return model.resolvedRowPanels.map(panel => {
+    const base = {
+      kind: panel.kind,
+      header: panel.header,
+      width: panel.width,
+      legendTitle: panel.legendTitle ?? null,
+    }
+    if (panel.kind === 'strip') {
+      const cells = table('row', 'color')
+      model.leaves.forEach((leaf, i) => {
+        const color = panel.colors.get(leaf.data.name)
+        if (color) {
+          push(cells, { row: i + 1, color: hex(color) })
+        }
+      })
+      return { ...base, cells }
+    }
+    return {
+      ...base,
+      ...spanTables(model, featurePanelSource(model, panel, model.leaves)),
+    }
+  })
+}
+
 // the ruler is left to the x axis, which numbers the same columns
 function trackTables(model: Model) {
   const on = new Set(model.turnedOnTracks.map(t => t.model.id))
@@ -179,7 +271,7 @@ function figure(propsJson: string) {
   const rowOf = new Map(names.map((name, i) => [name, i + 1]))
 
   const colorAt = tileColorFn(model)
-  const colors = table('col', 'letter', 'fill', 'text')
+  const colors = table('col', 'letter', 'fill', 'text', 'letterColor')
   const seen = new Set<string>()
   const dynamic = model.dynamicColorSchemeName !== undefined
   for (const seq of columns.values()) {
@@ -195,6 +287,7 @@ function figure(propsJson: string) {
             letter,
             fill,
             text: contrastText(fill),
+            letterColor: adjustColorForContrast(fill, '#ffffff'),
           })
         }
       }
@@ -209,6 +302,7 @@ function figure(propsJson: string) {
     'accession',
     'fill',
     'stroke',
+    'text',
   )
   for (const [name, bands] of model.domainBands) {
     const row = rowOf.get(name)
@@ -223,6 +317,7 @@ function figure(propsJson: string) {
           accession: annotation.accession,
           fill: hex(color?.fill),
           stroke: hex(color?.stroke),
+          text: color ? contrastText(hex(color.fill)!) : undefined,
         })
       }
     }
@@ -263,7 +358,13 @@ function figure(propsJson: string) {
     },
     colors,
     reference: relativeTo ?? null,
-    fillCells: model.bgColor,
+    fillCells: model.bgColor && !model.actuallyShowDomains,
+    letterMode: !model.bgColor,
+    lettersOverDomains:
+      model.actuallyShowDomains &&
+      !model.subFeatureRows &&
+      !model.domainUnderline,
+    treeAreaWidth: model.effectiveTreeAreaWidth,
     tree: treeTables(model) ?? null,
     domains,
     highlights,
@@ -273,7 +374,20 @@ function figure(propsJson: string) {
       label: entries.map(e => e.label),
       color: entries.map(e => hex(e.color)),
     })),
+    legendRows: (() => {
+      const rows = table('label', 'color')
+      for (const { label, color } of legendRows(model.legends)) {
+        push(rows, { label, color: hex(color) })
+      }
+      return rows
+    })(),
     rowHeight: model.rowHeight,
+    colWidth: model.colWidth,
+    fontSize: model.fontSize,
+    features: model.actuallyShowDomains
+      ? spanTables(model, domainOverlaySource(model, model.leaves))
+      : null,
+    rowPanels: rowPanelTables(model),
     tracks: trackTables(model),
   })
 }

@@ -105,8 +105,35 @@ test_that("a column track of your own reaches the figure", {
   arcs <- lay$tracks[[which(ids == "pairs")]]$arcs
   expect_equal(c(arcs$start, arcs$end), c(1, 5))
   p <- msaview_plot(w, tracks = c("score", "pairs", "sequence-logo"))
-  # three track rows and the alignment's, two panels each; patchwork holds the
-  # last panel outside its patches
-  expect_length(p$patches$plots, 7)
+  # three track rows over the alignment, in one column with no tree; patchwork
+  # holds the last panel outside its patches
+  expect_length(p$patches$plots, 3)
   expect_error(msaview_plot(w, tracks = "nope"), "no track named 'nope'")
+})
+
+test_that("features and row panels come out as the mark the viewer draws", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("patchwork")
+  gff <- paste(
+    "##gff-version 3",
+    "human\tdemo\tgene\t1\t4\t.\t+\t.\tName=genA",
+    "mouse\tdemo\tgene\t2\t6\t.\t.\t.\tName=genB",
+    sep = "\n"
+  )
+  w <- msaview(msa = msa, gff = gff) +
+    geom_msa_rowdata(data.frame(name = c("human", "mouse", "fish"),
+                                clade = c("a", "a", "b"))) +
+    geom_msa_strip("clade") +
+    geom_msa_features(x = "column", label = "Name")
+  lay <- msaview_layout(w)
+  # an arrow where the feature has a strand, a box where it has none
+  expect_equal(sort(as.vector(table(lay$features$shapes$group))), c(4, 5))
+  expect_false(lay$fill_cells)
+  expect_equal(vapply(lay$row_panels, function(p) p$kind, ""),
+               c("strip", "features"))
+  expect_equal(lay$row_panels[[1]]$cells$row, 1:3)
+  expect_true(all(c("clade", "a", "b") %in% lay$legend_rows$label))
+  file <- tempfile(fileext = ".pdf")
+  ggplot2::ggsave(file, msaview_plot(w, tracks = FALSE), width = 6, height = 2)
+  expect_gt(file.size(file), 1000)
 })

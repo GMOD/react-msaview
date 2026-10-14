@@ -48,8 +48,12 @@ patchwork apply:
   [QuickJSR](https://cran.r-project.org/package=QuickJSR) package), so collapsed
   clades, hidden gappy columns, color schemes, domains, highlights and
   `relative_to` all come out as they do on screen. No Node or browser runs
+- The figure draws the viewer's row panels (strips and gene arrows), its column
+  tracks (conservation, the sequence logo, arcs, Stockholm text rows and your
+  own `geom_msa_track()`s) and its legend
 - `msaview_layout()` returns the tables behind the figure (rows, letter colors,
-  tree segments, domains, highlights, clades, column tracks) for your own layers
+  tree segments, feature shapes, row panels, highlights, clades, column tracks)
+  for your own layers
 - A widget knitted into a PDF or Word document from R Markdown or Quarto prints
   as this figure
 
