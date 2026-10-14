@@ -1,0 +1,176 @@
+---
+// The docs and the tutorials share one sidebar, the way the jbrowse-components
+// site does: the reference pages flat at the top, then the tutorials, one
+// heading row per category. The tutorial group opens on a tutorial page and
+// stays closed elsewhere, so the reference pages fit without scrolling.
+import { docs, examples, tutorials as tutorialIndex } from '../lib/links.ts'
+import { tutorialCategories, tutorials } from '../lib/tutorials.ts'
+
+const base = import.meta.env.BASE_URL
+const strip = (s: string) => s.replace(/\/$/, '')
+const current = strip(Astro.url.pathname)
+const isCurrent = (href: string) => strip(href) === current
+const inTutorials = current.startsWith(strip(tutorialIndex.href))
+const referenceLinks = [...docs, examples]
+const sections = tutorialCategories.map(category => ({
+  category,
+  links: tutorials
+    .filter(t => t.category === category)
+    .map(t => ({ label: t.navLabel, href: `${base}/tutorials/${t.slug}` })),
+}))
+---
+
+<button
+  type="button"
+  class="sidebar-toggle"
+  aria-expanded="false"
+  aria-controls="docs-sidebar"
+>
+  Menu
+</button>
+<nav class="sidebar" id="docs-sidebar" aria-label="Documentation">
+  <ul>
+    {referenceLinks.map(link => (
+      <li>
+        <a
+          href={link.href}
+          aria-current={isCurrent(link.href) ? 'page' : undefined}
+        >
+          {link.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <details open={inTutorials}>
+    <summary>
+      <a
+        href={tutorialIndex.href}
+        aria-current={isCurrent(tutorialIndex.href) ? 'page' : undefined}
+      >
+        Tutorials
+      </a>
+    </summary>
+    <ul>
+      {sections.map(({ category, links }) => (
+        <>
+          <li class="sidebar-heading">{category}</li>
+          {links.map(link => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={isCurrent(link.href) ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </>
+      ))}
+    </ul>
+  </details>
+</nav>
+
+<script>
+  const toggle = document.querySelector('.sidebar-toggle')
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') !== 'true'
+    toggle.setAttribute('aria-expanded', String(open))
+  })
+</script>
+
+<style>
+  .sidebar {
+    position: sticky;
+    top: 64px;
+    align-self: start;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    font-size: 0.9rem;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  a {
+    display: block;
+    padding: 4px 10px;
+    border-left: 2px solid transparent;
+    color: var(--fg);
+    text-decoration: none;
+    line-height: 1.35;
+  }
+  a:hover {
+    color: var(--accent);
+  }
+  a[aria-current='page'] {
+    border-left-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  details {
+    margin-top: 12px;
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::after {
+    content: '';
+    width: 0.4em;
+    height: 0.4em;
+    margin-right: 12px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.15s;
+  }
+  details[open] > summary::after {
+    transform: rotate(45deg);
+  }
+  summary a {
+    flex: 1;
+    font-weight: 600;
+  }
+  .sidebar-heading {
+    margin: 12px 0 2px;
+    padding: 0 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .sidebar-toggle {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar-toggle {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg-soft);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .sidebar {
+      display: none;
+      position: static;
+      max-height: none;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-toggle[aria-expanded='true'] + .sidebar {
+      display: block;
+    }
+  }
+</style>

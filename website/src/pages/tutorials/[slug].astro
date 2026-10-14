@@ -1,39 +1,35 @@
 ---
-import Base from '../../layouts/Base.astro'
-import { tutorialBySlug } from '../../lib/tutorials.ts'
+import DocsLayout from '../../layouts/DocsLayout.astro'
+import { tutorials } from '../../lib/tutorials.ts'
 
-interface MarkdownPage {
-  Content: astroHTML.JSX.ElementType
-}
+import type { Tutorial } from '../../lib/tutorials.ts'
+import type { MarkdownInstance } from 'astro'
 
+type Markdown = MarkdownInstance<Record<string, unknown>>
+
+// tutorials.ts is the list; the glob only supplies the rendered markdown. The
+// directory also holds CLAUDE.md, which is authoring instructions, not a page,
+// and two entries are hand-written pages beside this one.
 export function getStaticPaths() {
-  const pages = import.meta.glob<MarkdownPage>(
-    '../../../../docs/tutorials/*.md',
-    {
-      eager: true,
-    },
-  )
-  // tutorials.ts is the list; the glob only supplies the rendered markdown. The
-  // directory also holds CLAUDE.md, which is authoring instructions, not a page.
-  return Object.entries(pages)
-    .map(([file, page]) => ({
-      params: { slug: file.split('/').pop()!.replace(/\.md$/, '') },
-      props: { page },
-    }))
-    .filter(({ params }) => tutorialBySlug.has(params.slug))
+  const pages = import.meta.glob<Markdown>('../../../../docs/tutorials/*.md', {
+    eager: true,
+  })
+  return tutorials.flatMap(tutorial => {
+    const page = pages[`../../../../docs/tutorials/${tutorial.slug}.md`]
+    return page
+      ? [{ params: { slug: tutorial.slug }, props: { tutorial, page } }]
+      : []
+  })
 }
 
-const { page } = Astro.props as { page: MarkdownPage }
-const { slug } = Astro.params
-const meta = tutorialBySlug.get(String(slug))
+const { tutorial, page } = Astro.props as { tutorial: Tutorial; page: Markdown }
 const { Content } = page
 ---
 
-<Base
-  title={`${meta?.title ?? 'Tutorial'} — JBrowseMSA`}
-  description={meta?.blurb}
+<DocsLayout
+  title={`${tutorial.title} — JBrowseMSA`}
+  description={tutorial.blurb}
+  headings={page.getHeadings()}
 >
-  <article class="prose">
-    <Content />
-  </article>
-</Base>
+  <Content />
+</DocsLayout>

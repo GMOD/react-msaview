@@ -1,0 +1,41 @@
+---
+import DocsLayout from '../layouts/DocsLayout.astro'
+import { docs } from '../lib/links.ts'
+
+import type { DocPage } from '../lib/links.ts'
+import type { MarkdownInstance } from 'astro'
+
+type Markdown = MarkdownInstance<Record<string, unknown>>
+
+export function getStaticPaths() {
+  const sources = import.meta.glob<Markdown>(
+    [
+      '../../../docs/user_guide.md',
+      '../../../docs/layers.md',
+      '../../../USAGE.md',
+      '../../../packages/cli/README.md',
+      '../../../packages/r-msaview/README.md',
+      '../../../packages/python/README.md',
+    ],
+    { eager: true },
+  )
+  return docs.map(page => {
+    const source = sources[`../../../${page.source}`]
+    if (!source) {
+      throw new Error(`[doc].astro does not glob ${page.source}`)
+    }
+    return { params: { doc: page.slug }, props: { page, source } }
+  })
+}
+
+const { page, source } = Astro.props as { page: DocPage; source: Markdown }
+const { Content } = source
+---
+
+<DocsLayout
+  title={`${page.label} — JBrowseMSA`}
+  description={page.body}
+  headings={source.getHeadings()}
+>
+  <Content />
+</DocsLayout>

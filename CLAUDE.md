@@ -52,13 +52,14 @@ is data preparation. See `viewer-not-analysis-tool` in the memory and
 `agent-docs/reference/data-layers.md`.
 
 The index is the site's gallery, and it is cards only — every piece of content
-under `/tutorials` is a page of its own. Each entry names a `thumb`, one of that
-page's own figures, which astro:assets crops to 5:3 and re-encodes at build
-time, so a card cannot drift from its page and no thumbnail file lands in
-`docs/media`.
+under `/tutorials` is a page of its own. Each entry names a `category`, which
+groups both the cards and the docs sidebar, and a `thumb`, one of that page's
+own figures, which astro:assets crops to 5:3 and re-encodes at build time, so a
+card cannot drift from its page and no thumbnail file lands in `docs/media`.
 
-`tutorials/jbrowse_integration.astro` is the one carded page with no markdown
-behind it: it holds the connected JBrowse 2 sessions. `lib/jbrowseLinks.ts`
+Two carded pages have no markdown behind them. `tutorials/structure_link.astro`
+mounts a live alignment beside its Mol\* structure, and
+`tutorials/jbrowse_integration.astro` holds the connected JBrowse 2 sessions. `lib/jbrowseLinks.ts`
 writes each one as a session spec and serializes it into a URL, and
 `lib/f12CombinedLinks.ts` holds a generated URL thousands of percent-encoded
 characters long. `[slug].astro` builds only slugs the markdown glob produces, so

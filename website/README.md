@@ -13,41 +13,48 @@ pnpm --filter website preview   # preview the build
 
 ## How it's wired
 
-| Page                                  | What it is                                                                                  |
-| ------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `index.astro`                         | Landing page: hero, a live `MSAViewer` (`src/components/Viewer.tsx`, `client:only="react"`) |
-| `guide.astro`                         | `docs/user_guide.md`                                                                        |
-| `layers.astro`                        | `docs/layers.md`                                                                            |
-| `embedding.astro`                     | `USAGE.md`                                                                                  |
-| `cli.astro`                           | `packages/cli/README.md`                                                                    |
-| `r-package.astro`                     | `packages/r-msaview/README.md`                                                              |
-| `python-package.astro`                | `packages/python/README.md`                                                                 |
-| `tutorials/index.astro`               | The gallery: one card per entry in `src/lib/tutorials.ts`, and nothing else                 |
-| `tutorials/[slug].astro`              | One page per `docs/tutorials/*.md`                                                          |
-| `tutorials/jbrowse_integration.astro` | The connected JBrowse sessions; hand-written, since its content is URLs built in TypeScript |
-| `examples.astro`                      | `packages/examples` as a React island (`ExamplesApp`)                                       |
+| Page                                  | What it is                                                                                      |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `index.astro`                         | Landing page: a live `MSAViewer` (`src/components/Viewer.tsx`) and an index of every page       |
+| `[doc].astro`                         | One page per `docs` entry in `src/lib/links.ts`, rendering the markdown file its `source` names |
+| `tutorials/index.astro`               | The gallery: one card per entry in `src/lib/tutorials.ts`, under its category's heading         |
+| `tutorials/[slug].astro`              | One page per `docs/tutorials/*.md` that `tutorials.ts` lists                                    |
+| `tutorials/structure_link.astro`      | A live alignment beside its Mol\* structure (`StructureLinkedViewer.tsx`)                       |
+| `tutorials/jbrowse_integration.astro` | The connected JBrowse sessions; hand-written, since its content is URLs built in TypeScript     |
+| `examples.astro`                      | `packages/examples` as a React island (`ExamplesApp`)                                           |
+
+Every page but the home page and the examples renders through
+`layouts/DocsLayout.astro`, which puts the docs sidebar (`DocsSidebar.astro`) on
+the left. The sidebar lists the `docs` pages, then the tutorials, one heading
+per category. A markdown page with four or more `##` sections also gets an "On
+this page" column on the right, built from `getHeadings()`.
 
 Rendering the repo's markdown keeps the docs in one place. Small plugins in
-`astro.config.mjs` do the rest: a remark plugin rewrites every markdown image to
-`/{base}/media/<file>` (early enough that Astro does not also emit an optimized
-copy nothing asks for), and rehype plugins wrap a screenshot and the paragraph
-under it into a `<figure>` and give every heading an id.
+`astro.config.mjs` do the rest:
+
+- a remark plugin rewrites every markdown image to `/{base}/media/<file>`, early
+  enough that Astro does not also emit an optimized copy nothing asks for
+- `wrapFigures` wraps a screenshot and the paragraph under it into a `<figure>`
+- `rehypeHeadingIds` gives every heading an id, and `headingAnchors` adds the
+  hover `#` link to it
+
 `scripts/sync-assets.mjs` copies `docs/media/*` into `public/media/` (run
 automatically by `dev`/`build`); `public/media` is git-ignored.
 
 ## Adding a page
 
-Drop a `.astro` file in `src/pages/`, wrap it in `../layouts/Base.astro`, and
-add it to the `docs` array in `src/lib/links.ts`, which the header's Docs menu
-and the home page's link list both read. To surface another existing markdown
-doc, `import { Content } from '../../../<path>.md'` (three `../` reach the repo
-root from `src/pages/`) and render `<Content />`. A tutorial needs no page: add
-the markdown to `docs/tutorials/` and an entry to `src/lib/tutorials.ts`.
+- **A markdown doc:** add an entry to `docs` in `src/lib/links.ts` and its path
+  to the glob in `[doc].astro`, which throws at build time on an entry whose
+  file it does not glob.
+- **A tutorial:** add the markdown to `docs/tutorials/` and an entry to
+  `src/lib/tutorials.ts`, with its `category` and a short `navLabel` for the
+  sidebar.
+- **A hand-written page:** a `.astro` file in `src/pages/` that wraps its
+  content in `DocsLayout`.
 
-The header bar carries Home, Tutorials and the standalone app directly, and
-everything else sits under the one Docs menu. A new top-level bar link is a
-deliberate change to `Base.astro`, not something an entry in `links.ts` can do
-on its own.
+The header bar links Docs, Tutorials, Examples and the standalone app, from a
+list in `Base.astro`. An entry in `links.ts` adds a row to the sidebar and the
+home page index.
 
 ## Deployment
 

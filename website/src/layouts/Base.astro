@@ -1,5 +1,5 @@
 ---
-import { app, docs, tutorials } from '../lib/links.ts'
+import { app, docs, examples, guide, tutorials } from '../lib/links.ts'
 import '../styles/global.css'
 
 interface Props {
@@ -10,19 +10,19 @@ interface Props {
 }
 const { title, description, wide, fullBleed } = Astro.props
 const base = import.meta.env.BASE_URL
-const home = { href: base, label: 'Home' }
-// Docs is the only menu. The bar itself carries what someone arrives to do.
-const groups = [{ label: 'Docs', items: docs }]
 
 const strip = (s: string) => s.replace(/\/$/, '')
 const current = strip(Astro.url.pathname)
-const isActive = (href: string) => strip(href) === current
-// Tutorials stays current on its own sub-pages, so reading a walkthrough still
-// shows where in the site you are.
-const inSection = (href: string) =>
-  isActive(href) || current.startsWith(`${strip(href)}/`)
-const groupActive = (items: { href: string }[]) =>
-  items.some(item => isActive(item.href))
+const isCurrent = (href: string) => strip(href) === current
+const nav = [
+  { ...guide, label: 'Docs', active: docs.some(d => isCurrent(d.href)) },
+  {
+    ...tutorials,
+    active: current.startsWith(strip(tutorials.href)),
+  },
+  { ...examples, active: isCurrent(examples.href) },
+  { ...app, active: false },
+]
 const canonical = new URL(Astro.url.pathname, Astro.site).href
 const socialImage = new URL(
   `${base}/media/within-protein-conservation.png`,
@@ -56,57 +56,15 @@ const socialImage = new URL(
         JBrowseMSA
       </a>
       <nav aria-label="Primary">
-        <a
-          href={home.href}
-          class:list={{ active: isActive(home.href) }}
-          aria-current={isActive(home.href) ? 'page' : undefined}
-        >
-          {home.label}
-        </a>
-        <a
-          href={tutorials.href}
-          class:list={{ active: inSection(tutorials.href) }}
-          aria-current={isActive(tutorials.href) ? 'page' : undefined}
-        >
-          {tutorials.label}
-        </a>
-        {groups.map(group => {
-          const menuId = `nav-menu-${group.label.toLowerCase()}`
-          return (
-            <div
-              class:list={['nav-group', { active: groupActive(group.items) }]}
-            >
-              <button
-                type="button"
-                class="nav-group-btn"
-                aria-expanded="false"
-                aria-controls={menuId}
-              >
-                {group.label}
-              </button>
-              <ul class="nav-menu" id={menuId}>
-                {group.items.map(item => (
-                  <li>
-                    <a
-                      href={item.href}
-                      class:list={{ active: isActive(item.href) }}
-                      aria-current={isActive(item.href) ? 'page' : undefined}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        })}
-        <a
-          href={app.href}
-          class:list={{ active: isActive(app.href) }}
-          aria-current={isActive(app.href) ? 'page' : undefined}
-        >
-          {app.label}
-        </a>
+        {nav.map(item => (
+          <a
+            href={item.href}
+            class:list={{ active: item.active }}
+            aria-current={isCurrent(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))}
       </nav>
       <a
         class="github-icon"
@@ -122,107 +80,9 @@ const socialImage = new URL(
     <footer class="site-footer">
       <span>
         react-msaview (JBrowseMSA) ·
-        <a href="https://github.com/GMOD/JBrowseMSA">GitHub</a> · part of{' '}
+        <a href="https://github.com/GMOD/JBrowseMSA">GitHub</a> · part of
         <a href="https://jbrowse.org">JBrowse</a>
       </span>
     </footer>
-    <script>
-      // Button + aria-expanded disclosure (the WAI-ARIA APG pattern for nav
-      // dropdowns of links), with the keyboard interaction that pattern
-      // specifies: arrows/Home/End move among a group's links, Escape closes and
-      // restores focus to the button, and tabbing out closes the group. Only one
-      // group opens at a time. Navigation is a full reload here, so no
-      // route-change handling is needed.
-      const buttons = [
-        ...document.querySelectorAll<HTMLButtonElement>(
-          '.site-header .nav-group-btn',
-        ),
-      ]
-      const isOpen = (btn: HTMLButtonElement) =>
-        btn.getAttribute('aria-expanded') === 'true'
-      const setOpen = (btn: HTMLButtonElement, open: boolean) => {
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false')
-      }
-      const closeAll = (except?: HTMLButtonElement) => {
-        buttons.forEach(b => {
-          if (b !== except) {
-            setOpen(b, false)
-          }
-        })
-      }
-      const open = (btn: HTMLButtonElement) => {
-        closeAll(btn)
-        setOpen(btn, true)
-      }
-
-      buttons.forEach(btn => {
-        const group = btn.closest('.nav-group')
-        const menuId = btn.getAttribute('aria-controls')
-        const links = menuId
-          ? [...document.querySelectorAll<HTMLAnchorElement>(`#${menuId} a`)]
-          : []
-
-        btn.addEventListener('click', () => {
-          if (isOpen(btn)) {
-            closeAll()
-          } else {
-            open(btn)
-          }
-        })
-
-        if (group instanceof HTMLElement) {
-          group.addEventListener('keydown', e => {
-            const onButton = document.activeElement === btn
-            const i = links.findIndex(link => link === document.activeElement)
-            if (e.key === 'ArrowDown') {
-              e.preventDefault()
-              if (onButton) {
-                open(btn)
-                links[0]?.focus()
-              } else if (i >= 0) {
-                links[Math.min(i + 1, links.length - 1)].focus()
-              }
-            } else if (e.key === 'ArrowUp' && i === 0) {
-              e.preventDefault()
-              btn.focus()
-            } else if (e.key === 'ArrowUp' && i > 0) {
-              e.preventDefault()
-              links[i - 1].focus()
-            } else if (e.key === 'Home' && i >= 0) {
-              e.preventDefault()
-              links[0].focus()
-            } else if (e.key === 'End' && i >= 0) {
-              e.preventDefault()
-              links[links.length - 1].focus()
-            } else if (e.key === 'Escape' && isOpen(btn)) {
-              setOpen(btn, false)
-              btn.focus()
-            }
-          })
-          // Close once focus leaves the group entirely (e.g. Tab past the last
-          // link); relatedTarget is where focus is heading.
-          group.addEventListener('focusout', e => {
-            const to = e.relatedTarget
-            if (!(to instanceof Node) || !group.contains(to)) {
-              setOpen(btn, false)
-            }
-          })
-        }
-      })
-
-      document.addEventListener('click', e => {
-        if (
-          !(e.target instanceof Element) ||
-          !e.target.closest('.site-header .nav-group')
-        ) {
-          closeAll()
-        }
-      })
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-          closeAll()
-        }
-      })
-    </script>
   </body>
 </html>

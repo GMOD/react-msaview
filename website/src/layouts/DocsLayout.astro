@@ -1,0 +1,45 @@
+---
+import DocsSidebar from '../components/DocsSidebar.astro'
+import OnThisPage from '../components/OnThisPage.astro'
+import Base from './Base.astro'
+
+import type { MarkdownHeading } from 'astro'
+
+interface Props {
+  title: string
+  description?: string
+  headings?: MarkdownHeading[]
+}
+const { title, description, headings = [] } = Astro.props
+const sections = headings.filter(h => h.depth === 2)
+const toc = sections.length >= 4
+---
+
+<Base title={title} description={description} wide>
+  <div class:list={['docs-layout', { 'with-toc': toc }]}>
+    <DocsSidebar />
+    <article class="prose">
+      <slot />
+    </article>
+    {toc && <OnThisPage sections={sections} />}
+  </div>
+</Base>
+
+<style>
+  .docs-layout {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 40px;
+  }
+  @media (min-width: 1201px) {
+    .docs-layout.with-toc {
+      grid-template-columns: 210px minmax(0, 1fr) 190px;
+    }
+  }
+  @media (max-width: 900px) {
+    .docs-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+  }
+</style>

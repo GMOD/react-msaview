@@ -4,10 +4,8 @@ import Typography from '@mui/material/Typography'
 import { ThemeProvider } from '@mui/material/styles'
 
 import ExampleBrowser from '../../../packages/examples/src/ExampleBrowser'
-import { app, docs, tutorials } from '../lib/links'
+import { app, guide, tutorials } from '../lib/links'
 import { theme } from '../lib/theme'
-
-const guide = docs.find(d => d.label === 'User guide')!
 
 export default function ExamplesApp() {
   return (

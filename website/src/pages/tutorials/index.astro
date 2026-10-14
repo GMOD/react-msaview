@@ -4,77 +4,81 @@
 // showcase is the list of walkthroughs rather than a separate wall of
 // screenshots. Each card's image is one of that page's own figures, cropped to
 // 5:3 and re-encoded by astro:assets at build time (see lib/tutorials.ts).
-//
-// Cards only. Every section this page used to carry is a page of its own now,
-// so the index is a way in and nothing else.
 import { Image } from 'astro:assets'
 
-import Base from '../../layouts/Base.astro'
-import { tutorials } from '../../lib/tutorials.ts'
+import DocsLayout from '../../layouts/DocsLayout.astro'
+import { tutorialCategories, tutorials } from '../../lib/tutorials.ts'
 
 const base = import.meta.env.BASE_URL
+const sections = tutorialCategories.map(category => ({
+  category,
+  items: tutorials.filter(t => t.category === category),
+}))
 ---
 
-<Base
+<DocsLayout
   title="Tutorials — JBrowseMSA"
   description="End-to-end walkthroughs that prepare the data outside the viewer: sequences to alignment to tree to annotations, ending on a link that opens the result."
 >
-  <article class="prose">
-    <h1>Tutorials</h1>
-    <p>
-      The viewer draws an alignment, a tree and whatever annotations you give
-      it. Producing those files takes the work, in command-line tools outside
-      the browser. Each walkthrough below is one continuous line of that work,
-      where every step consumes what the step before produced, and ends on a URL
-      that opens the result in JBrowseMSA. The last card is not a walkthrough:
-      it collects the sessions that open an alignment inside JBrowse 2, beside a
-      genome view and a structure. The picture on each card is a figure from the
-      page it opens.
-    </p>
+  <h1>Tutorials</h1>
+  <p>
+    The viewer draws an alignment, a tree and whatever annotations you give it.
+    Producing those files takes the work, in command-line tools outside the
+    browser. Each walkthrough below is one continuous line of that work, where
+    every step consumes what the step before produced, and ends on a URL that
+    opens the result in JBrowseMSA. Two cards open live pages instead: an
+    alignment linked to its structure in Mol*, and the sessions that open an
+    alignment inside JBrowse 2. The picture on each card is a figure from the
+    page it opens.
+  </p>
 
-    <ul class="tutorial-index">
-      {tutorials.map(t => {
-        const href = `${base}/tutorials/${t.slug}`
-        return (
-          <li>
-            <a href={href} class="thumb-link">
-              <Image
-                src={t.thumb}
-                alt={t.thumbAlt}
-                width={640}
-                height={384}
-                fit="cover"
-                position={t.thumbPosition}
-                format="webp"
-                loading="lazy"
-              />
-            </a>
-            <a href={href} class="tut-title">
-              {t.title}
-            </a>
-            <p>{t.blurb}</p>
-          </li>
-        )
-      })}
-    </ul>
+  {sections.map(({ category, items }) => (
+    <section>
+      <h2>{category}</h2>
+      <ul class="tutorial-index">
+        {items.map(t => {
+          const href = `${base}/tutorials/${t.slug}`
+          return (
+            <li>
+              <a href={href} class="thumb-link">
+                <Image
+                  src={t.thumb}
+                  alt={t.thumbAlt}
+                  width={640}
+                  height={384}
+                  fit="cover"
+                  position={t.thumbPosition}
+                  format="webp"
+                  loading="lazy"
+                />
+              </a>
+              <a href={href} class="tut-title">
+                {t.title}
+              </a>
+              <p>{t.blurb}</p>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  ))}
 
-    <p>
-      The <a href={`${base}/layers`}>layers reference</a> describes how values
-      you computed (per-column values, labeled highlights, pairs of positions, a
-      structure correspondence) load into the viewer as snapshot data, and the
-      <a href={`${base}/examples`}>examples</a> page runs the viewer live, one
-      page per usage pattern, with the source of each.
-    </p>
-  </article>
-</Base>
+  <p>
+    The <a href={`${base}/layers`}>layers reference</a> describes how values you
+    computed (per-column values, labeled highlights, pairs of positions, a
+    structure correspondence) load into the viewer as snapshot data, and the
+    <a href={`${base}/examples`}>examples</a> page runs the viewer live, one
+    page per usage pattern, with the source of each.
+  </p>
+</DocsLayout>
 
 <style>
   .tutorial-index {
     list-style: none;
-    margin: 28px 0 32px;
+    margin: 16px 0 32px;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 28px 24px;
   }
   .tutorial-index li {

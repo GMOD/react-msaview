@@ -2,7 +2,7 @@
 import { Code } from 'astro:components'
 
 import StructureLinkedDatasets from '../../components/StructureLinkedViewer.tsx'
-import Base from '../../layouts/Base.astro'
+import DocsLayout from '../../layouts/DocsLayout.astro'
 
 import type { Dataset } from '../../components/StructureLinkedViewer.tsx'
 
@@ -47,6 +47,10 @@ const datasets: Dataset[] = [
     ],
   },
 ]
+
+const files = datasets.flatMap(d =>
+  [d.msaUrl, d.treeUrl, d.gffUrl, d.layersUrl, d.structureUrl].filter(Boolean),
+)
 
 const bridge = `import { MSAViewer } from 'react-msaview'
 import {
@@ -117,140 +121,127 @@ plugin.behaviors.interaction.hover.subscribe(({ current }) => {
 />`
 ---
 
-<Base
-  title="An alignment linked to its structure | JBrowseMSA"
+<DocsLayout
+  title="An alignment linked to its structure — JBrowseMSA"
   description="The spike and hemoglobin alignments beside PDB 6VXX and 2HHB in Mol*, where hovering a residue in either view lights the same residue in the other through the residueMappings layer, and a checkbox colors the structure by column conservation."
 >
-  <article class="prose">
-    <h1>An alignment linked to its structure</h1>
-    <p>
-      The <a href={`${base}/tutorials/spike_structure`}>spike</a> and
-      <a href={`${base}/tutorials/protein_complex`}>hemoglobin</a> tutorials
-      each end on a <code>residueMappings</code> layer, which records the
-      structure residue for each residue of one row. The viewer below loads one
-      of those alignments with its layers and the PDB entry the mapping names,
-      and draws the structure in Mol* under the alignment. A residue hovered in
-      the alignment lights in the structure, a residue hovered in the structure
-      lights in the alignment, and the line under the structure reports what
-      each lookup returned.
-    </p>
+  <h1>An alignment linked to its structure</h1>
+  <p>
+    The <a href={`${base}/tutorials/spike_structure`}>spike</a> and
+    <a href={`${base}/tutorials/protein_complex`}>hemoglobin</a> tutorials each
+    end on a <code>residueMappings</code> layer, which records the structure
+    residue for each residue of one row. The viewer below loads one of those
+    alignments with its layers and the PDB entry the mapping names, and draws
+    the structure in Mol* under the alignment. A residue hovered in the
+    alignment lights in the structure, a residue hovered in the structure lights
+    in the alignment, and the line under the structure reports what each lookup
+    returned.
+  </p>
 
-    <div class="structure-link-frame">
-      <StructureLinkedDatasets
-        client:only="react"
-        datasets={datasets}
-        fallbackSrc={`${base}/media/structure_link-spike.png`}
-        fallbackAlt="The spike alignment on the PRRA insert above PDB 6VXX in Mol*, with the SARS-CoV-2 row mapped onto chain A"
-      />
-    </div>
+  <div class="structure-link-frame">
+    <StructureLinkedDatasets
+      client:only="react"
+      datasets={datasets}
+      fallbackSrc={`${base}/media/structure_link-spike.png`}
+      fallbackAlt="The spike alignment on the PRRA insert above PDB 6VXX in Mol*, with the SARS-CoV-2 row mapped onto chain A"
+    />
+  </div>
 
-    <h2>What to hover</h2>
-    <p>
-      The spike set opens on the PRRA insert. Hover the SARS-CoV-2 row: each
-      residue from 14 to 1211 reaches chain A of 6VXX at its position plus 19.
-      Residues 681 to 684 report <em>no coordinates</em>, because 6VXX declares
-      structure residues 696 to 707 in its sequence and resolved none of them.
-      Press <strong>HR1</strong> and hover row residues 920 to 970: each one
-      lights on chain A, structure residues 939 to 989. Click a cell to turn the
-      camera to that residue, and click a residue in the structure to scroll the
-      alignment to its column.
-    </p>
-    <p>
-      The hemoglobin set holds one row per species, alpha and beta concatenated.
-      On the Human row, alpha columns reach chain A of 2HHB and beta columns
-      reach chain B. Residues 1 and 143 are the initiator methionines, which the
-      mature chains lack, and report
-      <em>outside the mapped region</em>. The arc track above the alignment
-      joins the residue pairs in contact between the chains.
-    </p>
+  <h2>What to hover</h2>
+  <p>
+    The spike set opens on the PRRA insert. Hover the SARS-CoV-2 row: each
+    residue from 14 to 1211 reaches chain A of 6VXX at its position plus 19.
+    Residues 681 to 684 report <em>no coordinates</em>, because 6VXX declares
+    structure residues 696 to 707 in its sequence and resolved none of them.
+    Press <strong>HR1</strong> and hover row residues 920 to 970: each one
+    lights on chain A, structure residues 939 to 989. Click a cell to turn the
+    camera to that residue, and click a residue in the structure to scroll the
+    alignment to its column.
+  </p>
+  <p>
+    The hemoglobin set holds one row per species, alpha and beta concatenated.
+    On the Human row, alpha columns reach chain A of 2HHB and beta columns reach
+    chain B. Residues 1 and 143 are the initiator methionines, which the mature
+    chains lack, and report
+    <em>outside the mapped region</em>. The arc track above the alignment joins
+    the residue pairs in contact between the chains.
+  </p>
 
-    <h2>The built-in control</h2>
-    <p>
-      Each mapping names one row and one chain. Chains B and C of 6VXX are
-      copies of chain A, and chains C and D of 2HHB are copies of A and B, but
-      no mapping names them. A hover on any of them, or on a glycan, heme or
-      water, reports <em>no row maps here</em> and lights nothing in the
-      alignment. The other rows of each alignment report
-      <em>no mapping onto 6VXX</em> or <em>onto 2HHB</em>.
-    </p>
-    <p>
-      The viewer also checks each mapping against the loaded row and ignores one
-      computed against a different sequence. This page prints each ignored
-      mapping under the status line, and both sets print none.
-    </p>
+  <h2>The built-in control</h2>
+  <p>
+    Each mapping names one row and one chain. Chains B and C of 6VXX are copies
+    of chain A, and chains C and D of 2HHB are copies of A and B, but no mapping
+    names them. A hover on any of them, or on a glycan, heme or water, reports{' '}
+    <em>no row maps here</em> and lights nothing in the alignment. The other
+    rows of each alignment report
+    <em>no mapping onto 6VXX</em> or <em>onto 2HHB</em>.
+  </p>
+  <p>
+    The viewer also checks each mapping against the loaded row and ignores one
+    computed against a different sequence. This page prints each ignored mapping
+    under the status line, and both sets print none.
+  </p>
 
-    <h2>Color the structure by conservation</h2>
-    <p>
-      The <strong>Color the structure by conservation</strong> checkbox paints
-      each residue of a mapped chain with the conservation of the alignment
-      column it falls in, the number the Conservation track draws. Five blue
-      steps run from variable to conserved. A residue with no column is grey:
-      the chains no mapping names, the residues outside a mapped region, and a
-      residue in a column that <em>Hide columns</em> has hidden.
-    </p>
-    <p>
-      The conservation of a column counts the rows on screen. Collapse a clade
-      in the tree, or show one subtree, and the page repaints the structure from
-      the rows left. The page walks each residue of the structure through
-      <code>rowResidue</code> to its row residue, then through
-      <code>seqPosToVisibleCol</code> to a column, and reads
-      <code>model.conservation</code> there.
-    </p>
+  <h2>Color the structure by conservation</h2>
+  <p>
+    The <strong>Color the structure by conservation</strong> checkbox paints
+    each residue of a mapped chain with the conservation of the alignment column
+    it falls in, the number the Conservation track draws. Five blue steps run
+    from variable to conserved. A residue with no column is grey: the chains no
+    mapping names, the residues outside a mapped region, and a residue in a
+    column that <em>Hide columns</em> has hidden.
+  </p>
+  <p>
+    The conservation of a column counts the rows on screen. Collapse a clade in
+    the tree, or show one subtree, and the page repaints the structure from the
+    rows left. The page walks each residue of the structure through
+    <code>rowResidue</code> to its row residue, then through
+    <code>seqPosToVisibleCol</code> to a column, and reads
+    <code>model.conservation</code> there.
+  </p>
 
-    <h2>Put it on your own page</h2>
-    <p>
-      The two bridges are one call each way. <code>structureResidue</code>
-      takes a row and a 1-based residue and returns the structure residue as a
-      <code>label_seq_id</code>, with its chain and whether it has coordinates.{' '}
-      <code>rowResidue</code> takes a structure residue and its chain and
-      returns the row and residue, which <code>applyHighlight</code>
-      draws. Both return <code>undefined</code> where no mapping covers the
-      residue. <code>model</code> comes from <code>onModel</code>, and
-      <code>plugin</code> is the Mol* plugin with the structure loaded:
-    </p>
-    <Code code={bridge} lang="tsx" />
-    <p>
-      The page loads these files, all served with
-      <code>Access-Control-Allow-Origin</code>:
-    </p>
-    <ul>
-      <li>https://gmod.org/JBrowseMSA/demo/data/spike/spike.afa</li>
-      <li>https://gmod.org/JBrowseMSA/demo/data/spike/spike.nwk</li>
-      <li>https://gmod.org/JBrowseMSA/demo/data/spike/spike-domains.gff</li>
-      <li>https://gmod.org/JBrowseMSA/demo/data/spike/spike-layers.json</li>
-      <li>https://files.rcsb.org/download/6VXX.cif</li>
-      <li>https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.afa</li>
-      <li>https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.nwk</li>
-      <li>
-        https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-subunits.gff
-      </li>
-      <li>
-        https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-layers.json
-      </li>
-      <li>https://files.rcsb.org/download/2HHB.cif</li>
-    </ul>
+  <h2>Put it on your own page</h2>
+  <p>
+    The two bridges are one call each way. <code>structureResidue</code>
+    takes a row and a 1-based residue and returns the structure residue as a
+    <code>label_seq_id</code>, with its chain and whether it has coordinates.{' '}
+    <code>rowResidue</code> takes a structure residue and its chain and returns
+    the row and residue, which <code>applyHighlight</code>
+    draws. Both return <code>undefined</code> where no mapping covers the
+    residue. <code>model</code> comes from <code>onModel</code>, and
+    <code>plugin</code> is the Mol* plugin with the structure loaded:
+  </p>
+  <Code code={bridge} lang="tsx" />
+  <p>
+    The page loads these files, all served with
+    <code>Access-Control-Allow-Origin</code>:
+  </p>
+  <ul>
+    {files.map(url => (
+      <li>{url}</li>
+    ))}
+  </ul>
 
-    <h2>See also</h2>
-    <ul>
-      <li>
-        <a href={`${base}/tutorials/spike_structure`}>
-          The SARS-CoV-2 furin insert and PDB 6VXX
-        </a>
-      </li>
-      <li>
-        <a href={`${base}/tutorials/protein_complex`}>
-          Hemoglobin's two subunits and the interfaces between them
-        </a>
-      </li>
-      <li>
-        <a href={`${base}/layers#residuemappings`}>residueMappings</a>
-      </li>
-      <li>
-        <a href={`${base}/embedding`}>Embedding</a>
-      </li>
-    </ul>
-  </article>
-</Base>
+  <h2>See also</h2>
+  <ul>
+    <li>
+      <a href={`${base}/tutorials/spike_structure`}>
+        The SARS-CoV-2 furin insert and PDB 6VXX
+      </a>
+    </li>
+    <li>
+      <a href={`${base}/tutorials/protein_complex`}>
+        Hemoglobin's two subunits and the interfaces between them
+      </a>
+    </li>
+    <li>
+      <a href={`${base}/layers#residuemappings`}>residueMappings</a>
+    </li>
+    <li>
+      <a href={`${base}/embedding`}>Embedding</a>
+    </li>
+  </ul>
+</DocsLayout>
 
 <style is:global>
   .structure-link-frame {
@@ -332,6 +323,10 @@ plugin.behaviors.interaction.hover.subscribe(({ current }) => {
     height: 400px;
     margin-top: 8px;
     border: 1px solid var(--border);
+  }
+  .structure-link-molstar {
+    position: absolute;
+    inset: 0;
   }
   .structure-link-loading {
     position: absolute;

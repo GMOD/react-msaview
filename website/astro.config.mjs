@@ -1,4 +1,4 @@
-import { unified } from '@astrojs/markdown-remark'
+import { rehypeHeadingIds, unified } from '@astrojs/markdown-remark'
 import react from '@astrojs/react'
 import { defineConfig } from 'astro/config'
 
@@ -93,39 +93,23 @@ function wrapFigures() {
   }
 }
 
-// Give every h2/h3/h4 a stable slug id and a hover-reveal anchor link, so the
-// long docs pages (user guide, genome browser) are deep-linkable section by
-// section. Mirrors rehype-slug + rehype-autolink-headings without the deps.
+// Give every h2/h3/h4 a hover-reveal anchor link to the id rehypeHeadingIds
+// set. The link holds no text, and CSS draws the '#', so the heading text that
+// getHeadings() collects for the page contents stays clean.
 function headingAnchors() {
-  const slugify = text =>
-    text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-  const textOf = node =>
-    node.type === 'text'
-      ? node.value
-      : (node.children ?? []).map(textOf).join('')
   return tree => {
-    const seen = new Map()
     const visit = node => {
       if (node.type === 'element' && /^h[2-4]$/.test(node.tagName)) {
-        const slug = slugify(textOf(node))
-        const n = seen.get(slug) ?? 0
-        seen.set(slug, n + 1)
-        const id = n === 0 ? slug : `${slug}-${n}`
-        node.properties = { ...node.properties, id }
         node.children.push({
           type: 'element',
           tagName: 'a',
           properties: {
-            href: `#${id}`,
+            href: `#${node.properties.id}`,
             className: ['heading-anchor'],
             'aria-hidden': 'true',
             tabindex: '-1',
           },
-          children: [{ type: 'text', value: '#' }],
+          children: [],
         })
       }
       for (const child of node.children ?? []) {
@@ -156,7 +140,7 @@ export default defineConfig({
   markdown: {
     processor: unified({
       remarkPlugins: [rewriteMarkdownImages],
-      rehypePlugins: [wrapFigures, headingAnchors],
+      rehypePlugins: [wrapFigures, rehypeHeadingIds, headingAnchors],
     }),
   },
   vite: {
