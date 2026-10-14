@@ -305,5 +305,5 @@ for row in CHECKS:
     print(f'{row:9s} ' + ' '.join(f'{l:>4s}' for l in letters) + f'  {phenotype[row]}')
 PY
 
-# 7. the hosted files: the alignment, the tree and the row table
+# 8. the hosted files: the alignment, the tree and the row table
 ls -l "$OUT/tem.afa" "$OUT/tem.nwk" "$OUT/tem-rowdata.json" "$OUT/tem-alleles.tsv"
