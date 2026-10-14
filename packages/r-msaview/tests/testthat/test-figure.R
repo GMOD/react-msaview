@@ -1,4 +1,5 @@
 skip_if_not_installed("QuickJSR")
+skip_if_not(has_bundle("js/msaview-core.js"), "pnpm sync:r-bundle has not run")
 
 msa <- ">human\nMKAANSE\n>mouse\nMKA-NSE\n>fish\nMRA-NSQ"
 tree <- "((fish:1,mouse:1):1,human:2);"

@@ -6,7 +6,7 @@
 #   Rscript build_r_protease_triad.R [outdir]
 #
 # Needs: msaviewr, Biostrings, DECIPHER, ape, jsonlite.
-#   remotes::install_github("GMOD/JBrowseMSA", subdir = "packages/r-msaview")
+#   remotes::install_github("GMOD/JBrowseMSA@r-dist")
 #   BiocManager::install(c("Biostrings", "DECIPHER"))
 
 suppressPackageStartupMessages({

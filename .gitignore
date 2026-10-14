@@ -147,3 +147,8 @@ docs/media/*
 !docs/media/python-quickstart.png
 !docs/media/r-nucleotide.svg
 !docs/media/r-quickstart.svg
+
+# The R package's JavaScript, built by `pnpm sync:r-bundle`. CI builds it and
+# publishes the installable package to the r-dist branch on every push to main
+packages/r-msaview/inst/htmlwidgets/lib/
+packages/r-msaview/inst/js/

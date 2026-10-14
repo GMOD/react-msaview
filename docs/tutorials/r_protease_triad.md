@@ -12,8 +12,7 @@ in a browser.
 ## Prerequisites
 
 - R 4.3 or newer
-- msaviewr:
-  `remotes::install_github("GMOD/JBrowseMSA", subdir = "packages/r-msaview")`
+- msaviewr: `remotes::install_github("GMOD/JBrowseMSA@r-dist")`
 - Bioconductor: `BiocManager::install(c("Biostrings", "DECIPHER"))`
 - CRAN: `install.packages(c("ape", "jsonlite", "htmlwidgets"))`
 

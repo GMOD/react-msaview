@@ -11,11 +11,13 @@ RStudio, R Markdown, Quarto, and Shiny.
 The only hard dependency is `htmlwidgets`:
 
 ```r
-remotes::install_github("GMOD/JBrowseMSA", subdir = "packages/r-msaview")
+remotes::install_github("GMOD/JBrowseMSA@r-dist")
 ```
 
-From a clone of the repository, `devtools::install("packages/r-msaview")`
-installs the checked-out version instead.
+The `r-dist` branch is the package built from the latest `main`, JavaScript
+included, which CI publishes on every push. To install a clone of the repository
+instead, build the JavaScript first (see [Development](#development)), then run
+`devtools::install("packages/r-msaview")`.
 
 For Bioconductor interop:
 
@@ -454,12 +456,17 @@ msaview(msa = aa, color_scheme = c(K = "#1f77b4", R = "#1f77b4", D = "#d62728"))
 
 ## Development
 
-The widget's JavaScript is `inst/htmlwidgets/lib/react-msaview.umd.js`, a
-generated bundle. Installing an R package runs no Node, so the package commits
-the built file. `scripts/release.js` refreshes the bundle from the build it just
-made, so every release ships matching JavaScript, and CI fails when the
-committed bundle's version stamp differs from `packages/lib`. To refresh the
-bundle by hand from the repo root:
+A build generates two files in the package, and `.gitignore` keeps them off
+`main`:
+
+- `inst/htmlwidgets/lib/react-msaview.umd.js`, the widget
+- `inst/js/msaview-core.js`, the model `msaview_plot()` runs in QuickJS
+
+Installing an R package runs no Node, so CI builds both on every push to `main`,
+runs R CMD check on the result, and force-pushes the package as the single
+commit of the `r-dist` branch. The R code and its JavaScript therefore always
+come from the same commit, and the repository's history keeps no superseded
+bundle. To build them in a clone, from the repo root:
 
 ```sh
 pnpm build && pnpm sync:r-bundle

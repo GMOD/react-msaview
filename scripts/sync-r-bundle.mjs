@@ -5,15 +5,16 @@
  * msaviewr is an htmlwidget, so R has to find the JavaScript inside the
  * installed package -- installing an R package runs no node, and pointing the
  * htmlDependency at a CDN would break offline use and self-contained R Markdown
- * output. The bundle is therefore vendored, which means it goes stale the moment
- * anything in packages/lib changes unless something refreshes it.
+ * output. Main does not track the bundle, which a 1.3 MB refresh per lib change
+ * would pile into every clone's history. CI runs this and build-r-core.mjs on
+ * every push to main and publishes the package, bundles included, as the one
+ * commit of the r-dist branch, which is what `install_github` installs.
  *
- * scripts/release.js calls this after `pnpm build`, so every published release
- * ships the JavaScript that release was cut from. Run it by hand with
- * `pnpm sync:r-bundle` (after a build) to refresh in between.
+ * Run it by hand with `pnpm sync:r-bundle` (after a build) to load the package
+ * from a checkout with devtools.
  *
- * The bundle is stamped with a version banner so CI can check the committed
- * artifact itself rather than a sidecar file -- see the `r-package` job.
+ * The bundles carry a version banner, which `--check` compares with the
+ * version msaview.yaml and DESCRIPTION name.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -42,6 +43,9 @@ export function readLibVersion() {
 
 /** the version stamped into the vendored bundle, or undefined if unstamped */
 export function readBundleVersion(file = dest) {
+  if (!fs.existsSync(file)) {
+    return undefined
+  }
   const fd = fs.openSync(file, 'r')
   try {
     const buf = Buffer.alloc(200)
@@ -97,9 +101,8 @@ function sync() {
 }
 
 /**
- * Fail if the vendored bundle is not the one this version of the lib builds.
- * Checks the stamp in the artifact itself, not a sidecar, so hand-editing the
- * yaml cannot make a stale bundle look current.
+ * Fail if a bundle, msaview.yaml or DESCRIPTION names a version other than the
+ * lib's. A bundle that was never built reads as missing.
  */
 function check() {
   const version = readLibVersion()
@@ -115,7 +118,7 @@ function check() {
       console.error(`${what} is ${found ?? '(missing)'}, expected ${version}`)
     }
     console.error(
-      '\nThe R package vendors the UMD bundle and the QuickJS core. Run `pnpm build && pnpm sync:r-bundle`',
+      "\nBuild the R package's bundles with `pnpm build && pnpm sync:r-bundle`",
     )
     process.exit(1)
   }

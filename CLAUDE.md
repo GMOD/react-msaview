@@ -35,9 +35,15 @@ them, and follow it in this file too: agents copy the prose here as house voice.
   `msaview_plot()` draws the same widget with ggplot2, the way
   ~/src/gmod/ggtubemap draws a tube map: `js/bridge.ts` runs the real model in
   QuickJS over the widget's props and returns tables, and `R/figure.R` draws
-  them. `scripts/build-r-core.mjs` bundles the bridge into the committed
-  `inst/js/msaview-core.js`. Rebuild it with `pnpm sync:r-bundle` after a model
-  change; a release rebuilds it too
+  them. `scripts/build-r-core.mjs` bundles the bridge into
+  `inst/js/msaview-core.js`.
+
+  Main tracks neither that file nor the widget's UMD bundle, since every clone
+  would download a 1.3 MB copy per lib change. The `r-package` CI job builds
+  both and runs R CMD check, and on a push to main the `r-dist` job force-pushes
+  the built package as the single commit of the `r-dist` branch, which
+  `install_github("GMOD/JBrowseMSA@r-dist")` installs. Run
+  `pnpm build && pnpm sync:r-bundle` before `devtools::load_all` in a clone
 
 - `packages/python`: the `msaview-widget` anywidget (import `msaview`). Its
   traits are the `MSAViewer` props in snake case, and `src/render.ts` maps them
