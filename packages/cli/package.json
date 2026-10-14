@@ -18,7 +18,8 @@
     "clean": "node --eval \"fs.rmSync('dist',{recursive:true,force:true})\" --input-type=module",
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
-    "test": "vitest"
+    "test": "vitest",
+    "readme": "node src/readme.ts"
   },
   "devDependencies": {
     "@jbrowse/core": "^5.0.0-beta.9",

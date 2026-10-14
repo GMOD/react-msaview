@@ -3,7 +3,7 @@
 import * as fs from 'node:fs'
 import { parseArgs } from 'node:util'
 
-import { MAX_EXPORT_LETTERS, exportSvg } from './export-svg.ts'
+import { exportSvg } from './export-svg.ts'
 import { runGeneStructure } from './genestructure.ts'
 import { runInterProPrecomputed } from './interpro-precomputed.ts'
 import { runInterProScan } from './interproscan-msa.ts'
@@ -12,288 +12,11 @@ import {
   parseStructure,
   runResidueMappings,
 } from './residue-mappings.ts'
-import { DEFAULT_DOCKER_IMAGE } from './runner.ts'
+import { commandHelp, commands, isCommand, overviewHelp } from './usage.ts'
 
 import type { MappingRow } from './residue-mappings.ts'
 import type { MSAFormat } from 'msa-parsers'
-
-const options = {
-  // no default here: each command has its own, and a shared default cannot
-  // tell an explicit `-o` from an omitted one
-  output: {
-    type: 'string',
-    short: 'o',
-  },
-  msa: {
-    type: 'string',
-  },
-  tree: {
-    type: 'string',
-  },
-  gff: {
-    type: 'string',
-  },
-  spec: {
-    type: 'string',
-  },
-  props: {
-    type: 'string',
-  },
-  theme: {
-    type: 'string',
-  },
-  'color-scheme': {
-    type: 'string',
-  },
-  width: {
-    type: 'string',
-  },
-  height: {
-    type: 'string',
-  },
-  'tree-area-width': {
-    type: 'string',
-  },
-  'col-width': {
-    type: 'string',
-  },
-  'row-height': {
-    type: 'string',
-  },
-  tracks: {
-    type: 'string',
-  },
-  viewport: {
-    type: 'boolean',
-    default: false,
-  },
-  minimap: {
-    type: 'boolean',
-    default: false,
-  },
-  scale: {
-    type: 'string',
-  },
-  force: {
-    type: 'boolean',
-    default: false,
-  },
-  local: {
-    type: 'boolean',
-    default: false,
-  },
-  docker: {
-    type: 'boolean',
-    default: false,
-  },
-  singularity: {
-    type: 'boolean',
-    default: false,
-  },
-  'singularity-image': {
-    type: 'string',
-    default: `docker://${DEFAULT_DOCKER_IMAGE}`,
-  },
-  'docker-image': {
-    type: 'string',
-    default: DEFAULT_DOCKER_IMAGE,
-  },
-  'interproscan-path': {
-    type: 'string',
-    default: 'interproscan.sh',
-  },
-  programs: {
-    type: 'string',
-    default: 'PfamA,CDD',
-  },
-  database: {
-    type: 'string',
-    default: 'pfam',
-  },
-  'no-cache': {
-    type: 'boolean',
-    default: false,
-  },
-  ref: {
-    type: 'string',
-  },
-  gene: {
-    type: 'string',
-  },
-  taxon: {
-    type: 'string',
-    default: 'human',
-  },
-  'gene-id': {
-    type: 'string',
-  },
-  transcript: {
-    type: 'string',
-  },
-  email: {
-    type: 'string',
-    default: 'user@example.com',
-  },
-  format: {
-    type: 'string',
-  },
-  'interproscan-data': {
-    type: 'string',
-  },
-  rows: {
-    type: 'string',
-  },
-  row: {
-    type: 'string',
-  },
-  accession: {
-    type: 'string',
-  },
-  pdb: {
-    type: 'string',
-  },
-  chain: {
-    type: 'string',
-  },
-  alphafold: {
-    type: 'boolean',
-    default: false,
-  },
-  help: {
-    type: 'boolean',
-    short: 'h',
-    default: false,
-  },
-} as const
-
-function printHelp() {
-  console.log(`
-react-msaview-cli - CLI tools for react-msaview
-
-USAGE:
-  react-msaview-cli <command> [options]
-
-COMMANDS:
-  interproscan    Run InterProScan on all sequences in an MSA file
-  interpro        Build a domain GFF from InterPro's PRECOMPUTED matches for
-                  UniProtKB accessions (instant, deterministic, no scan job)
-  genestructure   Build an exon-structure GFF for a coding-sequence alignment
-                  from a RefSeq transcript (NCBI Datasets), overlaid like domains
-  residue-mappings
-                  Build the residueMappings layer relating alignment rows to
-                  PDB chains (SIFTS) or AlphaFold models
-  export-svg      Export alignment as SVG, PNG or PDF (no browser required)
-
-OPTIONS (interproscan):
-  -o, --output <file>           Output GFF file (default: domains.gff)
-  --local                       Use local InterProScan installation
-  --docker                      Use Docker (interpro/interproscan image)
-  --docker-image <image>        Docker image (default: ${DEFAULT_DOCKER_IMAGE})
-  --singularity                 Use Singularity/Apptainer container
-  --singularity-image <image>   Singularity image (default: docker://${DEFAULT_DOCKER_IMAGE})
-  --interproscan-path <path>    Path to interproscan.sh (default: interproscan.sh)
-  --interproscan-data <dir>     Host directory holding the InterProScan member
-                                database data/, mounted into the container
-                                (docker/singularity; the image ships without it)
-  --programs <list>             Comma-separated list of programs, in the EBI
-                                API's naming (default: PfamA,CDD); the container
-                                and local backends get the equivalent
-                                InterProScan 5 names
-  --format <name>               Force the MSA format instead of sniffing it
-                                (stockholm, fasta, a3m, clustal, emf)
-  --email <email>               Email for EBI API (default: user@example.com)
-
-OPTIONS (interpro — precomputed):
-  <input>                       Accession list / TSV (accession <TAB> label per
-                                line; # comments ok — the examples-gen .tsv works)
-  -o, --output <file>           Output GFF file (default: domains.gff)
-  --database <name>             InterPro member db to read (default: pfam)
-  --msa <file>                  Alignment the GFF is for; each row's ungapped
-                                length is checked against the UniProt sequence
-                                the matches were computed on (optional)
-  --format <name>               Force the --msa format instead of sniffing it
-  --no-cache                    Re-fetch every accession, ignoring the on-disk
-                                cache (kept per InterPro release under
-                                $XDG_CACHE_HOME/react-msaview-cli/interpro)
-
-OPTIONS (genestructure):
-  <input>                       MSA file (coding-sequence alignment) [required]
-  --gene <symbol>               Gene symbol to fetch from RefSeq (e.g. F12)
-  --taxon <name|id>             Taxon for --gene (default: human)
-  --gene-id <id>                NCBI GeneID, instead of --gene
-  --transcript <accession>      Specific transcript (default: MANE/RefSeq Select)
-  --ref <rowname>               Reference row = the transcript's CDS
-                                (default: first alignment row)
-  --format <name>               Force the MSA format instead of sniffing it
-  -o, --output <file>           Output GFF file (default: genestructure.gff)
-
-OPTIONS (residue-mappings):
-  --msa <file>                  Alignment holding the rows [required]
-  --format <name>               Force the MSA format instead of sniffing it
-  --rows <tsv>                  row<TAB>accession<TAB>structure per line, where
-                                structure is PDB:CHAIN (6VXX:A) or alphafold
-  --row <name>                  One row, instead of --rows
-  --accession <acc>             The row's UniProtKB accession
-  --pdb <id> --chain <id>       The PDB entry and author chain to map it onto
-  --alphafold                   Map it onto the AlphaFold DB model instead
-  -o, --output <file>           Output JSON file (default: stdout)
-
-OPTIONS (export-svg):
-  --spec <file.json>            MsaView spec or snapshot, with any layer from
-                                docs/layers.md; the flags below override it
-  --props <file.json>           MSAViewer props, as the R and Python widgets
-                                send them, in place of --spec
-  --msa <file>                  MSA file (FASTA, Stockholm, Clustal, A3M, EMF)
-                                [required without --spec or --props]
-  --format <name>               Force the MSA format instead of sniffing it
-  --tree <file>                 Newick tree file (optional)
-  --gff <file>                  Domain or exon GFF, or InterProScan JSON (optional)
-  -o, --output <file>           Output file; .svg, .png or .pdf picks the
-                                format, and PNG and PDF need rsvg-convert from
-                                librsvg (default: alignment.svg)
-  --scale <n>                   Pixels per SVG unit in a PNG (default: 2)
-  --color-scheme <name>         Color scheme (default: maeditor)
-  --theme <light|dark>          Page and text colors (default: light, or the
-                                theme --props names)
-  --width <px>                  Canvas width in pixels (default: 1200)
-  --height <px>                 Canvas height in pixels (default: 600)
-  --tree-area-width <px>        Tree panel width in pixels (optional)
-  --col-width <px>              Width of one alignment column (default: 12)
-  --row-height <px>             Height of one alignment row (default: 16)
-  --tracks <list>               Tracks to draw above the alignment, by id, or
-                                "all" (e.g. conservation,position-ruler).
-                                None by default
-  --viewport                    Draw the --width x --height viewport at the top
-                                left, instead of the entire alignment
-  --minimap                     Include the minimap bar (--viewport only)
-  --force                       Export the entire alignment even past ${MAX_EXPORT_LETTERS}
-                                residue letters, where it can run out of memory
-
-  -h, --help                    Show this help message
-
-EXAMPLES:
-  react-msaview-cli export-svg --msa alignment.fasta -o alignment.svg
-  react-msaview-cli export-svg --msa alignment.fasta --tree tree.nwk -o alignment.svg
-  react-msaview-cli export-svg --msa alignment.fasta --gff domains.gff --color-scheme clustalx_protein_dynamic -o alignment.svg
-  react-msaview-cli export-svg --msa alignment.fasta --tracks conservation,position-ruler -o alignment.svg
-  react-msaview-cli export-svg --msa alignment.fasta --viewport --minimap -o viewport.svg
-  react-msaview-cli export-svg --msa alignment.fasta --tree tree.nwk -o figure.pdf
-
-  react-msaview-cli interproscan alignment.fasta -o domains.gff
-  react-msaview-cli interproscan alignment.fasta -o domains.gff --docker
-  react-msaview-cli interproscan alignment.fasta -o domains.gff --local
-
-  react-msaview-cli interpro accessions.tsv -o domains.gff
-  react-msaview-cli interpro accessions.tsv -o domains.gff --database cdd
-
-  react-msaview-cli genestructure f12-cds.stock --gene F12 --ref human -o exons.gff
-  react-msaview-cli genestructure aln.fa --transcript NM_000505.4 --ref human
-
-  react-msaview-cli residue-mappings --msa spike.afa --row SARS-CoV-2 \\
-    --accession P0DTC2 --pdb 6VXX --chain A -o mappings.json
-  react-msaview-cli residue-mappings --msa spike.afa --rows structures.tsv
-`)
-}
+import type { ParseArgsOptionsConfig } from 'node:util'
 
 const MSA_FORMATS = new Set(['stockholm', 'a3m', 'fasta', 'emf', 'clustal'])
 
@@ -352,20 +75,30 @@ function readMappingRows(values: {
   ]
 }
 
-async function main() {
-  // inside main, so a mistyped flag reaches the handler below as a message
-  // rather than as a stack trace out of module evaluation
-  const { values, positionals } = parseArgs({ allowPositionals: true, options })
+function parse<T extends ParseArgsOptionsConfig>(
+  options: T,
+  allowPositionals = false,
+) {
+  return parseArgs({ args: process.argv.slice(3), options, allowPositionals })
+}
 
-  if (values.help || positionals.length === 0) {
-    printHelp()
+async function main() {
+  const command = process.argv[2]
+  if (!isCommand(command)) {
+    console.log(overviewHelp())
+    const asked = [undefined, '-h', '--help'].includes(command)
+    if (!asked) {
+      console.error(`\nUnknown command: ${command}`)
+    }
+    process.exit(asked ? 0 : 1)
+  }
+  if (process.argv.slice(3).some(arg => arg === '-h' || arg === '--help')) {
+    console.log(commandHelp(command))
     process.exit(0)
   }
 
-  const command = positionals[0]
-  const format = readFormat(values.format)
-
   if (command === 'export-svg') {
+    const { values } = parse(commands['export-svg'].options)
     if (!values.msa && !values.spec && !values.props) {
       console.error(
         'Error: --msa <file>, --spec <file.json> or --props <file.json> is required',
@@ -377,7 +110,6 @@ async function main() {
       console.error(`Error: --theme is light or dark, not "${theme}"`)
       process.exit(1)
     }
-    const outputFile = values.output ?? 'alignment.svg'
     await exportSvg({
       specFile: values.spec,
       propsFile: values.props,
@@ -385,7 +117,7 @@ async function main() {
       msaFile: values.msa,
       treeFile: values.tree,
       gffFile: values.gff,
-      outputFile,
+      outputFile: values.output,
       colorScheme: values['color-scheme'],
       width: readOptional('width', values.width, true),
       height: readOptional('height', values.height, true),
@@ -396,24 +128,24 @@ async function main() {
       ),
       colWidth: readOptional('col-width', values['col-width']),
       rowHeight: readOptional('row-height', values['row-height']),
-      format,
+      format: readFormat(values.format),
       tracks: values.tracks !== undefined ? readList(values.tracks) : undefined,
       viewport: values.viewport,
       minimap: values.minimap,
       scale: readOptional('scale', values.scale),
       force: values.force,
     })
-    console.log(`wrote ${outputFile}`)
+    console.log(`wrote ${values.output}`)
   } else if (command === 'interproscan') {
-    const inputFile = positionals[1]
+    const { values, positionals } = parse(commands.interproscan.options, true)
+    const inputFile = positionals[0]
     if (!inputFile) {
       console.error('Error: Input MSA file is required')
       process.exit(1)
     }
-
     await runInterProScan({
       inputFile,
-      outputFile: values.output ?? 'domains.gff',
+      outputFile: values.output,
       useLocal: values.local,
       useDocker: values.docker,
       useSingularity: values.singularity,
@@ -423,59 +155,61 @@ async function main() {
       dataDir: values['interproscan-data'],
       programs: readList(values.programs),
       email: values.email,
-      format,
+      format: readFormat(values.format),
     })
   } else if (command === 'interpro') {
-    const inputFile = positionals[1]
+    const { values, positionals } = parse(commands.interpro.options, true)
+    const inputFile = positionals[0]
     if (!inputFile) {
       console.error('Error: Input accession list / TSV file is required')
       process.exit(1)
     }
-
     await runInterProPrecomputed({
       inputFile,
-      outputFile: values.output ?? 'domains.gff',
+      outputFile: values.output,
       database: values.database,
       noCache: values['no-cache'],
       msaFile: values.msa,
-      format,
+      format: readFormat(values.format),
     })
   } else if (command === 'genestructure') {
-    const inputFile = positionals[1]
+    const { values, positionals } = parse(commands.genestructure.options, true)
+    const inputFile = positionals[0]
     if (!inputFile) {
       console.error('Error: Input MSA file is required')
       process.exit(1)
     }
-    const outputFile = values.output ?? 'genestructure.gff'
     await runGeneStructure({
       inputFile,
-      outputFile,
+      outputFile: values.output,
       ref: values.ref,
       gene: values.gene,
       taxon: values.taxon,
       geneId: values['gene-id'],
       transcript: values.transcript,
-      format,
+      format: readFormat(values.format),
     })
-  } else if (command === 'residue-mappings') {
+  } else {
+    const { values } = parse(commands['residue-mappings'].options)
     if (!values.msa) {
       console.error('Error: --msa <file> is required')
       process.exit(1)
     }
     await runResidueMappings({
       msaFile: values.msa,
-      format,
+      format: readFormat(values.format),
       rows: readMappingRows(values),
       outputFile: values.output,
     })
-  } else {
-    console.error(`Unknown command: ${command}`)
-    printHelp()
-    process.exit(1)
   }
 }
 
 main().catch((error: unknown) => {
   console.error('Error:', error instanceof Error ? error.message : error)
+  if ((error as { code?: string }).code?.startsWith('ERR_PARSE_ARGS')) {
+    console.error(
+      `Run react-msaview-cli ${process.argv[2]} --help for its options`,
+    )
+  }
   process.exit(1)
 })

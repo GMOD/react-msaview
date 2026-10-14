@@ -74,25 +74,31 @@ GPCR examples in
 react-msaview-cli export-svg --msa <file> [options]
 ```
 
-| Option                   | Description                                    | Default         |
-| ------------------------ | ---------------------------------------------- | --------------- |
-| `--spec <file.json>`     | View spec or snapshot (see below)              |                 |
-| `--msa <file>`           | MSA file (FASTA, Stockholm, Clustal, A3M, EMF) | _required_      |
-| `--tree <file>`          | Newick tree file                               |                 |
-| `--gff <file>`           | Domain or exon GFF, or InterProScan JSON       |                 |
-| `-o, --output <file>`    | Output file: `.svg`, `.png` or `.pdf`          | `alignment.svg` |
-| `--scale <n>`            | Pixels per SVG unit in a PNG                   | `2`             |
-| `--color-scheme <name>`  | Color scheme                                   | `maeditor`      |
-| `--col-width <px>`       | Width of one alignment column                  | `12`            |
-| `--row-height <px>`      | Height of one alignment row                    | `16`            |
-| `--width <px>`           | Viewport width, which sets the tree area       | `1200`          |
-| `--height <px>`          | Viewport height                                | `600`           |
-| `--tree-area-width <px>` | Tree panel width in pixels                     |                 |
-| `--format <name>`        | Force the MSA format instead of sniffing it    |                 |
-| `--tracks <list>`        | Tracks to draw above the alignment, by id      | none            |
-| `--viewport`             | Draw the viewport instead of the whole thing   |                 |
-| `--minimap`              | Include the minimap bar (`--viewport` only)    |                 |
-| `--force`                | Export past the 500,000-letter limit           |                 |
+<!-- options:export-svg -->
+
+| Option                   | Description                                                                                            | Default                           |
+| ------------------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| `--spec <file.json>`     | View spec or snapshot, with any layer from docs/layers.md; the flags below override it                 |                                   |
+| `--props <file.json>`    | MSAViewer props as the R and Python widgets send them, in place of `--spec`                            |                                   |
+| `--msa <file>`           | MSA file (FASTA, Stockholm, Clustal, A3M, EMF); required without `--spec` or `--props`                 |                                   |
+| `--format <name>`        | Force the MSA format (stockholm, fasta, a3m, clustal, emf) instead of sniffing it                      |                                   |
+| `--tree <file>`          | Newick tree file                                                                                       |                                   |
+| `--gff <file>`           | Domain or exon GFF, or InterProScan JSON                                                               |                                   |
+| `-o, --output <file>`    | Output file; `.svg`, `.png` or `.pdf` picks the format, and PNG and PDF need rsvg-convert from librsvg | `alignment.svg`                   |
+| `--scale <n>`            | Pixels per SVG unit in a PNG                                                                           | `2`                               |
+| `--color-scheme <name>`  | Color scheme                                                                                           | `maeditor`                        |
+| `--theme <light\|dark>`  | Page and text colors                                                                                   | the `--props` theme, else `light` |
+| `--width <px>`           | Viewport width, which sets the tree area                                                               | `1200`                            |
+| `--height <px>`          | Viewport height                                                                                        | `600`                             |
+| `--tree-area-width <px>` | Tree panel width in pixels                                                                             | fit to the labels                 |
+| `--col-width <px>`       | Width of one alignment column                                                                          | `12`                              |
+| `--row-height <px>`      | Height of one alignment row                                                                            | `16`                              |
+| `--tracks <list>`        | Tracks to draw above the alignment, by id (`conservation,position-ruler`), or `all`                    | none                              |
+| `--viewport`             | Draw the `--width` x `--height` viewport at the top left instead of the entire alignment               |                                   |
+| `--minimap`              | Include the minimap bar (`--viewport` only)                                                            |                                   |
+| `--force`                | Export past the 500,000-letter limit, where the export can run out of memory                           |                                   |
+
+<!-- /options -->
 
 ### Tracks
 
@@ -211,13 +217,17 @@ id or anything else InterPro does not key by; run `interproscan` on those. It
 writes through the same GFF writer as `interproscan`, and adds a `#` header line
 naming the InterPro release the coordinates came from.
 
-| Option                | Description                                     | Default       |
-| --------------------- | ----------------------------------------------- | ------------- |
-| `-o, --output <file>` | Output GFF file path                            | `domains.gff` |
-| `--database <name>`   | InterPro member db to read                      | `pfam`        |
-| `--msa <file>`        | Alignment to check the rows of (see below)      |               |
-| `--format <name>`     | Force the `--msa` format instead of sniffing it |               |
-| `--no-cache`          | Re-fetch, ignoring the disk cache               | off           |
+<!-- options:interpro -->
+
+| Option                | Description                                                                         | Default       |
+| --------------------- | ----------------------------------------------------------------------------------- | ------------- |
+| `-o, --output <file>` | Output GFF file                                                                     | `domains.gff` |
+| `--database <name>`   | InterPro member database to read                                                    | `pfam`        |
+| `--msa <file>`        | Alignment the GFF is for; the CLI checks each row's ungapped length against UniProt |               |
+| `--format <name>`     | Force the `--msa` format instead of sniffing it                                     |               |
+| `--no-cache`          | Re-fetch every accession, ignoring the disk cache                                   |               |
+
+<!-- /options -->
 
 InterPro computes matches on UniProt's canonical sequence. A label ending in
 `/start-end`, as Pfam and Stockholm name a fragment row (`P12931/84-145`), moves
@@ -259,19 +269,23 @@ proteins, or anything else InterPro has not scanned.
 react-msaview-cli interproscan <input-msa> [options]
 ```
 
-| Option                       | Description                                            | Default                                     |
-| ---------------------------- | ------------------------------------------------------ | ------------------------------------------- |
-| `-o, --output <file>`        | Output GFF file path                                   | `domains.gff`                               |
-| `--local`                    | Use a local InterProScan installation instead of EBI   | `false`                                     |
-| `--docker`                   | Run InterProScan via the `interpro/interproscan` image | `false`                                     |
-| `--singularity`              | Run InterProScan via a Singularity/Apptainer container | `false`                                     |
-| `--docker-image <img>`       | Docker image to run                                    | `interpro/interproscan:5.78-109.0`          |
-| `--singularity-image <img>`  | Singularity image to use                               | `docker://interpro/interproscan:5.78-109.0` |
-| `--interproscan-path <path>` | Path to local interproscan.sh                          | `interproscan.sh`                           |
-| `--interproscan-data <dir>`  | Member database `data/` to mount into the container    |                                             |
-| `--programs <list>`          | Comma-separated list of programs, in EBI API naming    | `PfamA,CDD`                                 |
-| `--format <name>`            | Force the MSA format instead of sniffing it            |                                             |
-| `--email <email>`            | Email for EBI API (used only for EBI API runs)         | `user@example.com`                          |
+<!-- options:interproscan -->
+
+| Option                        | Description                                                                                                     | Default                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `-o, --output <file>`         | Output GFF file                                                                                                 | `domains.gff`                               |
+| `--local`                     | Run a local InterProScan installation instead of the EBI API                                                    |                                             |
+| `--docker`                    | Run InterProScan in the `interpro/interproscan` Docker image                                                    |                                             |
+| `--singularity`               | Run InterProScan in a Singularity/Apptainer container                                                           |                                             |
+| `--docker-image <image>`      | Docker image to run                                                                                             | `interpro/interproscan:5.78-109.0`          |
+| `--singularity-image <image>` | Singularity image to run                                                                                        | `docker://interpro/interproscan:5.78-109.0` |
+| `--interproscan-path <path>`  | Path to a local interproscan.sh                                                                                 | `interproscan.sh`                           |
+| `--interproscan-data <dir>`   | Host directory holding the member database `data/` to mount into the container, which the image ships without   |                                             |
+| `--programs <list>`           | Comma-separated programs in the EBI API's naming; the container and local backends get the InterProScan 5 names | `PfamA,CDD`                                 |
+| `--format <name>`             | Force the MSA format (stockholm, fasta, a3m, clustal, emf) instead of sniffing it                               |                                             |
+| `--email <email>`             | Email for the EBI API, which only EBI runs send                                                                 | `user@example.com`                          |
+
+<!-- /options -->
 
 By default (no backend flag) the CLI submits sequences to the EBI InterProScan
 REST API one at a time. `--local`, `--docker`, and `--singularity` run
@@ -342,14 +356,19 @@ shorter on that row and stays in the same columns as the rest. The reference row
 must be the transcript's coding sequence; the CLI warns if its length doesn't
 match.
 
-| Option                | Description                                   | Default             |
-| --------------------- | --------------------------------------------- | ------------------- |
-| `--gene <symbol>`     | Gene symbol to look up in RefSeq (e.g. `F12`) |                     |
-| `--taxon <name\|id>`  | Taxon for `--gene`                            | `human`             |
-| `--gene-id <id>`      | NCBI GeneID, instead of `--gene`              |                     |
-| `--transcript <acc>`  | Specific transcript accession                 | MANE/RefSeq Select  |
-| `--ref <rowname>`     | Reference row = the transcript's CDS          | first row           |
-| `-o, --output <file>` | Output GFF file path                          | `genestructure.gff` |
+<!-- options:genestructure -->
+
+| Option                | Description                                                                       | Default             |
+| --------------------- | --------------------------------------------------------------------------------- | ------------------- |
+| `--gene <symbol>`     | Gene symbol to look up in RefSeq (e.g. `F12`)                                     |                     |
+| `--taxon <name\|id>`  | Taxon for `--gene`                                                                | `human`             |
+| `--gene-id <id>`      | NCBI GeneID, instead of `--gene`                                                  |                     |
+| `--transcript <acc>`  | Specific transcript accession                                                     | MANE/RefSeq Select  |
+| `--ref <rowname>`     | Reference row, which must be the transcript's CDS                                 | first row           |
+| `--format <name>`     | Force the MSA format (stockholm, fasta, a3m, clustal, emf) instead of sniffing it |                     |
+| `-o, --output <file>` | Output GFF file                                                                   | `genestructure.gff` |
+
+<!-- /options -->
 
 ```bash
 ## F12 coding alignment -> 14-exon overlay (MANE Select transcript, human row)
@@ -373,16 +392,21 @@ react-msaview-cli residue-mappings --msa <file> --row <name> --accession <acc> \
 react-msaview-cli residue-mappings --msa <file> --rows <tsv> [-o mappings.json]
 ```
 
-| Option                    | Description                                             | Default |
-| ------------------------- | ------------------------------------------------------- | ------- |
-| `--msa <file>`            | Alignment holding the rows                              |         |
-| `--format <name>`         | Force the MSA format instead of sniffing it             |         |
-| `--rows <tsv>`            | `row`, `accession`, `structure` per line, tab-separated |         |
-| `--row <name>`            | One row, instead of `--rows`                            |         |
-| `--accession <acc>`       | The row's UniProtKB accession                           |         |
-| `--pdb <id> --chain <id>` | The PDB entry and its author chain                      |         |
-| `--alphafold`             | The AlphaFold DB model of the accession instead         |         |
-| `-o, --output <file>`     | Output JSON file                                        | stdout  |
+<!-- options:residue-mappings -->
+
+| Option                | Description                                                                                             | Default |
+| --------------------- | ------------------------------------------------------------------------------------------------------- | ------- |
+| `--msa <file>`        | Alignment holding the rows (required)                                                                   |         |
+| `--format <name>`     | Force the MSA format (stockholm, fasta, a3m, clustal, emf) instead of sniffing it                       |         |
+| `--rows <tsv>`        | `row`, `accession`, `structure` per line, tab-separated, where the structure is `6VXX:A` or `alphafold` |         |
+| `--row <name>`        | One row, instead of `--rows`                                                                            |         |
+| `--accession <acc>`   | The row's UniProtKB accession                                                                           |         |
+| `--pdb <id>`          | The PDB entry to map the row onto                                                                       |         |
+| `--chain <id>`        | The `--pdb` entry's author chain                                                                        |         |
+| `--alphafold`         | Map the row onto the AlphaFold DB model of the accession instead                                        |         |
+| `-o, --output <file>` | Output JSON file                                                                                        | stdout  |
+
+<!-- /options -->
 
 In `--rows`, the structure column is `6VXX:A` or `alphafold`, and a
 `row accession structure` header line is optional. A row may appear on several

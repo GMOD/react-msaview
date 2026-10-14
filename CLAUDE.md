@@ -16,7 +16,11 @@ them, and follow it in this file too: agents copy the prose here as house voice.
 - `packages/app`: demo app deployed at gmod.org/JBrowseMSA
 - `packages/cli`: domain/exon GFFs (InterPro precomputed matches, InterProScan,
   RefSeq exon models) and headless SVG export. The viewer no longer scans for
-  domains, so the CLI is the only way to produce a domain file
+  domains, so the CLI is the only way to produce a domain file. `src/usage.ts`
+  lists each command's options. `index.ts` parses a command's flags against that
+  list, `--help` and the README's option tables render from it,
+  `pnpm --filter react-msaview-cli readme` rewrites the tables, and
+  `usage.test.ts` fails on a stale one
 - `packages/msa-parsers`: parsers for Stockholm, FASTA, Clustal, Newick, EMF,
   A3M, GFF
 - `packages/examples`: the live examples the website's /examples page mounts.
