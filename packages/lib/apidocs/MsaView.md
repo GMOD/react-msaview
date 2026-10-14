@@ -241,9 +241,9 @@ msaFilehandle: types.maybe(FileLocation)
 #### property: region
 
 where the view opens, in `highlights` coordinates: `{row, start, end}` zooms
-onto residues of that row, `{start, end}` onto alignment columns. Applied once
-the alignment and any tree file have loaded, then cleared, so a reloaded session
-keeps the reader's own scroll.
+onto residues of that row and scrolls the row to the middle, `{start, end}`
+zooms onto alignment columns. Applied once the alignment and any tree file have
+loaded, then cleared, so a reloaded session keeps the reader's own scroll.
 
 ```js
 region: types.frozen<Region | undefined>()
@@ -2091,6 +2091,17 @@ restore the default column width and row height
 
 ```js
 resetZoom: () => void
+```
+
+#### action: revealRegion
+
+zoomToRegion, and for a region naming a row, also scroll that row to the middle
+of the alignment, as Go to does. What `region` opens on; a caller following a
+range as it moves wants zoomToRegion alone, which leaves the reader's vertical
+scroll where they put it.
+
+```js
+revealRegion: (region: Region) => void
 ```
 
 #### action: selectBlock
