@@ -176,15 +176,19 @@ for line in open(sys.argv[1]):
 if name:
     seqs[name] = ''.join(buf)
 
+final_stop_only = 0
 with open(sys.argv[2], 'w') as out:
     for name in order:
         s = list(seqs[name].upper())
         last_nongap = max(i for i, ch in enumerate(s) if ch != '-')
         codon_start = (last_nongap // 3) * 3
         codon = ''.join(s[codon_start:codon_start + 3])
+        stops = [i for i in range(0, len(s) - 2, 3) if CODON.get(''.join(s[i:i + 3])) == '*']
         if CODON.get(codon) == '*':
             s[codon_start:codon_start + 3] = ['-', '-', '-']
+        final_stop_only += stops == [codon_start]
         out.write(f">{name}\n{''.join(s)}\n")
+print(f'{final_stop_only} of {len(order)} rows carry exactly one stop codon, in the last position')
 PY
 
 # 6. a maximum-likelihood tree from the protein translation (more signal at
@@ -260,6 +264,117 @@ for alpha, beta, ab, lrt, p, tbl in content:
     values.extend([v, v, v])
 json.dump(values, open(sys.argv[2], 'w'))
 print(f"wrote {sys.argv[2]}: {len(values)} values")
+PY
+
+# 11. the alignment, tree and exon numbers the page quotes, and the domain
+#     boundaries (InterPro's PROSITE profile calls on human TRIM5, UniProt
+#     Q9C035) that the FEL counts below group by
+curl -sf "https://www.ebi.ac.uk/interpro/api/entry/profile/protein/uniprot/Q9C035/" \
+  -o "$OUT/q9c035_profile.json"
+python3 - "$OUT" <<'PY'
+import json
+import re
+import sys
+
+out = sys.argv[1]
+rows, name = {}, None
+for line in open(f'{out}/trim5_cds_aln.fasta'):
+    line = line.rstrip('\n')
+    if line.startswith('>'):
+        name = line[1:]
+        rows[name] = ''
+    else:
+        rows[name] += line
+width = {len(s) for s in rows.values()}.pop()
+print(f'{len(rows)} rows, {width} nucleotide columns ({width // 3} codons)')
+
+support = sorted(float(x) for x in re.findall(r'\)(\d+\.\d+):', open(f'{out}/trim5.nwk').read()))
+print(f'weakest local supports: {support[0]}, {support[1]}')
+
+exons = []
+for line in open(f'{out}/trim5-exons.gff'):
+    f = line.rstrip('\n').split('\t')
+    if f[0] == 'human' and f[2] == 'exon':
+        exons.append((int(f[3]), int(f[4])))
+print(f'{len(exons)} coding exons on the human row: {exons}')
+
+profile_names = {'PS50089': 'RING', 'PS50119': 'B-box', 'PS50188': 'B30.2/SPRY'}
+regions = {'V1 patch': (326, 341)}
+for result in json.load(open(f'{out}/q9c035_profile.json'))['results']:
+    accession = result['metadata']['accession']
+    if accession in profile_names:
+        loc = result['proteins'][0]['entry_protein_locations'][0]['fragments'][0]
+        regions[profile_names[accession]] = (loc['start'], loc['end'])
+for label, (start, end) in regions.items():
+    first = next(i for i, (a, b) in enumerate(exons) if b >= (start - 1) * 3 + 1)
+    last = next(i for i, (a, b) in enumerate(exons) if b >= end * 3)
+    print(f'{label}: human aa {start}-{end}, {end - start + 1} codons, exons {first + 1}-{last + 1}')
+json.dump(regions, open(f'{out}/trim5_regions.json', 'w'))
+PY
+
+# 12. FEL's site counts, overall and by region. A site is positively selected
+#     where beta > alpha and p <= 0.1, HyPhy's default threshold
+python3 - "$OUT" <<'PY'
+import json
+import sys
+
+out = sys.argv[1]
+fel = json.load(open(f'{out}/trim5_fel.json'))
+regions = json.load(open(f'{out}/trim5_regions.json'))
+sites = fel['MLE']['content']['0']
+
+human, name = '', None
+for line in open(f'{out}/trim5_cds_aln.fasta'):
+    if line.startswith('>'):
+        name = line[1:].split()[0]
+    elif name == 'human':
+        human += line.strip()
+codon_of = [i for i in range(0, len(human), 3) if human[i:i + 3] != '---']
+residue_site = [sites[i // 3] for i in codon_of]
+
+
+def ratio_values(node, path=''):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield from ratio_values(value, f'{path}/{key}')
+    elif 'rate ratio' in path:
+        yield path, node
+
+
+for path, value in ratio_values(fel['fits']):
+    print(f'HyPhy {path}: {value}')
+
+
+def call(site):
+    alpha, beta, _, _, p, _ = site
+    if p > 0.1:
+        return 'neutral'
+    return 'positive' if beta > alpha else 'negative'
+
+
+def summary(label, subset):
+    calls = [call(s) for s in subset]
+    pos, neg = calls.count('positive'), calls.count('negative')
+    print(f'{label}: {len(calls)} codons, {pos} positive ({100 * pos / len(calls):.1f}%), {neg} negative ({100 * neg / len(calls):.1f}%)')
+
+
+summary('FEL, all alignment columns', sites)
+for label, (start, end) in regions.items():
+    summary(f'FEL, {label} (human aa {start}-{end})', residue_site[start - 1:end])
+
+best = min((s[4], i + 1, s) for i, s in enumerate(residue_site) if call(s) == 'positive')
+print(f'strongest positive site: human {best[1]}, alpha={best[2][0]:.3g}, beta={best[2][1]:.3g}, p={best[0]:.4f}')
+alpha, beta, _, _, p, _ = residue_site[331]
+print(f'human 332: alpha={alpha:.2f}, beta={beta:.2f}, beta/alpha={beta / alpha:.1f}, p={p:.2f}')
+print(f'human 371: alpha={residue_site[370][0]:.0f}, beta={residue_site[370][1]:.3g}')
+
+window = regions['V1 patch'][1] - regions['V1 patch'][0] + 1
+starts = range(len(residue_site) - window + 1)
+positives = {i + 1: sum(call(s) == 'positive' for s in residue_site[i:i + window]) for i in starts}
+best_count = max(positives.values())
+best_starts = [i for i, n in positives.items() if n == best_count]
+no_negative = sum(all(call(s) != 'negative' for s in residue_site[i:i + window]) for i in starts)
+print(f'{window}-codon windows: most positive sites in one is {best_count}, starting at human aa {best_starts}; {no_negative} of {len(positives)} have no negative site')
 PY
 
 echo

@@ -40,12 +40,12 @@ by hand.
   https://api.ncbi.nlm.nih.gov/datasets/v2/gene/id/85363/download
 
 The domain boundaries this page uses on the canonical human _TRIM5_ protein
-(UniProtKB Q9C035) come from InterPro's precomputed matches: the RING and B-box
-zinc fingers from Pfam,
-https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q9C035/, and the
-full B30.2/SPRY domain from the wider PROSITE profile call,
+(UniProtKB Q9C035) come from InterPro's PROSITE profile calls, which the script
+fetches: RING (PS50089, aa 15-59), B-box (PS50119, aa 90-132) and B30.2/SPRY
+(PS50188, aa 281-493),
 https://www.ebi.ac.uk/interpro/api/entry/profile/protein/uniprot/Q9C035/. Pfam's
-own SPRY entry stops short of the domain's N-terminal variable loops.
+own SPRY entry (aa 358-488) stops short of the domain's N-terminal variable
+loops.
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
@@ -281,6 +281,8 @@ runs the alignment, tree, exon and FEL steps above in order:
    transcript onto every row.
 4. HyPhy FEL fits a synonymous and a non-synonymous rate at every codon, and the
    script writes their ratio, clamped at 5, as the values of the dN/dS track.
+5. It prints the alignment, tree and exon numbers quoted above, and FEL's site
+   counts overall and for the V1 patch, RING, B-box and B30.2/SPRY.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
