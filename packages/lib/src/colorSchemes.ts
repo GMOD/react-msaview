@@ -1,10 +1,7 @@
 import { blue, green, orange, red } from '@mui/material/colors'
-import { colord, extend } from 'colord'
-import namesPlugin from 'colord/plugins/names'
+import { colord } from 'colord'
 
 import { transform } from './util.ts'
-
-extend([namesPlugin])
 
 // standard A/C/G/T(/U) coloring, shared by the `jbrowse_dna` and `nucleotide`
 // scheme names

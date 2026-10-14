@@ -12,7 +12,7 @@
  * leaves the rest undefined -- every emitted transform then carries `NaN` in its
  * x components, which no assertion on a drawn x-position can survive.
  */
-export class HeadlessDOMMatrix {
+class HeadlessDOMMatrix {
   a: number
   b: number
   c: number
@@ -50,7 +50,7 @@ export class HeadlessDOMMatrix {
   }
 }
 
-export class HeadlessDOMPoint {
+class HeadlessDOMPoint {
   constructor(
     public x = 0,
     public y = 0,

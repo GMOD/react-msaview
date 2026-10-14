@@ -9,7 +9,7 @@ import type { Arc, BasicTrack } from '../../types.ts'
 import type { RenderCtx } from '../renderCtx.ts'
 import type { Theme } from '@mui/material'
 
-export function drawConservationBars({
+function drawConservationBars({
   ctx,
   values,
   color,
@@ -55,7 +55,7 @@ export function barTrackValues(model: MsaViewModel, trackId: string) {
 
 // An arc's apex scales with the square root of its span. Contact-map spans skew
 // short, and a linear scale flattens them along the baseline.
-export function drawArcs({
+function drawArcs({
   ctx,
   arcs,
   color,
@@ -103,7 +103,7 @@ export function drawArcs({
   }
 }
 
-export function drawTextTrackContent({
+function drawTextTrackContent({
   ctx,
   data,
   colorScheme,
@@ -176,7 +176,7 @@ export function rulerCols(xStart: number, end: number, colWidth: number) {
 const RULER_FONT_SIZE = 10
 const TICK_HEIGHT = 4
 
-export function drawColumnRuler({
+function drawColumnRuler({
   ctx,
   numColumns,
   label,
@@ -229,7 +229,7 @@ export function drawColumnRuler({
 const CAP_HEIGHT_RATIO = 0.72
 const MIN_LETTER_PX = 3
 
-export function drawSequenceLogo({
+function drawSequenceLogo({
   ctx,
   colStats,
   colorScheme,

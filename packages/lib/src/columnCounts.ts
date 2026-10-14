@@ -44,7 +44,7 @@ function slotOf(code: number) {
   return code < 128 ? slotOfCode[code]! : OTHER
 }
 
-export function isGapSlot(slot: number) {
+function isGapSlot(slot: number) {
   return slot === DASH || slot === DOT
 }
 
