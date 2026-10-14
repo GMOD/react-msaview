@@ -4,7 +4,7 @@ import * as path from 'node:path'
 
 import { afterAll, beforeAll, expect, test } from 'vitest'
 
-import { exportSvg } from './export-svg.ts'
+import { MAX_EXPORT_LETTERS, exportSvg } from './export-svg.ts'
 
 let dir: string
 
@@ -144,6 +144,19 @@ test('-o picks the format from its extension', async () => {
   await expect(
     exportSvg({ msaFile, outputFile: path.join(dir, 'out.jpg') }),
   ).rejects.toThrow('.svg, .png or .pdf')
+})
+
+test('an entire export past the letter limit is refused, naming the flags that help', async () => {
+  const columns = Math.ceil(MAX_EXPORT_LETTERS / 2) + 1
+  const msaFile = write(
+    'wide.fa',
+    `>a\n${'A'.repeat(columns)}\n>b\n${'C'.repeat(columns)}\n`,
+  )
+  const error = await render({ msaFile }).catch((e: unknown) => e)
+  expect(String(error)).toMatch(
+    /--col-width.*--row-height.*--viewport.*--force/,
+  )
+  expect(await render({ msaFile, viewport: true })).toContain('<svg')
 })
 
 test('a PNG without rsvg-convert names librsvg before rendering', async () => {

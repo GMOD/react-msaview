@@ -30,6 +30,12 @@ async function installNodeCanvas(g: Record<string, unknown>) {
   }
 }
 
+/**
+ * Each residue letter is an SVG element. Measured on a 1000-column alignment:
+ * 500 rows take 60s and 3.4GB, and a 1840 x 966 alignment aborts at 4.5GB.
+ */
+export const MAX_EXPORT_LETTERS = 500_000
+
 const FILEHANDLES = [
   ['msaFilehandle', 'msa'],
   ['treeFilehandle', 'tree'],
@@ -120,6 +126,7 @@ export async function exportSvg({
   viewport,
   minimap,
   scale,
+  force,
 }: {
   specFile?: string
   propsFile?: string
@@ -139,6 +146,7 @@ export async function exportSvg({
   viewport?: boolean
   minimap?: boolean
   scale?: number
+  force?: boolean
 }) {
   const outputFormat = figureFormat(outputFile)
   checkConverter(outputFormat)
@@ -198,6 +206,17 @@ export async function exportSvg({
     model.setTreeAreaWidth(treeAreaWidth)
   }
   model.setWidth(width)
+
+  const letters =
+    model.showMsaLetters && !viewport
+      ? model.numColumns * model.leaves.length
+      : 0
+  if (letters > MAX_EXPORT_LETTERS && !force) {
+    throw new Error(
+      `the entire alignment draws ${model.numColumns} x ${model.leaves.length} = ${letters} residue letters, over the limit of ${MAX_EXPORT_LETTERS}, past which the export can run out of memory. ` +
+        'Draw it without letters at a smaller --col-width (e.g. 2) or --row-height (e.g. 6), draw one window of it with --viewport, or pass --force to try anyway',
+    )
+  }
 
   // exactly the named tracks, or `all`; a name matching no track is reported
   if (tracks) {

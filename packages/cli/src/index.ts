@@ -3,7 +3,7 @@
 import * as fs from 'node:fs'
 import { parseArgs } from 'node:util'
 
-import { exportSvg } from './export-svg.ts'
+import { MAX_EXPORT_LETTERS, exportSvg } from './export-svg.ts'
 import { runGeneStructure } from './genestructure.ts'
 import { runInterProPrecomputed } from './interpro-precomputed.ts'
 import { runInterProScan } from './interproscan-msa.ts'
@@ -73,6 +73,10 @@ const options = {
   },
   scale: {
     type: 'string',
+  },
+  force: {
+    type: 'boolean',
+    default: false,
   },
   local: {
     type: 'boolean',
@@ -262,6 +266,8 @@ OPTIONS (export-svg):
   --viewport                    Draw the --width x --height viewport at the top
                                 left, instead of the entire alignment
   --minimap                     Include the minimap bar (--viewport only)
+  --force                       Export the entire alignment even past ${MAX_EXPORT_LETTERS}
+                                residue letters, where it can run out of memory
 
   -h, --help                    Show this help message
 
@@ -395,6 +401,7 @@ async function main() {
       viewport: values.viewport,
       minimap: values.minimap,
       scale: readOptional('scale', values.scale),
+      force: values.force,
     })
     console.log(`wrote ${outputFile}`)
   } else if (command === 'interproscan') {

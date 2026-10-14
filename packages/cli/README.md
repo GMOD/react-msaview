@@ -92,6 +92,7 @@ react-msaview-cli export-svg --msa <file> [options]
 | `--tracks <list>`        | Tracks to draw above the alignment, by id      | none            |
 | `--viewport`             | Draw the viewport instead of the whole thing   |                 |
 | `--minimap`              | Include the minimap bar (`--viewport` only)    |                 |
+| `--force`                | Export past the 500,000-letter limit           |                 |
 
 ### Tracks
 
@@ -489,6 +490,12 @@ formats above.
 `--col-width` per column. Lower `--col-width` until it fits. Below 5px, or below
 half the row height, the residue letters stop drawing, and they account for most
 of the file size.
+
+**The export refuses to draw the entire alignment.** Each residue letter is an
+SVG element, and an alignment of 500 rows by 1000 columns takes 3.4GB to export.
+Past 500,000 letters the CLI stops with an error unless `--force` is given. A
+`--col-width` below 5 or a `--row-height` below 8 draws the same alignment with
+no letters, and `--viewport` draws one window of it.
 
 ## Uses
 
