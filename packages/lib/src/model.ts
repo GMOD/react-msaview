@@ -2399,10 +2399,11 @@ function stateModelFactory({
        */
       get sequenceType(): 'dna' | 'rna' | 'amino' {
         const letters = this.colStats.lettersPresent
-        // isDna already excludes U (not in the DNA set) and isRna excludes T,
-        // so the set membership alone disambiguates the two
-        const dna = new Set(['A', 'C', 'G', 'T', 'N'])
-        const rna = new Set(['A', 'C', 'G', 'U', 'N'])
+        // the two-base IUPAC codes keep an ambiguous read nucleotide; the
+        // three-base ones (B, D, H, V) are common amino acids, so they don't
+        const ambiguous = ['N', 'R', 'Y', 'K', 'M', 'S', 'W']
+        const dna = new Set(['A', 'C', 'G', 'T', ...ambiguous])
+        const rna = new Set(['A', 'C', 'G', 'U', ...ambiguous])
         const isDna = letters.size > 0 && [...letters].every(l => dna.has(l))
         const isRna = letters.size > 0 && [...letters].every(l => rna.has(l))
         return isDna ? 'dna' : isRna ? 'rna' : 'amino'
@@ -3521,10 +3522,13 @@ function stateModelFactory({
        * #action
        * swap in a different tree over the same alignment. Clears `collapsed`,
        * `rotated` and `showOnly`, since path-derived node ids (node-0-0-1) from the old
-       * tree would match unrelated nodes in the new one.
+       * tree would match unrelated nodes in the new one, and the tree's
+       * filehandle, which the snapshot would otherwise reopen in place of
+       * the new tree
        */
       replaceTree(newick: string) {
         transaction(() => {
+          self.setTreeFilehandle(undefined)
           self.collapsed.clear()
           self.rotated.clear()
           self.setShowOnly(undefined)
@@ -3954,7 +3958,7 @@ function stateModelFactory({
               : visibleDomainTypes.map(d => ({
                   id: d.accession,
                   label: d.name,
-                  color: fillPalette[d.accession]!,
+                  color: d.color ?? fillPalette[d.accession]!,
                 })),
             'domains',
           )
@@ -4327,7 +4331,7 @@ function stateModelFactory({
                 this.visibleDomainTypes.map(d => ({
                   id: d.accession,
                   label: d.name,
-                  color: fillPalette[d.accession]!,
+                  color: d.color ?? fillPalette[d.accession]!,
                 })),
             }
           }

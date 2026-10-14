@@ -14,8 +14,8 @@ const TreeSettingsMenu = observer(function ({
 }: {
   model: MsaViewModel
 }) {
-  const { rows } = model
-  const tooManyRows = rows.length > maxNeighborJoiningRows
+  const numSequences = model.rowMap.size
+  const tooManyRows = numSequences > maxNeighborJoiningRows
   return (
     <CascadingMenuButton
       data-testid="tree_settings_menu"
@@ -25,7 +25,7 @@ const TreeSettingsMenu = observer(function ({
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       menuItems={[
         ...treeSettingsMenuItems(model),
-        ...(rows.length >= 2
+        ...(numSequences >= 2
           ? [
               {
                 label: 'Advanced',
@@ -42,7 +42,9 @@ const TreeSettingsMenu = observer(function ({
                         model.calculateNeighborJoiningTreeFromMSA()
                       } catch (e) {
                         console.error('Failed to calculate NJ tree:', e)
-                        model.setError(e)
+                        model.addWarning(
+                          e instanceof Error ? e.message : String(e),
+                        )
                       }
                     },
                   },

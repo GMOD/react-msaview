@@ -94,6 +94,18 @@ test('a gff keeps its text, so annotations are not lost with the filehandle', ()
   expect(model.unshareableData).toEqual([])
 })
 
+test('a tree that replaces one from a URL travels in the snapshot', () => {
+  const model = MsaView.create({
+    type: 'MsaView',
+    msaFormat: 'fasta',
+    data: { msa: smallMsa },
+    treeFilehandle: { locationType: 'UriLocation', uri: 'http://x/t.nh' },
+  })
+  model.replaceTree('(seq0:1,seq1:1);')
+  expect(model.treeFilehandle).toBeUndefined()
+  expect(snapshotOf(model).data?.tree).toBe('(seq0:1,seq1:1);')
+})
+
 test('a data track too large for the snapshot is reported, not dropped in silence', () => {
   const model = MsaView.create({
     type: 'MsaView',

@@ -137,9 +137,9 @@ const AnnotationFileDialog = observer(function ({
                   ? file.text()
                   : fetchText(url))
                 // through the model's own GFF text, so the annotations travel
-                // in the snapshot and the shared URL like every other layer.
-                // Setting them straight onto the volatile left a view whose
-                // link opened without them
+                // in the snapshot and the shared URL like every other layer. A
+                // filehandle left set would make the snapshot drop that text
+                model.setGFFFilehandle(undefined)
                 model.setGFF(toGFF(text))
                 model.setShowDomains(true)
                 handleClose()
