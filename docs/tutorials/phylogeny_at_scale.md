@@ -114,9 +114,9 @@ collapse target: node-0-0-1, 49 tips, clade A.1, all USA
 [![](../media/scale-collapsed.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A350%2C%22treeAreaWidth%22%3A360%2C%22colWidth%22%3A0.3%2C%22rowHeight%22%3A10%2C%22scrollY%22%3A-17800%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22collapsed%22%3A%5B%22node-0-0-1%22%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-full.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fscale%2Frsv-full.nh%22%7D%7D%7D)
 
 Clade A.1, 49 tips and every one of them sampled in the USA, folded into the
-triangle marked 49. The viewer ladderizes the tree by clade size, so the clade
-sorts to the end of the row order and sits in the last 90 rows of 1,840, not the
-first as in the file.
+triangle marked 49. The viewer orders each node's children by branch length,
+shortest first, so the clade sorts to the end of the row order and sits in the
+last 90 rows of 1,840, not the first as in the file.
 
 ## 4. Subsample for a readable page
 

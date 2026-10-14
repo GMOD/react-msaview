@@ -90,9 +90,9 @@ Traps the existing pages hit:
 
 - **A callout anchor counts from 0**, where `highlights` and GFF count from 1.
   The same residue is two different numbers in the two files.
-- **Row order is not the Newick file's order.** The `root` getter ladderizes by
-  clade size and sorts the smaller subtree last, so a `scrollY` computed from
-  the tree file lands somewhere else. Read the row index off
+- **Row order is not the Newick file's order.** The default `treeOrder` is
+  `branchLength`, which puts each node's shortest branch first, so a `scrollY`
+  computed from the tree file lands somewhere else. Read the row index off
   `window.MSAVIEW_MODEL` instead.
 - **An anchor that resolves can still draw off-canvas**, and nothing reports it.
   A collapsed clade outside the captured window is the usual way in, so look at
