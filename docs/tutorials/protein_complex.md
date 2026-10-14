@@ -22,8 +22,8 @@ on the surface, which touch nothing.
 ## Where the data comes from
 
 Twenty-two globin proteins as NCBI RefSeq holds them, and one crystal structure
-from RCSB. The commands below fetch the sequences, and the build script fetches
-the structure that step 6 reads as `2hhb.cif`.
+from RCSB. The commands below fetch both, so there is nothing to download by
+hand.
 
 - all 22 protein sequences in one request, shown here with the human pair only:
   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=NP_000549.1,NP_000509.1&rettype=fasta&retmode=text
@@ -187,7 +187,13 @@ next, then Platypus, and the seven placentals fill the rest of the tree.
 2HHB is the human deoxy tetramer at 1.74 Å. Chains A and C are alpha, B and D
 are beta; chain A touches B across the alpha1beta1 interface and D across
 alpha1beta2. Biopython's `NeighborSearch` finds every residue pair with a heavy
-atom of each within 4 Å:
+atom of each within 4 Å. Download the structure first:
+
+```sh
+curl -sf https://files.rcsb.org/download/2HHB.cif -o 2hhb.cif
+```
+
+Then count the pairs:
 
 ```python
 from Bio.PDB import MMCIFParser, NeighborSearch
