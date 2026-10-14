@@ -33,13 +33,25 @@ widget <- msaview(
   tree = "((human:0.1,mouse:0.2):0.05,goat:0.3);"
 )
 widget
-# htmlwidgets::saveWidget(widget, "alignment.html")                     # self-contained HTML
-# webshot2::webshot("alignment.html", "alignment.png")                  # PNG (requires webshot2)
+# htmlwidgets::saveWidget(widget, "alignment.html")  # self-contained HTML
+# msaview_save(widget, "alignment.pdf")               # static figure, see below
+```
 
-# SVG via the CLI (requires react-msaview-cli installed via npm/npx):
-# writeLines(widget$x$props$msa, "alignment.fasta")
-# system2("react-msaview-cli", c("export-svg", "--msa", "alignment.fasta", "--output", "alignment.svg"))
-# Or with tree: system2("react-msaview-cli", c("export-svg", "--msa", "alignment.fasta", "--tree", "tree.nwk", "--output", "alignment.svg"))
+### Static figures
+
+`msaview_save()` writes the widget as an SVG, or as a PNG or PDF through the
+[rsvg](https://cran.r-project.org/package=rsvg) package, with every layer the
+widget draws:
+
+- It needs Node.js, and runs `npx react-msaview-cli` unless
+  `options(msaview.cli = ...)` names another copy
+- No browser runs, so it works in a batch job or on a server
+- `width` sets the view's pixel width; the whole alignment is drawn whatever
+  its length
+
+```r
+msaview_save(widget, "alignment.svg")
+msaview_save(widget, "alignment.png", scale = 3)
 ```
 
 ![Hemoglobin alignment with tree](../../docs/media/r-quickstart.svg)
