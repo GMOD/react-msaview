@@ -765,6 +765,16 @@ const featureChannels = new Set<EncodingChannel>([
 // seqPos -> column indexes per row, keyed on the parse so they are garbage
 // collected with it. A computed would rebuild every row's index when read
 // outside a reactive context.
+// Newick tools write a colon in a name as an underscore, so a tree's row
+// `chr1_100-200` is the GFF's `chr1:100-200`, as FastaMSA.getRow resolves it
+function annotationRowName(id: string, rowNames: Map<string, number>) {
+  if (rowNames.has(id)) {
+    return id
+  }
+  const underscored = id.replaceAll(':', '_')
+  return rowNames.has(underscored) ? underscored : id
+}
+
 const seqPosIndexCache = new WeakMap<object, Map<string, Int32Array>>()
 
 // A segment is a 1:1 run. A segment whose sides differ in length is malformed,
@@ -2345,10 +2355,18 @@ function stateModelFactory({
       },
 
       /**
+       * #method
+       * the row's aligned sequence by the name the tree gives it, including
+       * rows a collapsed clade hides. `MSA.getRow` resolves a FASTA name whose
+       * colon a Newick tool wrote as an underscore, which `rowMap` does not
+       */
+      rowSequence(name: string) {
+        return this.MSA?.getRow(name) || undefined
+      },
+      /**
        * #getter
-       * every sequence in the alignment, keyed by row name, including rows a
-       * collapsed clade hides. `rows` holds only the rows on screen; lookups
-       * by row name use this
+       * every sequence in the alignment, keyed by the alignment's own row
+       * names, including rows a collapsed clade hides
        */
       get rowMap() {
         const MSA = this.MSA
@@ -2898,7 +2916,7 @@ function stateModelFactory({
        * @returns The character at that position
        */
       visibleColToRowLetter(rowName: string, visibleCol: number) {
-        return self.rowMap.get(rowName)?.[
+        return self.rowSequence(rowName)?.[
           this.visibleColToGlobalCol(visibleCol)
         ]
       },
@@ -2983,7 +3001,7 @@ function stateModelFactory({
        * @returns The global column index in the full MSA, or undefined
        */
       seqPosToGlobalCol(rowName: string, seqPos: number) {
-        const seq = self.rowMap.get(rowName)
+        const seq = self.rowSequence(rowName)
         if (seq === undefined) {
           return undefined
         }
@@ -3291,7 +3309,10 @@ function stateModelFactory({
         )
       },
       get annotationsByRow() {
-        return groupBy(this.filteredAnnotations, r => r.id)
+        const { rowNamesSet } = self
+        return groupBy(this.filteredAnnotations, r =>
+          annotationRowName(r.id, rowNamesSet),
+        )
       },
     }))
     .views(self => ({
@@ -3382,7 +3403,9 @@ function stateModelFactory({
         const { annotations, rowNamesSet } = self
         return self.dataInitialized &&
           annotations.length > 0 &&
-          !annotations.some(a => rowNamesSet.has(a.id))
+          !annotations.some(a =>
+            rowNamesSet.has(annotationRowName(a.id, rowNamesSet)),
+          )
           ? [
               `0 of ${annotations.length} annotations name a row in this alignment`,
             ]
@@ -3769,7 +3792,7 @@ function stateModelFactory({
               column: column + 1,
               row,
               residue: self.visibleColToSeqPosOneBased(row, visibleCol),
-              letter: self.rowMap.get(row)?.[column],
+              letter: self.rowSequence(row)?.[column],
             }
       },
       /**
@@ -4225,7 +4248,7 @@ function stateModelFactory({
        * to `end`, gaps included
        */
       get selectionFasta() {
-        const { rowNames, rowMap } = self
+        const { rowNames } = self
         const resolved = this.resolvedSelection
         const span = this.selectionFileSpan
         if (!resolved || !span) {
@@ -4234,7 +4257,7 @@ function stateModelFactory({
         const rows = resolved.rowRuns
           .flatMap(([first, last]) => rowNames.slice(first, last + 1))
           .flatMap(name => {
-            const seq = rowMap.get(name)
+            const seq = self.rowSequence(name)
             return seq === undefined ? [] : [[name, seq] as const]
           })
         return blockFasta(rows, span.start, span.end)
