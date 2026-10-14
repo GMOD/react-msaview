@@ -18,7 +18,6 @@ import SelectionMenu from './SelectionMenu.tsx'
 import TreeSettingsMenu from './TreeSettingsMenu.tsx'
 import UnshareableDataWarning from './UnshareableDataWarning.tsx'
 import ZoomControls from './ZoomControls.tsx'
-import ZoomMenu from './ZoomMenu.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 
@@ -42,7 +41,6 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       <TreeSettingsMenu model={model} />
       <MSASettingsMenu model={model} />
       <ZoomControls model={model} />
-      <ZoomMenu model={model} />
       <GappynessSlider model={model} />
       <GoToBox model={model} />
       <div style={{ paddingLeft: 20, margin: 'auto' }}>

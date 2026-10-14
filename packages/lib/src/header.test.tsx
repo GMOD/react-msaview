@@ -6,6 +6,7 @@ import { afterEach, beforeAll, beforeEach, expect, test } from 'vitest'
 
 import MSAView from './components/Loading.tsx'
 import { keyboardControls } from './components/controls.ts'
+import { wheelSubMenu } from './components/header/settingsMenuItems.ts'
 import { onMsaKey } from './components/msa/msaKeys.ts'
 import MSAModelF from './model.ts'
 
@@ -28,6 +29,7 @@ beforeAll(() => {
 })
 
 const msa = '>a\nACGTACGT\n>b\nACGAACGT\n'
+const tree = '(a:0.1,b:0.2);'
 
 let container: HTMLDivElement
 let root: Root
@@ -111,4 +113,46 @@ test('the alignment names its keys to a screen reader', () => {
     .querySelector('[data-testid="msa_canvas"]')
     ?.getAttribute('aria-label')
   expect(label).toContain('Arrow keys: Scroll one cell')
+})
+
+function testId(id: string) {
+  return container.querySelector(`[data-testid="${id}"]`)
+}
+
+test('the tree settings menu shows only with a tree', () => {
+  mount({ msa })
+  expect(testId('tree_settings_menu')).toBeNull()
+  act(() => {
+    root.unmount()
+  })
+  root = createRoot(container)
+  mount({ msa, tree })
+  expect(testId('tree_settings_menu')).toBeTruthy()
+})
+
+test('the fit menu resets the zoom', async () => {
+  mount({ msa })
+  const { colWidth } = model
+  model.zoomIn()
+  expect(model.colWidth).not.toBe(colWidth)
+  await click(testId('fit_menu') ?? undefined)
+  await click(
+    [...document.querySelectorAll('li')].find(
+      li => li.textContent === 'Reset zoom',
+    ),
+  )
+  expect(model.colWidth).toBe(colWidth)
+})
+
+test('alignment settings set the mouse wheel mode', () => {
+  mount({ msa })
+  const rowsOnly = wheelSubMenu(model).find(
+    item => 'label' in item && item.label === 'Zooms rows only',
+  )
+  act(() => {
+    if (rowsOnly && 'onClick' in rowsOnly) {
+      rowsOnly.onClick()
+    }
+  })
+  expect([model.scrollZoom, model.scrollZoomAxis]).toEqual([true, 'vertical'])
 })

@@ -1,5 +1,12 @@
 import { treeOrders } from '../../constants.ts'
+import {
+  MouseScroll,
+  MouseZoomBoth,
+  MouseZoomHorizontal,
+  MouseZoomVertical,
+} from './ScrollZoomIcons.tsx'
 
+import type { ScrollZoomAxis } from '../../constants.ts'
 import type { MsaViewModel } from '../../model.ts'
 import type { TreeOrder } from '../../types.ts'
 import type { MenuItem } from '@jbrowse/core/ui/Menu'
@@ -43,6 +50,53 @@ function tracksSubMenu(model: MsaViewModel): MenuItem[] {
   )
 }
 
+const wheelModes: {
+  label: string
+  axis?: ScrollZoomAxis
+  icon: typeof MouseScroll
+  helpText: string
+}[] = [
+  {
+    label: 'Scrolls the alignment',
+    icon: MouseScroll,
+    helpText: 'Ctrl+wheel zooms both axes at the cursor.',
+  },
+  {
+    label: 'Zooms both axes',
+    axis: 'both',
+    icon: MouseZoomBoth,
+    helpText: 'Hold shift to pan while the wheel zooms.',
+  },
+  {
+    label: 'Zooms columns only',
+    axis: 'horizontal',
+    icon: MouseZoomHorizontal,
+    helpText:
+      'Holds the row height, so the labels and letters stay at their size while the alignment compresses.',
+  },
+  {
+    label: 'Zooms rows only',
+    axis: 'vertical',
+    icon: MouseZoomVertical,
+    helpText:
+      'Holds the column width, so the alignment stays as wide while the rows grow or shrink.',
+  },
+]
+
+export function wheelSubMenu(model: MsaViewModel): MenuItem[] {
+  const active = model.scrollZoom ? model.scrollZoomAxis : undefined
+  return wheelModes.map(({ label, axis, icon, helpText }) => ({
+    ...radio(label, axis === active, () => {
+      model.setScrollZoom(axis !== undefined)
+      if (axis !== undefined) {
+        model.setScrollZoomAxis(axis)
+      }
+    }),
+    icon,
+    helpText,
+  }))
+}
+
 export function msaSettingsMenuItems(model: MsaViewModel): MenuItem[] {
   const { drawMsaLetters, hideGaps, bgColor, showColumnStats } = model
   return [
@@ -50,6 +104,11 @@ export function msaSettingsMenuItems(model: MsaViewModel): MenuItem[] {
       label: 'Tracks',
       type: 'subMenu' as const,
       subMenu: tracksSubMenu(model),
+    },
+    {
+      label: 'Mouse wheel',
+      type: 'subMenu' as const,
+      subMenu: wheelSubMenu(model),
     },
     { type: 'divider' as const },
     toggle('Show track values on hover', showColumnStats, arg => {
