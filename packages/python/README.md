@@ -94,6 +94,24 @@ move would flood the kernel.
 view.observe(lambda change: print(change["new"]), "clicked")
 ```
 
+## Saving a figure
+
+`save()` writes the widget to a `.svg`, `.png` or `.pdf` file with every layer
+it draws, through
+[react-msaview-cli](https://github.com/GMOD/JBrowseMSA/tree/main/packages/cli):
+
+- It needs Node.js, and runs `npx --yes react-msaview-cli` unless `cli=` names
+  another command, such as `["react-msaview-cli"]` for an installed copy
+- PNG and PDF need `rsvg-convert` from librsvg
+- The figure is the entire alignment; `width` sets the pixel width of the view
+  the tree and labels lay out in, and `scale` the pixels per SVG unit of a PNG
+- `theme="auto"` saves as light
+
+```python
+view.save("globin.pdf")
+view.save("globin.png", scale=3)
+```
+
 ## Python inputs
 
 The package converts only what JSON cannot carry:

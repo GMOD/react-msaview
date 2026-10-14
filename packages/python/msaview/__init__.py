@@ -33,13 +33,15 @@ positions and aligned on one gene, which needs no alignment at all::
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Sequence
 
 import anywidget
 import traitlets
 
 from ._convert import column_track, features, gff_text, msa_text, tree_text
+from ._save import save as _save
 
 __all__ = ["MSAView"]
 
@@ -138,3 +140,18 @@ class MSAView(anywidget.AnyWidget):
 
     def __init__(self, msa: Any = None, tree: Any = None, **kwargs: Any) -> None:
         super().__init__(msa=msa, tree=tree, **kwargs)
+
+    def save(
+        self,
+        path: str | os.PathLike[str],
+        width: int = 1200,
+        scale: float | None = None,
+        cli: str | Sequence[str] | None = None,
+    ) -> Path:
+        """Draw the viewer to a .svg, .png or .pdf file with
+        `react-msaview-cli export-svg --props`, which draws the entire
+        alignment. `width` sizes the tree and label area beside it, `scale`
+        sets a PNG's pixels per SVG unit (2 by default), and `cli` is the
+        command that runs the CLI, `npx --yes react-msaview-cli` by default.
+        PNG and PDF need rsvg-convert from librsvg."""
+        return _save(self, path, width=width, scale=scale, cli=cli)
