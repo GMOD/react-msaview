@@ -3,13 +3,7 @@ import React from 'react'
 import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
-import {
-  bracketGap,
-  cladeHeight,
-  cladeInGutter,
-  cladeLabelHorizontal,
-  cladeLabelOffset,
-} from './cladeBrackets.ts'
+import { cladeLabelBoxes } from './cladeBrackets.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 
@@ -20,56 +14,38 @@ import type { MsaViewModel } from '../../model.ts'
  * the same labels with a `rotate(-90)`.
  */
 const CladeLabels = observer(function ({ model }: { model: MsaViewModel }) {
-  const {
-    resolvedClades,
-    cladeGutterWidth,
-    rowHeight,
-    effectiveTreeAreaWidth,
-    fontSize,
-  } = model
   const theme = useTheme()
-  if (cladeGutterWidth === 0) {
-    return null
-  }
-  const gutterLeft = effectiveTreeAreaWidth - cladeGutterWidth
+  const { fontSize } = model
   return (
     <>
-      {resolvedClades.map((clade, index) => {
-        const { label, markColor, rows } = clade
-        if (!label || !cladeInGutter(clade)) {
-          return null
-        }
-        const left = gutterLeft + cladeLabelOffset(clade)
-        const horizontal = cladeLabelHorizontal(clade, rowHeight, fontSize)
-        return (
-          <div
-            key={`${rows[0]}-${rows[1]}-${index}`}
-            title={label}
-            style={{
-              position: 'absolute',
-              left,
-              top: rows[0] * rowHeight,
-              width: effectiveTreeAreaWidth - left - bracketGap,
-              height: cladeHeight(clade, rowHeight),
-              display: 'flex',
-              alignItems: 'center',
-              color: markColor ?? theme.palette.text.primary,
-              fontSize,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              pointerEvents: 'none',
-              // vertical-rl reads top to bottom, and the half turn makes it
-              // read upwards, which is what rotate(-90) exports
-              ...(horizontal
-                ? {}
-                : { writingMode: 'vertical-rl', transform: 'rotate(180deg)' }),
-            }}
-          >
-            {label}
-          </div>
-        )
-      })}
+      {cladeLabelBoxes(model).map(box => (
+        <div
+          key={box.key}
+          title={box.label}
+          style={{
+            position: 'absolute',
+            left: box.left,
+            top: box.top,
+            width: box.width,
+            height: box.height,
+            display: 'flex',
+            alignItems: 'center',
+            color: box.color ?? theme.palette.text.primary,
+            fontSize,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            // vertical-rl reads top to bottom, and the half turn makes it
+            // read upwards, which is what rotate(-90) exports
+            ...(box.horizontal
+              ? {}
+              : { writingMode: 'vertical-rl', transform: 'rotate(180deg)' }),
+          }}
+        >
+          {box.label}
+        </div>
+      ))}
     </>
   )
 })

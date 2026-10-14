@@ -15,13 +15,7 @@ import { headerRunsAcross } from './components/rowpanels/headerLayout.ts'
 import { renderRowPanels } from './components/rowpanels/renderRowPanel.ts'
 import { renderAllTracks } from './components/tracks/drawTracks.ts'
 import ScaleBarSVG from './components/tree/ScaleBarSVG.tsx'
-import {
-  bracketGap,
-  cladeHeight,
-  cladeInGutter,
-  cladeLabelHorizontal,
-  cladeLabelOffset,
-} from './components/tree/cladeBrackets.ts'
+import { cladeLabelBoxes } from './components/tree/cladeBrackets.ts'
 import { renderTreeCanvas } from './components/tree/renderTreeCanvas.ts'
 import { renderTreeOverview } from './components/tree/renderTreeOverview.ts'
 import { treeScaleBarHeight } from './constants.ts'
@@ -300,43 +294,30 @@ function CladeLabelsSVG({
   theme: Theme
   offsetY: number
 }) {
-  const {
-    resolvedClades,
-    cladeGutterWidth,
-    rowHeight,
-    effectiveTreeAreaWidth,
-    fontSize,
-  } = model
-  if (cladeGutterWidth === 0) {
-    return null
-  }
-  const gutterLeft = effectiveTreeAreaWidth - cladeGutterWidth
-  return (
+  const { fontSize } = model
+  const boxes = cladeLabelBoxes(model)
+  return boxes.length === 0 ? null : (
     <g id="clade-labels">
-      {resolvedClades.map((clade, index) => {
-        const { label, markColor, rows } = clade
-        if (!label || !cladeInGutter(clade)) {
-          return null
-        }
-        const left = gutterLeft + cladeLabelOffset(clade)
-        const top = rows[0] * rowHeight - offsetY
-        const height = cladeHeight(clade, rowHeight)
-        const horizontal = cladeLabelHorizontal(clade, rowHeight, fontSize)
-        const room = horizontal
-          ? effectiveTreeAreaWidth - left - bracketGap
-          : height
-        const x = horizontal ? left : left + fontSize
-        const y = horizontal ? top + height / 2 + fontSize / 3 : top + height
+      {boxes.map(box => {
+        const top = box.top - offsetY
+        const x = box.horizontal ? box.left : box.left + fontSize
+        const y = box.horizontal
+          ? top + box.height / 2 + fontSize / 3
+          : top + box.height
         return (
           <text
-            key={`${rows[0]}-${rows[1]}-${index}`}
+            key={box.key}
             x={x}
             y={y}
-            transform={horizontal ? undefined : `rotate(-90 ${x} ${y})`}
+            transform={box.horizontal ? undefined : `rotate(-90 ${x} ${y})`}
             fontSize={fontSize}
-            fill={markColor ?? theme.palette.text.primary}
+            fill={box.color ?? theme.palette.text.primary}
           >
-            {clipCladeLabel(label, room, fontSize)}
+            {clipCladeLabel(
+              box.label,
+              box.horizontal ? box.width : box.height,
+              fontSize,
+            )}
           </text>
         )
       })}
