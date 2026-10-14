@@ -2,8 +2,9 @@
 """Build the files for docs/tutorials/influenza_surveillance_figure.md.
 
 Fetch Nextstrain's H5N1 cattle-outbreak genome build, subsample it, and write
-the four files the figure loads: the HA alignment, the tree, the row table and
-the snapshot layers. Print every number the tutorial quotes.
+the three files the figure loads: the HA alignment (h5n1-ha.fa), the tree
+(h5n1.nwk) and the row table (h5n1-rowdata.json). The download stays beside
+them as a cache. Print every number the tutorial quotes.
 
   python3 build_influenza_surveillance_figure.py [outdir]
 
