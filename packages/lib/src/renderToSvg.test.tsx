@@ -3,6 +3,7 @@
 // Layout and palette of the exported figure itself, as opposed to what any one
 // layer draws inside it.
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
+import { interProScanToAnnotations } from 'msa-parsers'
 import { beforeAll, expect, test } from 'vitest'
 
 import { renderToSvg } from './renderToSvg.tsx'
@@ -92,23 +93,25 @@ function exportWithPanels(id: string) {
     id,
     data: { msa: syntheticProteinMsa(20, 400) },
   })
-  model.setDomains({
-    seq1: {
-      xref: [{ id: 'seq1' }],
-      matches: [
-        {
-          signature: {
-            entry: {
-              name: 'Kinase',
-              accession: 'PF00069',
-              description: 'Protein kinase domain',
+  model.setAnnotations(
+    interProScanToAnnotations({
+      seq1: {
+        xref: [{ id: 'seq1' }],
+        matches: [
+          {
+            signature: {
+              entry: {
+                name: 'Kinase',
+                accession: 'PF00069',
+                description: 'Protein kinase domain',
+              },
             },
+            locations: [{ start: 1, end: 5 }],
           },
-          locations: [{ start: 1, end: 5 }],
-        },
-      ],
-    },
-  })
+        ],
+      },
+    }),
+  )
   return renderToSvg(model, {
     theme: createJBrowseTheme(),
     exportType: 'viewport',

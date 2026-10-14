@@ -146,14 +146,6 @@ setDrawTree: (arg: boolean) => void
 setLabelsAlignRight: (arg: boolean) => void
 ```
 
-#### action: setOverviewHeight
-
-set the height of the tree overview band (px)
-
-```js
-setOverviewHeight: (n: number) => void
-```
-
 #### action: setShowBranchLen
 
 ```js

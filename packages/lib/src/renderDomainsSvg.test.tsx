@@ -5,6 +5,7 @@
 // right. Polyfills mirror impgRender.test.tsx (svgcanvas needs
 // DOMMatrix/DOMPoint + a measureText).
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
+import { interProScanToAnnotations } from 'msa-parsers'
 import { beforeAll, expect, test } from 'vitest'
 
 import { renderToSvg } from './renderToSvg.tsx'
@@ -28,23 +29,25 @@ function makeModel({
     id: 'domain-svg-test',
     data: { msa: data },
   })
-  model.setDomains({
-    seq1: {
-      xref: [{ id: 'seq1' }],
-      matches: [
-        {
-          signature: {
-            entry: {
-              name: 'Kinase',
-              accession: 'PF00069',
-              description: 'Protein kinase domain',
+  model.setAnnotations(
+    interProScanToAnnotations({
+      seq1: {
+        xref: [{ id: 'seq1' }],
+        matches: [
+          {
+            signature: {
+              entry: {
+                name: 'Kinase',
+                accession: 'PF00069',
+                description: 'Protein kinase domain',
+              },
             },
+            locations: [{ start, end }],
           },
-          locations: [{ start, end }],
-        },
-      ],
-    },
-  })
+        ],
+      },
+    }),
+  )
   return model
 }
 
@@ -75,17 +78,19 @@ test('no legend column when domains are hidden', async () => {
 
 test('the page grows to hold a key taller than the alignment', async () => {
   const model = makeModel()
-  model.setDomains({
-    seq1: {
-      xref: [{ id: 'seq1' }],
-      matches: Array.from({ length: 12 }, (_, i) => ({
-        signature: {
-          entry: { name: `Dom${i}`, accession: `PF${i}`, description: '' },
-        },
-        locations: [{ start: 1, end: 5 }],
-      })),
-    },
-  })
+  model.setAnnotations(
+    interProScanToAnnotations({
+      seq1: {
+        xref: [{ id: 'seq1' }],
+        matches: Array.from({ length: 12 }, (_, i) => ({
+          signature: {
+            entry: { name: `Dom${i}`, accession: `PF${i}`, description: '' },
+          },
+          locations: [{ start: 1, end: 5 }],
+        })),
+      },
+    }),
+  )
   expect(model.visibleDomainTypes).toHaveLength(12)
   const keyHeight = 16 + 12 * 16
   expect(model.totalHeight).toBeLessThan(keyHeight)

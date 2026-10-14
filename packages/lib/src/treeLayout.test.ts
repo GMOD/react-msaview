@@ -37,11 +37,12 @@ test('showing only a clade does not shorten its branch', () => {
 
 test('the tree spans the tree width whenever it has branch lengths', () => {
   const model = makeModel('((a:1,b:2):5,(c:1,d:3):1);')
+  const farthest = () => Math.max(...model.leaves.map(l => l.len!))
   expect(model.allBranchesLength0).toBe(false)
-  expect(model.maxBranchLength).toBe(model.effectiveTreeWidth)
+  expect(farthest()).toBeCloseTo(model.effectiveTreeWidth)
 
   model.setTreeAreaWidth(model.effectiveTreeAreaWidth + 200)
-  expect(model.maxBranchLength).toBe(model.effectiveTreeWidth)
+  expect(farthest()).toBeCloseTo(model.effectiveTreeWidth)
 })
 
 test('a flat tree with lengths is still a phylogram', () => {
@@ -65,7 +66,7 @@ test('the scale bar reads the extent the layout drew', () => {
 test('a tree with no lengths draws as a cladogram', () => {
   const model = makeModel('((a,b),(c,d));')
   expect(model.allBranchesLength0).toBe(true)
-  expect(model.maxBranchLength).toBe(0)
+  expect(model.showBranchLenEffective).toBe(false)
 })
 
 test('a tree width that came with the snapshot is honoured', () => {

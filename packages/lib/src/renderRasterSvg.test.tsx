@@ -5,6 +5,7 @@
 // path; this file supplies the canvas the raster needs and checks the export
 // takes it instead.
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
+import { interProScanToAnnotations } from 'msa-parsers'
 import { beforeAll, expect, test } from 'vitest'
 
 import { renderToSvg } from './renderToSvg.tsx'
@@ -81,19 +82,21 @@ test('letters still draw on top of the raster', async () => {
 
 test('the domain overlay keeps the vector path, which paints its own boxes', async () => {
   const model = makeModel(4, 10)
-  model.setDomains({
-    seq0: {
-      xref: [{ id: 'seq0' }],
-      matches: [
-        {
-          signature: {
-            entry: { name: 'Kinase', accession: 'PF00069', description: '' },
+  model.setAnnotations(
+    interProScanToAnnotations({
+      seq0: {
+        xref: [{ id: 'seq0' }],
+        matches: [
+          {
+            signature: {
+              entry: { name: 'Kinase', accession: 'PF00069', description: '' },
+            },
+            locations: [{ start: 1, end: 5 }],
           },
-          locations: [{ start: 1, end: 5 }],
-        },
-      ],
-    },
-  })
+        ],
+      },
+    }),
+  )
   expect(model.actuallyShowDomains).toBe(true)
 
   expect(await exportEntire(model)).not.toContain('<image')

@@ -76,7 +76,6 @@ that declares it.
 [setDrawNodeBubbles](./Tree.md#action-setdrawnodebubbles),
 [setDrawNodeLabels](./Tree.md#action-setdrawnodelabels),
 [setShowTreeOverview](./Tree.md#action-setshowtreeoverview),
-[setOverviewHeight](./Tree.md#action-setoverviewheight),
 [setDrawLabels](./Tree.md#action-setdrawlabels)
 
 ### From [MSAModel](./MSAModel.md)
@@ -1114,15 +1113,6 @@ mappedStructures: {
 ;[]
 ```
 
-#### getter: maxBranchLength
-
-x-position of the farthest tip in a phylogram, px: effectiveTreeWidth, or 0 for
-a tree with no branch lengths (drawn as a cladogram)
-
-```js
-maxBranchLength: number
-```
-
 #### getter: maxDepthToLeaf
 
 max topological depth to a tip, used to scale cladogram x-positions
@@ -1243,12 +1233,6 @@ The tree's scale bar uses it.
 
 ```js
 pxPerBranchLength: number
-```
-
-#### getter: realAllowedGappyness
-
-```js
-realAllowedGappyness: number
 ```
 
 #### getter: referenceRowIndex
@@ -1650,7 +1634,7 @@ the collapsed clades are folded, since those are rows the view no longer has.
 one layout serves any band size.
 
 ```js
-treeOverviewLayout: { root: HierarchyNode<NodeWithIds>; numTips: number; maxDepthToLeaf: number; showBranchLen: boolean; } | undefined
+treeOverviewLayout: { root: LaidOutNode<NodeWithIds>; numTips: number; maxDepthToLeaf: number; showBranchLen: boolean; } | undefined
 ```
 
 #### getter: treeScaleBar
@@ -2179,16 +2163,6 @@ filehandle loaders
 setData: (data: { msa?: string | undefined; tree?: string | undefined; treeMetadata?: string | undefined; gff?: string | undefined; }) => void
 ```
 
-#### action: setDomains
-
-set the overlay from raw InterProScan results keyed by row name. Kept for
-downstream plugins that hold the EBI wire format; new code should adapt to
-Annotation[] and call setAnnotations.
-
-```js
-setDomains: (data?: Record<string, InterProScanResults> | undefined) => void
-```
-
 #### action: setDrawMsaLetters
 
 ```js
@@ -2567,34 +2541,10 @@ zoomAtCenter: (scaleFactor: number, axis?: "both" | "horizontal" | "vertical") =
 zoomIn: () => void
 ```
 
-#### action: zoomInHorizontal
-
-```js
-zoomInHorizontal: () => void
-```
-
-#### action: zoomInVertical
-
-```js
-zoomInVertical: () => void
-```
-
 #### action: zoomOut
 
 ```js
 zoomOut: () => void
-```
-
-#### action: zoomOutHorizontal
-
-```js
-zoomOutHorizontal: () => void
-```
-
-#### action: zoomOutVertical
-
-```js
-zoomOutVertical: () => void
 ```
 
 #### action: zoomToPos

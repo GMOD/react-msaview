@@ -707,17 +707,10 @@ export function renderTreeCanvas({
   // memoized on the model and shared across the tree/bubble/label passes (and
   // across all tree blocks) rather than re-traversing the hierarchy in each
   const {
-    maxBranchLength,
     maxDepthToLeaf,
     showBranchLenEffective,
-    effectiveTreeWidth,
+    effectiveTreeWidth: tipX,
   } = model
-  // pixel x of the tips. A phylogram scales branch lengths so the longest
-  // root-to-tip path lands at maxBranchLength; a cladogram ignores lengths and
-  // spreads topological depth across the whole tree area instead. Reusing
-  // maxBranchLength for the cladogram would pin every node to x=0 for a tree
-  // with no branch lengths -- which is exactly what forces cladogram mode.
-  const tipX = showBranchLenEffective ? maxBranchLength : effectiveTreeWidth
   // built once for all three passes: each of them asks about a different node on
   // every block of every redraw, and `collapsed` is a list
   const collapsedSet = new Set(model.collapsed)

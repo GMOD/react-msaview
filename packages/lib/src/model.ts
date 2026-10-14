@@ -19,7 +19,6 @@ import {
 import {
   generateNodeIds,
   gffToAnnotations,
-  interProScanToAnnotations,
   parseEmfTree,
   parseGFF,
   parseMSA,
@@ -174,7 +173,6 @@ import type {
 import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import type { Instance } from '@jbrowse/mobx-state-tree'
 import type { IComputedValue } from 'mobx'
-import type { InterProScanResults } from 'msa-parsers'
 
 function parseTreeText(text: string) {
   if (text.startsWith('BioTreeContainer')) {
@@ -1718,12 +1716,6 @@ function stateModelFactory({
       },
       /**
        * #getter
-       */
-      get realAllowedGappyness() {
-        return this.hideGapsEffective ? self.allowedGappyness : 100
-      },
-      /**
-       * #getter
        * the annotations the overlay, the legend and the encodings draw: the
        * GFF's, then the `features` layer's
        */
@@ -2300,7 +2292,7 @@ function stateModelFactory({
        * #getter
        */
       get blanks() {
-        const { hideGapsEffective, realAllowedGappyness } = self
+        const { hideGapsEffective, allowedGappyness } = self
         if (!hideGapsEffective) {
           return []
         }
@@ -2316,7 +2308,7 @@ function stateModelFactory({
         // row that stops early counts as gapped for the remainder
         const numCols = this.MSA?.getWidth() ?? 0
         const numRows = strs.length
-        const threshold = Math.ceil((realAllowedGappyness / 100) * numRows)
+        const threshold = Math.ceil((allowedGappyness / 100) * numRows)
         const blankCounts = new Uint32Array(numCols)
         for (let j = 0; j < numRows; j++) {
           const str = strs[j]!
@@ -2599,15 +2591,6 @@ function stateModelFactory({
        */
       get rootToTipLength() {
         return this.treeLayout.rootToTipLength
-      },
-
-      /**
-       * #getter
-       * x-position of the farthest tip in a phylogram, px: effectiveTreeWidth,
-       * or 0 for a tree with no branch lengths (drawn as a cladogram)
-       */
-      get maxBranchLength() {
-        return this.rootToTipLength ? this.effectiveTreeWidth : 0
       },
 
       /**
@@ -3624,30 +3607,6 @@ function stateModelFactory({
       /**
        * #action
        */
-      zoomOutHorizontal() {
-        this.zoomAtCenter(0.75, 'horizontal')
-      },
-      /**
-       * #action
-       */
-      zoomInHorizontal() {
-        this.zoomAtCenter(1.5, 'horizontal')
-      },
-      /**
-       * #action
-       */
-      zoomInVertical() {
-        this.zoomAtCenter(1.5, 'vertical')
-      },
-      /**
-       * #action
-       */
-      zoomOutVertical() {
-        this.zoomAtCenter(0.75, 'vertical')
-      },
-      /**
-       * #action
-       */
       zoomIn() {
         this.zoomAtCenter(1.5)
       },
@@ -3735,16 +3694,6 @@ function stateModelFactory({
        */
       setAnnotations(annotations: Annotation[]) {
         self.annotations = annotations
-      },
-
-      /**
-       * #action
-       * set the overlay from raw InterProScan results keyed by row name. Kept
-       * for downstream plugins that hold the EBI wire format; new code should
-       * adapt to Annotation[] and call setAnnotations.
-       */
-      setDomains(data?: Record<string, InterProScanResults>) {
-        this.setAnnotations(data ? interProScanToAnnotations(data) : [])
       },
 
       applyGFFText(gffText: string) {

@@ -165,13 +165,6 @@ export function TreeModelF() {
       },
       /**
        * #action
-       * set the height of the tree overview band (px)
-       */
-      setOverviewHeight(n: number) {
-        self.overviewHeight = Math.round(n)
-      },
-      /**
-       * #action
        */
       setDrawLabels(arg: boolean) {
         self.drawLabels = arg
