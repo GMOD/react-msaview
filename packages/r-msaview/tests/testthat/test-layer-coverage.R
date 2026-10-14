@@ -168,6 +168,7 @@ test_that("the diff layer names the row to compare against", {
 test_that("every prop-carrying msaview argument has a layer", {
   layers <- list(
     geom_msa_domains("##gff-version 3"),
+    geom_msa_domains(gff_url = "https://example.com/d.gff"),
     geom_msa_highlight(start = 1, end = 2),
     geom_msa_highlight(columns = 1),
     geom_msa_clade(c("Homo sapiens", "Mouse"), tips = 2),
@@ -194,6 +195,8 @@ test_that("every prop-carrying msaview argument has a layer", {
 
   from_args <- msaview(
     msa = msa, gff = "##gff-version 3", color_scheme = "clustal",
+    msa_url = "https://example.com/a.fa", tree_url = "https://example.com/t.nh",
+    gff_url = "https://example.com/d.gff",
     column_tracks = list(list(id = "t", name = "t", kind = "bar", values = 1)),
     show_branch_len = TRUE, tree_order = "ladderize", tree_root = "midpoint",
     highlights = list(list(start = 1, end = 2)),
@@ -212,6 +215,7 @@ test_that("every prop-carrying msaview argument has a layer", {
     tree_area_width = 1, residue_encoding = "color", theme = "dark", hide_header = TRUE
   )
   # msa and tree are the viewer itself, so they stay arguments
-  base <- c("msa", "tree", "msaFilehandle", "treeFilehandle")
+  base <- c("msa", "tree", "msaFilehandle", "treeFilehandle", "msaUrl",
+            "treeUrl")
   expect_equal(setdiff(names(from_args$x$props), c(base, reached)), character(0))
 })

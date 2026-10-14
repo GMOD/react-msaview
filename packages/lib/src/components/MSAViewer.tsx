@@ -7,6 +7,7 @@ import { compareStructural, reaction, when } from 'mobx'
 
 import MSAModelF from '../model.ts'
 import {
+  fileLocations,
   resolveTheme,
   viewerHighlights,
   viewerSnapshot,
@@ -42,6 +43,12 @@ export interface MSAViewerProps {
   msaFilehandle?: FileLocationType
   treeFilehandle?: FileLocationType
   gffFilehandle?: FileLocationType
+  /** a URL the viewer fetches the alignment from; `msaFilehandle` wins */
+  msaUrl?: string
+  /** a URL the viewer fetches the Newick tree from; `treeFilehandle` wins */
+  treeUrl?: string
+  /** a URL the viewer fetches the GFF from; `gffFilehandle` wins */
+  gffUrl?: string
   /**
    * a scheme name from the built-in table, or `{map}`, a color per residue
    * letter that leaves every other letter uncolored
@@ -155,7 +162,8 @@ export interface MSAViewerProps {
   onSelectionChange?: (selection: MsaSelection | undefined) => void
   /**
    * the model the viewer built, for the model API; called again with the new
-   * model when msa, tree, msaFilehandle or treeFilehandle changes
+   * model when msa, tree, msaUrl, treeUrl, msaFilehandle or treeFilehandle
+   * changes
    */
   onModel?: (model: MsaViewModel) => void
 }
@@ -180,13 +188,14 @@ function sameSource(a: DataSource, b: DataSource) {
  * including a new annotation file.
  */
 export default function MSAViewer(props: MSAViewerProps) {
-  const { msa, tree, msaFilehandle, treeFilehandle } = props
+  const resolved = { ...props, ...fileLocations(props) }
+  const { msa, tree, msaFilehandle, treeFilehandle } = resolved
   const source = { msa, tree, msaFilehandle, treeFilehandle }
   const [shown, setShown] = useState({ source, generation: 0 })
   if (!sameSource(shown.source, source)) {
     setShown({ source, generation: shown.generation + 1 })
   }
-  return <Viewer key={shown.generation} {...props} />
+  return <Viewer key={shown.generation} {...resolved} />
 }
 
 function useModelReaction<

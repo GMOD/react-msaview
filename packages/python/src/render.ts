@@ -29,6 +29,9 @@ export interface Traits {
   msa_url: string
   tree_url: string
   gff_url: string
+  msa_filehandle: FileLocation | null
+  tree_filehandle: FileLocation | null
+  gff_filehandle: FileLocation | null
   color_scheme: string | Record<string, string> | null
   height: number | null
   col_width: number | null
@@ -59,6 +62,7 @@ export interface Traits {
 }
 
 type Model = AnyModel<Traits>
+type FileLocation = NonNullable<MSAViewerProps['msaFilehandle']>
 
 export const INPUT_TRAITS = [
   'msa',
@@ -67,6 +71,9 @@ export const INPUT_TRAITS = [
   'msa_url',
   'tree_url',
   'gff_url',
+  'msa_filehandle',
+  'tree_filehandle',
+  'gff_filehandle',
   'color_scheme',
   'height',
   'col_width',
@@ -117,19 +124,18 @@ function colorScheme(scheme: Traits['color_scheme']) {
     : optional(scheme)
 }
 
-function uriLocation(uri: string) {
-  return uri ? { uri, locationType: 'UriLocation' as const } : undefined
-}
-
 export function propsFromModel(model: Model, doc?: Document): MSAViewerProps {
   const theme = model.get('theme')
   return {
     msa: optional(model.get('msa')),
     tree: optional(model.get('tree')),
     gff: optional(model.get('gff')),
-    msaFilehandle: uriLocation(model.get('msa_url')),
-    treeFilehandle: uriLocation(model.get('tree_url')),
-    gffFilehandle: uriLocation(model.get('gff_url')),
+    msaUrl: optional(model.get('msa_url')),
+    treeUrl: optional(model.get('tree_url')),
+    gffUrl: optional(model.get('gff_url')),
+    msaFilehandle: optional(model.get('msa_filehandle')),
+    treeFilehandle: optional(model.get('tree_filehandle')),
+    gffFilehandle: optional(model.get('gff_filehandle')),
     colorScheme: colorScheme(model.get('color_scheme')),
     height: optional(model.get('height')),
     colWidth: optional(model.get('col_width')),

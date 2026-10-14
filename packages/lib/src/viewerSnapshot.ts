@@ -36,6 +36,26 @@ export function viewerHighlights({
   return [...highlights, ...columnHighlights(highlightColumns)]
 }
 
+function urlLocation(uri: string | undefined) {
+  return uri ? { uri, locationType: 'UriLocation' as const } : undefined
+}
+
+/** each filehandle prop, or the URL prop standing in for it */
+export function fileLocations({
+  msaFilehandle,
+  treeFilehandle,
+  gffFilehandle,
+  msaUrl,
+  treeUrl,
+  gffUrl,
+}: MSAViewerProps) {
+  return {
+    msaFilehandle: msaFilehandle ?? urlLocation(msaUrl),
+    treeFilehandle: treeFilehandle ?? urlLocation(treeUrl),
+    gffFilehandle: gffFilehandle ?? urlLocation(gffUrl),
+  }
+}
+
 export function resolveTheme(theme: MSAViewerProps['theme']) {
   return createJBrowseTheme(
     theme === 'dark'
@@ -51,37 +71,36 @@ export function resolveTheme(theme: MSAViewerProps['theme']) {
  * reads the same JSON the R and Python widgets send, so a figure exported
  * headlessly draws what the widget drew.
  */
-export function viewerSnapshot({
-  msa,
-  tree,
-  gff,
-  rowData,
-  msaFilehandle,
-  treeFilehandle,
-  gffFilehandle,
-  colorScheme,
-  height,
-  colWidth,
-  rowHeight,
-  allowedGappyness,
-  highlightColumns,
-  highlights,
-  features,
-  selection,
-  clades,
-  relativeTo,
-  columnTracks,
-  residueMappings,
-  encodings,
-  rowPanels,
-  drawTree,
-  treeAreaWidth,
-  showBranchLen,
-  treeOrder,
-  treeRoot,
-  region,
-  residueEncoding,
-}: MSAViewerProps) {
+export function viewerSnapshot(props: MSAViewerProps) {
+  const {
+    msa,
+    tree,
+    gff,
+    rowData,
+    colorScheme,
+    height,
+    colWidth,
+    rowHeight,
+    allowedGappyness,
+    highlightColumns,
+    highlights,
+    features,
+    selection,
+    clades,
+    relativeTo,
+    columnTracks,
+    residueMappings,
+    encodings,
+    rowPanels,
+    drawTree,
+    treeAreaWidth,
+    showBranchLen,
+    treeOrder,
+    treeRoot,
+    region,
+    residueEncoding,
+  } = props
+  const { msaFilehandle, treeFilehandle, gffFilehandle } = fileLocations(props)
   return {
     type: 'MsaView' as const,
     ...(msa || tree || gff || rowData

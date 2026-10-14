@@ -4,10 +4,13 @@
 \alias{geom_msa_domains}
 \title{Domain annotations over the alignment}
 \usage{
-geom_msa_domains(gff)
+geom_msa_domains(gff = NULL, gff_url = NULL)
 }
 \arguments{
 \item{gff}{The annotations.}
+
+\item{gff_url}{A URL the viewer fetches the GFF from, the same as passing
+the URL as \code{gff}.}
 }
 \value{
 A layer to add to a viewer with \code{+}.

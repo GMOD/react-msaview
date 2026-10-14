@@ -26,6 +26,15 @@ export default function App() {
 }
 ```
 
+A file the browser can fetch goes in by URL:
+
+```tsx
+<MSAViewer
+  msaUrl="https://jbrowse.org/genomes/multiple_sequence_alignments/pfam-cov2.stock"
+  gffUrl="https://jbrowse.org/genomes/multiple_sequence_alignments/pfam-cov2-domains.gff"
+/>
+```
+
 The install line pins the majors the viewer shares with `@jbrowse/core`;
 [Troubleshooting](#troubleshooting) lists the errors a second copy throws.
 
@@ -40,6 +49,9 @@ Props:
 | `msaFilehandle`     | `FileLocation`           | Remote file location for alignment                                                  |
 | `treeFilehandle`    | `FileLocation`           | Remote file location for tree                                                       |
 | `gffFilehandle`     | `FileLocation`           | Remote file location for domain GFF                                                 |
+| `msaUrl`            | `string`                 | URL of the alignment; `msaFilehandle` wins when both are set                        |
+| `treeUrl`           | `string`                 | URL of the Newick tree; `treeFilehandle` wins when both are set                     |
+| `gffUrl`            | `string`                 | URL of the GFF; `gffFilehandle` wins when both are set                              |
 | `colorScheme`       | `string \| {map}`        | Color scheme name, or a color per residue letter (see below)                        |
 | `height`            | `number`                 | Widget height in pixels                                                             |
 | `colWidth`          | `number`                 | Per-column width in pixels (horizontal zoom)                                        |
@@ -78,9 +90,9 @@ the data layers (`highlights`, `features`, `clades`, `columnTracks`,
 `residueMappings`, `rowData`, `encodings`, `rowPanels`, `highlightColumns`),
 `selection`, `treeRoot` and the filehandles by content, so passing a freshly
 computed array or location object on every render costs nothing. A new `msa` or
-`tree` string, or an `msaFilehandle` or `treeFilehandle` pointing somewhere
-else, builds a new model and resets the view. A new `gff` or `gffFilehandle`
-replaces the annotations and keeps the view.
+`tree` string, or an `msaUrl`, `treeUrl`, `msaFilehandle` or `treeFilehandle`
+pointing somewhere else, builds a new model and resets the view. A new `gff`,
+`gffUrl` or `gffFilehandle` replaces the annotations and keeps the view.
 
 ### Events
 
@@ -180,8 +192,8 @@ return (
       {expanded ? 'Collapse' : 'Expand'}
     </button>
     <MSAViewer
-      msaFilehandle={{ uri: msaUrl, locationType: 'UriLocation' }}
-      gffFilehandle={{ uri: gffUrl, locationType: 'UriLocation' }}
+      msaUrl={msaUrl}
+      gffUrl={gffUrl}
       colorScheme="clustalx_dna"
       drawTree={false}
       relativeTo={diff ? referenceRow : undefined}
@@ -265,8 +277,8 @@ merges new props over the current ones, and `destroy` unmounts the viewer.
     <script>
       const { mount } = window.ReactMSAView
       const viewer = mount(document.getElementById('viewer'), {
-        msaFilehandle: { uri: 'http://path/to/msa.stock' },
-        treeFilehandle: { uri: 'http://path/to/tree.nh' },
+        msaUrl: 'http://path/to/msa.stock',
+        treeUrl: 'http://path/to/tree.nh',
         height: 400,
         onCellClick: cell => {
           document.getElementById('clicked').textContent = cell

@@ -76,6 +76,11 @@ class MSAView(anywidget.AnyWidget):
     msa_url = traitlets.Unicode("").tag(sync=True)
     tree_url = traitlets.Unicode("").tag(sync=True)
     gff_url = traitlets.Unicode("").tag(sync=True)
+    # a JBrowse FileLocation dict, such as {"uri": ..., "locationType":
+    # "UriLocation"}, which wins over the URL
+    msa_filehandle = traitlets.Dict(default_value=None, allow_none=True).tag(sync=True)
+    tree_filehandle = traitlets.Dict(default_value=None, allow_none=True).tag(sync=True)
+    gff_filehandle = traitlets.Dict(default_value=None, allow_none=True).tag(sync=True)
 
     # a scheme name, or a dict of residue letter to color that leaves every
     # letter it does not list uncolored

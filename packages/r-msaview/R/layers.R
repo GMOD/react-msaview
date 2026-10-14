@@ -273,6 +273,8 @@ slug <- function(name) {
 #' precomputed matches.
 #'
 #' @param gff The annotations.
+#' @param gff_url A URL the viewer fetches the GFF from, the same as passing
+#'   the URL as \code{gff}.
 #' @return A layer to add to a viewer with \code{+}.
 #'
 #' @examples
@@ -280,9 +282,12 @@ slug <- function(name) {
 #' msaview(msa = "p53.aln") + geom_msa_domains("p53-domains.gff")
 #' }
 #' @export
-geom_msa_domains <- function(gff) {
+geom_msa_domains <- function(gff = NULL, gff_url = NULL) {
+  if (!is.null(gff_url)) {
+    return(msa_layer(set = list(gffUrl = check_url(gff_url))))
+  }
   if (is.null(gff)) {
-    stop("geom_msa_domains needs a gff")
+    stop("geom_msa_domains needs a gff or a gff_url")
   }
   if (is_url(gff)) {
     return(msa_layer(set = list(gffFilehandle = uri_location(gff))))

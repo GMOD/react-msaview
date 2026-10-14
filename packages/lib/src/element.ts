@@ -49,10 +49,6 @@ const ownAttributes = [
 // the attributes a <nightingale-manager> writes on the elements it holds
 const nightingaleAttributes = ['display-start', 'display-end', 'highlight']
 
-function location(uri: string | null) {
-  return uri ? { uri, locationType: 'UriLocation' as const } : undefined
-}
-
 function numberAttribute(value: string | null | undefined) {
   const n = value ? Number(value) : Number.NaN
   return Number.isFinite(n) ? n : undefined
@@ -188,9 +184,9 @@ export function defineMsaElement(tagName = 'jbrowse-msa') {
       const theme = this.getAttribute('theme')
       return {
         ...this.#data,
-        msaFilehandle: location(this.getAttribute('msa-url')),
-        treeFilehandle: location(this.getAttribute('tree-url')),
-        gffFilehandle: location(this.getAttribute('gff-url')),
+        msaUrl: this.getAttribute('msa-url') ?? undefined,
+        treeUrl: this.getAttribute('tree-url') ?? undefined,
+        gffUrl: this.getAttribute('gff-url') ?? undefined,
         colorScheme:
           this.#data.colorScheme ??
           this.getAttribute('color-scheme') ??

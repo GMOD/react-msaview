@@ -43,6 +43,9 @@
 #'       encoding can read. The viewer takes the frame as its \code{features}
 #'       layer.
 #'   }
+#' @param msa_url,tree_url,gff_url An http(s) URL the viewer fetches the
+#'   alignment, the tree or the GFF from, the same as passing the URL as
+#'   \code{msa}, \code{tree} or \code{gff}.
 #' @param color_scheme Color scheme name. Options include \code{"maeditor"}
 #'   (default), \code{"clustal"}, \code{"lesk"}, \code{"cinema"}, \code{"flower"},
 #'   \code{"clustalx_protein"}, \code{"jalview_taylor"}, \code{"jalview_zappo"},
@@ -256,7 +259,9 @@
 #' }
 #'
 #' @export
-msaview <- function(msa = NULL, tree = NULL, gff = NULL, color_scheme = NULL,
+msaview <- function(msa = NULL, tree = NULL, gff = NULL,
+                    msa_url = NULL, tree_url = NULL, gff_url = NULL,
+                    color_scheme = NULL,
                     column_tracks = NULL, show_branch_len = NULL,
                     tree_order = NULL, tree_root = NULL,
                     highlights = NULL, highlight_columns = NULL,
@@ -286,6 +291,9 @@ msaview <- function(msa = NULL, tree = NULL, gff = NULL, color_scheme = NULL,
   props$msaFilehandle <- uri_location(msa)
   props$treeFilehandle <- uri_location(tree)
   props$gffFilehandle <- uri_location(gff)
+  props$msaUrl <- check_url(msa_url)
+  props$treeUrl <- check_url(tree_url)
+  props$gffUrl <- check_url(gff_url)
   props$features <- convert_features(gff)
   props$colorScheme <- convert_color_scheme(color_scheme)
   props$columnTracks <- convert_column_tracks(column_tracks)
@@ -671,6 +679,13 @@ convert_tree <- function(tree) {
 
 is_url <- function(x) {
   is.character(x) && length(x) == 1 && grepl("^(https?|ftp)://", x)
+}
+
+check_url <- function(x) {
+  if (!is.null(x) && !is_url(x)) {
+    stop("expected one http(s) or ftp URL, got ", deparse(x))
+  }
+  x
 }
 
 uri_location <- function(x) {

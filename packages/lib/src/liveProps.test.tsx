@@ -367,6 +367,53 @@ test('a new gffFilehandle loads into the same model, and removing it clears', as
   }
 })
 
+test('msaUrl, treeUrl and gffUrl load like their filehandles', async () => {
+  const served: Record<string, string> = {
+    'https://example.com/a.fa': '>human\nMKAANSE\n>mouse\nMKA-NSE\n',
+    'https://example.com/b.fa': '>rat\nMKAANSE\n>cow\nMKA-NSE\n',
+    'https://example.com/t.nh': '(human:0.1,mouse:0.2);',
+    'https://example.com/d.gff': `##gff-version 3\nhuman\tpfam\tdomain\t2\t4\t.\t.\t.\tName=d`,
+  }
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((input: RequestInfo | URL) => {
+      const url = input instanceof Request ? input.url : String(input)
+      return Promise.resolve(new Response(served[url]))
+    }),
+  )
+  const at = (urls: Record<string, string>) => {
+    act(() => {
+      root.render(<MSAViewer height={300} {...urls} />)
+    })
+    return captured!
+  }
+  try {
+    const urls = {
+      msaUrl: 'https://example.com/a.fa',
+      treeUrl: 'https://example.com/t.nh',
+      gffUrl: 'https://example.com/d.gff',
+    }
+    const model = at(urls)
+    expect(model.msaFilehandle).toEqual({
+      uri: urls.msaUrl,
+      locationType: 'UriLocation',
+    })
+    await vi.waitFor(() => {
+      expect(model.rowNames).toEqual(['human', 'mouse'])
+      expect(model.annotations.map(a => a.end)).toEqual([4])
+    })
+    expect(model.treeFilehandle).toEqual({
+      uri: urls.treeUrl,
+      locationType: 'UriLocation',
+    })
+
+    expect(at({ ...urls })).toBe(model)
+    expect(at({ ...urls, msaUrl: 'https://example.com/b.fa' })).not.toBe(model)
+  } finally {
+    vi.unstubAllGlobals()
+  }
+})
+
 test('features follow their prop on the same model', () => {
   const model = show({
     features: [{ row: 'human', start: 2, end: 4, name: 'd' }],

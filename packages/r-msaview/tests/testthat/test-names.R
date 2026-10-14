@@ -69,6 +69,18 @@ test_that("a URL is passed to the viewer as a filehandle, not as text", {
   expect_false("tree" %in% names(props))
 })
 
+test_that("msa_url, tree_url and gff_url pass the URL as is", {
+  props <- msaview(
+    msa_url = "https://example.org/aln.fa",
+    tree_url = "https://example.org/tree.nwk",
+    gff_url = "https://example.org/d.gff"
+  )$x$props
+  expect_equal(props$msaUrl, "https://example.org/aln.fa")
+  expect_equal(props$treeUrl, "https://example.org/tree.nwk")
+  expect_equal(props$gffUrl, "https://example.org/d.gff")
+  expect_error(msaview(msa_url = "aln.fa"), "URL")
+})
+
 test_that("a URL alignment still carries an inline tree", {
   widget <- msaview(
     msa = "https://example.org/aln.fa",

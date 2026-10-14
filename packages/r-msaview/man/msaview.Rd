@@ -8,6 +8,9 @@ msaview(
   msa = NULL,
   tree = NULL,
   gff = NULL,
+  msa_url = NULL,
+  tree_url = NULL,
+  gff_url = NULL,
   color_scheme = NULL,
   column_tracks = NULL,
   show_branch_len = NULL,
@@ -71,6 +74,10 @@ msaview(
     encoding can read. The viewer takes the frame as its \code{features}
     layer.
 }}
+
+\item{msa_url, tree_url, gff_url}{An http(s) URL the viewer fetches the
+alignment, the tree or the GFF from, the same as passing the URL as
+\code{msa}, \code{tree} or \code{gff}.}
 
 \item{color_scheme}{Color scheme name. Options include \code{"maeditor"}
 (default), \code{"clustal"}, \code{"lesk"}, \code{"cinema"}, \code{"flower"},
