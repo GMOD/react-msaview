@@ -6,9 +6,8 @@
  * does, with no Node, V8 or browser at the R end.
  *
  * The model's few imports from the @jbrowse/core/util barrel resolve to a shim,
- * since the barrel pulls in React and MUI. TrackBlocks, the one component
- * model.ts names, and renderToSvg, which an iife inlines along with react-dom,
- * resolve to stubs.
+ * since the barrel pulls in React and MUI, and renderToSvg, which the model
+ * imports lazily and an iife inlines along with react-dom, resolves to a stub.
  */
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -50,9 +49,6 @@ await esbuild
               path: shims[args.path],
             }),
           )
-          build.onResolve({ filter: /TrackBlocks\.tsx$/ }, () => ({
-            path: path.join(rJs, 'trackBlocksStub.ts'),
-          }))
           build.onResolve({ filter: /renderToSvg\.tsx$/ }, () => ({
             path: path.join(rJs, 'renderToSvgStub.ts'),
           }))
