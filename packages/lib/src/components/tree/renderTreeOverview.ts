@@ -1,4 +1,5 @@
 import { descendants } from '../../hierarchy.ts'
+import { makeOffscreenCanvas } from '../msa/msaRaster.ts'
 import { getNodeX } from './renderTreeCanvas.ts'
 
 import type { HierarchyNode } from '../../hierarchy.ts'
@@ -158,17 +159,8 @@ function overviewKeys({
   ]
 }
 
-function makeCanvas(width: number, height: number) {
-  const canvas =
-    typeof OffscreenCanvas !== 'undefined'
-      ? new OffscreenCanvas(width, height)
-      : typeof document !== 'undefined'
-        ? Object.assign(document.createElement('canvas'), { width, height })
-        : undefined
-  const ctx = canvas?.getContext('2d')
-  return ctx && typeof (ctx as CanvasRenderingContext2D).stroke === 'function'
-    ? { canvas: canvas as RasterCanvas, ctx: ctx as CanvasRenderingContext2D }
-    : undefined
+function canStroke(ctx: unknown): ctx is CanvasRenderingContext2D {
+  return typeof (ctx as CanvasRenderingContext2D | null)?.stroke === 'function'
 }
 
 /**
@@ -198,9 +190,10 @@ export function treeOverviewImage({
   if (prev && keys.every((key, i) => key === prev.keys[i])) {
     return prev.canvas
   }
-  const made = makeCanvas(
+  const made = makeOffscreenCanvas(
     Math.max(1, Math.round(width * scale)),
     Math.max(1, Math.round(height * scale)),
+    canStroke,
   )
   if (made) {
     made.ctx.scale(scale, scale)

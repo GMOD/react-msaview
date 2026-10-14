@@ -242,17 +242,30 @@ function usableRasterCtx(ctx: unknown): ctx is RasterCtx {
   )
 }
 
-function makeRasterCanvas(width: number, height: number) {
+/**
+ * A canvas off the page, an OffscreenCanvas where there is one, with its 2d
+ * context, or undefined where the context fails `usable` (jsdom has none).
+ */
+export function makeOffscreenCanvas<Ctx>(
+  width: number,
+  height: number,
+  usable: (ctx: unknown) => ctx is Ctx,
+  settings?: CanvasRenderingContext2DSettings,
+) {
   const canvas =
     typeof OffscreenCanvas !== 'undefined'
       ? new OffscreenCanvas(width, height)
       : typeof document !== 'undefined'
         ? Object.assign(document.createElement('canvas'), { width, height })
         : undefined
-  const ctx = canvas?.getContext('2d', { willReadFrequently: true })
-  return usableRasterCtx(ctx)
-    ? { canvas: canvas as RasterCanvas, ctx }
-    : undefined
+  const ctx = canvas?.getContext('2d', settings)
+  return usable(ctx) ? { canvas: canvas as RasterCanvas, ctx } : undefined
+}
+
+function makeRasterCanvas(width: number, height: number) {
+  return makeOffscreenCanvas(width, height, usableRasterCtx, {
+    willReadFrequently: true,
+  })
 }
 
 function paint(
