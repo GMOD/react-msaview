@@ -67,6 +67,9 @@ through the [rsvg](https://cran.r-project.org/package=rsvg) package:
 - No browser runs, so it works in a batch job or on a server
 - `width` sets the view's pixel width; the whole alignment is drawn whatever its
   length
+- The CLI refuses an alignment of more than 500,000 residue letters, since each
+  letter is an SVG element; a `col_width` below 5 or a `row_height` below 8
+  draws it with no letters
 
 ```r
 msaview_save(widget, "alignment.svg")
