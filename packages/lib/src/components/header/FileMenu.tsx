@@ -21,13 +21,17 @@ const FileMenu = observer(({ model }: { model: MsaViewModel }) => {
       data-testid="file_menu"
       tooltip="File"
       menuItems={[
-        {
-          label: 'Return to import form',
-          icon: FolderOpen,
-          onClick: () => {
-            model.reset()
-          },
-        },
+        ...(model.importForm
+          ? [
+              {
+                label: 'Return to import form',
+                icon: FolderOpen,
+                onClick: () => {
+                  model.reset()
+                },
+              },
+            ]
+          : []),
         {
           label: 'Metadata',
           icon: Assignment,

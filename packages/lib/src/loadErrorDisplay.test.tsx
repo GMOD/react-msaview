@@ -102,3 +102,18 @@ test('an error over loaded data says so instead of a bare import form', () => {
 
   expect(container.textContent).toContain('domains.gff 404')
 })
+
+test('a host that supplies the data gets no import form, only its error', () => {
+  model.setImportForm(false)
+  render()
+  expect(container.querySelector('input')).toBeNull()
+
+  act(() => {
+    model.setMSAFilehandle(uri('https://example.com/missing.fa'))
+    model.setLoadingMSA(false)
+    model.setError(new Error('HTTP 404 fetching missing.fa'))
+  })
+  expect(container.textContent).toContain('404')
+  expect(container.querySelector('input')).toBeNull()
+  expect(container.textContent).not.toContain('Return to import form')
+})

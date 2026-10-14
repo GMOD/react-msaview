@@ -1152,6 +1152,12 @@ function stateModelFactory({
       hideHeader: false,
       /**
        * #volatile
+       * shows the import form while the view has no data. MSAViewer turns it
+       * off, since its host supplies the data and the form is the demo app's
+       */
+      importForm: true,
+      /**
+       * #volatile
        */
       status: undefined as { msg: string; onCancel?: () => void } | undefined,
       /**
@@ -4534,6 +4540,12 @@ function stateModelFactory({
        */
       setHideHeader(arg: boolean) {
         self.hideHeader = arg
+      },
+      /**
+       * #action
+       */
+      setImportForm(arg: boolean) {
+        self.importForm = arg
       },
       /**
        * #action

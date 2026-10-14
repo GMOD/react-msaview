@@ -21,15 +21,17 @@ const Reset = observer(function ({
   return (
     <div>
       <ErrorMessage error={error} />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => {
-          model.reset()
-        }}
-      >
-        Return to import form
-      </Button>
+      {model.importForm ? (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            model.reset()
+          }}
+        >
+          Return to import form
+        </Button>
+      ) : null}
     </div>
   )
 })
@@ -43,6 +45,7 @@ const Loading = observer(function ({ model }: { model: MsaViewModel }) {
     resetCount,
     msaFilehandle,
     treeFilehandle,
+    importForm,
   } = model
   const hasData = !!(data.msa || data.tree)
   // a failed load keeps its filehandle, so the error outranks the spinner
@@ -68,9 +71,13 @@ const Loading = observer(function ({ model }: { model: MsaViewModel }) {
         ) : (
           <>
             {loading ? <StatusMessage model={model} variant="page" /> : null}
-            <div style={{ display: loading ? 'none' : undefined }}>
-              <ImportForm model={model} />
-            </div>
+            {importForm ? (
+              <div style={{ display: loading ? 'none' : undefined }}>
+                <ImportForm model={model} />
+              </div>
+            ) : error ? (
+              <ErrorMessage error={error} />
+            ) : null}
           </>
         )}
       </ErrorBoundary>

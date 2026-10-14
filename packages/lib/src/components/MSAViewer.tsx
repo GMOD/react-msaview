@@ -265,8 +265,8 @@ function Viewer({
   onSelectionChange,
   onModel,
 }: MSAViewerProps) {
-  const [model] = useState(() =>
-    MSAModelF().create({
+  const [model] = useState(() => {
+    const model = MSAModelF().create({
       type: 'MsaView',
       ...(msa || tree || gff || rowData
         ? {
@@ -306,8 +306,10 @@ function Viewer({
       ...(residueEncoding !== undefined
         ? { bgColor: residueEncoding === 'fill' }
         : {}),
-    }),
-  )
+    })
+    model.setImportForm(false)
+    return model
+  })
 
   const destroyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
