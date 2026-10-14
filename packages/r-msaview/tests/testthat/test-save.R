@@ -18,9 +18,10 @@ test_that("a file type the CLI cannot write is refused before it runs", {
 test_that("a failing CLI stops with its output", {
   script <- tempfile(fileext = ".R")
   writeLines('cat("broken\\n", file = stderr()); quit(status = 3)', script)
+  rscript <- file.path(R.home("bin"), "Rscript")
   expect_error(
     msaview_save(msaview(msa = msa), tempfile(fileext = ".svg"),
-                 cli = c("Rscript", shQuote(script))),
+                 cli = c(rscript, shQuote(script))),
     "broken"
   )
 })

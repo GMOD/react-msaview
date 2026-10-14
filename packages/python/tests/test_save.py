@@ -26,6 +26,9 @@ def test_save_writes_every_prop_the_front_end_sends():
         msa_url="https://example.org/a.fa",
         tree_url="https://example.org/a.nh",
         gff_url="https://example.org/a.gff",
+        msa_filehandle={"uri": "a.fa", "locationType": "UriLocation"},
+        tree_filehandle={"uri": "a.nh", "locationType": "UriLocation"},
+        gff_filehandle={"uri": "a.gff", "locationType": "UriLocation"},
         color_scheme="clustal",
         height=300,
         col_width=10,
@@ -47,7 +50,7 @@ def test_props_convert_the_traits_the_way_render_ts_does():
     p = props(view)
     assert p["colorScheme"] == {"map": {"A": "red"}}
     assert p["treeRoot"] == {"outgroup": ["Mouse"]}
-    assert p["msaFilehandle"] == {"uri": "https://x.org/a.fa", "locationType": "UriLocation"}
+    assert p["msaUrl"] == "https://x.org/a.fa"
     assert "theme" not in p and "height" not in p and "tree" not in p
     assert props(MSAView(tree_root="midpoint"))["treeRoot"] == "midpoint"
     assert props(MSAView(tree_root=["a", "b"]))["treeRoot"] == {"outgroup": ["a", "b"]}

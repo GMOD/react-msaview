@@ -18,10 +18,6 @@ def _optional(value: Any) -> Any:
     return None if value == "" else value
 
 
-def _uri_location(uri: str) -> dict[str, str] | None:
-    return {"uri": uri, "locationType": "UriLocation"} if uri else None
-
-
 def _tree_root(root: Any) -> Any:
     if root is None or root == "" or root == "midpoint":
         return _optional(root)
@@ -37,9 +33,12 @@ def props(view: Any) -> dict[str, Any]:
         "msa": _optional(view.msa),
         "tree": _optional(view.tree),
         "gff": _optional(view.gff),
-        "msaFilehandle": _uri_location(view.msa_url),
-        "treeFilehandle": _uri_location(view.tree_url),
-        "gffFilehandle": _uri_location(view.gff_url),
+        "msaUrl": _optional(view.msa_url),
+        "treeUrl": _optional(view.tree_url),
+        "gffUrl": _optional(view.gff_url),
+        "msaFilehandle": view.msa_filehandle,
+        "treeFilehandle": view.tree_filehandle,
+        "gffFilehandle": view.gff_filehandle,
         "colorScheme": {"map": scheme} if isinstance(scheme, dict) else _optional(scheme),
         "height": view.height,
         "colWidth": view.col_width,
