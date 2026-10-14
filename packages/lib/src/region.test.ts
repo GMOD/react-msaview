@@ -32,3 +32,34 @@ test('a region waits for a tree file to load', () => {
   model.setWidth(800)
   expect(model.region).toEqual({ start: 10, end: 20 })
 })
+
+const manyRows = Array.from(
+  { length: 60 },
+  (_, i) => `>row${i}\n${'MEEPQSDPSV'.repeat(20)}`,
+).join('\n')
+
+test('a region naming a row scrolls that row to the middle', () => {
+  const model = stateModelFactory().create({
+    type: 'MsaView',
+    msaFormat: 'fasta',
+    data: { msa: manyRows },
+    region: { row: 'row50', start: 150, end: 160 },
+  })
+  model.setWidth(800)
+  const rowTop = 50 * model.rowHeight + model.scrollY
+  expect(model.scrollY).toBeLessThan(0)
+  expect(rowTop).toBeGreaterThan(0)
+  expect(rowTop + model.rowHeight).toBeLessThan(model.msaAreaHeight)
+})
+
+test('a region of columns alone leaves the vertical scroll at the top', () => {
+  const model = stateModelFactory().create({
+    type: 'MsaView',
+    msaFormat: 'fasta',
+    data: { msa: manyRows },
+    region: { start: 150, end: 160 },
+  })
+  model.setWidth(800)
+  expect(model.scrollX).toBeLessThan(0)
+  expect(model.scrollY).toBe(0)
+})

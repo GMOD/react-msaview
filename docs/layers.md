@@ -191,10 +191,11 @@ highlights, and stay out of the snapshot. `clearHighlight(owner)` removes only
 that owner's highlights, so two sources can highlight at once.
 
 `region` takes the same coordinates and names where the view opens:
-`{"row": "Human", "start": 170, "end": 290}` zooms onto those residues once the
-alignment and any tree file have loaded. The viewer then clears it, so a
-reloaded session keeps the reader's own scroll. `model.zoomToRegion(region)`
-does the same at runtime.
+`{"row": "Human", "start": 170, "end": 290}` zooms onto those residues and
+scrolls the Human row to the middle, once the alignment and any tree file have
+loaded. The viewer then clears it, so a reloaded session keeps the reader's own
+scroll. `model.revealRegion(region)` does the same at runtime, and
+`model.zoomToRegion(region)` zooms without touching the vertical scroll.
 
 ## selection
 

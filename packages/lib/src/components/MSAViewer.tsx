@@ -488,7 +488,7 @@ function Viewer({
       ? when(
           () => model.viewInitialized && model.numColumns > 0,
           () => {
-            model.zoomToRegion(target)
+            model.revealRegion(target)
           },
         )
       : undefined

@@ -1141,9 +1141,10 @@ function stateModelFactory({
         /**
          * #property
          * where the view opens, in `highlights` coordinates: `{row, start,
-         * end}` zooms onto residues of that row, `{start, end}` onto alignment
-         * columns. Applied once the alignment and any tree file have loaded,
-         * then cleared, so a reloaded session keeps the reader's own scroll.
+         * end}` zooms onto residues of that row and scrolls the row to the
+         * middle, `{start, end}` zooms onto alignment columns. Applied once the
+         * alignment and any tree file have loaded, then cleared, so a reloaded
+         * session keeps the reader's own scroll.
          */
         region: types.frozen<Region | undefined>(),
         /**
@@ -4664,6 +4665,27 @@ function stateModelFactory({
       },
       /**
        * #action
+       * zoomToRegion, and for a region naming a row, also scroll that row to
+       * the middle of the alignment, as Go to does. What `region` opens on; a
+       * caller following a range as it moves wants zoomToRegion alone, which
+       * leaves the reader's vertical scroll where they put it.
+       */
+      revealRegion(region: Region) {
+        transaction(() => {
+          this.zoomToRegion(region)
+          const row =
+            region.row === undefined
+              ? undefined
+              : self.rowNamesSet.get(region.row)
+          if (row !== undefined && self.viewInitialized) {
+            self.setScrollY(
+              -(row + 0.5) * self.rowHeight + self.msaAreaHeight / 2,
+            )
+          }
+        })
+      },
+      /**
+       * #action
        * zoom and scroll so the selected columns fill the alignment's width,
        * and, where the selection names its rows, so those rows fill its height
        */
@@ -4793,7 +4815,7 @@ function stateModelFactory({
               self.numColumns > 0 &&
               !(self.treeFilehandle && !self.data.tree)
             ) {
-              this.zoomToRegion(region)
+              this.revealRegion(region)
               self.setRegion(undefined)
             }
           }),
