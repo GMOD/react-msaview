@@ -130,6 +130,16 @@ test('--spec reads a shorthand msa path beside the spec, and --msa overrides it'
   expect(svg).not.toContain('seq1')
 })
 
+test('@napi-rs/canvas measures the labels the tree area fits', async () => {
+  const width = (name: string) =>
+    render({
+      msaFile: write(`${name}.fa`, `>${name}\nMKAANSE\n>b\nMKA-NSE\n`),
+    }).then(svg => Number(/<svg[^>]* width="([\d.]+)"/.exec(svg)![1]))
+  expect(await width('WWWWWWWWWWWW')).toBeGreaterThan(
+    await width('iiiiiiiiiiii'),
+  )
+})
+
 test('-o picks the format from its extension', async () => {
   const msaFile = write('fmt.fa', MSA)
   const png = path.join(dir, 'out.png')

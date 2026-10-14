@@ -15,12 +15,13 @@ import type { MSAViewerProps, MsaSpec } from 'react-msaview'
  * jsdom has no pixels, so without this the export draws a <rect> per cell and a
  * large alignment exhausts the heap. @napi-rs/canvas is an optional dependency
  * with prebuilt binaries; when it installed, its canvas stands in for
- * OffscreenCanvas and the raster background becomes one <image>.
+ * OffscreenCanvas, the raster background becomes one <image>, and the returned
+ * context measures text with the installed fonts.
  */
 async function installNodeCanvas(g: Record<string, unknown>) {
   const napi = await import('@napi-rs/canvas').catch(() => undefined)
   if (!napi) {
-    return
+    return undefined
   }
   const { createCanvas } = napi
   g.OffscreenCanvas = class {
@@ -28,6 +29,7 @@ async function installNodeCanvas(g: Record<string, unknown>) {
       return createCanvas(width, height)
     }
   }
+  return createCanvas(1, 1).getContext('2d')
 }
 
 /**
@@ -160,8 +162,7 @@ export async function exportSvg({
   const g = globalThis as Record<string, unknown>
   g.window = dom.window
   g.document = dom.window.document
-  installHeadlessRenderEnv(dom.window)
-  await installNodeCanvas(g)
+  installHeadlessRenderEnv(dom.window, {}, await installNodeCanvas(g))
 
   const fromProps = propsFile ? await readProps(propsFile) : undefined
   const theme = resolveTheme(themeName ?? fromProps?.theme)

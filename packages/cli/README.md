@@ -184,7 +184,10 @@ react-msaview-cli export-svg --msa kinases.aln --tree kinases.nwk -o kinases.pdf
 react-msaview-cli export-svg --msa kinases.aln --scale 4 -o kinases.png
 ```
 
-The same input gives the same bytes, so CI can regenerate a figure and diff it.
+The same input gives the same bytes on one machine, so CI can regenerate a
+figure and diff it. With @napi-rs/canvas installed, the export measures labels
+with that machine's fonts, so the tree area can come out a few pixels wider or
+narrower on another machine.
 
 ## Annotating
 

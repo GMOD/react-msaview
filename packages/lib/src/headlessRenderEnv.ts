@@ -69,10 +69,11 @@ export class HeadlessDOMPoint {
  * its own jsdom passes that window instead, because Node has no global
  * HTMLCanvasElement to patch.
  *
- * `measureText` reports 0.6em per character, close enough to a real sans-serif
- * average for layout and, more usefully, exactly predictable: a caller can
- * compute the width a renderer will see rather than hardcoding a number
- * measured from one machine's fonts.
+ * Without `measureContext`, `measureText` reports 0.6em per character, close
+ * enough to a real sans-serif average for layout and exactly predictable: a
+ * test can compute the width a renderer will see. A caller with a real canvas,
+ * such as react-msaview-cli with @napi-rs/canvas, passes one of its 2D
+ * contexts as `measureContext` to measure with the installed fonts.
  *
  * `contextExtras` adds to the context a test hands out -- the raster test
  * supplies the ImageData methods that make the export take its image path.
@@ -80,6 +81,7 @@ export class HeadlessDOMPoint {
 export function installHeadlessRenderEnv(
   win: unknown = globalThis,
   contextExtras: Partial<CanvasRenderingContext2D> = {},
+  measureContext?: MeasureContext,
 ) {
   const g = globalThis as Record<string, unknown>
   g.DOMMatrix = HeadlessDOMMatrix
@@ -96,13 +98,25 @@ export function installHeadlessRenderEnv(
         set font(v: string) {
           font = v
         },
-        measureText: (t: string) => ({
-          width: t.length * (Number.parseFloat(font) || 10) * CHAR_WIDTH_RATIO,
-        }),
+        measureText: (t: string) => {
+          if (measureContext) {
+            measureContext.font = font
+            return { width: measureContext.measureText(t).width }
+          }
+          return {
+            width:
+              t.length * (Number.parseFloat(font) || 10) * CHAR_WIDTH_RATIO,
+          }
+        },
       },
       contextExtras,
     ) as unknown as CanvasRenderingContext2D
   } as unknown as typeof HTMLCanvasElement.prototype.getContext
+}
+
+export interface MeasureContext {
+  font: string
+  measureText(text: string): { width: number }
 }
 
 /** the per-character width factor `measureText` above reports */
