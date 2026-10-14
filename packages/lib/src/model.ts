@@ -560,39 +560,79 @@ const noDomains: Annotation[] = []
 const noClades: ResolvedClade[] = []
 
 /**
+ * Each tip of the full tree in the order the tree draws it, with the on-screen
+ * row that shows it: its own, or the row of the collapsed node standing for it
+ */
+function tipRows(root: HierarchyNode<NodeWithIds>) {
+  const rows = new Map<string, { order: number; row: number }>()
+  let row = 0
+  const pushReversed = (
+    stack: HierarchyNode<NodeWithIds>[],
+    nodes: HierarchyNode<NodeWithIds>[],
+  ) => {
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      stack.push(nodes[i]!)
+    }
+  }
+  const stack = [root]
+  while (stack.length > 0) {
+    const node = stack.pop()!
+    if (node.children?.length) {
+      pushReversed(stack, node.children)
+    } else {
+      const hidden = [node]
+      while (hidden.length > 0) {
+        const tip = hidden.pop()!
+        const kids = tip.children ?? tip._children
+        if (kids?.length) {
+          pushReversed(hidden, kids)
+        } else {
+          rows.set(tip.data.name, { order: rows.size, row })
+        }
+      }
+      row++
+    }
+  }
+  return rows
+}
+
+/**
  * The rows a clade covers and the node an `mrca` names, or undefined when the
  * clade does not resolve: a tip name the tree does not have or has twice, or a
- * leaf count `tips` disagrees with. `index` and `rowNamesSet` are the memoized
- * passes over the tree.
+ * leaf count `tips` disagrees with. A `range` counts its tips in the order
+ * `tips` gives them, so a collapsed clade inside it counts every leaf it
+ * stands for. `index` is the memoized leaf pass over the tree.
  */
 function cladeRows(
   clade: Clade,
   root: HierarchyNode<NodeWithIds>,
   index: Map<string, HierarchyNode<NodeWithIds> | undefined>,
-  rowNamesSet: Map<string, number>,
+  tips: Map<string, { order: number; row: number }>,
 ): { rows: [number, number]; nodeId?: string } | undefined {
   if (clade.range) {
     const [a, b] = clade.range.map(name =>
-      index.get(name) ? rowNamesSet.get(name) : undefined,
+      index.get(name) ? tips.get(name) : undefined,
     )
     if (a === undefined || b === undefined) {
       return undefined
     }
-    const rows: [number, number] = a <= b ? [a, b] : [b, a]
-    return rows[1] - rows[0] + 1 === clade.tips ? { rows } : undefined
+    const [first, last] = a.order <= b.order ? [a, b] : [b, a]
+    return last.order - first.order + 1 === clade.tips
+      ? { rows: [first.row, last.row] }
+      : undefined
   }
   const node = clade.mrca ? mrca(root, clade.mrca, index) : undefined
   if (!node) {
     return undefined
   }
-  const tips = leaves(node)
-  if (tips.length !== clade.tips) {
+  const nodeTips = leaves(node)
+  if (nodeTips.length !== clade.tips) {
     return undefined
   }
   let first = Infinity
   let last = -Infinity
-  for (const tip of tips) {
-    const row = rowNamesSet.get(tip.data.name)
+  for (const tip of nodeTips) {
+    const row = tips.get(tip.data.name)?.row
     if (row !== undefined) {
       first = Math.min(first, row)
       last = Math.max(last, row)
@@ -604,19 +644,21 @@ function cladeRows(
 }
 
 /**
- * Every clade that resolves, with its fill color settled, against the leaf
- * order `rowNamesSet` gives. The tree panel resolves against the displayed
- * rows and the overview against its own, so both take the tree they draw. A
- * `range` record names no node, so the seeding marks, which need one, drop it.
+ * Every clade that resolves, with its fill color settled, against the rows of
+ * `displayed`, the tree as drawn. The tree panel resolves against the
+ * displayed rows and the overview against its own, so both take the tree they
+ * draw. A `range` record names no node, so the seeding marks, which need one,
+ * drop it.
  */
 function resolveClades(
   clades: Clade[],
   root: HierarchyNode<NodeWithIds>,
-  rowNamesSet: Map<string, number>,
+  displayed: HierarchyNode<NodeWithIds>,
 ): ResolvedClade[] {
   const index = leafIndex(root)
+  const tips = tipRows(displayed)
   return clades.flatMap(clade => {
-    const resolved = cladeRows(clade, root, index, rowNamesSet)
+    const resolved = cladeRows(clade, root, index, tips)
     const seeding = seedingMarks.has(clade.mark)
     return resolved && !(seeding && resolved.nodeId === undefined)
       ? [
@@ -1951,7 +1993,7 @@ function stateModelFactory({
         return resolveClades(
           self.clades,
           hierarchy(this.tree, d => d.children),
-          this.rowNamesSet,
+          this.root,
         )
       },
       /**
@@ -2168,10 +2210,11 @@ function stateModelFactory({
         if (!layout || self.clades.length === 0) {
           return noClades
         }
-        const rowNames = new Map(
-          leaves(layout.root).map((leaf, index) => [leaf.data.name, index]),
+        return resolveClades(
+          self.clades,
+          hierarchy(this.tree, d => d.children),
+          layout.root,
         )
-        return resolveClades(self.clades, layout.root, rowNames)
       },
 
       /**

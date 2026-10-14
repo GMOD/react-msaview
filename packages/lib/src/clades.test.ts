@@ -118,6 +118,32 @@ test('a collapsed neighbour moves the rows and keeps the clade', () => {
   expect(model.resolvedClades[0]!.rows).toEqual([1, 2])
 })
 
+test('a range counts the tips a collapsed row inside it stands for', () => {
+  const model = makeModel([
+    { range: ['A', 'D'], tips: 4, mark: 'highlight' },
+    { range: ['B', 'C'], tips: 2, mark: 'highlight' },
+    { mrca: ['A', 'D'], tips: 4, mark: 'highlight' },
+  ])
+  model.toggleCollapsed(model.root.children![1]!.data.id)
+  expect(model.rowNames).toHaveLength(3)
+  expect(model.resolvedClades.map(c => c.rows)).toEqual([
+    [0, 2],
+    [1, 2],
+    [0, 2],
+  ])
+})
+
+test('a range counts tips in the order the tree draws them', () => {
+  const model = makeModel([{ range: ['C', 'B'], tips: 4, mark: 'highlight' }])
+  expect(model.resolvedClades).toEqual([])
+
+  const [ab] = model.root.children!.map(c => c.data.id)
+  model.toggleRotated(model.root.data.id)
+  model.toggleCollapsed(ab!)
+  expect(model.rowNames.slice(0, 2)).toEqual(['C', 'D'])
+  expect(model.resolvedClades[0]!.rows).toEqual([0, 2])
+})
+
 test('setClades replaces the layer', () => {
   const model = makeModel([])
   expect(model.resolvedClades).toEqual([])
