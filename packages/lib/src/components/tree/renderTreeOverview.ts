@@ -63,10 +63,10 @@ export function drawTreeOverview({
       continue
     }
     const sx = nodeX(source)
-    const sy = rowY(source.x!)
+    const sy = rowY(source.x)
     for (const target of source.children) {
       const tx = nodeX(target)
-      const ty = rowY(target.x!)
+      const ty = rowY(target.x)
       if (Math.abs(tx - sx) < 1 && Math.abs(ty - sy) < 1) {
         continue
       }

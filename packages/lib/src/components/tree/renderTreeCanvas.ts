@@ -706,11 +706,7 @@ export function renderTreeCanvas({
 
   // memoized on the model and shared across the tree/bubble/label passes (and
   // across all tree blocks) rather than re-traversing the hierarchy in each
-  const {
-    maxDepthToLeaf,
-    showBranchLenEffective,
-    effectiveTreeWidth: tipX,
-  } = model
+  const { maxDepthToLeaf, effectiveTreeWidth: tipX } = model
   // built once for all three passes: each of them asks about a different node on
   // every block of every redraw, and `collapsed` is a list
   const collapsedSet = new Set(model.collapsed)
