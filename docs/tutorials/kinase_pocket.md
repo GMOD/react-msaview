@@ -47,8 +47,6 @@ UniProt has already grouped every human and mouse protein kinase by family.
 Keeping the HUMAN entries and the group each one sits under is a few lines of
 Python over the plain-text list:
 
-<!-- from: scripts/build_kinase_pocket.sh -->
-
 ```python
 import re
 
@@ -84,8 +82,6 @@ fold. `Tyr` is the tyrosine kinases, ABL1 among them, and this page writes it as
 The script fetches one UniProt sequence per accession, 50 accessions per
 request:
 
-<!-- from: scripts/build_kinase_pocket.sh -->
-
 ```python
 import urllib.parse
 import urllib.request
@@ -105,8 +101,6 @@ A protein kinase carries regulatory regions, SH2/SH3 modules and transmembrane
 spans outside its catalytic domain, and none of those line up across the family
 the way the domain does. `hmmalign` against Pfam's Pkinase model (PF00069)
 extracts the domain and puts every kinase's copy of it in the same 262 columns:
-
-<!-- from: scripts/build_kinase_pocket.sh -->
 
 ```bash
 curl -sf "https://www.ebi.ac.uk/interpro/api/entry/pfam/PF00069/?annotation=hmm" |
@@ -140,8 +134,6 @@ between them are the loops that make each kinase's pocket its own.
 
 FastTree builds the tree:
 
-<!-- from: scripts/build_kinase_pocket.sh -->
-
 ```bash
 docker run --rm -v "$PWD:/work" -w /work quay.io/biocontainers/fasttree:2.2.0--h7b50bb2_1 \
   FastTree kinase-pocket.afa > kinase-pocket.nwk
@@ -173,10 +165,25 @@ numbering, as K271, T315 and D381-F382-G383. ABL1 is a row in this alignment, so
 walking its row gives the column of each landmark:
 
 ```python
-# ABL1's own row maps each of its residues to an alignment column, so one
-# walk along it gives all three landmarks
-full_abl1 = uniprot_sequence['ABL1']  # 1130 aa, P00519
-aligned_abl1 = alignment['ABL1']       # 262 columns
+full_abl1 = uniprot_sequence[metadata['ABL1']['uniprot']]
+aligned_abl1 = alignment['ABL1']
+residues = [(col, c) for col, c in enumerate(aligned_abl1, 1) if c != '-']
+pos = full_abl1.find(''.join(c for _, c in residues[:8]))
+abl1_number = {}
+for col, c in residues:
+    pos = full_abl1.index(c, pos)
+    abl1_number[col] = pos + 1
+    pos += 1
+```
+
+`alignment` and `uniprot_sequence` map a kinase's name and accession to its
+sequence, and `metadata` is `kinase-pocket-metadata.json`. The script prints:
+
+```
+ABL1: 1130 aa, 262 alignment columns
+catalytic K: column 30, ABL1 K271
+gatekeeper: column 77, ABL1 T315
+DFG: column 141-143, ABL1 D381 F382 G383
 ```
 
 Column 30 holds ABL1's K271, column 77 its gatekeeper T315, and columns 141-143
@@ -188,7 +195,21 @@ columns and one column with nothing to do with the pocket called out:
 The catalytic lysine column is 93.5% K over all 474 rows. The control is the
 column 25 residues to its right, which sits between the gatekeeper and the DFG
 motif but is not one of the three landmarks. That column has no majority
-residue: F, S, K, R, L and H each appear in double digits.
+residue: F is the most common at 13.3%, then S, K, R, L and H.
+
+```python
+def tally(col, top):
+    counts = Counter(row[col - 1] for row in alignment.values())
+    return ', '.join(f'{r} {n} ({100 * n / total:.1f}%)' for r, n in counts.most_common(top))
+
+print(f'catalytic K, column 30 over {total} rows: {tally(30, 3)}')
+print(f'control, column 102: {tally(102, 8)}')
+```
+
+```
+catalytic K, column 30 over 474 rows: K 443 (93.5%), - 15 (3.2%), C 4 (0.8%)
+control, column 102: F 63 (13.3%), S 50 (10.5%), K 49 (10.3%), R 46 (9.7%), L 30 (6.3%), H 29 (6.1%), Y 27 (5.7%), D 26 (5.5%)
+```
 
 ## 6. Compare the gatekeeper across two families
 
@@ -204,16 +225,23 @@ family, which imatinib does not inhibit, carries phenylalanine:
 Both views show the same alignment column in two row bands from the same tree.
 ABL1 and ABL2 read threonine, and CDK1, CDK2 and CDK3 read phenylalanine. The
 flanking rows are MATK and CSK in the first band and CDK16 and CDK17 in the
-second. CDK16 and CDK17 carry threonine, although they sit next to CDK1-3 in the
-tree.
+second. CDK16 and CDK17 also read phenylalanine here. The script prints the
+residue each named kinase carries in this column:
+
+```
+ABL1=T ABL2=T KIT=T PDGFRA=T CSF1R=T LCK=T
+MATK=M CSK=T
+CDK1=F CDK2=F CDK3=F CDK16=F CDK17=F
+```
 
 ## Check against the raw data
 
 The script tallies the gatekeeper column across all 474 rows:
 
 ```python
-from collections import Counter
 counts = Counter(row[76] for row in alignment.values())  # column 77, 0-indexed
+for r, n in counts.most_common(5):
+    print(f'{r}  {n:3d}  {100 * n / total:.1f}%')
 ```
 
 ```
@@ -221,7 +249,7 @@ M  185  39.0%
 T   90  19.0%
 L   76  16.0%
 F   69  14.6%
-V   15   3.2%
+V   15  3.2%
 ```
 
 Threonine, the small gatekeeper that imatinib and similar drugs reach past,
@@ -230,12 +258,13 @@ kinase pocket from solved structures, independently of this alignment, and puts
 the same position at 18.4% threonine over its 521 human kinase entries (96 of
 them). KLIFS' terms grant no license to redistribute, so this page hosts nothing
 from it and queries its API live
-(`https://klifs.net/api/kinase_information?species=Human`).
+(`https://klifs.net/api/kinase_information?species=Human`). The script runs that
+query and prints `KLIFS: 96 of 521 human pockets read T at residue 45 (18.4%)`.
 
 ## Reproduce it end to end
 
 [`build_kinase_pocket.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_kinase_pocket.sh)
-runs steps 1 to 4 above in order:
+runs the steps above in order:
 
 1. It reads UniProt's kinase classification, keeps the human entries and the
    group each sits under, and fetches every one's sequence from UniProt.
@@ -246,6 +275,8 @@ runs steps 1 to 4 above in order:
    script strips the insert states, leaving the HMM's 262 columns.
 4. FastTree infers a tree from the alignment, and the script writes each gene's
    kinase group and UniProt accession as the row metadata.
+5. It prints the landmark columns, the logo shares and the gatekeeper tally
+   quoted in steps 5 and 6, then queries KLIFS for the closing comparison.
 
 It needs the tools under [Prerequisites](#prerequisites).
 

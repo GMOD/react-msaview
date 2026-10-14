@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build a kinase-domain alignment, tree and row metadata for the whole human
-# kinome, and print the gatekeeper-residue count that closes
-# docs/tutorials/kinase_pocket.md. Every step is the one shown there.
+# kinome, and print the landmark columns, logo shares and gatekeeper tally that
+# docs/tutorials/kinase_pocket.md quotes. Every step is the one shown there.
 #
 #   bash build_kinase_pocket.sh [outdir]
 #
@@ -118,6 +118,9 @@ with open(f'{out}/kept.fasta', 'w') as fh:
     for k in kept:
         fh.write(f">{k['gene']}\n{seqs[k['accession']]}\n")
 print(f'{len(kept)} of {len(kinases)} entries clear the Pkinase gathering threshold')
+dropped = [k for k in kinases if k['accession'] not in passing]
+atypical = sum(k['group'] == 'Atypical' for k in dropped)
+print(f'{len(dropped)} do not clear it, {atypical} of them Atypical')
 EOF
 
 # 6. align the kinase domain to the HMM and keep only its match columns
@@ -169,6 +172,79 @@ kept = json.load(open(f'{out}/kept.json'))
 meta = {k['gene']: {'group': k['group'], 'uniprot': k['accession']} for k in kept}
 json.dump(meta, open(f'{out}/kinase-pocket-metadata.json', 'w'), indent=1)
 EOF
+
+
+# 9. the numbers the page quotes: ABL1's landmark columns, each landmark
+#    column's residue shares over all rows, and the gatekeeper tally. Reads only
+#    the three files written above, plus all.fasta for ABL1's full sequence
+python3 - "$OUT" <<'PY'
+import json
+import sys
+from collections import Counter
+
+out = sys.argv[1]
+
+
+def read_fasta(path, key):
+    seqs, name = {}, None
+    for line in open(path):
+        line = line.rstrip('\n')
+        if line.startswith('>'):
+            name = key(line[1:])
+            seqs[name] = ''
+        else:
+            seqs[name] += line
+    return seqs
+
+
+alignment = read_fasta(f'{out}/kinase-pocket.afa', str.strip)
+metadata = json.load(open(f'{out}/kinase-pocket-metadata.json'))
+uniprot_sequence = read_fasta(f'{out}/all.fasta', lambda h: h.split('|')[1])
+
+full_abl1 = uniprot_sequence[metadata['ABL1']['uniprot']]
+aligned_abl1 = alignment['ABL1']
+residues = [(col, c) for col, c in enumerate(aligned_abl1, 1) if c != '-']
+pos = full_abl1.find(''.join(c for _, c in residues[:8]))
+abl1_number = {}
+for col, c in residues:
+    pos = full_abl1.index(c, pos)
+    abl1_number[col] = pos + 1
+    pos += 1
+print(f'ABL1: {len(full_abl1)} aa, {len(aligned_abl1)} alignment columns')
+for label, cols in [('catalytic K', [30]), ('gatekeeper', [77]), ('DFG', [141, 142, 143])]:
+    span = f'{cols[0]}' if len(cols) == 1 else f'{cols[0]}-{cols[-1]}'
+    print(f'{label}: column {span}, ABL1 ' + ' '.join(f'{aligned_abl1[c - 1]}{abl1_number[c]}' for c in cols))
+
+total = len(alignment)
+
+
+def tally(col, top):
+    counts = Counter(row[col - 1] for row in alignment.values())
+    return ', '.join(f'{r} {n} ({100 * n / total:.1f}%)' for r, n in counts.most_common(top))
+
+
+print(f'catalytic K, column 30 over {total} rows: {tally(30, 3)}')
+print(f'control, column 102: {tally(102, 8)}')
+print('gatekeeper, column 77:')
+for r, n in Counter(row[76] for row in alignment.values()).most_common(5):
+    print(f'{r}  {n:3d}  {100 * n / total:.1f}%')
+for family in [['ABL1', 'ABL2', 'KIT', 'PDGFRA', 'CSF1R', 'LCK'], ['MATK', 'CSK'], ['CDK1', 'CDK2', 'CDK3', 'CDK16', 'CDK17']]:
+    print(' '.join(f'{g}={alignment[g][76]}' for g in family))
+PY
+
+# 10. KLIFS's own 85-residue pocket alignment, queried live, for the same
+#     position (pocket residue 45) over its human kinases
+python3 - <<'PY'
+import json
+import urllib.request
+from collections import Counter
+
+url = 'https://klifs.net/api/kinase_information?species=Human'
+entries = json.load(urllib.request.urlopen(url, timeout=60))
+pockets = [e['pocket'] for e in entries if isinstance(e['pocket'], str) and len(e['pocket']) == 85]
+threonine = sum(p[44] == 'T' for p in pockets)
+print(f'KLIFS: {threonine} of {len(pockets)} human pockets read T at residue 45 ({100 * threonine / len(pockets):.1f}%)')
+PY
 
 echo
 echo "wrote $OUT/kinase-pocket.afa, $OUT/kinase-pocket.nwk, $OUT/kinase-pocket-metadata.json"
