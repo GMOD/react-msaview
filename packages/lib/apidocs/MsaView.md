@@ -524,6 +524,15 @@ hoveredTreeNode: undefined as
   | undefined
 ```
 
+#### volatile: importForm
+
+shows the import form while the view has no data. MSAViewer turns it off, since
+its host supplies the data and the form is the demo app's
+
+```js
+importForm: true
+```
+
 #### volatile: loadingMSA
 
 ```js
@@ -970,7 +979,8 @@ header: Record<…> | { info: string; version: string | undefined; } | { General
 
 #### getter: hideGapsEffective
 
-hideGaps takes effect when there are collapsed rows or allowedGappyness < 100
+hideGaps takes effect when a collapse or a focus hides rows, whose residues
+leave columns all gaps among the rest, or when allowedGappyness is under 100
 
 ```js
 hideGapsEffective: boolean
@@ -1350,8 +1360,8 @@ rowFields: string[]
 
 #### getter: rowMap
 
-every sequence in the alignment, keyed by row name, including rows a collapsed
-clade hides. `rows` holds only the rows on screen; lookups by row name use this
+every sequence in the alignment, keyed by the alignment's own row names,
+including rows a collapsed clade hides
 
 ```js
 rowMap: Map<string, string>
@@ -1814,6 +1824,16 @@ mappings share an entry id, as in a homodimer.
 rowResidue: (structureId: string, position: number, asymId?: string | undefined) => RowResidue | undefined
 ```
 
+#### method: rowSequence
+
+the row's aligned sequence by the name the tree gives it, including rows a
+collapsed clade hides. `MSA.getRow` resolves a FASTA name whose colon a Newick
+tool wrote as an underscore, which `rowMap` does not
+
+```js
+rowSequence: (name: string) => string | undefined
+```
+
 #### method: seqEndToGlobalCol
 
 the global column of a span's last residue, clamping a position past the end of
@@ -2054,7 +2074,8 @@ fitVertically: () => void
 
 swap in a different tree over the same alignment. Clears `collapsed`, `rotated`
 and `showOnly`, since path-derived node ids (node-0-0-1) from the old tree would
-match unrelated nodes in the new one.
+match unrelated nodes in the new one, and the tree's filehandle, which the
+snapshot would otherwise reopen in place of the new tree
 
 ```js
 replaceTree: (newick: string) => void
@@ -2291,6 +2312,12 @@ set hovered tree node and its descendants
 
 ```js
 setHoveredTreeNode: (nodeId?: string | undefined) => void
+```
+
+#### action: setImportForm
+
+```js
+setImportForm: (arg: boolean) => void
 ```
 
 #### action: setLoadingMSA
