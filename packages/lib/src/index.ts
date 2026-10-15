@@ -25,6 +25,7 @@ export type {
   RegionShorthand,
 } from './expandSpec.ts'
 export { default as MSAView } from './components/Loading.tsx'
+export type { ToolbarSlots } from './components/header/Header.tsx'
 export { default as MSAViewer } from './components/MSAViewer.tsx'
 export type { MSAViewerProps } from './components/MSAViewer.tsx'
 // the snapshot MSAViewer builds from its props, for the CLI's --props

@@ -19,6 +19,7 @@ import TreeOverview from './tree/TreeOverview.tsx'
 import TreePanel from './tree/TreePanel.tsx'
 import TreeRuler from './tree/TreeRuler.tsx'
 
+import type { ToolbarSlots } from './header/Header.tsx'
 import type { MsaViewModel } from '../model.ts'
 
 // The band above the panels: the tree overview and scale bar, the strip
@@ -140,7 +141,10 @@ const View = observer(function ({ model }: { model: MsaViewModel }) {
   )
 })
 
-const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
+const MSAView = observer(function ({
+  model,
+  ...slots
+}: { model: MsaViewModel } & ToolbarSlots) {
   const {
     height,
     headerHeight,
@@ -156,7 +160,7 @@ const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
       {viewInitialized ? (
         <>
           <div style={{ height, overflow: 'clip' }}>
-            {hideHeader ? null : <Header model={model} />}
+            {hideHeader ? null : <Header model={model} {...slots} />}
             <div style={{ display: 'flex' }}>
               <View model={model} />
               {settingsOpen ? (

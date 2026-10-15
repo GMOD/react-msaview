@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import LinkOff from '@mui/icons-material/LinkOff'
+import ViewInAr from '@mui/icons-material/ViewInAr'
 import { Box, Button, Link, Tooltip, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
@@ -73,7 +74,33 @@ const CopyLinkButton = observer(function ({ model }: { model: AppModel }) {
   )
 })
 
-export default function TopBar({
+export function SiteNav() {
+  return (
+    <Box
+      component="nav"
+      sx={{
+        display: 'flex',
+        alignItems: 'baseline',
+        columnGap: 2,
+        px: 1.5,
+        py: 0.5,
+        fontSize: 14,
+        bgcolor: 'grey.100',
+        borderBottom: 1,
+        borderColor: 'divider',
+      }}
+    >
+      <Typography component="h1" sx={{ fontSize: 15, fontWeight: 600 }}>
+        JBrowseMSA
+      </Typography>
+      <Link href="../">Docs</Link>
+      <Link href="../tutorials/">Tutorials</Link>
+      <Link href="../examples/">Examples</Link>
+    </Box>
+  )
+}
+
+export function AppActions({
   model,
   structureOpen,
   onToggleStructure,
@@ -83,34 +110,14 @@ export default function TopBar({
   onToggleStructure: () => void
 }) {
   return (
-    <Box
-      component="header"
-      sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        columnGap: 2,
-        rowGap: 1,
-        px: 2.5,
-        py: 1,
-        borderBottom: 1,
-        borderColor: 'divider',
-      }}
-    >
-      <Typography component="h1" sx={{ fontSize: 18, fontWeight: 600 }}>
-        JBrowseMSA
-      </Typography>
-      <Link href="../">Docs</Link>
-      <Link href="../tutorials/">Tutorials</Link>
-      <Link href="../examples/">Examples</Link>
-      <Box sx={{ flexGrow: 1 }} />
+    <Box sx={{ display: 'flex', gap: 1, px: 1, flexShrink: 0 }}>
       <Button
         size="small"
-        variant="outlined"
-        color="primary"
+        startIcon={<ViewInAr />}
+        color={structureOpen ? 'primary' : 'inherit'}
+        variant={structureOpen ? 'outlined' : 'text'}
         aria-pressed={structureOpen}
         onClick={onToggleStructure}
-        sx={structureOpen ? { borderWidth: 2, fontWeight: 700 } : undefined}
       >
         3D structure
       </Button>

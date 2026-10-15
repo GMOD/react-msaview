@@ -9,6 +9,7 @@ import MSAView from './MSAView.tsx'
 import StatusMessage from './StatusMessage.tsx'
 import ImportForm from './import/ImportForm.tsx'
 
+import type { ToolbarSlots } from './header/Header.tsx'
 import type { MsaViewModel } from '../model.ts'
 
 const Reset = observer(function ({
@@ -36,7 +37,10 @@ const Reset = observer(function ({
   )
 })
 
-const Loading = observer(function ({ model }: { model: MsaViewModel }) {
+const Loading = observer(function ({
+  model,
+  ...slots
+}: { model: MsaViewModel } & ToolbarSlots) {
   const {
     isLoading,
     dataInitialized,
@@ -64,7 +68,7 @@ const Loading = observer(function ({ model }: { model: MsaViewModel }) {
           isLoading ? (
             <StatusMessage model={model} variant="page" />
           ) : (
-            <MSAView model={model} />
+            <MSAView model={model} {...slots} />
           )
         ) : hasData ? (
           <Reset model={model} error={error} />

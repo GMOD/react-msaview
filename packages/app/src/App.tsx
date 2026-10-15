@@ -9,7 +9,7 @@ import { observer } from 'mobx-react'
 import { MSAView } from 'react-msaview'
 
 import StructureSection from './StructureSection'
-import TopBar from './TopBar'
+import { AppActions, SiteNav } from './SiteChrome'
 import { createApp, linkParam } from './model'
 
 import type { AppModel } from './model'
@@ -62,13 +62,7 @@ const App = observer(function ({ model }: { model: AppModel }) {
   const split = structureOpen && msaview.mappedStructures.length > 0
   return (
     <div>
-      <TopBar
-        model={model}
-        structureOpen={structureOpen}
-        onToggleStructure={() => {
-          setStructureOpen(open => !open)
-        }}
-      />
+      <SiteNav />
       <Box
         sx={{
           display: 'grid',
@@ -81,9 +75,20 @@ const App = observer(function ({ model }: { model: AppModel }) {
         <Box
           ref={ref}
           data-testid="msaview"
-          sx={{ border: 1, borderColor: 'divider', m: 2.5 }}
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          <MSAView model={msaview} />
+          <MSAView
+            model={msaview}
+            toolbarEnd={
+              <AppActions
+                model={model}
+                structureOpen={structureOpen}
+                onToggleStructure={() => {
+                  setStructureOpen(open => !open)
+                }}
+              />
+            }
+          />
         </Box>
         {structureOpen ? (
           <StructureSection

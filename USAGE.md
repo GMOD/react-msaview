@@ -256,6 +256,14 @@ export default function App() {
 }
 ```
 
+`MSAView` takes `toolbarStart` and `toolbarEnd`, which render your own controls
+at either end of the viewer's toolbar, so a host app's buttons sit in the
+viewer's one bar:
+
+```tsx
+<MSAView model={model} toolbarEnd={<Button onClick={share}>Share</Button>} />
+```
+
 The model exposes actions for programmatic control:
 
 ```ts

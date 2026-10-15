@@ -18,7 +18,16 @@ import ZoomControls from './ZoomControls.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 
-const Header = observer(function ({ model }: { model: MsaViewModel }) {
+export interface ToolbarSlots {
+  toolbarStart?: React.ReactNode
+  toolbarEnd?: React.ReactNode
+}
+
+const Header = observer(function ({
+  model,
+  toolbarStart,
+  toolbarEnd,
+}: { model: MsaViewModel } & ToolbarSlots) {
   const [ref, { height }] = useMeasure()
   useEffect(() => {
     model.setHeaderHeight(height ?? 0)
@@ -42,6 +51,7 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
         disableGutters
         sx={{ minHeight: 40, flexWrap: 'wrap', px: 0.5 }}
       >
+        {toolbarStart}
         <MenuBar model={model} />
         <Button
           data-testid="settings_button"
@@ -71,6 +81,7 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
         <LoadWarnings model={model} />
         <UnshareableDataWarning model={model} />
         <StatusMessage model={model} variant="header" />
+        {toolbarEnd}
       </Toolbar>
     </AppBar>
   )
