@@ -5,26 +5,38 @@ import { MSAModelF } from './index.ts'
 const stockholm = `# STOCKHOLM 1.0
 #=GC SS_cons <<..>>
 #=GC RF      xxxxxx
-#=GR a SS    <<..>>
+#=GR a pAS   ..*...
 a  ACGTAC
 b  ACGTAC
 //
 `
 
-test('a Stockholm #=GC track shows, a #=GR track waits to be asked for', () => {
-  const model = MSAModelF().create({
+function makeModel() {
+  return MSAModelF().create({
     id: 'x',
     type: 'MsaView',
     data: { msa: stockholm },
   })
-  const ids = model.tracks.map(t => t.model.id)
-  expect(ids).toContain('gc-RF')
-  expect(ids).toContain('gr-a-SS')
-  const on = model.turnedOnTracks.map(t => t.model.id)
-  expect(on).toContain('gc-RF')
-  expect(on).not.toContain('gr-a-SS')
-  model.toggleTrack('gr-a-SS')
-  expect(model.turnedOnTracks.map(t => t.model.id)).toContain('gr-a-SS')
-  model.toggleTrack('gr-a-SS')
-  expect(model.turnedOnTracks.map(t => t.model.id)).not.toContain('gr-a-SS')
+}
+
+test('a Stockholm #=GC line is a track, shown', () => {
+  const model = makeModel()
+  expect(model.turnedOnTracks.map(t => t.model.id)).toContain('gc-RF')
+})
+
+test('a #=GR line is an annotation on its row, hidden until turned on', () => {
+  const model = makeModel()
+  expect(model.tracks.map(t => t.model.id)).not.toContain('gr-a-pAS')
+  expect(model.allAnnotations.map(a => [a.id, a.name, a.start])).toEqual([
+    ['a', 'pAS', 3],
+  ])
+  // hidden, so the residues keep the cells
+  expect(model.filteredAnnotations).toEqual([])
+  expect(model.cellFill).toBe('residue')
+
+  model.setFilter('pAS', true)
+  expect(model.filteredAnnotations).toHaveLength(1)
+  expect(model.cellFill).toBe('domain')
+  model.setFilter('pAS', false)
+  expect(model.turnedOffFeatures.size).toBe(0)
 })

@@ -3,7 +3,7 @@ import BaseMSA from './BaseMSA.ts'
 import parseNewick from './parseNewick.ts'
 import { parseAll } from './stockholmParser.ts'
 
-import type { MSATrack, NodeWithIds } from '../types.ts'
+import type { Annotation, MSATrack, NodeWithIds } from '../types.ts'
 import type { StockholmData } from './stockholmParser.ts'
 
 export default class StockholmMSA extends BaseMSA {
@@ -88,9 +88,9 @@ export default class StockholmMSA extends BaseMSA {
   }
 
   /**
-   * One text track per `#=GC` line, and one per `#=GR` line that stays hidden
-   * until asked for: a Pfam seed carries a few per-row active-site lines, but
-   * an Rfam family carries a structure line for every row with a PDB entry.
+   * One text track per `#=GC` line, which describes every row's column at
+   * once. A `#=GR` line describes one row, so it becomes that row's
+   * annotations instead (see `annotations`).
    */
   get tracks(): MSATrack[] {
     const { seq_cons, SS_cons, ...otherGc } = this.MSA.gc
@@ -113,18 +113,104 @@ export default class StockholmMSA extends BaseMSA {
         data,
         customColorScheme: structureColors(tag),
       })),
-      ...Object.entries(this.MSA.gr).flatMap(([tag, byRow]) =>
-        Object.entries(byRow).map(([row, data]) => ({
-          id: `gr-${row}-${tag}`,
-          name: `${row} ${tag}`,
-          associatedRowName: row,
-          data,
-          customColorScheme: structureColors(tag),
-          defaultOff: true,
-        })),
-      ),
     ]
   }
+
+  /**
+   * Each `#=GR` line as annotations on its row: one per run of a repeated
+   * mark, in the row's own residue positions, so the domain overlay, legend
+   * and filter draw them. They start hidden, since an Rfam family carries a
+   * structure line for every row with a PDB entry.
+   */
+  get annotations(): Annotation[] {
+    return Object.entries(this.MSA.gr).flatMap(([tag, byRow]) =>
+      Object.entries(byRow).flatMap(([row, line]) =>
+        grRuns(line, this.MSA.seqdata[row] ?? '').flatMap(run => {
+          const kind = markKind(run.mark)
+          if (kind === null) {
+            return []
+          }
+          const name = kind ? `${tag} ${kind}` : tag
+          return [
+            {
+              id: row,
+              accession: name,
+              name,
+              description: `#=GR ${tag}`,
+              start: run.start,
+              end: run.end,
+              color: structureColors(tag)[run.mark] ?? kindColors[kind ?? ''],
+              defaultOff: true,
+            },
+          ]
+        }),
+      ),
+    )
+  }
+}
+
+// One annotation type per kind of mark rather than per character: DSSP writes
+// a helix as H, G or I and a strand as E or B, and WUSS writes a base pair as
+// any of four bracket shapes. The loop and turn codes mark nothing worth a
+// box, so they return null. A mark that is a flag (`*` in an active-site
+// line) names no kind, and the annotation takes the tag's name alone
+function markKind(mark: string) {
+  if (mark === '*') {
+    return ''
+  }
+  if ('HGI'.includes(mark)) {
+    return 'helix'
+  }
+  if ('EB'.includes(mark)) {
+    return 'strand'
+  }
+  if ('TSC'.includes(mark)) {
+    return null
+  }
+  if ('<>()[]{}'.includes(mark)) {
+    return 'paired'
+  }
+  return mark
+}
+
+// Jalview's secondary structure colors
+const kindColors: Record<string, string> = {
+  helix: '#e53935',
+  strand: '#43a047',
+}
+
+// marks that say "nothing here" in a #=GR line: Pfam's dots and dashes, and
+// WUSS's unpaired positions
+const emptyMarks = new Set(['.', '-', '_', ',', ':', '~', ' '])
+
+function isGap(c: string | undefined) {
+  return c === '-' || c === '.'
+}
+
+// runs of one repeated mark, as 1-based inclusive residue positions in the
+// row, skipping the row's gap columns
+export function grRuns(line: string, seq: string) {
+  const runs: { mark: string; start: number; end: number }[] = []
+  let residue = 0
+  let open: { mark: string; start: number; end: number } | undefined
+  for (let col = 0; col < line.length; col++) {
+    if (isGap(seq[col])) {
+      continue
+    }
+    residue++
+    const mark = line[col]!
+    if (open?.mark === mark) {
+      open.end = residue
+    } else {
+      open = emptyMarks.has(mark)
+        ? undefined
+        : { mark, start: residue, end: residue }
+      if (open) {
+        runs.push(open)
+      }
+    }
+  }
+  return runs
 }
 
 // WUSS writes base-paired columns as open/close brackets of several nesting

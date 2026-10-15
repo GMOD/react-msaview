@@ -12,43 +12,26 @@ import { observer } from 'mobx-react'
 
 import type { MsaViewModel } from '../../model.ts'
 
-// One checkbox per entry. A per-row annotation (a Stockholm #=GR line) is one
-// track per row, and a Pfam seed carries one per row per tag, so those group
-// into one entry per tag that shows or hides every row's line at once
 interface Entry {
   key: string
   label: string
   ids: string[]
 }
 
-function tagOf(name: string, row: string) {
-  return name.startsWith(`${row} `) ? name.slice(row.length + 1) : name
-}
-
 export function trackGroups(model: MsaViewModel) {
   const computed = new Set(model.computedTrackModels.map(t => t.model.id))
   const computedEntries: Entry[] = []
   const alignmentEntries: Entry[] = []
-  const byTag = new Map<string, string[]>()
   for (const { model: t } of model.tracks) {
-    if (computed.has(t.id)) {
-      computedEntries.push({ key: t.id, label: t.name, ids: [t.id] })
-    } else if (t.associatedRowName) {
-      const tag = tagOf(t.name, t.associatedRowName)
-      byTag.set(tag, [...(byTag.get(tag) ?? []), t.id])
-    } else {
-      alignmentEntries.push({ key: t.id, label: t.name, ids: [t.id] })
-    }
+    ;(computed.has(t.id) ? computedEntries : alignmentEntries).push({
+      key: t.id,
+      label: t.name,
+      ids: [t.id],
+    })
   }
-  const rowEntries = [...byTag].map(([tag, ids]) => ({
-    key: `tag-${tag}`,
-    label: `${tag} (${ids.length} row${ids.length === 1 ? '' : 's'})`,
-    ids,
-  }))
   return [
     { title: 'Computed from the alignment', entries: computedEntries },
     { title: 'Alignment annotations', entries: alignmentEntries },
-    { title: 'Per-row annotations', entries: rowEntries },
   ].filter(g => g.entries.length > 0)
 }
 

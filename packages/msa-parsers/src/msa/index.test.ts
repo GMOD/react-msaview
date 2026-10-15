@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import A3mMSA from './A3mMSA.ts'
 import ClustalMSA from './ClustalMSA.ts'
 import FastaMSA from './FastaMSA.ts'
+import { grRuns } from './StockholmMSA.ts'
 import { getUngappedSequence, parseMSA } from './index.ts'
 import parseNewick from './parseNewick.ts'
 
@@ -301,23 +302,52 @@ c  A--GT
     expect(leaves(parseMSA(stockholm).getTree())).toEqual(['a', 'b', 'c'])
   })
 
-  test('exposes #=GC and #=GR lines as tracks, the per-row ones hidden', () => {
+  test('exposes #=GC lines as tracks and #=GR lines as hidden annotations', () => {
     const msa = parseMSA(`# STOCKHOLM 1.0
 #=GC SS_cons <<..>>
 #=GC RF      xxxxxx
 #=GR a SS    <<..>>
+#=GR a pAS   ...*..
 a  ACGTAC
 //
 `)
-    expect(
-      msa.tracks.map(t => [t.id, t.name, t.data, t.defaultOff ?? false]),
-    ).toEqual([
-      ['seqConsensus', 'Sequence consensus', undefined, false],
-      ['secondaryStruct', 'Secondary-structure', '<<..>>', false],
-      ['gc-RF', 'RF', 'xxxxxx', false],
-      ['gr-a-SS', 'a SS', '<<..>>', true],
+    expect(msa.tracks.map(t => [t.id, t.name, t.data])).toEqual([
+      ['seqConsensus', 'Sequence consensus', undefined],
+      ['secondaryStruct', 'Secondary-structure', '<<..>>'],
+      ['gc-RF', 'RF', 'xxxxxx'],
     ])
-    expect(msa.tracks.at(-1)?.customColorScheme).toHaveProperty('<')
+    expect(
+      msa.annotations.map(a => [a.id, a.name, a.start, a.end, a.defaultOff]),
+    ).toEqual([
+      ['a', 'SS paired', 1, 2, true],
+      ['a', 'SS paired', 5, 6, true],
+      ['a', 'pAS', 4, 4, true],
+    ])
+    // each bracket keeps its own WUSS color under the one type
+    expect(msa.annotations.slice(0, 2).map(a => a.color)).toEqual([
+      'lightblue',
+      'pink',
+    ])
+  })
+
+  test('DSSP codes fold into helix and strand, and loops mark nothing', () => {
+    const msa = parseMSA(`# STOCKHOLM 1.0
+#=GR a SS    HHGTTEEC
+a  ACGTACGT
+//
+`)
+    expect(msa.annotations.map(a => [a.name, a.start, a.end])).toEqual([
+      ['SS helix', 1, 2],
+      ['SS helix', 3, 3],
+      ['SS strand', 6, 7],
+    ])
+  })
+
+  test('a #=GR run counts residues, skipping the row gaps', () => {
+    expect(grRuns('HHH..EE', 'AC-DE-F')).toEqual([
+      { mark: 'H', start: 1, end: 2 },
+      { mark: 'E', start: 5, end: 5 },
+    ])
   })
 
   test('reads PDB cross-references with multi-character chain ids', () => {

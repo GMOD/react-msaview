@@ -687,8 +687,8 @@ alignmentNames: string[]
 
 #### getter: allAnnotations
 
-the annotations the overlay, the legend and the encodings draw: the GFF's, then
-the `features` layer's
+the annotations the overlay, the legend and the encodings draw: the GFF's, the
+`features` layer's, then the file's own per-row lines
 
 ```js
 allAnnotations: Annotation[]
@@ -770,7 +770,9 @@ categoricalDomainTypes: Annotation[]
 #### getter: cellFill
 
 what colors the alignment's cells: the residue scheme, the domains covering
-them, or nothing, which leaves the scheme to the letters
+them, or nothing, which leaves the scheme to the letters. Domains own the fill
+only while some are drawn, so a file whose annotations all start hidden keeps
+its residue colors
 
 ```js
 cellFill: 'domain' | 'none' | 'residue'
@@ -1818,6 +1820,12 @@ zoom to it, so a sibling keeps its object and its canvas skips the redraw
 
 ```js
 columnTrackModel: (track: ColumnTrackSpec) => BasicTrack
+```
+
+#### method: featureOff
+
+```js
+featureOff: (accession: string) => boolean
 ```
 
 #### method: fillHighlightLabel

@@ -1,4 +1,4 @@
-import type { MSATrack, NodeWithIds } from '../types.ts'
+import type { Annotation, MSATrack, NodeWithIds } from '../types.ts'
 
 export default abstract class BaseMSA {
   protected rows = new Map<string, string>()
@@ -79,6 +79,11 @@ export default abstract class BaseMSA {
   }
 
   get tracks(): MSATrack[] {
+    return []
+  }
+
+  /** per-row annotations the file carries inline, such as Stockholm #=GR */
+  get annotations(): Annotation[] {
     return []
   }
 }

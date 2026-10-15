@@ -319,11 +319,9 @@ Three things decide whether the link works for the person who opens it:
 
 Tracks are strips drawn above the alignment, sharing its columns and its
 horizontal scroll. **Settings → Tracks** lists every track under its source and
-turns each on or off. A Stockholm file's per-row lines list once per tag, such
-as "pAS (20 rows)", and that one checkbox shows or hides the tag's line for
-every row. A long list gets a filter box, and Show all and Hide all act on every
-match. The dropdown arrow on a track's label, at the left, also closes it and
-shows its details.
+turns each on or off. A long list gets a filter box, and Show all and Hide all
+act on every match. The dropdown arrow on a track's label, at the left, also
+closes it and shows its details.
 
 Hovering a track reads out what it draws at that column: the two conservation
 scores, the sequence logo's information content and residue composition, the
@@ -352,11 +350,13 @@ reads out the hovered row, residue and position.
   menu), it counts that row's residues and skips the columns where the row has a
   gap.
 - **Secondary structure** and the other annotation rows a Stockholm file carries
-  inline appear as text tracks, colored by the active scheme. Every `#=GC` line
-  gets one: `SS_cons`, `seq_cons`, Rfam's `RF` and motif lines. Every `#=GR`
-  line gets one too, named `<row> <tag>`, but starts hidden, since a Pfam seed
-  carries a couple of per-row active-site lines and an Rfam family carries a
-  structure line per row with a PDB entry. Turn them on from Settings → Tracks.
+  inline for the whole alignment appear as text tracks, colored by the active
+  scheme. Every `#=GC` line gets one: `SS_cons`, `seq_cons`, Rfam's `RF` and
+  motif lines. A `#=GR` line describes one row, so it draws on that row like a
+  domain: an active-site line as a mark on each flagged residue (`pAS`), and a
+  structure line as **SS helix**, **SS strand** or, for RNA, **SS paired**. They
+  start hidden, since an Rfam family carries a structure line for every row with
+  a PDB entry; **Settings → Annotations** lists each type to turn on.
 - **Base pairs**: the same `#=GC SS_cons` annotation drawn as arcs joining the
   columns that pair, shown whenever a Stockholm file carries one. Pseudoknot
   pairs get their own color. WUSS writes those pairs as `A`/`a` because they

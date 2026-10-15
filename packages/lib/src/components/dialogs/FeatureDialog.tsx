@@ -102,12 +102,9 @@ const FeatureTable = observer(function ({ model }: { model: MsaViewModel }) {
             <TableRow key={accession}>
               <TableCell padding="checkbox">
                 <Checkbox
-                  checked={!model.turnedOffFeatures.get(accession)}
+                  checked={!model.featureOff(accession)}
                   onChange={() => {
-                    model.setFilter(
-                      accession,
-                      !!model.turnedOffFeatures.get(accession),
-                    )
+                    model.setFilter(accession, model.featureOff(accession))
                   }}
                 />
               </TableCell>

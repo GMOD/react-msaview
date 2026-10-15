@@ -40,11 +40,37 @@ export function annotationsSubMenu(model: MsaViewModel): MenuItem[] {
         model.setSubFeatureRows(!subFeatureRows)
       },
     },
-    {
-      label: 'Filter annotations…',
-      onClick: () => {
-        model.queueDialog(onClose => [FeatureFilterDialog, { onClose, model }])
-      },
-    },
+    ...typeItems(model),
   ]
+}
+
+// up to this many types list inline, one checkbox each; past it the filter
+// dialog, which searches and counts them, takes over
+const inlineTypes = 12
+
+function typeItems(model: MsaViewModel): MenuItem[] {
+  const types = [...model.annotationTypes.values()]
+  return types.length <= inlineTypes
+    ? [
+        { type: 'subHeader', label: 'Types' },
+        ...types.map(({ accession, name }) => ({
+          label: name || accession,
+          type: 'checkbox' as const,
+          checked: !model.featureOff(accession),
+          onClick: () => {
+            model.setFilter(accession, model.featureOff(accession))
+          },
+        })),
+      ]
+    : [
+        {
+          label: 'Filter annotations…',
+          onClick: () => {
+            model.queueDialog(onClose => [
+              FeatureFilterDialog,
+              { onClose, model },
+            ])
+          },
+        },
+      ]
 }

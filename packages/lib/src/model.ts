@@ -1797,34 +1797,7 @@ function stateModelFactory({
             self.allowedGappyness < 100)
         )
       },
-      /**
-       * #getter
-       * the annotations the overlay, the legend and the encodings draw: the
-       * GFF's, then the `features` layer's
-       */
-      get allAnnotations(): Annotation[] {
-        return self.features.length > 0
-          ? [...self.annotations, ...featuresToAnnotations(self.features)]
-          : self.annotations
-      },
-      /**
-       * #getter
-       */
-      get actuallyShowDomains() {
-        return self.showDomains && this.allAnnotations.length > 0
-      },
-      /**
-       * #getter
-       * what colors the alignment's cells: the residue scheme, the domains
-       * covering them, or nothing, which leaves the scheme to the letters
-       */
-      get cellFill(): 'residue' | 'domain' | 'none' {
-        return !self.bgColor
-          ? 'none'
-          : this.actuallyShowDomains && self.domainFill
-            ? 'domain'
-            : 'residue'
-      },
+
       /**
        * #getter
        * whether the host restores the loaded documents outside the snapshot.
@@ -1899,7 +1872,7 @@ function stateModelFactory({
         return !!this.tree.noTree
       },
       get noDomains() {
-        return self.allAnnotations.length === 0
+        return this.allAnnotations.length === 0
       },
 
       /**
@@ -2007,6 +1980,27 @@ function stateModelFactory({
         return text
           ? parseMSA(text, self.currentAlignment, self.msaFormat)
           : null
+      },
+      /**
+       * #getter
+       * the annotations the overlay, the legend and the encodings draw: the
+       * GFF's, the `features` layer's, then the file's own per-row lines
+       */
+      get allAnnotations(): Annotation[] {
+        const inline = this.MSA?.annotations ?? []
+        return self.features.length > 0 || inline.length > 0
+          ? [
+              ...self.annotations,
+              ...featuresToAnnotations(self.features),
+              ...inline,
+            ]
+          : self.annotations
+      },
+      /**
+       * #getter
+       */
+      get actuallyShowDomains() {
+        return self.showDomains && this.allAnnotations.length > 0
       },
       /**
        * #getter
@@ -3443,10 +3437,42 @@ function stateModelFactory({
         }
         return types
       },
-      get filteredAnnotations() {
-        return self.allAnnotations.filter(
-          r => !self.turnedOffFeatures.get(r.accession),
+      /**
+       * accessions hidden until the user turns them on, such as a Stockholm
+       * file's #=GR lines
+       */
+      get defaultOffAccessions() {
+        return new Set(
+          self.allAnnotations.filter(a => a.defaultOff).map(a => a.accession),
         )
+      },
+      /**
+       * #method
+       */
+      featureOff(accession: string) {
+        return (
+          self.turnedOffFeatures.get(accession) ??
+          this.defaultOffAccessions.has(accession)
+        )
+      },
+      get filteredAnnotations() {
+        return self.allAnnotations.filter(r => !this.featureOff(r.accession))
+      },
+      /**
+       * #getter
+       * what colors the alignment's cells: the residue scheme, the domains
+       * covering them, or nothing, which leaves the scheme to the letters.
+       * Domains own the fill only while some are drawn, so a file whose
+       * annotations all start hidden keeps its residue colors
+       */
+      get cellFill(): 'residue' | 'domain' | 'none' {
+        return !self.bgColor
+          ? 'none'
+          : self.actuallyShowDomains &&
+              self.domainFill &&
+              this.filteredAnnotations.length > 0
+            ? 'domain'
+            : 'residue'
       },
       get annotationsByRow() {
         const { rowNamesSet } = self
@@ -4081,7 +4107,7 @@ function stateModelFactory({
        */
       get visibleDomainTypes() {
         return this.categoricalDomainTypes
-          .filter(d => !self.turnedOffFeatures.get(d.accession))
+          .filter(d => !self.featureOff(d.accession))
           .toSorted((a, b) => a.start - b.start)
       },
 
@@ -4764,10 +4790,11 @@ function stateModelFactory({
        * `turnedOffFeatures`
        */
       setFilter(accession: string, shown: boolean) {
-        if (shown) {
-          self.turnedOffFeatures.delete(accession)
+        // only a departure from the accession's default is recorded
+        if (shown === self.defaultOffAccessions.has(accession)) {
+          self.turnedOffFeatures.set(accession, !shown)
         } else {
-          self.turnedOffFeatures.set(accession, true)
+          self.turnedOffFeatures.delete(accession)
         }
       },
 

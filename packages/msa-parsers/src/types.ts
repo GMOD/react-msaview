@@ -27,8 +27,6 @@ export interface MSATrack {
   data?: string
   customColorScheme?: Record<string, string>
   defaultOff?: boolean
-  // the row a per-row line (#=GR) annotates
-  associatedRowName?: string
 }
 
 export interface GFFRecord {
@@ -73,6 +71,11 @@ export interface Annotation {
   color?: string
   /** the GFF attributes of column 9, for a channel encoding one of them */
   attributes?: Record<string, string>
+  /**
+   * hidden until the user turns its accession on, as a Stockholm #=GR line
+   * starts, since an Rfam family carries one for every row
+   */
+  defaultOff?: boolean
 }
 
 /**
