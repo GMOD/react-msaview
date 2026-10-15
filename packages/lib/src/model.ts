@@ -72,6 +72,7 @@ import {
   scrollZoomAxes,
   segmentFeatureTypes,
   segmentShades,
+  settingsPanelWidth,
   treeScaleBarHeight,
 } from './constants.ts'
 import { createPaletteMap } from './createPaletteMap.ts'
@@ -1213,6 +1214,12 @@ function stateModelFactory({
       headerHeight: 0,
       /**
        * #volatile
+       * whether the settings panel docks beside the alignment, taking
+       * `settingsPanelWidth` out of the width the view lays out in
+       */
+      settingsOpen: false,
+      /**
+       * #volatile
        * the log scale a wheel zoom has gathered against the detent at the
        * default column width and row height, per axis
        */
@@ -1408,6 +1415,12 @@ function stateModelFactory({
        */
       setWidth(arg: number) {
         self.volatileWidth = arg
+      },
+      /**
+       * #action
+       */
+      setSettingsOpen(arg: boolean) {
+        self.settingsOpen = arg
       },
       /**
        * #action
@@ -1799,7 +1812,7 @@ function stateModelFactory({
         if (self.volatileWidth === undefined) {
           throw new Error('not initialized')
         }
-        return self.volatileWidth
+        return self.volatileWidth - (self.settingsOpen ? settingsPanelWidth : 0)
       },
     }))
     .views(self => ({

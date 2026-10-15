@@ -75,6 +75,9 @@ export const minColWidth = 0.2
 export const minRowHeight = 0.2
 export const maxCellSize = 80
 
+// the settings panel's width, which it takes out of the view's
+export const settingsPanelWidth = 280
+
 // MSA model defaults
 export const defaultBgColor = true
 export const defaultColorSchemeName = 'maeditor'

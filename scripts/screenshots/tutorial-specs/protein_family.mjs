@@ -257,8 +257,7 @@ export const specs = [
     }),
     settle: 2000,
     actions: [
-      { click: '[data-testid="view_menu"]' },
-      { click: '::-p-text(Annotations)' },
+      { click: '[data-testid="settings_button"]' },
       { click: '::-p-text(Filter annotations)' },
       { waitFor: '::-p-text(accession)' },
     ],

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 
 import useMeasure from '@jbrowse/core/util/useMeasure'
-import { AppBar, Toolbar } from '@mui/material'
+import Tune from '@mui/icons-material/Tune'
+import { AppBar, Button, Toolbar } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import StatusMessage from '../StatusMessage.tsx'
@@ -57,6 +58,19 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
         <LoadWarnings model={model} />
         <UnshareableDataWarning model={model} />
         <StatusMessage model={model} variant="header" />
+        <Button
+          data-testid="settings_button"
+          size="small"
+          startIcon={<Tune />}
+          color={model.settingsOpen ? 'primary' : 'inherit'}
+          variant={model.settingsOpen ? 'outlined' : 'text'}
+          onClick={() => {
+            model.setSettingsOpen(!model.settingsOpen)
+          }}
+          sx={{ mx: 0.5 }}
+        >
+          Settings
+        </Button>
       </Toolbar>
     </AppBar>
   )

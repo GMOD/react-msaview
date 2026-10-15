@@ -141,32 +141,28 @@ test('the menu bar reads File, View, Tools, Help', () => {
   ).toEqual(['File', 'View', 'Tools', 'Help'])
 })
 
-test('the track selector filters, and shows or hides what matches', async () => {
+test('the settings panel docks beside the alignment and narrows it', async () => {
+  mount({ msa, tree })
+  const before = model.width
+  await click(testId('settings_button') ?? undefined)
+  expect(testId('settings_panel')).toBeTruthy()
+  expect(model.width).toBe(before - 280)
+  expect(document.body.textContent).toContain('Phylogram')
+  const conservation = [...container.querySelectorAll('label')].find(
+    l => l.textContent === 'Conservation',
+  )
+  await click(conservation?.querySelector('input') ?? undefined)
+  expect(model.turnedOnTracks.map(t => t.model.name)).not.toContain(
+    'Conservation',
+  )
+  await click(button('Close settings'))
+  expect(model.width).toBe(before)
+})
+
+test('the settings panel has a Tree section only with a tree', async () => {
   mount({ msa })
-  clickItem(viewMenuItems(model), 'Tracks…')
-  await waitForText('Show all')
-  const input = document.querySelector<HTMLInputElement>(
-    'input[placeholder="Filter tracks"]',
-  )!
-  act(() => {
-    Object.getOwnPropertyDescriptor(
-      HTMLInputElement.prototype,
-      'value',
-    )!.set!.call(input, 'conservation')
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-  })
-  await click(button('Hide all'))
-  expect(
-    model.turnedOnTracks.filter(t =>
-      t.model.name.toLowerCase().includes('conservation'),
-    ),
-  ).toEqual([])
-  await click(button('Show all'))
-  expect(
-    model.turnedOnTracks.filter(t =>
-      t.model.name.toLowerCase().includes('conservation'),
-    ).length,
-  ).toBeGreaterThan(0)
+  await click(testId('settings_button') ?? undefined)
+  expect(testId('settings_panel')?.textContent).not.toContain('Phylogram')
 })
 
 test('View → Zoom resets the zoom', () => {
@@ -217,7 +213,7 @@ test('the gappy columns presets set the threshold, and Show all clears it', () =
   expect(testId('hidden_columns_chip')).toBeNull()
 })
 
-test('View → Tree picks one of three layouts', () => {
+test('the Tree settings pick one of three layouts', () => {
   mount({ msa, tree })
   clickItem(treeSubMenu(model), 'Cladogram')
   expect([model.drawTree, model.showBranchLen]).toEqual([true, false])
@@ -227,9 +223,8 @@ test('View → Tree picks one of three layouts', () => {
   expect([model.drawTree, model.showBranchLen]).toEqual([true, true])
 })
 
-test('View offers Tree only with a tree, and Tools builds one', () => {
+test('Tools builds a tree for an alignment without one', () => {
   mount({ msa })
-  expect(subMenuItems(viewMenuItems(model), 'Tree')).toEqual([])
   expect(toolsMenuItems(model).map(i => 'label' in i && i.label)).toContain(
     'Build neighbor joining tree',
   )

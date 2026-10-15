@@ -616,6 +616,15 @@ resize handle width between tree and msa area, px
 resizeHandleWidth: 5
 ```
 
+#### volatile: settingsOpen
+
+whether the settings panel docks beside the alignment, taking
+`settingsPanelWidth` out of the width the view lays out in
+
+```js
+settingsOpen: false
+```
+
 #### volatile: status
 
 ```js
@@ -2454,6 +2463,12 @@ order.
 
 ```js
 setSelection: (selection?: MsaSelection | undefined) => void
+```
+
+#### action: setSettingsOpen
+
+```js
+setSettingsOpen: (arg: boolean) => void
 ```
 
 #### action: setShowDomainLegend

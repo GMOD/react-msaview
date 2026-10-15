@@ -93,7 +93,7 @@ you can read one site down the whole family.
 
 ## Color schemes
 
-**View → Color scheme** switches schemes live.
+**Settings → Color** switches schemes live.
 
 [![](media/color-scheme-menu.png)][live-color-scheme-menu]
 
@@ -137,22 +137,22 @@ rows** puts the rest back.
 
 **Rotate clade** swaps the clades below a branch node, the way ggtree's `rotate`
 does, and the alignment rows move with the tips. A second click puts them back,
-and **View → Tree → Order → Undo rotations** clears every rotation. The same
+and **Settings → Tree → Order → Undo rotations** clears every rotation. The same
 Order submenu sets the child order for the whole tree: by branch length (the
 default), as the file writes it, or ladderized with the small or the large
 clades first.
 
 **Reroot here**, on any node but the root, roots the tree halfway along the
-branch above that node. **View → Tree → Root → Midpoint** roots it halfway along
-the longest path between two tips, which suits the unrooted trees FastTree,
-IQ-TREE and neighbor joining write. Rerooting renumbers the nodes, so it expands
-collapsed clades, clears rotations and leaves the show-only view. **File →
-Export tree as Newick** saves the tree with the root, order and rotations on
-screen, collapsed clades included.
+branch above that node. **Settings → Tree → Root → Midpoint** roots it halfway
+along the longest path between two tips, which suits the unrooted trees
+FastTree, IQ-TREE and neighbor joining write. Rerooting renumbers the nodes, so
+it expands collapsed clades, clears rotations and leaves the show-only view.
+**File → Export tree as Newick** saves the tree with the root, order and
+rotations on screen, collapsed clades included.
 [Data layers](https://gmod.org/JBrowseMSA/layers#treeorder-and-treeroot) covers
 `treeOrder` and `treeRoot`, the properties behind these menus.
 
-**View → Tree → Tree overview** puts the whole tree in a band above the tree
+**Settings → Tree → Tree overview** puts the whole tree in a band above the tree
 panel, small enough that a few hundred tips fit in 120 pixels, with the focused
 subtree drawn as a box on it and the `clades` highlights in place. A click on
 the band focuses the deepest subtree covering the rows under the pointer, and a
@@ -167,7 +167,7 @@ site, at the same scale as the branches. Cladogram mode hides the bar, because
 branch length does not set horizontal position there. The SVG export draws the bar too,
 so a published figure states the scale of its branches.
 
-**View → Tree** draws the tree as a **Phylogram**, with branches to scale, a
+**Settings → Tree** draws the tree as a **Phylogram**, with branches to scale, a
 **Cladogram**, or **Labels only**, and sets the child order, the root and the
 labels. **Tools → Build neighbor joining tree** builds a quick BLOSUM62 distance
 tree for an alignment of up to 500 rows. On a larger alignment the calculation
@@ -193,9 +193,9 @@ The [CLI](https://gmod.org/JBrowseMSA/cli) builds the file:
 accessions in seconds, and `interproscan` scans sequences InterPro has not seen.
 The
 [protein family tutorial](https://gmod.org/JBrowseMSA/tutorials/protein_family)
-walks through both, and the **Open annotation file** dialog links to it. **View
-→ Annotations** shows or hides the overlay, stacks overlapping domains on
-sub-rows and filters them.
+walks through both, and the **Open annotation file** dialog links to it.
+**Settings → Annotations** shows or hides the overlay, stacks overlapping
+domains on sub-rows and filters them.
 
 [![](media/real-domains.png)][live-real-domains]
 
@@ -311,17 +311,17 @@ Three things decide whether the link works for the person who opens it:
 ## Tracks
 
 Tracks are strips drawn above the alignment, sharing its columns and its
-horizontal scroll. **View → Tracks…** opens the track selector, which lists
-every track under its source, filters them by name, and turns each on or off, or
-every match at once. The dropdown arrow on a track's label, at the left, also
+horizontal scroll. **Settings → Tracks** lists every track under its source and
+turns each on or off. A long list gets a filter box, and Show all and Hide all
+act on every match. The dropdown arrow on a track's label, at the left, also
 closes it and shows its details.
 
 Hovering a track reads out what it draws at that column: the two conservation
 scores, the sequence logo's information content and residue composition, the
-columns an arc joins, the letter on a text track. **View → Show track values on
-hover** turns the readout off. Over the alignment itself, the tooltip carries
-the domains and insertions under the cursor, and the header reads out the
-hovered row, residue and position.
+columns an arc joins, the letter on a text track. **Settings → Alignment → Show
+track values on hover** turns the readout off. Over the alignment itself, the
+tooltip carries the domains and insertions under the cursor, and the header
+reads out the hovered row, residue and position.
 
 - **Conservation**: a per-column histogram of how conserved the column is, from
   Shannon entropy, scaled down by the column's gap fraction. On by default.
@@ -347,7 +347,7 @@ hovered row, residue and position.
   gets one: `SS_cons`, `seq_cons`, Rfam's `RF` and motif lines. Every `#=GR`
   line gets one too, named `<row> <tag>`, but starts hidden, since a Pfam seed
   carries a couple of per-row active-site lines and an Rfam family carries a
-  structure line per row with a PDB entry. Turn them on from View → Tracks….
+  structure line per row with a PDB entry. Turn them on from Settings → Tracks.
 - **Base pairs**: the same `#=GC SS_cons` annotation drawn as arcs joining the
   columns that pair, shown whenever a Stockholm file carries one. Pseudoknot
   pairs get their own color. WUSS writes those pairs as `A`/`a` because they
@@ -373,19 +373,22 @@ lists the fields.
 
 ## Settings reference
 
-The header's menu bar reads **File**, **View**, **Tools** and **Help**.
+The header's menu bar reads **File**, **View**, **Tools** and **Help**, and the
+**Settings** button at its right opens a panel beside the alignment, so a
+setting's effect shows as it changes.
 
 [![](media/settings-menu.png)][live-settings-menu]
 
 - **File** opens another alignment or an annotation file, exports an SVG or the
   tree, and shows the alignment info.
-- **View** holds **Find row or column…**, **Tracks…**, the Zoom (which repeats
-  **Zoom on scroll**), Color scheme, Tree, Annotations and Gappy columns
-  submenus, and **Show letters**, **Color letters, not cells** and **Show track
-  values on hover**. Color scheme lists the common schemes for the alignment's
-  alphabet, with the rest under **More schemes**. Gappy columns hides each
-  column where at least 50%, 90% or a custom share of the rows has a gap, and a
-  chip in the header counts the hidden columns; its × shows them again.
+- **View** holds **Find row or column…**, the Zoom submenu, which repeats **Zoom
+  on scroll**, and a toggle for the settings panel.
+- The **Settings** panel has a section each for Color, Tree, Alignment,
+  Annotations and Tracks. Color lists the common schemes for the alignment's
+  alphabet, with the rest under **More schemes**. Alignment's Gappy columns
+  hides each column where at least 50%, 90% or a custom share of the rows has a
+  gap, and a chip in the header counts the hidden columns; its × shows them
+  again.
 - **Tools** builds a neighbor joining tree.
 - **Help** lists the mouse and keyboard controls and links the tutorials and the
   credits.

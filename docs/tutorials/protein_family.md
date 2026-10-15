@@ -249,7 +249,7 @@ repeats scattered through the middle, then the two FIIND blocks and the CARD at
 the right. Each of those spans one band of columns across all twelve rows. The
 PYD at the far left is drawn on five rows, and the other seven are blank there.
 
-The legend in the top right names every accession in the file, and **View →
+The legend in the top right names every accession in the file, and **Settings →
 Annotations → Filter annotations…** opens the same list with a checkbox and a
 count per accession.
 

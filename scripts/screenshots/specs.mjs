@@ -69,7 +69,7 @@ export const specs = [
     name: 'settings-menu',
     url: data({ colorSchemeName: 'maeditor' }),
     actions: [
-      { click: '[data-testid="view_menu"]' },
+      { click: '[data-testid="settings_button"]' },
       { waitFor: '::-p-text(Show letters)' },
     ],
     // clip: 'full' is required because the menu renders in a portal outside
@@ -246,8 +246,7 @@ export const specs = [
     name: 'color-scheme-menu',
     url: data({ colorSchemeName: 'clustal' }),
     actions: [
-      { click: '[data-testid="view_menu"]' },
-      { click: '::-p-text(Color scheme)' },
+      { click: '[data-testid="settings_button"]' },
       { waitFor: '::-p-text(Percent identity)' },
     ],
     clip: 'full',

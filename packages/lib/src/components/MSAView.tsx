@@ -14,6 +14,7 @@ import MSAPanel from './msa/MSAPanel.tsx'
 import { clickColor, hoverColor, selectionFill } from './overlayColors.ts'
 import RowPanelHeaders from './rowpanels/RowPanelHeaders.tsx'
 import RowPanels from './rowpanels/RowPanels.tsx'
+import SettingsPanel from './settings/SettingsPanel.tsx'
 import TreeOverview from './tree/TreeOverview.tsx'
 import TreePanel from './tree/TreePanel.tsx'
 import TreeRuler from './tree/TreeRuler.tsx'
@@ -140,8 +141,15 @@ const View = observer(function ({ model }: { model: MsaViewModel }) {
 })
 
 const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
-  const { height, hideHeader, viewInitialized, DialogComponent, DialogProps } =
-    model
+  const {
+    height,
+    headerHeight,
+    hideHeader,
+    settingsOpen,
+    viewInitialized,
+    DialogComponent,
+    DialogProps,
+  } = model
 
   return (
     <div>
@@ -149,7 +157,12 @@ const MSAView = observer(function ({ model }: { model: MsaViewModel }) {
         <>
           <div style={{ height, overflow: 'clip' }}>
             {hideHeader ? null : <Header model={model} />}
-            <View model={model} />
+            <div style={{ display: 'flex' }}>
+              <View model={model} />
+              {settingsOpen ? (
+                <SettingsPanel model={model} height={height - headerHeight} />
+              ) : null}
+            </div>
           </div>
           <HorizontalResizeHandle model={model} />
 

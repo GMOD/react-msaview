@@ -4,10 +4,7 @@ import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
 import { canGoTo } from './GoToBox.tsx'
 import { scrollZoomLabel } from './ScrollZoomCheckbox.tsx'
 import { colorSchemeMenuItems } from './colorSchemeMenuItems.tsx'
-import {
-  annotationsSubMenu,
-  openAnnotationFileItem,
-} from './getAnnotationsMenu.ts'
+import { openAnnotationFileItem } from './getAnnotationsMenu.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { TreeOrder } from '../../types.ts'
@@ -21,9 +18,6 @@ const GapThresholdDialog = lazy(
 const GoToDialog = lazy(() => import('../dialogs/GoToDialog.tsx'))
 const HelpDialog = lazy(() => import('../dialogs/HelpDialog.tsx'))
 const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog.tsx'))
-const TrackSelectorDialog = lazy(
-  () => import('../dialogs/TrackSelectorDialog.tsx'),
-)
 
 const tutorialsUrl = 'https://gmod.org/JBrowseMSA/tutorials/'
 
@@ -235,7 +229,6 @@ export function treeSubMenu(model: MsaViewModel): MenuItem[] {
 }
 
 export function viewMenuItems(model: MsaViewModel): MenuItem[] {
-  const { bgColor, drawMsaLetters, showColumnStats, noDomains, noTree } = model
   return [
     ...when(canGoTo(model), [
       action('Find row or column…', () => {
@@ -243,21 +236,30 @@ export function viewMenuItems(model: MsaViewModel): MenuItem[] {
       }),
     ]),
     subMenu('Zoom', zoomSubMenu(model)),
-    subMenu('Color scheme', colorSchemeMenuItems(model)),
-    ...when(!noTree, [subMenu('Tree', treeSubMenu(model))]),
-    action('Tracks…', () => {
-      model.queueDialog(onClose => [TrackSelectorDialog, { model, onClose }])
+    toggle('Settings panel', model.settingsOpen, arg => {
+      model.setSettingsOpen(arg)
     }),
-    ...when(!noDomains, [subMenu('Annotations', annotationsSubMenu(model))]),
-    subMenu('Gappy columns', gapsSubMenu(model)),
+  ]
+}
+
+// the settings panel's toggles for how the alignment draws
+export function alignmentSettingsItems(model: MsaViewModel): MenuItem[] {
+  const { drawMsaLetters, showColumnStats } = model
+  return [
     toggle('Show letters', drawMsaLetters, arg => {
       model.setDrawMsaLetters(arg)
     }),
-    toggle('Color letters, not cells', !bgColor, arg => {
-      model.setBgColor(!arg)
-    }),
     toggle('Show track values on hover', showColumnStats, arg => {
       model.setShowColumnStats(arg)
+    }),
+  ]
+}
+
+export function colorSettingsItems(model: MsaViewModel): MenuItem[] {
+  return [
+    ...colorSchemeMenuItems(model),
+    toggle('Color letters, not cells', !model.bgColor, arg => {
+      model.setBgColor(!arg)
     }),
   ]
 }
