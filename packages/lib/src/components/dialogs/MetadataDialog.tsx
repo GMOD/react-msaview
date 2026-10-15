@@ -4,7 +4,7 @@ import { Dialog } from '@jbrowse/core/ui'
 import { DialogContent, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
-import MetadataTable, { isEmpty } from '../MetadataTable.tsx'
+import MetadataTable, { isEmpty, isRecord } from '../MetadataTable.tsx'
 import SequenceTextArea from '../SequenceTextArea.tsx'
 import { gfLabels, monospaceKeys, sectionLabels } from './metadataLabels.ts'
 import { groupGeneral } from './metadataRecord.tsx'
@@ -18,7 +18,13 @@ const MetadataDialog = observer(function ({
   model: MsaViewModel
   onClose: () => void
 }) {
-  const { header } = model
+  const entries = Object.entries(model.header).filter(
+    ([, value]) => value != null && !isEmpty(value),
+  )
+  const fields = Object.fromEntries(
+    entries.filter(([, value]) => !isRecord(value)),
+  )
+  const sections = entries.filter(([, value]) => isRecord(value))
   return (
     <Dialog
       onClose={() => {
@@ -29,28 +35,29 @@ const MetadataDialog = observer(function ({
       maxWidth="xl"
     >
       <DialogContent>
-        {Object.values(header).every(isEmpty) ? (
+        {entries.length === 0 ? (
           <Typography>This alignment has no metadata.</Typography>
         ) : (
           <>
-            {Object.entries(header)
-              .filter(([, value]) => !isEmpty(value))
-              .map(([section, value]) => (
-                <div key={section}>
-                  <Typography variant="h6">
-                    {sectionLabels[section] ?? section}
-                  </Typography>
-                  {section === 'General' ? (
-                    <MetadataTable
-                      record={groupGeneral(value)}
-                      labels={gfLabels}
-                      monospaceKeys={monospaceKeys}
-                    />
-                  ) : (
-                    <MetadataTable record={value as Record<string, unknown>} />
-                  )}
-                </div>
-              ))}
+            {Object.keys(fields).length > 0 ? (
+              <MetadataTable record={fields} />
+            ) : null}
+            {sections.map(([section, value]) => (
+              <div key={section}>
+                <Typography variant="h6">
+                  {sectionLabels[section] ?? section}
+                </Typography>
+                {section === 'General' ? (
+                  <MetadataTable
+                    record={groupGeneral(value)}
+                    labels={gfLabels}
+                    monospaceKeys={monospaceKeys}
+                  />
+                ) : (
+                  <MetadataTable record={value as Record<string, unknown>} />
+                )}
+              </div>
+            ))}
           </>
         )}
         <Typography variant="h6">Sequences</Typography>
