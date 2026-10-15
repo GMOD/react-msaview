@@ -123,7 +123,7 @@ plugin.behaviors.interaction.hover.subscribe(({ current }) => {
 
 <DocsLayout
   title="An alignment linked to its structure — JBrowseMSA"
-  description="The spike and hemoglobin alignments beside PDB 6VXX and 2HHB in Mol*, where hovering a residue in either view lights the same residue in the other through the residueMappings layer, and a checkbox colors the structure by column conservation."
+  description="The spike and hemoglobin alignments beside PDB 6VXX and 2HHB in Mol*, where hovering a residue in either view lights the same residue in the other through the residueMappings layer, and a menu paints the structure with column conservation or with the alignment's own colors."
 >
   <h1>An alignment linked to its structure</h1>
   <p>
@@ -182,22 +182,38 @@ plugin.behaviors.interaction.hover.subscribe(({ current }) => {
     under the status line, and both sets print none.
   </p>
 
-  <h2>Color the structure by conservation</h2>
+  <h2>Color the structure</h2>
   <p>
-    The <strong>Color the structure by conservation</strong> checkbox paints
-    each residue of a mapped chain with the conservation of the alignment column
-    it falls in, the number the Conservation track draws. Five blue steps run
-    from variable to conserved. A residue with no column is grey: the chains no
-    mapping names, the residues outside a mapped region, and a residue in a
-    column that <em>Hide columns</em> has hidden.
+    The <strong>Color the structure by</strong> menu paints each residue of a
+    mapped chain with a color read from the alignment column it falls in. A
+    residue with no column is grey: the chains no mapping names, the residues
+    outside a mapped region, and a residue in a column that
+    <em>Hide columns</em> has hidden.
   </p>
+  <ul>
+    <li>
+      <strong>Column conservation</strong> uses the number the Conservation
+      track draws, in five blue steps from variable to conserved.
+    </li>
+    <li>
+      <strong>Alignment colors</strong> uses whichever scheme the
+      <strong>Alignment colors</strong> menu picks. Choose
+      <em>Hydrophobicity</em> or <em>Buried index</em> and the structure shows
+      where the hydrophobic residues sit: a hydrophobic residue on the surface
+      or a polar one inside the core stands out in a way the sequence alone does
+      not show. <em>BLOSUM62 similarity</em> shades each residue by how like its
+      column it is, so a substitution that the family rarely makes shows as a
+      pale patch.
+    </li>
+  </ul>
   <p>
-    The conservation of a column counts the rows on screen. Collapse a clade in
-    the tree, or show one subtree, and the page repaints the structure from the
-    rows left. The page walks each residue of the structure through
-    <code>rowResidue</code> to its row residue, then through
-    <code>seqPosToVisibleCol</code> to a column, and reads
-    <code>model.conservation</code> there.
+    Both modes count the rows on screen. Collapse a clade in the tree, or show
+    one subtree, and the page repaints the structure from the rows left. The
+    page walks each residue of the structure through
+    <code>rowResidue</code> to its row residue, then asks
+    <code>schemeResidueColor(model)</code> for the hex color the scheme gives
+    that residue, or reads <code>model.conservation</code> at the column from
+    <code>seqPosToVisibleCol</code>.
   </p>
 
   <h2>Put it on your own page</h2>

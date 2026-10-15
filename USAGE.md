@@ -388,6 +388,16 @@ uncolored, gaps included; list `-` and `.` to color them. The model stores the
 map as `customColorScheme`, and picking a scheme from the palette menu clears
 it.
 
+### Painting another view with the scheme
+
+`schemeResidueColor(model)` returns a function from a row name and a 1-based
+residue to the hex color the active scheme gives that residue, or `undefined`
+where the scheme leaves it uncolored or its column is hidden. Call it inside a
+MobX reaction and a new scheme, a hidden gap column or a collapsed clade re-runs
+the caller. The
+[structure link page](https://gmod.org/JBrowseMSA/tutorials/structure_link) uses
+it with `rowResidue` to paint a Mol\* structure in the alignment's colors.
+
 ## Troubleshooting
 
 ### Two copies of mobx-state-tree or MUI
