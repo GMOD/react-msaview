@@ -236,11 +236,23 @@ describe('names that resolve to an accession', () => {
     ])
     expect(
       identifiersOfRowName('NP_000549.1 hemoglobin subunit alpha'),
-    ).toEqual([{ kind: 'refseq', value: 'NP_000549' }])
+    ).toEqual([{ kind: 'xref', value: 'NP_000549' }])
     expect(identifiersOfRowName('Human')).toEqual([])
     expect(canFindStructures('NP_000549.1')).toBe(true)
     expect(canFindStructures('sp|P04637|P53_HUMAN')).toBe(true)
     expect(canFindStructures('Human')).toBe(false)
+  })
+
+  test('takes the database ids p2s_mapper recognizes and not a shared WP_ protein', () => {
+    expect(identifiersOfRowName('ENSP00000269305')).toEqual([
+      { kind: 'xref', value: 'ENSP00000269305' },
+    ])
+    expect(identifiersOfRowName('HGNC:11998')).toEqual([
+      { kind: 'xref', value: 'HGNC:11998' },
+    ])
+    // WP_ names one sequence shared by every organism that encodes it
+    expect(identifiersOfRowName('WP_000135199.1')).toEqual([])
+    expect(canFindStructures('WP_000135199.1')).toBe(false)
   })
 
   test('looks the accession up, and says which name it came from', async () => {
@@ -255,7 +267,7 @@ describe('names that resolve to an accession', () => {
         },
       }),
     })
-    expect(asked).toEqual(['refseq:NP_000549'])
+    expect(asked).toEqual(['xref:NP_000549'])
     expect(found.accession).toBe('P04637')
     expect(found.resolvedFrom).toBe('NP_000549')
     expect(found.candidates.length).toBeGreaterThan(0)

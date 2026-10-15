@@ -17,9 +17,13 @@ model.setResidueMappings([...model.residueMappings, candidates[0].mapping])
 ```
 
 - The row names its UniProt entry, or the caller passes `accession`
-- A row named by an entry name (`HBA_HUMAN`) or a RefSeq protein id
-  (`NP_000549.1`) is looked up in UniProt by that name, a reviewed entry first,
-  and `resolvedFrom` in the result says which name it came from
+- A row named by an entry name (`HBA_HUMAN`) or a database id UniProt
+  cross-references, such as a RefSeq protein (`NP_000549.1`), an Ensembl id or a
+  CCDS, is looked up in UniProt by that name, a reviewed entry first, and
+  `resolvedFrom` in the result says which name it came from. A RefSeq `WP_`
+  protein is left out, since it names one sequence shared by every organism that
+  encodes it
+- The database ids are p2s_mapper's, so a new kind it recognizes works here
 - The row is then checked against the entry it resolved to, so a wrong name gets
   no mapping
 - AlphaFold DB and RCSB answer the lookups, both from the browser
