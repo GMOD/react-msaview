@@ -346,8 +346,10 @@ through.
 <!-- usage: r -->
 
 [ggmsaview](https://github.com/GMOD/ggmsaview) reads the hosted alignment and
-tree, and takes both layers from the hosted `hemoglobin-layers.json`. The
-subunit GFF stays out, since this view draws no overlay:
+tree, takes both layers from the hosted `hemoglobin-layers.json`, and loads the
+subunit GFF the link carries. The widget draws the GFF as an overlay its menu
+switches off, and `features = FALSE` leaves it out of the figure, as the link
+does:
 
 ```r
 library(ggmsaview)
@@ -357,13 +359,15 @@ layers <- jsonlite::fromJSON(paste0(data, "hemoglobin-layers.json"),
 w <- msaview(
   msa = paste0(data, "hemoglobin.afa"),
   tree = paste0(data, "hemoglobin.nwk"),
+  gff = paste0(data, "hemoglobin-subunits.gff"),
   color_scheme = "clustalx_protein_dynamic",
   column_tracks = layers$columnTracks,
   residue_mappings = layers$residueMappings
 )
 w
 ggplot2::ggsave("protein-complex-final-r.png",
-  msaview_plot(w, tracks = c("2hhb-contacts", "2hhb-class", "conservation")),
+  msaview_plot(w, tracks = c("2hhb-contacts", "2hhb-class", "conservation"),
+    features = FALSE),
   width = 12, height = 6)
 ```
 
