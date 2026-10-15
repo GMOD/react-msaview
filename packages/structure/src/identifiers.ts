@@ -5,7 +5,7 @@ import {
   stripTrailingVersion,
 } from 'p2s_mapper'
 
-import { accessionOfRowName } from './accession.ts'
+import { accessionOfRowName, rowNameTokens } from './accession.ts'
 
 /**
  * A name a UniProt lookup can turn into an accession. `xref` is a database id
@@ -30,13 +30,8 @@ const ENTRY_NAME = /^[A-Z0-9]{1,10}_[A-Z0-9]{2,5}$/
  * encodes it and not one entry.
  */
 export function identifiersOfRowName(name: string): RowIdentifier[] {
-  const tokens = name
-    .split(/[|\s/,;]/)
-    .flatMap(token =>
-      token.includes(':') ? [token, ...token.split(':')] : [token],
-    )
   const found: RowIdentifier[] = []
-  for (const token of tokens) {
+  for (const token of rowNameTokens(name)) {
     const bare = stripTrailingVersion(token) ?? token
     const identifier: RowIdentifier | undefined = ENTRY_NAME.test(token)
       ? { kind: 'entryName', value: token }

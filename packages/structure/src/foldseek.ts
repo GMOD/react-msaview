@@ -1,16 +1,15 @@
 import {
-  DEFAULT_FOLDSEEK_DATABASES,
-  FOLDSEEK_DATABASES,
   FOLDSEEK_MAX_RESIDUES,
   caCoordsToPdb,
   foldseekHitPairs,
   foldseekQuery,
   getStructureUrlFromTarget,
   hasValidCaCoords,
-  parseFoldseekResult,
+  isPdbId,
   searchFoldseek,
 } from 'p2s_mapper'
 
+import { generated } from './lookup.ts'
 import { segmentsOfPairs } from './segments.ts'
 
 import type { StructureCandidate } from './lookup.ts'
@@ -18,14 +17,7 @@ import type { FoldseekHit } from 'p2s_mapper'
 
 // the client, the query and the hit alignment live in p2s_mapper, shared with
 // the protein3d plugin
-export {
-  DEFAULT_FOLDSEEK_DATABASES,
-  FOLDSEEK_DATABASES,
-  FOLDSEEK_MAX_RESIDUES,
-  foldseekQuery,
-  parseFoldseekResult,
-  searchFoldseek,
-}
+export { FOLDSEEK_MAX_RESIDUES, foldseekQuery, searchFoldseek }
 export type { FoldseekHit }
 
 function dataUrl(pdb: string) {
@@ -63,7 +55,6 @@ export function foldseekCandidates({
   const rowLength = rowSequence.replaceAll(/[-.]/g, '').length
   const taken = new Map<string, number>()
   const candidates: StructureCandidate[] = []
-  const date = new Date().toISOString().slice(0, 10)
   for (const hit of hits) {
     if ((taken.get(hit.db) ?? 0) >= perDatabase) {
       continue
@@ -87,7 +78,9 @@ export function foldseekCandidates({
         url,
       }
     } else if (hasValidCaCoords(hit)) {
-      const pdbId = /^([1-9][a-z0-9]{3})/i.exec(id)?.[1]?.toUpperCase()
+      const pdbId = isPdbId(id.slice(0, 4))
+        ? id.slice(0, 4).toUpperCase()
+        : undefined
       const chain = /_([A-Za-z0-9]+)$/.exec(id)?.[1]
       const name = pdbId ? `${pdbId}${chain ? `_${chain}` : ''}` : id
       structure = {
@@ -111,10 +104,7 @@ export function foldseekCandidates({
         rowLength,
         structure,
         segments: segmentsOfPairs(pairs),
-        generated: {
-          by: `react-msaview-structure: Foldseek ${hit.db} ${id}, ${identity}`,
-          date,
-        },
+        generated: generated(`Foldseek ${hit.db} ${id}, ${identity}`),
       },
     })
   }

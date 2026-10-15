@@ -1,7 +1,8 @@
+import { parseFoldseekResult } from 'p2s_mapper'
 import { describe, expect, test } from 'vitest'
 
 import { parsePdbCaCoordinates } from './cif.ts'
-import { foldseekCandidates, parseFoldseekResult } from './foldseek.ts'
+import { foldseekCandidates } from './foldseek.ts'
 
 // a target of 6 residues; the query starts 1 residue in and skips one target
 // residue (a gap in the query), so numbering must come from the alignment

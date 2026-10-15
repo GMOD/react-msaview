@@ -103,11 +103,9 @@ export function networkLookups(signal?: AbortSignal): Lookups {
   }
 }
 
-const generatedBy = 'react-msaview-structure'
-
-function generated(detail: string) {
+export function generated(detail: string) {
   return {
-    by: `${generatedBy}: ${detail}`,
+    by: `react-msaview-structure: ${detail}`,
     date: new Date().toISOString().slice(0, 10),
   }
 }

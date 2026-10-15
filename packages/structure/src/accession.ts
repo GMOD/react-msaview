@@ -1,3 +1,5 @@
+import { getUniprotIdFromAlphaFoldTarget } from 'p2s_mapper'
+
 // UniProt's own pattern for an accession, from its "accession numbers" help
 const ACCESSION =
   /^(?:[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2})(?:-\d+)?$/
@@ -9,10 +11,20 @@ const ACCESSION =
  * id do not, and finding the accession for those takes a lookup.
  */
 export function accessionOfRowName(name: string) {
-  return name
-    .split(/[|\s/:,;]/)
-    .map(token =>
-      token.startsWith('AF-') ? (token.slice(3).split('-F')[0] ?? '') : token,
-    )
+  return rowNameTokens(name)
+    .map(token => getUniprotIdFromAlphaFoldTarget(token) ?? token)
     .find(token => ACCESSION.test(token))
+}
+
+/**
+ * The words of a row name a database id could be, split on the separators
+ * FASTA headers use. A token with a colon, such as `UniProtKB:P04637`, comes
+ * whole and then in its parts.
+ */
+export function rowNameTokens(name: string) {
+  return name
+    .split(/[|\s/,;]/)
+    .flatMap(token =>
+      token.includes(':') ? [token, ...token.split(':')] : [token],
+    )
 }
