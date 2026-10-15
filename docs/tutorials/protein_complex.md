@@ -313,6 +313,8 @@ eleven rows the alpha side reads seven different letters.
 
 ## 9. Open the whole thing
 
+<!-- usage: web -->
+
 The view combines three hosted files and three layers. The files go behind URLs,
 and the layers go in the link, because they take a few kilobytes:
 
@@ -340,6 +342,40 @@ off the app as `#data=`.
 The final view: the contact arcs and the class track above, the alignment below,
 the subunit spans loaded with the overlay off so the residue colors show
 through.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the hosted alignment and
+tree, and takes both layers from the hosted `hemoglobin-layers.json`. The
+subunit GFF stays out, since this view draws no overlay:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/hemoglobin/"
+layers <- jsonlite::fromJSON(paste0(data, "hemoglobin-layers.json"),
+  simplifyVector = FALSE)
+w <- msaview(
+  msa = paste0(data, "hemoglobin.afa"),
+  tree = paste0(data, "hemoglobin.nwk"),
+  color_scheme = "clustalx_protein_dynamic",
+  column_tracks = layers$columnTracks,
+  residue_mappings = layers$residueMappings
+)
+w
+ggplot2::ggsave("protein-complex-final-r.png",
+  msaview_plot(w, tracks = c("2hhb-contacts", "2hhb-class", "conservation")),
+  width = 12, height = 6)
+```
+
+![](../media/protein-complex-final-r.png)
+
+The eleven fused alpha-beta rows over 290 columns in ClustalX colors, under the
+58 2HHB contact arcs (blue for alpha1beta1, red for alpha1beta2), the residue
+class row and conservation, with the tree on the left. The residue mappings
+reach the widget `w`, which looks Human residues up in either chain, but draw
+nothing in a static figure.
+
+<!-- /usage -->
 
 A host that loads this view can look a residue of the Human row up in either
 chain. The two mappings share an entry id, so the reverse lookup needs the
