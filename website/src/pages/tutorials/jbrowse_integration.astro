@@ -16,8 +16,6 @@ import {
   tp53R248,
   tp53UnirefBrowser,
 } from '../../lib/jbrowseLinks'
-
-const base = import.meta.env.BASE_URL
 ---
 
 <DocsLayout
@@ -26,40 +24,32 @@ const base = import.meta.env.BASE_URL
 >
   <h1>JBrowse 2 integration</h1>
   <p>
-    An alignment opened in the standalone viewer stands on its own: the columns
-    are the coordinate system, and nothing outside the file has a position in
-    it. The
+    The
     <a href="https://github.com/GMOD/jbrowse-plugin-msaview">
       JBrowse 2 plugin
     </a>
-    opens the same alignment and tree <em>inside</em> JBrowse, beside a genome
-    view, and with
-    <a href="https://github.com/GMOD/jbrowse-plugin-protein3d">protein3d</a>
-    beside an AlphaFold structure as well. Selecting a region in any one of
-    those views highlights the matching columns, codons and residues in the
-    others, so a base in the genome, a column in the alignment and a residue in
-    the fold are the same place.
+    opens an alignment and tree inside JBrowse, beside a genome view and, with
+    <a href="https://github.com/GMOD/jbrowse-plugin-protein3d">protein3d</a>, an
+    AlphaFold structure. Selecting a region in one view highlights the matching
+    columns, codons and residues in the others.
   </p>
   <p>
-    Each session below is one declarative URL: the link carries the views, the
-    tracks and the data locations, so it opens the state it describes with
-    nothing saved on a server. The
-    <a href={`${base}/tutorials`}>tutorials</a> build the alignment and tree
-    files these sessions load.
+    Each session below is one URL that carries its views, tracks and data
+    locations, with nothing saved on a server.
   </p>
 
   <JBrowseFigure
     src="f12-combined-closeup.png"
     href={f12CombinedCloseupUrl}
     alt="A single JBrowse session at base resolution over F12 exon 3: the RefSeq gene annotation track on top and the react-msaview DNA alignment with its species tree below. The four cetaceans show a gap where every other mammal has a C, the shared single-base frameshift, in the highlighted column"
-    body="Genome and alignment in one JBrowse session: the F12 locus (RefSeq annotation, top) over the react-msaview DNA alignment and species tree, zoomed to base resolution at exon 3. The two views sit side by side without a connection, so a selection in one highlights nothing in the other. The highlighted column holds the single-base deletion the four cetaceans carry, a gap where every other mammal has a C, which disables the gene. The 14-exon model is registered to the alignment columns and lifted onto each species."
+    body="The F12 locus over its DNA alignment and species tree at exon 3, as two unconnected views. The highlighted column holds the single-base deletion that disables the gene in the four cetaceans."
   />
 
   <JBrowseFigure
     src="genome-browser-tp53-protein3d.png"
     href={tp53Protein3d}
     alt="JBrowse: the TP53 gene with ClinVar, the p53 ortholog alignment, and the AlphaFold structure, all connected, with the nuclear export signal motif highlighted across genome, alignment, and 3D structure"
-    body="Genome ↔ alignment ↔ 3D structure: the TP53 gene (RefSeq + ClinVar), the p53 ortholog alignment, and the AlphaFold structure as one connected session. It opens with the nuclear export signal motif (residues 339–350) highlighted on the genome, the alignment columns, and the folded structure."
+    body="The TP53 gene with ClinVar, the p53 ortholog alignment and the AlphaFold structure as one connected session, with the nuclear export signal (residues 339–350) highlighted in all three."
   />
 
   <h2>Without the structure view</h2>

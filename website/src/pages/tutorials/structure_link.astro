@@ -123,19 +123,16 @@ plugin.behaviors.interaction.hover.subscribe(({ current }) => {
 
 <DocsLayout
   title="An alignment linked to its structure — JBrowseMSA"
-  description="The spike and hemoglobin alignments beside PDB 6VXX and 2HHB in Mol*, where hovering a residue in either view lights the same residue in the other through the residueMappings layer, and a menu paints the structure with column conservation or with the alignment's own colors."
+  description="The spike and hemoglobin alignments beside PDB 6VXX and 2HHB in Mol*, linked residue for residue through the residueMappings layer."
 >
   <h1>An alignment linked to its structure</h1>
   <p>
     The <a href={`${base}/tutorials/spike_structure`}>spike</a> and
     <a href={`${base}/tutorials/protein_complex`}>hemoglobin</a> tutorials each
     end on a <code>residueMappings</code> layer, which records the structure
-    residue for each residue of one row. The viewer below loads one of those
-    alignments with its layers and the PDB entry the mapping names, and draws
-    the structure in Mol* under the alignment. A residue hovered in the
-    alignment lights in the structure, a residue hovered in the structure lights
-    in the alignment, and the line under the structure reports what each lookup
-    returned.
+    residue for each residue of one row. Below, each alignment sits over its PDB
+    entry in Mol*. A residue hovered in either view lights in the other, and the
+    line under the structure reports what each lookup returned.
   </p>
 
   <div class="structure-link-frame">
