@@ -243,9 +243,8 @@ export const specs = [
   },
   {
     name: 'protein-family-filter',
-    // The legend on the right, and the filter dialog that drives it: one row
-    // per InterPro accession, with the color the overlay draws it in and how
-    // many matches carry it.
+    // The legend on the right, and the Settings panel's Annotations section
+    // that drives it: one checkbox per InterPro accession.
     viewportWidth: 1400,
     viewportHeight: 620,
     url: fileSnap({
@@ -258,14 +257,14 @@ export const specs = [
     settle: 2000,
     actions: [
       { click: '[data-testid="settings_button"]' },
-      { click: '::-p-text(Filter annotations)' },
-      { waitFor: '::-p-text(accession)' },
+      { scrollTo: '::-p-text(Annotations)' },
+      { waitFor: '::-p-text(Show annotations)' },
     ],
     clip: 'full',
   },
   {
     name: 'protein-family-pyd-only',
-    // Everything but the pyrin domain filtered off, which is the filter dialog's
+    // Everything but the pyrin domain filtered off, which is the Settings panel's
     // checkboxes written into the snapshot. The five rows that keep the domain
     // are the primates plus dog and hedgehog: the control the page checks, since
     // a PYD that tracked "mammal" or "not a rodent" would not skip cow, pig and

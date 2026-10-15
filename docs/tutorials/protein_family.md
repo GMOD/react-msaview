@@ -250,16 +250,15 @@ the right. Each of those spans one band of columns across all twelve rows. The
 PYD at the far left is drawn on five rows, and the other seven are blank there.
 
 The legend in the top right names every accession in the file, and **Settings →
-Annotations → Filter annotations…** opens the same list with a checkbox and a
-count per accession.
+Annotations** lists the same accessions with a checkbox each.
 
 [![](../media/protein-family-filter.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A370%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A0.7%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1-domains.gff%22%7D%7D%7D)
 
-The filter dialog over the view it filters, one row per InterPro accession, in
-the color the overlay draws it. IPR004020, the pyrin domain, has a count of 5
-where NACHT, the winged helix, the helical domain and the CARD each have 12.
-IPR025307 counts 24 because it matches twice in every row, once as FIIND and
-once as the UPA-FIIND block beside it.
+The Settings panel beside the view it filters, one checkbox per InterPro
+accession. IPR004020, the pyrin domain, has 5 matches in the GFF where NACHT,
+the winged helix, the helical domain and the CARD each have 12. IPR025307 has 24
+because it matches twice in every row, once as FIIND and once as the UPA-FIIND
+block beside it.
 
 <!-- usage: r -->
 

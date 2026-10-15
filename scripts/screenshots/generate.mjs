@@ -64,6 +64,20 @@ async function runAction(page, action) {
     })
     await el.click()
     await delay(400)
+  } else if (action.scrollTo) {
+    const el = await page.waitForSelector(action.scrollTo, {
+      visible: true,
+      timeout: 20000,
+    })
+    await el.evaluate(node => {
+      let box = node.parentElement
+      while (box && box.scrollHeight <= box.clientHeight) {
+        box = box.parentElement
+      }
+      box.scrollTop +=
+        node.getBoundingClientRect().top - box.getBoundingClientRect().top
+    })
+    await delay(200)
   } else if (action.waitFor) {
     await page.waitForSelector(action.waitFor, {
       visible: true,

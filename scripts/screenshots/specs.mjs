@@ -277,7 +277,7 @@ export const specs = [
     actions: [
       { click: '[data-testid="file_menu"]' },
       { click: '::-p-text(Alignment info)' },
-      { waitFor: '::-p-text(sequence)' },
+      { waitFor: '::-p-text(Sequences)' },
     ],
     clip: 'full',
   },
