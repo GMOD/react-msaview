@@ -410,8 +410,8 @@ one band. The red box marks the row the check below reads.
 [ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three files of the
 subsample. The row table is JSON keyed by tip, the two encodings are two
 `scale_row_color()` layers, and the clade record is one `geom_msa_clade()`.
-`msaview_plot()` draws neither label colors nor row tints, so a strip per field
-carries them into the ggplot2 figure:
+`msaview_plot()` draws the region's tints across the rows, and a strip per field
+sets the clade and the region beside the tree:
 
 ```r
 library(ggmsaview)
@@ -425,7 +425,7 @@ w <- msaview(msa = paste0(data, "rsv-sample.aln"),
   geom_msa_strip("clade") +
   geom_msa_strip("region") +
   geom_msa_clade(mrca = c("330103036|A.D.3|France|2019",
-    "MZ151852|A.D.3|Russia|2020"), tips = 13, color = "#ffd54f80")
+    "MZ151852|A.D.3|Russia|2020"), tips = 13, color = "#ffd54f")
 w
 ggplot2::ggsave("phylogeny_metadata-shared-link-r.png", msaview_plot(w),
   width = 12, height = 12)

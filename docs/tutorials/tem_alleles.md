@@ -336,9 +336,9 @@ ggplot2::ggsave("tem_alleles-final-r.png",
 ![](../media/tem_alleles-final-r.png)
 
 The phenotype strip and the eight position strips between the tree and the
-alignment, the eight bands over the alignment and conservation above it. The
-residue strips each take a key of their own here, and the row names stay black,
-where the web view colors them by phenotype.
+alignment, the eight bands over the alignment and conservation above it. One key
+covers the eight residue strips, and the row names take their phenotype's color,
+as in the web view.
 
 <!-- /usage -->
 

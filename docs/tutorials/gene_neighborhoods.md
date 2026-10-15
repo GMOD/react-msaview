@@ -282,7 +282,7 @@ transform as arguments. ggmsaview has no switch for the alignment's own overlay,
 which would draw the genome-coordinate spans across the TrpB columns, so the R
 figure leaves the alignment out and draws the tree and the panel. `w` alone
 opens the viewer in RStudio or a notebook, and `msaview_plot()` draws the
-ggplot2 figure, whose fill scale the last line limits to the trp genes:
+ggplot2 figure, whose key lists the trp genes the panel's `map` colors:
 
 ```r
 library(ggmsaview)
@@ -301,8 +301,7 @@ w <- msaview(
     label = "Name", align = "trpE", width = 760, header = "trp neighborhood")
 w
 ggsave("gene_neighborhoods-5-r.png",
-  msaview_plot(w) & scale_fill_manual(values = trp, breaks = names(trp),
-    na.value = "grey85", name = "Name"),
+  msaview_plot(w),
   width = 12, height = 5)
 ```
 

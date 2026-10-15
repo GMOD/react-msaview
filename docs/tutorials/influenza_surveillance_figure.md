@@ -377,7 +377,7 @@ for (site in sites) {
   w <- w + geom_msa_strip(site, map = amino, legend = "amino acid")
 }
 w <- w +
-  geom_msa_clade(mrca = california, tips = 38, color = "#ffd54f66") +
+  geom_msa_clade(mrca = california, tips = 38, color = "#ffd54f") +
   geom_msa_clade(mrca = california, tips = 38, mark = "bracket",
     color = "#c2410c", label = "California, 38") +
   geom_msa_clade(range = c("A/cattle/ID/25-012902-006-original/2025",
@@ -398,9 +398,8 @@ ggplot2::ggsave("influenza_surveillance_figure-r.png", msaview_plot(w),
 
 The 138-tip focus with its 31-tip clade collapsed to the grey wedge at the
 bottom, the host strip and the eight site strips beside it, the amber wash over
-the California clade and the two brackets in the gutter. The R figure leaves the
-tip labels and branches black where the web view colors them by state, and gives
-each site strip a key of its own.
+the California clade and the two brackets in the gutter. The branches take their
+state's color, as in the web view, and one key covers the eight site strips.
 
 <!-- /usage -->
 

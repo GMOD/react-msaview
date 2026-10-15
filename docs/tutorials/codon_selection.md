@@ -272,7 +272,7 @@ w <- msaview(
   geom_msa_highlight(sites)
 w
 ggplot2::ggsave("codon-final-view-r.png",
-  msaview_plot(w) & ggplot2::theme(legend.position = "none"),
+  msaview_plot(w),
   width = 12, height = 8)
 ```
 

@@ -374,8 +374,7 @@ whole.
 
 [ggmsaview](https://github.com/GMOD/ggmsaview) opens the same hosted alignment
 and tree. `h3n2-layers.json` holds the drift counts and the three bands the
-notebook computed, so R reads them rather than counting again. The two site B
-bands carry no color in the file, so R names the viewer's default orange:
+notebook computed, so R reads them rather than counting again:
 
 ```r
 library(ggmsaview)
@@ -383,7 +382,6 @@ data <- "https://gmod.org/JBrowseMSA/demo/data/h3n2/"
 layers <- jsonlite::fromJSON(paste0(data, "h3n2-layers.json"))
 drift <- layers$columnTracks
 bands <- layers$highlights
-bands$color[is.na(bands$color)] <- "#ff8c00"
 w <- msaview(msa = paste0(data, "h3n2-ha.aln"),
     tree = paste0(data, "h3n2-ha.nh"),
     color_scheme = "clustalx_protein_dynamic") +
