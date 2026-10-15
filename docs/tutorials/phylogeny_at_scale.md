@@ -385,6 +385,8 @@ that value.
 
 ## 14. The link, and one row checked against the JSON
 
+<!-- usage: web -->
+
 Every layer above is a property of the view, so the whole figure travels in one
 link. The last one carries the three filehandles, two encodings and the clade
 record, and moves the tint to the `region` field, which adds a second legend:
@@ -402,6 +404,41 @@ Labels colored by clade, rows tinted by region, the A.D.3 rectangle over rows 80
 to 92, and two legends stacked in the top right, one per field. The region tint
 changes color from row to row inside the rectangle, where the clade colors held
 one band. The red box marks the row the check below reads.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three files of the
+subsample. The row table is JSON keyed by tip, the two encodings are two
+`scale_row_color()` layers, and the clade record is one `geom_msa_clade()`.
+`msaview_plot()` draws neither label colors nor row tints, so a strip per field
+carries them into the ggplot2 figure:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/scale/"
+rows <- jsonlite::fromJSON(paste0(data, "rsv-sample-rowdata.json"))
+w <- msaview(msa = paste0(data, "rsv-sample.aln"),
+    tree = paste0(data, "rsv-sample.nh"), color_scheme = "nucleotide") +
+  geom_msa_rowdata(rows) +
+  scale_row_color("clade", channel = "tipLabel") +
+  scale_row_color("region", channel = "rowTint") +
+  geom_msa_strip("clade") +
+  geom_msa_strip("region") +
+  geom_msa_clade(mrca = c("330103036|A.D.3|France|2019",
+    "MZ151852|A.D.3|Russia|2020"), tips = 13, color = "#ffd54f80")
+w
+ggplot2::ggsave("phylogeny_metadata-shared-link-r.png", msaview_plot(w),
+  width = 12, height = 12)
+```
+
+![](../media/phylogeny_metadata-shared-link-r.png)
+
+All 184 tips of the subsample, the whole genome, a clade strip and a region
+strip beside the tree, and the amber wash over the 13 A.D.3 tips. The clade
+strip holds one band down the tree where the region strip changes from row to
+row, the same contrast the web view draws in label colors and tints.
+
+<!-- /usage -->
 
 The row in the box is the tip the build script prints last, with its entry in
 the auspice JSON beside the record the table gives it:
