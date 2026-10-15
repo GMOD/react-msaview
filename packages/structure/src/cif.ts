@@ -3,6 +3,46 @@ export type Vec3 = [number, number, number]
 /** CA position by `label_seq_id`, for each chain a structure file holds */
 export type CaCoordinates = Map<string, Map<number, Vec3>>
 
+/**
+ * The CA atoms of the first model of a PDB-format file, by chain, numbered by
+ * the residue sequence number. A Foldseek trace is numbered 1..n by target
+ * position, so that number is its `label_seq_id`. Undefined when no CA is found.
+ */
+export function parsePdbCaCoordinates(pdb: string): CaCoordinates | undefined {
+  const chains: CaCoordinates = new Map()
+  for (const line of pdb.split('\n')) {
+    if (line.startsWith('ENDMDL')) {
+      break
+    }
+    const atom = line.startsWith('ATOM  ')
+    if (
+      !(atom || line.startsWith('HETATM')) ||
+      line.slice(12, 16).trim() !== 'CA'
+    ) {
+      continue
+    }
+    const residue = line.slice(17, 20).trim()
+    const alt = line[16] ?? ' '
+    if ((!atom && residue === 'CA') || (alt !== ' ' && alt !== 'A')) {
+      continue
+    }
+    const seq = Number(line.slice(22, 26))
+    const position: Vec3 = [
+      Number(line.slice(30, 38)),
+      Number(line.slice(38, 46)),
+      Number(line.slice(46, 54)),
+    ]
+    if (!Number.isInteger(seq) || !position.every(Number.isFinite)) {
+      continue
+    }
+    const chain = (line[21] ?? ' ').trim() || 'A'
+    const residues = chains.get(chain) ?? new Map<number, Vec3>()
+    residues.set(seq, position)
+    chains.set(chain, residues)
+  }
+  return chains.size > 0 ? chains : undefined
+}
+
 const TOKEN = /'[^']*'|"[^"]*"|\S+/g
 
 /**
@@ -18,6 +58,9 @@ const TOKEN = /'[^']*'|"[^"]*"|\S+/g
  * `_atom_site` loop, as with a file in PDB format.
  */
 export function parseCaCoordinates(cif: string): CaCoordinates | undefined {
+  if (!cif.includes('_atom_site.')) {
+    return parsePdbCaCoordinates(cif)
+  }
   const lines = cif.split('\n')
   const columns = new Map<string, number>()
   let i = 0

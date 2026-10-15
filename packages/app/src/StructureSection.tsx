@@ -13,16 +13,21 @@ import {
 } from '@mui/material'
 import { observer } from 'mobx-react'
 import {
+  FOLDSEEK_MAX_RESIDUES,
   accessionOfRowName,
   canFindStructures,
   findStructures,
+  foldseekCandidates,
+  foldseekQuery,
   networkLookups,
+  searchFoldseek,
   superposeRows,
 } from 'react-msaview-structure'
 
 import type { SxProps, Theme } from '@mui/material'
 import type { MsaViewModel } from 'react-msaview'
 import type {
+  StructureCandidate,
   StructureSearch,
   SuperposeRowsResult,
 } from 'react-msaview-structure'
@@ -34,6 +39,12 @@ const StructurePanel = lazy(() =>
     default: m.StructurePanel,
   })),
 )
+
+type FoldseekState =
+  | { state: 'idle' }
+  | { state: 'running'; message: string }
+  | { state: 'done'; row: string; candidates: StructureCandidate[] }
+  | { state: 'error'; message: string }
 
 type Search =
   | { state: 'idle' }
@@ -69,6 +80,7 @@ const StructureSection = observer(function StructureSection({
   const [shown, setShown] = useState<string>()
   const [colorBy, setColorBy] = useState<StructureColor>('none')
   const abort = useRef<AbortController | undefined>(undefined)
+  const [foldseek, setFoldseek] = useState<FoldseekState>({ state: 'idle' })
   const [superposition, setSuperposition] = useState<Superposition>({
     state: 'idle',
   })
@@ -110,6 +122,59 @@ const StructureSection = observer(function StructureSection({
     } catch (e) {
       if (!controller.signal.aborted) {
         setSearch({
+          state: 'error',
+          message: e instanceof Error ? e.message : String(e),
+        })
+      }
+    }
+  }
+
+  async function searchFold() {
+    abort.current?.abort()
+    const controller = new AbortController()
+    abort.current = controller
+    const rowSequence = model.rowSequence(row) ?? ''
+    const { sequence } = foldseekQuery(rowSequence)
+    if (sequence.length > FOLDSEEK_MAX_RESIDUES) {
+      setFoldseek({
+        state: 'error',
+        message: `Foldseek's 3Di predictor takes at most ${FOLDSEEK_MAX_RESIDUES} residues and ${row} has ${sequence.length}.`,
+      })
+      return
+    }
+    if (sequence.length < 20) {
+      setFoldseek({
+        state: 'error',
+        message: `${row} has ${sequence.length} standard residues, too few to search with.`,
+      })
+      return
+    }
+    setSearch({ state: 'idle' })
+    setFoldseek({ state: 'running', message: 'Starting' })
+    try {
+      const hits = await searchFoldseek({
+        sequence,
+        signal: controller.signal,
+        onStatus: message => {
+          if (!controller.signal.aborted) {
+            setFoldseek({ state: 'running', message })
+          }
+        },
+      })
+      if (!controller.signal.aborted) {
+        setFoldseek({
+          state: 'done',
+          row,
+          candidates: foldseekCandidates({
+            rowName: row,
+            rowSequence,
+            hits,
+          }),
+        })
+      }
+    } catch (e) {
+      if (!controller.signal.aborted) {
+        setFoldseek({
           state: 'error',
           message: e instanceof Error ? e.message : String(e),
         })
@@ -242,6 +307,7 @@ const StructureSection = observer(function StructureSection({
             abort.current?.abort()
             setChosen(value)
             setSearch({ state: 'idle' })
+            setFoldseek({ state: 'idle' })
           }}
           renderInput={params => <TextField {...params} label="Row" />}
         />
@@ -266,6 +332,20 @@ const StructureSection = observer(function StructureSection({
           Find structures
         </Button>
         {search.state === 'loading' ? <CircularProgress size={20} /> : null}
+        <Button
+          variant="outlined"
+          size="small"
+          disabled={foldseek.state === 'running'}
+          title={`Sends ${row}'s sequence to search.foldseek.com and 3di.foldseek.com, and waits for their queue`}
+          onClick={() => {
+            void searchFold()
+          }}
+        >
+          Search Foldseek
+        </Button>
+        {foldseek.state === 'running' ? (
+          <Typography variant="body2">{foldseek.message}…</Typography>
+        ) : null}
         {mapped.length > 1 ? (
           <Select
             size="small"
@@ -316,6 +396,44 @@ const StructureSection = observer(function StructureSection({
         ) : null}
       </Box>
 
+      {foldseek.state === 'error' ? (
+        <Alert severity="error" sx={{ mt: 1 }}>
+          {foldseek.message}
+        </Alert>
+      ) : null}
+      {foldseek.state === 'done' && foldseek.row === row ? (
+        foldseek.candidates.length > 0 ? (
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="caption">
+              Foldseek hits: structural homologs, so a mapping is the alignment
+              Foldseek made and not the same protein
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
+              {foldseek.candidates.map(candidate => (
+                <Button
+                  key={keyOf(candidate.mapping)}
+                  size="small"
+                  variant={
+                    candidate.mapping.structure.id === structureId
+                      ? 'contained'
+                      : 'outlined'
+                  }
+                  onClick={() => {
+                    show(candidate)
+                  }}
+                  title={`${candidate.mapping.row}: ${candidate.identity}`}
+                >
+                  {candidate.label}
+                </Button>
+              ))}
+            </Box>
+          </Box>
+        ) : (
+          <Alert severity="info" sx={{ mt: 1 }}>
+            Foldseek found no hit it could map {row} onto.
+          </Alert>
+        )
+      ) : null}
       {search.state === 'error' ? (
         <Alert severity="error" sx={{ mt: 1 }}>
           {search.message}

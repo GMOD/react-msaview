@@ -53,7 +53,11 @@ export const structurePalette = [
 const idle = 'Hover a residue in the alignment or the structure.'
 
 function formatOf(url: string) {
-  return url.endsWith('.pdb') || url.endsWith('.ent') ? 'pdb' : 'mmcif'
+  return url.startsWith('data:chemical/x-pdb') ||
+    url.endsWith('.pdb') ||
+    url.endsWith('.ent')
+    ? 'pdb'
+    : 'mmcif'
 }
 
 function readLocation(molstar: Molstar, loci: Loci) {

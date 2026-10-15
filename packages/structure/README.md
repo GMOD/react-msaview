@@ -29,6 +29,40 @@ model.setResidueMappings([...model.residueMappings, candidates[0].mapping])
 - A row that does not match its entry gets no candidates and a `problem`
 - A generated mapping names its chain by the author id RCSB reports
 
+## Search Foldseek for a row with no identifier
+
+```ts
+import {
+  foldseekCandidates,
+  foldseekQuery,
+  searchFoldseek,
+} from 'react-msaview-structure'
+
+const rowSequence = model.rowSequence('Human_alpha') ?? ''
+const hits = await searchFoldseek({
+  sequence: foldseekQuery(rowSequence).sequence,
+  onStatus: status => console.log(status),
+})
+const candidates = foldseekCandidates({
+  rowName: 'Human_alpha',
+  rowSequence,
+  hits,
+})
+```
+
+- This sends the sequence to `3di.foldseek.com` and `search.foldseek.com` and
+  waits for their queue, about 8 s for a 142-residue protein, so a host offers
+  it as an explicit action
+- Foldseek aligns the query to each hit, and that alignment is the residue
+  mapping, so a hit is a structural homolog and its `identity` says how close
+- The query is the row's twenty standard amino acids, at most 1200 of them, and
+  hits map back to the row's own numbering through the residues left out
+- An AlphaFold F1 hit opens from its own file, since it is numbered on the
+  UniProt sequence
+- A PDB hit is drawn from its CA trace, numbered by target position, because the
+  database holds only the residues with coordinates and its position is not
+  SEQRES numbering. The trace travels in the mapping as a `data:` URL
+
 ## Superpose rows by the alignment
 
 ```ts

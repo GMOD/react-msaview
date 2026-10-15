@@ -34,11 +34,16 @@ them, and follow it in this file too: agents copy the prose here as house voice.
   `residueMappings` record onto each. `superposeRows` fits the structures of
   several rows on the alignment's own correspondences, over a selected column
   range if one is set, and returns the matrices for the panel's `transforms` and
-  a per-column CA distance for a `columnTracks` bar. The lookups and the aligner
-  come from `p2s_mapper` (`~/src/gmod/p2s_mapper`), which the protein3d plugin
-  shares. The app mounts the panel under the alignment, and the website's
-  `/tutorials/structure_link` page uses the same component. Mol\* is a peer
-  dependency that loads on first mount, so nothing in `packages/lib` imports it
+  a per-column CA distance for a `columnTracks` bar. `searchFoldseek` is the
+  opt-in tier for a row with no identifier: it sends the sequence to
+  search.foldseek.com and waits for a queue, so the app offers it as a button
+  and never runs it unasked. A PDB hit draws from its own CA trace, because the
+  database's chain positions skip unresolved residues and are not SEQRES
+  numbering. The lookups and the aligner come from `p2s_mapper`
+  (`~/src/gmod/p2s_mapper`), which the protein3d plugin shares. The app mounts
+  the panel under the alignment, and the website's `/tutorials/structure_link`
+  page uses the same component. Mol\* is a peer dependency that loads on first
+  mount, so nothing in `packages/lib` imports it
 - `packages/svgcanvas`: vendored ESM fork of svgcanvas for SVG export
 - The R package is [GMOD/ggmsaview](https://github.com/GMOD/ggmsaview), a repo
   of its own, at `~/src/ggmsaview`. Its `scripts/build-js.mjs` builds the widget

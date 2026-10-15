@@ -20,7 +20,17 @@ export type {
   SuperposeRowsResult,
   SuperposeTarget,
 } from './superposeRows.ts'
-export { parseCaCoordinates } from './cif.ts'
+export { parseCaCoordinates, parsePdbCaCoordinates } from './cif.ts'
+export {
+  DEFAULT_FOLDSEEK_DATABASES,
+  FOLDSEEK_DATABASES,
+  FOLDSEEK_MAX_RESIDUES,
+  foldseekCandidates,
+  foldseekQuery,
+  parseFoldseekResult,
+  searchFoldseek,
+} from './foldseek.ts'
+export type { FoldseekFetch, FoldseekHit } from './foldseek.ts'
 export type { CaCoordinates, Vec3 } from './cif.ts'
 export { fitRigid } from './superpose.ts'
 export type { Fit, Mat4 } from './superpose.ts'
