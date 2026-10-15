@@ -6,7 +6,11 @@ import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import DragHandle, { scrollbarThumbFill } from '../DragHandle.tsx'
 import { msaThumbnail } from '../msa/msaRaster.ts'
-import { MINIMAP_BAR_HEIGHT, getMinimapLayout } from './minimapLayout.ts'
+import {
+  MINIMAP_BAR_HEIGHT,
+  getMinimapLayout,
+  minimapDomainRects,
+} from './minimapLayout.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 
@@ -40,6 +44,10 @@ const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
           barWidth,
           barHeight,
         )
+      }
+      for (const r of minimapDomainRects(model, barWidth, barHeight)) {
+        ctx.fillStyle = r.fill
+        ctx.fillRect(r.x, r.y, r.w, r.h)
       }
     },
     width: barWidth,

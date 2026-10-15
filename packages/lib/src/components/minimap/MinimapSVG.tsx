@@ -2,7 +2,11 @@ import React from 'react'
 
 import { scrollbarThumbFill } from '../DragHandle.tsx'
 import { canvasHref, msaThumbnail } from '../msa/msaRaster.ts'
-import { MINIMAP_BAR_HEIGHT, getMinimapLayout } from './minimapLayout.ts'
+import {
+  MINIMAP_BAR_HEIGHT,
+  getMinimapLayout,
+  minimapDomainRects,
+} from './minimapLayout.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { Theme } from '@mui/material'
@@ -37,6 +41,18 @@ export default function MinimapSVG({
           preserveAspectRatio="none"
         />
       ) : null}
+      {minimapDomainRects(model, msaCanvasWidth, MINIMAP_BAR_HEIGHT).map(
+        ({ x, y, w, h, fill }) => (
+          <rect
+            key={`${x},${y},${w},${fill}`}
+            x={x}
+            y={y}
+            width={w}
+            height={h}
+            fill={fill}
+          />
+        ),
+      )}
       <rect
         x={0}
         y={0}

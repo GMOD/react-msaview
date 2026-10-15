@@ -2,7 +2,11 @@
 import { expect, test } from 'vitest'
 
 import MSAModelF from '../../model.ts'
-import { MINIMAP_BAR_HEIGHT, getMinimapLayout } from './minimapLayout.ts'
+import {
+  MINIMAP_BAR_HEIGHT,
+  getMinimapLayout,
+  minimapDomainRects,
+} from './minimapLayout.ts'
 
 // wide enough to overflow horizontally, tall enough to raise the vertical
 // scrollbar — which takes 20px out of the width the alignment actually draws on
@@ -68,4 +72,14 @@ test('an empty alignment collapses to a zero-width unit instead of dividing by z
   expect(s).toBeCloseTo(0)
   // still clamped to the minimum grabbable width
   expect(w).toBe(20)
+})
+
+test('the minimap draws each domain where the alignment does', () => {
+  const model = makeModel()
+  model.applyGFFText('s1\t.\tdomain\t11\t30\t.\t+\t.\tName=d1\n')
+  const rects = minimapDomainRects(model, 200, 60)
+  expect(rects).toHaveLength(1)
+  expect(rects[0]).toMatchObject({ x: 10, y: 1, w: 20, h: 1 })
+  model.setShowDomains(false)
+  expect(minimapDomainRects(model, 200, 60)).toEqual([])
 })

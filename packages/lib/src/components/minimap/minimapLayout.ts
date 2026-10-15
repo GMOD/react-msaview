@@ -19,3 +19,36 @@ export function getMinimapLayout(model: MsaViewModel) {
   const polygonPoints = `${s + w},0 ${s},0 0,${polygonHeight} ${msaCanvasWidth},${polygonHeight}`
   return { unit, s, w, polygonHeight, polygonPoints }
 }
+
+/**
+ * The domain overlay's boxes scaled onto the minimap bar, one per row's band,
+ * in the colors the alignment draws them, so the overview shows the domains
+ * the alignment does. Empty while the overlay is off.
+ */
+export function minimapDomainRects(
+  model: MsaViewModel,
+  width: number,
+  height: number,
+) {
+  const {
+    actuallyShowDomains,
+    domainBands,
+    featureColors,
+    leaves,
+    numColumns,
+  } = model
+  if (!actuallyShowDomains || numColumns <= 0 || leaves.length === 0) {
+    return []
+  }
+  const colUnit = width / numColumns
+  const rowUnit = height / leaves.length
+  return leaves.flatMap((leaf, row) =>
+    (domainBands.get(leaf.data.name) ?? []).map(band => ({
+      x: band.startCol * colUnit,
+      y: row * rowUnit,
+      w: Math.max(1, (band.endCol - band.startCol) * colUnit),
+      h: Math.max(1, rowUnit),
+      fill: featureColors.get(band.annotation)?.fill ?? 'grey',
+    })),
+  )
+}
