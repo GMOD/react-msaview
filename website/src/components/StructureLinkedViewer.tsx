@@ -344,6 +344,13 @@ export function StructureLinkedViewer({
   const [status, setStatus] = useState(idle)
   const [structureState, setStructureState] = useState('Loading structure')
   const structureLoaded = structureState === ''
+  const initialScheme = useRef(colorScheme)
+
+  useEffect(() => {
+    if (model && colorScheme !== initialScheme.current) {
+      model.setDomainFill(false)
+    }
+  }, [model, colorScheme])
 
   useEffect(() => {
     const controller = new AbortController()
