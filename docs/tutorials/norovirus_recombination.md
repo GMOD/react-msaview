@@ -319,10 +319,47 @@ GII.P16-GII.2 rows carry three letters each and the GII.Pe-GII.4 rows carry one.
 
 ## 10. Open the whole thing
 
+<!-- usage: web -->
+
 [![](../media/norovirus_recombination-8.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A300%2C%22rowHeight%22%3A24%2C%22colWidth%22%3A0.162%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orf2.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-parents.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureFill%22%2C%22field%22%3A%22Name%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22GII.P16%22%3A%22%234e79a7%22%2C%22GII.4%20Sydney%22%3A%22%23e15759%22%2C%22tie%22%3A%22%23bab0ac%22%7D%7D%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A5138%2C%22end%22%3A6826%2C%22label%22%3A%22ORF2%22%2C%22color%22%3A%22rgba(0%2C0%2C0%2C0.07)%22%7D%2C%7B%22start%22%3A5124%2C%22end%22%3A5124%2C%22label%22%3A%22breakpoint%22%7D%5D%7D%7D>)
 
 The alignment, the ORF2 tree and the parent windows, with ORF2 as a pale band
 and the crossing as a line through it.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same hosted alignment,
+ORF2 tree and window GFF, with the window fill as a `scale_row_color()` layer
+and the ORF2 band and the crossing as two highlights. `w` alone opens the viewer
+in RStudio or a notebook, and `msaview_plot()` draws the same view as a ggplot2
+figure:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/norovirus"
+w <- msaview(
+  msa = file.path(data, "noro.afa"),
+  tree = file.path(data, "noro-orf2.nwk"),
+  gff = file.path(data, "noro-parents.gff")
+) +
+  scale_row_color("Name", channel = "featureFill", map = c(
+    "GII.P16" = "#4e79a7", "GII.4 Sydney" = "#e15759", tie = "#bab0ac"
+  )) +
+  geom_msa_highlight(start = 5138, end = 6826, label = "ORF2",
+    color = "grey75") +
+  geom_msa_highlight(start = 5124, end = 5124, label = "breakpoint")
+w
+ggplot2::ggsave("norovirus_recombination-8-r.png", msaview_plot(w),
+  width = 12, height = 5)
+```
+
+![](../media/norovirus_recombination-8-r.png)
+
+The twelve genomes beside the ORF2 tree, each window filled by the parent it is
+closer to, under the conservation bars. The three GII.P16-GII.4 rows run blue up
+to the breakpoint line at 5,124 and red after it, and the grey band marks ORF2.
+
+<!-- /usage -->
 
 ## Reproduce it end to end
 
