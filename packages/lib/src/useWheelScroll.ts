@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import {
-  SCROLL_ZOOM_DIVISOR,
-  getZoomNormalizer,
-  normalizeWheelDelta,
-  zoomFactorFromAccum,
-} from './wheelZoom.ts'
+import { WheelZoomSmoother } from './wheelZoom.ts'
 
 export function useWheelScroll({
   ref,
@@ -21,10 +16,10 @@ export function useWheelScroll({
   scrollZoom?: boolean
 }) {
   const scheduled = useRef(false)
-  const zoomScheduled = useRef(false)
+  const zoomFrame = useRef<number | undefined>(undefined)
   const deltaX = useRef(0)
   const deltaY = useRef(0)
-  const zoomAccum = useRef(0)
+  const zoomSmoother = useRef(new WheelZoomSmoother())
   const zoomX = useRef(0)
   const zoomY = useRef(0)
   const lastZoomTime = useRef<number | null>(null)
@@ -47,28 +42,27 @@ export function useWheelScroll({
         !event.shiftKey &&
         Math.abs(event.deltaY) >= Math.abs(event.deltaX)
       if (onZoom && (isCtrlZoom || isScrollZoom)) {
+        const zoom = onZoom
         const rect = curr!.getBoundingClientRect()
-        // normalize away deltaMode (line/page), then divide by an adaptive
-        // factor so fine pinches and coarse notches feel consistent
-        const dY = normalizeWheelDelta(event.deltaY, event.deltaMode)
-        const divisor = isCtrlZoom ? getZoomNormalizer(dY) : SCROLL_ZOOM_DIVISOR
-        zoomAccum.current += dY / divisor
+        zoomSmoother.current.add(event.deltaY, event.deltaMode, isCtrlZoom)
         zoomX.current = event.clientX - rect.left
         zoomY.current = event.clientY - rect.top
-        if (!zoomScheduled.current) {
-          zoomScheduled.current = true
-          requestAnimationFrame(now => {
+        if (zoomFrame.current === undefined) {
+          lastZoomTime.current = null
+          const frame = (now: number) => {
             const elapsed =
               lastZoomTime.current === null ? 16.67 : now - lastZoomTime.current
             lastZoomTime.current = now
-            onZoom(
-              zoomFactorFromAccum(zoomAccum.current, Math.min(100, elapsed)),
+            zoom(
+              zoomSmoother.current.step(Math.min(100, elapsed)),
               zoomX.current,
               zoomY.current,
             )
-            zoomAccum.current = 0
-            zoomScheduled.current = false
-          })
+            zoomFrame.current = zoomSmoother.current.idle
+              ? undefined
+              : requestAnimationFrame(frame)
+          }
+          zoomFrame.current = requestAnimationFrame(frame)
         }
         event.preventDefault()
         event.stopPropagation()
@@ -107,6 +101,10 @@ export function useWheelScroll({
     curr.addEventListener('wheel', onWheel, { passive: false })
     return () => {
       curr.removeEventListener('wheel', onWheel)
+      if (zoomFrame.current !== undefined) {
+        cancelAnimationFrame(zoomFrame.current)
+        zoomFrame.current = undefined
+      }
     }
   }, [ref, onScrollX, onScrollY, onZoom, scrollZoom])
 
