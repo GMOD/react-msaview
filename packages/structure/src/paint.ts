@@ -65,13 +65,34 @@ export function paintGroups(
     .sort(([a], [b]) => a.localeCompare(b))
 }
 
+/** every residue of the structure in one color, to tell structures apart */
+export function solidGroups(
+  residues: PolymerResidue[],
+  color: string,
+): PaintGroup[] {
+  const chains = new Map<string, number[]>()
+  for (const { labelAsymId, labelSeqId } of residues) {
+    const ids = chains.get(labelAsymId) ?? []
+    ids.push(labelSeqId)
+    chains.set(labelAsymId, ids)
+  }
+  return [[color, [...chains]]]
+}
+
+/**
+ * Overpaints one loaded structure, found by its root state ref, clearing its
+ * earlier paint first.
+ */
 export async function paintStructure(
   plugin: PluginUIContext,
   molstar: Molstar,
   groups: PaintGroup[],
+  ref: string,
 ) {
   const components =
-    plugin.managers.structure.hierarchy.current.structures[0]?.components ?? []
+    plugin.managers.structure.hierarchy.current.structures.find(
+      s => s.cell.transform.ref === ref,
+    )?.components ?? []
   await molstar.clearStructureOverpaint(plugin, components)
   for (const [color, chains] of groups) {
     await molstar.setStructureOverpaint(

@@ -8,3 +8,22 @@ export {
   segmentsOfPairs,
 } from './segments.ts'
 export type { ResiduePair } from './segments.ts'
+export { superposeRows } from './superposeRows.ts'
+export type {
+  FetchText,
+  SuperposeRowsResult,
+  SuperposeTarget,
+} from './superposeRows.ts'
+export { parseCaCoordinates } from './cif.ts'
+export type { CaCoordinates, Vec3 } from './cif.ts'
+export { fitRigid } from './superpose.ts'
+export type { Fit, Mat4 } from './superpose.ts'
+export {
+  meanColumnDistances,
+  superposeOnColumns,
+} from './alignmentSuperposition.ts'
+export type {
+  RowCoordinates,
+  RowSuperposition,
+  SuperpositionResult,
+} from './alignmentSuperposition.ts'

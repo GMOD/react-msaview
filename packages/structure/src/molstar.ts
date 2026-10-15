@@ -11,9 +11,22 @@ function importMolstar() {
     import('molstar/lib/mol-script/script'),
     import('molstar/lib/mol-plugin-state/helpers/structure-overpaint'),
     import('molstar/lib/mol-util/color'),
+    import('molstar/lib/mol-plugin-state/transforms'),
+    import('molstar/lib/mol-math/linear-algebra'),
     import('molstar/build/viewer/molstar.css'),
   ]).then(
-    ([ui, react18, spec, config, structure, script, overpaint, color]) => ({
+    ([
+      ui,
+      react18,
+      spec,
+      config,
+      structure,
+      script,
+      overpaint,
+      color,
+      transforms,
+      linearAlgebra,
+    ]) => ({
       createPluginUI: ui.createPluginUI,
       renderReact18: react18.renderReact18,
       DefaultPluginUISpec: spec.DefaultPluginUISpec,
@@ -25,6 +38,8 @@ function importMolstar() {
       setStructureOverpaint: overpaint.setStructureOverpaint,
       clearStructureOverpaint: overpaint.clearStructureOverpaint,
       Color: color.Color,
+      StateTransforms: transforms.StateTransforms,
+      Mat4: linearAlgebra.Mat4,
     }),
   )
 }
@@ -42,9 +57,59 @@ export function loadMolstar() {
 
 export type Molstar = Awaited<ReturnType<typeof importMolstar>>
 
-export function loadedStructure(plugin: PluginUIContext) {
-  return plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj
-    ?.data
+function transformCell(plugin: PluginUIContext, molstar: Molstar, ref: string) {
+  return plugin.state.data.selectQ(q =>
+    q
+      .byRef(ref)
+      .subtree()
+      .withTransformer(
+        molstar.StateTransforms.Model.TransformStructureConformation,
+      ),
+  )[0]
+}
+
+/**
+ * The structure a state ref draws: the transformed one once a superposition
+ * has moved it, else the loaded one. A locus has to come from this structure
+ * to light in the view.
+ */
+export function drawnStructure(
+  plugin: PluginUIContext,
+  molstar: Molstar,
+  ref: string,
+) {
+  return (
+    transformCell(plugin, molstar, ref) ?? plugin.state.data.cells.get(ref)
+  )?.obj?.data as Structure | undefined
+}
+
+/** moves a loaded structure by a column-major 4x4, or back with the identity */
+export async function transformStructure(
+  plugin: PluginUIContext,
+  molstar: Molstar,
+  ref: string,
+  matrix: number[],
+) {
+  const existing = transformCell(plugin, molstar, ref)
+  const params = {
+    transform: {
+      name: 'matrix' as const,
+      params: {
+        data: molstar.Mat4.fromArray(molstar.Mat4(), matrix, 0),
+        transpose: false,
+      },
+    },
+  }
+  const build = existing
+    ? plugin.state.data.build().to(existing).update(params)
+    : plugin.state.data
+        .build()
+        .to(ref)
+        .insert(
+          molstar.StateTransforms.Model.TransformStructureConformation,
+          params,
+        )
+  await plugin.runTask(plugin.state.data.updateTree(build))
 }
 
 /**

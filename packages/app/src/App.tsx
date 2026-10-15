@@ -53,17 +53,34 @@ function useWidthSetter(view: { setWidth: (arg: number) => void }) {
 const App = observer(function ({ model }: { model: AppModel }) {
   const { msaview } = model
   const ref = useWidthSetter(msaview)
+  // the structure sits beside the alignment once a row maps onto one, and
+  // under it before then, in the same element so its search state stays
+  const split = msaview.mappedStructures.length > 0
   return (
     <div>
       <TopBar model={model} />
       <Box
-        ref={ref}
-        data-testid="msaview"
-        sx={{ border: 1, borderColor: 'divider', m: 2.5 }}
+        sx={{
+          display: 'grid',
+          alignItems: 'start',
+          gridTemplateColumns: split
+            ? 'minmax(0, 1fr) minmax(380px, 42%)'
+            : 'minmax(0, 1fr)',
+        }}
       >
-        <MSAView model={msaview} />
+        <Box
+          ref={ref}
+          data-testid="msaview"
+          sx={{ border: 1, borderColor: 'divider', m: 2.5 }}
+        >
+          <MSAView model={msaview} />
+        </Box>
+        <StructureSection
+          model={msaview}
+          panelHeight={split ? 520 : 400}
+          sx={split ? { position: 'sticky', top: 8, ml: 0 } : undefined}
+        />
       </Box>
-      <StructureSection model={msaview} />
       <div style={{ height: 500 }} />
     </div>
   )

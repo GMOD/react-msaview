@@ -30,9 +30,12 @@ them, and follow it in this file too: agents copy the prose here as house voice.
 - `packages/structure`: a Mol\* panel driven by the model's `hoveredCell`,
   `clickedCell` and `residueMappings`, plus `findStructures`, which looks a
   row's UniProt accession up in AlphaFold DB and RCSB and writes the
-  `residueMappings` record onto each. The lookups and the aligner come from
-  `p2s_mapper` (`~/src/gmod/p2s_mapper`), which the protein3d plugin shares. The
-  app mounts the panel under the alignment, and the website's
+  `residueMappings` record onto each. `superposeRows` fits the structures of
+  several rows on the alignment's own correspondences, over a selected column
+  range if one is set, and returns the matrices for the panel's `transforms` and
+  a per-column CA distance for a `columnTracks` bar. The lookups and the aligner
+  come from `p2s_mapper` (`~/src/gmod/p2s_mapper`), which the protein3d plugin
+  shares. The app mounts the panel under the alignment, and the website's
   `/tutorials/structure_link` page uses the same component. Mol\* is a peer
   dependency that loads on first mount, so nothing in `packages/lib` imports it
 - `packages/svgcanvas`: vendored ESM fork of svgcanvas for SVG export

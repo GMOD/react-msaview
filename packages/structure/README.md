@@ -24,6 +24,32 @@ model.setResidueMappings([...model.residueMappings, candidates[0].mapping])
 - A row that does not match its entry gets no candidates and a `problem`
 - A generated mapping names its chain by the author id RCSB reports
 
+## Superpose rows by the alignment
+
+```ts
+import { superposeRows } from 'react-msaview-structure'
+
+const fit = await superposeRows({
+  model,
+  targets: [
+    { row: 'HBA_HUMAN', structureId: 'AF-P69905-F1' },
+    { row: 'HBB_HUMAN', structureId: 'AF-P68871-F1' },
+  ],
+  columns: { start: 30, end: 60 },
+})
+```
+
+- The alignment says which residues correspond: each other row's CA atoms fit
+  the first row's where both rows have one, in `columns` when given
+- `matrices` moves each structure into the reference's frame, for the panel's
+  `transforms`, and each fit reports its RMSD and the CA pairs it used
+- `distanceValues` is the mean CA distance per residue of the reference row
+  after the fit, which is a `columnTracks` bar's `values`
+- Fitting a pocket and reading the distances elsewhere shows where the rest of
+  the fold departs from it
+- Structure files are read as mmCIF, and the first model's `ATOM` CA records
+  count
+
 ## Show the structure
 
 ```tsx
@@ -36,4 +62,6 @@ import { StructurePanel } from 'react-msaview-structure/panel'
 - Clicking either side focuses the other
 - `colorBy` paints the structure with `conservation`, or with the alignment's
   own `scheme`
+- `structureIds` shows several structures, each in its own color unless
+  `colorBy` is set, and `transforms` places them
 - `molstar` is a peer dependency, and the panel loads it on first mount

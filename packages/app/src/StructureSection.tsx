@@ -12,10 +12,18 @@ import {
   Typography,
 } from '@mui/material'
 import { observer } from 'mobx-react'
-import { accessionOfRowName, findStructures } from 'react-msaview-structure'
+import {
+  accessionOfRowName,
+  findStructures,
+  superposeRows,
+} from 'react-msaview-structure'
 
+import type { SxProps, Theme } from '@mui/material'
 import type { MsaViewModel } from 'react-msaview'
-import type { StructureSearch } from 'react-msaview-structure'
+import type {
+  StructureSearch,
+  SuperposeRowsResult,
+} from 'react-msaview-structure'
 import type { StructureColor } from 'react-msaview-structure/panel'
 
 // Mol* is a large chunk, so it loads when a structure first shows
@@ -35,10 +43,22 @@ function keyOf(m: { row: string; structure: { id: string; asymId?: string } }) {
   return `${m.row}\u0000${m.structure.id}\u0000${m.structure.asymId ?? ''}`
 }
 
+const distanceTrackId = 'structure-ca-distance'
+
+type Superposition =
+  | { state: 'idle' }
+  | { state: 'working'; message: string }
+  | { state: 'done'; result: SuperposeRowsResult; reference: string }
+  | { state: 'error'; message: string }
+
 const StructureSection = observer(function StructureSection({
   model,
+  panelHeight = 400,
+  sx,
 }: {
   model: MsaViewModel
+  panelHeight?: number
+  sx?: SxProps<Theme>
 }) {
   const names = [...model.rowMap.keys()]
   const [chosen, setChosen] = useState<string | null>(null)
@@ -47,6 +67,9 @@ const StructureSection = observer(function StructureSection({
   const [shown, setShown] = useState<string>()
   const [colorBy, setColorBy] = useState<StructureColor>('none')
   const abort = useRef<AbortController | undefined>(undefined)
+  const [superposition, setSuperposition] = useState<Superposition>({
+    state: 'idle',
+  })
 
   if (names.length === 0) {
     return null
@@ -58,6 +81,14 @@ const StructureSection = observer(function StructureSection({
     names[0]!
   const mapped = [...new Set(model.mappedStructures.map(m => m.structure.id))]
   const structureId = shown && mapped.includes(shown) ? shown : mapped[0]
+  const superposed =
+    superposition.state === 'done' ? superposition.result : undefined
+  const shownIds = superposed
+    ? [superposed.referenceId, ...Object.keys(superposed.matrices)]
+    : structureId
+      ? [structureId]
+      : []
+  const withAccession = names.filter(n => accessionOfRowName(n))
 
   async function find() {
     abort.current?.abort()
@@ -83,6 +114,84 @@ const StructureSection = observer(function StructureSection({
     }
   }
 
+  async function superposeAll() {
+    setSuperposition({ state: 'working', message: 'Finding structures' })
+    try {
+      const rows = withAccession.slice(0, 12)
+      const mappings = [...model.residueMappings]
+      const problems: string[] = []
+      for (const [i, rowName] of rows.entries()) {
+        setSuperposition({
+          state: 'working',
+          message: `Finding structures ${i + 1} of ${rows.length}`,
+        })
+        const have = mappings.some(m => m.row === rowName)
+        if (have) {
+          continue
+        }
+        const found = await findStructures({
+          rowName,
+          rowSequence: model.rowSequence(rowName) ?? '',
+        })
+        const first = found.candidates[0]
+        if (first) {
+          mappings.push(first.mapping)
+        } else if (found.problem) {
+          problems.push(found.problem)
+        }
+      }
+      model.setResidueMappings(mappings)
+      const targets = rows.flatMap(rowName => {
+        const m = mappings.find(x => x.row === rowName)
+        return m ? [{ row: rowName, structureId: m.structure.id }] : []
+      })
+      setSuperposition({ state: 'working', message: 'Fitting' })
+      const { selection } = model
+      const result = await superposeRows({
+        model,
+        targets,
+        columns: selection
+          ? { start: selection.start - 1, end: selection.end - 1 }
+          : undefined,
+      })
+      model.setColumnTracks([
+        ...model.columnTracks.filter(t => t.id !== distanceTrackId),
+        {
+          id: distanceTrackId,
+          name: `CA distance to ${targets[0]!.row} (Å)`,
+          kind: 'bar',
+          row: targets[0]!.row,
+          values: result.distanceValues,
+          color: '#d55e00',
+          height: 60,
+        },
+      ])
+      setSuperposition({
+        state: 'done',
+        result: {
+          ...result,
+          skipped: [
+            ...problems.map(reason => ({ row: '', reason })),
+            ...result.skipped,
+          ],
+        },
+        reference: targets[0]!.row,
+      })
+    } catch (e) {
+      setSuperposition({
+        state: 'error',
+        message: e instanceof Error ? e.message : String(e),
+      })
+    }
+  }
+
+  function clearSuperposition() {
+    model.setColumnTracks(
+      model.columnTracks.filter(t => t.id !== distanceTrackId),
+    )
+    setSuperposition({ state: 'idle' })
+  }
+
   function show(candidate: StructureSearch['candidates'][number]) {
     const { mapping } = candidate
     model.setResidueMappings([
@@ -95,7 +204,10 @@ const StructureSection = observer(function StructureSection({
   return (
     <Box
       data-testid="structure"
-      sx={{ border: 1, borderColor: 'divider', m: 2.5, p: 1.5 }}
+      sx={[
+        { border: 1, borderColor: 'divider', m: 2.5, p: 1.5 },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
     >
       <Box
         sx={{
@@ -156,6 +268,26 @@ const StructureSection = observer(function StructureSection({
             ))}
           </Select>
         ) : null}
+        {withAccession.length > 1 ? (
+          <Button
+            variant="outlined"
+            size="small"
+            disabled={superposition.state === 'working'}
+            onClick={() => {
+              void superposeAll()
+            }}
+          >
+            Superpose rows
+          </Button>
+        ) : null}
+        {superposition.state === 'done' ? (
+          <Button size="small" onClick={clearSuperposition}>
+            Clear superposition
+          </Button>
+        ) : null}
+        {superposition.state === 'working' ? (
+          <Typography variant="body2">{superposition.message}…</Typography>
+        ) : null}
         {structureId ? (
           <Select
             size="small"
@@ -203,13 +335,34 @@ const StructureSection = observer(function StructureSection({
         </Box>
       ) : null}
 
+      {superposition.state === 'error' ? (
+        <Alert severity="error" sx={{ mt: 1 }}>
+          {superposition.message}
+        </Alert>
+      ) : null}
+      {superposed ? (
+        <Alert severity="info" sx={{ mt: 1 }}>
+          {superposed.fits
+            .map(
+              f =>
+                `${f.row}: ${f.rmsd.toFixed(2)} Å over ${f.fitted} aligned CA pairs`,
+            )
+            .join(' · ')}
+          {superposed.skipped.length > 0
+            ? ` · skipped ${superposed.skipped.map(k => `${k.row || 'a row'} (${k.reason})`).join('; ')}`
+            : ''}
+        </Alert>
+      ) : null}
+
       {structureId ? (
         <Box sx={{ mt: 1.5 }}>
-          <Suspense fallback={<Box sx={{ height: 400 }} />}>
+          <Suspense fallback={<Box sx={{ height: panelHeight }} />}>
             <StructurePanel
               model={model}
-              structureId={structureId}
+              structureIds={shownIds}
+              transforms={superposed?.matrices}
               colorBy={colorBy}
+              height={panelHeight}
             />
           </Suspense>
         </Box>

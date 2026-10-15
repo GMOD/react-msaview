@@ -1,4 +1,4 @@
-export { StructurePanel } from './StructurePanel.tsx'
+export { StructurePanel, structurePalette } from './StructurePanel.tsx'
 export type { StructurePanelProps } from './StructurePanel.tsx'
 export {
   conservationColor,
