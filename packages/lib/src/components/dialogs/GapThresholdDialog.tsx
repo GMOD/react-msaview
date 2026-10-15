@@ -4,7 +4,7 @@ import { Dialog } from '@jbrowse/core/ui'
 import { Button, DialogActions, DialogContent, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
-import GappynessSlider from '../header/GappynessSlider.tsx'
+import GappynessSlider from './GappynessSlider.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 

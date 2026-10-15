@@ -3,7 +3,7 @@ import React from 'react'
 import { Dialog } from '@jbrowse/core/ui'
 import { DialogContent } from '@mui/material'
 
-import GoToBox from '../header/GoToBox.tsx'
+import GoToBox from './GoToBox.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 

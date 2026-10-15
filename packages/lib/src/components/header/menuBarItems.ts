@@ -1,7 +1,7 @@
 import { lazy } from 'react'
 
 import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
-import { canGoTo } from './GoToBox.tsx'
+import { canGoTo } from '../dialogs/GoToBox.tsx'
 import { scrollZoomLabel } from './ScrollZoomCheckbox.tsx'
 import { colorSchemeMenuItems } from './colorSchemeMenuItems.tsx'
 import { openAnnotationFileItem } from './getAnnotationsMenu.ts'
