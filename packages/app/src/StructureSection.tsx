@@ -175,12 +175,10 @@ const StructureSection = observer(function StructureSection({
       : identifiersOfRowName(row).length > 0
         ? 'name'
         : 'none'
-  const rowNote = {
-    typed: `Looks up ${typed} in UniProt, AlphaFold DB and the PDB.`,
-    accession: `${row} carries a UniProt accession, ${accessionOfRowName(row) ?? ''}, so a lookup by id finds its AlphaFold model and PDB entries.`,
-    name: `${row} looks like a UniProt entry name or a RefSeq id, which UniProt can resolve to an accession.`,
-    none: `${row} is not a database id, so there is no entry to look up by name. Search by sequence to find structurally similar proteins, or type an accession if you know the protein.`,
-  }[rowKind]
+  const noId = rowKind === 'none'
+  const lookupFailed =
+    search.state === 'done' && search.row === row && !!search.result.problem
+  const showAccession = noId || lookupFailed || typed !== ''
 
   function restart(ref: typeof searchAbort) {
     ref.current?.abort()
@@ -445,9 +443,12 @@ const StructureSection = observer(function StructureSection({
         ) : null}
       </Box>
 
-      <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
-        {rowNote}
-      </Typography>
+      {noId ? (
+        <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+          {row} is not a database id. Type a UniProt accession, or search by
+          sequence for similar folds.
+        </Typography>
+      ) : null}
       <Box
         sx={{
           display: 'flex',
@@ -458,91 +459,84 @@ const StructureSection = observer(function StructureSection({
         }}
       >
         <Button
-          variant="outlined"
-          color="primary"
+          variant="contained"
           size="small"
-          disabled={search.state === 'loading' || rowKind === 'none'}
+          disabled={search.state === 'loading' || (noId && !typed)}
           title="Looks the id up in UniProt, then finds the AlphaFold DB model and the PDB entries"
           onClick={() => {
             void find()
           }}
         >
-          Look up by id
+          Find structure
         </Button>
-        <TextField
-          size="small"
-          label="UniProt accession"
-          placeholder={accessionOfRowName(row) ?? 'P04637'}
-          value={accession}
-          onChange={e => {
-            setAccession(e.target.value)
-          }}
-          sx={{ width: 170 }}
-        />
-        <Button
-          variant="outlined"
-          color="secondary"
-          size="small"
-          disabled={foldseek.state === 'running'}
-          title={`Sends ${row}'s sequence to search.foldseek.com and 3di.foldseek.com and waits for their queue. Finds proteins that fold like it, which need not be the same protein.`}
-          onClick={() => {
-            void searchFold()
-          }}
-        >
-          Search by sequence (Foldseek)
-        </Button>
+        {showAccession ? (
+          <TextField
+            size="small"
+            label="UniProt accession"
+            placeholder={accessionOfRowName(row) ?? 'P04637'}
+            value={accession}
+            onChange={e => {
+              setAccession(e.target.value)
+            }}
+            sx={{ width: 170 }}
+          />
+        ) : null}
+        {noId ? (
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            disabled={foldseek.state === 'running'}
+            title={`Sends ${row}'s sequence to search.foldseek.com and waits for their queue. Finds proteins that fold like it, which need not be the same protein.`}
+            onClick={() => {
+              void searchFold()
+            }}
+          >
+            Search by sequence (Foldseek)
+          </Button>
+        ) : null}
+        {withAccession.length > 1 ? (
+          <>
+            <Select
+              size="small"
+              value={fitBy}
+              onChange={e => {
+                setFitBy(e.target.value)
+              }}
+              title="What the fit uses"
+            >
+              <MenuItem value="alignment">Fit by alignment</MenuItem>
+              <MenuItem value="tm-align">Fit by structure (TM-align)</MenuItem>
+            </Select>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={superposition.state === 'working'}
+              onClick={() => {
+                void superposeAll()
+              }}
+            >
+              Superpose rows
+            </Button>
+            {superposition.state === 'done' ||
+            superposition.state === 'tm' ||
+            model.columnTracks.some(t => t.id === distanceTrackId) ? (
+              <Button size="small" color="inherit" onClick={clearSuperposition}>
+                Clear
+              </Button>
+            ) : null}
+          </>
+        ) : null}
         {search.state === 'loading' ? <CircularProgress size={20} /> : null}
         {foldseek.state === 'running' ? (
           <Typography variant="body2">
             {foldseek.row}: {foldseek.message}…
           </Typography>
         ) : null}
+        {superposition.state === 'working' ? (
+          <Typography variant="body2">{superposition.message}…</Typography>
+        ) : null}
       </Box>
-
-      {withAccession.length > 1 ? (
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: 1.5,
-            mt: 1,
-          }}
-        >
-          <Select
-            size="small"
-            value={fitBy}
-            onChange={e => {
-              setFitBy(e.target.value)
-            }}
-            title="What the fit uses"
-          >
-            <MenuItem value="alignment">Fit by alignment</MenuItem>
-            <MenuItem value="tm-align">Fit by structure (TM-align)</MenuItem>
-          </Select>
-          <Button
-            variant="outlined"
-            color="primary"
-            size="small"
-            disabled={superposition.state === 'working'}
-            onClick={() => {
-              void superposeAll()
-            }}
-          >
-            Superpose rows
-          </Button>
-          {superposition.state === 'done' ||
-          superposition.state === 'tm' ||
-          model.columnTracks.some(t => t.id === distanceTrackId) ? (
-            <Button size="small" color="inherit" onClick={clearSuperposition}>
-              Clear superposition
-            </Button>
-          ) : null}
-          {superposition.state === 'working' ? (
-            <Typography variant="body2">{superposition.message}…</Typography>
-          ) : null}
-        </Box>
-      ) : null}
 
       {foldseek.state === 'error' ? (
         <Alert severity="error" sx={{ mt: 1 }}>
