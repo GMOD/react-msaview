@@ -101,8 +101,8 @@ const SettingsPanel = observer(function ({
         </Section>
       )}
       <Section title="Tracks">
-        <TrackList model={model} />
         <MenuItemsForm items={trackSettingsItems(model)} />
+        <TrackList model={model} />
       </Section>
     </Box>
   )

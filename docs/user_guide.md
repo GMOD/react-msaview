@@ -319,9 +319,11 @@ Three things decide whether the link works for the person who opens it:
 
 Tracks are strips drawn above the alignment, sharing its columns and its
 horizontal scroll. **Settings → Tracks** lists every track under its source and
-turns each on or off. A long list gets a filter box, and Show all and Hide all
-act on every match. The dropdown arrow on a track's label, at the left, also
-closes it and shows its details.
+turns each on or off. A Stockholm file's per-row lines list once per tag, such
+as "pAS (20 rows)", and that one checkbox shows or hides the tag's line for
+every row. A long list gets a filter box, and Show all and Hide all act on every
+match. The dropdown arrow on a track's label, at the left, also closes it and
+shows its details.
 
 Hovering a track reads out what it draws at that column: the two conservation
 scores, the sequence logo's information content and residue composition, the
