@@ -1,10 +1,10 @@
 import React from 'react'
 
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
-import Tune from '@mui/icons-material/Tune'
 import { observer } from 'mobx-react'
 
-import { msaSettingsMenuItems } from './settingsMenuItems.ts'
+import MenuButtonLabel from './MenuButtonLabel.tsx'
+import { viewMenuItems } from './settingsMenuItems.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 
@@ -12,13 +12,13 @@ const MSASettingsMenu = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <CascadingMenuButton
       data-testid="msa_settings_menu"
-      tooltip="Alignment settings"
-      closeAfterItemClick={false}
+      tooltip="View options"
       anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-      menuItems={msaSettingsMenuItems(model)}
+      menuItems={viewMenuItems(model)}
+      sx={{ borderRadius: 1 }}
     >
-      <Tune />
+      <MenuButtonLabel>View</MenuButtonLabel>
     </CascadingMenuButton>
   )
 })

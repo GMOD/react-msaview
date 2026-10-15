@@ -1,15 +1,15 @@
-import { treeOrders } from '../../constants.ts'
-import {
-  MouseScroll,
-  MouseZoomBoth,
-  MouseZoomHorizontal,
-  MouseZoomVertical,
-} from './ScrollZoomIcons.tsx'
+import { lazy } from 'react'
 
-import type { ScrollZoomAxis } from '../../constants.ts'
+import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
+
 import type { MsaViewModel } from '../../model.ts'
 import type { TreeOrder } from '../../types.ts'
 import type { MenuItem } from '@jbrowse/core/ui/Menu'
+
+const GapThresholdDialog = lazy(
+  () => import('../dialogs/GapThresholdDialog.tsx'),
+)
+const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog.tsx'))
 
 function radio(label: string, checked: boolean, onClick: () => void) {
   return { label, type: 'radio' as const, checked, onClick }
@@ -50,55 +50,41 @@ function tracksSubMenu(model: MsaViewModel): MenuItem[] {
   )
 }
 
-const wheelModes: {
-  label: string
-  axis?: ScrollZoomAxis
-  icon: typeof MouseScroll
-  helpText: string
-}[] = [
-  {
-    label: 'Scrolls the alignment',
-    icon: MouseScroll,
-    helpText: 'Ctrl+wheel zooms both axes at the cursor.',
-  },
-  {
-    label: 'Zooms both axes',
-    axis: 'both',
-    icon: MouseZoomBoth,
-    helpText: 'Hold shift to pan while the wheel zooms.',
-  },
-  {
-    label: 'Zooms columns only',
-    axis: 'horizontal',
-    icon: MouseZoomHorizontal,
-    helpText:
-      'Holds the row height, so the labels and letters stay at their size while the alignment compresses.',
-  },
-  {
-    label: 'Zooms rows only',
-    axis: 'vertical',
-    icon: MouseZoomVertical,
-    helpText:
-      'Holds the column width, so the alignment stays as wide while the rows grow or shrink.',
-  },
-]
+export const gapPresets = [100, 90, 50]
 
-export function wheelSubMenu(model: MsaViewModel): MenuItem[] {
-  const active = model.scrollZoom ? model.scrollZoomAxis : undefined
-  return wheelModes.map(({ label, axis, icon, helpText }) => ({
-    ...radio(label, axis === active, () => {
-      model.setScrollZoom(axis !== undefined)
-      if (axis !== undefined) {
-        model.setScrollZoomAxis(axis)
-      }
+export function gapsSubMenu(model: MsaViewModel): MenuItem[] {
+  const { hideGaps, allowedGappyness } = model
+  const custom = hideGaps && !gapPresets.includes(allowedGappyness)
+  return [
+    radio('Show all columns', !hideGaps, () => {
+      model.setHideGaps(false)
     }),
-    icon,
-    helpText,
-  }))
+    ...gapPresets.map(pct =>
+      radio(
+        pct === 100 ? 'Hide columns of only gaps' : `Hide ≥${pct}% gaps`,
+        hideGaps && allowedGappyness === pct,
+        () => {
+          model.setHideGaps(true)
+          model.setAllowedGappyness(pct)
+        },
+      ),
+    ),
+    {
+      ...radio(
+        custom ? `Hide ≥${allowedGappyness}% gaps…` : 'Custom threshold…',
+        custom,
+        () => {
+          model.setHideGaps(true)
+          model.queueDialog(onClose => [GapThresholdDialog, { model, onClose }])
+        },
+      ),
+      keepMenuOpen: false,
+    },
+  ]
 }
 
-export function msaSettingsMenuItems(model: MsaViewModel): MenuItem[] {
-  const { drawMsaLetters, hideGaps, bgColor, showColumnStats } = model
+export function viewMenuItems(model: MsaViewModel): MenuItem[] {
+  const { drawMsaLetters, scrollZoom, showColumnStats } = model
   return [
     {
       label: 'Tracks',
@@ -106,28 +92,59 @@ export function msaSettingsMenuItems(model: MsaViewModel): MenuItem[] {
       subMenu: tracksSubMenu(model),
     },
     {
-      label: 'Mouse wheel',
+      label: 'Gappy columns',
       type: 'subMenu' as const,
-      subMenu: wheelSubMenu(model),
+      subMenu: gapsSubMenu(model),
     },
     { type: 'divider' as const },
+    toggle('Show letters', drawMsaLetters, arg => {
+      model.setDrawMsaLetters(arg)
+    }),
     toggle('Show track values on hover', showColumnStats, arg => {
       model.setShowColumnStats(arg)
     }),
-    toggle('Draw letters', drawMsaLetters, arg => {
-      model.setDrawMsaLetters(arg)
-    }),
-    // inverted: bgColor colors the tile, and off colors the letter
-    toggle('Color letters, not cells', !bgColor, arg => {
-      model.setBgColor(!arg)
-    }),
-    toggle('Hide gappy columns', hideGaps, arg => {
-      model.setHideGaps(arg)
-    }),
+    {
+      ...toggle('Scroll wheel zooms', scrollZoom, arg => {
+        model.setScrollZoom(arg)
+      }),
+      helpText:
+        'Off, the wheel scrolls and Ctrl + wheel zooms. On, the wheel zooms and Shift + wheel scrolls.',
+    },
+    { type: 'divider' as const },
+    {
+      label: 'Metadata…',
+      onClick: () => {
+        model.queueDialog(onClose => [MetadataDialog, { model, onClose }])
+      },
+    },
   ]
 }
 
-export function treeSettingsMenuItems(model: MsaViewModel): MenuItem[] {
+function neighborJoiningItem(model: MsaViewModel): MenuItem {
+  const rows = model.rowMap.size
+  const tooManyRows = rows > maxNeighborJoiningRows
+  return {
+    label: tooManyRows
+      ? `Build neighbor joining tree (over ${maxNeighborJoiningRows} rows, use FastTree)`
+      : model.noTree
+        ? 'Build neighbor joining tree (BLOSUM62)'
+        : 'Replace with neighbor joining tree (BLOSUM62)',
+    disabled: tooManyRows || rows < 2,
+    onClick: () => {
+      try {
+        model.calculateNeighborJoiningTreeFromMSA()
+      } catch (e) {
+        console.error('Failed to calculate NJ tree:', e)
+        model.addWarning(e instanceof Error ? e.message : String(e))
+      }
+    },
+  }
+}
+
+export function treeMenuItems(model: MsaViewModel): MenuItem[] {
+  if (model.noTree) {
+    return [neighborJoiningItem(model)]
+  }
   const {
     drawTree,
     showBranchLen,
@@ -185,17 +202,23 @@ export function treeSettingsMenuItems(model: MsaViewModel): MenuItem[] {
       ],
     },
     { type: 'divider' as const },
-    toggle('Show branch length', showBranchLen, arg => {
-      model.setShowBranchLen(arg)
-    }),
     toggle('Show tree', drawTree, arg => {
       model.setDrawTree(arg)
     }),
-    toggle('Draw bubbles on tree branches', drawNodeBubbles, arg => {
-      model.setDrawNodeBubbles(arg)
+    toggle('Scale branches by length', showBranchLen, arg => {
+      model.setShowBranchLen(arg)
     }),
-    toggle('Draw internal node labels', drawNodeLabels, arg => {
+    toggle('Show labels', drawLabels, arg => {
+      model.setDrawLabels(arg)
+    }),
+    toggle('Align labels right', labelsAlignRight, arg => {
+      model.setLabelsAlignRight(arg)
+    }),
+    toggle('Show internal node labels', drawNodeLabels, arg => {
       model.setDrawNodeLabels(arg)
+    }),
+    toggle('Show node circles', drawNodeBubbles, arg => {
+      model.setDrawNodeBubbles(arg)
     }),
     toggle('Show tree overview', showTreeOverview, arg => {
       model.setShowTreeOverview(arg)
@@ -203,18 +226,14 @@ export function treeSettingsMenuItems(model: MsaViewModel): MenuItem[] {
     toggle('Show tree scale bar', showTreeScaleBar, arg => {
       model.setShowTreeScaleBar(arg)
     }),
-    toggle('Tree labels align right', labelsAlignRight, arg => {
-      model.setLabelsAlignRight(arg)
-    }),
-    toggle('Draw labels', drawLabels, arg => {
-      model.setDrawLabels(arg)
-    }),
-    toggle(
-      'Fit tree area to labels and tree',
-      treeAreaWidth === undefined,
-      arg => {
-        model.setTreeAreaWidth(arg ? undefined : model.effectiveTreeAreaWidth)
+    { type: 'divider' as const },
+    {
+      label: 'Reset tree width',
+      disabled: treeAreaWidth === undefined,
+      onClick: () => {
+        model.setTreeAreaWidth(undefined)
       },
-    ),
+    },
+    neighborJoiningItem(model),
   ]
 }

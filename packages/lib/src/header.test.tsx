@@ -6,11 +6,16 @@ import { afterEach, beforeAll, beforeEach, expect, test } from 'vitest'
 
 import MSAView from './components/Loading.tsx'
 import { keyboardControls } from './components/controls.ts'
-import { wheelSubMenu } from './components/header/settingsMenuItems.ts'
+import {
+  gapsSubMenu,
+  treeMenuItems,
+  viewMenuItems,
+} from './components/header/settingsMenuItems.ts'
 import { onMsaKey } from './components/msa/msaKeys.ts'
 import MSAModelF from './model.ts'
 
 import type { MsaViewModel } from './model.ts'
+import type { MenuItem } from '@jbrowse/core/ui/Menu'
 import type { Root } from 'react-dom/client'
 
 Reflect.set(globalThis, 'IS_REACT_ACT_ENVIRONMENT', true)
@@ -119,8 +124,8 @@ function testId(id: string) {
   return container.querySelector(`[data-testid="${id}"]`)
 }
 
-test('the tree settings menu shows only with a tree', () => {
-  mount({ msa })
+test('the tree menu needs a tree or two rows to build one from', () => {
+  mount({ msa: '>a\nACGT\n' })
   expect(testId('tree_settings_menu')).toBeNull()
   act(() => {
     root.unmount()
@@ -144,15 +149,38 @@ test('the fit menu resets the zoom', async () => {
   expect(model.colWidth).toBe(colWidth)
 })
 
-test('alignment settings set the mouse wheel mode', () => {
-  mount({ msa })
-  const rowsOnly = wheelSubMenu(model).find(
-    item => 'label' in item && item.label === 'Zooms rows only',
-  )
+function clickItem(items: MenuItem[], label: string) {
+  const item = items.find(i => 'label' in i && i.label === label)
+  expect(item).toBeTruthy()
   act(() => {
-    if (rowsOnly && 'onClick' in rowsOnly) {
-      rowsOnly.onClick()
+    if (item && 'onClick' in item) {
+      item.onClick()
     }
   })
-  expect([model.scrollZoom, model.scrollZoomAxis]).toEqual([true, 'vertical'])
+}
+
+test('the view menu turns wheel zoom on', () => {
+  mount({ msa })
+  clickItem(viewMenuItems(model), 'Scroll wheel zooms')
+  expect(model.scrollZoom).toBe(true)
+})
+
+test('the gappy columns presets set the threshold, and Show all clears it', () => {
+  mount({ msa: '>a\nAC-T\n>b\nA--T\n>c\nACGT\n' })
+  expect(testId('hidden_columns_chip')).toBeNull()
+  clickItem(gapsSubMenu(model), 'Hide ≥50% gaps')
+  expect([model.hideGaps, model.allowedGappyness]).toEqual([true, 50])
+  expect(testId('hidden_columns_chip')?.textContent).toBe(
+    '1 gappy column hidden',
+  )
+  clickItem(gapsSubMenu(model), 'Show all columns')
+  expect(model.hideGaps).toBe(false)
+  expect(testId('hidden_columns_chip')).toBeNull()
+})
+
+test('the tree menu offers a neighbor joining tree without a tree', () => {
+  mount({ msa })
+  expect(treeMenuItems(model).map(i => 'label' in i && i.label)).toEqual([
+    'Build neighbor joining tree (BLOSUM62)',
+  ])
 })

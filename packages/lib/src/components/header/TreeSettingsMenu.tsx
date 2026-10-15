@@ -1,10 +1,10 @@
 import React from 'react'
 
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
-import AccountTree from '@mui/icons-material/AccountTree'
 import { observer } from 'mobx-react'
 
-import { treeSettingsMenuItems } from './settingsMenuItems.ts'
+import MenuButtonLabel from './MenuButtonLabel.tsx'
+import { treeMenuItems } from './settingsMenuItems.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 
@@ -13,16 +13,16 @@ const TreeSettingsMenu = observer(function ({
 }: {
   model: MsaViewModel
 }) {
-  return model.noTree ? null : (
+  return model.noTree && model.rowMap.size < 2 ? null : (
     <CascadingMenuButton
       data-testid="tree_settings_menu"
-      tooltip="Tree settings"
-      closeAfterItemClick={false}
+      tooltip="Tree options"
       anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-      menuItems={treeSettingsMenuItems(model)}
+      menuItems={treeMenuItems(model)}
+      sx={{ borderRadius: 1 }}
     >
-      <AccountTree />
+      <MenuButtonLabel>Tree</MenuButtonLabel>
     </CascadingMenuButton>
   )
 })

@@ -238,11 +238,11 @@ A clade of the tree with a mark over it. `mark` takes one of five values:
 - `bracket` draws a vertical bar beside the clade's rows carrying the record's
   `label`, which is ggtree's `geom_cladelab` and, over a `range`, `geom_strip`.
 - `collapse` collapses the clade at load, the way the branch menu's "Collapse
-  this node" does.
-- `focus` opens the viewer on the clade alone, the way "Show only this node"
+  clade" does.
+- `focus` opens the viewer on the clade alone, the way "Show only this clade"
   does.
-- `rotate` swaps the order of the clade's children at load, the way "Rotate this
-  node" does, which is ggtree's `rotate`. The rows follow the tips.
+- `rotate` swaps the order of the clade's children at load, the way "Rotate
+  clade" does, which is ggtree's `rotate`. The rows follow the tips.
 
 [![](media/layers-clades.png)][live-layers-clades]
 

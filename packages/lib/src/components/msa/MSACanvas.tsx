@@ -7,6 +7,7 @@ import { zoomSnapshotScale } from '../../zoomSnapshot.ts'
 import { alignmentAriaLabel } from '../controls.ts'
 import Loading from './Loading.tsx'
 import MSACanvasBlock from './MSACanvasBlock.tsx'
+import { WheelZoomHint, useWheelZoomHint } from './WheelZoomHint.tsx'
 import { onMsaKey } from './msaKeys.ts'
 
 import type { MsaViewModel } from '../../model.ts'
@@ -53,12 +54,14 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const onZoomSettle = useCallback(() => {
     model.endWheelZoom()
   }, [model])
+  const hint = useWheelZoomHint(model)
   const { onMouseDown, onMouseUp } = useWheelScroll({
     ref,
     onScrollX,
     onScrollY,
     onZoom,
     onZoomSettle,
+    onWheelScroll: hint.onWheelScroll,
     scrollZoom,
   })
 
@@ -119,6 +122,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
       ) : (
         <Loading />
       )}
+      {hint.visible ? <WheelZoomHint /> : null}
     </div>
   )
 })

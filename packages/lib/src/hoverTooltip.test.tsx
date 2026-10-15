@@ -145,7 +145,7 @@ test('clicking a leaf label opens the leaf menu', () => {
     'More info...',
     'Collapse subtree',
     'Reroot here',
-    'Indicate differences from this row',
+    'Use as reference row',
   ])
 })
 
@@ -165,9 +165,9 @@ test('a branch menu toggles show-only', () => {
   })
   expect(menuItems()).toEqual([
     'Clade',
-    'Collapse this node',
-    'Show only this node',
-    'Rotate this node',
+    'Collapse clade',
+    'Show only this clade',
+    'Rotate clade',
   ])
   const items = document.querySelectorAll<HTMLElement>('[role="menuitem"]')
   act(() => {
@@ -189,9 +189,5 @@ test('a collapsed node offers no rotation, which would move hidden rows', () => 
       />,
     )
   })
-  expect(menuItems()).toEqual([
-    'Clade',
-    'Expand this node',
-    'Show only this node',
-  ])
+  expect(menuItems()).toEqual(['Clade', 'Expand clade', 'Show only this clade'])
 })

@@ -10,6 +10,7 @@ export function useWheelScroll({
   onScrollY,
   onZoom,
   onZoomSettle,
+  onWheelScroll,
   scrollZoom,
 }: {
   ref: React.RefObject<HTMLDivElement | null>
@@ -17,6 +18,7 @@ export function useWheelScroll({
   onScrollY?: (delta: number) => void
   onZoom?: (scaleFactor: number, offsetX: number, offsetY: number) => void
   onZoomSettle?: () => void
+  onWheelScroll?: (event: WheelEvent) => void
   scrollZoom?: boolean
 }) {
   const scheduled = useRef(false)
@@ -84,6 +86,7 @@ export function useWheelScroll({
       const consumeX = !!onScrollX && event.deltaX !== 0
       const consumeY = !!onScrollY && event.deltaY !== 0
       if (consumeX || consumeY) {
+        onWheelScroll?.(event)
         if (onScrollX) {
           deltaX.current += event.deltaX
         }
@@ -118,7 +121,15 @@ export function useWheelScroll({
       }
       clearTimeout(zoomSettle.current)
     }
-  }, [ref, onScrollX, onScrollY, onZoom, onZoomSettle, scrollZoom])
+  }, [
+    ref,
+    onScrollX,
+    onScrollY,
+    onZoom,
+    onZoomSettle,
+    onWheelScroll,
+    scrollZoom,
+  ])
 
   useEffect(() => {
     if (!mouseDragging) {

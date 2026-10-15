@@ -1,6 +1,7 @@
 import React from 'react'
 
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
+import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
 import FitScreen from '@mui/icons-material/FitScreen'
 import RestartAlt from '@mui/icons-material/RestartAlt'
 import ZoomIn from '@mui/icons-material/ZoomIn'
@@ -37,16 +38,21 @@ const ZoomControls = observer(function ZoomControls({
           <ZoomOut />
         </IconButton>
       </Tooltip>
+      <Tooltip title="Fit to window">
+        <IconButton
+          aria-label="Fit to window"
+          onClick={() => {
+            model.fit()
+          }}
+        >
+          <FitScreen />
+        </IconButton>
+      </Tooltip>
       <CascadingMenuButton
         data-testid="fit_menu"
-        tooltip="Fit or reset zoom"
+        tooltip="More zoom options"
+        sx={{ paddingInline: 0, borderRadius: 1 }}
         menuItems={[
-          {
-            label: 'Fit to window',
-            onClick: () => {
-              model.fit()
-            },
-          },
           {
             label: 'Fit horizontally',
             onClick: () => {
@@ -69,7 +75,7 @@ const ZoomControls = observer(function ZoomControls({
           },
         ]}
       >
-        <FitScreen />
+        <ArrowDropDown />
       </CascadingMenuButton>
     </>
   )

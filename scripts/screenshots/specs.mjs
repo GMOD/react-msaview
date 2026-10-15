@@ -70,7 +70,7 @@ export const specs = [
     url: data({ colorSchemeName: 'maeditor' }),
     actions: [
       { click: '[data-testid="msa_settings_menu"]' },
-      { waitFor: '::-p-text(Draw letters)' },
+      { waitFor: '::-p-text(Show letters)' },
     ],
     // clip: 'full' is required because the menu renders in a portal outside
     // the viewer, so the viewport is sized to the content; a four-item dropdown
@@ -247,7 +247,7 @@ export const specs = [
     url: data({ colorSchemeName: 'clustal' }),
     actions: [
       { click: '[data-testid="color_scheme_menu"]' },
-      { waitFor: '::-p-text(percent_identity_dynamic)' },
+      { waitFor: '::-p-text(Percent identity)' },
     ],
     clip: 'full',
   },
@@ -275,7 +275,7 @@ export const specs = [
     name: 'metadata-dialog',
     url: data({ data: { msa: proteinMSA, tree: proteinTree } }),
     actions: [
-      { click: '[data-testid="file_menu"]' },
+      { click: '[data-testid="msa_settings_menu"]' },
       { click: '::-p-text(Metadata)' },
       { waitFor: '::-p-text(sequence)' },
     ],

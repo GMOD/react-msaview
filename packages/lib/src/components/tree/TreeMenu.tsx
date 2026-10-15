@@ -30,7 +30,7 @@ const TreeMenu = observer(function ({
   const { name, id, leaf } = node
   const isCollapsed = collapsed.includes(id)
   const isRoot = id === model.tree.id
-  const noun = leaf ? 'subtree' : 'this node'
+  const noun = leaf ? 'subtree' : 'clade'
   return (
     <Menu
       anchorReference="anchorPosition"
@@ -73,9 +73,7 @@ const TreeMenu = observer(function ({
             onClose()
           }}
         >
-          {showOnly === id
-            ? 'Disable show only this node'
-            : 'Show only this node'}
+          {showOnly === id ? 'Show all rows' : 'Show only this clade'}
         </MenuItem>
       )}
       {leaf || isCollapsed ? null : (
@@ -86,7 +84,7 @@ const TreeMenu = observer(function ({
             onClose()
           }}
         >
-          Rotate this node
+          Rotate clade
         </MenuItem>
       )}
       {isRoot ? null : (
@@ -108,7 +106,7 @@ const TreeMenu = observer(function ({
             onClose()
           }}
         >
-          Indicate differences from this row
+          Use as reference row
         </MenuItem>
       ) : null}
       {leaf && relativeTo ? (

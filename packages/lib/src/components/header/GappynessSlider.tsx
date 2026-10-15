@@ -10,19 +10,15 @@ const GappynessSlider = observer(function GappynessSlider({
 }: {
   model: MsaViewModel
 }) {
-  const { hideGaps, allowedGappyness } = model
   const [dragValue, setDragValue] = useState<number>()
-  const value = dragValue ?? allowedGappyness
-  if (!hideGaps) {
-    return null
-  }
+  const value = dragValue ?? model.allowedGappyness
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       {/* the threshold is inclusive: blanks are columns whose gap count is at
           least ceil(allowedGappyness% of the rows), so at 100 it hides the
           columns that are entirely gaps rather than nothing */}
       <Typography style={{ whiteSpace: 'nowrap' }}>
-        Hide columns w/ &ge;{value}% gaps
+        &ge;{value}% gaps
       </Typography>
       <Slider
         // In JBrowse other MUI Sliders share the page, so `.MuiSlider-thumb`
@@ -36,11 +32,8 @@ const GappynessSlider = observer(function GappynessSlider({
         // The thumb follows local state while dragging and the model takes the
         // value on release, since each write recomputes the gap columns over
         // the whole alignment.
-        //
-        // The thumb centers on the track's ends, so the margin keeps its
-        // overhang off the label and the row search beside it.
         data-testid="gappyness_slider"
-        style={{ width: 100, marginInline: 10 }}
+        style={{ width: 200, marginInline: 10 }}
         min={1}
         max={100}
         value={value}

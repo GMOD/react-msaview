@@ -1,11 +1,18 @@
 import { getSnapshot } from '@jbrowse/mobx-state-tree'
 import { expect, test } from 'vitest'
 
-import { colorSchemeMenuItems } from './components/header/ColorSchemeMenu.tsx'
+import colorSchemes from './colorSchemes.ts'
+import {
+  catalogedSchemeNames,
+  colorSchemeMenuItems,
+} from './components/header/ColorSchemeMenu.tsx'
 import { tileColorFn } from './components/msa/tileColor.ts'
 import MSAModelF from './model.ts'
 
+import type { MenuItem } from '@jbrowse/core/ui/Menu'
+
 const msa = '>a\nMKAK\n>b\nMRAK\n'
+const protein = { data: { msa: '>a\nMWLE\n>b\nMWLD\n' } }
 
 function makeModel(snapshot: Record<string, unknown> = {}) {
   return MSAModelF().create({ type: 'MsaView', data: { msa }, ...snapshot })
@@ -51,21 +58,43 @@ test('a map over a dynamic scheme name colors from the map', () => {
   expect(model.dynamicColorSchemeName).toBe('clustalx_protein_dynamic')
 })
 
-test('the menu checks Custom while a map is set, and a named scheme clears it', () => {
-  const model = makeModel({ customColorScheme: { K: '#1f77b4' } })
-  const items = colorSchemeMenuItems(model)
-  expect(items.filter(item => item.checked).map(item => item.label)).toEqual([
-    'Custom',
-  ])
+function checkedLabels(items: MenuItem[]) {
+  return items
+    .filter(item => 'checked' in item && item.checked)
+    .map(item => 'label' in item && item.label)
+}
 
-  items.find(item => item.label === 'clustal')!.onClick()
+test('the menu checks Custom while a map is set, and a named scheme clears it', () => {
+  const model = makeModel({ ...protein, customColorScheme: { K: '#1f77b4' } })
+  expect(checkedLabels(colorSchemeMenuItems(model))).toEqual(['Custom'])
+
+  const clustal = colorSchemeMenuItems(model).find(
+    item => 'label' in item && item.label === 'Clustal',
+  )
+  if (clustal && 'onClick' in clustal) {
+    clustal.onClick()
+  }
   expect(model.customColorScheme).toBeUndefined()
   expect(model.colorSchemeName).toBe('clustal')
   expect(JSON.stringify(getSnapshot(model))).not.toContain('customColorScheme')
 
   const after = colorSchemeMenuItems(model)
-  expect(after.some(item => item.label === 'Custom')).toBe(false)
-  expect(after.filter(item => item.checked).map(item => item.label)).toEqual([
-    'clustal',
-  ])
+  expect(after.some(item => 'label' in item && item.label === 'Custom')).toBe(
+    false,
+  )
+  expect(checkedLabels(after)).toEqual(['Clustal'])
+})
+
+test('the menu names every scheme', () => {
+  expect(catalogedSchemeNames.toSorted()).toEqual(
+    Object.keys(colorSchemes).toSorted(),
+  )
+})
+
+test('a protein alignment tucks the nucleotide schemes into a submenu', () => {
+  const labels = colorSchemeMenuItems(makeModel(protein)).map(
+    item => 'label' in item && item.label,
+  )
+  expect(labels).toContain('Nucleotide schemes')
+  expect(labels).not.toContain('Rainbow')
 })
