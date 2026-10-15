@@ -44,26 +44,46 @@ const StructurePanel = lazy(() =>
 
 type FoldseekState =
   | { state: 'idle' }
-  | { state: 'running'; message: string }
+  | { state: 'running'; row: string; message: string }
   | { state: 'done'; row: string; candidates: StructureCandidate[] }
-  | { state: 'error'; message: string }
+  | { state: 'error'; row: string; message: string }
 
 type Search =
   | { state: 'idle' }
   | { state: 'loading' }
   | { state: 'done'; result: StructureSearch; row: string }
-  | { state: 'error'; message: string }
+  | { state: 'error'; row: string; message: string }
+
+function messageOf(e: unknown) {
+  return e instanceof Error ? e.message : String(e)
+}
+
+function signalledFetchText(signal: AbortSignal) {
+  return async (url: string) => {
+    const res = await fetch(url, { signal })
+    if (!res.ok) {
+      throw new Error(`${url}: HTTP ${res.status}`)
+    }
+    return res.text()
+  }
+}
 
 function keyOf(m: { row: string; structure: { id: string; asymId?: string } }) {
   return `${m.row}\u0000${m.structure.id}\u0000${m.structure.asymId ?? ''}`
 }
 
 const distanceTrackId = 'structure-ca-distance'
+const maxSuperposedRows = 12
 
 type Superposition =
   | { state: 'idle' }
   | { state: 'working'; message: string }
-  | { state: 'done'; result: SuperposeRowsResult; reference: string }
+  | {
+      state: 'done'
+      result: SuperposeRowsResult
+      problems: string[]
+      reference: string
+    }
   | { state: 'tm'; ids: string[]; fits?: Record<string, TmAlignment> }
   | { state: 'error'; message: string }
 
@@ -118,7 +138,9 @@ const StructureSection = observer(function StructureSection({
   const [search, setSearch] = useState<Search>({ state: 'idle' })
   const [shown, setShown] = useState<string>()
   const [colorBy, setColorBy] = useState<StructureColor>('none')
-  const abort = useRef<AbortController | undefined>(undefined)
+  const searchAbort = useRef<AbortController | undefined>(undefined)
+  const foldseekAbort = useRef<AbortController | undefined>(undefined)
+  const superposeAbort = useRef<AbortController | undefined>(undefined)
   const [foldseek, setFoldseek] = useState<FoldseekState>({ state: 'idle' })
   const [fitBy, setFitBy] = useState<'alignment' | 'tm-align'>('alignment')
   const [superposition, setSuperposition] = useState<Superposition>({
@@ -129,7 +151,7 @@ const StructureSection = observer(function StructureSection({
     return null
   }
   const row =
-    chosen ??
+    (chosen && model.rowMap.has(chosen) ? chosen : undefined) ??
     model.clickedCell?.row ??
     names.find(n => canFindStructures(n)) ??
     names[0]!
@@ -160,10 +182,15 @@ const StructureSection = observer(function StructureSection({
     none: `${row} is not a database id, so there is no entry to look up by name. Search by sequence to find structurally similar proteins, or type an accession if you know the protein.`,
   }[rowKind]
 
-  async function find() {
-    abort.current?.abort()
+  function restart(ref: typeof searchAbort) {
+    ref.current?.abort()
     const controller = new AbortController()
-    abort.current = controller
+    ref.current = controller
+    return controller
+  }
+
+  async function find() {
+    const controller = restart(searchAbort)
     setSearch({ state: 'loading' })
     try {
       const result = await findStructures({
@@ -177,23 +204,18 @@ const StructureSection = observer(function StructureSection({
       }
     } catch (e) {
       if (!controller.signal.aborted) {
-        setSearch({
-          state: 'error',
-          message: e instanceof Error ? e.message : String(e),
-        })
+        setSearch({ state: 'error', row, message: messageOf(e) })
       }
     }
   }
 
   async function searchFold() {
-    abort.current?.abort()
-    const controller = new AbortController()
-    abort.current = controller
     const rowSequence = model.rowSequence(row) ?? ''
     const { sequence } = foldseekQuery(rowSequence)
     if (sequence.length > FOLDSEEK_MAX_RESIDUES) {
       setFoldseek({
         state: 'error',
+        row,
         message: `Foldseek's 3Di predictor takes at most ${FOLDSEEK_MAX_RESIDUES} residues and ${row} has ${sequence.length}.`,
       })
       return
@@ -201,18 +223,19 @@ const StructureSection = observer(function StructureSection({
     if (sequence.length < 20) {
       setFoldseek({
         state: 'error',
+        row,
         message: `${row} has ${sequence.length} standard residues, too few to search with.`,
       })
       return
     }
-    setSearch({ state: 'idle' })
-    setFoldseek({ state: 'running', message: 'Starting' })
+    const controller = restart(foldseekAbort)
+    setFoldseek({ state: 'running', row, message: 'Starting' })
     try {
       const hits = await searchFoldseek(sequence, {
         signal: controller.signal,
         onStatus: message => {
           if (!controller.signal.aborted) {
-            setFoldseek({ state: 'running', message })
+            setFoldseek({ state: 'running', row, message })
           }
         },
       })
@@ -229,49 +252,67 @@ const StructureSection = observer(function StructureSection({
       }
     } catch (e) {
       if (!controller.signal.aborted) {
-        setFoldseek({
-          state: 'error',
-          message: e instanceof Error ? e.message : String(e),
-        })
+        setFoldseek({ state: 'error', row, message: messageOf(e) })
       }
     }
   }
 
   async function superposeAll() {
-    setSuperposition({ state: 'working', message: 'Finding structures' })
-    try {
-      const rows = withAccession.slice(0, 12)
-      const mappings = [...model.residueMappings]
-      const problems: string[] = []
-      for (const [i, rowName] of rows.entries()) {
-        setSuperposition({
-          state: 'working',
-          message: `Finding structures ${i + 1} of ${rows.length}`,
-        })
-        const have = mappings.some(m => m.row === rowName)
-        if (have) {
-          continue
-        }
-        try {
-          const found = await findStructures({
-            rowName,
-            rowSequence: model.rowSequence(rowName) ?? '',
-          })
-          const first = found.candidates[0]
-          if (first) {
-            mappings.push(first.mapping)
-          } else if (found.problem) {
-            problems.push(found.problem)
-          }
-        } catch (e) {
-          problems.push(
-            `${rowName}: ${e instanceof Error ? e.message : String(e)}`,
-          )
-        }
+    const { signal } = restart(superposeAbort)
+    const working = (message: string) => {
+      if (!signal.aborted) {
+        setSuperposition({ state: 'working', message })
       }
-      model.setResidueMappings(mappings)
+    }
+    try {
+      const picked = model.selection?.rows?.filter(r =>
+        withAccession.includes(r),
+      )
+      const pool = picked && picked.length > 1 ? picked : withAccession
+      const rows = pool.slice(0, maxSuperposedRows)
+      const mappedRows = () => new Set(model.mappedStructures.map(m => m.row))
+      const before = mappedRows()
+      const missing = rows.filter(r => !before.has(r))
+      const problems: string[] = []
+      let finished = 0
+      working(`Finding structures for ${missing.length} rows`)
+      const found = await Promise.all(
+        missing.map(async rowName => {
+          try {
+            const result = await findStructures({
+              rowName,
+              rowSequence: model.rowSequence(rowName) ?? '',
+              lookups: networkLookups(signal),
+            })
+            const first = result.candidates[0]
+            if (!first && result.problem) {
+              problems.push(result.problem)
+            }
+            return first?.mapping
+          } catch (e) {
+            problems.push(`${rowName}: ${messageOf(e)}`)
+            return undefined
+          } finally {
+            finished += 1
+            working(`Finding structures ${finished} of ${missing.length}`)
+          }
+        }),
+      )
+      if (signal.aborted) {
+        return
+      }
+      const have = mappedRows()
+      model.setResidueMappings([
+        ...model.residueMappings,
+        ...found.flatMap(m => (m && !have.has(m.row) ? [m] : [])),
+      ])
+      if (pool.length > rows.length) {
+        problems.push(
+          `fitted the first ${maxSuperposedRows} of ${pool.length} rows with an id`,
+        )
+      }
       const targets = rows.flatMap(rowName => {
-        const m = mappings.find(x => x.row === rowName)
+        const m = model.mappedStructures.find(x => x.row === rowName)
         return m ? [{ row: rowName, structureId: m.structure.id }] : []
       })
       if (fitBy === 'tm-align') {
@@ -282,7 +323,7 @@ const StructureSection = observer(function StructureSection({
         setSuperposition({ state: 'tm', ids })
         return
       }
-      setSuperposition({ state: 'working', message: 'Fitting' })
+      working('Fitting')
       const { selection } = model
       const result = await superposeRows({
         model,
@@ -290,7 +331,11 @@ const StructureSection = observer(function StructureSection({
         columns: selection
           ? { start: selection.start - 1, end: selection.end - 1 }
           : undefined,
+        fetchText: signalledFetchText(signal),
       })
+      if (signal.aborted) {
+        return
+      }
       model.setColumnTracks([
         ...model.columnTracks.filter(t => t.id !== distanceTrackId),
         {
@@ -305,24 +350,19 @@ const StructureSection = observer(function StructureSection({
       ])
       setSuperposition({
         state: 'done',
-        result: {
-          ...result,
-          skipped: [
-            ...problems.map(reason => ({ row: '', reason })),
-            ...result.skipped,
-          ],
-        },
+        result,
+        problems,
         reference: targets[0]!.row,
       })
     } catch (e) {
-      setSuperposition({
-        state: 'error',
-        message: e instanceof Error ? e.message : String(e),
-      })
+      if (!signal.aborted) {
+        setSuperposition({ state: 'error', message: messageOf(e) })
+      }
     }
   }
 
   function clearSuperposition() {
+    superposeAbort.current?.abort()
     model.setColumnTracks(
       model.columnTracks.filter(t => t.id !== distanceTrackId),
     )
@@ -331,7 +371,7 @@ const StructureSection = observer(function StructureSection({
 
   function show(candidate: StructureSearch['candidates'][number]) {
     const { mapping } = candidate
-    if (superposition.state === 'done') {
+    if (superposition.state !== 'idle') {
       clearSuperposition()
     }
     model.setResidueMappings([
@@ -367,10 +407,9 @@ const StructureSection = observer(function StructureSection({
           value={row}
           disableClearable
           onChange={(_e, value) => {
-            abort.current?.abort()
+            searchAbort.current?.abort()
             setChosen(value)
             setSearch({ state: 'idle' })
-            setFoldseek({ state: 'idle' })
           }}
           renderInput={params => <TextField {...params} label="Row" />}
         />
@@ -452,7 +491,9 @@ const StructureSection = observer(function StructureSection({
         </Button>
         {search.state === 'loading' ? <CircularProgress size={20} /> : null}
         {foldseek.state === 'running' ? (
-          <Typography variant="body2">{foldseek.message}…</Typography>
+          <Typography variant="body2">
+            {foldseek.row}: {foldseek.message}…
+          </Typography>
         ) : null}
       </Box>
 
@@ -488,7 +529,9 @@ const StructureSection = observer(function StructureSection({
           >
             Superpose rows
           </Button>
-          {superposition.state === 'done' || superposition.state === 'tm' ? (
+          {superposition.state === 'done' ||
+          superposition.state === 'tm' ||
+          model.columnTracks.some(t => t.id === distanceTrackId) ? (
             <Button size="small" color="inherit" onClick={clearSuperposition}>
               Clear superposition
             </Button>
@@ -504,12 +547,12 @@ const StructureSection = observer(function StructureSection({
           {foldseek.message}
         </Alert>
       ) : null}
-      {foldseek.state === 'done' && foldseek.row === row ? (
+      {foldseek.state === 'done' ? (
         foldseek.candidates.length > 0 ? (
           <Box sx={{ mt: 1 }}>
             <Typography variant="caption">
-              Foldseek hits: structural homologs, so a mapping is the alignment
-              Foldseek made and not the same protein
+              Foldseek hits for {foldseek.row}: structural homologs, so a
+              mapping is the alignment Foldseek made and not the same protein
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
               {foldseek.candidates.map(candidate => (
@@ -528,11 +571,11 @@ const StructureSection = observer(function StructureSection({
           </Box>
         ) : (
           <Alert severity="info" sx={{ mt: 1 }}>
-            Foldseek found no hit it could map {row} onto.
+            Foldseek found no hit it could map {foldseek.row} onto.
           </Alert>
         )
       ) : null}
-      {search.state === 'error' ? (
+      {search.state === 'error' && search.row === row ? (
         <Alert severity="error" sx={{ mt: 1 }}>
           {search.message}
         </Alert>
@@ -604,7 +647,10 @@ const StructureSection = observer(function StructureSection({
             )
             .join(' · ')}
           {superposed.skipped.length > 0
-            ? ` · skipped ${superposed.skipped.map(k => `${k.row || 'a row'} (${k.reason})`).join('; ')}`
+            ? ` · skipped ${superposed.skipped.map(k => `${k.row} (${k.reason})`).join('; ')}`
+            : ''}
+          {superposition.state === 'done' && superposition.problems.length > 0
+            ? ` · ${superposition.problems.join('; ')}`
             : ''}
         </Alert>
       ) : null}

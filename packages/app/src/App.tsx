@@ -53,13 +53,10 @@ function useWidthSetter(view: { setWidth: (arg: number) => void }) {
 const App = observer(function ({ model }: { model: AppModel }) {
   const { msaview } = model
   const ref = useWidthSetter(msaview)
-  // the structure area stays closed until asked for, since most alignments
-  // have none, and a link that already carries a structure opens it
-  const [structureOpen, setStructureOpen] = useState(
-    () => msaview.mappedStructures.length > 0,
-  )
-  // beside the alignment once a row maps onto a structure, under it before then
-  const split = structureOpen && msaview.mappedStructures.length > 0
+  const hasStructure = msaview.mappedStructures.length > 0
+  const [openChoice, setOpenChoice] = useState<boolean>()
+  const structureOpen = openChoice ?? hasStructure
+  const split = structureOpen && hasStructure
   return (
     <div>
       <SiteNav />
@@ -84,7 +81,7 @@ const App = observer(function ({ model }: { model: AppModel }) {
                 model={model}
                 structureOpen={structureOpen}
                 onToggleStructure={() => {
-                  setStructureOpen(open => !open)
+                  setOpenChoice(!structureOpen)
                 }}
               />
             }
