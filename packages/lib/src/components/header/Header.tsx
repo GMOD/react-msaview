@@ -1,26 +1,20 @@
-import React, { lazy, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import useMeasure from '@jbrowse/core/util/useMeasure'
-import HelpOutline from '@mui/icons-material/HelpOutlined'
-import { AppBar, IconButton, Toolbar, Tooltip } from '@mui/material'
+import { AppBar, Toolbar } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import StatusMessage from '../StatusMessage.tsx'
-import ColorSchemeMenu from './ColorSchemeMenu.tsx'
-import FileMenu from './FileMenu.tsx'
 import HeaderInfoArea from './HeaderInfoArea.tsx'
 import HiddenColumnsChip from './HiddenColumnsChip.tsx'
 import LoadWarnings from './LoadWarnings.tsx'
-import MSASettingsMenu from './MSASettingsMenu.tsx'
+import MenuBar from './MenuBar.tsx'
 import MultiAlignmentSelector from './MultiAlignmentSelector.tsx'
 import SelectionMenu from './SelectionMenu.tsx'
-import TreeSettingsMenu from './TreeSettingsMenu.tsx'
 import UnshareableDataWarning from './UnshareableDataWarning.tsx'
 import ZoomControls from './ZoomControls.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
-
-const HelpDialog = lazy(() => import('../dialogs/HelpDialog.tsx'))
 
 const Header = observer(function ({ model }: { model: MsaViewModel }) {
   const [ref, { height }] = useMeasure()
@@ -46,17 +40,14 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
         disableGutters
         sx={{ minHeight: 40, flexWrap: 'wrap', px: 0.5 }}
       >
-        <FileMenu model={model} />
-        <ColorSchemeMenu model={model} />
-        <TreeSettingsMenu model={model} />
-        <MSASettingsMenu model={model} />
+        <MenuBar model={model} />
         <ZoomControls model={model} />
         <HiddenColumnsChip model={model} />
         <div style={{ paddingLeft: 20, margin: 'auto' }}>
           <MultiAlignmentSelector model={model} />
         </div>
         {/* zero flex-basis, so what appears here on a selection or a hover
-      shrinks into the header's spare width and never wraps it */}
+            shrinks into the header's spare width and never wraps it */}
         <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex' }}>
           <SelectionMenu model={model} />
           <HeaderInfoArea model={model} />
@@ -64,16 +55,6 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
         <LoadWarnings model={model} />
         <UnshareableDataWarning model={model} />
         <StatusMessage model={model} variant="header" />
-        <Tooltip title="Mouse & keyboard help">
-          <IconButton
-            aria-label="Mouse & keyboard help"
-            onClick={() => {
-              model.queueDialog(onClose => [HelpDialog, { model, onClose }])
-            }}
-          >
-            <HelpOutline fontSize="small" />
-          </IconButton>
-        </Tooltip>
       </Toolbar>
     </AppBar>
   )

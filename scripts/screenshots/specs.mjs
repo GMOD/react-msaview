@@ -69,7 +69,7 @@ export const specs = [
     name: 'settings-menu',
     url: data({ colorSchemeName: 'maeditor' }),
     actions: [
-      { click: '[data-testid="msa_settings_menu"]' },
+      { click: '[data-testid="view_menu"]' },
       { waitFor: '::-p-text(Show letters)' },
     ],
     // clip: 'full' is required because the menu renders in a portal outside
@@ -246,7 +246,8 @@ export const specs = [
     name: 'color-scheme-menu',
     url: data({ colorSchemeName: 'clustal' }),
     actions: [
-      { click: '[data-testid="color_scheme_menu"]' },
+      { click: '[data-testid="view_menu"]' },
+      { click: '::-p-text(Color scheme)' },
       { waitFor: '::-p-text(Percent identity)' },
     ],
     clip: 'full',
@@ -266,7 +267,7 @@ export const specs = [
     url: data({}),
     actions: [
       { click: '[data-testid="file_menu"]' },
-      { click: '::-p-text(Export SVG)' },
+      { click: '::-p-text(Export as SVG)' },
       { waitFor: '::-p-text(Export type)' },
     ],
     clip: 'full',
@@ -276,7 +277,7 @@ export const specs = [
     url: data({ data: { msa: proteinMSA, tree: proteinTree } }),
     actions: [
       { click: '[data-testid="file_menu"]' },
-      { click: '::-p-text(Metadata)' },
+      { click: '::-p-text(Alignment info)' },
       { waitFor: '::-p-text(sequence)' },
     ],
     clip: 'full',

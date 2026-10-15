@@ -1,10 +1,6 @@
 import React from 'react'
 
-import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
-import { observer } from 'mobx-react'
-
 import colorSchemes from '../../colorSchemes.ts'
-import MenuButtonLabel, { menuButtonSx } from './MenuButtonLabel.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { MenuItem } from '@jbrowse/core/ui/Menu'
@@ -113,7 +109,7 @@ const swatches = new Map(schemes.map(e => [e.name, makeSwatch(e)]))
 // and no named scheme is checked. Picking a named scheme clears the map. The
 // active scheme always shows at the top level.
 export function colorSchemeMenuItems(model: MsaViewModel): MenuItem[] {
-  const { colorSchemeName, customColorScheme, sequenceType, bgColor } = model
+  const { colorSchemeName, customColorScheme, sequenceType } = model
   const alphabet = sequenceType === 'amino' ? 'protein' : 'nucleotide'
   function radio(entry: SchemeEntry) {
     return {
@@ -146,28 +142,5 @@ export function colorSchemeMenuItems(model: MsaViewModel): MenuItem[] {
       type: 'subMenu',
       subMenu: schemes.filter(e => !top(e)).map(radio),
     },
-    {
-      label: 'Color letters, not cells',
-      type: 'checkbox',
-      checked: !bgColor,
-      onClick: () => {
-        model.setBgColor(!bgColor)
-      },
-    },
   ]
 }
-
-const ColorSchemeMenu = observer(function ({ model }: { model: MsaViewModel }) {
-  return (
-    <CascadingMenuButton
-      data-testid="color_scheme_menu"
-      tooltip="Color scheme"
-      menuItems={colorSchemeMenuItems(model)}
-      sx={menuButtonSx}
-    >
-      <MenuButtonLabel>Color</MenuButtonLabel>
-    </CascadingMenuButton>
-  )
-})
-
-export default ColorSchemeMenu

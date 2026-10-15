@@ -58,11 +58,11 @@ you can read one site down the whole family.
 
 ## Navigating
 
-The **?** button at the right of the header lists every mouse gesture and key
-below, and links to the color scheme credits.
+**Help → Mouse & keyboard…** lists every mouse gesture and key below, and **Help
+→ About & credits…** credits the color schemes.
 
 - **Pan** by click-dragging the alignment, or scroll vertically/horizontally.
-- **View → Go to row or column…** takes a row name, which completes as you type,
+- **Edit → Find row or column…** takes a row name, which completes as you type,
   a column number as the ruler reads it, or `name:N` for residue N of that row.
   The view centers on the target and lights it, and an entry that names nothing
   turns the box red.
@@ -73,23 +73,23 @@ below, and links to the color scheme credits.
   alignment, or a range of columns across every row by dragging along a track,
   such as the Position ruler. The header then shows the block's size, such as
   "12 columns × 3 rows", as a button whose menu copies the block as FASTA, zooms
-  to it, or clears it. Escape clears it too. The selection travels in the
-  `#data=` link.
+  to it, or clears it, the same three items the Edit menu holds. Escape clears
+  it too. The selection travels in the `#data=` link.
 - **Zoom** with the magnifier buttons in the header, or Ctrl+wheel (⌘+wheel on a
   Mac, or a trackpad pinch) at the cursor. The first plain scroll over the
   alignment shows a reminder of the shortcut.
-- **View → Scroll wheel zooms** makes the plain wheel zoom, and Shift+wheel then
-  pans. The `scrollZoomAxis` property limits a wheel zoom to the columns or the
-  rows.
-- **Fit** the alignment to the window on both axes, horizontally or vertically
-  from the fit button beside the magnifiers. **Reset zoom** in the same menu
+- **Tools → Scroll wheel zooms** makes the plain wheel zoom, and Shift+wheel
+  then pans. The `scrollZoomAxis` property limits a wheel zoom to the columns or
+  the rows.
+- **Fit** the alignment to the window with the button beside the magnifiers.
+  **View → Zoom** also fits the width or the height alone, and **Reset zoom**
   returns to the defaults.
 - Set a small row height and column width to zoom out far enough to see a whole
   large alignment at once.
 
 ## Color schemes
 
-Open the palette menu in the header to switch schemes live.
+**View → Color scheme** switches schemes live.
 
 [![](media/color-scheme-menu.png)][live-color-scheme-menu]
 
@@ -133,25 +133,26 @@ rows** puts the rest back.
 
 **Rotate clade** swaps the clades below a branch node, the way ggtree's `rotate`
 does, and the alignment rows move with the tips. A second click puts them back,
-and **Tree → Order → Undo rotations** clears every rotation. The same Order
-submenu sets the child order for the whole tree: by branch length (the default),
-as the file writes it, or ladderized with the small or the large clades first.
+and **View → Tree → Order → Undo rotations** clears every rotation. The same
+Order submenu sets the child order for the whole tree: by branch length (the
+default), as the file writes it, or ladderized with the small or the large
+clades first.
 
 **Reroot here**, on any node but the root, roots the tree halfway along the
-branch above that node. **Tree → Root → Midpoint** roots it halfway along the
-longest path between two tips, which suits the unrooted trees FastTree, IQ-TREE
-and neighbor joining write. Rerooting renumbers the nodes, so it expands
+branch above that node. **View → Tree → Root → Midpoint** roots it halfway along
+the longest path between two tips, which suits the unrooted trees FastTree,
+IQ-TREE and neighbor joining write. Rerooting renumbers the nodes, so it expands
 collapsed clades, clears rotations and leaves the show-only view. **File →
-Export tree (Newick)** saves the tree with the root, order and rotations on
+Export tree as Newick** saves the tree with the root, order and rotations on
 screen, collapsed clades included.
 [Data layers](https://gmod.org/JBrowseMSA/layers#treeorder-and-treeroot) covers
 `treeOrder` and `treeRoot`, the properties behind these menus.
 
-**Tree → Tree overview** puts the whole tree in a band above the tree panel,
-small enough that a few hundred tips fit in 120 pixels, with the focused subtree
-drawn as a box on it and the `clades` highlights in place. A click on the band
-focuses the deepest subtree covering the rows under the pointer, and a click
-inside the box clears the focus, so the band reaches a clade of a tree far
+**View → Tree → Tree overview** puts the whole tree in a band above the tree
+panel, small enough that a few hundred tips fit in 120 pixels, with the focused
+subtree drawn as a box on it and the `clades` highlights in place. A click on
+the band focuses the deepest subtree covering the rows under the pointer, and a
+click inside the box clears the focus, so the band reaches a clade of a tree far
 taller than the screen in one click. The overview keeps drawing every tip while
 the view shows a subtree, so it shows where the focused clade sits in the whole
 tree. The SVG export draws the band too.
@@ -162,13 +163,13 @@ site, at the same scale as the branches. Cladogram mode hides the bar, because
 branch length does not set horizontal position there. The SVG export draws the bar too,
 so a published figure states the scale of its branches.
 
-The **Tree** menu draws the tree as a **Phylogram**, with branches to scale, a
+**View → Tree** draws the tree as a **Phylogram**, with branches to scale, a
 **Cladogram**, or **Labels only**, and sets the child order, the root and the
-labels. For an alignment loaded without a tree, the menu offers **Build neighbor
-joining tree**, which builds a BLOSUM62 distance tree a quick tree up to 500
-rows. On a larger alignment the calculation would freeze the page for several
-seconds or more, so the menu item explains the limit and does not run. Build a
-tree that size with FastTree or IQ-TREE and open it beside the alignment; the
+labels. **Tools → Build neighbor joining tree** builds a quick BLOSUM62 distance
+tree for an alignment of up to 500 rows. On a larger alignment the calculation
+would freeze the page for several seconds or more, so the menu item explains the
+limit and does not run. Build a tree that size with FastTree or IQ-TREE and open
+it beside the alignment; the
 [protein family tutorial](https://gmod.org/JBrowseMSA/tutorials/protein_family)
 covers the whole path.
 
@@ -229,7 +230,7 @@ cases look alike, so zoom to base resolution to tell "no domain annotated" from
 ## Viewing metadata
 
 Alignment file headers and per-sequence information are available from the
-**File → Metadata…** dialog.
+**File → Alignment info…** dialog.
 
 [![](media/metadata-dialog.png)][live-metadata-dialog]
 
@@ -367,22 +368,24 @@ lists the fields.
 
 ## Settings reference
 
-The header's **File**, **Color**, **Tree** and **View** menus hold the rest of
-the options.
+The header's menu bar reads **File**, **Edit**, **View**, **Tools** and
+**Help**.
 
 [![](media/settings-menu.png)][live-settings-menu]
 
 - **File** opens another alignment or an annotation file, exports an SVG or the
-  tree, and shows the metadata.
-- **Color** lists the common schemes for the alignment's alphabet, with the rest
-  under **More schemes**, and **Color letters, not cells**.
-- **View** holds **Go to row or column…**, the Tracks, Gappy columns and
-  Annotations submenus, **Show letters**, **Show track values on hover** and
-  **Scroll wheel zooms**. Gappy columns hides each column where at least 50%,
-  90% or a custom share of the rows has a gap, and a chip in the header counts
-  the hidden columns; its × shows them again.
-- **Tree** picks Phylogram, Cladogram or Labels only, and holds the Order, Root
-  and Labels submenus and the **Tree overview** toggle.
+  tree, and shows the alignment info.
+- **Edit** finds a row or column, and copies, zooms to or clears the selection.
+- **View** holds the Zoom, Color scheme, Tree, Tracks, Annotations and Gappy
+  columns submenus, and **Show letters**, **Color letters, not cells** and
+  **Show track values on hover**. Color scheme lists the common schemes for the
+  alignment's alphabet, with the rest under **More schemes**. Gappy columns
+  hides each column where at least 50%, 90% or a custom share of the rows has a
+  gap, and a chip in the header counts the hidden columns; its × shows them
+  again.
+- **Tools** builds a neighbor joining tree and turns on **Scroll wheel zooms**.
+- **Help** lists the mouse and keyboard controls and links the tutorials and the
+  credits.
 
 ## Scaling to large data
 

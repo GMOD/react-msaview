@@ -294,7 +294,7 @@ export const specs = [
     settle: 3500,
     actions: [
       { click: '[data-testid="file_menu"]' },
-      { click: '::-p-text(Export SVG)' },
+      { click: '::-p-text(Export as SVG)' },
       { waitFor: '::-p-text(Export type)' },
     ],
     clip: 'full',

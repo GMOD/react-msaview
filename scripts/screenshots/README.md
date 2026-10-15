@@ -85,7 +85,7 @@ Edit [`specs.mjs`](specs.mjs), or for a tutorial's figures add a module under
   url: data({ colorSchemeName }),  // '' for the import form, or data({...})
   actions: [                       // optional, for menus/dialogs
     { click: '[data-testid="file_menu"]' },
-    { waitFor: '::-p-text(Tree options)' },
+    { waitFor: '::-p-text(Export as SVG)' },
   ],
   clip: 'viewer',                  // 'viewer' = the [data-testid=msaview] box
 }
@@ -93,8 +93,8 @@ Edit [`specs.mjs`](specs.mjs), or for a tutorial's figures add a module under
 
 `data({...})` spreads its argument into the `MsaView` snapshot, so any model
 property is deep-linkable. Header menu buttons expose stable test ids
-(`file_menu`, `color_scheme_menu`, `tree_settings_menu`, `msa_settings_menu`);
-menu items / dialog text are reached with puppeteer's `::-p-text(...)` selector.
+(`file_menu`, `edit_menu`, `view_menu`, `tools_menu`, `help_menu`); menu items /
+dialog text are reached with puppeteer's `::-p-text(...)` selector.
 
 ---
 

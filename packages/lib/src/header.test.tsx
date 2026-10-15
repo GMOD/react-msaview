@@ -7,10 +7,12 @@ import { afterEach, beforeAll, beforeEach, expect, test } from 'vitest'
 import MSAView from './components/Loading.tsx'
 import { keyboardControls } from './components/controls.ts'
 import {
+  editMenuItems,
   gapsSubMenu,
-  treeMenuItems,
+  toolsMenuItems,
+  treeSubMenu,
   viewMenuItems,
-} from './components/header/settingsMenuItems.ts'
+} from './components/header/menuBarItems.ts'
 import { onMsaKey } from './components/msa/msaKeys.ts'
 import MSAModelF from './model.ts'
 
@@ -34,6 +36,10 @@ beforeAll(() => {
 })
 
 const msa = '>a\nACGTACGT\n>b\nACGAACGT\n'
+
+function testId(id: string) {
+  return container.querySelector(`[data-testid="${id}"]`)
+}
 const tree = '(a:0.1,b:0.2);'
 
 let container: HTMLDivElement
@@ -103,9 +109,16 @@ test('every listed key is one onMsaKey handles', () => {
   }
 })
 
-test('? opens the controls, and the credits from there', async () => {
+function menuItem(text: string) {
+  return [...document.querySelectorAll('li')].find(
+    li => li.textContent === text,
+  )
+}
+
+test('Help opens the controls, and the credits from there', async () => {
   mount({ msa })
-  await click(button('Mouse & keyboard help'))
+  await click(testId('help_menu') ?? undefined)
+  await click(menuItem('Mouse & keyboard…'))
   await waitForText('Shift + drag')
   expect(document.body.textContent).toContain('Home and End')
   await click(button('About & credits'))
@@ -120,34 +133,45 @@ test('the alignment names its keys to a screen reader', () => {
   expect(label).toContain('Arrow keys: Scroll one cell')
 })
 
-function testId(id: string) {
-  return container.querySelector(`[data-testid="${id}"]`)
-}
-
-test('the tree menu needs a tree or two rows to build one from', () => {
-  mount({ msa: '>a\nACGT\n' })
-  expect(testId('tree_settings_menu')).toBeNull()
-  act(() => {
-    root.unmount()
-  })
-  root = createRoot(container)
-  mount({ msa, tree })
-  expect(testId('tree_settings_menu')).toBeTruthy()
+test('the menu bar reads File, Edit, View, Tools, Help', () => {
+  mount({ msa })
+  expect(
+    ['file', 'edit', 'view', 'tools', 'help'].map(
+      n => testId(`${n}_menu`)?.textContent,
+    ),
+  ).toEqual(['File', 'Edit', 'View', 'Tools', 'Help'])
 })
 
-test('the fit menu resets the zoom', async () => {
+test('View → Zoom resets the zoom', () => {
   mount({ msa })
   const { colWidth } = model
   model.zoomIn()
   expect(model.colWidth).not.toBe(colWidth)
-  await click(testId('fit_menu') ?? undefined)
-  await click(
-    [...document.querySelectorAll('li')].find(
-      li => li.textContent === 'Reset zoom',
-    ),
-  )
+  clickItem(subMenuItems(viewMenuItems(model), 'Zoom'), 'Reset zoom')
   expect(model.colWidth).toBe(colWidth)
 })
+
+test('the selection items stay greyed out until there is a selection', () => {
+  mount({ msa })
+  const disabled = () =>
+    editMenuItems(model)
+      .filter(i => 'disabled' in i && i.disabled)
+      .map(i => 'label' in i && i.label)
+  expect(disabled()).toEqual([
+    'Copy selection as FASTA',
+    'Zoom to selection',
+    'Clear selection',
+  ])
+  model.setSelection({ start: 0, end: 2 })
+  expect(disabled()).toEqual([])
+})
+
+function subMenuItems(items: MenuItem[], label: string) {
+  const item = items.find(i => 'label' in i && i.label === label)
+  return item && 'subMenu' in item && Array.isArray(item.subMenu)
+    ? item.subMenu
+    : []
+}
 
 function clickItem(items: MenuItem[], label: string) {
   const item = items.find(i => 'label' in i && i.label === label)
@@ -159,9 +183,9 @@ function clickItem(items: MenuItem[], label: string) {
   })
 }
 
-test('the view menu turns wheel zoom on', () => {
+test('Tools turns wheel zoom on', () => {
   mount({ msa })
-  clickItem(viewMenuItems(model), 'Scroll wheel zooms')
+  clickItem(toolsMenuItems(model), 'Scroll wheel zooms')
   expect(model.scrollZoom).toBe(true)
 })
 
@@ -178,19 +202,20 @@ test('the gappy columns presets set the threshold, and Show all clears it', () =
   expect(testId('hidden_columns_chip')).toBeNull()
 })
 
-test('the tree menu picks one of three layouts', () => {
+test('View → Tree picks one of three layouts', () => {
   mount({ msa, tree })
-  clickItem(treeMenuItems(model), 'Cladogram')
+  clickItem(treeSubMenu(model), 'Cladogram')
   expect([model.drawTree, model.showBranchLen]).toEqual([true, false])
-  clickItem(treeMenuItems(model), 'Labels only')
+  clickItem(treeSubMenu(model), 'Labels only')
   expect(model.drawTree).toBe(false)
-  clickItem(treeMenuItems(model), 'Phylogram')
+  clickItem(treeSubMenu(model), 'Phylogram')
   expect([model.drawTree, model.showBranchLen]).toEqual([true, true])
 })
 
-test('the tree menu offers a neighbor joining tree without a tree', () => {
+test('View offers Tree only with a tree, and Tools builds one', () => {
   mount({ msa })
-  expect(treeMenuItems(model).map(i => 'label' in i && i.label)).toEqual([
+  expect(subMenuItems(viewMenuItems(model), 'Tree')).toEqual([])
+  expect(toolsMenuItems(model).map(i => 'label' in i && i.label)).toContain(
     'Build neighbor joining tree',
-  ])
+  )
 })

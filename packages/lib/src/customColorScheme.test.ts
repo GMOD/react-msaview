@@ -5,7 +5,7 @@ import colorSchemes from './colorSchemes.ts'
 import {
   catalogedSchemeNames,
   colorSchemeMenuItems,
-} from './components/header/ColorSchemeMenu.tsx'
+} from './components/header/colorSchemeMenuItems.tsx'
 import { tileColorFn } from './components/msa/tileColor.ts'
 import MSAModelF from './model.ts'
 

@@ -257,7 +257,7 @@ export const specs = [
     }),
     settle: 2000,
     actions: [
-      { click: '[data-testid="msa_settings_menu"]' },
+      { click: '[data-testid="view_menu"]' },
       { click: '::-p-text(Annotations)' },
       { click: '::-p-text(Filter annotations)' },
       { waitFor: '::-p-text(accession)' },
