@@ -15,6 +15,7 @@ function importMolstar() {
     import('molstar/lib/mol-math/linear-algebra'),
     import('molstar/lib/mol-plugin-state/helpers/structure-selection-query'),
     import('molstar/lib/mol-model/structure/structure/util/tm-align'),
+    import('molstar/lib/mol-script/language/builder'),
     import('molstar/build/viewer/molstar.css'),
   ]).then(
     ([
@@ -30,6 +31,7 @@ function importMolstar() {
       linearAlgebra,
       selectionQuery,
       tmAlignModule,
+      scriptBuilder,
     ]) => ({
       createPluginUI: ui.createPluginUI,
       createRoot: reactDom.createRoot,
@@ -47,6 +49,7 @@ function importMolstar() {
       QueryContext: structure.QueryContext,
       StructureSelectionQueries: selectionQuery.StructureSelectionQueries,
       tmAlign: tmAlignModule.tmAlign,
+      MS: scriptBuilder.MolScriptBuilder,
     }),
   )
 }
@@ -243,6 +246,54 @@ export function residueLoci(
   return molstar.StructureElement.Loci.isEmpty(loci)
     ? chainLoci(molstar, structure, labelSeqIds, chain, 'auth')
     : loci
+}
+
+/**
+ * Draws only the polymer chains `residues` come from, as cartoon, and the
+ * ligands and ions the file files under the same author chains, as ball and
+ * stick. Waters and every other chain stay hidden. `ref` is a structure with no
+ * representation yet.
+ */
+export async function showChains(
+  plugin: PluginUIContext,
+  molstar: Molstar,
+  ref: string,
+  residues: PolymerResidue[],
+) {
+  const { MS } = molstar
+  const builder = plugin.builders.structure
+  const ofEntity = (type: string, chainId: 'label' | 'auth', ids: string[]) =>
+    MS.struct.generator.atomGroups({
+      'entity-test': MS.core.rel.eq([MS.ammp('entityType'), type]),
+      'chain-test': MS.core.set.has([
+        MS.set(...ids),
+        MS.ammp(chainId === 'label' ? 'label_asym_id' : 'auth_asym_id'),
+      ]),
+    })
+  const polymer = await builder.tryCreateComponentFromExpression(
+    ref,
+    ofEntity('polymer', 'label', [
+      ...new Set(residues.map(r => r.labelAsymId)),
+    ]),
+    'mapped-polymer',
+    { label: 'Mapped chains' },
+  )
+  if (polymer) {
+    await builder.representation.addRepresentation(polymer, { type: 'cartoon' })
+  }
+  const ligand = await builder.tryCreateComponentFromExpression(
+    ref,
+    ofEntity('non-polymer', 'auth', [
+      ...new Set(residues.map(r => r.authAsymId)),
+    ]),
+    'mapped-ligand',
+    { label: 'Ligands of the mapped chains' },
+  )
+  if (ligand) {
+    await builder.representation.addRepresentation(ligand, {
+      type: 'ball-and-stick',
+    })
+  }
 }
 
 export interface PolymerResidue {

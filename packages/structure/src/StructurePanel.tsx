@@ -10,6 +10,7 @@ import {
   loadMolstar,
   polymerResidues,
   residueLoci,
+  showChains,
   tmAlignOnto,
   transformStructure,
 } from './molstar.ts'
@@ -61,6 +62,13 @@ export interface StructurePanelProps {
   compact?: boolean
   /** the Mol* plugin once the structures are loaded, and undefined when it goes */
   onPlugin?: (plugin: PluginUIContext | undefined) => void
+  /**
+   * `mapped` draws only the chains a row maps onto, with the ligands and ions
+   * filed under them, and hides the other chains and the waters. The default is
+   * `mapped` when several structures are shown, where the unfitted chains of
+   * each would crowd the fitted ones, and `all` for one.
+   */
+  chains?: 'mapped' | 'all'
   height?: number
 }
 
@@ -104,6 +112,7 @@ async function loadStructure(
   molstar: Molstar,
   id: string,
   url: string,
+  shownResidues?: (residues: PolymerResidue[]) => PolymerResidue[],
 ): Promise<Loaded | undefined> {
   let trajectory
   if (isBinaryStructureUrl(url)) {
@@ -130,19 +139,25 @@ async function loadStructure(
   const built = await plugin.builders.structure.hierarchy.applyPreset(
     trajectory,
     'default',
+    shownResidues ? { representationPreset: 'empty' } : undefined,
   )
   const root = built?.structure
   const structure = root
     ? plugin.state.data.cells.get(root.ref)?.obj?.data
     : undefined
-  return root && structure
-    ? {
-        id,
-        ref: root.ref,
-        model: structure.model,
-        residues: polymerResidues(molstar, structure),
-      }
-    : undefined
+  if (!built || !root || !structure) {
+    return undefined
+  }
+  const residues = polymerResidues(molstar, structure)
+  if (shownResidues) {
+    const props = built.structureProperties ?? root
+    const shown = shownResidues(residues)
+    // a structure no row reaches is drawn whole rather than not at all
+    await (shown.length > 0
+      ? showChains(plugin, molstar, props.ref, shown)
+      : plugin.builders.structure.representation.applyPreset(props, 'auto'))
+  }
+  return { id, ref: root.ref, model: structure.model, residues }
 }
 
 /**
@@ -165,6 +180,7 @@ export const StructurePanel = observer(function StructurePanel({
   caption,
   compact = false,
   onPlugin,
+  chains,
   height = 400,
 }: StructurePanelProps) {
   const mapped = model.mappedStructures
@@ -176,6 +192,19 @@ export const StructurePanel = observer(function StructurePanel({
     return structure?.url ? [{ id, url: structure.url }] : []
   })
   const key = entries.map(e => `${e.id}\u0000${e.url}`).join('\u0001')
+  const onlyMapped =
+    (chains ?? (entries.length > 1 ? 'mapped' : 'all')) === 'mapped'
+  // the chains drawn follow the mappings, so a new one onto another chain reloads
+  const chainKey = onlyMapped
+    ? JSON.stringify(
+        entries.map(e =>
+          mapped
+            .filter(m => m.structure.id === e.id)
+            .map(m => `${m.structure.asymId}/${m.structure.asymIdKind}`)
+            .toSorted(),
+        ),
+      )
+    : ''
 
   const hostRef = useRef<HTMLDivElement>(null)
   const pluginRef = useRef<PluginUIContext | undefined>(undefined)
@@ -263,7 +292,15 @@ export const StructurePanel = observer(function StructurePanel({
         const problems: string[] = []
         for (const { id, url } of entries) {
           try {
-            const found = await loadStructure(plugin, molstar, id, url)
+            const found = await loadStructure(
+              plugin,
+              molstar,
+              id,
+              url,
+              chainKey
+                ? residues => mappedResidues(model, id, residues)
+                : undefined,
+            )
             if (found) {
               loaded.push(found)
             } else {
@@ -366,7 +403,7 @@ export const StructurePanel = observer(function StructurePanel({
         target.remove()
       })
     }
-  }, [key, model])
+  }, [key, chainKey, model])
 
   useEffect(() => {
     const plugin = pluginRef.current
