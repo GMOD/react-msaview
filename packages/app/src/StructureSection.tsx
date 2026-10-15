@@ -103,19 +103,22 @@ function CandidateButton({
   return (
     <Button
       size="small"
-      variant="outlined"
+      variant="contained"
       color={color}
+      disableElevation
       aria-pressed={selected}
       title={title}
       onClick={onClick}
       sx={
         selected
-          ? {
-              borderWidth: 2,
-              fontWeight: 700,
-              bgcolor: theme => alpha(theme.palette[color].main, 0.12),
+          ? undefined
+          : {
+              color: `${color}.dark`,
+              bgcolor: theme => alpha(theme.palette[color].main, 0.14),
+              '&:hover': {
+                bgcolor: theme => alpha(theme.palette[color].main, 0.24),
+              },
             }
-          : undefined
       }
     >
       {candidate.label}
@@ -461,6 +464,7 @@ const StructureSection = observer(function StructureSection({
         <Button
           variant="contained"
           size="small"
+          disableElevation
           disabled={search.state === 'loading' || (noId && !typed)}
           title="Looks the id up in UniProt, then finds the AlphaFold DB model and the PDB entries"
           onClick={() => {
@@ -483,7 +487,7 @@ const StructureSection = observer(function StructureSection({
         ) : null}
         {noId ? (
           <Button
-            variant="outlined"
+            variant="contained"
             color="secondary"
             size="small"
             disabled={foldseek.state === 'running'}
@@ -509,7 +513,7 @@ const StructureSection = observer(function StructureSection({
               <MenuItem value="tm-align">Fit by structure (TM-align)</MenuItem>
             </Select>
             <Button
-              variant="outlined"
+              variant="contained"
               size="small"
               disabled={superposition.state === 'working'}
               onClick={() => {
@@ -521,7 +525,13 @@ const StructureSection = observer(function StructureSection({
             {superposition.state === 'done' ||
             superposition.state === 'tm' ||
             model.columnTracks.some(t => t.id === distanceTrackId) ? (
-              <Button size="small" color="inherit" onClick={clearSuperposition}>
+              <Button
+                variant="contained"
+                size="small"
+                color="inherit"
+                disableElevation
+                onClick={clearSuperposition}
+              >
                 Clear
               </Button>
             ) : null}
@@ -584,6 +594,7 @@ const StructureSection = observer(function StructureSection({
           sx={{ mt: 1 }}
           action={
             <Button
+              variant="contained"
               color="secondary"
               size="small"
               disabled={foldseek.state === 'running'}
