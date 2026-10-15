@@ -234,6 +234,8 @@ Five rows out of twelve carry the PYD, at residues 9-83 in each.
 
 ## 6. Open the three files
 
+<!-- usage: web -->
+
 `family.afa`, `family.nwk` and `family-domains.gff` go in the alignment, tree
 and annotation slots of the [import form](https://gmod.org/JBrowseMSA/demo/),
 either as local files or as URLs. Each slot has a FILE and a URL toggle, and the
@@ -258,6 +260,36 @@ the color the overlay draws it. IPR004020, the pyrin domain, has a count of 5
 where NACHT, the winged helix, the helical domain and the CARD each have 12.
 IPR025307 counts 24 because it matches twice in every row, once as FIIND and
 once as the UPA-FIIND block beside it.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) takes the same three files as the
+alignment, tree and annotation arguments of `msaview()`, as paths or URLs. `w`
+alone opens the viewer in RStudio or a notebook, and `msaview_plot()` draws the
+same view as a ggplot2 figure:
+
+```r
+library(ggmsaview)
+w <- msaview(
+  msa = "https://gmod.org/JBrowseMSA/demo/data/nlrp1.aln",
+  tree = "https://gmod.org/JBrowseMSA/demo/data/nlrp1.nh",
+  gff = "https://gmod.org/JBrowseMSA/demo/data/nlrp1-domains.gff",
+  color_scheme = "clustalx_protein_dynamic"
+)
+w
+ggplot2::ggsave("protein-family-domains-r.png", msaview_plot(w),
+  width = 12, height = 5)
+```
+
+![](../media/protein-family-domains-r.png)
+
+The twelve rows over 1,666 columns with the GFF's domains as filled boxes and
+one legend entry per domain name. NACHT, the winged helix, the helical domain,
+the two FIIND blocks and the CARD each cover all twelve rows, the leucine-rich
+repeats fall in short runs through the middle, and the PYD at the far left
+covers five rows. Conservation and property conservation run above.
+
+<!-- /usage -->
 
 ## Rows with the pyrin domain
 
