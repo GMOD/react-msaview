@@ -94,8 +94,12 @@ const fit = await superposeRows({
   does, so a loop the alignment mismatched does not pull the core out of
   register. `fitted` of `considered` pairs says how many it kept, and
   `refine: false` keeps them all
-- Structure files are read as mmCIF, and the first model's `ATOM` CA records
-  count
+- Structure files are read as mmCIF or PDB format, and the first model's CA
+  atoms count, on the chain the mapping's `asymIdKind` names
+- A row whose file fails to load goes into `skipped` with the reason, and the
+  rest still fit
+- `distanceValues` is in Å, so give the bar track a `max`; a column no other row
+  covers reads 0
 
 ## Facets: structures side by side
 
@@ -138,6 +142,10 @@ import { StructurePanel } from 'react-msaview-structure/panel'
   layer marks, on top of the rest, through the rows that map onto the structure
 - `fitBy="tm-align"` superposes by the structures' traces alone and reports
   TM-score and RMSD through `onTmAlign`
+- `chains="mapped"` draws the chains a row maps onto, with their ligands and
+  ions, and skips waters and unmapped chains. It is the default when several
+  structures are shown
+- A structure whose file fails to load drops out with a note under the view
 - The view frames the residues the alignment covers, so a tail does not set the
   zoom
 - `molstar` is a peer dependency, and the panel loads it on first mount
