@@ -73,19 +73,19 @@ const P53Hotspots3D = observer(function P53Hotspots3D() {
     }),
   )
   const ref = useWidthSetter(model)
-  const mappings = useAccessionMappings(model, proteins, candidates => {
-    const first = candidates[0]
-    return first && clipToDomain(first)
+  const mappings = useAccessionMappings(model, proteins, {
+    pick: candidates => {
+      const first = candidates[0]
+      return first && clipToDomain(first)
+    },
   })
-  const [shown, setShown] = useState<string>()
   const candidates = mappings.candidates[clinvar.row] ?? []
-  const mapped = model.mappedStructures[0]?.structure.id
-  const structureId = shown ?? mapped
+  const mapped = model.mappedStructures[0]?.structure
+  const structureId = mapped?.id
+  const shownKey = mapped && `${mapped.id}:${mapped.asymId ?? ''}`
 
   function show(candidate: StructureCandidate) {
-    const clipped = clipToDomain(candidate)
-    model.setResidueMappings([clipped.mapping])
-    setShown(clipped.mapping.structure.id)
+    model.setResidueMappings([clipToDomain(candidate).mapping])
   }
 
   return (
@@ -102,22 +102,22 @@ const P53Hotspots3D = observer(function P53Hotspots3D() {
           spacing={1}
           sx={{ mb: 1, flexWrap: 'wrap', gap: 1 }}
         >
-          {candidates.slice(0, 5).map(candidate => (
-            <Button
-              key={candidate.mapping.structure.id}
-              size="small"
-              variant={
-                candidate.mapping.structure.id === structureId
-                  ? 'contained'
-                  : 'outlined'
-              }
-              onClick={() => {
-                show(candidate)
-              }}
-            >
-              {candidate.label}
-            </Button>
-          ))}
+          {candidates.slice(0, 5).map(candidate => {
+            const { id, asymId } = candidate.mapping.structure
+            const key = `${id}:${asymId ?? ''}`
+            return (
+              <Button
+                key={key}
+                size="small"
+                variant={key === shownKey ? 'contained' : 'outlined'}
+                onClick={() => {
+                  show(candidate)
+                }}
+              >
+                {candidate.label}
+              </Button>
+            )
+          })}
         </Stack>
       ) : null}
       <Box

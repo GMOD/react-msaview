@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -11,7 +11,14 @@ import { superposeRows } from 'react-msaview-structure'
 import { StructurePanel } from 'react-msaview-structure/panel'
 
 import alignments from './structureAlignments.json'
-import { useAccessionMappings } from './structureDemo'
+import {
+  caDistanceTrack,
+  fitSummary,
+  mappedTargets,
+  messageOf,
+  tmSummary,
+  useAccessionMappings,
+} from './structureDemo'
 import useWidthSetter from './useWidthSetter'
 
 import type { SuperposeRowsResult } from 'react-msaview-structure'
@@ -55,15 +62,17 @@ const GlobinSuperposition = observer(function GlobinSuperposition() {
     }),
   )
   const ref = useWidthSetter(model)
-  const mappings = useAccessionMappings(model, globins.proteins)
   const [fit, setFit] = useState<Fit>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
-
-  const targets = globins.proteins.flatMap(({ row }) => {
-    const mapped = model.mappedStructures.find(m => m.row === row)
-    return mapped ? [{ row, structureId: mapped.structure.id }] : []
+  const mappings = useAccessionMappings(model, globins.proteins, {
+    onReady: () => {
+      void run('alignment')
+    },
   })
+
+  const rows = globins.proteins.map(p => p.row)
+  const targets = mappedTargets(model, rows)
 
   async function run(kind: 'alignment' | 'pocket' | 'tm-align') {
     setError(undefined)
@@ -80,6 +89,7 @@ const GlobinSuperposition = observer(function GlobinSuperposition() {
         end: landmark['F helix end'].column,
       }
       model.setSelection(kind === 'pocket' ? pocket : undefined)
+      const targets = mappedTargets(model, rows)
       const result = await superposeRows({
         model,
         targets,
@@ -90,31 +100,15 @@ const GlobinSuperposition = observer(function GlobinSuperposition() {
       })
       model.setColumnTracks([
         ...model.columnTracks.filter(t => t.id !== track),
-        {
-          id: track,
-          name: `CA distance to ${targets[0]!.row} (Å)`,
-          kind: 'bar',
-          row: targets[0]!.row,
-          values: result.distanceValues,
-          color: '#d55e00',
-          height: 60,
-        },
+        caDistanceTrack(track, targets[0]!.row, result),
       ])
       setFit({ kind, result })
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      setError(messageOf(e))
     } finally {
       setBusy(false)
     }
   }
-
-  const runRef = useRef(run)
-  runRef.current = run
-  useEffect(() => {
-    if (mappings.state === 'ready' && !fit && !busy) {
-      void runRef.current('alignment')
-    }
-  }, [mappings.state, fit, busy])
 
   const structureIds = targets.map(t => t.structureId)
   return (
@@ -164,24 +158,12 @@ const GlobinSuperposition = observer(function GlobinSuperposition() {
       {error ? <Alert severity="error">{error}</Alert> : null}
       {fit && fit.kind !== 'tm-align' ? (
         <Alert severity="info" sx={{ mb: 1 }}>
-          {fit.result.fits
-            .map(
-              f =>
-                `${f.row}: ${f.rmsd.toFixed(2)} Å over ${f.fitted} of ${f.considered} aligned CA pairs`,
-            )
-            .join(' · ')}
+          {fitSummary(fit.result)}
         </Alert>
       ) : null}
       {fit?.kind === 'tm-align' ? (
         <Alert severity="info" sx={{ mb: 1 }}>
-          {fit.fits
-            ? Object.entries(fit.fits)
-                .map(
-                  ([id, f]) =>
-                    `${id}: TM-score ${f.tmScore.toFixed(2)}, ${f.rmsd.toFixed(2)} Å over ${f.alignedLength} residues`,
-                )
-                .join(' · ')
-            : 'Aligning by structure'}
+          {tmSummary(fit.fits)}
         </Alert>
       ) : null}
       <Box

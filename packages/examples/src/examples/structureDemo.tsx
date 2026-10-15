@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 
 import { when } from 'mobx'
-import { findStructures } from 'react-msaview-structure'
+import { findStructures, networkLookups } from 'react-msaview-structure'
 
 import type { MsaViewModel } from 'react-msaview'
-import type { StructureCandidate } from 'react-msaview-structure'
+import type {
+  StructureCandidate,
+  SuperposeRowsResult,
+} from 'react-msaview-structure'
+import type { TmAlignment } from 'react-msaview-structure/panel'
 
 export interface DemoProtein {
   row: string
@@ -18,31 +22,88 @@ export interface MappingState {
   candidates: Record<string, StructureCandidate[]>
 }
 
+export function messageOf(e: unknown) {
+  return e instanceof Error ? e.message : String(e)
+}
+
+/** each listed row that maps onto a structure, in the order given */
+export function mappedTargets(model: MsaViewModel, rows: string[]) {
+  return rows.flatMap(row => {
+    const mapped = model.mappedStructures.find(m => m.row === row)
+    return mapped ? [{ row, structureId: mapped.structure.id }] : []
+  })
+}
+
+export function caDistanceTrack(
+  id: string,
+  row: string,
+  result: SuperposeRowsResult,
+) {
+  return {
+    id,
+    name: `CA distance to ${row} (Å)`,
+    kind: 'bar' as const,
+    row,
+    values: result.distanceValues,
+    color: '#d55e00',
+    height: 60,
+  }
+}
+
+export function fitSummary(result: SuperposeRowsResult) {
+  return result.fits
+    .map(
+      f =>
+        `${f.row}: ${f.rmsd.toFixed(2)} Å over ${f.fitted} of ${f.considered} aligned CA pairs`,
+    )
+    .join(' · ')
+}
+
+export function tmSummary(fits?: Record<string, TmAlignment>) {
+  return fits
+    ? Object.entries(fits)
+        .map(
+          ([id, f]) =>
+            `${id}: TM-score ${f.tmScore.toFixed(2)}, ${f.rmsd.toFixed(2)} Å over ${f.alignedLength} residues`,
+        )
+        .join(' · ')
+    : 'Aligning by structure'
+}
+
 /**
  * Looks each row's structures up by its UniProt accession and writes the
- * AlphaFold model's mapping, or the candidate `pick` chooses, onto the model.
- * The lookups run in the browser against AlphaFold DB and RCSB, which is the
- * point of the demo: no structure file or mapping is bundled with it.
+ * AlphaFold model's mapping, or the candidate `pick` chooses, onto the model,
+ * then calls `onReady`. The lookups run in the browser against AlphaFold DB and
+ * RCSB, which is the point of the demo: no structure file or mapping is bundled
+ * with it.
  */
 export function useAccessionMappings(
   model: MsaViewModel,
   proteins: DemoProtein[],
-  pick: (
-    candidates: StructureCandidate[],
-  ) => StructureCandidate | undefined = c => c[0],
+  {
+    pick = c => c[0],
+    onReady,
+  }: {
+    pick?: (
+      candidates: StructureCandidate[],
+      row: string,
+    ) => StructureCandidate | undefined
+    onReady?: () => void
+  } = {},
 ) {
-  // a demo's proteins and choice are fixed for its life
-  const [fixed] = useState({ proteins, pick })
+  // a demo's proteins and callbacks are fixed for its life
+  const [fixed] = useState({ proteins, pick, onReady })
   const [mappings, setMappings] = useState<MappingState>({
     state: 'loading',
     message: 'Looking up structures',
     candidates: {},
   })
   useEffect(() => {
-    const life = { cancelled: false }
+    const controller = new AbortController()
+    const { signal } = controller
     void (async () => {
       try {
-        await when(() => model.dataInitialized)
+        await when(() => model.dataInitialized, { signal })
         const candidates: Record<string, StructureCandidate[]> = {}
         const chosen = []
         const problems: string[] = []
@@ -53,19 +114,20 @@ export function useAccessionMappings(
               rowName: row,
               rowSequence: model.rowSequence(row) ?? '',
               accession,
+              lookups: networkLookups(signal),
             }),
           })),
         )
         for (const { row, result } of found) {
           candidates[row] = result.candidates
-          const picked = fixed.pick(result.candidates)
+          const picked = fixed.pick(result.candidates, row)
           if (picked) {
             chosen.push(picked.mapping)
           } else {
             problems.push(result.problem ?? `${row} has no structure`)
           }
         }
-        if (life.cancelled) {
+        if (signal.aborted) {
           return
         }
         model.setResidueMappings(chosen)
@@ -74,18 +136,17 @@ export function useAccessionMappings(
           message: problems.join(' '),
           candidates,
         })
+        if (chosen.length > 0) {
+          fixed.onReady?.()
+        }
       } catch (e) {
-        if (!life.cancelled) {
-          setMappings({
-            state: 'error',
-            message: e instanceof Error ? e.message : String(e),
-            candidates: {},
-          })
+        if (!signal.aborted) {
+          setMappings({ state: 'error', message: messageOf(e), candidates: {} })
         }
       }
     })()
     return () => {
-      life.cancelled = true
+      controller.abort()
     }
   }, [model, fixed])
   return mappings

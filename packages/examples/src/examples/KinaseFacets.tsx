@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -12,7 +12,7 @@ import { facetsByRowField, superposeRows } from 'react-msaview-structure'
 import { FacetGrid } from 'react-msaview-structure/panel'
 
 import alignments from './structureAlignments.json'
-import { useAccessionMappings } from './structureDemo'
+import { mappedTargets, messageOf, useAccessionMappings } from './structureDemo'
 import useWidthSetter from './useWidthSetter'
 
 import type { SuperposeRowsResult } from 'react-msaview-structure'
@@ -62,29 +62,21 @@ const KinaseFacets = observer(function KinaseFacets() {
     return created
   })
   const ref = useWidthSetter(model)
-  const mappings = useAccessionMappings(model, kinases.proteins)
   const [fit, setFit] = useState<SuperposeRowsResult>()
   const [error, setError] = useState<string>()
   const [colorBy, setColorBy] = useState<StructureColor>('none')
+  const mappings = useAccessionMappings(model, kinases.proteins, {
+    onReady: () => {
+      const rows = kinases.proteins.map(p => p.row)
+      superposeRows({ model, targets: mappedTargets(model, rows) })
+        .then(setFit)
+        .catch((e: unknown) => {
+          setError(messageOf(e))
+        })
+    },
+  })
 
   const ready = mappings.state === 'ready'
-  const targets = kinases.proteins.flatMap(({ row }) => {
-    const mapped = model.mappedStructures.find(m => m.row === row)
-    return mapped ? [{ row, structureId: mapped.structure.id }] : []
-  })
-  const targetsRef = useRef(targets)
-  targetsRef.current = targets
-
-  useEffect(() => {
-    if (!ready) {
-      return
-    }
-    superposeRows({ model, targets: targetsRef.current })
-      .then(setFit)
-      .catch((e: unknown) => {
-        setError(e instanceof Error ? e.message : String(e))
-      })
-  }, [ready, model])
 
   const facets = ready ? facetsByRowField(model, 'group', groupColors) : []
   return (
