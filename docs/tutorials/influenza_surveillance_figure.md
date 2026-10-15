@@ -333,6 +333,8 @@ the nine strips, the California and Idaho bars, and the collapsed clade.
 
 ## 9. The link, the export, and one row read against the build
 
+<!-- usage: web -->
+
 Every layer above is a property of the view, so the whole figure travels in one
 link: three filehandles, two encodings, nine row panels and four clade records.
 **Export SVG** in the file menu writes the same figure as vector graphics, with
@@ -343,6 +345,64 @@ each drawn by the same code the screen uses.
 
 The export dialog over the finished figure, set to the current viewport with the
 minimap and the tracks checked.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) builds the same figure from the
+three hosted files. Each layer above is one `+`: the row table, the two channels
+over `state`, nine strips and the four clade records, which collapse and focus
+the tree before `msaview_plot()` lays it out:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/h5n1/"
+rows <- jsonlite::fromJSON(paste0(data, "h5n1-rowdata.json"))
+host <- c(Avian = "#4e79a7", Cattle = "#8c6d31", Human = "#e15759",
+  "Nonhuman Mammal" = "#b07aa1")
+amino <- c(G = "#4e79a7", I = "#f28e2b", K = "#e15759", M = "#76b7b2",
+  N = "#59a14f", R = "#edc948", S = "#b07aa1", T = "#ff9da7", V = "#9c755f",
+  X = "#bab0ac")
+sites <- c("PB2 670", "PB1 517", "PA 432", "HA 147", "NP 119", "NA 71",
+  "M1 82", "NS1 67")
+california <- c("A/chicken/CA/24-031667-001-original/2024",
+  "A/cattle/CA/24-037821-002-original/2024")
+
+w <- msaview(msa = paste0(data, "h5n1-ha.fa"),
+    tree = paste0(data, "h5n1.nwk"), color_scheme = "nucleotide") +
+  geom_msa_rowdata(rows) +
+  scale_row_color("state", channel = "tipLabel") +
+  scale_row_color("state", channel = "branch") +
+  geom_msa_strip("host", map = host)
+for (site in sites) {
+  w <- w + geom_msa_strip(site, map = amino, legend = "amino acid")
+}
+w <- w +
+  geom_msa_clade(mrca = california, tips = 38, color = "#ffd54f66") +
+  geom_msa_clade(mrca = california, tips = 38, mark = "bracket",
+    color = "#c2410c", label = "California, 38") +
+  geom_msa_clade(range = c("A/cattle/ID/25-012902-006-original/2025",
+      "A/cattle/ID/26G09268-001-original/2026"), tips = 17,
+    mark = "bracket", color = "#1d4ed8", label = "Idaho, 17") +
+  geom_msa_clade(mrca = c("A/cattle/CA/24-034698-001-original/2024",
+      "A/cattle/CA/24-037190-002-original/2024"), tips = 31,
+    mark = "collapse") +
+  geom_msa_clade(mrca = c("A/cattle/CA/24-027807-002-original/2024",
+      "A/chicken/CA/24-031285-004-original/2024"), tips = 138,
+    mark = "focus")
+w
+ggplot2::ggsave("influenza_surveillance_figure-r.png", msaview_plot(w),
+  width = 14, height = 14)
+```
+
+![](../media/influenza_surveillance_figure-r.png)
+
+The 138-tip focus with its 31-tip clade collapsed to the grey wedge at the
+bottom, the host strip and the eight site strips beside it, the amber wash over
+the California clade and the two brackets in the gutter. The R figure leaves the
+tip labels and branches black where the web view colors them by state, and gives
+each site strip a key of its own.
+
+<!-- /usage -->
 
 The script ends by printing the most recent human case in the sample beside the
 build's own record for it:
