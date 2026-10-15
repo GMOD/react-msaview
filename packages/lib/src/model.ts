@@ -1618,6 +1618,7 @@ function stateModelFactory({
        */
       setRowHeight(n: number) {
         self.rowHeight = n
+        self.zoomHeld = { ...self.zoomHeld, row: 0 }
       },
 
       /**
@@ -1626,6 +1627,7 @@ function stateModelFactory({
        */
       setColWidth(n: number) {
         self.colWidth = n
+        self.zoomHeld = { ...self.zoomHeld, col: 0 }
       },
 
       /**
@@ -3742,7 +3744,6 @@ function stateModelFactory({
       resetZoom() {
         self.setColWidth(defaultColWidth)
         self.setRowHeight(defaultRowHeight)
-        self.zoomHeld = { col: 0, row: 0 }
       },
       /**
        * #action
@@ -3788,10 +3789,27 @@ function stateModelFactory({
         transaction(() => {
           const colInView = (-self.scrollX + offsetX) / self.colWidth
           const rowInView = (-self.scrollY + offsetY) / self.rowHeight
+          // zooming both axes, the detent applies only to cells in the
+          // default proportions, which reach the default size on both axes
+          // at once; otherwise one axis would stop while the other grows
+          const detent =
+            axis !== 'both' ||
+            Math.abs(
+              self.colWidth * defaultRowHeight -
+                self.rowHeight * defaultColWidth,
+            ) < 1e-6
+          const step = (
+            value: number,
+            home: number,
+            held: number,
+            min: number,
+          ) =>
+            detent
+              ? detentZoom(value, scaleFactor, home, held, min)
+              : { value: clamp(value * scaleFactor, min, maxCellSize), held: 0 }
           if (axis !== 'vertical') {
-            const { value, held } = detentZoom(
+            const { value, held } = step(
               self.colWidth,
-              scaleFactor,
               defaultColWidth,
               self.zoomHeld.col,
               minColWidth,
@@ -3800,9 +3818,8 @@ function stateModelFactory({
             self.zoomHeld = { ...self.zoomHeld, col: held }
           }
           if (axis !== 'horizontal') {
-            const { value, held } = detentZoom(
+            const { value, held } = step(
               self.rowHeight,
-              scaleFactor,
               defaultRowHeight,
               self.zoomHeld.row,
               minRowHeight,
@@ -4823,10 +4840,12 @@ function stateModelFactory({
        */
       fitVertically(maxRowHeight = maxCellSize) {
         if (self.numRows > 0) {
-          self.rowHeight = clamp(
-            self.msaAreaHeight / self.numRows,
-            minRowHeight,
-            maxRowHeight,
+          self.setRowHeight(
+            clamp(
+              self.msaAreaHeight / self.numRows,
+              minRowHeight,
+              maxRowHeight,
+            ),
           )
         }
         self.scrollY = 0
@@ -4843,10 +4862,12 @@ function stateModelFactory({
           return
         }
         transaction(() => {
-          self.colWidth = clamp(
-            self.msaCanvasWidth / (span.endCol - span.startCol + 1),
-            minColWidth,
-            maxCellSize,
+          self.setColWidth(
+            clamp(
+              self.msaCanvasWidth / (span.endCol - span.startCol + 1),
+              minColWidth,
+              maxCellSize,
+            ),
           )
           self.scrollX = clamp(
             -span.startCol * self.colWidth,
@@ -4892,10 +4913,12 @@ function stateModelFactory({
             const { rowRuns } = resolvedSelection
             const first = rowRuns[0]![0]
             const last = rowRuns.at(-1)![1]
-            self.rowHeight = clamp(
-              self.msaAreaHeight / (last - first + 1),
-              minRowHeight,
-              maxCellSize,
+            self.setRowHeight(
+              clamp(
+                self.msaAreaHeight / (last - first + 1),
+                minRowHeight,
+                maxCellSize,
+              ),
             )
             self.scrollY = clamp(-first * self.rowHeight, self.maxScrollY, 0)
           }
@@ -4939,10 +4962,12 @@ function stateModelFactory({
       fitHorizontally(maxColWidth = maxCellSize) {
         if (self.numColumns > 0) {
           // msaCanvasWidth excludes the vertical scrollbar's 20px
-          self.colWidth = clamp(
-            self.msaCanvasWidth / self.numColumns,
-            minColWidth,
-            maxColWidth,
+          self.setColWidth(
+            clamp(
+              self.msaCanvasWidth / self.numColumns,
+              minColWidth,
+              maxColWidth,
+            ),
           )
         }
         self.scrollX = 0

@@ -68,3 +68,29 @@ test('the default axis stays out of the snapshot', () => {
   model.setScrollZoomAxis('horizontal')
   expect(getSnapshot(model).scrollZoomAxis).toBe('horizontal')
 })
+
+test('a both-axis zoom keeps the cell shape when one axis is off the default', () => {
+  const model = makeModel()
+  model.setRowHeight(8)
+  model.zoomToPos(1.1, 100, 100)
+  expect(model.colWidth).toBeCloseTo(12 * 1.1)
+  expect(model.rowHeight).toBeCloseTo(8 * 1.1)
+})
+
+test('a both-axis zoom at the default cell size holds at the detent', () => {
+  const model = makeModel()
+  model.zoomToPos(1.1, 100, 100)
+  expect(model.colWidth).toBe(12)
+  expect(model.rowHeight).toBe(16)
+})
+
+test('a cell size set outside the wheel releases the gathered detent', () => {
+  const model = makeModel()
+  model.zoomToPos(1.2, 100, 100)
+  model.setColWidth(30)
+  model.setRowHeight(40)
+  model.resetZoom()
+  model.zoomToPos(1.1, 100, 100)
+  expect(model.colWidth).toBe(12)
+  expect(model.rowHeight).toBe(16)
+})
