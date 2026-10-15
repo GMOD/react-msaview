@@ -14,6 +14,8 @@
  * - `## Reproduce it end to end` says what the script does in a numbered list
  *   above the fence that runs it
  * - a `## See also` entry is a bare link
+ * - the step that opens the result carries a Web | R switch whose R panel
+ *   loads ggmsaview and shows the figure its fence saves
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -102,6 +104,25 @@ function checkPage(file) {
   const firstFence = reproduce.findIndex(l => l.startsWith('```'))
   if (!reproduce.slice(0, firstFence).some(l => l.startsWith('1. '))) {
     problems.push('Reproduce has no numbered list above its fence')
+  }
+
+  const usage =
+    /^<!-- usage: web -->$([\s\S]*?)^<!-- usage: r -->$([\s\S]*?)^<!-- \/usage -->$/m.exec(
+      text,
+    )
+  if (!usage) {
+    problems.push(
+      'no Web | R switch at the step that opens the result (see "Web and R")',
+    )
+  } else {
+    const rPanel = usage[2]
+    if (!/^```r\n[\s\S]*?library\(ggmsaview\)/m.test(rPanel)) {
+      problems.push('the R panel has no ```r fence that loads ggmsaview')
+    }
+    const shown = /\.\.\/media\/([^)\s]+)/.exec(rPanel)?.[1]
+    if (!shown || !rPanel.includes(`"${shown}"`)) {
+      problems.push('the R panel does not show the figure its fence saves')
+    }
   }
 
   for (const line of byTitle.get('See also') ?? []) {
