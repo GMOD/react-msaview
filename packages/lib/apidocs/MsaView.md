@@ -423,9 +423,10 @@ treeRoot: types.frozen<TreeRoot | undefined>()
 
 #### property: turnedOffFeatures
 
-the user's explicit hide choices per annotation accession, keyed by accession
-with the value meaning "off", like `turnedOffTracks`. An untouched accession is
-absent and drawn, so the shared URL grows only with the user's filters
+the user's departures from each annotation accession's default, keyed by
+accession with the value meaning "off", like `turnedOffTracks`. An untouched
+accession is absent and takes its default, so the shared URL grows only with the
+user's filters
 
 ```js
 turnedOffFeatures: stripDefault(types.map(types.boolean), {})
@@ -2297,8 +2298,8 @@ setFeatures: (features: Feature[]) => void
 
 #### action: setFilter
 
-show or hide an annotation type. Only hidden types are recorded; see
-`turnedOffFeatures`
+show or hide an annotation type. Only a choice that differs from the type's
+default is recorded; see `turnedOffFeatures`
 
 ```js
 setFilter: (accession: string, shown: boolean) => void
@@ -2569,7 +2570,8 @@ setTrackHeight: (heightKey: string, height: number) => void
 #### action: setTracksShown
 
 show or hide several tracks at once, as the track selector's Show all and Hide
-all do
+all do. A choice matching the track's default is dropped, so it stays out of the
+shared URL
 
 ```js
 setTracksShown: (ids: string[], shown: boolean) => void
