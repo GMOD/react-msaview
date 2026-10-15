@@ -841,8 +841,9 @@ function detentZoom(
   home: number,
   held: number,
   min: number,
+  canHold: boolean,
 ) {
-  if (value === home) {
+  if (value === home && canHold) {
     const total = held + Math.log(scale)
     return Math.abs(total) < zoomDetent
       ? { value, held: total }
@@ -3789,40 +3790,32 @@ function stateModelFactory({
         transaction(() => {
           const colInView = (-self.scrollX + offsetX) / self.colWidth
           const rowInView = (-self.scrollY + offsetY) / self.rowHeight
-          // zooming both axes, the detent applies only to cells in the
-          // default proportions, which reach the default size on both axes
-          // at once; otherwise one axis would stop while the other grows
-          const detent =
+          // zooming both axes, an axis holds at the default only while the
+          // other sits there too, or one would hold while the other grows
+          const canHold =
             axis !== 'both' ||
-            Math.abs(
-              self.colWidth * defaultRowHeight -
-                self.rowHeight * defaultColWidth,
-            ) < 1e-6
-          const step = (
-            value: number,
-            home: number,
-            held: number,
-            min: number,
-          ) =>
-            detent
-              ? detentZoom(value, scaleFactor, home, held, min)
-              : { value: clamp(value * scaleFactor, min, maxCellSize), held: 0 }
+            (self.colWidth === defaultColWidth &&
+              self.rowHeight === defaultRowHeight)
           if (axis !== 'vertical') {
-            const { value, held } = step(
+            const { value, held } = detentZoom(
               self.colWidth,
+              scaleFactor,
               defaultColWidth,
               self.zoomHeld.col,
               minColWidth,
+              canHold,
             )
             self.colWidth = value
             self.zoomHeld = { ...self.zoomHeld, col: held }
           }
           if (axis !== 'horizontal') {
-            const { value, held } = step(
+            const { value, held } = detentZoom(
               self.rowHeight,
+              scaleFactor,
               defaultRowHeight,
               self.zoomHeld.row,
               minRowHeight,
+              canHold,
             )
             self.rowHeight = value
             self.zoomHeld = { ...self.zoomHeld, row: held }
