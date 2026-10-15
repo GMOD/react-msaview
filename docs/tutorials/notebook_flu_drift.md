@@ -341,6 +341,8 @@ above it.
 
 ## 9. Share the link
 
+<!-- usage: web -->
+
 The same layers go into a URL that opens the hosted alignment in the web viewer,
 for a reader with no kernel:
 
@@ -367,6 +369,39 @@ the link is 3332 characters
 
 `json.dumps` needs `changes.tolist()`, where the widget took the numpy array
 whole.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) opens the same hosted alignment
+and tree. `h3n2-layers.json` holds the drift counts and the three bands the
+notebook computed, so R reads them rather than counting again. The two site B
+bands carry no color in the file, so R names the viewer's default orange:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/h3n2/"
+layers <- jsonlite::fromJSON(paste0(data, "h3n2-layers.json"))
+drift <- layers$columnTracks
+bands <- layers$highlights
+bands$color[is.na(bands$color)] <- "#ff8c00"
+w <- msaview(msa = paste0(data, "h3n2-ha.aln"),
+    tree = paste0(data, "h3n2-ha.nh"),
+    color_scheme = "clustalx_protein_dynamic") +
+  geom_msa_track(drift$values[[1]], name = drift$name, id = drift$id,
+    max = drift$max, color = drift$color, height = drift$height) +
+  geom_msa_highlight(bands)
+w
+ggplot2::ggsave("flu-drift-share-r.png",
+  msaview_plot(w, tracks = "drift"), width = 12, height = 7)
+```
+
+![](../media/flu-drift-share-r.png)
+
+The 25 strains in tree order beside the drift track, its red bars tallest in HA1
+between columns 150 and 250, where the two orange site B bands sit. The blue
+band is the fusion peptide, under a stretch of columns with almost no changes.
+
+<!-- /usage -->
 
 ## Reproduce it end to end
 
