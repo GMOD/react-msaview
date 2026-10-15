@@ -540,6 +540,7 @@ export const preservedOnReset = new Set([
   'subFeatureRows',
   'showDomainLegend',
   'domainFill',
+  'embeddedMode',
 ])
 
 // `turnedOffTracks` holds only the user's explicit choices, so a hidden-by-default
@@ -984,6 +985,13 @@ function stateModelFactory({
 
         /**
          * #property
+         * draws the toolbar's menus and Settings as icons without text, for a
+         * host with little room, such as a JBrowse view
+         */
+        embeddedMode: stripDefault(types.boolean, false),
+
+        /**
+         * #property
          * zoom in/out on plain mouse-wheel without holding ctrl
          */
         scrollZoom: stripDefault(types.boolean, defaultScrollZoom),
@@ -1236,13 +1244,6 @@ function stateModelFactory({
        * of the snapshot so a link opened in the full app shows the toolbar.
        */
       hideHeader: false,
-      /**
-       * #volatile
-       * shows the toolbar's menus and Settings as icon buttons without text,
-       * for a host with little room. The jbrowse plugin sets it. Kept out of
-       * the snapshot, so a link opened in the full app shows the labels.
-       */
-      embeddedMode: false,
       /**
        * #volatile
        * shows the import form while the view has no data. MSAViewer turns it
