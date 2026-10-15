@@ -276,13 +276,13 @@ columns to measure, so both draw.
 
 <!-- usage: r -->
 
-[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same hosted
-alignment, tree and GFF, and `geom_msa_features()` is the panel, its colors,
-labels and `align` transform as arguments. The GFF's spans count genome
-positions, not TrpB columns, so `features = FALSE` keeps them off the alignment,
-as the link's switched-off overlay does. `w` alone opens the viewer in RStudio
-or a notebook, and `msaview_plot()` draws the ggplot2 figure, whose key lists
-the trp genes the panel's `map` colors:
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same hosted alignment,
+tree and GFF, and `geom_msa_features()` is the panel, its colors, labels and
+`align` transform as arguments. The GFF's spans count genome positions, not TrpB
+columns, so `features = FALSE` keeps them off the alignment, as the link's
+switched-off overlay does. `w` alone opens the viewer in RStudio or a notebook,
+and `msaview_plot()` draws the ggplot2 figure, whose key lists the trp genes the
+panel's `map` colors:
 
 ```r
 library(ggmsaview)
@@ -308,10 +308,10 @@ ggsave("gene_neighborhoods-5-r.png",
 
 ![](../media/gene_neighborhoods-5-r.png)
 
-The twelve neighborhoods between the trpB tree and the TrpB alignment, every
-row shifted so its trpE starts at one x, the trp genes in their colors and every other gene grey. The H.
-influenzae row has no trpE and keeps its own origin, its trpB and trpA among
-grey genes.
+The twelve neighborhoods between the trpB tree and the TrpB alignment, every row
+shifted so its trpE starts at one x, the trp genes in their colors and every
+other gene grey. The H. influenzae row has no trpE and keeps its own origin, its
+trpB and trpA among grey genes.
 
 <!-- /usage -->
 
