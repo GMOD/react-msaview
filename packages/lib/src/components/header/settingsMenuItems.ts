@@ -146,7 +146,6 @@ export function treeMenuItems(model: MsaViewModel): MenuItem[] {
     drawTree,
     showBranchLen,
     labelsAlignRight,
-    drawNodeBubbles,
     drawNodeLabels,
     drawLabels,
     treeAreaWidth,
@@ -157,6 +156,17 @@ export function treeMenuItems(model: MsaViewModel): MenuItem[] {
     rotated,
   } = model
   return [
+    radio('Phylogram', drawTree && showBranchLen, () => {
+      model.setDrawTree(true)
+      model.setShowBranchLen(true)
+    }),
+    radio('Cladogram', drawTree && !showBranchLen, () => {
+      model.setDrawTree(true)
+      model.setShowBranchLen(false)
+    }),
+    radio('Labels only', !drawTree, () => {
+      model.setDrawTree(false)
+    }),
     subMenu('Order', [
       ...treeOrders.map(order =>
         radio(treeOrderLabels[order], treeOrder === order, () => {
@@ -193,26 +203,17 @@ export function treeMenuItems(model: MsaViewModel): MenuItem[] {
         : []),
     ]),
     subMenu('Labels', [
-      toggle('Show labels', drawLabels, arg => {
+      toggle('Tip labels', drawLabels, arg => {
         model.setDrawLabels(arg)
-      }),
-      toggle('Align right', labelsAlignRight, arg => {
-        model.setLabelsAlignRight(arg)
       }),
       toggle('Internal node labels', drawNodeLabels, arg => {
         model.setDrawNodeLabels(arg)
       }),
+      toggle('Align right', labelsAlignRight, arg => {
+        model.setLabelsAlignRight(arg)
+      }),
     ]),
-    toggle('Show tree', drawTree, arg => {
-      model.setDrawTree(arg)
-    }),
-    toggle('Scale branches by length', showBranchLen, arg => {
-      model.setShowBranchLen(arg)
-    }),
-    toggle('Show node circles', drawNodeBubbles, arg => {
-      model.setDrawNodeBubbles(arg)
-    }),
-    toggle('Show tree overview', showTreeOverview, arg => {
+    toggle('Tree overview', showTreeOverview, arg => {
       model.setShowTreeOverview(arg)
     }),
     toggle('Show tree scale bar', showTreeScaleBar, arg => {

@@ -178,6 +178,16 @@ test('the gappy columns presets set the threshold, and Show all clears it', () =
   expect(testId('hidden_columns_chip')).toBeNull()
 })
 
+test('the tree menu picks one of three layouts', () => {
+  mount({ msa, tree })
+  clickItem(treeMenuItems(model), 'Cladogram')
+  expect([model.drawTree, model.showBranchLen]).toEqual([true, false])
+  clickItem(treeMenuItems(model), 'Labels only')
+  expect(model.drawTree).toBe(false)
+  clickItem(treeMenuItems(model), 'Phylogram')
+  expect([model.drawTree, model.showBranchLen]).toEqual([true, true])
+})
+
 test('the tree menu offers a neighbor joining tree without a tree', () => {
   mount({ msa })
   expect(treeMenuItems(model).map(i => 'label' in i && i.label)).toEqual([

@@ -147,11 +147,11 @@ screen, collapsed clades included.
 [Data layers](https://gmod.org/JBrowseMSA/layers#treeorder-and-treeroot) covers
 `treeOrder` and `treeRoot`, the properties behind these menus.
 
-**Tree → Show tree overview** puts the whole tree in a band above the tree
-panel, small enough that a few hundred tips fit in 120 pixels, with the focused
-subtree drawn as a box on it and the `clades` highlights in place. A click on
-the band focuses the deepest subtree covering the rows under the pointer, and a
-click inside the box clears the focus, so the band reaches a clade of a tree far
+**Tree → Tree overview** puts the whole tree in a band above the tree panel,
+small enough that a few hundred tips fit in 120 pixels, with the focused subtree
+drawn as a box on it and the `clades` highlights in place. A click on the band
+focuses the deepest subtree covering the rows under the pointer, and a click
+inside the box clears the focus, so the band reaches a clade of a tree far
 taller than the screen in one click. The overview keeps drawing every tip while
 the view shows a subtree, so it shows where the focused clade sits in the whole
 tree. The SVG export draws the band too.
@@ -162,13 +162,13 @@ site, at the same scale as the branches. Cladogram mode hides the bar, because
 branch length does not set horizontal position there. The SVG export draws the bar too,
 so a published figure states the scale of its branches.
 
-The **Tree** menu sets the child order and the root, and toggles branch-length
-rendering, right-aligned vs tree-adjacent labels, and the node circles. For an
-alignment loaded without a tree, the menu offers **Build neighbor joining
-tree**, which builds a BLOSUM62 distance tree a quick tree up to 500 rows. On a
-larger alignment the calculation would freeze the page for several seconds or
-more, so the menu item explains the limit and does not run. Build a tree that
-size with FastTree or IQ-TREE and open it beside the alignment; the
+The **Tree** menu draws the tree as a **Phylogram**, with branches to scale, a
+**Cladogram**, or **Labels only**, and sets the child order, the root and the
+labels. For an alignment loaded without a tree, the menu offers **Build neighbor
+joining tree**, which builds a BLOSUM62 distance tree a quick tree up to 500
+rows. On a larger alignment the calculation would freeze the page for several
+seconds or more, so the menu item explains the limit and does not run. Build a
+tree that size with FastTree or IQ-TREE and open it beside the alignment; the
 [protein family tutorial](https://gmod.org/JBrowseMSA/tutorials/protein_family)
 covers the whole path.
 
@@ -381,8 +381,8 @@ the options.
   **Scroll wheel zooms**. Gappy columns hides each column where at least 50%,
   90% or a custom share of the rows has a gap, and a chip in the header counts
   the hidden columns; its × shows them again.
-- **Tree** holds the Order, Root and Labels submenus and the branch-length,
-  node-circle and overview toggles.
+- **Tree** picks Phylogram, Cladogram or Labels only, and holds the Order, Root
+  and Labels submenus and the **Tree overview** toggle.
 
 ## Scaling to large data
 
