@@ -433,6 +433,8 @@ that holds the insert.
 
 ## 10. Open the whole thing
 
+<!-- usage: web -->
+
 The view combines three hosted files and three layers. The files go behind URLs,
 because an alignment does not fit in a link, and the layers go in the link,
 because they take a few kilobytes:
@@ -459,6 +461,42 @@ the app as `#data=`.
 
 The final view shows the tree, the domain architecture, the seven labeled
 regions of the SARS-CoV-2 row, and the 6VXX ribbon along the top.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three hosted
+files, and takes the three layers from the hosted `spike-layers.json`, which
+holds the `columnTracks`, `highlights` and `residueMappings` entries above:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/spike/"
+layers <- jsonlite::fromJSON(paste0(data, "spike-layers.json"),
+  simplifyVector = FALSE)
+w <- msaview(
+  msa = paste0(data, "spike.afa"),
+  tree = paste0(data, "spike.nwk"),
+  gff = paste0(data, "spike-domains.gff"),
+  color_scheme = "clustalx_protein_dynamic",
+  column_tracks = layers$columnTracks,
+  highlights = layers$highlights,
+  residue_mappings = layers$residueMappings
+)
+w
+ggplot2::ggsave("spike-structure-final-r.png",
+  msaview_plot(w, tracks = c("6vxx-coverage", "conservation")),
+  width = 12, height = 6)
+```
+
+![](../media/spike-structure-final-r.png)
+
+The eleven spikes over 1,660 columns, the InterPro domains keyed on the right,
+the seven SARS-CoV-2 regions as orange bands, and the 6VXX chain A row along the
+top: green where the structure resolves a residue, orange where it does not,
+grey past the construct. The residue mapping reaches the widget `w`, which looks
+residues up in 6VXX, but draws nothing in a static figure.
+
+<!-- /usage -->
 
 A host that loads this view can look up a row residue in the structure, and gets
 `undefined` where the mapping has no answer:
