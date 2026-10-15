@@ -190,12 +190,50 @@ Column 30 holds ABL1's K271, column 77 its gatekeeper T315, and columns 141-143
 its D381-F382-G383. A sequence logo across all 474 rows, with those three
 columns and one column with nothing to do with the pocket called out:
 
+<!-- usage: web -->
+
 [![](../media/kinase-pocket-logo.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A480%2C%22treeAreaWidth%22%3A110%2C%22colWidth%22%3A4.6%2C%22rowHeight%22%3A2%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22sequence-logo%22%3Afalse%7D%2C%22highlights%22%3A%5B%7B%22start%22%3A30%2C%22end%22%3A30%2C%22label%22%3A%22catalytic%20K%22%2C%22color%22%3A%22rgba(21%2C101%2C192%2C0.25)%22%7D%2C%7B%22start%22%3A77%2C%22end%22%3A77%2C%22label%22%3A%22gatekeeper%22%2C%22color%22%3A%22rgba(227%2C36%2C43%2C0.25)%22%7D%2C%7B%22start%22%3A141%2C%22end%22%3A143%2C%22label%22%3A%22DFG%22%2C%22color%22%3A%22rgba(46%2C125%2C50%2C0.25)%22%7D%2C%7B%22start%22%3A102%2C%22end%22%3A102%2C%22label%22%3A%22control%22%2C%22color%22%3A%22rgba(117%2C117%2C117%2C0.25)%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fkinase-pocket%2Fkinase-pocket.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fkinase-pocket%2Fkinase-pocket.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fkinase-pocket%2Fkinase-pocket-metadata.json%22%7D%7D%7D>)
 
 The catalytic lysine column is 93.5% K over all 474 rows. The control is the
 column 25 residues to its right, which sits between the gatekeeper and the DFG
 motif but is not one of the three landmarks. That column has no majority
 residue: F is the most common at 13.3%, then S, K, R, L and H.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same hosted alignment
+and tree, and `geom_msa_highlight()` takes the four columns as a data frame. `w`
+alone opens the viewer in RStudio or a notebook, and `msaview_plot()` draws the
+logo above the rows as a ggplot2 figure:
+
+```r
+library(ggmsaview)
+pocket <- data.frame(
+  start = c(30, 77, 141, 102),
+  end = c(30, 77, 143, 102),
+  label = c("catalytic K", "gatekeeper", "DFG", "control"),
+  color = c("#1565c040", "#e3242b40", "#2e7d3240", "#75757540")
+)
+w <- msaview(
+  msa = "https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.afa",
+  tree = "https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.nwk",
+  color_scheme = "clustalx_protein_dynamic", row_height = 2
+) + geom_msa_highlight(pocket)
+w
+ggplot2::ggsave("kinase-pocket-logo-r.png",
+  msaview_plot(w, tracks = c("conservation", "sequence-logo")),
+  width = 12, height = 8)
+```
+
+![](../media/kinase-pocket-logo-r.png)
+
+All 474 rows over the 262 Pkinase columns, the tree beside them, under the
+conservation bars and the sequence logo. The logo stands tall at the catalytic
+K, at the DFG motif and in the HRD loop before it, and stays low at the control
+column, where no residue dominates. `row_height = 2` keeps the rows from
+crowding the tracks out of the figure.
+
+<!-- /usage -->
 
 ```python
 def tally(col, top):
