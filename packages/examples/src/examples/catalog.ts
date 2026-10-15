@@ -8,6 +8,7 @@ export const categoryOrder = [
   'Getting started',
   'API & control',
   'Protein domains',
+  'Protein structure',
   'Conservation & diffing',
   'Phylogeny',
   'RNA structure',
@@ -159,6 +160,42 @@ export const catalog: CatalogEntry[] = [
       'missense variants ClinVar has on record per residue. 94% of those ' +
       'variants land inside the DNA-binding domain, with a second small ' +
       'cluster on the tetramerization domain.',
+  },
+  {
+    id: 'GlobinSuperposition',
+    name: 'Superposing structures by the alignment (globins)',
+    category: 'Protein structure',
+    description:
+      'Five human globins that share a fold and little sequence. The page ' +
+      'asks AlphaFold DB for each model from its UniProt accession, lays them ' +
+      'on one another using the alignment’s own correspondences, and plots ' +
+      'the CA distance after the fit as a column track. Fit the whole fold, ' +
+      'only the E and F helices, or by structure alone with TM-align, and ' +
+      'compare. The two marked columns are the heme’s two histidines, marked ' +
+      'once as highlights and drawn on the alignment and on every structure.',
+  },
+  {
+    id: 'KinaseFacets',
+    name: 'Kinase groups side by side in 3D',
+    category: 'Protein structure',
+    description:
+      'Eight human kinases from four kinome groups, one structure panel per ' +
+      'group. The alignment superposes all eight into one frame and the four ' +
+      'cameras are tied, so a difference between groups is a difference in ' +
+      'place. The four marked motifs, the glycine-rich loop, the catalytic ' +
+      'lysine, HRD and DFG, are highlights on the alignment and on each ' +
+      'structure.',
+  },
+  {
+    id: 'P53Hotspots3D',
+    name: 'Where the p53 disease variants sit in 3D',
+    category: 'Protein structure',
+    description:
+      'The ClinVar hotspots of the p53 example, residues with five or more ' +
+      'pathogenic missense variants, as a highlights layer on the human row. ' +
+      'The alignment carries them across its columns and the structure ' +
+      'carries them across its residues. Switch between the AlphaFold model ' +
+      'and experimental entries RCSB aligns to the protein.',
   },
   {
     id: 'DomainLetterColors',

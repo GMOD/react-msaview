@@ -18,6 +18,7 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-msaview": "workspace:*",
+    "react-msaview-structure": "workspace:*",
     "shiki": "4.4.3"
   },
   "devDependencies": {

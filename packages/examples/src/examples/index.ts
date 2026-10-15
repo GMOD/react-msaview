@@ -24,6 +24,8 @@ import GeneCluster from './GeneCluster'
 import GeneClusterSrc from './GeneCluster.tsx?raw'
 import Globin from './Globin'
 import GlobinSrc from './Globin.tsx?raw'
+import GlobinSuperposition from './GlobinSuperposition'
+import GlobinSuperpositionSrc from './GlobinSuperposition.tsx?raw'
 import Hammerhead from './Hammerhead'
 import HammerheadSrc from './Hammerhead.tsx?raw'
 import HistoneH4 from './HistoneH4'
@@ -34,6 +36,8 @@ import Insulin from './Insulin'
 import InsulinSrc from './Insulin.tsx?raw'
 import KinaseContacts from './KinaseContacts'
 import KinaseContactsSrc from './KinaseContacts.tsx?raw'
+import KinaseFacets from './KinaseFacets'
+import KinaseFacetsSrc from './KinaseFacets.tsx?raw'
 import LargeTree from './LargeTree'
 import LargeTreeSrc from './LargeTree.tsx?raw'
 import LoadByAccession from './LoadByAccession'
@@ -54,6 +58,8 @@ import Opsins from './Opsins'
 import OpsinsSrc from './Opsins.tsx?raw'
 import P53ClinVar from './P53ClinVar'
 import P53ClinVarSrc from './P53ClinVar.tsx?raw'
+import P53Hotspots3D from './P53Hotspots3D'
+import P53Hotspots3DSrc from './P53Hotspots3D.tsx?raw'
 import PanelControls from './PanelControls'
 import PanelControlsSrc from './PanelControls.tsx?raw'
 import PfamGlobin from './PfamGlobin'
@@ -97,11 +103,13 @@ const components: Record<string, [ComponentType, string]> = {
   F12: [F12, F12Src],
   GeneCluster: [GeneCluster, GeneClusterSrc],
   Globin: [Globin, GlobinSrc],
+  GlobinSuperposition: [GlobinSuperposition, GlobinSuperpositionSrc],
   Hammerhead: [Hammerhead, HammerheadSrc],
   HistoneH4: [HistoneH4, HistoneH4Src],
   Hox: [Hox, HoxSrc],
   Insulin: [Insulin, InsulinSrc],
   KinaseContacts: [KinaseContacts, KinaseContactsSrc],
+  KinaseFacets: [KinaseFacets, KinaseFacetsSrc],
   LargeTree: [LargeTree, LargeTreeSrc],
   LoadByAccession: [LoadByAccession, LoadByAccessionSrc],
   LoadFromUrl: [LoadFromUrl, LoadFromUrlSrc],
@@ -112,6 +120,7 @@ const components: Record<string, [ComponentType, string]> = {
   Nlrp1: [Nlrp1, Nlrp1Src],
   Opsins: [Opsins, OpsinsSrc],
   P53ClinVar: [P53ClinVar, P53ClinVarSrc],
+  P53Hotspots3D: [P53Hotspots3D, P53Hotspots3DSrc],
   PanelControls: [PanelControls, PanelControlsSrc],
   PfamGlobin: [PfamGlobin, PfamGlobinSrc],
   Prestin: [Prestin, PrestinSrc],

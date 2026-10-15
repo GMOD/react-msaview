@@ -1,0 +1,144 @@
+{
+  "globins": {
+    "reference": "HBA_HUMAN",
+    "proteins": [
+      {
+        "row": "HBA_HUMAN",
+        "accession": "P69905",
+        "group": "Hemoglobin",
+        "range": [1, 142]
+      },
+      {
+        "row": "HBB_HUMAN",
+        "accession": "P68871",
+        "group": "Hemoglobin",
+        "range": [1, 147]
+      },
+      {
+        "row": "MYG_HUMAN",
+        "accession": "P02144",
+        "group": "Myoglobin",
+        "range": [1, 154]
+      },
+      {
+        "row": "NGB_HUMAN",
+        "accession": "Q9NPG2",
+        "group": "Neuroglobin",
+        "range": [1, 151]
+      },
+      {
+        "row": "CYGB_HUMAN",
+        "accession": "Q8WWM9",
+        "group": "Cytoglobin",
+        "range": [1, 190]
+      }
+    ],
+    "msa": ">HBA_HUMAN\n---------------MV-LSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHF--DLSH-----GSAQVKGHGKKVADALTNAVAHVDD---MPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR-----------------------\n>HBB_HUMAN\n---------------MVHLTPEEKSAVTALWGKV--NVDEVGGEALGRLLVVYPWTQRFFESFG-DLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDN---LKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH-----------------------\n>CYGB_HUMAN\nMEKVPGEMEIERRERSEELSEAERKAVQAMWARLYANCEDVGVAILVRFFVNFPSAKQYFSQFK-HMEDPLEMERSPQLRKHACRVMGALNTVVENLHDPDKVSSVLALVGKAHALKHKVEPVYFKILSGVILEVVAEEFASDFPPETQRAWAKLRGLIYSHVTAAYKEVGWVQQVPNATTPPATLPSSGP\n>MYG_HUMAN\n----------------MGLSDGEWQLVLNVWGKVEADIPGHGQEVLIRLFKGHPETLEKFDKFK-HLKSEDEMKASEDLKKHGATVLTALGGILKKKGH---HEAEIKPLAQSHATKHKIPVKYLEFISECIIQVLQSKHPGDFGADAQGAMNKALELFRKDMASNYKELGFQG-----------------\n>NGB_HUMAN\n------------------MERPEPELIRQSWRAVSRSPLEHGTVLFARLFALEPDLLPLFQYNCRQFSSPEDCLSSPEFLDHIRKVMLVIDAAVTNVEDLSSLEEYLASLGRKHR-AVGVKLSSFSTVGESLLYMLEKCLGPAFTPATRAAWSQLYGAVVQAMSRGWDGE---------------------\n",
+    "landmarks": {
+      "distal His (E7)": {
+        "residue": 59,
+        "letter": "H",
+        "column": 82
+      },
+      "proximal His (F8)": {
+        "residue": 88,
+        "letter": "H",
+        "column": 114
+      },
+      "E helix start": {
+        "residue": 54,
+        "letter": "A",
+        "column": 77
+      },
+      "F helix end": {
+        "residue": 92,
+        "letter": "L",
+        "column": 118
+      }
+    },
+    "provenance": {
+      "sequences": "UniProt REST, https://rest.uniprot.org/uniprotkb/<accession>.json",
+      "aligner": "ClustalW, default parameters"
+    }
+  },
+  "kinases": {
+    "reference": "CDK2_HUMAN",
+    "proteins": [
+      {
+        "row": "CDK2_HUMAN",
+        "accession": "P24941",
+        "group": "CMGC",
+        "range": [4, 286]
+      },
+      {
+        "row": "MK01_HUMAN",
+        "accession": "P28482",
+        "group": "CMGC",
+        "range": [25, 313]
+      },
+      {
+        "row": "GSK3B_HUMAN",
+        "accession": "P49841",
+        "group": "CMGC",
+        "range": [56, 340]
+      },
+      {
+        "row": "KAPCA_HUMAN",
+        "accession": "P17612",
+        "group": "AGC",
+        "range": [44, 298]
+      },
+      {
+        "row": "AKT1_HUMAN",
+        "accession": "P31749",
+        "group": "AGC",
+        "range": [150, 408]
+      },
+      {
+        "row": "PIM1_HUMAN",
+        "accession": "P11309",
+        "group": "CAMK",
+        "range": [38, 290]
+      },
+      {
+        "row": "CHK1_HUMAN",
+        "accession": "O14757",
+        "group": "CAMK",
+        "range": [9, 265]
+      },
+      {
+        "row": "AURKA_HUMAN",
+        "accession": "O14965",
+        "group": "Other",
+        "range": [133, 383]
+      }
+    ],
+    "msa": ">CDK2_HUMAN\nFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLD-TETEGVPST---AIREISLLKELN--HPNIVKLLDVIHT------ENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKS--YLFQLLQGLAFCHS-HRVLHRDLKPQNLLIN-TEGAIKLADFGLARAFG---VPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMP--DYKPSFPKWARQDFSKVVPP-LDEDGRSLLSQMLHYDPNKRIS-----AKAALAHPFF\n>MK01_HUMAN\nYTNLSYIGEGAYGMVCSAYDNVNKVRVAIKKISP--FEHQTYCQR---TLREIKILLRFR--HENIIGINDIIRAP-TIEQMKDVYIVQDLMETDLYKLLKTQHLS---NDHICY--FLYQILRGLKYIHS-ANVLHRDLKPSNLLLN-TTCDLKICDFGLARVADPDHDHTGFLTEYVATRWYRAPEIMLNSKGYTKSIDIWSVGCILAEMLSNRPIFPGKHYLDQLNHILGILGSPSQEDLNCIINLKARNYLLSLPHKNKVPWNRLFPN-ADSKALDLLDKMLTFNPHKRIE-----VEQALAHPYL\n>GSK3B_HUMAN\nYTDTKVIGNGSFGVVYQAKLCDSGELVAIKKVLQD-KRFK---------NRELQIMRKLD--HCNIVRLRYFFYSSGEKKDEVYLNLVLDYVPETVYRVARHYSRAKQTLPVIYVKLYMYQLFRSLAYIHS-FGICHRDIKPQNLLLDPDTAVLKLCDFGSAKQLVR----GEPNVSYICSRYYRAPELIFGATDYTSSIDVWSAGCVLAELLLGQPIFPGDSGVDQLVEIIKVLGTPTR---EQIREMNPNYTEFKFPQIKAHPWTKVFRPRTPPEAIALCSRLLEYTPTARLT-----PLEACAHSFF\n>KAPCA_HUMAN\nFERIKTLGTGSFGRVMLVKHKETGNHYAMKILDKQKVVKLKQIEH---TLNEKRILQAVN--FPFLVKLEFSFKDN------SNLYMVMEYVPGGEMFSHLRRIGR---FSEPHARFYAAQIVLTFEYLHS-LDLIYRDLKPENLLID-QQGYIQVTDFGFAKR-VKG-----RTWTLCGTPEYLAPEIILS-KGYNKAVDWWALGVLIYEMAAGYPPFFADQPIQIYEKIVSGK--------------------------------VRFPSHFSSDLKDLLRNLLQVDLTKRFGNLKNGVNDIKNHKWF\n>AKT1_HUMAN\nFEYLKLLGKGTFGKVILVKEKATGRYYAMKILKKEVIVAKDEVAH---TLTENRVLQNSR--HPFLTALKYSFQTH------DRLCFVMEYANGGELFFHLSRERV---FSEDRARFYGAEIVSALDYLHSEKNVVYRDLKLENLMLD-KDGHIKITDFGLCKEGIKDG---ATMKTFCGTPEYLAPEVLED-NDYGRAVDWWGLGVVMYEMMCGRLPFYNQDHEKLFELILMEE--------------------------------IRFPRTLGPEAKSLLSGLLKKDPKQRLGGGSEDAKEIMQHRFF\n>AURKA_HUMAN\nFEIGRPLGKGKFGNVYLAREKQSKFILALKVLFKAQLEKAGVEHQ---LRREVEIQSHLR--HPNILRLYGYFHDA------TRVYLILEYAPLGTVYRELQKLSK---FDEQRTATYITELANALSYCHS-KRVIHRDIKPENLLLG-SAGELKIADFGWSVHAPSS-----RRTTLCGTLDYLPPEMIEG-RMHDEKVDLWSLGVLCYEFLVGKPPFEANTYQETYKRISRVE--------------------------------FTFPDFVTEGARDLISRLLKHNPSQRP-----MLREVLEHPWI\n>CHK1_HUMAN\nWDLVQTLGEGAYGEVQLAVNRVTEEAVAVKIVDMK--RAVDCPEN---IKKEICINKMLN--HENVVKFYGHRREG------NIQYLFLEYCSGGELFDRIEPDIG---MPEPDAQRFFHQLMAGVVYLHG-IGITHRDIKPENLLLD-ERDNLKISDFGLATVFRYNN-RERLLNKMCGTLPYVAPELLKRREFHAEPVDVWSCGIVLTAMLAGELPWDQPSDSCQEYSDWKEK-----------------------------KTYLNPWKKIDSAPLALLHKILVENPSARIT-----IPDIKKDRWY\n>PIM1_HUMAN\nYQVGPLLGSGGFGSVYSGIRVSDNLPVAIKHVEKDRISDWGELPNGTRVPMEVVLLKKVSSGFSGVIRLLDWFERP------DSFVLILERPEPVQDLFDFITERG--ALQEELARSFFWQVLEAVRHCHN-CGVLHRDIKDENILIDLNRGELKLIDFGSGALLKDT-----VYTDFDGTRVYSPPEWIRYHRYHGRSAAVWSLGILLYDMVCGDIPFEHDEEIIRGQVFFRQR--------------------------------------VSSECQHLIRWCLALRPSDRPT-----FEEIQNHPWM\n",
+    "landmarks": {
+      "Gly-rich loop (GxGxxG)": {
+        "residue": 11,
+        "letter": "G",
+        "column": 8
+      },
+      "catalytic Lys": {
+        "residue": 33,
+        "letter": "K",
+        "column": 30
+      },
+      "HRD motif": {
+        "residue": 126,
+        "letter": "R",
+        "column": 138
+      },
+      "DFG motif": {
+        "residue": 145,
+        "letter": "D",
+        "column": 158
+      }
+    },
+    "provenance": {
+      "sequences": "UniProt REST, https://rest.uniprot.org/uniprotkb/<accession>.json, cut to each protein's \"Protein kinase\" domain",
+      "aligner": "ClustalW, default parameters"
+    }
+  }
+}
