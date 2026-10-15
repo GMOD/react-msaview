@@ -165,6 +165,20 @@ test('the settings panel has a Tree section only with a tree', async () => {
   expect(testId('settings_panel')?.textContent).not.toContain('Phylogram')
 })
 
+test('a folded settings section stays folded when the panel reopens', async () => {
+  localStorage.clear()
+  mount({ msa, tree })
+  await click(testId('settings_button') ?? undefined)
+  await click(button('Tree'))
+  expect(testId('settings_panel')?.textContent).not.toContain('Phylogram')
+  await click(button('Close settings'))
+  await click(testId('settings_button') ?? undefined)
+  expect(testId('settings_panel')?.textContent).not.toContain('Phylogram')
+  await click(button('Tree'))
+  expect(testId('settings_panel')?.textContent).toContain('Phylogram')
+  localStorage.clear()
+})
+
 test('View → Zoom resets the zoom', () => {
   mount({ msa })
   const { colWidth } = model
