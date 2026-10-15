@@ -1,3 +1,4 @@
+import { zoomFrameMaxLetters } from '../../constants.ts'
 import { setFontSize } from '../../setFontSize.ts'
 import { adjustColorForContrast, contrastTextFn } from '../../util.ts'
 import { getVisibleLeaves } from '../getVisibleLeaves.ts'
@@ -76,6 +77,10 @@ export function renderMSABlock({
     // ...and when the caller has already laid the raster down, the tiles are
     // there but nothing here has to paint them
     rasterTiles,
+    letters:
+      model.showMsaLetters &&
+      (!model.wheelZooming ||
+        (bx * by) / (colWidth * rowHeight) <= zoomFrameMaxLetters),
   })
   drawInsertionIndicators({
     model,
@@ -97,6 +102,7 @@ function drawTilesAndText({
   referenceSeq,
   drawTiles,
   rasterTiles,
+  letters,
 }: {
   model: MsaViewModel
   theme: Theme
@@ -107,6 +113,7 @@ function drawTilesAndText({
   referenceSeq: string | null | undefined
   drawTiles: boolean
   rasterTiles?: boolean
+  letters: boolean
 }) {
   const {
     bgColor,
@@ -115,7 +122,6 @@ function drawTilesAndText({
     rowHeight,
     fontSize,
     relativeTo,
-    showMsaLetters,
     subFeatureRows,
     domainUnderline,
     domainBandsByStart,
@@ -124,7 +130,7 @@ function drawTilesAndText({
 
   const tiles = drawTiles && bgColor
   const paintTiles = tiles && !rasterTiles
-  if (paintTiles || showMsaLetters) {
+  if (paintTiles || letters) {
     const tileColor = tileColorFn(model)
     // Domain fills come from a categorical palette with no fixed lightness, and
     // a dynamic scheme colors a cell from its column, so a readable letter color
@@ -169,7 +175,7 @@ function drawTilesAndText({
             ctx.fillRect(x, tileY, colWidth, rowHeight)
           }
 
-          if (showMsaLetters) {
+          if (letters) {
             const covering = bandAt(col)
             ctx.fillStyle = covering
               ? // on top of a domain box: contrast against the box fill

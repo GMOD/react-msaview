@@ -50,6 +50,10 @@ export const defaultScrollZoomAxis: ScrollZoomAxis = 'both'
 export const minLetterRowHeight = 8
 export const minLetterColWidth = 5
 
+// A wheel-zoom frame draws a block's letters only when the block holds at most
+// this many cells; the settle redraw after the gesture draws the rest
+export const zoomFrameMaxLetters = 2000
+
 // A feature span draws its label at two pixels under its height, capped at 11,
 // so a span shorter than this holds no readable text: an underline bar, a
 // sub-row band or a features panel over small rows

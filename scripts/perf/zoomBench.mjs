@@ -183,9 +183,9 @@ async function runGesture(cdp, x, y, steps) {
 // a source map's mappings decoded per generated line into
 // [genCol, sourceIndex, sourceLine] triples, enough to name a frame's source
 const B64 = Object.fromEntries(
-  [...'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'].map(
-    (c, i) => [c, i],
-  ),
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    .split('')
+    .map((c, i) => [c, i]),
 )
 function decodeMappings(mappings) {
   const lines = []

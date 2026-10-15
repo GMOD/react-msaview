@@ -123,6 +123,7 @@ import {
 import { saveAs } from './vendor/fileSaver.ts'
 import { writeNewick } from './writeNewick.ts'
 import { parseWuss } from './wuss.ts'
+import { takeZoomSnapshot, zoomSnapshotCovers } from './zoomSnapshot.ts'
 
 import type { ColumnStats } from './columnStats.ts'
 import type { ScrollZoomAxis } from './constants.ts'
@@ -170,6 +171,7 @@ import type {
   UnshareableData,
   Viewport,
 } from './types.ts'
+import type { ZoomSnapshot } from './zoomSnapshot.ts'
 import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import type { Instance } from '@jbrowse/mobx-state-tree'
 import type { IComputedValue } from 'mobx'
@@ -1203,6 +1205,13 @@ function stateModelFactory({
       highResScaleFactor:
         typeof window === 'undefined' ? 1 : window.devicePixelRatio,
 
+      /**
+       * #volatile
+       * the cell size and block grid the alignment last drew at, held from a
+       * wheel-zoom frame until the gesture settles. MSACanvas stretches those
+       * blocks to the current cell size with one CSS transform
+       */
+      zoomSnapshot: undefined as ZoomSnapshot | undefined,
       /**
        * #volatile
        */
@@ -3412,6 +3421,12 @@ function stateModelFactory({
           self.blocksX.map(bx => [bx, by] as const),
         )
       },
+      /**
+       * #getter
+       */
+      get wheelZooming() {
+        return self.zoomSnapshot !== undefined
+      },
 
       /**
        * #getter
@@ -3669,6 +3684,25 @@ function stateModelFactory({
             0,
           )
         })
+      },
+      /**
+       * #action
+       * zoomToPos for one wheel or pinch frame. The alignment keeps the blocks
+       * it drew at the start of the gesture, scaled, and redraws them only once
+       * they stop covering the viewport; endWheelZoom redraws them sharp
+       */
+      wheelZoomToPos(scaleFactor: number, offsetX: number, offsetY: number) {
+        self.zoomSnapshot ??= takeZoomSnapshot(self, false)
+        this.zoomToPos(scaleFactor, offsetX, offsetY, self.wheelZoomAxis)
+        if (!zoomSnapshotCovers(self, self.zoomSnapshot)) {
+          self.zoomSnapshot = takeZoomSnapshot(self, true)
+        }
+      },
+      /**
+       * #action
+       */
+      endWheelZoom() {
+        self.zoomSnapshot = undefined
       },
       /**
        * #action

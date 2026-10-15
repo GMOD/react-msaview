@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 
 import BaseTooltip from '@jbrowse/core/ui/BaseTooltip'
 import { observer } from 'mobx-react'
@@ -11,6 +11,7 @@ import { renderMSABlock } from './renderMSABlock.ts'
 import { useMsaBlockMouse } from './useMsaBlockMouse.ts'
 
 import type { MsaViewModel } from '../../model.ts'
+import type { ZoomSnapshot } from '../../zoomSnapshot.ts'
 
 const MSACanvasBlock = observer(function ({
   model,
@@ -27,8 +28,21 @@ const MSACanvasBlock = observer(function ({
     useMsaBlockMouse({ model, offsetX, offsetY })
 
   const canvasSize = blockSize * highResScaleFactor
+  const drawnAt = useRef<ZoomSnapshot>(undefined)
   const ref = useCanvasAutorun({
     draw: ctx => {
+      // during a wheel zoom MSACanvas scales what this block drew at the
+      // snapshot, so the block redraws only when a new snapshot is taken
+      const snap = model.zoomSnapshot
+      if (
+        snap &&
+        (snap === drawnAt.current ||
+          snap.colWidth !== model.colWidth ||
+          snap.rowHeight !== model.rowHeight)
+      ) {
+        return
+      }
+      drawnAt.current = snap
       ctx.resetTransform()
       ctx.clearRect(0, 0, canvasSize, canvasSize)
       renderBoxFeatureCanvasBlock({

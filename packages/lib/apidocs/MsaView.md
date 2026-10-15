@@ -636,6 +636,16 @@ transientHighlights: {} as Record<string, Highlight[]>
 volatileWidth: undefined as number | undefined
 ```
 
+#### volatile: zoomSnapshot
+
+the cell size and block grid the alignment last drew at, held from a wheel-zoom
+frame until the gesture settles. MSACanvas stretches those blocks to the current
+cell size with one CSS transform
+
+```js
+zoomSnapshot: undefined as ZoomSnapshot | undefined
+```
+
 ### MsaView - Getters
 
 #### getter: actuallyShowDomains
@@ -1729,6 +1739,12 @@ scroll-zoom off the toolbar shows no axis, so ctrl+wheel takes both.
 wheelZoomAxis: 'both' | 'horizontal' | 'vertical'
 ```
 
+#### getter: wheelZooming
+
+```js
+wheelZooming: boolean
+```
+
 #### getter: width
 
 ```js
@@ -2020,6 +2036,12 @@ draw the alignment with positions numbered relative to the given row's sequence
 
 ```js
 drawRelativeTo: (id: string | undefined) => void
+```
+
+#### action: endWheelZoom
+
+```js
+endWheelZoom: () => void
 ```
 
 #### action: exportNewick
@@ -2536,6 +2558,16 @@ focused branch again does.
 
 ```js
 treeOverviewClick: (y: number) => void
+```
+
+#### action: wheelZoomToPos
+
+zoomToPos for one wheel or pinch frame. The alignment keeps the blocks it drew
+at the start of the gesture, scaled, and redraws them only once they stop
+covering the viewport; endWheelZoom redraws them sharp
+
+```js
+wheelZoomToPos: (scaleFactor: number, offsetX: number, offsetY: number) => void
 ```
 
 #### action: zoomAtCenter

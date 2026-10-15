@@ -2,21 +2,28 @@ import { useEffect, useRef, useState } from 'react'
 
 import { WheelZoomSmoother } from './wheelZoom.ts'
 
+const zoomSettleMs = 150
+
 export function useWheelScroll({
   ref,
   onScrollX,
   onScrollY,
   onZoom,
+  onZoomSettle,
   scrollZoom,
 }: {
   ref: React.RefObject<HTMLDivElement | null>
   onScrollX?: (delta: number) => void
   onScrollY?: (delta: number) => void
   onZoom?: (scaleFactor: number, offsetX: number, offsetY: number) => void
+  onZoomSettle?: () => void
   scrollZoom?: boolean
 }) {
   const scheduled = useRef(false)
   const zoomFrame = useRef<number | undefined>(undefined)
+  const zoomSettle = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  )
   const deltaX = useRef(0)
   const deltaY = useRef(0)
   const zoomSmoother = useRef(new WheelZoomSmoother())
@@ -58,6 +65,10 @@ export function useWheelScroll({
               zoomX.current,
               zoomY.current,
             )
+            clearTimeout(zoomSettle.current)
+            zoomSettle.current = setTimeout(() => {
+              onZoomSettle?.()
+            }, zoomSettleMs)
             zoomFrame.current = zoomSmoother.current.idle
               ? undefined
               : requestAnimationFrame(frame)
@@ -105,8 +116,9 @@ export function useWheelScroll({
         cancelAnimationFrame(zoomFrame.current)
         zoomFrame.current = undefined
       }
+      clearTimeout(zoomSettle.current)
     }
-  }, [ref, onScrollX, onScrollY, onZoom, scrollZoom])
+  }, [ref, onScrollX, onScrollY, onZoom, onZoomSettle, scrollZoom])
 
   useEffect(() => {
     if (!mouseDragging) {

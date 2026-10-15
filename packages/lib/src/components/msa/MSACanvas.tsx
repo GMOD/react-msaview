@@ -3,6 +3,7 @@ import React, { useCallback, useRef } from 'react'
 import { observer } from 'mobx-react'
 
 import { useWheelScroll } from '../../useWheelScroll.ts'
+import { zoomSnapshotScale } from '../../zoomSnapshot.ts'
 import { alignmentAriaLabel } from '../controls.ts'
 import Loading from './Loading.tsx'
 import MSACanvasBlock from './MSACanvasBlock.tsx'
@@ -20,7 +21,16 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     scrollZoom,
     scrollX,
     scrollY,
+    zoomSnapshot,
   } = model
+  const blocks = zoomSnapshot
+    ? zoomSnapshot.blocksY.flatMap(by =>
+        zoomSnapshot.blocksX.map(bx => [bx, by] as const),
+      )
+    : blocks2d
+  const scale = zoomSnapshot
+    ? zoomSnapshotScale(model, zoomSnapshot)
+    : undefined
   const ref = useRef<HTMLDivElement>(null)
   const onScrollX = useCallback(
     (d: number) => {
@@ -36,15 +46,19 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
   )
   const onZoom = useCallback(
     (scaleFactor: number, offsetX: number, offsetY: number) => {
-      model.zoomToPos(scaleFactor, offsetX, offsetY, model.wheelZoomAxis)
+      model.wheelZoomToPos(scaleFactor, offsetX, offsetY)
     },
     [model],
   )
+  const onZoomSettle = useCallback(() => {
+    model.endWheelZoom()
+  }, [model])
   const { onMouseDown, onMouseUp } = useWheelScroll({
     ref,
     onScrollX,
     onScrollY,
     onZoom,
+    onZoomSettle,
     scrollZoom,
   })
 
@@ -88,11 +102,12 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
             position: 'absolute',
             top: 0,
             left: 0,
-            transform: `translate(${scrollX}px, ${scrollY}px)`,
+            transform: `translate(${scrollX}px, ${scrollY}px)${scale ? ` scale(${scale.sx}, ${scale.sy})` : ''}`,
+            transformOrigin: '0 0',
             willChange: 'transform',
           }}
         >
-          {blocks2d.map(([bx, by]) => (
+          {blocks.map(([bx, by]) => (
             <MSACanvasBlock
               key={`${bx}_${by}`}
               model={model}
