@@ -479,9 +479,9 @@ Done!
 The web viewer, the React component and the R package all load the file the CLI
 writes.
 
-In the web viewer, select it in the import form's **Annotation GFF file or URL**
-field, or open it over a loaded alignment with **Annotations > Open annotation
-file...**, which also accepts the JSON an InterProScan run returns.
+In the web viewer, select it in the import form's **Annotations** field, or open
+it over a loaded alignment with **File > Open annotation file…**, which also
+accepts the JSON an InterProScan run returns.
 
 In the React component, pass it inline as the `gff` prop:
 

@@ -3,6 +3,7 @@ import { lazy } from 'react'
 import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
 import copy from '../../vendor/copyToClipboard.ts'
 import { canGoTo } from './GoToBox.tsx'
+import { scrollZoomLabel } from './ScrollZoomCheckbox.tsx'
 import { colorSchemeMenuItems } from './colorSchemeMenuItems.tsx'
 import {
   annotationsSubMenu,
@@ -126,6 +127,9 @@ function zoomSubMenu(model: MsaViewModel): MenuItem[] {
     }),
     action('Reset zoom', () => {
       model.resetZoom()
+    }),
+    toggle(scrollZoomLabel, model.scrollZoom, arg => {
+      model.setScrollZoom(arg)
     }),
   ]
 }
@@ -315,12 +319,7 @@ function neighborJoiningItem(model: MsaViewModel): MenuItem {
 }
 
 export function toolsMenuItems(model: MsaViewModel): MenuItem[] {
-  return [
-    neighborJoiningItem(model),
-    toggle('Scroll wheel zooms', model.scrollZoom, arg => {
-      model.setScrollZoom(arg)
-    }),
-  ]
+  return [neighborJoiningItem(model)]
 }
 
 export function helpMenuItems(model: MsaViewModel): MenuItem[] {

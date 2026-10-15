@@ -78,9 +78,9 @@ you can read one site down the whole family.
 - **Zoom** with the magnifier buttons in the header, or Ctrl+wheel (⌘+wheel on a
   Mac, or a trackpad pinch) at the cursor. The first plain scroll over the
   alignment shows a reminder of the shortcut.
-- **Tools → Scroll wheel zooms** makes the plain wheel zoom, and Shift+wheel
-  then pans. The `scrollZoomAxis` property limits a wheel zoom to the columns or
-  the rows.
+- **Zoom on scroll**, the checkbox beside the magnifiers, makes the plain wheel
+  zoom, and Shift+wheel then pans. JBrowse 2's views have the same checkbox. The
+  `scrollZoomAxis` property limits a wheel zoom to the columns or the rows.
 - **Fit** the alignment to the window with the button beside the magnifiers.
   **View → Zoom** also fits the width or the height alone, and **Reset zoom**
   returns to the defaults.
@@ -376,14 +376,14 @@ The header's menu bar reads **File**, **Edit**, **View**, **Tools** and
 - **File** opens another alignment or an annotation file, exports an SVG or the
   tree, and shows the alignment info.
 - **Edit** finds a row or column, and copies, zooms to or clears the selection.
-- **View** holds the Zoom, Color scheme, Tree, Tracks, Annotations and Gappy
-  columns submenus, and **Show letters**, **Color letters, not cells** and
-  **Show track values on hover**. Color scheme lists the common schemes for the
-  alignment's alphabet, with the rest under **More schemes**. Gappy columns
-  hides each column where at least 50%, 90% or a custom share of the rows has a
-  gap, and a chip in the header counts the hidden columns; its × shows them
-  again.
-- **Tools** builds a neighbor joining tree and turns on **Scroll wheel zooms**.
+- **View** holds the Zoom (which repeats **Zoom on scroll**), Color scheme,
+  Tree, Tracks, Annotations and Gappy columns submenus, and **Show letters**,
+  **Color letters, not cells** and **Show track values on hover**. Color scheme
+  lists the common schemes for the alignment's alphabet, with the rest under
+  **More schemes**. Gappy columns hides each column where at least 50%, 90% or a
+  custom share of the rows has a gap, and a chip in the header counts the hidden
+  columns; its × shows them again.
+- **Tools** builds a neighbor joining tree.
 - **Help** lists the mouse and keyboard controls and links the tutorials and the
   credits.
 

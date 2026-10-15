@@ -36,7 +36,7 @@ export const mouseControls: Control[] = [
   { label: 'Drag', action: 'Pan the alignment' },
   {
     label: 'Wheel',
-    action: 'Scroll, or zoom with Tools → Scroll wheel zooms on',
+    action: 'Scroll, or zoom with Zoom on scroll checked',
   },
   { label: 'Ctrl + wheel', action: 'Zoom at the cursor' },
   selectCells,

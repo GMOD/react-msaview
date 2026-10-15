@@ -47,7 +47,9 @@ export function WheelZoomHint() {
         zIndex: 2,
       }}
     >
-      <Typography variant="body2">{zoomKey} + scroll to zoom</Typography>
+      <Typography variant="body2">
+        {zoomKey} + scroll to zoom, or check Zoom on scroll
+      </Typography>
     </Paper>
   )
 }

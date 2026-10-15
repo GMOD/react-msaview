@@ -10,6 +10,7 @@ import HiddenColumnsChip from './HiddenColumnsChip.tsx'
 import LoadWarnings from './LoadWarnings.tsx'
 import MenuBar from './MenuBar.tsx'
 import MultiAlignmentSelector from './MultiAlignmentSelector.tsx'
+import ScrollZoomCheckbox from './ScrollZoomCheckbox.tsx'
 import SelectionMenu from './SelectionMenu.tsx'
 import UnshareableDataWarning from './UnshareableDataWarning.tsx'
 import ZoomControls from './ZoomControls.tsx'
@@ -42,6 +43,7 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       >
         <MenuBar model={model} />
         <ZoomControls model={model} />
+        <ScrollZoomCheckbox model={model} />
         <HiddenColumnsChip model={model} />
         <div style={{ paddingLeft: 20, margin: 'auto' }}>
           <MultiAlignmentSelector model={model} />

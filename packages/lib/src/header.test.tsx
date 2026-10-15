@@ -183,10 +183,13 @@ function clickItem(items: MenuItem[], label: string) {
   })
 }
 
-test('Tools turns wheel zoom on', () => {
+test('the header checkbox and View → Zoom both turn zoom on scroll on', async () => {
   mount({ msa })
-  clickItem(toolsMenuItems(model), 'Scroll wheel zooms')
+  const box = testId('scroll-zoom-toggle')?.querySelector('input')
+  await click(box ?? undefined)
   expect(model.scrollZoom).toBe(true)
+  clickItem(subMenuItems(viewMenuItems(model), 'Zoom'), 'Zoom on scroll')
+  expect(model.scrollZoom).toBe(false)
 })
 
 test('the gappy columns presets set the threshold, and Show all clears it', () => {

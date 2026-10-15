@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import useMeasure from '@jbrowse/core/util/useMeasure'
 import { isAlive } from '@jbrowse/mobx-state-tree'
+import { Box } from '@mui/material'
 import { ThemeProvider } from '@mui/material/styles'
 import { observer } from 'mobx-react'
 import { MSAView } from 'react-msaview'
@@ -54,13 +55,13 @@ const App = observer(function ({ model }: { model: AppModel }) {
   return (
     <div>
       <TopBar model={model} />
-      <div
+      <Box
         ref={ref}
         data-testid="msaview"
-        style={{ border: '1px solid black', margin: 20 }}
+        sx={{ border: 1, borderColor: 'divider', m: 2.5 }}
       >
         <MSAView model={msaview} />
-      </div>
+      </Box>
       <div style={{ height: 500 }} />
     </div>
   )
