@@ -29,6 +29,7 @@ fences <- function(panel) {
   lapply(open, function(o) panel[(o + 1):(min(close[close > o]) - 1)])
 }
 
+dir.create("docs/media", showWarnings = FALSE)
 failed <- character(0)
 for (file in files) {
   topic <- sub("\\.md$", "", basename(file))

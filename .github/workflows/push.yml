@@ -102,6 +102,29 @@ jobs:
       - name: Check formatting
         run: pnpm format:check
 
+  # each tutorial's R panel runs against ggmsaview's main as a reader pastes
+  # it, so an R API change there that breaks a page fails here instead of
+  # waiting for a reader
+  tutorials-r:
+    name: Tutorial R panels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            github::GMOD/ggmsaview
+            any::ggplot2
+            any::patchwork
+            any::QuickJSR
+            any::systemfonts
+            any::withr
+      - name: Run every R panel
+        run: Rscript scripts/tutorials-r.R
+
   python:
     name: Python widget (${{ matrix.python }})
     runs-on: ubuntu-latest
