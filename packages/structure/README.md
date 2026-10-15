@@ -17,6 +17,11 @@ model.setResidueMappings([...model.residueMappings, candidates[0].mapping])
 ```
 
 - The row names its UniProt entry, or the caller passes `accession`
+- A row named by an entry name (`HBA_HUMAN`) or a RefSeq protein id
+  (`NP_000549.1`) is looked up in UniProt by that name, a reviewed entry first,
+  and `resolvedFrom` in the result says which name it came from
+- The row is then checked against the entry it resolved to, so a wrong name gets
+  no mapping
 - AlphaFold DB and RCSB answer the lookups, both from the browser
 - The row is aligned once to the entry's canonical sequence, and each
   candidate's `segments` compose that alignment with the structure's own

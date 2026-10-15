@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accessionOfRowName } from './accession.ts'
+import { canFindStructures, identifiersOfRowName } from './identifiers.ts'
 import { findStructures } from './lookup.ts'
 import { pairsOfAlignment, segmentsOfPairs } from './segments.ts'
 
@@ -91,6 +92,7 @@ function lookups(overrides: Partial<Lookups> = {}): Lookups {
           },
         ],
       }),
+    resolveAccession: () => Promise.resolve(undefined),
     // 1TUP: author chain A is label chain A; the second entry swaps them
     labelChain: (pdbId, chain) =>
       Promise.resolve(pdbId === '1TUP' && chain === 'A' ? 'X' : undefined),
@@ -146,13 +148,14 @@ describe('findStructures', () => {
   test('a row with no accession says so before any request', async () => {
     const never = () => Promise.reject(new Error('no request expected'))
     const found = await findStructures({
-      rowName: 'HBA_HUMAN',
+      rowName: 'Human',
       rowSequence: unp,
       lookups: {
         alphaFoldModels: never,
         experimental: never,
         pdbEntry: never,
         labelChain: never,
+        resolveAccession: never,
       },
     })
     expect(found.candidates).toEqual([])
@@ -223,5 +226,84 @@ describe('findStructures', () => {
       lookups: lookups({ pdbEntry: () => Promise.reject(new Error('500')) }),
     })
     expect(found.candidates.map(c => c.kind)).toEqual(['predicted'])
+  })
+})
+
+describe('names that resolve to an accession', () => {
+  test('classifies entry names and RefSeq ids, dropping the version', () => {
+    expect(identifiersOfRowName('HBA_HUMAN/1-142')).toEqual([
+      { kind: 'entryName', value: 'HBA_HUMAN' },
+    ])
+    expect(
+      identifiersOfRowName('NP_000549.1 hemoglobin subunit alpha'),
+    ).toEqual([{ kind: 'refseq', value: 'NP_000549' }])
+    expect(identifiersOfRowName('Human')).toEqual([])
+    expect(canFindStructures('NP_000549.1')).toBe(true)
+    expect(canFindStructures('sp|P04637|P53_HUMAN')).toBe(true)
+    expect(canFindStructures('Human')).toBe(false)
+  })
+
+  test('looks the accession up, and says which name it came from', async () => {
+    const asked: string[] = []
+    const found = await findStructures({
+      rowName: 'NP_000549.1',
+      rowSequence: unp,
+      lookups: lookups({
+        resolveAccession: id => {
+          asked.push(`${id.kind}:${id.value}`)
+          return Promise.resolve('P04637')
+        },
+      }),
+    })
+    expect(asked).toEqual(['refseq:NP_000549'])
+    expect(found.accession).toBe('P04637')
+    expect(found.resolvedFrom).toBe('NP_000549')
+    expect(found.candidates.length).toBeGreaterThan(0)
+  })
+
+  test('does not look up a row that already names an accession', async () => {
+    const found = await findStructures({
+      rowName: 'sp|P04637|P53_HUMAN',
+      rowSequence: unp,
+      lookups: lookups({
+        resolveAccession: () => Promise.reject(new Error('no lookup expected')),
+      }),
+    })
+    expect(found.resolvedFrom).toBeUndefined()
+    expect(found.candidates.length).toBeGreaterThan(0)
+  })
+
+  test('reports a name UniProt does not know', async () => {
+    const found = await findStructures({
+      rowName: 'ZZZZ_HUMAN',
+      rowSequence: unp,
+      lookups: lookups(),
+    })
+    expect(found.candidates).toEqual([])
+    expect(found.problem).toContain('UniProt has no entry for ZZZZ_HUMAN')
+  })
+
+  test('reports a failed lookup as unreachable, not as unknown', async () => {
+    const found = await findStructures({
+      rowName: 'HBA_HUMAN',
+      rowSequence: unp,
+      lookups: lookups({
+        resolveAccession: () =>
+          Promise.reject(new Error('UniProt answered 503')),
+      }),
+    })
+    expect(found.problem).toContain('could not be reached')
+  })
+
+  test('refuses a resolved entry the row does not match', async () => {
+    const found = await findStructures({
+      rowName: 'HBA_HUMAN',
+      rowSequence: 'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG',
+      lookups: lookups({ resolveAccession: () => Promise.resolve('P04637') }),
+    })
+    expect(found.candidates).toEqual([])
+    expect(found.problem).toContain(
+      'does not match P04637, which HBA_HUMAN names',
+    )
   })
 })

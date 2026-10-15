@@ -14,6 +14,7 @@ import {
 import { observer } from 'mobx-react'
 import {
   accessionOfRowName,
+  canFindStructures,
   findStructures,
   networkLookups,
   superposeRows,
@@ -78,7 +79,7 @@ const StructureSection = observer(function StructureSection({
   const row =
     chosen ??
     model.clickedCell?.row ??
-    names.find(n => accessionOfRowName(n)) ??
+    names.find(n => canFindStructures(n)) ??
     names[0]!
   const mapped = [...new Set(model.mappedStructures.map(m => m.structure.id))]
   const structureId = shown && mapped.includes(shown) ? shown : mapped[0]
@@ -89,7 +90,7 @@ const StructureSection = observer(function StructureSection({
     : structureId
       ? [structureId]
       : []
-  const withAccession = names.filter(n => accessionOfRowName(n))
+  const withAccession = names.filter(n => canFindStructures(n))
 
   async function find() {
     abort.current?.abort()

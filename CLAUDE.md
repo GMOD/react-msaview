@@ -28,8 +28,9 @@ them, and follow it in this file too: agents copy the prose here as house voice.
   and `data/` holds the alignments, trees and GFFs as files, which
   `scripts/screenshots/writeExampleData.mjs` copies into the app
 - `packages/structure`: a Mol\* panel driven by the model's `hoveredCell`,
-  `clickedCell` and `residueMappings`, plus `findStructures`, which looks a
-  row's UniProt accession up in AlphaFold DB and RCSB and writes the
+  `clickedCell` and `residueMappings`, plus `findStructures`, which takes a
+  row's UniProt accession from its name, or looks one up from an entry name or
+  RefSeq id, finds the structures in AlphaFold DB and RCSB, and writes the
   `residueMappings` record onto each. `superposeRows` fits the structures of
   several rows on the alignment's own correspondences, over a selected column
   range if one is set, and returns the matrices for the panel's `transforms` and

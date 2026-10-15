@@ -1,4 +1,10 @@
 export { accessionOfRowName } from './accession.ts'
+export {
+  canFindStructures,
+  identifiersOfRowName,
+  searchAccession,
+} from './identifiers.ts'
+export type { NameKind, RowIdentifier } from './identifiers.ts'
 export { findStructures, networkLookups } from './lookup.ts'
 export type { Lookups, StructureCandidate, StructureSearch } from './lookup.ts'
 export {

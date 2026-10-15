@@ -13,8 +13,10 @@ import {
 } from 'p2s_mapper'
 
 import { accessionOfRowName } from './accession.ts'
+import { identifiersOfRowName, searchAccession } from './identifiers.ts'
 import { alignToReference, composePairs, segmentsOfPairs } from './segments.ts'
 
+import type { RowIdentifier } from './identifiers.ts'
 import type {
   AlphaFoldModel,
   ExperimentalStructure,
@@ -34,6 +36,8 @@ export interface StructureCandidate {
 
 export interface StructureSearch {
   accession?: string
+  /** the name in the row's header the accession was looked up from */
+  resolvedFrom?: string
   candidates: StructureCandidate[]
   /** why there are none, or why the row's match is doubtful */
   problem?: string
@@ -44,6 +48,8 @@ export interface Lookups {
   alphaFoldModels: (accession: string) => Promise<AlphaFoldModel[]>
   experimental: (accession: string) => Promise<ExperimentalStructure[]>
   pdbEntry: (pdbId: string) => Promise<PdbEntry>
+  /** the accession of an entry name or RefSeq id, undefined when UniProt has none */
+  resolveAccession: (identifier: RowIdentifier) => Promise<string | undefined>
   /** the `label_asym_id` of an author chain, undefined when RCSB has none */
   labelChain: (pdbId: string, authChain: string) => Promise<string | undefined>
 }
@@ -82,9 +88,25 @@ export function labelChainOf(data: unknown, authChain: string) {
   return undefined
 }
 
+// one resolution per name for the session, since a name in a header repeats
+// across the rows of every alignment that carries it
+const resolved = new Map<string, Promise<string | undefined>>()
+
 export function networkLookups(signal?: AbortSignal): Lookups {
   const opts = signal ? { signal } : undefined
   return {
+    resolveAccession: identifier => {
+      const key = `${identifier.kind}:${identifier.value}`
+      let found = resolved.get(key)
+      if (!found) {
+        found = searchAccession(identifier, signal)
+        resolved.set(key, found)
+        found.catch(() => {
+          resolved.delete(key)
+        })
+      }
+      return found
+    },
     alphaFoldModels: accession => fetchAlphaFoldModels(accession, opts),
     experimental: accession => fetchExperimentalStructures(accession, opts),
     pdbEntry: pdbId => fetchPdbEntry(pdbId, opts),
@@ -144,19 +166,43 @@ export async function findStructures({
   lookups?: Lookups
   maxExperimental?: number
 }): Promise<StructureSearch> {
-  const accession = given ?? accessionOfRowName(rowName)
+  let accession = given ?? accessionOfRowName(rowName)
+  let resolvedFrom: string | undefined
   if (!accession) {
-    return {
-      candidates: [],
-      problem: `${rowName} names no UniProt accession. Give one to look its structures up.`,
+    const identifiers = identifiersOfRowName(rowName)
+    const failures: string[] = []
+    for (const identifier of identifiers) {
+      try {
+        accession = await lookups.resolveAccession(identifier)
+      } catch (e) {
+        failures.push(e instanceof Error ? e.message : String(e))
+      }
+      if (accession) {
+        resolvedFrom = identifier.value
+        break
+      }
+    }
+    if (!accession) {
+      const tried = identifiers.map(i => i.value).join(', ')
+      return {
+        candidates: [],
+        problem:
+          failures.length > 0
+            ? `UniProt could not be reached to look up ${tried}: ${failures[0]}`
+            : tried
+              ? `UniProt has no entry for ${tried}. Give the accession to look its structures up.`
+              : `${rowName} names no UniProt accession. Give one to look its structures up.`,
+      }
     }
   }
   const protein = accession.replace(/-\d+$/, '')
+  const from = resolvedFrom === undefined ? {} : { resolvedFrom }
   const models = await lookups.alphaFoldModels(protein)
   const model = pickAlphaFoldModel(models, undefined)
   if (!model) {
     return {
       accession: protein,
+      ...from,
       candidates: [],
       problem: `AlphaFold DB has no model for ${protein}.`,
     }
@@ -169,8 +215,9 @@ export async function findStructures({
   if (isLowSimilarity(quality)) {
     return {
       accession: protein,
+      ...from,
       candidates: [],
-      problem: `${rowName} does not match ${protein} (${identity}), so no residue mapping was made.`,
+      problem: `${rowName} does not match ${protein}${resolvedFrom === undefined ? '' : `, which ${resolvedFrom} names`} (${identity}), so no residue mapping was made.`,
     }
   }
 
@@ -199,6 +246,7 @@ export async function findStructures({
   if (model.accession.includes('-')) {
     return {
       accession: protein,
+      ...from,
       candidates,
       problem: `AlphaFold DB holds only an isoform model of ${protein}, so PDB entries, which are numbered on the canonical sequence, were not mapped.`,
     }
@@ -213,6 +261,7 @@ export async function findStructures({
   } catch (e) {
     return {
       accession: protein,
+      ...from,
       candidates,
       problem: `RCSB could not be reached for the PDB entries of ${protein}: ${e instanceof Error ? e.message : String(e)}`,
     }
@@ -274,5 +323,5 @@ export async function findStructures({
       },
     })
   }
-  return { accession: protein, candidates }
+  return { accession: protein, ...from, candidates }
 }
