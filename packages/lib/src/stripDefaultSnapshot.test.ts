@@ -23,6 +23,16 @@ test('default view produces a minimal snapshot (defaults stripped)', () => {
   expect(JSON.stringify(snap.data)).toBe('{}')
 })
 
+test('showing every track records only the ones off by default', () => {
+  const model = MsaView.create({ type: 'MsaView' })
+  model.setTracksShown(['conservation', 'sequence-logo'], true)
+  expect(getSnapshot(model).turnedOffTracks).toEqual({
+    'sequence-logo': false,
+  })
+  model.setTracksShown(['conservation', 'sequence-logo'], false)
+  expect(getSnapshot(model).turnedOffTracks).toEqual({ conservation: true })
+})
+
 test('a resized track travels in the snapshot, under the key it shares', () => {
   const model = MsaView.create({ type: 'MsaView' })
   model.setTrackHeight('bar', 90)

@@ -543,15 +543,12 @@ export const preservedOnReset = new Set([
 ])
 
 // `turnedOffTracks` holds only the user's explicit choices, so a hidden-by-default
-// track writes nothing into the snapshot. A file-supplied track passes its own
-// `defaultOff`, since the count varies by file: a Pfam seed has a couple of #=GR
-// lines, an Rfam family one per row.
+// track writes nothing into the snapshot
 function trackIsOff(
   turnedOffTracks: { get: (id: string) => boolean | undefined },
   id: string,
-  defaultOff?: boolean,
 ) {
-  return turnedOffTracks.get(id) ?? (defaultOff || defaultOffTracks.has(id))
+  return turnedOffTracks.get(id) ?? defaultOffTracks.has(id)
 }
 
 // the marks that set tree state from a node rather than drawing
@@ -3026,8 +3023,7 @@ function stateModelFactory({
        */
       get turnedOnTracks() {
         return this.tracks.filter(
-          f =>
-            !trackIsOff(self.turnedOffTracks, f.model.id, f.model.defaultOff),
+          f => !trackIsOff(self.turnedOffTracks, f.model.id),
         )
       },
 
@@ -3942,20 +3938,21 @@ function stateModelFactory({
        * #action
        */
       toggleTrack(id: string) {
-        const defaultOff = self.MSA?.tracks.find(t => t.id === id)?.defaultOff
-        self.turnedOffTracks.set(
-          id,
-          !trackIsOff(self.turnedOffTracks, id, defaultOff),
-        )
+        self.turnedOffTracks.set(id, !trackIsOff(self.turnedOffTracks, id))
       },
       /**
        * #action
        * show or hide several tracks at once, as the track selector's Show all
-       * and Hide all do
+       * and Hide all do. A choice matching the track's default is dropped, so
+       * it stays out of the shared URL
        */
       setTracksShown(ids: string[], shown: boolean) {
         for (const id of ids) {
-          self.turnedOffTracks.set(id, !shown)
+          if (defaultOffTracks.has(id) === !shown) {
+            self.turnedOffTracks.delete(id)
+          } else {
+            self.turnedOffTracks.set(id, !shown)
+          }
         }
       },
       /**

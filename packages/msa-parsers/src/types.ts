@@ -26,7 +26,6 @@ export interface MSATrack {
   name: string
   data?: string
   customColorScheme?: Record<string, string>
-  defaultOff?: boolean
 }
 
 export interface GFFRecord {
