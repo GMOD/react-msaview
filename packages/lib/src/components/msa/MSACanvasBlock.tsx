@@ -1,9 +1,9 @@
 import React from 'react'
 
 import BaseTooltip from '@jbrowse/core/ui/BaseTooltip'
-import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
+import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import { drawMsaRaster, rasterApplies } from './msaRaster.ts'
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock.ts'
@@ -22,7 +22,7 @@ const MSACanvasBlock = observer(function ({
   offsetY: number
 }) {
   const { blockSize, highResScaleFactor } = model
-  const theme = useTheme()
+  const theme = useCanvasTheme()
   const { anchor, onMouseMove, onMouseDown, onClick, onMouseLeave } =
     useMsaBlockMouse({ model, offsetX, offsetY })
 

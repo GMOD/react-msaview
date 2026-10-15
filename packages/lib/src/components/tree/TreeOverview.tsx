@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 
-import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
+import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import {
   drawTreeOverview,
@@ -22,7 +22,7 @@ import type { MsaViewModel } from '../../model.ts'
  */
 const TreeOverview = observer(function ({ model }: { model: MsaViewModel }) {
   const { effectiveTreeAreaWidth, overviewHeight, highResScaleFactor } = model
-  const theme = useTheme()
+  const theme = useCanvasTheme()
   const [hover, setHover] = useState<{ id: string; rows: [number, number] }>()
   const width = Math.round(effectiveTreeAreaWidth * highResScaleFactor)
   const height = Math.round(overviewHeight * highResScaleFactor)

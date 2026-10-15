@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react'
 
-import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
+import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import DragHandle, { scrollbarThumbFill } from '../DragHandle.tsx'
 import { msaThumbnail } from '../msa/msaRaster.ts'
@@ -12,7 +12,7 @@ import type { MsaViewModel } from '../../model.ts'
 
 const Minimap = observer(function ({ model }: { model: MsaViewModel }) {
   const { minimapHeight, msaCanvasWidth, highResScaleFactor } = model
-  const theme = useTheme()
+  const theme = useCanvasTheme()
   const { unit, s, w, polygonHeight, polygonPoints } = getMinimapLayout(model)
 
   // the whole alignment, sampled down to the bar

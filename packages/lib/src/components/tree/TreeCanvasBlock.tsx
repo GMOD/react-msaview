@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 
 import BaseTooltip from '@jbrowse/core/ui/BaseTooltip'
 import { makeStyles } from '@jbrowse/core/util/tss-react'
-import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
+import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import TreeMenu from './TreeMenu.tsx'
 import { renderTreeCanvas } from './renderTreeCanvas.ts'
@@ -30,7 +30,7 @@ const TreeCanvasBlock = observer(function ({
   offsetY: number
 }) {
   const { classes } = useStyles()
-  const theme = useTheme()
+  const theme = useCanvasTheme()
   const [menu, setMenu] = useState<TreeMenuTarget>()
   const { clickMap, anchor, hitTest, onMouseMove, onMouseLeave } = useTreeHover(
     { model, offsetY },

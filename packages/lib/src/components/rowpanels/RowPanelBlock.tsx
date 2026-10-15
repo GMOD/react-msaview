@@ -1,9 +1,9 @@
 import React from 'react'
 
 import BaseTooltip from '@jbrowse/core/ui/BaseTooltip'
-import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
+import { useCanvasTheme } from '../../darkReader.ts'
 import { featureField, featureName } from '../../featureFields.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import { useHoverAnchor } from '../useHoverAnchor.ts'
@@ -64,7 +64,7 @@ const RowPanelBlock = observer(function ({
     name: string
     lines: string[]
   }>()
-  const theme = useTheme()
+  const theme = useCanvasTheme()
   const { blockSize, highResScaleFactor, rowHeight } = model
   const width = panel.width
   const height = blockSize

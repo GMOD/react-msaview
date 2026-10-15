@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
+import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import { TrackResizeHandle } from '../ResizeHandles.tsx'
 import { drawTrackBlock } from './drawTracks.ts'
@@ -21,7 +21,7 @@ const TrackBlock = observer(function ({
 }) {
   const { blockSize, highResScaleFactor } = model
   const { height } = track.model
-  const theme = useTheme()
+  const theme = useCanvasTheme()
   const canvasWidth = blockSize * highResScaleFactor
   const canvasHeight = height * highResScaleFactor
 

@@ -1,10 +1,10 @@
 import React from 'react'
 
 import { isAlive } from '@jbrowse/mobx-state-tree'
-import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import { msaOverlayZIndex } from '../../constants.ts'
+import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import { renderMouseover } from './renderMSAMouseover.ts'
 
@@ -16,7 +16,7 @@ const MSAMouseoverCanvas = observer(function ({
   model: MsaViewModel
 }) {
   const { height, msaCanvasWidth: width, highResScaleFactor } = model
-  const theme = useTheme()
+  const theme = useCanvasTheme()
   const canvasWidth = width * highResScaleFactor
   const canvasHeight = height * highResScaleFactor
   const ref = useCanvasAutorun({
