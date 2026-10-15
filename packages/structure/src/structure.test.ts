@@ -1,0 +1,162 @@
+import { describe, expect, test } from 'vitest'
+
+import { accessionOfRowName } from './accession.ts'
+import { findStructures } from './lookup.ts'
+import { pairsOfAlignment, segmentsOfPairs } from './segments.ts'
+
+import type { Lookups } from './lookup.ts'
+
+describe('accessionOfRowName', () => {
+  test.each([
+    ['sp|P04637|P53_HUMAN', 'P04637'],
+    ['tr|A0A024R161|A0A024R161_HUMAN', 'A0A024R161'],
+    ['P04637/1-393', 'P04637'],
+    ['AF-P04637-F1', 'P04637'],
+    ['Q9Y6K9-2 isoform 2', 'Q9Y6K9-2'],
+  ])('%s -> %s', (name, accession) => {
+    expect(accessionOfRowName(name)).toBe(accession)
+  })
+
+  test.each(['HBA_HUMAN', 'NP_000549.1', 'SARS-CoV-2', 'Human'])(
+    '%s names no accession',
+    name => {
+      expect(accessionOfRowName(name)).toBeUndefined()
+    },
+  )
+})
+
+describe('segmentsOfPairs', () => {
+  test('a gap in either sequence starts a new segment', () => {
+    const pairs = pairsOfAlignment('AC-DEFG', 'ACXD-FG')
+    expect(pairs).toEqual([
+      [1, 1],
+      [2, 2],
+      [3, 4],
+      [5, 5],
+      [6, 6],
+    ])
+    expect(segmentsOfPairs(pairs)).toEqual([
+      { rowStart: 1, rowEnd: 2, structStart: 1, structEnd: 2 },
+      { rowStart: 3, rowEnd: 3, structStart: 4, structEnd: 4 },
+      { rowStart: 5, rowEnd: 6, structStart: 5, structEnd: 6 },
+    ])
+  })
+})
+
+// MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGP is p53's start
+const unp =
+  'MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQGSYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD'
+
+function lookups(overrides: Partial<Lookups> = {}): Lookups {
+  return {
+    alphaFoldModels: () =>
+      Promise.resolve([
+        {
+          accession: 'P04637',
+          entity: 'AF-P04637-F1',
+          url: 'https://alphafold.ebi.ac.uk/files/AF-P04637-F1-model_v6.cif',
+          meanPlddt: 76.4,
+          sequence: unp,
+        },
+      ]),
+    experimental: () =>
+      Promise.resolve([
+        {
+          pdbId: '1TUP',
+          method: 'X-ray',
+          resolution: 2.2,
+          start: 94,
+          end: 312,
+          coverage: 0.55,
+          chains: ['A', 'B'],
+        },
+      ]),
+    pdbEntry: () =>
+      Promise.resolve({
+        proteinSequences: [],
+        mappings: [
+          {
+            accession: 'P04637',
+            segments: [
+              // construct residue 1 is UniProt 94, as in 1TUP
+              {
+                entityId: '1',
+                chainId: 'A',
+                unpStart: 94,
+                unpEnd: 312,
+                structStart: 0,
+                structEnd: 218,
+              },
+            ],
+          },
+        ],
+      }),
+    ...overrides,
+  }
+}
+
+describe('findStructures', () => {
+  test('puts the AlphaFold model on UniProt numbering and the PDB entry on SEQRES', async () => {
+    const found = await findStructures({
+      rowName: 'sp|P04637|P53_HUMAN',
+      rowSequence: unp.slice(0, 20) + '---' + unp.slice(20),
+      lookups: lookups(),
+    })
+    expect(found.problem).toBeUndefined()
+    const [model, entry] = found.candidates
+    expect(model?.mapping.structure).toMatchObject({
+      id: 'AF-P04637-F1',
+      kind: 'predicted',
+    })
+    // the three gap columns are not residues, so the row is whole
+    expect(model?.mapping.segments).toEqual([
+      {
+        rowStart: 1,
+        rowEnd: unp.length,
+        structStart: 1,
+        structEnd: unp.length,
+      },
+    ])
+    expect(model?.mapping.rowLength).toBe(unp.length)
+
+    expect(entry?.mapping.structure).toMatchObject({
+      id: '1TUP',
+      asymId: 'A',
+      url: 'https://files.rcsb.org/download/1TUP.cif',
+    })
+    // row residue 94 is the first residue of the construct, label_seq_id 1
+    expect(entry?.mapping.segments).toEqual([
+      { rowStart: 94, rowEnd: 312, structStart: 1, structEnd: 219 },
+    ])
+  })
+
+  test('a row that is not its named entry gets a problem and no candidates', async () => {
+    const found = await findStructures({
+      rowName: 'P04637',
+      rowSequence: 'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG',
+      lookups: lookups(),
+    })
+    expect(found.candidates).toEqual([])
+    expect(found.problem).toContain('does not match P04637')
+  })
+
+  test('a row with no accession says so before any request', async () => {
+    const never = () => Promise.reject(new Error('no request expected'))
+    const found = await findStructures({
+      rowName: 'HBA_HUMAN',
+      rowSequence: unp,
+      lookups: { alphaFoldModels: never, experimental: never, pdbEntry: never },
+    })
+    expect(found.candidates).toEqual([])
+    expect(found.problem).toContain('no UniProt accession')
+  })
+
+  test('a failed PDB entry drops that entry and keeps the others', async () => {
+    const found = await findStructures({
+      rowName: 'P04637',
+      rowSequence: unp,
+      lookups: lookups({ pdbEntry: () => Promise.reject(new Error('500')) }),
+    })
+    expect(found.candidates.map(c => c.kind)).toEqual(['predicted'])
+  })
+})

@@ -24,7 +24,8 @@
     "molstar": "^5.11.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-msaview": "workspace:*"
+    "react-msaview": "workspace:*",
+    "react-msaview-structure": "workspace:*"
   },
   "devDependencies": {
     "sharp": "^0.35.4"

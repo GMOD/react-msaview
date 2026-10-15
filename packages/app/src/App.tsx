@@ -8,6 +8,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { observer } from 'mobx-react'
 import { MSAView } from 'react-msaview'
 
+import StructureSection from './StructureSection'
 import TopBar from './TopBar'
 import { createApp, linkParam } from './model'
 
@@ -62,6 +63,7 @@ const App = observer(function ({ model }: { model: AppModel }) {
       >
         <MSAView model={msaview} />
       </Box>
+      <StructureSection model={msaview} />
       <div style={{ height: 500 }} />
     </div>
   )

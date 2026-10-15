@@ -1,0 +1,36 @@
+{
+  "name": "react-msaview-structure",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A Mol* structure panel linked to a react-msaview alignment, and the lookups that find a row's structure",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./panel": "./src/panel.ts"
+  },
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "p2s_mapper": "^2.1.0"
+  },
+  "peerDependencies": {
+    "@mui/material": "*",
+    "mobx": "*",
+    "mobx-react": "*",
+    "molstar": "^5.11.0",
+    "react": "*",
+    "react-msaview": "*"
+  },
+  "devDependencies": {
+    "molstar": "^5.11.0",
+    "react-msaview": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GMOD/JBrowseMSA.git",
+    "directory": "packages/structure"
+  }
+}
