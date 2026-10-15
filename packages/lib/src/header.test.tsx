@@ -141,6 +141,19 @@ test('the menu bar reads File, View, Tools, Help', () => {
   ).toEqual(['File', 'View', 'Tools', 'Help'])
 })
 
+test('embedded mode drops the menu and settings text', () => {
+  mount({ msa })
+  act(() => {
+    model.setEmbeddedMode(true)
+  })
+  for (const n of ['file', 'view', 'tools', 'help']) {
+    expect(testId(`${n}_menu`)?.textContent).toBe('')
+    expect(testId(`${n}_menu`)?.getAttribute('aria-label')).toBeTruthy()
+  }
+  expect(testId('settings_button')?.textContent).toBe('')
+  expect(testId('scroll-zoom-toggle')?.textContent).toBe('')
+})
+
 test('the settings panel docks beside the alignment and narrows it', async () => {
   mount({ msa, tree })
   const before = model.width

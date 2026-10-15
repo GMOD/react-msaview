@@ -1238,6 +1238,13 @@ function stateModelFactory({
       hideHeader: false,
       /**
        * #volatile
+       * shows the toolbar's menus and Settings as icon buttons without text,
+       * for a host with little room. The jbrowse plugin sets it. Kept out of
+       * the snapshot, so a link opened in the full app shows the labels.
+       */
+      embeddedMode: false,
+      /**
+       * #volatile
        * shows the import form while the view has no data. MSAViewer turns it
        * off, since its host supplies the data and the form is the demo app's
        */
@@ -1313,8 +1320,7 @@ function stateModelFactory({
        * the currently hovered tree node ID and its descendant leaf names
        */
       hoveredTreeNode: undefined as
-        | { nodeId: string; descendantNames: string[] }
-        | undefined,
+        { nodeId: string; descendantNames: string[] } | undefined,
 
       /**
        * #volatile
@@ -4717,6 +4723,12 @@ function stateModelFactory({
        */
       setHideHeader(arg: boolean) {
         self.hideHeader = arg
+      },
+      /**
+       * #action
+       */
+      setEmbeddedMode(arg: boolean) {
+        self.embeddedMode = arg
       },
       /**
        * #action

@@ -1,6 +1,11 @@
 import React from 'react'
 
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
+import Build from '@mui/icons-material/Build'
+import Help from '@mui/icons-material/Help'
+import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
+import Visibility from '@mui/icons-material/Visibility'
+import { Tooltip } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import {
@@ -24,24 +29,36 @@ const menuButtonSx: SxProps<Theme> = {
   py: 0.5,
 }
 
-const menus: [string, (model: MsaViewModel) => MenuItem[]][] = [
-  ['File', fileMenuItems],
-  ['View', viewMenuItems],
-  ['Tools', toolsMenuItems],
-  ['Help', helpMenuItems],
-]
+const menus: [string, (model: MsaViewModel) => MenuItem[], React.ReactNode][] =
+  [
+    ['File', fileMenuItems, <InsertDriveFile key="file" />],
+    ['View', viewMenuItems, <Visibility key="view" />],
+    ['Tools', toolsMenuItems, <Build key="tools" />],
+    ['Help', helpMenuItems, <Help key="help" />],
+  ]
 
 const MenuBar = observer(function ({ model }: { model: MsaViewModel }) {
-  return menus.map(([name, items]) => (
-    <CascadingMenuButton
-      key={name}
-      data-testid={`${name.toLowerCase()}_menu`}
-      menuItems={items(model)}
-      sx={menuButtonSx}
-    >
-      {name}
-    </CascadingMenuButton>
-  ))
+  const { embeddedMode } = model
+  return menus.map(([name, items, icon]) => {
+    const button = (
+      <CascadingMenuButton
+        key={name}
+        data-testid={`${name.toLowerCase()}_menu`}
+        aria-label={name}
+        menuItems={items(model)}
+        sx={menuButtonSx}
+      >
+        {embeddedMode ? icon : name}
+      </CascadingMenuButton>
+    )
+    return embeddedMode ? (
+      <Tooltip key={name} title={name}>
+        {button}
+      </Tooltip>
+    ) : (
+      button
+    )
+  })
 })
 
 export default MenuBar

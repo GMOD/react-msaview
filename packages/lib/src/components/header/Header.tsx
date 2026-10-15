@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 
 import useMeasure from '@jbrowse/core/util/useMeasure'
 import Tune from '@mui/icons-material/Tune'
-import { AppBar, Button, Toolbar } from '@mui/material'
+import { AppBar, Button, IconButton, Toolbar, Tooltip } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import StatusMessage from '../StatusMessage.tsx'
@@ -53,19 +53,34 @@ const Header = observer(function ({
       >
         {toolbarStart}
         <MenuBar model={model} />
-        <Button
-          data-testid="settings_button"
-          size="small"
-          startIcon={<Tune />}
-          color={model.settingsOpen ? 'primary' : 'inherit'}
-          variant={model.settingsOpen ? 'outlined' : 'text'}
-          onClick={() => {
-            model.setSettingsOpen(!model.settingsOpen)
-          }}
-          sx={{ mx: 0.5, flexShrink: 0 }}
-        >
-          Settings
-        </Button>
+        {model.embeddedMode ? (
+          <Tooltip title="Settings">
+            <IconButton
+              data-testid="settings_button"
+              aria-label="Settings"
+              color={model.settingsOpen ? 'primary' : 'inherit'}
+              onClick={() => {
+                model.setSettingsOpen(!model.settingsOpen)
+              }}
+            >
+              <Tune />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Button
+            data-testid="settings_button"
+            size="small"
+            startIcon={<Tune />}
+            color={model.settingsOpen ? 'primary' : 'inherit'}
+            variant={model.settingsOpen ? 'outlined' : 'text'}
+            onClick={() => {
+              model.setSettingsOpen(!model.settingsOpen)
+            }}
+            sx={{ mx: 0.5, flexShrink: 0 }}
+          >
+            Settings
+          </Button>
+        )}
         <ZoomControls model={model} />
         <ScrollZoomCheckbox model={model} />
         <HiddenColumnsChip model={model} />

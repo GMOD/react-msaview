@@ -21,7 +21,11 @@ const ScrollZoomCheckbox = observer(function ({
     <Tooltip title={scrollZoomHelp} describeChild>
       <FormControlLabel
         data-testid="scroll-zoom-toggle"
-        style={{ marginLeft: 4, marginRight: 8, whiteSpace: 'nowrap' }}
+        style={{
+          marginLeft: 4,
+          marginRight: model.embeddedMode ? 0 : 8,
+          whiteSpace: 'nowrap',
+        }}
         control={
           <Checkbox
             size="small"
@@ -32,7 +36,7 @@ const ScrollZoomCheckbox = observer(function ({
             style={{ padding: 6 }}
           />
         }
-        label={scrollZoomLabel}
+        label={model.embeddedMode ? '' : scrollZoomLabel}
         slotProps={{ typography: { variant: 'body2' } }}
       />
     </Tooltip>
