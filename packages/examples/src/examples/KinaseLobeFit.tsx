@@ -8,12 +8,11 @@ import Typography from '@mui/material/Typography'
 import { reaction } from 'mobx'
 import { observer } from 'mobx-react'
 import { MSAModelF, MSAView } from 'react-msaview'
-import { superposeRows } from 'react-msaview-structure'
+import { distanceTrack, superposeRows } from 'react-msaview-structure'
 import { StructurePanel } from 'react-msaview-structure/panel'
 
 import alignments from './structureAlignments.json'
 import {
-  caDistanceTrack,
   fitSummary,
   mappedTargets,
   messageOf,
@@ -101,9 +100,7 @@ const KinaseLobeFit = observer(function KinaseLobeFit() {
           if (run !== latest) {
             return
           }
-          model.setColumnTracks([
-            caDistanceTrack(track, targets[0]!.row, result),
-          ])
+          model.setColumnTracks([distanceTrack(result, track)])
           setFit({ state: 'done', label, result })
         } catch (e) {
           if (run === latest) {

@@ -7,12 +7,11 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { observer } from 'mobx-react'
 import { MSAModelF, MSAView } from 'react-msaview'
-import { superposeRows } from 'react-msaview-structure'
+import { distanceTrack, superposeRows } from 'react-msaview-structure'
 import { StructurePanel } from 'react-msaview-structure/panel'
 
 import alignments from './structureAlignments.json'
 import {
-  caDistanceTrack,
   fitSummary,
   mappedTargets,
   messageOf,
@@ -100,7 +99,7 @@ const GlobinSuperposition = observer(function GlobinSuperposition() {
       })
       model.setColumnTracks([
         ...model.columnTracks.filter(t => t.id !== track),
-        caDistanceTrack(track, targets[0]!.row, result),
+        distanceTrack(result, track),
       ])
       setFit({ kind, result })
     } catch (e) {

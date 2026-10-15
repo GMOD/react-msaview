@@ -50,26 +50,6 @@ export function mappedTargets(model: MsaViewModel, rows: string[]) {
   })
 }
 
-export function caDistanceTrack(
-  id: string,
-  row: string,
-  result: SuperposeRowsResult,
-) {
-  const max = Math.ceil(
-    Math.max(1, ...result.distanceValues.filter(Number.isFinite)),
-  )
-  return {
-    id,
-    name: `CA distance to ${row} (0–${max} Å)`,
-    kind: 'bar' as const,
-    row,
-    values: result.distanceValues,
-    max,
-    color: '#d55e00',
-    height: 60,
-  }
-}
-
 export function fitSummary(result: SuperposeRowsResult) {
   return result.fits
     .map(

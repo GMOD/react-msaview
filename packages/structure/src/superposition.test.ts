@@ -6,7 +6,7 @@ import {
 } from './alignmentSuperposition.ts'
 import { caChain, parseCaCoordinates } from './cif.ts'
 import { applyMatrix, distance, fitRigid } from './superpose.ts'
-import { superposeRows } from './superposeRows.ts'
+import { distanceTrack, superposeRows } from './superposeRows.ts'
 
 import type { Vec3 } from './cif.ts'
 import type { MsaViewModel } from 'react-msaview'
@@ -316,5 +316,25 @@ describe('superposeRows', () => {
     await expect(
       superposeRows({ model, targets: targets(['gone', 'other']), fetchText }),
     ).rejects.toThrow('HTTP 404')
+  })
+})
+
+describe('distanceTrack', () => {
+  test('scales the bar to the largest distance, rounded up', () => {
+    const track = distanceTrack({
+      referenceId: 'AF-P69905-F1',
+      referenceRow: 'HBA_HUMAN',
+      matrices: {},
+      fits: [],
+      distanceValues: [0.4, 7.2, Number.NaN, 2],
+      skipped: [],
+    })
+    expect(track).toMatchObject({
+      id: 'ca-distance',
+      kind: 'bar',
+      row: 'HBA_HUMAN',
+      max: 8,
+      name: 'CA distance to HBA_HUMAN (0–8 Å)',
+    })
   })
 })

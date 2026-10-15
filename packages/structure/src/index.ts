@@ -5,7 +5,7 @@ export { canFindStructures, identifiersOfRowName } from './identifiers.ts'
 export type { NameKind, RowIdentifier } from './identifiers.ts'
 export { findStructures, networkLookups } from './lookup.ts'
 export type { Lookups, StructureCandidate, StructureSearch } from './lookup.ts'
-export { superposeRows } from './superposeRows.ts'
+export { distanceTrack, superposeRows } from './superposeRows.ts'
 export type {
   FetchText,
   SuperposeRowsResult,

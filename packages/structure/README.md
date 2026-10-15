@@ -91,7 +91,9 @@ const fit = await superposeRows({
 - `matrices` moves each structure into the reference's frame, for the panel's
   `transforms`, and each fit reports its RMSD and the CA pairs it used
 - `distanceValues` is the mean CA distance per residue of the reference row
-  after the fit, which is a `columnTracks` bar's `values`
+  after the fit. `distanceTrack(fit)` turns it into a `columnTracks` bar on that
+  row, with `max` set to the largest distance, since the distances are in Å and
+  a bar's `max` is 1 by default
 - Fitting a pocket and reading the distances elsewhere shows where the rest of
   the fold departs from it
 - A fit sets aside the pairs that sit more than twice the RMSD from it and fits
@@ -103,8 +105,7 @@ const fit = await superposeRows({
   atoms count, on the chain the mapping's `asymIdKind` names
 - A row whose file fails to load goes into `skipped` with the reason, and the
   rest still fit
-- `distanceValues` is in Å, so give the bar track a `max`; a column no other row
-  covers reads 0
+- A column no other row covers reads 0
 
 ## Facets: structures side by side
 

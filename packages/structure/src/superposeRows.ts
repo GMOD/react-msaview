@@ -10,7 +10,7 @@ import type {
 } from './alignmentSuperposition.ts'
 import type { CaCoordinates, Vec3 } from './cif.ts'
 import type { Mat4 } from './superpose.ts'
-import type { MsaViewModel } from 'react-msaview'
+import type { ColumnTrackSpec, MsaViewModel } from 'react-msaview'
 
 export interface SuperposeTarget {
   row: string
@@ -20,6 +20,8 @@ export interface SuperposeTarget {
 export interface SuperposeRowsResult {
   /** the structure that stays put, and the matrix for each of the others */
   referenceId: string
+  /** the row whose residues `distanceValues` follows */
+  referenceRow: string
   matrices: Record<string, Mat4>
   fits: (RowSuperposition & { structureId: string })[]
   /** CA distance per residue of the reference row, a `columnTracks` bar */
@@ -171,6 +173,7 @@ export async function superposeRows({
   }
   return {
     referenceId: reference.structureId,
+    referenceRow: reference.row,
     matrices,
     fits,
     distanceValues: meanColumnDistances(
@@ -178,5 +181,29 @@ export async function superposeRows({
       Array.from(model.seqPosIndex(reference.row) ?? []),
     ),
     skipped: [...skipped, ...result.skipped],
+  }
+}
+
+/**
+ * The CA distances of a superposition as a `columnTracks` bar on the reference
+ * row, scaled to the largest distance rounded up, since a bar's `max` is 1 by
+ * default and the distances are in Å.
+ */
+export function distanceTrack(
+  result: SuperposeRowsResult,
+  id = 'ca-distance',
+): ColumnTrackSpec {
+  const max = Math.ceil(
+    Math.max(1, ...result.distanceValues.filter(Number.isFinite)),
+  )
+  return {
+    id,
+    name: `CA distance to ${result.referenceRow} (0–${max} Å)`,
+    kind: 'bar',
+    row: result.referenceRow,
+    values: result.distanceValues,
+    max,
+    color: '#d55e00',
+    height: 60,
   }
 }
