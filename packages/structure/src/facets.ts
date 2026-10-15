@@ -1,3 +1,5 @@
+import { structurePalette } from './palette.ts'
+
 import type { MsaViewModel } from 'react-msaview'
 
 export interface Facet {
@@ -7,19 +9,6 @@ export interface Facet {
   structureIds: string[]
   color: string
 }
-
-// the same cool colors a structure panel uses, so a highlight keeps its warm
-// color against any of them
-const FACET_COLORS = [
-  '#0072b2',
-  '#009e73',
-  '#7a5195',
-  '#6c757d',
-  '#56b4e9',
-  '#4d9078',
-  '#8c6bb1',
-  '#999999',
-]
 
 /**
  * Splits rows into groups, each with the structures its rows map onto. A row
@@ -49,7 +38,9 @@ export function facetsOfGroups(
             label,
             rows,
             structureIds,
-            color: colors[label] ?? FACET_COLORS[index % FACET_COLORS.length]!,
+            color:
+              colors[label] ??
+              structurePalette[index % structurePalette.length]!,
           },
         ]
   })

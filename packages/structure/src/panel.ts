@@ -1,6 +1,7 @@
 export { FacetGrid } from './FacetGrid.tsx'
 export type { FacetGridProps } from './FacetGrid.tsx'
-export { StructurePanel, structurePalette } from './StructurePanel.tsx'
+export { StructurePanel } from './StructurePanel.tsx'
+export { structurePalette } from './palette.ts'
 export type { StructurePanelProps } from './StructurePanel.tsx'
 export {
   conservationColor,

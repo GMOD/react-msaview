@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { observer } from 'mobx-react'
 
 import { StructurePanel } from './StructurePanel.tsx'
+import { cameraLink } from './cameraLink.ts'
 
 import type { Facet } from './facets.ts'
 import type { StructureColor } from './paint.ts'
@@ -25,17 +26,6 @@ export interface FacetGridProps {
   highlights?: boolean
 }
 
-function sameView(a: Camera.Snapshot, b: Camera.Snapshot) {
-  const near = (x: ArrayLike<number>, y: ArrayLike<number>) =>
-    [0, 1, 2].every(i => Math.abs((x[i] ?? 0) - (y[i] ?? 0)) < 1e-3)
-  return (
-    near(a.position, b.position) &&
-    near(a.target, b.target) &&
-    near(a.up, b.up) &&
-    Math.abs(a.radius - b.radius) < 1e-3
-  )
-}
-
 /**
  * Small multiples of structures: one Mol* view per facet, each facet's
  * structures in its own color and all in one frame, with the cameras tied so
@@ -51,61 +41,19 @@ export const FacetGrid = observer(function FacetGrid({
   colorBy = 'none',
   highlights = true,
 }: FacetGridProps) {
-  const plugins = useRef(new Map<number, PluginUIContext>())
-  const subscriptions = useRef(new Map<number, () => void>())
+  const [link] = useState(() => cameraLink<Camera.Snapshot>())
   const settle = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  // setting one camera emits a change on it, which would set the others and
-  // come back, so a change is passed on once and echoes are dropped
-  const passing = useRef(false)
-  const lastPassed = useRef(0)
-
-  function follow(source: number) {
-    const from = plugins.current.get(source)?.canvas3d
-    if (!from || passing.current || Date.now() - lastPassed.current < 60) {
-      return
-    }
-    const view = from.camera.getSnapshot()
-    passing.current = true
-    try {
-      for (const [index, plugin] of plugins.current) {
-        const camera = plugin.canvas3d?.camera
-        if (index !== source && camera) {
-          const current = camera.getSnapshot()
-          if (!sameView(current, view)) {
-            camera.setState(view, 0)
-          }
-        }
-      }
-    } finally {
-      passing.current = false
-      lastPassed.current = Date.now()
-    }
-  }
-
-  function register(index: number, plugin: PluginUIContext | undefined) {
-    subscriptions.current.get(index)?.()
-    subscriptions.current.delete(index)
-    if (!plugin) {
-      plugins.current.delete(index)
-      return
-    }
-    plugins.current.set(index, plugin)
-    const camera = plugin.canvas3d?.camera
-    if (camera) {
-      const subscription = camera.stateChanged.subscribe(() => {
-        follow(index)
-      })
-      subscriptions.current.set(index, () => {
-        subscription.unsubscribe()
-      })
-    }
+  // keyed by label, as the cells are, so a facet added in front does not
+  // take over the registration of the one it displaced
+  function register(label: string, plugin: PluginUIContext | undefined) {
+    link.register(label, plugin?.canvas3d?.camera)
     // the cells finish loading and framing at different times, so the first
     // facet's frame is applied to the rest once the last one has registered
     clearTimeout(settle.current)
-    if (plugins.current.size === facets.length) {
+    if (facets.every(f => link.has(f.label))) {
       settle.current = setTimeout(() => {
-        follow(Math.min(...plugins.current.keys()))
+        link.follow(facets[0]!.label)
       }, 1500)
     }
   }
@@ -113,11 +61,9 @@ export const FacetGrid = observer(function FacetGrid({
   useEffect(
     () => () => {
       clearTimeout(settle.current)
-      for (const unsubscribe of subscriptions.current.values()) {
-        unsubscribe()
-      }
+      link.dispose()
     },
-    [],
+    [link],
   )
 
   return (
@@ -129,7 +75,7 @@ export const FacetGrid = observer(function FacetGrid({
         gap: 12,
       }}
     >
-      {facets.map((facet, index) => (
+      {facets.map(facet => (
         <div
           key={facet.label}
           style={{ borderTop: `3px solid ${facet.color}`, paddingTop: 4 }}
@@ -145,7 +91,7 @@ export const FacetGrid = observer(function FacetGrid({
             compact
             height={cellHeight}
             onPlugin={plugin => {
-              register(index, plugin)
+              register(facet.label, plugin)
             }}
           />
         </div>
