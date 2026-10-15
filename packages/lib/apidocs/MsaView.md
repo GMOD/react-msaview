@@ -530,7 +530,8 @@ the currently hovered tree node ID and its descendant leaf names
 
 ```js
 hoveredTreeNode: undefined as
-  { nodeId: string; descendantNames: string[] } | undefined
+  | { nodeId: string; descendantNames: string[] }
+  | undefined
 ```
 
 #### volatile: importForm
@@ -653,6 +654,15 @@ transientHighlights: {} as Record<string, Highlight[]>
 
 ```js
 volatileWidth: undefined as number | undefined
+```
+
+#### volatile: zoomHeld
+
+the log scale a wheel zoom has gathered against the detent at the default column
+width and row height, per axis
+
+```js
+zoomHeld: { col: 0, row: 0 }
 ```
 
 #### volatile: zoomSnapshot

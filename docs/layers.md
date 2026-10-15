@@ -571,7 +571,7 @@ The viewer upper-cases every row before coloring it, as the built-in schemes
 expect, so a key matches its letter in either case. A gap is uncolored unless
 the map lists `-` or `.`. The map paints whichever channel `residueEncoding`
 picks, the cell or the letter, and it colors the sequence logo's letters too.
-Picking a scheme from the palette menu clears the map.
+Picking a scheme under **Settings → Color** clears the map.
 
 React: `colorScheme={{ map: { K: '#1f77b4' } }}` on `MSAViewer`, or
 `model.setCustomColorScheme(map)`. R: `color_scheme = c(K = "#1f77b4")`, or

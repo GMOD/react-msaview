@@ -161,10 +161,10 @@ taller than the screen in one click. The overview keeps drawing every tip while
 the view shows a subtree, so it shows where the focused clade sits in the whole
 tree. The SVG export draws the band too.
 
-**Tree settings → Show tree scale bar** puts a scale bar in the gutter above the
-tree, off by default. The bar's length is a round number of substitutions per
-site, at the same scale as the branches. Cladogram mode hides the bar, because
-branch length does not set horizontal position there. The SVG export draws the bar too,
+**Settings → Tree → Scale bar** puts a scale bar in the gutter above the tree,
+off by default. The bar's length is a round number of substitutions per site, at
+the same scale as the branches. Cladogram mode hides the bar, because branch
+length does not set horizontal position there. The SVG export draws the bar too,
 so a published figure states the scale of its branches.
 
 **Settings → Tree** draws the tree as a **Phylogram**, with branches to scale, a

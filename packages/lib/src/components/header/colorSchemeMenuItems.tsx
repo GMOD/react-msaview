@@ -33,6 +33,12 @@ const schemes: SchemeEntry[] = [
     featured: true,
   },
   {
+    name: 'blosum62_dynamic',
+    label: 'BLOSUM62 similarity',
+    alphabet: 'protein',
+    featured: true,
+  },
+  {
     name: 'jalview_hydrophobicity',
     label: 'Hydrophobicity',
     alphabet: 'protein',
