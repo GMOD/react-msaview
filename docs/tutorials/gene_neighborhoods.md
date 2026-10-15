@@ -248,6 +248,8 @@ sits beside its trpB, in a row with no trpE.
 
 ## 6. The panel beside the alignment it came from
 
+<!-- usage: web -->
+
 The panel and the alignment are two views of the same twelve rows, so both fit
 in one figure. The panel takes its width out of the alignment's, and the
 alignment scrolls and fits within what is left:
@@ -271,6 +273,47 @@ land far past the 423rd column.
 The 423 TrpB columns and the trp neighborhood in one figure, with the tree from
 the alignment on the left. The alignment gives the two conservation tracks
 columns to measure, so both draw.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same hosted tree and
+GFF, and `geom_msa_features()` is the panel, its colors, labels and `align`
+transform as arguments. ggmsaview has no switch for the alignment's own overlay,
+which would draw the genome-coordinate spans across the TrpB columns, so the R
+figure leaves the alignment out and draws the tree and the panel. `w` alone
+opens the viewer in RStudio or a notebook, and `msaview_plot()` draws the
+ggplot2 figure, whose fill scale the last line limits to the trp genes:
+
+```r
+library(ggmsaview)
+library(ggplot2)
+data <- "https://gmod.org/JBrowseMSA/demo/data/neighborhoods"
+trp <- c(
+  trpL = "#76b7b2", trpE = "#4e79a7", trpG = "#a0cbe8", trpD = "#f28e2b",
+  trpC = "#59a14f", trpCF = "#8cd17d", trpF = "#b6992d", trpB = "#e15759",
+  trpA = "#b07aa1", trpI = "#9c755f"
+)
+w <- msaview(
+  tree = file.path(data, "trpB.nwk"),
+  gff = file.path(data, "trp-neighborhoods.gff")
+) +
+  geom_msa_features(x = "position", color = "Name", map = trp,
+    label = "Name", align = "trpE", width = 760, header = "trp neighborhood")
+w
+ggsave("gene_neighborhoods-5-r.png",
+  msaview_plot(w) & scale_fill_manual(values = trp, breaks = names(trp),
+    na.value = "grey85", name = "Name"),
+  width = 12, height = 5)
+```
+
+![](../media/gene_neighborhoods-5-r.png)
+
+The twelve neighborhoods beside the trpB tree, every row shifted so its trpE
+starts at one x, the trp genes in their colors and every other gene grey. The H.
+influenzae row has no trpE and keeps its own origin, its trpB and trpA among
+grey genes.
+
+<!-- /usage -->
 
 Two rows never moved. _H. influenzae_ and _P. aeruginosa_ carry _trpB_ and
 _trpA_ in their windows and nothing else of the pathway, so they have no _trpE_
