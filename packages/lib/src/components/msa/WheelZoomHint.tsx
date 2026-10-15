@@ -17,6 +17,7 @@ export function useWheelZoomHint(model: MsaViewModel) {
   const onWheelScroll = useCallback(
     (event: WheelEvent) => {
       if (
+        !model.scrollZoom &&
         Math.abs(event.deltaY) > Math.abs(event.deltaX) &&
         !hinted.has(model)
       ) {
