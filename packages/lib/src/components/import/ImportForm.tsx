@@ -45,20 +45,24 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
           },
         }}
       >
-        <div>
+        <Box sx={{ width: 400, [phone]: { width: 'auto' } }}>
           <div>
             <Typography>MSA file or URL</Typography>
-            <FileSelector location={msaFile} setLocation={setMsaFile} />
+            <FileSelector inline location={msaFile} setLocation={setMsaFile} />
           </div>
           <div>
             <Typography>Tree file or URL</Typography>
-            <FileSelector location={treeFile} setLocation={setTreeFile} />
+            <FileSelector
+              inline
+              location={treeFile}
+              setLocation={setTreeFile}
+            />
           </div>
           <div>
             <Typography>Annotation GFF file or URL (optional)</Typography>
-            <FileSelector location={gffFile} setLocation={setGffFile} />
+            <FileSelector inline location={gffFile} setLocation={setGffFile} />
           </div>
-        </div>
+        </Box>
         <div>
           <Button
             onClick={() => {
