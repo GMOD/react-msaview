@@ -6,11 +6,11 @@ const base = import.meta.env.BASE_URL
 export interface SiteLink {
   label: string
   href: string
-  body: string
 }
 
 export interface DocPage extends SiteLink {
   slug: string
+  body: string
   /** markdown file the page renders, relative to the repo root */
   source: string
 }
@@ -18,19 +18,16 @@ export interface DocPage extends SiteLink {
 export const app: SiteLink = {
   label: 'Standalone app',
   href: `${base}/demo/`,
-  body: 'Open your own files: a FASTA, Stockholm, Clustal, A3M or EMF alignment, a Newick tree, and GFF3 or InterProScan JSON annotations, from your computer or a URL.',
 }
 
 export const tutorials: SiteLink = {
   label: 'Tutorials',
   href: `${base}/tutorials`,
-  body: 'Data preparation outside the viewer, from sequences to an alignment, a tree and annotations, each walkthrough ending on a link that opens the result. The index doubles as the gallery.',
 }
 
 export const examples: SiteLink = {
   label: 'Examples',
   href: `${base}/examples`,
-  body: 'The embedding guide as running code: one page per usage pattern, each rendering the viewer beside the source that produced it.',
 }
 
 function doc(slug: string, source: string, label: string, body: string) {
