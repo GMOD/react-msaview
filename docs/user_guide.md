@@ -191,11 +191,11 @@ walks through both, and the **Open annotation file** dialog links to it.
 domains on sub-rows and filters them.
 
 Loading a domain file hands the cells to the domains: **Settings → Color → Fill
-cells with** switches to **Domain colors**, and each domain fills the cells it
-covers. **Residue colors** gives the cells back to the residue scheme and marks
-each domain with a bar under its row, and picking a residue scheme does the
-same, so a scheme picked while domains are shown never goes unseen. **Nothing,
-color the letters** colors the letters by the scheme and keeps the bars.
+cells with** switches to **Domains**, and each domain fills the cells it covers.
+**Residues** gives the cells back to the residue scheme and marks each domain
+with a bar under its row, and picking a residue scheme does the same, so a
+scheme picked while domains are shown never goes unseen. **Nothing** colors the
+letters by the scheme and keeps the bars.
 
 [![](media/real-domains.png)][live-real-domains]
 
@@ -386,9 +386,9 @@ effect shows as it changes.
 - **View** holds **Find row or column…** and the Zoom submenu, which repeats
   **Zoom on scroll**.
 - The **Settings** panel has a section each for Color, Tree, Alignment,
-  Annotations and Tracks. Color picks what fills the cells, residue colors,
-  domain colors or nothing, then lists the common residue schemes for the
-  alignment's alphabet, with the rest under **More schemes**. Alignment's Gappy
+  Annotations and Tracks. Color picks what fills the cells, residues, domains
+  or nothing, then lists the common residue schemes for the alignment's
+  alphabet, with the rest under **More schemes**. Alignment's Gappy
   columns hides each column where at least 50%, 90% or a custom share of the
   rows has a gap, and a chip in the header counts the hidden columns; its ×
   shows them again.

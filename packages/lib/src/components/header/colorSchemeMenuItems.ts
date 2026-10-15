@@ -1,7 +1,3 @@
-import React from 'react'
-
-import colorSchemes from '../../colorSchemes.ts'
-
 import type { MsaViewModel } from '../../model.ts'
 import type { MenuItem } from '@jbrowse/core/ui/Menu'
 
@@ -11,8 +7,6 @@ interface SchemeEntry {
   name: string
   label: string
   alphabet: Alphabet
-  // the static scheme a swatch borrows its colors from
-  swatchFrom?: string
   // shown at the top level for its alphabet, the rest under More schemes
   featured?: boolean
 }
@@ -29,7 +23,6 @@ const schemes: SchemeEntry[] = [
     name: 'clustalx_protein_dynamic',
     label: 'Clustal X, by column conservation',
     alphabet: 'protein',
-    swatchFrom: 'clustalx_protein',
     featured: true,
   },
   {
@@ -83,34 +76,6 @@ const schemes: SchemeEntry[] = [
 
 export const catalogedSchemeNames = schemes.map(s => s.name)
 
-const swatchLetters: Record<Alphabet, string[]> = {
-  any: [],
-  nucleotide: ['A', 'C', 'G', 'T'],
-  protein: ['A', 'L', 'K', 'D', 'N', 'G', 'P', 'W'],
-}
-
-function makeSwatch(entry: SchemeEntry) {
-  const map = colorSchemes[entry.swatchFrom ?? entry.name]
-  const colors = swatchLetters[entry.alphabet]
-    .map(l => map?.[l])
-    .filter(c => c !== undefined)
-  if (colors.length === 0) {
-    return undefined
-  }
-  const w = 24 / colors.length
-  return function Swatch() {
-    return (
-      <svg width={24} height={14} aria-hidden>
-        {colors.map((c, i) => (
-          <rect key={c + i} x={i * w} width={w} height={14} fill={c} />
-        ))}
-      </svg>
-    )
-  }
-}
-
-const swatches = new Map(schemes.map(e => [e.name, makeSwatch(e)]))
-
 // While a `customColorScheme` map is set, a checked Custom entry stands for it
 // and no named scheme is checked. Picking a named scheme clears the map. The
 // active scheme always shows at the top level.
@@ -121,7 +86,6 @@ export function colorSchemeMenuItems(model: MsaViewModel): MenuItem[] {
     return {
       label: entry.label,
       type: 'radio',
-      icon: swatches.get(entry.name),
       checked: !customColorScheme && colorSchemeName === entry.name,
       onClick: () => {
         model.setColorSchemeName(entry.name)

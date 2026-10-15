@@ -203,23 +203,26 @@ test('the header checkbox and View → Zoom both turn zoom on scroll on', async 
 test('the gappy columns presets set the threshold, and Show all clears it', () => {
   mount({ msa: '>a\nAC-T\n>b\nA--T\n>c\nACGT\n' })
   expect(testId('hidden_columns_chip')).toBeNull()
-  clickItem(gapsSubMenu(model), 'Hide ≥50% gaps')
+  clickItem(subMenuItems(gapsSubMenu(model), 'Gappy columns'), 'Hide ≥50% gaps')
   expect([model.hideGaps, model.allowedGappyness]).toEqual([true, 50])
   expect(testId('hidden_columns_chip')?.textContent).toBe(
     '1 gappy column hidden',
   )
-  clickItem(gapsSubMenu(model), 'Show all columns')
+  clickItem(
+    subMenuItems(gapsSubMenu(model), 'Gappy columns'),
+    'Show all columns',
+  )
   expect(model.hideGaps).toBe(false)
   expect(testId('hidden_columns_chip')).toBeNull()
 })
 
 test('the Tree settings pick one of three layouts', () => {
   mount({ msa, tree })
-  clickItem(treeSubMenu(model), 'Cladogram')
+  clickItem(subMenuItems(treeSubMenu(model), 'Layout'), 'Cladogram')
   expect([model.drawTree, model.showBranchLen]).toEqual([true, false])
-  clickItem(treeSubMenu(model), 'Labels only')
+  clickItem(subMenuItems(treeSubMenu(model), 'Layout'), 'Labels only')
   expect(model.drawTree).toBe(false)
-  clickItem(treeSubMenu(model), 'Phylogram')
+  clickItem(subMenuItems(treeSubMenu(model), 'Layout'), 'Phylogram')
   expect([model.drawTree, model.showBranchLen]).toEqual([true, true])
 })
 

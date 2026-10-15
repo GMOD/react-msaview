@@ -3,11 +3,12 @@ import { lazy } from 'react'
 import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
 import { canGoTo } from '../dialogs/GoToBox.tsx'
 import { scrollZoomLabel } from './ScrollZoomCheckbox.tsx'
-import { colorSchemeMenuItems } from './colorSchemeMenuItems.tsx'
+import { colorSchemeMenuItems } from './colorSchemeMenuItems.ts'
 import { openAnnotationFileItem } from './getAnnotationsMenu.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { TreeOrder } from '../../types.ts'
+import type { ChoiceDisplay } from '../settings/MenuItemsForm.tsx'
 import type { MenuItem } from '@jbrowse/core/ui/Menu'
 
 const AboutDialog = lazy(() => import('../dialogs/AboutDialog.tsx'))
@@ -40,8 +41,8 @@ function action(label: string, onClick: () => void, disabled = false) {
   return { label, onClick, disabled }
 }
 
-function subMenu(label: string, items: MenuItem[]) {
-  return { label, type: 'subMenu' as const, subMenu: items }
+function subMenu(label: string, items: MenuItem[], display?: ChoiceDisplay) {
+  return { label, type: 'subMenu' as const, subMenu: items, display }
 }
 
 function when<T>(cond: boolean, items: T[]) {
@@ -102,36 +103,45 @@ export function gapsSubMenu(model: MsaViewModel): MenuItem[] {
   const { hideGaps, allowedGappyness } = model
   const custom = hideGaps && !gapPresets.includes(allowedGappyness)
   return [
-    radio('Show all columns', !hideGaps, () => {
-      model.setHideGaps(false)
-    }),
-    ...gapPresets.map(pct =>
-      radio(
-        pct === 100 ? 'Hide columns of only gaps' : `Hide ≥${pct}% gaps`,
-        hideGaps && allowedGappyness === pct,
-        () => {
-          model.setHideGaps(true)
-          model.setAllowedGappyness(pct)
+    subMenu(
+      'Gappy columns',
+      [
+        radio('Show all columns', !hideGaps, () => {
+          model.setHideGaps(false)
+        }),
+        ...gapPresets.map(pct =>
+          radio(
+            pct === 100 ? 'Hide columns of only gaps' : `Hide ≥${pct}% gaps`,
+            hideGaps && allowedGappyness === pct,
+            () => {
+              model.setHideGaps(true)
+              model.setAllowedGappyness(pct)
+            },
+          ),
+        ),
+        {
+          ...radio(
+            custom ? `Hide ≥${allowedGappyness}% gaps…` : 'Custom threshold…',
+            custom,
+            () => {
+              model.setHideGaps(true)
+              model.queueDialog(onClose => [
+                GapThresholdDialog,
+                { model, onClose },
+              ])
+            },
+          ),
+          keepMenuOpen: false,
         },
-      ),
+      ],
+      'select',
     ),
-    {
-      ...radio(
-        custom ? `Hide ≥${allowedGappyness}% gaps…` : 'Custom threshold…',
-        custom,
-        () => {
-          model.setHideGaps(true)
-          model.queueDialog(onClose => [GapThresholdDialog, { model, onClose }])
-        },
-      ),
-      keepMenuOpen: false,
-    },
   ]
 }
 
 const treeOrderLabels: Record<TreeOrder, string> = {
   branchLength: 'By branch length',
-  input: 'As written',
+  input: 'Input order',
   ladderize: 'Ladderize, small clades first',
   ladderizeReverse: 'Ladderize, large clades first',
 }
@@ -158,51 +168,71 @@ export function treeSubMenu(model: MsaViewModel): MenuItem[] {
     rotated,
   } = model
   return [
-    radio('Phylogram', drawTree && showBranchLen, () => {
-      model.setDrawTree(true)
-      model.setShowBranchLen(true)
-    }),
-    radio('Cladogram', drawTree && !showBranchLen, () => {
-      model.setDrawTree(true)
-      model.setShowBranchLen(false)
-    }),
-    radio('Labels only', !drawTree, () => {
-      model.setDrawTree(false)
-    }),
-    subMenu('Order', [
-      ...treeOrders.map(order =>
-        radio(treeOrderLabels[order], treeOrder === order, () => {
-          model.setTreeOrder(order)
+    subMenu(
+      'Layout',
+      [
+        radio('Phylogram', drawTree && showBranchLen, () => {
+          model.setDrawTree(true)
+          model.setShowBranchLen(true)
         }),
-      ),
-      ...when(rotated.length > 0, [
-        action('Undo rotations', () => {
-          model.clearRotated()
+        radio('Cladogram', drawTree && !showBranchLen, () => {
+          model.setDrawTree(true)
+          model.setShowBranchLen(false)
         }),
-      ]),
-    ]),
-    subMenu('Root', [
-      radio('As written', treeRoot === undefined, () => {
-        model.setTreeRoot(undefined)
-      }),
-      radio('Midpoint', treeRoot === 'midpoint', () => {
-        model.setTreeRoot('midpoint')
-      }),
-      // "Reroot here" in a node's menu sets the outgroup, so this only
-      // reports it
-      ...when(typeof treeRoot === 'object', [
-        {
-          ...radio(
-            typeof treeRoot === 'object'
-              ? outgroupLabel(treeRoot.outgroup)
-              : '',
-            true,
-            () => {},
-          ),
-          disabled: true,
-        },
-      ]),
-    ]),
+        radio('Labels only', !drawTree, () => {
+          model.setDrawTree(false)
+        }),
+      ],
+      'segmented',
+    ),
+    toggle('Tree overview', showTreeOverview, arg => {
+      model.setShowTreeOverview(arg)
+    }),
+    toggle('Scale bar', showTreeScaleBar, arg => {
+      model.setShowTreeScaleBar(arg)
+    }),
+    subMenu(
+      'Order',
+      [
+        ...treeOrders.map(order =>
+          radio(treeOrderLabels[order], treeOrder === order, () => {
+            model.setTreeOrder(order)
+          }),
+        ),
+        ...when(rotated.length > 0, [
+          action('Undo rotations', () => {
+            model.clearRotated()
+          }),
+        ]),
+      ],
+      'select',
+    ),
+    subMenu(
+      'Root',
+      [
+        radio('Input root', treeRoot === undefined, () => {
+          model.setTreeRoot(undefined)
+        }),
+        radio('Midpoint', treeRoot === 'midpoint', () => {
+          model.setTreeRoot('midpoint')
+        }),
+        // "Reroot here" in a node's menu sets the outgroup, so this only
+        // reports it
+        ...when(typeof treeRoot === 'object', [
+          {
+            ...radio(
+              typeof treeRoot === 'object'
+                ? outgroupLabel(treeRoot.outgroup)
+                : '',
+              true,
+              () => {},
+            ),
+            disabled: true,
+          },
+        ]),
+      ],
+      'select',
+    ),
     subMenu('Labels', [
       toggle('Tip labels', drawLabels, arg => {
         model.setDrawLabels(arg)
@@ -214,12 +244,6 @@ export function treeSubMenu(model: MsaViewModel): MenuItem[] {
         model.setLabelsAlignRight(arg)
       }),
     ]),
-    toggle('Tree overview', showTreeOverview, arg => {
-      model.setShowTreeOverview(arg)
-    }),
-    toggle('Scale bar', showTreeScaleBar, arg => {
-      model.setShowTreeScaleBar(arg)
-    }),
     ...when(treeAreaWidth !== undefined, [
       action('Reset tree width', () => {
         model.setTreeAreaWidth(undefined)
@@ -261,20 +285,34 @@ export function alignmentSettingsItems(model: MsaViewModel): MenuItem[] {
 export function colorSettingsItems(model: MsaViewModel): MenuItem[] {
   const { cellFill, filteredAnnotations } = model
   return [
-    { type: 'subHeader', label: 'Fill cells with' },
-    radio('Residue colors', cellFill === 'residue', () => {
-      model.setCellFill('residue')
-    }),
-    ...when(filteredAnnotations.length > 0, [
-      radio('Domain colors', cellFill === 'domain', () => {
-        model.setShowDomains(true)
-        model.setCellFill('domain')
-      }),
-    ]),
-    radio('Nothing, color the letters', cellFill === 'none', () => {
-      model.setCellFill('none')
-    }),
-    { type: 'subHeader', label: 'Residue scheme' },
+    subMenu(
+      'Fill cells with',
+      [
+        radio('Residues', cellFill === 'residue', () => {
+          model.setCellFill('residue')
+        }),
+        ...when(filteredAnnotations.length > 0, [
+          radio('Domains', cellFill === 'domain', () => {
+            model.setShowDomains(true)
+            model.setCellFill('domain')
+          }),
+        ]),
+        {
+          ...radio('Nothing', cellFill === 'none', () => {
+            model.setCellFill('none')
+          }),
+          helpText: 'Color the letters instead',
+        },
+      ],
+      'segmented',
+    ),
+    {
+      type: 'subHeader',
+      label:
+        cellFill === 'domain'
+          ? 'Residue scheme: picking one takes the cells back from the domains'
+          : 'Residue scheme',
+    },
     ...colorSchemeMenuItems(model),
   ]
 }

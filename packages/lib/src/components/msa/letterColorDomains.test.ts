@@ -8,7 +8,7 @@ import { expect, test } from 'vitest'
 import { domainUnderlineHeight } from '../../constants.ts'
 import stateModelFactory from '../../model.ts'
 import { contrastTextFn } from '../../util.ts'
-import { colorSchemeMenuItems } from '../header/colorSchemeMenuItems.tsx'
+import { colorSchemeMenuItems } from '../header/colorSchemeMenuItems.ts'
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock.ts'
 import { renderMSABlock } from './renderMSABlock.ts'
 

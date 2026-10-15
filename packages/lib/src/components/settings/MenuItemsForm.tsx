@@ -7,28 +7,114 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  MenuItem as MuiMenuItem,
   Radio,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material'
 
 import type { MenuItem } from '@jbrowse/core/ui/Menu'
 
-// The menus' item builders drive the settings panel too, so a setting is
-// written once: a checkbox item renders as a checkbox, a radio as a radio, a
-// submenu as a section that opens in place, and an action as a button
-function label(item: MenuItem & { icon?: React.ElementType }) {
-  const { icon: Icon } = item
-  const text = 'label' in item ? item.label : ''
-  return Icon ? (
-    <Box
-      component="span"
-      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+type RadioMenuItem = Extract<MenuItem, { type: 'radio' }>
+
+/**
+ * A submenu of radios may name a compact control to render as: `segmented`
+ * for a few short choices, `select` for a longer list
+ */
+export type ChoiceDisplay = 'segmented' | 'select'
+
+function radios(items: MenuItem[]) {
+  return items.filter(
+    (i): i is RadioMenuItem => 'type' in i && i.type === 'radio',
+  )
+}
+
+function Caption({ children }: { children: React.ReactNode }) {
+  return (
+    <Typography
+      variant="caption"
+      color="text.secondary"
+      sx={{ mt: 1, display: 'block' }}
     >
-      <Icon />
-      {text}
-    </Box>
-  ) : (
-    text
+      {children}
+    </Typography>
+  )
+}
+
+function Segmented({
+  label,
+  options,
+}: {
+  label: string
+  options: RadioMenuItem[]
+}) {
+  const value = options.findIndex(o => o.checked)
+  return (
+    <>
+      <Caption>{label}</Caption>
+      <ToggleButtonGroup
+        exclusive
+        fullWidth
+        size="small"
+        value={value}
+        aria-label={label}
+        onChange={(_event, i: number | null) => {
+          if (i !== null) {
+            options[i]?.onClick()
+          }
+        }}
+      >
+        {options.map((o, i) => (
+          <ToggleButton
+            key={String(o.label)}
+            value={i}
+            disabled={o.disabled}
+            title={o.helpText}
+            sx={{ textTransform: 'none', py: 0.25 }}
+          >
+            {o.label}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+    </>
+  )
+}
+
+// each option fires its own onClick, so picking the checked one again still
+// runs, which reopens a dialog like the custom gap threshold
+function Select({
+  label,
+  options,
+}: {
+  label: string
+  options: RadioMenuItem[]
+}) {
+  const value = options.findIndex(o => o.checked)
+  return (
+    <TextField
+      select
+      size="small"
+      fullWidth
+      label={label}
+      value={value === -1 ? '' : value}
+      sx={{ mt: 1.5, '& .MuiInputBase-root': { typography: 'body2' } }}
+    >
+      {options.map((o, i) => (
+        <MuiMenuItem
+          key={String(o.label)}
+          value={i}
+          disabled={o.disabled}
+          dense
+          onClick={() => {
+            o.onClick()
+          }}
+        >
+          {o.label}
+        </MuiMenuItem>
+      ))}
+    </TextField>
   )
 }
 
@@ -41,12 +127,24 @@ function SubSection({ item }: { item: MenuItem }) {
   if (!('subMenu' in item) || !Array.isArray(item.subMenu)) {
     return null
   }
+  const label = String(item.label)
+  const display =
+    'display' in item ? (item.display as ChoiceDisplay) : undefined
+  if (display) {
+    const options = radios(item.subMenu)
+    const rest = item.subMenu.filter(i => !options.includes(i as RadioMenuItem))
+    const Control = display === 'segmented' ? Segmented : Select
+    return (
+      <>
+        <Control label={label} options={options} />
+        <MenuItemsForm items={rest} />
+      </>
+    )
+  }
   if (item.subMenu.length <= inlineUpTo) {
     return (
       <>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-          {item.label}
-        </Typography>
+        <Caption>{label}</Caption>
         <MenuItemsForm items={item.subMenu} />
       </>
     )
@@ -62,7 +160,7 @@ function SubSection({ item }: { item: MenuItem }) {
         }}
         sx={{ textTransform: 'none', justifyContent: 'flex-start', px: 0.5 }}
       >
-        {item.label}
+        {label}
       </Button>
       {open ? (
         <Box sx={{ pl: 2 }}>
@@ -82,11 +180,7 @@ export default function MenuItemsForm({ items }: { items: MenuItem[] }) {
           return null
         }
         if ('type' in item && item.type === 'subHeader') {
-          return (
-            <Typography key={key} variant="caption" color="text.secondary">
-              {item.label}
-            </Typography>
-          )
+          return <Caption key={key}>{item.label}</Caption>
         }
         if ('subMenu' in item) {
           return <SubSection key={key} item={item} />
@@ -109,7 +203,7 @@ export default function MenuItemsForm({ items }: { items: MenuItem[] }) {
                   sx={{ py: 0.25 }}
                 />
               }
-              label={label(item)}
+              label={item.label}
               slotProps={{ typography: { variant: 'body2' } }}
             />
           )

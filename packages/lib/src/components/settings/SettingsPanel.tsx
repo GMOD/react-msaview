@@ -90,9 +90,6 @@ const SettingsPanel = observer(function ({
       )}
       <Section title="Alignment">
         <MenuItemsForm items={alignmentSettingsItems(model)} />
-        <Typography variant="caption" color="text.secondary">
-          Gappy columns
-        </Typography>
         <MenuItemsForm items={gapsSubMenu(model)} />
       </Section>
       {noDomains ? null : (
@@ -101,8 +98,10 @@ const SettingsPanel = observer(function ({
         </Section>
       )}
       <Section title="Tracks">
-        <MenuItemsForm items={trackSettingsItems(model)} />
         <TrackList model={model} />
+        <Box sx={{ mt: 1, pt: 0.5, borderTop: 1, borderColor: 'divider' }}>
+          <MenuItemsForm items={trackSettingsItems(model)} />
+        </Box>
       </Section>
     </Box>
   )
