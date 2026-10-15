@@ -530,6 +530,7 @@ export const preservedOnReset = new Set([
   'drawNodeBubbles',
   'drawNodeLabels',
   'showTreeOverview',
+  'showTreeScaleBar',
   'overviewHeight',
   'turnedOffTracks',
   'trackHeights',
@@ -3299,10 +3300,14 @@ function stateModelFactory({
     .views(self => ({
       /**
        * #getter
-       * the branch-length scale bar over the tree, undefined in cladogram mode
-       * or when the tree area is too narrow for one
+       * the branch-length scale bar over the tree, undefined while
+       * `showTreeScaleBar` is off, in cladogram mode, or when the tree area is
+       * too narrow for one
        */
       get treeScaleBar() {
+        if (!self.showTreeScaleBar) {
+          return undefined
+        }
         return scaleBarLength(
           self.pxPerBranchLength,
           self.effectiveTreeAreaWidth - self.marginLeft * 2,

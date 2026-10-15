@@ -137,6 +137,7 @@ export function treeSettingsMenuItems(model: MsaViewModel): MenuItem[] {
     drawLabels,
     treeAreaWidth,
     showTreeOverview,
+    showTreeScaleBar,
     treeOrder,
     treeRoot,
     rotated,
@@ -198,6 +199,9 @@ export function treeSettingsMenuItems(model: MsaViewModel): MenuItem[] {
     }),
     toggle('Show tree overview', showTreeOverview, arg => {
       model.setShowTreeOverview(arg)
+    }),
+    toggle('Show tree scale bar', showTreeScaleBar, arg => {
+      model.setShowTreeScaleBar(arg)
     }),
     toggle('Tree labels align right', labelsAlignRight, arg => {
       model.setLabelsAlignRight(arg)

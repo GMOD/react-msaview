@@ -303,6 +303,9 @@ test('the dividers are separators', () => {
 
 test('the tree gutter carries a scale bar, and the ruler track draws', async () => {
   expect(model.pxPerBranchLength).toBeGreaterThan(0)
+  act(() => {
+    model.setShowTreeScaleBar(true)
+  })
   // the gutter above the tree: a path for the bar, and the round length beside
   // it
   const bar = container.querySelector('svg path')

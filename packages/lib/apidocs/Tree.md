@@ -83,6 +83,14 @@ A click on it focuses the subtree under the pointer
 showTreeOverview: stripDefault(types.boolean, defaultShowTreeOverview)
 ```
 
+#### property: showTreeScaleBar
+
+draw the branch-length scale bar above the tree of a phylogram
+
+```js
+showTreeScaleBar: stripDefault(types.boolean, defaultShowTreeScaleBar)
+```
+
 #### property: treeAreaWidth
 
 width of the area the tree and its labels draw in, px. Undefined fits the area
@@ -156,6 +164,12 @@ setShowBranchLen: (arg: boolean) => void
 
 ```js
 setShowTreeOverview: (arg: boolean) => void
+```
+
+#### action: setShowTreeScaleBar
+
+```js
+setShowTreeScaleBar: (arg: boolean) => void
 ```
 
 #### action: setTreeAreaWidth

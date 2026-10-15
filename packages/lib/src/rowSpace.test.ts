@@ -54,6 +54,10 @@ test('fit vertically leaves every row on screen', () => {
 
 test('the top band counts the scale bar over a phylogram', () => {
   const model = makeModel()
+  expect(model.treeScaleBar).toBeUndefined()
+  expect(model.topBandHeight).toBe(0)
+
+  model.setShowTreeScaleBar(true)
   expect(model.treeScaleBar).toBeDefined()
   expect(model.showHorizontalScrollbar).toBe(false)
   expect(model.topBandHeight).toBe(treeScaleBarHeight)
