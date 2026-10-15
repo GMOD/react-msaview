@@ -13,20 +13,18 @@ import { observer } from 'mobx-react'
 import type { MsaViewModel } from '../../model.ts'
 
 interface Entry {
-  key: string
+  id: string
   label: string
-  ids: string[]
 }
 
-export function trackGroups(model: MsaViewModel) {
+function trackGroups(model: MsaViewModel) {
   const computed = new Set(model.computedTrackModels.map(t => t.model.id))
   const computedEntries: Entry[] = []
   const alignmentEntries: Entry[] = []
   for (const { model: t } of model.tracks) {
     ;(computed.has(t.id) ? computedEntries : alignmentEntries).push({
-      key: t.id,
+      id: t.id,
       label: t.name,
-      ids: [t.id],
     })
   }
   return [
@@ -49,7 +47,7 @@ const TrackList = observer(function ({ model }: { model: MsaViewModel }) {
       entries: g.entries.filter(e => e.label.toLowerCase().includes(needle)),
     }))
     .filter(g => g.entries.length > 0)
-  const matching = groups.flatMap(g => g.entries.flatMap(e => e.ids))
+  const matching = groups.flatMap(g => g.entries.map(e => e.id))
   const long = all.reduce((n, g) => n + g.entries.length, 0) >= filterFrom
   return (
     <>
@@ -91,28 +89,24 @@ const TrackList = observer(function ({ model }: { model: MsaViewModel }) {
               {title}
             </Typography>
           ) : null}
-          {entries.map(({ key, label, ids }) => {
-            const on = ids.filter(id => shown.has(id)).length
-            return (
-              <FormControlLabel
-                key={key}
-                sx={{ display: 'flex' }}
-                control={
-                  <Checkbox
-                    size="small"
-                    checked={on === ids.length}
-                    indeterminate={on > 0 && on < ids.length}
-                    onChange={() => {
-                      model.setTracksShown(ids, on < ids.length)
-                    }}
-                    sx={{ py: 0.25 }}
-                  />
-                }
-                label={label}
-                slotProps={{ typography: { variant: 'body2' } }}
-              />
-            )
-          })}
+          {entries.map(({ id, label }) => (
+            <FormControlLabel
+              key={id}
+              sx={{ display: 'flex' }}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={shown.has(id)}
+                  onChange={() => {
+                    model.toggleTrack(id)
+                  }}
+                  sx={{ py: 0.25 }}
+                />
+              }
+              label={label}
+              slotProps={{ typography: { variant: 'body2' } }}
+            />
+          ))}
         </Box>
       ))}
       {groups.length === 0 ? (
