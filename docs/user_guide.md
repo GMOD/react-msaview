@@ -1,8 +1,7 @@
 # JBrowseMSA user guide
 
-JBrowseMSA draws a phylogenetic tree beside a protein or nucleotide alignment,
-in the browser, with nothing uploaded. It stays responsive up to the 230k-node
-UCSC SARS-CoV-2 tree.
+JBrowseMSA draws a phylogenetic tree beside a protein or nucleotide alignment.
+It stays responsive up to the 230k-node UCSC SARS-CoV-2 tree.
 
 The guide tours the [live app](https://gmod.org/JBrowseMSA/demo/). **Click any
 figure to open the app in that state.**
