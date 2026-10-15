@@ -24,7 +24,7 @@ Jump to what you need:
 | **Use the viewer**: load data, explore, export an image                | [User guide](docs/user_guide.md) · [live app](https://gmod.org/JBrowseMSA/demo/) · [docs site](https://gmod.org/JBrowseMSA)                               |
 | **Build the files to open**: sequences to alignment, tree, annotations | [Tutorials](docs/tutorials/) · [live](https://gmod.org/JBrowseMSA/tutorials)                                                                              |
 | **Embed the React component** in your own app                          | [Usage & embedding guide](USAGE.md) · [live code examples](https://gmod.org/JBrowseMSA/examples) · [model API reference](packages/lib/apidocs/MsaView.md) |
-| **Use it from R** (ape, Biostrings, ggtree, Shiny)                     | [R package README](packages/r-msaview/README.md)                                                                                                          |
+| **Use it from R** (ape, Biostrings, ggtree, Shiny, ggplot2)            | [ggmsaview](https://github.com/GMOD/ggmsaview), in its own repo                                                                                           |
 | **Annotate protein domains or exons**, or render a figure headlessly   | [CLI README](packages/cli/): `interpro`, `interproscan`, `genestructure`, `export-svg`                                                                    |
 | **Contribute / hack on the code**                                      | [Development](#development)                                                                                                                               |
 
@@ -55,14 +55,15 @@ runnable snippets.
 ## Quick start (R)
 
 ```r
-library(msaviewr)
+remotes::install_github("GMOD/ggmsaview")
+library(ggmsaview)
 msaview(msa = "alignment.fasta", tree = "tree.nwk", color_scheme = "clustal")
 ```
 
 ![Hemoglobin alignment with tree](docs/media/r-quickstart.svg)
 
-See the [R package README](packages/r-msaview/README.md) for ape, Biostrings,
-ggtree, treeio, and Shiny usage.
+[ggmsaview](https://github.com/GMOD/ggmsaview) also draws the viewer as a
+ggplot2 figure, and its README covers ape, Biostrings, ggtree, treeio and Shiny.
 
 ## Protein domains
 
@@ -81,7 +82,6 @@ writes, as labelled boxes on the alignment:
 | [packages/examples](packages/examples/)       | Live usage examples (deployed at gmod.org/JBrowseMSA/examples) |
 | [packages/cli](packages/cli/)                 | Domain/exon GFFs and headless SVG export                       |
 | [packages/msa-parsers](packages/msa-parsers/) | MSA file format parsers                                        |
-| [packages/r-msaview](packages/r-msaview/)     | R htmlwidget (ape/ggtree/Biostrings/treeio interop)            |
 | [packages/svgcanvas](packages/svgcanvas/)     | SVG canvas rendering (ESM fork of svgcanvas)                   |
 
 ## Development

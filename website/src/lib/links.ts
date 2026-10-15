@@ -60,9 +60,9 @@ export const docs: DocPage[] = [
   ),
   doc(
     'r-package',
-    'packages/r-msaview/README.md',
+    'docs/r-package.md',
     'R package',
-    'The msaviewr htmlwidget, with ape, Biostrings, ggtree, treeio and Shiny interop.',
+    'ggmsaview: the viewer as an htmlwidget and as ggplot2 figures, with ape, Biostrings, ggtree, treeio and Shiny interop.',
   ),
   doc(
     'python-package',

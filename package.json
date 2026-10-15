@@ -25,7 +25,6 @@
     "media:report": "node scripts/media-store/media.mjs report",
     "media:stale": "node scripts/media-store/media.mjs stale",
     "smoke:npm": "node scripts/npm-smoke.mjs",
-    "sync:r-bundle": "node scripts/sync-r-bundle.mjs && node scripts/build-r-core.mjs",
     "build:lib": "pnpm --filter svgcanvas build && pnpm --filter msa-parsers build && pnpm --filter react-msaview build:esm",
     "build:site": "pnpm media:pull && pnpm --filter website build",
     "build:pages": "pnpm build:lib && pnpm build:site && pnpm --filter app build && node scripts/assemble-pages.mjs",

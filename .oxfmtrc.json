@@ -36,8 +36,6 @@
     "**/esm",
     "**/bundle",
     "**/public",
-    "**/*.astro",
-    "packages/r-msaview/inst/htmlwidgets/lib/react-msaview.umd.js",
-    "packages/r-msaview/inst/js/msaview-core.js"
+    "**/*.astro"
   ]
 }

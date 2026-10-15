@@ -39,17 +39,6 @@ MSLTRTERTIILSLWSKISTQADVIGTETLERLFSCYPQAKTYFPHFDLHS
 `
 const hemoglobinTree = '((human:0.1,mouse:0.2):0.05,goat:0.3);'
 
-const dnaMSA = `>seqA
-ATGCGATCGATCGATCGATCGATCG
->seqB
-ATGCGATCGATGCGATCGATCGATCG
->seqC
-ATGCGTTCGATCGATCAATCGATCG
->seqD
-ATGCGATCGATCGATCGATCTATCG
-`
-const dnaTree = '((seqA:0.1,seqB:0.15):0.1,(seqC:0.2,seqD:0.05):0.1);'
-
 // Rhodopsin N-termini with an InterProScan-shaped GFF over them, ungapped so a
 // domain's residue coordinates are its columns.
 
@@ -81,12 +70,6 @@ const figures = [
     colorScheme: 'clustal',
     treeAreaWidth: 160,
     data: { msa: hemoglobinMSA, tree: hemoglobinTree },
-  },
-  {
-    name: 'r-nucleotide',
-    colorScheme: 'nucleotide',
-    treeAreaWidth: 160,
-    data: { msa: dnaMSA, tree: dnaTree },
   },
   {
     name: 'example-domains',

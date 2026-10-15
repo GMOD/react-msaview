@@ -119,11 +119,6 @@ console.log('\nBuilding all packages...')
 run('pnpm build')
 run('pnpm --filter msaview-widget build')
 
-// stamps the release's version into msaview.yaml and DESCRIPTION; CI publishes
-// the bundles themselves to the r-dist branch
-console.log('\nSyncing the R package version...')
-run('pnpm sync:r-bundle')
-
 // Commit the version bump, tag, and push. The pushed tag triggers publish.yml
 // (npm and PyPI), and the push to main triggers deploy-docs.yml (GitHub Pages).
 const tag = `v${newVersion}`
@@ -138,8 +133,6 @@ const changed = [
   ...packages.map(pkg => `packages/${pkg}/package.json`),
   'CHANGELOG.md',
   'packages/lib/src/version.ts',
-  'packages/r-msaview/inst/htmlwidgets/msaview.yaml',
-  'packages/r-msaview/DESCRIPTION',
   'packages/python/pyproject.toml',
   'packages/python/package.json',
 ].join(' ')

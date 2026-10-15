@@ -79,17 +79,17 @@ gate that a manifest line's blob was really uploaded: it verifies every file
 against the sha256 on the line and fails loudly on a mismatch, so a `media.lock`
 committed without its `media:push` turns the build red.
 
-## Ten figures stay in git
+## Nine figures stay in git
 
-The root README and the `lib`, `cli`, `python` and `r-msaview` package READMEs
-link them by relative path, which GitHub resolves against the repo and npm
-rewrites to a raw URL. Gitignoring them breaks those images on both, with no
-build to catch it, and pointing the READMEs at store URLs does not help because
-a store URL carries the content hash and would go stale on the next regen:
+The root README and the `lib`, `cli` and `python` package READMEs link them by
+relative path, which GitHub resolves against the repo and npm rewrites to a raw
+URL. Gitignoring them breaks those images on both, with no build to catch it,
+and pointing the READMEs at store URLs does not help because a store URL carries
+the content hash and would go stale on the next regen:
 
 ```
 cli-clustalx.png  cli-domains.png  cli-letters.png  cli-quickstart.png
-example-domains.svg  example-protein.svg  r-nucleotide.svg  r-quickstart.svg
+example-domains.svg  example-protein.svg  r-quickstart.svg
 python-quickstart.png  python-entropy-and-clicks.png
 ```
 
@@ -98,6 +98,6 @@ so `media.lock` leaves them out and `media.mjs` skips every file git tracks. A
 pull therefore never overwrites a regenerated one with an older blob, and
 refreshing one takes a commit and no `media:push`.
 
-`pnpm figures` writes the four README SVGs with the viewer's SVG export under
+`pnpm figures` writes the three README SVGs with the viewer's SVG export under
 jsdom, byte for byte the same on every machine. CI runs `pnpm figures:check`,
 which fails when the renderer would draw any of them differently.

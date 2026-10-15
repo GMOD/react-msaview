@@ -5,14 +5,14 @@ chain and side by side in the folded protein: His57, Asp102 and Ser195. Several
 human proteins carry the same domain with one of those three replaced, and cut
 nothing. This page starts from fourteen UniProtKB accessions, cuts each chain to
 its peptidase S1 domain, aligns the domains, builds a tree, computes two layers
-from the alignment, and draws the result with `msaviewr`, the R htmlwidget.
+from the alignment, and draws the result with `ggmsaview`, the R htmlwidget.
 Every command runs in R, and the last one prints a URL that opens the same view
 in a browser.
 
 ## Prerequisites
 
 - R 4.3 or newer
-- msaviewr: `remotes::install_github("GMOD/JBrowseMSA@r-dist")`
+- ggmsaview: `remotes::install_github("GMOD/ggmsaview")`
 - Bioconductor: `BiocManager::install(c("Biostrings", "DECIPHER"))`
 - CRAN: `install.packages(c("ape", "jsonlite", "htmlwidgets"))`
 

@@ -28,26 +28,16 @@ them, and follow it in this file too: agents copy the prose here as house voice.
   and `data/` holds the alignments, trees and GFFs as files, which
   `scripts/screenshots/writeExampleData.mjs` copies into the app
 - `packages/svgcanvas`: vendored ESM fork of svgcanvas for SVG export
-- `packages/r-msaview`: R htmlwidget package with ggtree/Biostrings/treeio
-  interop. `R/msaview.R` is the one function taking every prop as an argument,
-  and `R/layers.R` is the same surface composed with `+`, the way ggplot2 and
-  ggtree add a geom. A layer is a `set`/`append` pair over the props, applied by
-  `+.msaview`, so a layer adds no prop of its own and the embed-API parity check
-  reads `msaview.R` alone. `msa` and `tree` stay arguments; every other argument
-  has a layer, which `test-layer-coverage.R` checks.
-
-  `msaview_plot()` draws the same widget with ggplot2, the way
-  ~/src/gmod/ggtubemap draws a tube map: `js/bridge.ts` runs the real model in
-  QuickJS over the widget's props and returns tables, and `R/figure.R` draws
-  them. `scripts/build-r-core.mjs` bundles the bridge into
-  `inst/js/msaview-core.js`.
-
-  Main tracks neither that file nor the widget's UMD bundle, since every clone
-  would download a 1.3 MB copy per lib change. The `r-package` CI job builds
-  both and runs R CMD check, and on a push to main the `r-dist` job force-pushes
-  the built package as the single commit of the `r-dist` branch, which
-  `install_github("GMOD/JBrowseMSA@r-dist")` installs. Run
-  `pnpm build && pnpm sync:r-bundle` before `devtools::load_all` in a clone
+- The R package is [GMOD/ggmsaview](https://github.com/GMOD/ggmsaview), a repo
+  of its own, at `~/src/ggmsaview`. Its `scripts/build-js.mjs` builds the widget
+  from this checkout's `packages/lib/bundle`, and its QuickJS bridge
+  (`js/bridge.ts`) from this checkout's source, importing `packages/lib/src` by
+  path: the model, `featureSpanMarks`, `domainOverlaySource`,
+  `featurePanelSource`, `barTrackValues`, `columnLogoStack`, `cladeLabelBoxes`,
+  `tileColorFn`, `viewerSnapshot` and a few helpers. A rename of one of those
+  passes every check here and breaks ggmsaview's next build, so grep its bridge
+  first. Its `test-props.R` is the R half of the embed-API parity check, and
+  `packages/lib/src/embedApiParity.test.ts` the Python half
 
 - `packages/python`: the `msaview-widget` anywidget (import `msaview`). Its
   traits are the `MSAViewer` props in snake case, and `src/render.ts` maps them
@@ -91,7 +81,7 @@ page shows; a figure that stops being shown loses its screenshot spec too.
 
 Figure bytes live in `s3://jbrowse.org/msaview-figures/`, not in git, and
 `media.lock` tracks one content-addressed line per file. `docs/media` is
-gitignored apart from the ten figures the published READMEs link by relative
+gitignored apart from the nine figures the published READMEs link by relative
 path, so **regenerating a figure leaves `git status` clean** and the bytes reach
 anyone else only through `pnpm media:push`. Every script that reads the
 directory pulls first. `scripts/media-store/README.md` carries the design and

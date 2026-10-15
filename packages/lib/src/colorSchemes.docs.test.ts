@@ -33,11 +33,6 @@ const registered = Object.keys(colorSchemes)
 
 const docs = [
   { file: '../../../USAGE.md', heading: '## Color schemes', names: bare },
-  {
-    file: '../../r-msaview/README.md',
-    heading: '## Color schemes',
-    names: quoted,
-  },
   { file: '../../cli/README.md', heading: '### Color schemes', names: quoted },
 ]
 

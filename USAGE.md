@@ -350,11 +350,11 @@ manager `reflected-attributes="display-start,display-end,highlight"`. The
 examples page has a live one beside Nightingale's navigation and sequence
 tracks.
 
-## R package (msaviewr)
+## R package (ggmsaview)
 
-An R htmlwidget that takes ape, Biostrings, ggtree, and treeio objects directly.
-See the [R package guide](https://gmod.org/JBrowseMSA/r-package) for
-installation and examples.
+[ggmsaview](https://github.com/GMOD/ggmsaview) wraps MSAViewer as an R
+htmlwidget that takes ape, Biostrings, ggtree and treeio objects directly, and
+draws the same view as a ggplot2 figure.
 
 ## Color schemes
 

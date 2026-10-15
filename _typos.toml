@@ -1,8 +1,6 @@
 
 [files]
 extend-exclude = [
-  "packages/r-msaview/inst/htmlwidgets/lib/",
-  "packages/r-msaview/inst/js/",
   # phylogenetic trees + the demo config are full of UCSC species db ids
   # (panTro4, HLturTru4, ...) and gene symbols (CHEK1, LIMK1, MAK, ...) that
   # the spell checker reads as typos

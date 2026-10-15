@@ -1,19 +1,19 @@
 #!/usr/bin/env Rscript
 # Build a chymotrypsin-family alignment, tree and layers entirely in R, and
-# open it in msaviewr. Every step is the one shown in
+# open it in ggmsaview. Every step is the one shown in
 # docs/tutorials/r_protease_triad.md.
 #
 #   Rscript build_r_protease_triad.R [outdir]
 #
-# Needs: msaviewr, Biostrings, DECIPHER, ape, jsonlite.
-#   remotes::install_github("GMOD/JBrowseMSA@r-dist")
+# Needs: ggmsaview, Biostrings, DECIPHER, ape, jsonlite.
+#   remotes::install_github("GMOD/ggmsaview")
 #   BiocManager::install(c("Biostrings", "DECIPHER"))
 
 suppressPackageStartupMessages({
   library(Biostrings)
   library(DECIPHER)
   library(ape)
-  library(msaviewr)
+  library(ggmsaview)
 })
 
 out <- if (length(commandArgs(TRUE))) commandArgs(TRUE)[1] else "."
