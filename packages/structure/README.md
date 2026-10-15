@@ -62,9 +62,14 @@ const candidates = foldseekCandidates({
   hits map back to the row's own numbering through the residues left out
 - An AlphaFold F1 hit opens from its own file, since it is numbered on the
   UniProt sequence
-- A PDB hit is drawn from its CA trace, numbered by target position, because the
-  database holds only the residues with coordinates and its position is not
-  SEQRES numbering. The trace travels in the mapping as a `data:` URL
+- A PDB hit is a chain of an RCSB assembly file, such as `1MYI-assembly2.cif`,
+  with only the residues that have coordinates. `foldseekCandidates` reads that
+  file, finds the chain whose CA atoms match the hit's `tCa` trace, and numbers
+  each target position by that chain's `label_seq_id`. The mapping then stores
+  the file's URL, about 50 bytes
+- Where the file cannot be read or no chain matches the trace, the trace itself
+  is drawn, numbered by target position, and travels in the mapping as a `data:`
+  URL of several KB
 
 ## Superpose rows by the alignment
 

@@ -239,16 +239,14 @@ const StructureSection = observer(function StructureSection({
           }
         },
       })
+      const candidates = await foldseekCandidates({
+        rowName: row,
+        rowSequence,
+        hits,
+        fetchText: signalledFetchText(controller.signal),
+      })
       if (!controller.signal.aborted) {
-        setFoldseek({
-          state: 'done',
-          row,
-          candidates: foldseekCandidates({
-            rowName: row,
-            rowSequence,
-            hits,
-          }),
-        })
+        setFoldseek({ state: 'done', row, candidates })
       }
     } catch (e) {
       if (!controller.signal.aborted) {
