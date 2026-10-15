@@ -73,7 +73,15 @@ const CopyLinkButton = observer(function ({ model }: { model: AppModel }) {
   )
 })
 
-export default function TopBar({ model }: { model: AppModel }) {
+export default function TopBar({
+  model,
+  structureOpen,
+  onToggleStructure,
+}: {
+  model: AppModel
+  structureOpen: boolean
+  onToggleStructure: () => void
+}) {
   return (
     <Box
       component="header"
@@ -96,6 +104,16 @@ export default function TopBar({ model }: { model: AppModel }) {
       <Link href="../tutorials/">Tutorials</Link>
       <Link href="../examples/">Examples</Link>
       <Box sx={{ flexGrow: 1 }} />
+      <Button
+        size="small"
+        variant="outlined"
+        color="primary"
+        aria-pressed={structureOpen}
+        onClick={onToggleStructure}
+        sx={structureOpen ? { borderWidth: 2, fontWeight: 700 } : undefined}
+      >
+        3D structure
+      </Button>
       <CopyLinkButton model={model} />
     </Box>
   )

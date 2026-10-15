@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 import useMeasure from '@jbrowse/core/util/useMeasure'
@@ -53,12 +53,22 @@ function useWidthSetter(view: { setWidth: (arg: number) => void }) {
 const App = observer(function ({ model }: { model: AppModel }) {
   const { msaview } = model
   const ref = useWidthSetter(msaview)
-  // the structure sits beside the alignment once a row maps onto one, and
-  // under it before then, in the same element so its search state stays
-  const split = msaview.mappedStructures.length > 0
+  // the structure area stays closed until asked for, since most alignments
+  // have none, and a link that already carries a structure opens it
+  const [structureOpen, setStructureOpen] = useState(
+    () => msaview.mappedStructures.length > 0,
+  )
+  // beside the alignment once a row maps onto a structure, under it before then
+  const split = structureOpen && msaview.mappedStructures.length > 0
   return (
     <div>
-      <TopBar model={model} />
+      <TopBar
+        model={model}
+        structureOpen={structureOpen}
+        onToggleStructure={() => {
+          setStructureOpen(open => !open)
+        }}
+      />
       <Box
         sx={{
           display: 'grid',
@@ -75,11 +85,13 @@ const App = observer(function ({ model }: { model: AppModel }) {
         >
           <MSAView model={msaview} />
         </Box>
-        <StructureSection
-          model={msaview}
-          panelHeight={split ? 520 : 400}
-          sx={split ? { position: 'sticky', top: 8, ml: 0 } : undefined}
-        />
+        {structureOpen ? (
+          <StructureSection
+            model={msaview}
+            panelHeight={split ? 520 : 400}
+            sx={split ? { position: 'sticky', top: 8, ml: 0 } : undefined}
+          />
+        ) : null}
       </Box>
       <div style={{ height: 500 }} />
     </div>

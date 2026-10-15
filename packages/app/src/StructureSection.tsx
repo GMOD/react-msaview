@@ -11,6 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { observer } from 'mobx-react'
 import {
   FOLDSEEK_MAX_RESIDUES,
@@ -19,6 +20,7 @@ import {
   findStructures,
   foldseekCandidates,
   foldseekQuery,
+  identifiersOfRowName,
   networkLookups,
   searchFoldseek,
   superposeRows,
@@ -65,6 +67,42 @@ type Superposition =
   | { state: 'tm'; ids: string[]; fits?: Record<string, TmAlignment> }
   | { state: 'error'; message: string }
 
+function CandidateButton({
+  candidate,
+  selected,
+  color,
+  title,
+  onClick,
+}: {
+  candidate: StructureCandidate
+  selected: boolean
+  color: 'primary' | 'secondary'
+  title: string
+  onClick: () => void
+}) {
+  return (
+    <Button
+      size="small"
+      variant="outlined"
+      color={color}
+      aria-pressed={selected}
+      title={title}
+      onClick={onClick}
+      sx={
+        selected
+          ? {
+              borderWidth: 2,
+              fontWeight: 700,
+              bgcolor: theme => alpha(theme.palette[color].main, 0.12),
+            }
+          : undefined
+      }
+    >
+      {candidate.label}
+    </Button>
+  )
+}
+
 const StructureSection = observer(function StructureSection({
   model,
   panelHeight = 400,
@@ -107,6 +145,20 @@ const StructureSection = observer(function StructureSection({
         ? [structureId]
         : []
   const withAccession = names.filter(n => canFindStructures(n))
+  const typed = accession.trim()
+  const rowKind: 'typed' | 'accession' | 'name' | 'none' = typed
+    ? 'typed'
+    : accessionOfRowName(row)
+      ? 'accession'
+      : identifiersOfRowName(row).length > 0
+        ? 'name'
+        : 'none'
+  const rowNote = {
+    typed: `Looks up ${typed} in UniProt, AlphaFold DB and the PDB.`,
+    accession: `${row} carries a UniProt accession, ${accessionOfRowName(row) ?? ''}, so a lookup by id finds its AlphaFold model and PDB entries.`,
+    name: `${row} looks like a UniProt entry name or a RefSeq id, which UniProt can resolve to an accession.`,
+    none: `${row} is not a database id, so there is no entry to look up by name. Search by sequence to find structurally similar proteins, or type an accession if you know the protein.`,
+  }[rowKind]
 
   async function find() {
     abort.current?.abort()
@@ -323,41 +375,6 @@ const StructureSection = observer(function StructureSection({
           }}
           renderInput={params => <TextField {...params} label="Row" />}
         />
-        <TextField
-          size="small"
-          label="UniProt accession"
-          placeholder={accessionOfRowName(row) ?? 'P04637'}
-          value={accession}
-          onChange={e => {
-            setAccession(e.target.value)
-          }}
-          sx={{ width: 190 }}
-        />
-        <Button
-          variant="contained"
-          size="small"
-          disabled={search.state === 'loading'}
-          onClick={() => {
-            void find()
-          }}
-        >
-          Find structures
-        </Button>
-        {search.state === 'loading' ? <CircularProgress size={20} /> : null}
-        <Button
-          variant="outlined"
-          size="small"
-          disabled={foldseek.state === 'running'}
-          title={`Sends ${row}'s sequence to search.foldseek.com and 3di.foldseek.com, and waits for their queue`}
-          onClick={() => {
-            void searchFold()
-          }}
-        >
-          Search Foldseek
-        </Button>
-        {foldseek.state === 'running' ? (
-          <Typography variant="body2">{foldseek.message}…</Typography>
-        ) : null}
         {mapped.length > 1 ? (
           <Select
             size="small"
@@ -372,39 +389,6 @@ const StructureSection = observer(function StructureSection({
               </MenuItem>
             ))}
           </Select>
-        ) : null}
-        {withAccession.length > 1 ? (
-          <Select
-            size="small"
-            value={fitBy}
-            onChange={e => {
-              setFitBy(e.target.value)
-            }}
-            title="What the fit uses"
-          >
-            <MenuItem value="alignment">Fit by alignment</MenuItem>
-            <MenuItem value="tm-align">Fit by structure (TM-align)</MenuItem>
-          </Select>
-        ) : null}
-        {withAccession.length > 1 ? (
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={superposition.state === 'working'}
-            onClick={() => {
-              void superposeAll()
-            }}
-          >
-            Superpose rows
-          </Button>
-        ) : null}
-        {superposition.state === 'done' || superposition.state === 'tm' ? (
-          <Button size="small" onClick={clearSuperposition}>
-            Clear superposition
-          </Button>
-        ) : null}
-        {superposition.state === 'working' ? (
-          <Typography variant="body2">{superposition.message}…</Typography>
         ) : null}
         {structureId ? (
           <Select
@@ -421,6 +405,101 @@ const StructureSection = observer(function StructureSection({
         ) : null}
       </Box>
 
+      <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+        {rowNote}
+      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: 1.5,
+          mt: 1,
+        }}
+      >
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          disabled={search.state === 'loading' || rowKind === 'none'}
+          title="Looks the id up in UniProt, then finds the AlphaFold DB model and the PDB entries"
+          onClick={() => {
+            void find()
+          }}
+        >
+          Look up by id
+        </Button>
+        <TextField
+          size="small"
+          label="UniProt accession"
+          placeholder={accessionOfRowName(row) ?? 'P04637'}
+          value={accession}
+          onChange={e => {
+            setAccession(e.target.value)
+          }}
+          sx={{ width: 170 }}
+        />
+        <Button
+          variant="outlined"
+          color="secondary"
+          size="small"
+          disabled={foldseek.state === 'running'}
+          title={`Sends ${row}'s sequence to search.foldseek.com and 3di.foldseek.com and waits for their queue. Finds proteins that fold like it, which need not be the same protein.`}
+          onClick={() => {
+            void searchFold()
+          }}
+        >
+          Search by sequence (Foldseek)
+        </Button>
+        {search.state === 'loading' ? <CircularProgress size={20} /> : null}
+        {foldseek.state === 'running' ? (
+          <Typography variant="body2">{foldseek.message}…</Typography>
+        ) : null}
+      </Box>
+
+      {withAccession.length > 1 ? (
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: 1.5,
+            mt: 1,
+          }}
+        >
+          <Select
+            size="small"
+            value={fitBy}
+            onChange={e => {
+              setFitBy(e.target.value)
+            }}
+            title="What the fit uses"
+          >
+            <MenuItem value="alignment">Fit by alignment</MenuItem>
+            <MenuItem value="tm-align">Fit by structure (TM-align)</MenuItem>
+          </Select>
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            disabled={superposition.state === 'working'}
+            onClick={() => {
+              void superposeAll()
+            }}
+          >
+            Superpose rows
+          </Button>
+          {superposition.state === 'done' || superposition.state === 'tm' ? (
+            <Button size="small" color="inherit" onClick={clearSuperposition}>
+              Clear superposition
+            </Button>
+          ) : null}
+          {superposition.state === 'working' ? (
+            <Typography variant="body2">{superposition.message}…</Typography>
+          ) : null}
+        </Box>
+      ) : null}
+
       {foldseek.state === 'error' ? (
         <Alert severity="error" sx={{ mt: 1 }}>
           {foldseek.message}
@@ -435,21 +514,16 @@ const StructureSection = observer(function StructureSection({
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
               {foldseek.candidates.map(candidate => (
-                <Button
+                <CandidateButton
                   key={keyOf(candidate.mapping)}
-                  size="small"
-                  variant={
-                    candidate.mapping.structure.id === structureId
-                      ? 'contained'
-                      : 'outlined'
-                  }
+                  candidate={candidate}
+                  selected={candidate.mapping.structure.id === structureId}
+                  color="secondary"
+                  title={`${candidate.mapping.row}: ${candidate.identity}`}
                   onClick={() => {
                     show(candidate)
                   }}
-                  title={`${candidate.mapping.row}: ${candidate.identity}`}
-                >
-                  {candidate.label}
-                </Button>
+                />
               ))}
             </Box>
           </Box>
@@ -467,7 +541,22 @@ const StructureSection = observer(function StructureSection({
       {search.state === 'done' &&
       search.row === row &&
       search.result.problem ? (
-        <Alert severity="warning" sx={{ mt: 1 }}>
+        <Alert
+          severity="warning"
+          sx={{ mt: 1 }}
+          action={
+            <Button
+              color="secondary"
+              size="small"
+              disabled={foldseek.state === 'running'}
+              onClick={() => {
+                void searchFold()
+              }}
+            >
+              Search by sequence
+            </Button>
+          }
+        >
           {search.result.problem}
         </Alert>
       ) : null}
@@ -476,21 +565,16 @@ const StructureSection = observer(function StructureSection({
       search.result.candidates.length > 0 ? (
         <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
           {search.result.candidates.map(candidate => (
-            <Button
+            <CandidateButton
               key={keyOf(candidate.mapping)}
-              size="small"
-              variant={
-                candidate.mapping.structure.id === structureId
-                  ? 'contained'
-                  : 'outlined'
-              }
+              candidate={candidate}
+              selected={candidate.mapping.structure.id === structureId}
+              color="primary"
+              title={`${candidate.mapping.row} matches ${search.result.accession} at ${candidate.identity}`}
               onClick={() => {
                 show(candidate)
               }}
-              title={`${candidate.mapping.row} matches ${search.result.accession} at ${candidate.identity}`}
-            >
-              {candidate.label}
-            </Button>
+            />
           ))}
         </Box>
       ) : null}
@@ -517,7 +601,7 @@ const StructureSection = observer(function StructureSection({
           {superposed.fits
             .map(
               f =>
-                `${f.row}: ${f.rmsd.toFixed(2)} Å over ${f.fitted} aligned CA pairs`,
+                `${f.row}: ${f.rmsd.toFixed(2)} Å over ${f.fitted} of ${f.considered} aligned CA pairs`,
             )
             .join(' · ')}
           {superposed.skipped.length > 0
