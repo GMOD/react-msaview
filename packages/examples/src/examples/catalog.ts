@@ -53,14 +53,9 @@ export const catalog: CatalogEntry[] = [
     name: 'Load a family by accession',
     category: 'Getting started',
     description:
-      'Type a Pfam or Rfam accession and the page fetches that family’s seed ' +
-      'alignment from EBI. A Pfam seed comes from the InterPro API in under a ' +
-      'second. An Rfam seed comes with its tree from the Rfam release files, ' +
-      '8.5 MB for every family together. The first Rfam accession waits on ' +
-      'that download, with a progress line in megabytes, and the next ones ' +
-      'come from the browser cache. An Rfam seed’s consensus structure ' +
-      '(#=GC SS_cons) draws as the secondary-structure track over the ' +
-      'alignment.',
+      'Type a Pfam or Rfam accession and the page fetches its seed alignment ' +
+      'from EBI. An Rfam seed brings its tree and its consensus structure ' +
+      'track.',
   },
   {
     id: 'ModelApi',
@@ -103,11 +98,9 @@ export const catalog: CatalogEntry[] = [
     name: 'Inside a Nightingale page',
     category: 'API & control',
     description:
-      'The viewer as a custom element (<jbrowse-msa>) inside a ' +
-      '<nightingale-manager>, beside Nightingale’s navigation bar and sequence ' +
-      'track. The manager keeps the three on one range of human beta globin: ' +
-      'brushing the bar zooms the alignment, and hovering a residue in the ' +
-      'alignment highlights it in the sequence track.',
+      'The viewer as a <jbrowse-msa> custom element inside a ' +
+      '<nightingale-manager>, kept on one range with Nightingale’s navigation ' +
+      'bar and sequence track.',
   },
   {
     id: 'ProgrammaticControl',
@@ -141,38 +134,27 @@ export const catalog: CatalogEntry[] = [
     name: 'Domain packing (Src autoinhibition)',
     category: 'Protein domains',
     description:
-      'Ten Src-family kinases, their InterPro domains, and a contact map from ' +
-      'the solved structure over the boxes. The boxes mark the SH3, SH2 and ' +
-      'kinase domains, which line up in every member. The arcs mark how those ' +
-      'domains pack: the C-terminal tail folds back so its phospho-Tyr527 ' +
-      'binds the protein’s own SH2 domain and clamps the kinase shut. The arcs ' +
-      'are C-beta pairs under 8 Å in PDB 2SRC, mapped to UniProt numbering ' +
-      'through SIFTS and filtered to pairs joining two different domains.',
+      'Ten Src-family kinases with their InterPro domains, and arcs for the ' +
+      'contacts between domains in PDB 2SRC, such as the tail that clamps the ' +
+      'kinase shut.',
   },
   {
     id: 'P53ClinVar',
     name: 'Where the disease variants are (p53 + ClinVar)',
     category: 'Protein domains',
     description:
-      'Three measures of which part of p53 matters, from three sources, on ' +
-      'the same columns: conservation computed from the alignment, domain ' +
-      'boxes from InterPro, and a columnTracks layer of the pathogenic ' +
-      'missense variants ClinVar has on record per residue. 94% of those ' +
-      'variants land inside the DNA-binding domain, with a second small ' +
-      'cluster on the tetramerization domain.',
+      'Conservation, InterPro domains and ClinVar pathogenic missense counts ' +
+      'over the same p53 columns. 94% of the variants land in the DNA-binding ' +
+      'domain.',
   },
   {
     id: 'GlobinSuperposition',
     name: 'Superposing structures by the alignment (globins)',
     category: 'Protein structure',
     description:
-      'Five human globins that share a fold and little sequence. The page ' +
-      'asks AlphaFold DB for each model from its UniProt accession, lays them ' +
-      'on one another using the alignment’s own correspondences, and plots ' +
-      'the CA distance after the fit as a column track. Fit the whole fold, ' +
-      'only the E and F helices, or by structure alone with TM-align, and ' +
-      'compare. The two marked columns are the heme’s two histidines, marked ' +
-      'once as highlights and drawn on the alignment and on every structure.',
+      'Five human globins from AlphaFold DB, superposed on the alignment’s ' +
+      'own correspondences, with the CA distance after the fit as a column ' +
+      'track.',
   },
   {
     id: 'KinaseFacets',
@@ -180,47 +162,32 @@ export const catalog: CatalogEntry[] = [
     category: 'Protein structure',
     description:
       'Eight human kinases from four kinome groups, one structure panel per ' +
-      'group. The alignment superposes all eight into one frame and the four ' +
-      'cameras are tied, so a difference between groups is a difference in ' +
-      'place. The four marked motifs, the glycine-rich loop, the catalytic ' +
-      'lysine, HRD and DFG, are highlights on the alignment and on each ' +
-      'structure.',
+      'group, superposed into one frame with the cameras tied.',
   },
   {
     id: 'P53Hotspots3D',
     name: 'Where the p53 disease variants sit in 3D',
     category: 'Protein structure',
     description:
-      'The ClinVar hotspots of the p53 example, residues with five or more ' +
-      'pathogenic missense variants, as a highlights layer on the human row. ' +
-      'The alignment carries them across its columns and the structure ' +
-      'carries them across its residues. Switch between the AlphaFold model ' +
-      'and experimental entries RCSB aligns to the protein.',
+      'The p53 ClinVar hotspots as a highlights layer, drawn on the alignment ' +
+      'and on the AlphaFold or experimental structure.',
   },
   {
     id: 'DomainLetterColors',
     name: 'Domain boxes or colored letters (p53)',
     category: 'Protein domains',
     description:
-      'colorScheme is the scale over residue letters, and residueEncoding is ' +
-      'the channel it paints. On fill it colors the cell, which is where a ' +
-      'domain box draws too, so the overlay wins the row and the residue ' +
-      'colors go. On color it colors the letter, and each domain gives up its ' +
-      'fill for a bar along the bottom of its row. p53 puts four InterPro ' +
-      'domains on 16 orthologs, two of them in the first 60 residues. The ' +
-      'standalone app has the same switch in the MSA settings menu, as ' +
-      '“Color letters, not cells”.',
+      'residueEncoding picks what colorScheme paints: fill colors the cell, ' +
+      'where domain boxes also draw, and color colors the letter, leaving ' +
+      'each domain a bar under its row.',
   },
   {
     id: 'Nlrp1',
     name: 'Domain loss across orthologs (NLRP1)',
     category: 'Protein domains',
     description:
-      'Twelve NLRP1 orthologs that share a six-domain core but differ at the ' +
-      'N terminus: the PYD is present in primates, dog and hedgehog and absent ' +
-      'in rodents, artiodactyls, horse and fish. The core domains sit up to 391 ' +
-      'residues apart between rows yet land within 2 alignment columns, ' +
-      'because the overlay places each domain by alignment column.',
+      'Twelve NLRP1 orthologs that share a six-domain core, with the ' +
+      'N-terminal PYD present in some lineages and lost in others.',
   },
   {
     id: 'Hox',
@@ -236,9 +203,7 @@ export const catalog: CatalogEntry[] = [
     name: 'Color vision (opsin duplications)',
     category: 'Protein domains',
     description:
-      'Vertebrate visual pigments, each one 7TM-GPCR domain end to end. They ' +
-      'differ in the wavelength they absorb, and the tree sorts them by opsin ' +
-      'class (rhodopsins, then the short-, mid- and long-wave cone opsins), ' +
+      'Vertebrate visual pigments, with the tree sorting them by opsin class, ' +
       'following the gene duplications behind color vision.',
   },
   {
@@ -264,11 +229,8 @@ export const catalog: CatalogEntry[] = [
     name: 'Host range (ACE2 / SARS-CoV-2 receptor)',
     category: 'Conservation & diffing',
     description:
-      'ACE2 across mammals (bats, civet, pangolin, resistant rodents), diffed ' +
-      'against human. The marked columns are the 20 ACE2 residues that touch ' +
-      'the SARS-CoV-2 spike in PDB 6M0J, computed from the structure. A ' +
-      'species whose contact residues differ from human shows letters inside ' +
-      'the marked columns.',
+      'ACE2 across mammals diffed against human, with the 20 residues that ' +
+      'touch the SARS-CoV-2 spike in PDB 6M0J marked.',
   },
   {
     id: 'HistoneH4',
@@ -283,27 +245,18 @@ export const catalog: CatalogEntry[] = [
     name: 'Processing vs conservation (insulin)',
     category: 'Conservation & diffing',
     description:
-      'Preproinsulin across vertebrates diffed against human. The B and A ' +
-      'chains of mature insulin stay conserved (dots) while the cleaved-out ' +
-      'C-peptide drifts (letters). The arc track carries the three disulfide ' +
-      'bonds from UniProt, and two of them span the C-peptide, holding the ' +
-      'hormone together after that piece is cut out.',
+      'Preproinsulin across vertebrates diffed against human: the B and A ' +
+      'chains stay conserved while the cleaved C-peptide drifts. Arcs mark ' +
+      'the three disulfide bonds.',
   },
   {
     id: 'Globin',
     name: 'One variant, three numbering systems (sickle cell)',
     category: 'Phylogeny',
     description:
-      'The globin family (hemoglobin alpha/beta, myoglobin, neuroglobin, ' +
-      'cytoglobin), whose tree groups by globin type and not by species, as ' +
-      'gene duplication predicts. The beta chain carries the sickle-cell ' +
-      'substitution, which has three numbers: residue 7 of the row (UniProt, ' +
-      'counting the initiator methionine), p.Glu7Val in HGVS, and residue 6 ' +
-      'of chain B in PDB 1A3N. The SIFTS residueMappings layer converts ' +
-      'between them. The AlphaMissense track is the control: it scores the ' +
-      'sickle variant 0.22, likely benign, because the mutant protein folds ' +
-      'and carries oxygen. The disease comes from the polymerization that ' +
-      'follows.',
+      'The sickle-cell substitution has three numbers: residue 7 of the ' +
+      'UniProt row, p.Glu7Val in HGVS, and residue 6 of chain B in PDB 1A3N. ' +
+      'The SIFTS residueMappings layer converts between them.',
   },
   {
     id: 'CytochromeC',
@@ -338,24 +291,18 @@ export const catalog: CatalogEntry[] = [
     name: 'A whole Pfam family (20,705 rows)',
     category: 'Phylogeny',
     description:
-      'PF00042, the Globin family, loaded from the InterPro API URL on the ' +
-      'entry page with no preprocessing: 20,705 sequences over 672 columns, ' +
-      '3 MB gzipped on the wire and 20 MB of Stockholm once decompressed. ' +
-      'Only 116 of those columns carry more than half the sequences; the rest ' +
-      'are insertions belonging to one member each, and the gappy-column ' +
-      'slider hides them.',
+      'PF00042, the Globin family, loaded straight from the InterPro API: ' +
+      '20,705 sequences over 672 columns. The gappy-column slider hides the ' +
+      'insertions.',
   },
   {
     id: 'A3m',
     name: 'The alignment a predictor sees (A3M)',
     category: 'Phylogeny',
     description:
-      'The MSA AlphaFold2 was given for hemoglobin beta, from OpenProteinSet: ' +
-      '1,211 BFD/UniClust hits in A3M, where lowercase marks an insertion ' +
-      'outside the profile. 1,186 rows carry one. The parser expands the ' +
-      'insertions into the rectangle the viewer draws, which spreads the ' +
-      'query’s 146 match columns across 2,086. Hiding the columns at least ' +
-      'half the rows leave empty puts the profile back together.',
+      'The A3M MSA AlphaFold2 was given for hemoglobin beta: 1,211 rows whose ' +
+      'lowercase insertions spread 146 match columns across 2,086. Hiding the ' +
+      'gappy columns restores the profile.',
   },
   {
     id: 'LargeTree',
@@ -390,10 +337,8 @@ export const catalog: CatalogEntry[] = [
     name: 'Pseudoknot (coronavirus frameshift element)',
     category: 'RNA structure',
     description:
-      'The frameshifting stimulation element that coronaviruses use to reach ' +
-      'ORF1b (Rfam RF00507), across all four genera. Its pseudoknot crosses ' +
-      'stem 1 instead of nesting inside it, so the seed writes it as the WUSS ' +
-      'letter pair A/a. The arc track draws the crossing, which the bracket ' +
+      'The coronavirus frameshift element (Rfam RF00507), whose pseudoknot ' +
+      'crosses stem 1. The arc track draws the crossing, which the bracket ' +
       'track cannot show.',
   },
   {
@@ -410,40 +355,25 @@ export const catalog: CatalogEntry[] = [
     name: 'Gene loss + exon structure (F12 in cetaceans)',
     category: 'Genes & DNA',
     description:
-      'A DNA coding alignment of coagulation factor XII with its 14-exon gene ' +
-      'structure overlaid, each exon the same color across species. F12 is ' +
-      'intact in land mammals and the manatee but disabled in cetaceans by a ' +
-      'shared frameshift in exon 3 and premature stops. The frameshift and ' +
-      'stops show only in a nucleotide alignment.',
+      'A coding alignment of factor XII with its 14 exons overlaid. A shared ' +
+      'frameshift in exon 3 and premature stops disable F12 in cetaceans.',
   },
   {
     id: 'CodonView',
     name: 'Codons against a reference (F12)',
     category: 'Genes & DNA',
     description:
-      'The F12 coding alignment read codon by codon against a row the reader ' +
-      'picks. The example translates that row with the standard genetic code ' +
-      'and compares the bases every other row has at the same three columns. ' +
-      'A synonymous change fills the codon blue, a non-synonymous one orange, ' +
-      'a premature stop black and a codon missing a base grey. Two bar tracks ' +
-      'count the rows of each kind per codon, and a text track numbers every ' +
-      'tenth codon. Against human, the four cetaceans share the 1-bp deletion ' +
-      'at codon 69 and stop codons at codons 391 and 521. With dolphin as the ' +
-      'reference, the translation reaches a stop at codon 94, 25 codons past ' +
-      'the deletion.',
+      'The F12 coding alignment read codon by codon against a row you pick: ' +
+      'synonymous changes fill blue, non-synonymous orange, stops black. ' +
+      'Against human, the four cetaceans share a 1-bp deletion at codon 69.',
   },
   {
     id: 'GeneCluster',
     name: 'Gene arrow map (gggenes-style)',
     category: 'Genes & DNA',
     description:
-      'A colinear gene cluster across 6 genomes with each gene drawn as a ' +
-      'strand-directed arrow (gggenes-style), overlaid on an alignment. Each ' +
-      'gene keeps one color down the columns. Two genes are inverted (the ' +
-      'arrow flips) and one is deleted (its columns gap out), and every gene ' +
-      'still lines up, because the arrows anchor to alignment columns instead ' +
-      'of each genome’s own coordinates. scripts/gene-cluster builds the ' +
-      'sequences synthetically, since a real cluster with exactly one ' +
-      'inversion and one deletion is unlikely to exist.',
+      'A gene cluster across 6 genomes drawn as strand arrows over an ' +
+      'alignment. The arrows anchor to alignment columns, so an inverted gene ' +
+      'and a deleted one still line up.',
   },
 ]
