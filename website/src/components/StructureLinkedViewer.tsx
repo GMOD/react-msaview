@@ -692,7 +692,7 @@ export default function StructureLinkedDatasets({
   const desktop = useDesktop()
   const [chosen, setChosen] = useState(datasets[0]?.id)
   const [structureColor, setStructureColor] = useState<StructureColor>('none')
-  const [colorScheme, setColorScheme] = useState(alignmentSchemes[0]!.id)
+  const [colorScheme, setColorScheme] = useState(alignmentSchemes[0].id)
   const dataset = datasets.find(d => d.id === chosen) ?? datasets[0]
   if (!desktop) {
     return (
