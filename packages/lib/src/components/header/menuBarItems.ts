@@ -300,15 +300,8 @@ function neighborJoiningItem(model: MsaViewModel): MenuItem {
   )
 }
 
-// Settings sits here as well as on its toolbar button, where a word processor
-// keeps its Options
 export function toolsMenuItems(model: MsaViewModel): MenuItem[] {
-  return [
-    toggle('Settings', model.settingsOpen, arg => {
-      model.setSettingsOpen(arg)
-    }),
-    neighborJoiningItem(model),
-  ]
+  return [neighborJoiningItem(model)]
 }
 
 export function helpMenuItems(model: MsaViewModel): MenuItem[] {

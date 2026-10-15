@@ -383,8 +383,8 @@ lists the fields.
 ## Settings reference
 
 The header's menu bar reads **File**, **View**, **Tools** and **Help**, and the
-**Settings** button beside it, or **Tools → Settings**, opens a panel beside the
-alignment, so a setting's effect shows as it changes.
+**Settings** button beside it opens a panel beside the alignment, so a setting's
+effect shows as it changes.
 
 [![](media/settings-menu.png)][live-settings-menu]
 
@@ -399,7 +399,7 @@ alignment, so a setting's effect shows as it changes.
   columns hides each column where at least 50%, 90% or a custom share of the
   rows has a gap, and a chip in the header counts the hidden columns; its ×
   shows them again.
-- **Tools** opens the settings panel and builds a neighbor joining tree.
+- **Tools** builds a neighbor joining tree.
 - **Help** lists the mouse and keyboard controls and links the tutorials and the
   credits.
 
