@@ -2,6 +2,8 @@ import A3m from './A3m'
 import A3mSrc from './A3m.tsx?raw'
 import Ace2 from './Ace2'
 import Ace2Src from './Ace2.tsx?raw'
+import AdenylateKinaseHinge from './AdenylateKinaseHinge'
+import AdenylateKinaseHingeSrc from './AdenylateKinaseHinge.tsx?raw'
 import Aquaporin from './Aquaporin'
 import AquaporinSrc from './Aquaporin.tsx?raw'
 import CodonView from './CodonView'
@@ -28,6 +30,8 @@ import GlobinSuperposition from './GlobinSuperposition'
 import GlobinSuperpositionSrc from './GlobinSuperposition.tsx?raw'
 import Hammerhead from './Hammerhead'
 import HammerheadSrc from './Hammerhead.tsx?raw'
+import HemoglobinChains from './HemoglobinChains'
+import HemoglobinChainsSrc from './HemoglobinChains.tsx?raw'
 import HistoneH4 from './HistoneH4'
 import HistoneH4Src from './HistoneH4.tsx?raw'
 import Hox from './Hox'
@@ -91,6 +95,7 @@ export type { Category } from './catalog'
 // sidebar row that opens onto nothing.
 const components: Record<string, [ComponentType, string]> = {
   A3m: [A3m, A3mSrc],
+  AdenylateKinaseHinge: [AdenylateKinaseHinge, AdenylateKinaseHingeSrc],
   Ace2: [Ace2, Ace2Src],
   Aquaporin: [Aquaporin, AquaporinSrc],
   CodonView: [CodonView, CodonViewSrc],
@@ -104,6 +109,7 @@ const components: Record<string, [ComponentType, string]> = {
   GeneCluster: [GeneCluster, GeneClusterSrc],
   Globin: [Globin, GlobinSrc],
   GlobinSuperposition: [GlobinSuperposition, GlobinSuperpositionSrc],
+  HemoglobinChains: [HemoglobinChains, HemoglobinChainsSrc],
   Hammerhead: [Hammerhead, HammerheadSrc],
   HistoneH4: [HistoneH4, HistoneH4Src],
   Hox: [Hox, HoxSrc],
