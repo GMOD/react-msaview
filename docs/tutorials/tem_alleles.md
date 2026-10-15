@@ -286,10 +286,61 @@ N276D. Those are the substitutions the primary literature gives for each allele.
 
 ## 9. Open the whole thing
 
+<!-- usage: web -->
+
 [![](../media/tem_alleles-final.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A920%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22treeAreaWidth%22%3A200%2C%22colWidth%22%3A4.2%2C%22rowHeight%22%3A16%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem-rowdata.json%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22phenotype%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22phenotype%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22broad-spectrum%22%3A%22%234e79a7%22%2C%22extended-spectrum%22%3A%22%23e15759%22%2C%22inhibitor-resistant%20broad-spectrum%22%3A%22%2359a14f%22%2C%22inhibitor-resistant%20extended-spectrum%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A14%2C%22header%22%3A%22phenotype%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20104%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22104%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20164%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22164%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20238%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22238%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20240%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22240%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%2069%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%2269%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20244%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22244%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20276%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22276%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20265%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22265%22%2C%22legend%22%3A%22residue%22%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A102%2C%22end%22%3A102%2C%22label%22%3A%22Ambler%20104%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A162%2C%22end%22%3A162%2C%22label%22%3A%22Ambler%20164%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A236%2C%22end%22%3A236%2C%22label%22%3A%22Ambler%20238%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A237%2C%22end%22%3A237%2C%22label%22%3A%22Ambler%20240%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A67%2C%22end%22%3A67%2C%22label%22%3A%22Ambler%2069%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A241%2C%22end%22%3A241%2C%22label%22%3A%22Ambler%20244%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A272%2C%22end%22%3A272%2C%22label%22%3A%22Ambler%20276%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A261%2C%22end%22%3A261%2C%22label%22%3A%22Ambler%20265%22%2C%22color%22%3A%22rgba(120%2C120%2C120%2C0.35)%22%7D%5D%7D%7D>)
 
 The three hosted files, the `tipLabel` encoding, the nine strips and the eight
 bands in one view.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three hosted
+files. The row table is JSON keyed by allele, which `geom_msa_rowdata()` takes
+as it comes from `jsonlite::fromJSON()`, and one loop adds a strip per Ambler
+position:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/tem/"
+rows <- jsonlite::fromJSON(paste0(data, "tem-rowdata.json"))
+phenotype <- c(
+  "broad-spectrum" = "#4e79a7", "extended-spectrum" = "#e15759",
+  "inhibitor-resistant broad-spectrum" = "#59a14f",
+  "inhibitor-resistant extended-spectrum" = "#b07aa1"
+)
+residue <- c(C = "#4e79a7", D = "#f28e2b", E = "#e15759", G = "#76b7b2",
+  H = "#59a14f", I = "#edc948", K = "#b07aa1", L = "#ff9da7", M = "#9c755f",
+  N = "#bab0ac", R = "#86bcb6", S = "#d37295", T = "#a0cbe8", V = "#8cd17d")
+ambler <- c(104, 164, 238, 240, 69, 244, 276, 265)
+column <- c(102, 162, 236, 237, 67, 241, 272, 261)
+
+w <- msaview(msa = paste0(data, "tem.afa"), tree = paste0(data, "tem.nwk"),
+    color_scheme = "clustalx_protein_dynamic") +
+  geom_msa_rowdata(rows) +
+  scale_row_color("phenotype", channel = "tipLabel") +
+  geom_msa_strip("phenotype", map = phenotype)
+for (a in ambler) {
+  w <- w + geom_msa_strip(paste("Ambler", a), map = residue,
+    header = as.character(a), legend = "residue")
+}
+w <- w + geom_msa_highlight(data.frame(start = column, end = column,
+  label = paste("Ambler", ambler),
+  color = ifelse(ambler == 265, "rgba(120,120,120,0.35)",
+    "rgba(225,87,89,0.35)")))
+w
+ggplot2::ggsave("tem_alleles-final-r.png",
+  msaview_plot(w, tracks = "conservation"), width = 12, height = 9)
+```
+
+![](../media/tem_alleles-final-r.png)
+
+The phenotype strip and the eight position strips between the tree and the
+alignment, the eight bands over the alignment and conservation above it. The
+residue strips each take a key of their own here, and the row names stay black,
+where the web view colors them by phenotype.
+
+<!-- /usage -->
 
 ## Reproduce it end to end
 
