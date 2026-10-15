@@ -3,6 +3,7 @@ import React, { lazy, useCallback, useRef, useState } from 'react'
 import BaseTooltip from '@jbrowse/core/ui/BaseTooltip'
 import { makeStyles } from '@jbrowse/core/util/tss-react'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import CloseIcon from '@mui/icons-material/Close'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import { observer } from 'mobx-react'
 
@@ -51,6 +52,7 @@ const TrackLabel = observer(function TrackLabel({
   } = track
   const { classes } = useStyles()
   const trackLabelHeight = Math.min(height, fontSize)
+  const closeSize = Math.min(height, Math.max(fontSize, 16))
 
   return (
     // a flex row, not inline text: zooming in grows fontSize against a tree
@@ -78,6 +80,17 @@ const TrackLabel = observer(function TrackLabel({
       >
         {drawLabels ? name : ''}
       </span>
+      <IconButton
+        className={classes.button}
+        aria-label={`Hide ${name} track`}
+        title="Hide track"
+        style={{ width: closeSize, height: closeSize, flexShrink: 0 }}
+        onClick={() => {
+          model.toggleTrack(track.model.id)
+        }}
+      >
+        <CloseIcon style={{ fontSize: closeSize * 0.8 }} />
+      </IconButton>
       <IconButton
         className={classes.button}
         aria-label={`${name} track menu`}
