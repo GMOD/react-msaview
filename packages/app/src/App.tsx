@@ -9,8 +9,8 @@ import { observer } from 'mobx-react'
 import { MSAView } from 'react-msaview'
 
 import { AppActions, SiteNav } from './SiteChrome'
-import StructureSection from './StructureSection'
 import { createApp, linkParam } from './model'
+import StructureSection from './structure/StructureSection'
 
 import type { AppModel } from './model'
 
