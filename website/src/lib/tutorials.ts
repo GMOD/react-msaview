@@ -68,7 +68,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Protein family',
     title: 'A protein family from a list of accessions',
     blurb:
-      'Twelve UniProt accessions to an alignment, a tree and Pfam domains, in four commands outside the viewer. Every step has a figure, and the last one is a link that shows which lineages lost a domain.',
+      'Twelve UniProt accessions to an alignment, a tree and Pfam domains, in four commands outside the viewer.',
     thumb: proteinThumb,
     thumbAlt:
       'Twelve NLRP1 orthologs with their Pfam domains as colored blocks, the pyrin domain present in only five rows',
@@ -80,7 +80,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'RNA family',
     title: 'An RNA family, from a model and six genomes',
     blurb:
-      'Search six bacterial genomes with an Rfam covariance model, align the 37 hits back to it, and read the consensus structure off the result: helix arcs, a pseudoknot, and the columns that hold still because the ligand touches them.',
+      'Search six bacterial genomes with an Rfam covariance model, align the 37 hits, and read the consensus structure off the result.',
     thumb: rnaThumb,
     thumbAlt:
       '37 SAM riboswitch hits aligned under a consensus secondary structure, with base-pair arcs spanning the helices',
@@ -92,7 +92,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Kinase pocket',
     title: 'Reading cross-reactivity off the kinase pocket',
     blurb:
-      '474 human kinase domains aligned with hmmalign, with a FastTree tree. The page compares the ATP-pocket residues of kinases imatinib inhibits with those it does not; the gatekeeper column reads threonine in 19% of them.',
+      '474 human kinase domains, comparing the ATP-pocket residues of the kinases imatinib inhibits with those it does not.',
     thumb: kinaseThumb,
     thumbAlt:
       '474 human kinase domains as one alignment beside their tree, the conserved catalytic columns standing out as solid stripes',
@@ -104,7 +104,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'p53 variant effects',
     title: "Where p53's damaging variants fall",
     blurb:
-      'ClinVar, AlphaMissense and a saturation screen, each a bar per residue over the same fifteen-species p53 alignment. The three sources share no data and draw over the same columns.',
+      'ClinVar, AlphaMissense and a saturation screen, each a bar per residue over the same fifteen-species p53 alignment.',
     thumb: p53Thumb,
     thumbAlt:
       'ClinVar, AlphaMissense and MaveDB bar tracks over a p53 ortholog alignment, all three peaking on the DNA-binding domain',
@@ -116,7 +116,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'AlphaFold confidence',
     title: 'AlphaFold confidence across a protein family',
     blurb:
-      'Fourteen vertebrate TDP-43 orthologs, each with the per-residue pLDDT of its own AlphaFold model. The mean per column runs 83 to 86 over the three Pfam folded domains and 38 over the C-terminal region, and the runs under 50 fill that region in all fourteen rows.',
+      'Fourteen vertebrate TDP-43 orthologs, each with the per-residue pLDDT of its own AlphaFold model.',
     thumb: plddtThumb,
     thumbAlt:
       "Fourteen TDP-43 rows with a mean pLDDT bar track above and each row's low-confidence runs drawn in orange over its C-terminal half",
@@ -128,7 +128,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'TRIM5 codon selection',
     title: 'TRIM5 and the primate antiviral arms race',
     blurb:
-      '32 TRIM5 orthologs to a codon alignment, a tree, an exon structure and a per-codon dN/dS track from HyPhy. Ends on a link where the variable patch behind HIV-1 restriction has high dN/dS and a zinc-finger control has low dN/dS.',
+      '32 TRIM5 orthologs to a codon alignment, a tree, an exon structure and a per-codon dN/dS track from HyPhy.',
     thumb: codonThumb,
     thumbAlt:
       '32 primate TRIM5 orthologs at codon resolution over the SPRY v1 patch, with a red per-codon dN/dS track above',
@@ -152,7 +152,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Hemoglobin interfaces',
     title: "Hemoglobin's two subunits and the interfaces between them",
     blurb:
-      'Alpha and beta globin from eleven vertebrates, aligned per subunit and concatenated per species, with the 58 residue pairs in contact between the chains of PDB 2HHB drawn as arcs from one block to the other. The sliding alpha1beta2 interface is identical in 20 of its 28 residues from human to trout; the exposed surface is the least conserved class.',
+      'Alpha and beta globin from eleven vertebrates, with the residue pairs in contact between the chains of PDB 2HHB drawn as arcs.',
     thumb: complexThumb,
     thumbAlt:
       'Eleven concatenated hemoglobin rows with arcs joining each alpha residue to the beta residue it touches in the crystal, colored by interface',
@@ -164,7 +164,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Linked structure, live',
     title: 'An alignment linked to its structure',
     blurb:
-      'The spike and hemoglobin alignments beside PDB 6VXX and 2HHB in Mol*, joined by the residueMappings layers the spike and hemoglobin tutorials build. A residue hovered in either view lights in the other; the PRRA insert reports no coordinates, and a chain no mapping names reports no row. A checkbox colors each mapped chain by the conservation of its columns.',
+      'The spike and hemoglobin alignments beside PDB 6VXX and 2HHB in Mol*. A residue hovered in either view lights in the other.',
     thumb: structureLinkThumb,
     thumbAlt:
       'The spike alignment on the PRRA insert above PDB 6VXX in Mol*, one SARS-CoV-2 residue shown as sticks on chain A',
@@ -176,7 +176,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'RSV phylogeny',
     title: 'An RSV phylogeny from a public Nextstrain build',
     blurb:
-      "A Nextstrain tree of 1,840 RSV genomes, reconstructed to an alignment and opened at every scale from the whole tree to a single column, then colored from the clade, country, region and year Nextstrain records for each genome. Clade colors 109 of the subsample's 179 internal edges; country colors 23.",
+      'A Nextstrain tree of 1,840 RSV genomes, reconstructed to an alignment and colored by clade, country, region and year.',
     thumb: metadataThumb,
     thumbAlt:
       'RSV tip labels colored by Nextstrain clade, green A.D rows giving way to purple A.D.3 rows, with the clade legend beside them',
@@ -188,7 +188,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'H5N1 surveillance figure',
     title: 'An H5N1 surveillance figure',
     blurb:
-      "204 genomes from Nextstrain's H5N1 cattle-outbreak build, with the host, the collecting state and one amino-acid site per segment as nine strips beside the HA alignment. NP 119 cuts the tree into 15 clades; host cuts it into 112.",
+      "204 genomes from Nextstrain's H5N1 cattle-outbreak build, with host, state and one amino-acid site per segment as strips beside the HA alignment.",
     thumb: h5n1Thumb,
     thumbAlt:
       'An H5N1 tree with tip labels colored by state, nine color strips beside it, labeled brackets in the gutter and the whole tree in an overview band above',
@@ -200,7 +200,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'TEM alleles',
     title: 'TEM beta-lactamase alleles and what they hydrolyze',
     blurb:
-      "46 named TEM alleles from NCBI's Reference Gene Catalog, with the phenotype the catalog records and the residue each carries at the Ambler positions behind extended-spectrum and inhibitor resistance. All 22 extended-spectrum alleles are substituted at 104, 164, 238 or 240; a control position at 265 splits across three phenotypes.",
+      "46 named TEM alleles from NCBI's Reference Gene Catalog, with each one's phenotype and its residues at the Ambler resistance positions.",
     thumb: temThumb,
     thumbAlt:
       'Forty-six TEM allele rows with a phenotype strip and eight residue strips beside the tree, tip labels colored by phenotype',
@@ -212,7 +212,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Mitochondrial genomes',
     title: 'Eight mitochondrial genomes and the genes on them',
     blurb:
-      'Eight mammal mitogenomes from RefSeq as one alignment, with all 37 genes per genome drawn as strand arrows colored by respiratory complex. COX1 starts at a different base in every genome and in one column of the alignment; the control region ends in eight different columns.',
+      'Eight mammal mitogenomes from RefSeq as one alignment, with all 37 genes per genome drawn as strand arrows colored by respiratory complex.',
     thumb: mitoThumb,
     thumbAlt:
       'Eight mammal mitochondrial genomes as rows of gene arrows, colored by respiratory complex and labeled by gene name',
@@ -224,7 +224,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Gene neighborhoods',
     title: 'Gene neighborhoods of the tryptophan operon',
     blurb:
-      "Twelve bacterial genomes, 8 kb either side of trpB in each, drawn as a row of gene arrows in that genome's own coordinates beside a tree built from TrpB. An align transform on trpE brings ten of the twelve rows onto one origin; the two carrying no trpE stay where they were.",
+      'Twelve bacterial genomes, 8 kb either side of trpB, drawn as gene arrows beside a tree built from TrpB.',
     thumb: neighborhoodThumb,
     thumbAlt:
       'Twelve rows of bacterial gene arrows aligned on trpE, the trp operon reading as columns of color beside the TrpB tree',
@@ -236,7 +236,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'XBB recombination',
     title: "The recombination breakpoint in XBB's spike gene",
     blurb:
-      'Five whole SARS-CoV-2 genomes aligned with ClustalW, with the XBB.1 row scanned against each of the two BA.2 descendants it recombines. The two difference counts change places once inside the receptor-binding domain, and 41 of the 44 informative sites put the break between positions 22,896 and 22,942. A BA.5 control run through the same scan crosses nowhere.',
+      'Five SARS-CoV-2 genomes aligned whole, with the recombinant XBB.1 scanned against its two BA.2 parents to place the breakpoint.',
     thumb: recombinantThumb,
     thumbAlt:
       'Five SARS-CoV-2 genome rows under two bar tracks counting the differences between the recombinant row and each parent, one falling to zero where the other rises',
@@ -248,7 +248,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Norovirus recombination',
     title: 'Recombination at the norovirus ORF1/ORF2 junction',
     blurb:
-      'Twelve norovirus GII genomes aligned whole, with a tree from the ORF1 columns and another from the ORF2 columns. The three GII.P16-GII.4 rows read one parent for 25 windows and the other for 13, and the two identity curves change rank 14 columns before the first base of ORF2. A GII.Pe-GII.4 control never crosses.',
+      'Twelve norovirus GII genomes aligned whole, with one tree from the ORF1 columns and another from the ORF2 columns.',
     thumb: norovirusThumb,
     thumbAlt:
       'Twelve norovirus rows of 200-base windows colored by closer parent, three of them turning from blue to red at the ORF1/ORF2 junction',
@@ -260,7 +260,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Protease family in R',
     title: 'A protease family in R',
     blurb:
-      'Fourteen peptidase S1 domains cut from UniProt entries with Biostrings, aligned with DECIPHER, a tree from ape, and two layers R computes. Nine rows read the catalytic H, D and S; five read something else.',
+      'Fourteen peptidase S1 domains from UniProt, aligned with DECIPHER, a tree from ape, and two layers R computes.',
     thumb: proteaseThumb,
     thumbAlt:
       'The GDSGGP motif of nine serine proteases beside five relatives that read A, M, Y or G at the catalytic serine',
@@ -272,7 +272,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Flu drift in Python',
     title: 'Influenza drift in a notebook',
     blurb:
-      '25 H3N2 vaccine strains from 1968 to 2022 as one hemagglutinin alignment in Jupyter, with a per-column count of how often each column changed. Antigenic site B reads 24 different strings; the fusion peptide reads two.',
+      '25 H3N2 vaccine strains from 1968 to 2022 as one hemagglutinin alignment in Jupyter, with a count of how often each column changed.',
     thumb: fluThumb,
     thumbAlt:
       'Antigenic site B across 25 influenza vaccine strains in year order, the letters under the two bands turning over every few rows',
@@ -284,7 +284,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'JBrowse 2 integration',
     title: 'JBrowse 2 integration',
     blurb:
-      'The same alignment and tree opened inside JBrowse 2, beside a genome view and an AlphaFold structure. Selecting a region in one view highlights the matching columns, codons and residues in the others, and each session is a single URL.',
+      'The same alignment and tree opened inside JBrowse 2 beside a genome view and an AlphaFold structure, each session a single URL.',
     thumb: jbrowseThumb,
     thumbAlt:
       'One JBrowse session holding the TP53 gene with ClinVar, the p53 ortholog alignment and the AlphaFold structure, connected',

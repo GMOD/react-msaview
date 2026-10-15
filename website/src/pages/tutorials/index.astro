@@ -22,14 +22,9 @@ const sections = tutorialCategories.map(category => ({
 >
   <h1>Tutorials</h1>
   <p>
-    The viewer draws an alignment, a tree and whatever annotations you give it.
-    Producing those files takes the work, in command-line tools outside the
-    browser. Each walkthrough below is one continuous line of that work, where
-    every step consumes what the step before produced, and ends on a URL that
-    opens the result in JBrowseMSA. Two cards open live pages instead: an
-    alignment linked to its structure in Mol*, and the sessions that open an
-    alignment inside JBrowse 2. The picture on each card is a figure from the
-    page it opens.
+    Each walkthrough prepares the data with command-line tools, from sequences
+    to an alignment, a tree and annotations, and ends on a link that opens the
+    result in JBrowseMSA.
   </p>
 
   {sections.map(({ category, items }) => (
@@ -64,11 +59,8 @@ const sections = tutorialCategories.map(category => ({
   ))}
 
   <p>
-    The <a href={`${base}/layers`}>layers reference</a> describes how values you
-    computed (per-column values, labeled highlights, pairs of positions, a
-    structure correspondence) load into the viewer as snapshot data, and the
-    <a href={`${base}/examples`}>examples</a> page runs the viewer live, one
-    page per usage pattern, with the source of each.
+    See also the <a href={`${base}/layers`}>layers reference</a> and the
+    <a href={`${base}/examples`}>examples</a>.
   </p>
 </DocsLayout>
 
