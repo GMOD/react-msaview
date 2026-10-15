@@ -325,7 +325,7 @@ closes it and shows its details.
 
 Hovering a track reads out what it draws at that column: the two conservation
 scores, the sequence logo's information content and residue composition, the
-columns an arc joins, the letter on a text track. **Settings → Alignment → Show
+columns an arc joins, the letter on a text track. **Settings → Tracks → Show
 track values on hover** turns the readout off. Over the alignment itself, the
 tooltip carries the domains and insertions under the cursor, and the header
 reads out the hovered row, residue and position.
@@ -381,15 +381,15 @@ lists the fields.
 ## Settings reference
 
 The header's menu bar reads **File**, **View**, **Tools** and **Help**, and the
-**Settings** button at its right opens a panel beside the alignment, so a
-setting's effect shows as it changes.
+**Settings** button beside it, or **Tools → Settings**, opens a panel beside the
+alignment, so a setting's effect shows as it changes.
 
 [![](media/settings-menu.png)][live-settings-menu]
 
 - **File** opens another alignment or an annotation file, exports an SVG or the
   tree, and shows the alignment info.
-- **View** holds **Find row or column…**, the Zoom submenu, which repeats **Zoom
-  on scroll**, and a toggle for the settings panel.
+- **View** holds **Find row or column…** and the Zoom submenu, which repeats
+  **Zoom on scroll**.
 - The **Settings** panel has a section each for Color, Tree, Alignment,
   Annotations and Tracks. Color picks what fills the cells, residue colors,
   domain colors or nothing, then lists the common residue schemes for the
@@ -397,7 +397,7 @@ setting's effect shows as it changes.
   columns hides each column where at least 50%, 90% or a custom share of the
   rows has a gap, and a chip in the header counts the hidden columns; its ×
   shows them again.
-- **Tools** builds a neighbor joining tree.
+- **Tools** opens the settings panel and builds a neighbor joining tree.
 - **Help** lists the mouse and keyboard controls and links the tutorials and the
   credits.
 

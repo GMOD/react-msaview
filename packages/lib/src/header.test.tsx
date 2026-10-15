@@ -159,6 +159,14 @@ test('the settings panel docks beside the alignment and narrows it', async () =>
   expect(model.width).toBe(before)
 })
 
+test('Tools → Settings opens and closes the settings panel', () => {
+  mount({ msa })
+  clickItem(toolsMenuItems(model), 'Settings')
+  expect(model.settingsOpen).toBe(true)
+  clickItem(toolsMenuItems(model), 'Settings')
+  expect(model.settingsOpen).toBe(false)
+})
+
 test('the settings panel has a Tree section only with a tree', async () => {
   mount({ msa })
   await click(testId('settings_button') ?? undefined)

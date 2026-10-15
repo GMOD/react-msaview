@@ -236,21 +236,22 @@ export function viewMenuItems(model: MsaViewModel): MenuItem[] {
       }),
     ]),
     subMenu('Zoom', zoomSubMenu(model)),
-    toggle('Settings panel', model.settingsOpen, arg => {
-      model.setSettingsOpen(arg)
+  ]
+}
+
+export function trackSettingsItems(model: MsaViewModel): MenuItem[] {
+  return [
+    toggle('Show track values on hover', model.showColumnStats, arg => {
+      model.setShowColumnStats(arg)
     }),
   ]
 }
 
 // the settings panel's toggles for how the alignment draws
 export function alignmentSettingsItems(model: MsaViewModel): MenuItem[] {
-  const { drawMsaLetters, showColumnStats } = model
   return [
-    toggle('Show letters', drawMsaLetters, arg => {
+    toggle('Show letters', model.drawMsaLetters, arg => {
       model.setDrawMsaLetters(arg)
-    }),
-    toggle('Show track values on hover', showColumnStats, arg => {
-      model.setShowColumnStats(arg)
     }),
   ]
 }
@@ -299,8 +300,15 @@ function neighborJoiningItem(model: MsaViewModel): MenuItem {
   )
 }
 
+// Settings sits here as well as on its toolbar button, where a word processor
+// keeps its Options
 export function toolsMenuItems(model: MsaViewModel): MenuItem[] {
-  return [neighborJoiningItem(model)]
+  return [
+    toggle('Settings', model.settingsOpen, arg => {
+      model.setSettingsOpen(arg)
+    }),
+    neighborJoiningItem(model),
+  ]
 }
 
 export function helpMenuItems(model: MsaViewModel): MenuItem[] {

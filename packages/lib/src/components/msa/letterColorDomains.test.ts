@@ -173,9 +173,14 @@ test('residue fill keeps the scheme in the cells and draws domains as a bar', ()
   expect(model.cellFill).toBe('domain')
   model.setCellFill('residue')
   expect([model.cellFill, model.domainUnderline]).toEqual(['residue', true])
-  expect(drawOverlay(model).every(r => r.h === domainUnderlineHeight)).toBe(
-    true,
-  )
+  // each bar comes with a strip of the page background above it, which parts
+  // it from the residue colors
+  const marks = drawOverlay(model)
+  const bars = marks.filter(r => r.h === domainUnderlineHeight)
+  const halos = marks.filter(r => r.h > domainUnderlineHeight)
+  expect(bars).not.toHaveLength(0)
+  expect(halos).toHaveLength(bars.length)
+  expect(halos.every(r => r.h < model.rowHeight)).toBe(true)
   const { ctx, rects } = recordingCtx()
   renderMSABlock({
     model,

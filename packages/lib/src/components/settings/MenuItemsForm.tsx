@@ -32,10 +32,24 @@ function label(item: MenuItem & { icon?: React.ElementType }) {
   )
 }
 
+// a short submenu opens in place under a caption, where every choice shows at
+// once; a long one, like the extra color schemes, folds behind a toggle
+const inlineUpTo = 8
+
 function SubSection({ item }: { item: MenuItem }) {
   const [open, setOpen] = useState(false)
   if (!('subMenu' in item) || !Array.isArray(item.subMenu)) {
     return null
+  }
+  if (item.subMenu.length <= inlineUpTo) {
+    return (
+      <>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+          {item.label}
+        </Typography>
+        <MenuItemsForm items={item.subMenu} />
+      </>
+    )
   }
   return (
     <>

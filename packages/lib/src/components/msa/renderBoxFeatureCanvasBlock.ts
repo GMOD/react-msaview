@@ -41,17 +41,40 @@ export function renderBoxFeatureCanvasBlock({
   ctx.scale(k, k)
   ctx.translate(-offsetX, rowHeight / 2 - offsetY)
 
+  const source = domainOverlaySource(
+    model,
+    getVisibleLeaves({ model, offsetY, blockSizeY: by }),
+  )
+  const contrastText = contrastTextFn(theme)
+  if (model.cellFill === 'residue' && model.domainUnderline) {
+    // over residue colors a bar in a categorical color blends into the cells
+    // beside it, so a strip of the page background parts it from them
+    const { height } = source.layout
+    const halo = theme.palette.background.default
+    drawFeatureSpans<DomainBand>({
+      ctx,
+      ...source,
+      layout: { ...source.layout, height: n => height(n) + barHalo },
+      colors: new Map(
+        [...source.colors.keys()].map(a => [a, { fill: halo, stroke: halo }]),
+      ),
+      labelOf: undefined,
+      labelDrawn: undefined,
+      contrastText,
+      xMin: offsetX,
+      xMax: offsetX + bx,
+    })
+  }
   drawFeatureSpans<DomainBand>({
     ctx,
-    ...domainOverlaySource(
-      model,
-      getVisibleLeaves({ model, offsetY, blockSizeY: by }),
-    ),
-    contrastText: contrastTextFn(theme),
+    ...source,
+    contrastText,
     xMin: offsetX,
     xMax: offsetX + bx,
   })
 }
+
+const barHalo = 1.5
 
 /**
  * The domain overlay's spans over `leaves`, in alignment pixels: filled rows,

@@ -10,6 +10,7 @@ import {
   alignmentSettingsItems,
   colorSettingsItems,
   gapsSubMenu,
+  trackSettingsItems,
   treeSubMenu,
 } from '../header/menuBarItems.ts'
 import MenuItemsForm from './MenuItemsForm.tsx'
@@ -101,6 +102,7 @@ const SettingsPanel = observer(function ({
       )}
       <Section title="Tracks">
         <TrackList model={model} />
+        <MenuItemsForm items={trackSettingsItems(model)} />
       </Section>
     </Box>
   )

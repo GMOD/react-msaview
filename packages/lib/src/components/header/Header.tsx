@@ -43,6 +43,19 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
         sx={{ minHeight: 40, flexWrap: 'wrap', px: 0.5 }}
       >
         <MenuBar model={model} />
+        <Button
+          data-testid="settings_button"
+          size="small"
+          startIcon={<Tune />}
+          color={model.settingsOpen ? 'primary' : 'inherit'}
+          variant={model.settingsOpen ? 'outlined' : 'text'}
+          onClick={() => {
+            model.setSettingsOpen(!model.settingsOpen)
+          }}
+          sx={{ mx: 0.5, flexShrink: 0 }}
+        >
+          Settings
+        </Button>
         <ZoomControls model={model} />
         <ScrollZoomCheckbox model={model} />
         <HiddenColumnsChip model={model} />
@@ -58,19 +71,6 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
         <LoadWarnings model={model} />
         <UnshareableDataWarning model={model} />
         <StatusMessage model={model} variant="header" />
-        <Button
-          data-testid="settings_button"
-          size="small"
-          startIcon={<Tune />}
-          color={model.settingsOpen ? 'primary' : 'inherit'}
-          variant={model.settingsOpen ? 'outlined' : 'text'}
-          onClick={() => {
-            model.setSettingsOpen(!model.settingsOpen)
-          }}
-          sx={{ mx: 0.5 }}
-        >
-          Settings
-        </Button>
       </Toolbar>
     </AppBar>
   )
