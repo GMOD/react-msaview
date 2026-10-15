@@ -751,15 +751,21 @@ correspondence.
 ]
 ```
 
-| Field        | Meaning                                                              |
-| ------------ | -------------------------------------------------------------------- |
-| `row`        | The alignment row this maps                                          |
-| `accession`  | The sequence database entry the mapping went through, for provenance |
-| `structure`  | `id`, plus optional `kind`, `asymId` (the chain) and `url`           |
-| `segments`   | Contiguous runs where the two sides line up 1:1                      |
-| `unobserved` | Structure positions declared but not resolved, as `[start, end]`     |
-| `rowLength`  | Ungapped length of the row it was computed against; always set it    |
-| `generated`  | Who computed it, when, and from what                                 |
+| Field        | Meaning                                                                  |
+| ------------ | ------------------------------------------------------------------------ |
+| `row`        | The alignment row this maps                                              |
+| `accession`  | The sequence database entry the mapping went through, for provenance     |
+| `structure`  | `id`, plus optional `kind`, `asymId` (the chain), `asymIdKind` and `url` |
+| `segments`   | Contiguous runs where the two sides line up 1:1                          |
+| `unobserved` | Structure positions declared but not resolved, as `[start, end]`         |
+| `rowLength`  | Ungapped length of the row it was computed against; always set it        |
+| `generated`  | Who computed it, when, and from what                                     |
+
+`asymIdKind` says which id `asymId` is, `label` for the file's `label_asym_id`
+or `auth` for the author's `auth_asym_id`. With none set a reader tries the
+label id and then the author id, which is wrong for an entry where the two
+collide, such as 7K00's author chain `X`, which is label `AB`. A mapping that
+names no chain applies to every chain.
 
 Positions are 1-based and inclusive on both sides, as everywhere else in this
 document. Structure positions are `label_seq_id`, the index into the entity's

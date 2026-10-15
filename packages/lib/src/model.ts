@@ -3354,7 +3354,11 @@ function stateModelFactory({
           if (mapping.structure.id !== structureId) {
             continue
           }
-          if (asymId !== undefined && mapping.structure.asymId !== asymId) {
+          if (
+            asymId !== undefined &&
+            mapping.structure.asymId !== undefined &&
+            mapping.structure.asymId !== asymId
+          ) {
             continue
           }
           const segment = mapping.segments.find(

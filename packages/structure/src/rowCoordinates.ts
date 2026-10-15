@@ -32,7 +32,7 @@ export function rowCoordinates(
       const chain = hit.structure.asymId
       const residues =
         chain === undefined
-          ? coordinates.size === 1
+          ? new Set(coordinates.values()).size === 1
             ? [...coordinates.values()][0]
             : undefined
           : coordinates.get(chain)

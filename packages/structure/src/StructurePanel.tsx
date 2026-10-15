@@ -14,6 +14,7 @@ import {
   conservationColor,
   paintGroups,
   paintStructure,
+  rowResidueOfChain,
   solidGroups,
 } from './paint.ts'
 
@@ -115,6 +116,8 @@ export const StructurePanel = observer(function StructurePanel({
   const molstarRef = useRef<Molstar | undefined>(undefined)
   const loadedRef = useRef<Loaded[]>([])
   const paintQueue = useRef(Promise.resolve())
+  // structures a transform has moved, so only those are moved back
+  const movedRef = useRef(new Set<string>())
   const [state, setState] = useState('Loading structure')
   const [status, setStatus] = useState(idle)
   const ready = state === ''
@@ -198,6 +201,9 @@ export const StructurePanel = observer(function StructurePanel({
             return
           }
         }
+        if (loaded.length === 0) {
+          throw new Error('the file holds no structure to show')
+        }
         loadedRef.current = loaded
         molstarRef.current = molstar
         pluginRef.current = plugin
@@ -209,9 +215,12 @@ export const StructurePanel = observer(function StructurePanel({
           if (id === undefined) {
             return undefined
           }
-          return (
-            model.rowResidue(id, where.labelSeqId, where.labelAsymId) ??
-            model.rowResidue(id, where.labelSeqId, where.authAsymId)
+          return rowResidueOfChain(
+            model,
+            id,
+            where.labelSeqId,
+            where.labelAsymId,
+            where.authAsymId,
           )
         }
 
@@ -274,6 +283,7 @@ export const StructurePanel = observer(function StructurePanel({
       pluginRef.current = undefined
       molstarRef.current = undefined
       loadedRef.current = []
+      movedRef.current = new Set()
       life.plugin?.dispose()
       target.remove()
     }
@@ -289,13 +299,24 @@ export const StructurePanel = observer(function StructurePanel({
     const identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
     paintQueue.current = paintQueue.current
       .then(async () => {
+        if (pluginRef.current !== plugin) {
+          return
+        }
+        let moved = false
         for (const { id, ref } of loadedRef.current) {
           const matrix = moves[id]
-          if (matrix || plugin.state.data.cells.get(ref)) {
-            await transformStructure(plugin, molstar, ref, matrix ?? identity)
+          if (matrix) {
+            await transformStructure(plugin, molstar, ref, matrix)
+            movedRef.current.add(id)
+            moved = true
+          } else if (movedRef.current.delete(id)) {
+            await transformStructure(plugin, molstar, ref, identity)
+            moved = true
           }
         }
-        plugin.managers.camera.reset()
+        if (moved) {
+          plugin.managers.camera.reset()
+        }
       })
       .catch((e: unknown) => {
         console.error(e)
@@ -330,6 +351,7 @@ export const StructurePanel = observer(function StructurePanel({
                 drawn,
                 [found.hit.position],
                 found.hit.structure.asymId,
+                found.hit.structure.asymIdKind,
               )
             : undefined
         if (loci && !molstar.StructureElement.Loci.isEmpty(loci)) {
@@ -339,6 +361,7 @@ export const StructurePanel = observer(function StructurePanel({
           plugin.managers.structure.focus.clear()
         }
       },
+      { equals: compareStructural },
     )
     const stopHover = reaction(
       () => model.hoveredCell,
@@ -363,6 +386,7 @@ export const StructurePanel = observer(function StructurePanel({
                 drawn,
                 [found.hit.position],
                 found.hit.structure.asymId,
+                found.hit.structure.asymIdKind,
               ),
             },
             false,
@@ -379,6 +403,7 @@ export const StructurePanel = observer(function StructurePanel({
           )
         }
       },
+      { equals: compareStructural },
     )
     return () => {
       stop()
@@ -462,10 +487,13 @@ export const StructurePanel = observer(function StructurePanel({
             style={{
               position: 'absolute',
               inset: 0,
+              zIndex: 1,
               margin: 0,
+              padding: 16,
               display: 'grid',
               placeItems: 'center',
-              opacity: 0.7,
+              textAlign: 'center',
+              pointerEvents: 'none',
             }}
           >
             {state}

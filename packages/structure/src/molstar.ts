@@ -112,31 +112,23 @@ export async function transformStructure(
   await plugin.runTask(plugin.state.data.updateTree(build))
 }
 
-/**
- * The residues of one chain by `label_seq_id`. A generated mapping names the
- * chain by the author id RCSB reports and a hand-written one by the label id,
- * and the two differ for many entries, so a chain matches on either.
- */
-export function residueLoci(
+function chainLoci(
   molstar: Molstar,
   structure: Structure,
   labelSeqIds: number[],
-  chain?: string,
+  chain: string | undefined,
+  by: 'label' | 'auth',
 ) {
   const selection = molstar.Script.getStructureSelection(
     Q =>
       Q.struct.generator.atomGroups({
         ...(chain
           ? {
-              'chain-test': Q.core.logic.or([
-                Q.core.rel.eq([
-                  Q.struct.atomProperty.macromolecular.label_asym_id(),
-                  chain,
-                ]),
-                Q.core.rel.eq([
-                  Q.struct.atomProperty.macromolecular.auth_asym_id(),
-                  chain,
-                ]),
+              'chain-test': Q.core.rel.eq([
+                by === 'label'
+                  ? Q.struct.atomProperty.macromolecular.label_asym_id()
+                  : Q.struct.atomProperty.macromolecular.auth_asym_id(),
+                chain,
               ]),
             }
           : {}),
@@ -148,6 +140,29 @@ export function residueLoci(
     structure,
   )
   return molstar.StructureSelection.toLociWithSourceUnits(selection)
+}
+
+/**
+ * The residues of one chain by `label_seq_id`. `kind` says which id `chain`
+ * is. With none given the label id is tried first and the author id only if no
+ * chain carries that label, so an entry whose two ids collide is read as the
+ * label id. A mapping that names no chain takes every chain.
+ */
+export function residueLoci(
+  molstar: Molstar,
+  structure: Structure,
+  labelSeqIds: number[],
+  chain?: string,
+  kind?: 'label' | 'auth',
+) {
+  const first = kind ?? 'label'
+  const loci = chainLoci(molstar, structure, labelSeqIds, chain, first)
+  if (kind !== undefined || chain === undefined) {
+    return loci
+  }
+  return molstar.StructureElement.Loci.isEmpty(loci)
+    ? chainLoci(molstar, structure, labelSeqIds, chain, 'auth')
+    : loci
 }
 
 export interface PolymerResidue {

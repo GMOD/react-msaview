@@ -116,12 +116,10 @@ export async function superposeRows({
     seen.add(target.structureId)
     others.push({
       structureId: target.structureId,
-      coordinates: rowCoordinates(
-        model,
-        target.row,
-        target.structureId,
-        coordinates,
-      ),
+      coordinates: {
+        ...rowCoordinates(model, target.row, target.structureId, coordinates),
+        id: target.structureId,
+      },
     })
   }
 
@@ -134,7 +132,7 @@ export async function superposeRows({
   )
   const fits = result.fits.map(fit => ({
     ...fit,
-    structureId: others.find(o => o.coordinates.row === fit.row)!.structureId,
+    structureId: fit.id!,
   }))
   const matrices: Record<string, Mat4> = {}
   for (const fit of fits) {

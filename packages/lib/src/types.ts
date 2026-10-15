@@ -209,6 +209,12 @@ export interface MappedStructure {
   id: string
   kind?: 'experimental' | 'predicted'
   asymId?: string
+  /**
+   * which id `asymId` is, the file's `label_asym_id` or the author's
+   * `auth_asym_id`. Unset reads as either, label first, which is right for the
+   * common entry whose two ids agree and wrong where they collide.
+   */
+  asymIdKind?: 'label' | 'auth'
   url?: string
 }
 

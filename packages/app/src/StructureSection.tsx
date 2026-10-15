@@ -15,6 +15,7 @@ import { observer } from 'mobx-react'
 import {
   accessionOfRowName,
   findStructures,
+  networkLookups,
   superposeRows,
 } from 'react-msaview-structure'
 
@@ -36,7 +37,7 @@ const StructurePanel = lazy(() =>
 type Search =
   | { state: 'idle' }
   | { state: 'loading' }
-  | { state: 'done'; result: StructureSearch }
+  | { state: 'done'; result: StructureSearch; row: string }
   | { state: 'error'; message: string }
 
 function keyOf(m: { row: string; structure: { id: string; asymId?: string } }) {
@@ -100,9 +101,10 @@ const StructureSection = observer(function StructureSection({
         rowName: row,
         rowSequence: model.rowSequence(row) ?? '',
         accession: accession.trim() || undefined,
+        lookups: networkLookups(controller.signal),
       })
       if (!controller.signal.aborted) {
-        setSearch({ state: 'done', result })
+        setSearch({ state: 'done', result, row })
       }
     } catch (e) {
       if (!controller.signal.aborted) {
@@ -129,15 +131,21 @@ const StructureSection = observer(function StructureSection({
         if (have) {
           continue
         }
-        const found = await findStructures({
-          rowName,
-          rowSequence: model.rowSequence(rowName) ?? '',
-        })
-        const first = found.candidates[0]
-        if (first) {
-          mappings.push(first.mapping)
-        } else if (found.problem) {
-          problems.push(found.problem)
+        try {
+          const found = await findStructures({
+            rowName,
+            rowSequence: model.rowSequence(rowName) ?? '',
+          })
+          const first = found.candidates[0]
+          if (first) {
+            mappings.push(first.mapping)
+          } else if (found.problem) {
+            problems.push(found.problem)
+          }
+        } catch (e) {
+          problems.push(
+            `${rowName}: ${e instanceof Error ? e.message : String(e)}`,
+          )
         }
       }
       model.setResidueMappings(mappings)
@@ -194,6 +202,9 @@ const StructureSection = observer(function StructureSection({
 
   function show(candidate: StructureSearch['candidates'][number]) {
     const { mapping } = candidate
+    if (superposition.state === 'done') {
+      clearSuperposition()
+    }
     model.setResidueMappings([
       ...model.residueMappings.filter(m => keyOf(m) !== keyOf(mapping)),
       mapping,
@@ -227,6 +238,7 @@ const StructureSection = observer(function StructureSection({
           value={row}
           disableClearable
           onChange={(_e, value) => {
+            abort.current?.abort()
             setChosen(value)
             setSearch({ state: 'idle' })
           }}
@@ -308,12 +320,16 @@ const StructureSection = observer(function StructureSection({
           {search.message}
         </Alert>
       ) : null}
-      {search.state === 'done' && search.result.problem ? (
+      {search.state === 'done' &&
+      search.row === row &&
+      search.result.problem ? (
         <Alert severity="warning" sx={{ mt: 1 }}>
           {search.result.problem}
         </Alert>
       ) : null}
-      {search.state === 'done' && search.result.candidates.length > 0 ? (
+      {search.state === 'done' &&
+      search.row === row &&
+      search.result.candidates.length > 0 ? (
         <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
           {search.result.candidates.map(candidate => (
             <Button

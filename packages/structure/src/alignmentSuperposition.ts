@@ -6,11 +6,14 @@ import type { Mat4 } from './superpose.ts'
 /** a row's CA positions by alignment column, for the residues it has */
 export interface RowCoordinates {
   row: string
+  /** carried to the fit, so two targets for one row stay apart */
+  id?: string
   atColumn: Map<number, Vec3>
 }
 
 export interface RowSuperposition {
   row: string
+  id?: string
   /** the CA pairs the fit used */
   fitted: number
   rmsd: number
@@ -72,6 +75,7 @@ export function superposeOnColumns(
     }
     fits.push({
       row: other.row,
+      id: other.id,
       fitted: moving.length,
       rmsd: fit.rmsd,
       matrix: fit.matrix,

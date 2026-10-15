@@ -142,6 +142,27 @@ describe('parseCaCoordinates', () => {
     expect(chains.has('B')).toBe(false)
   })
 
+  test('counts a modified residue but not a calcium ion', () => {
+    const withMse = `${cif.replace(
+      '#\n',
+      'HETATM 8 CA . MSE A 4 1.0 1.0 1.0 H 1\nHETATM 9 CA . CA B . 2.0 2.0 2.0 K 1\n#\n',
+    )}`
+    const chains = parseCaCoordinates(withMse)!
+    expect(chains.get('A')?.get(4)).toEqual([1, 1, 1])
+    expect(chains.has('B')).toBe(false)
+  })
+
+  test('skips a CA whose coordinate is not a number', () => {
+    const broken = cif.replace('1.5 2.5 3.5', '? ? ?')
+    expect(parseCaCoordinates(broken)!.get('A')?.has(1)).toBe(false)
+  })
+
+  test('files a chain under label and author as one map, so a lone chain is one', () => {
+    const chains = parseCaCoordinates(cif)!
+    expect(chains.get('A')).toBe(chains.get('H'))
+    expect(new Set(chains.values()).size).toBe(1)
+  })
+
   test('returns undefined for a file with no atom_site loop', () => {
     expect(
       parseCaCoordinates('HEADER    PDB\nATOM      1  N   MET'),

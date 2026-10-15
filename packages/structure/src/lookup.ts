@@ -3,8 +3,10 @@ import {
   describeAlignmentQuality,
   fetchAlphaFoldModels,
   fetchExperimentalStructures,
+  RCSB_DATA_GRAPHQL_URL,
   fetchPdbEntry,
   getPdbStructureUrl,
+  graphqlFetch,
   isLowSimilarity,
   makeUniProtPositionMap,
   pickAlphaFoldModel,
@@ -37,11 +39,47 @@ export interface StructureSearch {
   problem?: string
 }
 
-/** the three network reads, replaceable so a test needs no network */
+/** the network reads, replaceable so a test needs no network */
 export interface Lookups {
   alphaFoldModels: (accession: string) => Promise<AlphaFoldModel[]>
   experimental: (accession: string) => Promise<ExperimentalStructure[]>
   pdbEntry: (pdbId: string) => Promise<PdbEntry>
+  /** the `label_asym_id` of an author chain, undefined when RCSB has none */
+  labelChain: (pdbId: string, authChain: string) => Promise<string | undefined>
+}
+
+function strings(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((v): v is string => typeof v === 'string')
+    : []
+}
+
+/**
+ * Reads the label id of an author chain off the entry's entities, whose
+ * `asym_ids` and `auth_asym_ids` are parallel lists.
+ */
+export function labelChainOf(data: unknown, authChain: string) {
+  const entry =
+    typeof data === 'object' && data !== null
+      ? (data as { entry?: unknown }).entry
+      : undefined
+  const entities =
+    typeof entry === 'object' && entry !== null
+      ? (entry as { polymer_entities?: unknown }).polymer_entities
+      : undefined
+  for (const entity of Array.isArray(entities) ? entities : []) {
+    const ids = (entity as Record<string, unknown> | null)
+      ?.rcsb_polymer_entity_container_identifiers as
+      | Record<string, unknown>
+      | undefined
+    const auth = strings(ids?.auth_asym_ids)
+    const label = strings(ids?.asym_ids)
+    const at = auth.indexOf(authChain)
+    if (at !== -1 && auth.length === label.length) {
+      return label[at]
+    }
+  }
+  return undefined
 }
 
 export function networkLookups(signal?: AbortSignal): Lookups {
@@ -50,6 +88,16 @@ export function networkLookups(signal?: AbortSignal): Lookups {
     alphaFoldModels: accession => fetchAlphaFoldModels(accession, opts),
     experimental: accession => fetchExperimentalStructures(accession, opts),
     pdbEntry: pdbId => fetchPdbEntry(pdbId, opts),
+    labelChain: async (pdbId, authChain) =>
+      labelChainOf(
+        await graphqlFetch(
+          RCSB_DATA_GRAPHQL_URL,
+          `{ entry(entry_id: "${pdbId.toUpperCase()}") { polymer_entities { rcsb_polymer_entity_container_identifiers { asym_ids auth_asym_ids } } } }`,
+          undefined,
+          opts,
+        ),
+        authChain,
+      ),
   }
 }
 
@@ -138,6 +186,7 @@ export async function findStructures({
         id: model.entity ?? `AF-${protein}-F1`,
         kind: 'predicted',
         asymId: 'A',
+        asymIdKind: 'label',
         url: model.url,
       },
       segments: segmentsOfPairs(pairs),
@@ -145,10 +194,29 @@ export async function findStructures({
     },
   })
 
-  const experimental = (await lookups.experimental(protein)).slice(
-    0,
-    maxExperimental,
-  )
+  // PDB entries are numbered on the canonical sequence, and a row aligned
+  // to an isoform model has positions on that isoform instead
+  if (model.accession.includes('-')) {
+    return {
+      accession: protein,
+      candidates,
+      problem: `AlphaFold DB holds only an isoform model of ${protein}, so PDB entries, which are numbered on the canonical sequence, were not mapped.`,
+    }
+  }
+
+  let experimental: ExperimentalStructure[]
+  try {
+    experimental = (await lookups.experimental(protein)).slice(
+      0,
+      maxExperimental,
+    )
+  } catch (e) {
+    return {
+      accession: protein,
+      candidates,
+      problem: `RCSB could not be reached for the PDB entries of ${protein}: ${e instanceof Error ? e.message : String(e)}`,
+    }
+  }
   const entries = await Promise.all(
     experimental.map(async structure => {
       try {
@@ -182,6 +250,12 @@ export async function findStructures({
     if (onChain.length === 0) {
       continue
     }
+    let label: string | undefined
+    try {
+      label = await lookups.labelChain(structure.pdbId, chain)
+    } catch {
+      label = undefined
+    }
     candidates.push({
       kind: 'experimental',
       identity,
@@ -191,7 +265,8 @@ export async function findStructures({
         structure: {
           id: structure.pdbId.toUpperCase(),
           kind: 'experimental',
-          asymId: chain,
+          asymId: label ?? chain,
+          asymIdKind: label === undefined ? 'auth' : 'label',
           url: getPdbStructureUrl(structure.pdbId.toUpperCase()),
         },
         segments: segmentsOfPairs(onChain),

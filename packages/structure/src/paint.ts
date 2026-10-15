@@ -18,6 +18,33 @@ export const noColumnColor = '#c9c9c4'
 export type ChainResidues = [chain: string, labelSeqIds: number[]][]
 export type PaintGroup = [color: string, chains: ChainResidues]
 
+/**
+ * The row residue a structure residue maps to, reading the mapping's own
+ * `asymIdKind`: a mapping that says `label` or `auth` is compared on that id
+ * alone, and one that says nothing on the label id and then the author id.
+ */
+export function rowResidueOfChain(
+  model: MsaViewModel,
+  structureId: string,
+  labelSeqId: number,
+  labelAsymId: string,
+  authAsymId: string,
+) {
+  const kinds = new Set(
+    model.mappedStructures
+      .filter(m => m.structure.id === structureId)
+      .map(m => m.structure.asymIdKind),
+  )
+  const byLabel = kinds.has('label') || kinds.has(undefined)
+  const byAuth = kinds.has('auth') || kinds.has(undefined)
+  return (
+    (byLabel
+      ? model.rowResidue(structureId, labelSeqId, labelAsymId)
+      : undefined) ??
+    (byAuth ? model.rowResidue(structureId, labelSeqId, authAsymId) : undefined)
+  )
+}
+
 export function conservationColor(
   model: MsaViewModel,
   rowName: string,
@@ -50,9 +77,13 @@ export function paintGroups(
 ): PaintGroup[] {
   const groups = new Map<string, Map<string, number[]>>()
   for (const { labelAsymId, authAsymId, labelSeqId } of residues) {
-    const hit =
-      model.rowResidue(structureId, labelSeqId, labelAsymId) ??
-      model.rowResidue(structureId, labelSeqId, authAsymId)
+    const hit = rowResidueOfChain(
+      model,
+      structureId,
+      labelSeqId,
+      labelAsymId,
+      authAsymId,
+    )
     const color = (hit && colorOf(hit.rowName, hit.seqPos)) ?? noColumnColor
     const chains = groups.get(color) ?? new Map<string, number[]>()
     const ids = chains.get(labelAsymId) ?? []

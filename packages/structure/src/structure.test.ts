@@ -91,6 +91,9 @@ function lookups(overrides: Partial<Lookups> = {}): Lookups {
           },
         ],
       }),
+    // 1TUP: author chain A is label chain A; the second entry swaps them
+    labelChain: (pdbId, chain) =>
+      Promise.resolve(pdbId === '1TUP' && chain === 'A' ? 'X' : undefined),
     ...overrides,
   }
 }
@@ -121,7 +124,7 @@ describe('findStructures', () => {
 
     expect(entry?.mapping.structure).toMatchObject({
       id: '1TUP',
-      asymId: 'A',
+      asymId: 'X',
       url: 'https://files.rcsb.org/download/1TUP.cif',
     })
     // row residue 94 is the first residue of the construct, label_seq_id 1
@@ -145,10 +148,72 @@ describe('findStructures', () => {
     const found = await findStructures({
       rowName: 'HBA_HUMAN',
       rowSequence: unp,
-      lookups: { alphaFoldModels: never, experimental: never, pdbEntry: never },
+      lookups: {
+        alphaFoldModels: never,
+        experimental: never,
+        pdbEntry: never,
+        labelChain: never,
+      },
     })
     expect(found.candidates).toEqual([])
     expect(found.problem).toContain('no UniProt accession')
+  })
+
+  test('names the structure chain by its label id and says so', async () => {
+    const found = await findStructures({
+      rowName: 'P04637',
+      rowSequence: unp,
+      lookups: lookups(),
+    })
+    const [model, entry] = found.candidates
+    expect(model?.mapping.structure.asymIdKind).toBe('label')
+    expect(entry?.mapping.structure).toMatchObject({
+      asymId: 'X',
+      asymIdKind: 'label',
+    })
+  })
+
+  test('falls back to the author id, marked as such, when RCSB gives no label id', async () => {
+    const found = await findStructures({
+      rowName: 'P04637',
+      rowSequence: unp,
+      lookups: lookups({ labelChain: () => Promise.resolve(undefined) }),
+    })
+    expect(found.candidates[1]?.mapping.structure).toMatchObject({
+      asymId: 'A',
+      asymIdKind: 'auth',
+    })
+  })
+
+  test('maps no PDB entry when only an isoform model exists', async () => {
+    const found = await findStructures({
+      rowName: 'P04637',
+      rowSequence: unp,
+      lookups: lookups({
+        alphaFoldModels: () =>
+          Promise.resolve([
+            {
+              accession: 'P04637-2',
+              url: 'https://alphafold.ebi.ac.uk/files/AF-P04637-2-F1-model_v6.cif',
+              sequence: unp,
+            },
+          ]),
+      }),
+    })
+    expect(found.candidates.map(c => c.kind)).toEqual(['predicted'])
+    expect(found.problem).toContain('isoform')
+  })
+
+  test('keeps the AlphaFold candidate when the RCSB lookup throws', async () => {
+    const found = await findStructures({
+      rowName: 'P04637',
+      rowSequence: unp,
+      lookups: lookups({
+        experimental: () => Promise.reject(new Error('RCSB 503')),
+      }),
+    })
+    expect(found.candidates.map(c => c.kind)).toEqual(['predicted'])
+    expect(found.problem).toContain('RCSB 503')
   })
 
   test('a failed PDB entry drops that entry and keeps the others', async () => {

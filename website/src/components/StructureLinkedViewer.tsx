@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 
 import { observer } from 'mobx-react'
 import {
@@ -134,14 +134,16 @@ export function StructureLinkedViewer({
   height = 360,
   structureColor,
   colorScheme,
+  schemePicked,
 }: StructureLinkedViewerProps & {
   structureColor: StructureColor
   colorScheme: string
+  /** the reader has chosen an alignment scheme, so the cells show it */
+  schemePicked: boolean
 }) {
   const [model, setModel] = useState<MsaViewModel>()
   const [layers, setLayers] = useState<Layers>({})
   const [layersError, setLayersError] = useState<string>()
-  const initialScheme = useRef(colorScheme)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -164,10 +166,10 @@ export function StructureLinkedViewer({
   }, [layersUrl])
 
   useEffect(() => {
-    if (model && colorScheme !== initialScheme.current) {
+    if (model && schemePicked) {
       model.setDomainFill(false)
     }
-  }, [model, colorScheme])
+  }, [model, schemePicked, colorScheme])
 
   // a layers file written before the panel read each mapping's own file url
   // names no file, so the page's structure url stands in for it
@@ -260,6 +262,7 @@ export default function StructureLinkedDatasets({
   const [chosen, setChosen] = useState(datasets[0]?.id)
   const [structureColor, setStructureColor] = useState<StructureColor>('none')
   const [colorScheme, setColorScheme] = useState(alignmentSchemes[0].id)
+  const [schemePicked, setSchemePicked] = useState(false)
   const dataset = datasets.find(d => d.id === chosen) ?? datasets[0]
   if (!desktop) {
     return (
@@ -292,6 +295,7 @@ export default function StructureLinkedDatasets({
             value={colorScheme}
             onChange={e => {
               setColorScheme(e.target.value)
+              setSchemePicked(true)
             }}
           >
             {alignmentSchemes.map(scheme => (
@@ -320,6 +324,7 @@ export default function StructureLinkedDatasets({
         {...dataset}
         structureColor={structureColor}
         colorScheme={colorScheme}
+        schemePicked={schemePicked}
       />
     </>
   ) : null
