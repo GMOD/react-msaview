@@ -386,12 +386,11 @@ effect shows as it changes.
 - **View** holds **Find row or column…** and the Zoom submenu, which repeats
   **Zoom on scroll**.
 - The **Settings** panel has a section each for Color, Tree, Alignment,
-  Annotations and Tracks. Color picks what fills the cells, residues, domains
-  or nothing, then lists the common residue schemes for the alignment's
-  alphabet, with the rest under **More schemes**. Alignment's Gappy
-  columns hides each column where at least 50%, 90% or a custom share of the
-  rows has a gap, and a chip in the header counts the hidden columns; its ×
-  shows them again.
+  Annotations and Tracks. Color picks what fills the cells, residues, domains or
+  nothing, then lists the common residue schemes for the alignment's alphabet,
+  with the rest under **More schemes**. Alignment's Gappy columns hides each
+  column where at least 50%, 90% or a custom share of the rows has a gap, and a
+  chip in the header counts the hidden columns; its × shows them again.
 - **Tools** builds a neighbor joining tree.
 - **Help** lists the mouse and keyboard controls and links the tutorials and the
   credits.
