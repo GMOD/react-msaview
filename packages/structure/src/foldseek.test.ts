@@ -89,7 +89,7 @@ describe('foldseekCandidates', () => {
       decodeURIComponent(url.slice(url.indexOf(',') + 1)),
     )!
     // target residue 3 is the first aligned one, and it is row residue 1
-    expect(trace.get('A')?.get(3)).toEqual([3, 0, 0])
+    expect(trace.label.get('A')?.get(3)).toEqual([3, 0, 0])
     expect(pdb.mapping.segments).toEqual([
       { rowStart: 1, rowEnd: 5, structStart: 3, structEnd: 7 },
     ])

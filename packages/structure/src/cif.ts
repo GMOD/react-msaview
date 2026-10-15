@@ -1,15 +1,48 @@
 export type Vec3 = [number, number, number]
 
-/** CA position by `label_seq_id`, for each chain a structure file holds */
-export type CaCoordinates = Map<string, Map<number, Vec3>>
+/** CA position by `label_seq_id` */
+export type ChainCoordinates = Map<number, Vec3>
+
+/**
+ * A structure file's CA atoms, by chain under each of its two chain ids. A
+ * chain's label and author entries are one map, so a lone chain counts once.
+ */
+export interface CaCoordinates {
+  label: Map<string, ChainCoordinates>
+  auth: Map<string, ChainCoordinates>
+}
+
+/**
+ * The chain a mapping names, read in the id space its `asymIdKind` says. With
+ * no kind the label id goes first, and since only chains with CA atoms are
+ * kept, a label id naming a nucleic-acid chain falls through to the author id.
+ * A mapping that names no chain gets the file's only chain, if it has one.
+ */
+export function caChain(
+  coordinates: CaCoordinates,
+  asymId: string | undefined,
+  kind: 'label' | 'auth' | undefined,
+) {
+  if (asymId === undefined) {
+    const [only, ...rest] = coordinates.label.values()
+    return rest.length === 0 ? only : undefined
+  }
+  return kind === 'auth'
+    ? coordinates.auth.get(asymId)
+    : kind === 'label'
+      ? coordinates.label.get(asymId)
+      : (coordinates.label.get(asymId) ?? coordinates.auth.get(asymId))
+}
 
 /**
  * The CA atoms of the first model of a PDB-format file, by chain, numbered by
- * the residue sequence number. A Foldseek trace is numbered 1..n by target
- * position, so that number is its `label_seq_id`. Undefined when no CA is found.
+ * the residue sequence number. The file has one chain id, filed as both kinds.
+ * A Foldseek trace is numbered 1..n by target position, so that number is its
+ * `label_seq_id`; a file numbered from anywhere else is misread. Undefined
+ * when no CA is found.
  */
 export function parsePdbCaCoordinates(pdb: string): CaCoordinates | undefined {
-  const chains: CaCoordinates = new Map()
+  const chains = new Map<string, ChainCoordinates>()
   for (const line of pdb.split('\n')) {
     if (line.startsWith('ENDMDL')) {
       break
@@ -40,22 +73,18 @@ export function parsePdbCaCoordinates(pdb: string): CaCoordinates | undefined {
     residues.set(seq, position)
     chains.set(chain, residues)
   }
-  return chains.size > 0 ? chains : undefined
+  return chains.size > 0 ? { label: chains, auth: chains } : undefined
 }
 
 const TOKEN = /'[^']*'|"[^"]*"|\S+/g
 
 /**
- * The CA atoms of the first model of an mmCIF file, keyed by chain. A chain is
- * filed under both its `label_asym_id` and its `auth_asym_id`, since a
- * generated mapping names the chain by the author id and a hand-written one by
- * the label id, and a label id wins where the two collide. A chain's label
- * and author entries are one map, so a lone chain counts once. `ATOM` records
- * and the `HETATM` records of modified residues such as selenomethionine
- * count, and a calcium ion does not, since its atom and residue are both `CA`.
- * The first alternate location wins, and a record with a coordinate that is
- * not a number is skipped. Undefined when the text holds no
- * `_atom_site` loop, as with a file in PDB format.
+ * The CA atoms of the first model of an mmCIF file, by `label_asym_id` and by
+ * `auth_asym_id`. `ATOM` records and the `HETATM` records of modified residues
+ * such as selenomethionine count, and a calcium ion does not, since its atom
+ * and residue are both `CA`. The first alternate location wins, and a record
+ * with a coordinate that is not a number is skipped. Text with no `_atom_site`
+ * loop is read as a PDB-format file. Undefined when no CA is found.
  */
 export function parseCaCoordinates(cif: string): CaCoordinates | undefined {
   if (!cif.includes('_atom_site.')) {
@@ -91,9 +120,9 @@ export function parseCaCoordinates(cif: string): CaCoordinates | undefined {
   const alt = col('label_alt_id')
   const model = col('pdbx_PDB_model_num')
 
-  const byLabel: CaCoordinates = new Map()
-  const byAuth: CaCoordinates = new Map()
-  const shared = new Map<string, Map<number, Vec3>>()
+  const label = new Map<string, ChainCoordinates>()
+  const author = new Map<string, ChainCoordinates>()
+  const shared = new Map<string, ChainCoordinates>()
   let firstModel: string | undefined
   for (; i < lines.length; i++) {
     const line = lines[i]!
@@ -138,21 +167,17 @@ export function parseCaCoordinates(cif: string): CaCoordinates | undefined {
     if (!position.every(Number.isFinite)) {
       continue
     }
-    const label = t[asym!]!
-    const author = auth === undefined ? label : (t[auth] ?? label)
-    const pair = `${label}\u0000${author}`
+    const labelId = t[asym!]!
+    const authorId = auth === undefined ? labelId : (t[auth] ?? labelId)
+    const pair = `${labelId}\u0000${authorId}`
     let residues = shared.get(pair)
     if (!residues) {
       residues = new Map<number, Vec3>()
       shared.set(pair, residues)
-      byLabel.set(label, residues)
-      byAuth.set(author, residues)
+      label.set(labelId, residues)
+      author.set(authorId, residues)
     }
     residues.set(labelSeqId, position)
   }
-  const chains: CaCoordinates = new Map(byAuth)
-  for (const [chain, residues] of byLabel) {
-    chains.set(chain, residues)
-  }
-  return chains
+  return label.size > 0 ? { label, auth: author } : undefined
 }

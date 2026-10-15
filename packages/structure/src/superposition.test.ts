@@ -4,10 +4,12 @@ import {
   meanColumnDistances,
   superposeOnColumns,
 } from './alignmentSuperposition.ts'
-import { parseCaCoordinates } from './cif.ts'
+import { caChain, parseCaCoordinates } from './cif.ts'
 import { applyMatrix, distance, fitRigid } from './superpose.ts'
+import { superposeRows } from './superposeRows.ts'
 
 import type { Vec3 } from './cif.ts'
+import type { MsaViewModel } from 'react-msaview'
 
 // a helix-like backbone with a few kinks, so no three points are collinear
 const backbone: Vec3[] = Array.from({ length: 24 }, (_, i) => [
@@ -162,16 +164,17 @@ ATOM 7 CA . MET A 1 100.0 100.0 100.0 H 2
 
 describe('parseCaCoordinates', () => {
   test('files CA atoms of the first model under label and author chain', () => {
-    const chains = parseCaCoordinates(cif)!
-    expect([...chains.keys()].toSorted()).toEqual(['A', 'H'])
-    expect(chains.get('A')?.get(1)).toEqual([1.5, 2.5, 3.5])
-    expect(chains.get('H')?.get(2)).toEqual([4, 5, 6])
+    const { label, auth } = parseCaCoordinates(cif)!
+    expect([...label.keys()]).toEqual(['A'])
+    expect([...auth.keys()]).toEqual(['H'])
+    expect(label.get('A')?.get(1)).toEqual([1.5, 2.5, 3.5])
+    expect(auth.get('H')?.get(2)).toEqual([4, 5, 6])
   })
 
   test('takes the first alternate location and skips HETATM calcium', () => {
-    const chains = parseCaCoordinates(cif)!
-    expect(chains.get('A')?.get(3)).toEqual([7.5, 8.5, 9.5])
-    expect(chains.has('B')).toBe(false)
+    const { label } = parseCaCoordinates(cif)!
+    expect(label.get('A')?.get(3)).toEqual([7.5, 8.5, 9.5])
+    expect(label.has('B')).toBe(false)
   })
 
   test('counts a modified residue but not a calcium ion', () => {
@@ -179,25 +182,139 @@ describe('parseCaCoordinates', () => {
       '#\n',
       'HETATM 8 CA . MSE A 4 1.0 1.0 1.0 H 1\nHETATM 9 CA . CA B . 2.0 2.0 2.0 K 1\n#\n',
     )}`
-    const chains = parseCaCoordinates(withMse)!
-    expect(chains.get('A')?.get(4)).toEqual([1, 1, 1])
-    expect(chains.has('B')).toBe(false)
+    const { label } = parseCaCoordinates(withMse)!
+    expect(label.get('A')?.get(4)).toEqual([1, 1, 1])
+    expect(label.has('B')).toBe(false)
   })
 
   test('skips a CA whose coordinate is not a number', () => {
     const broken = cif.replace('1.5 2.5 3.5', '? ? ?')
-    expect(parseCaCoordinates(broken)!.get('A')?.has(1)).toBe(false)
+    expect(parseCaCoordinates(broken)!.label.get('A')?.has(1)).toBe(false)
   })
 
-  test('files a chain under label and author as one map, so a lone chain is one', () => {
-    const chains = parseCaCoordinates(cif)!
-    expect(chains.get('A')).toBe(chains.get('H'))
-    expect(new Set(chains.values()).size).toBe(1)
+  test('files a chain under label and author as one map', () => {
+    const { label, auth } = parseCaCoordinates(cif)!
+    expect(label.get('A')).toBe(auth.get('H'))
   })
 
-  test('returns undefined for a file with no atom_site loop', () => {
+  test('returns undefined for a file with no CA', () => {
     expect(
       parseCaCoordinates('HEADER    PDB\nATOM      1  N   MET'),
     ).toBeUndefined()
+    expect(parseCaCoordinates(cif.replaceAll(' CA ', ' N  '))).toBeUndefined()
+  })
+})
+
+// two protein chains whose ids cross: label A is author B, label B is author A
+const crossed = cif
+  .replace(/ATOM [2-5] .*\n/g, '')
+  .replace(
+    'ATOM 1 N . MET A 1 1.0 2.0 3.0 H 1\n',
+    'ATOM 1 CA . MET A 1 1.0 1.0 1.0 B 1\nATOM 2 CA . MET B 1 2.0 2.0 2.0 A 1\n',
+  )
+
+describe('caChain', () => {
+  const coordinates = parseCaCoordinates(crossed)!
+
+  test('reads the id space the mapping names', () => {
+    expect(caChain(coordinates, 'A', 'label')?.get(1)).toEqual([1, 1, 1])
+    expect(caChain(coordinates, 'A', 'auth')?.get(1)).toEqual([2, 2, 2])
+  })
+
+  test('reads an unset kind as the label id first', () => {
+    expect(caChain(coordinates, 'A', undefined)?.get(1)).toEqual([1, 1, 1])
+  })
+
+  test('falls through to the author id when no labelled chain has a CA', () => {
+    const parsed = parseCaCoordinates(cif)!
+    expect(caChain(parsed, 'H', undefined)).toBe(parsed.auth.get('H'))
+  })
+
+  test('takes the only chain for a mapping that names none', () => {
+    expect(
+      caChain(parseCaCoordinates(cif)!, undefined, undefined),
+    ).toBeDefined()
+    expect(caChain(coordinates, undefined, undefined)).toBeUndefined()
+  })
+})
+
+function cifOf(points: Vec3[]) {
+  return [
+    'data_x',
+    'loop_',
+    ...[
+      'group_PDB',
+      'label_atom_id',
+      'label_comp_id',
+      'label_asym_id',
+      'label_seq_id',
+      'Cartn_x',
+      'Cartn_y',
+      'Cartn_z',
+    ].map(c => `_atom_site.${c}`),
+    ...points.map(([x, y, z], i) => `ATOM CA ALA A ${i + 1} ${x} ${y} ${z}`),
+    '#',
+  ].join('\n')
+}
+
+// rows of 24 residues and no gaps, each mapped 1:1 onto its own structure
+function fakeModel(rows: Record<string, string | undefined>) {
+  const n = backbone.length
+  return {
+    mappedStructures: Object.entries(rows).map(([row, url]) => ({
+      row,
+      structure: { id: `S-${row}`, asymId: 'A', asymIdKind: 'label', url },
+    })),
+    seqPosIndex: () => Int32Array.from({ length: n }, (_, i) => i),
+    structureResidue: (row: string, seqPos: number, id: string) =>
+      id === `S-${row}` && seqPos <= n ? { position: seqPos } : undefined,
+  } as unknown as MsaViewModel
+}
+
+describe('superposeRows', () => {
+  const files: Record<string, string> = {
+    'ref.cif': cifOf(backbone),
+    'moved.cif': cifOf(moved(backbone)),
+  }
+  const fetchText = (url: string) =>
+    files[url] === undefined
+      ? Promise.reject(new Error(`${url}: HTTP 404`))
+      : Promise.resolve(files[url])
+  const targets = (rows: string[]) =>
+    rows.map(row => ({ row, structureId: `S-${row}` }))
+
+  test('fits the others onto the reference', async () => {
+    const model = fakeModel({ ref: 'ref.cif', other: 'moved.cif' })
+    const result = await superposeRows({
+      model,
+      targets: targets(['ref', 'other']),
+      fetchText,
+    })
+    expect(result.fits[0]?.rmsd).toBeLessThan(1e-6)
+    expect(result.distanceValues).toHaveLength(backbone.length)
+  })
+
+  test('skips a row whose file fails to load and fits the rest', async () => {
+    const model = fakeModel({
+      ref: 'ref.cif',
+      gone: 'missing.cif',
+      other: 'moved.cif',
+    })
+    const result = await superposeRows({
+      model,
+      targets: targets(['ref', 'gone', 'other']),
+      fetchText,
+    })
+    expect(result.fits.map(f => f.row)).toEqual(['other'])
+    expect(result.skipped).toEqual([
+      { row: 'gone', reason: 'missing.cif: HTTP 404' },
+    ])
+  })
+
+  test('throws when the reference fails to load', async () => {
+    const model = fakeModel({ gone: 'missing.cif', other: 'moved.cif' })
+    await expect(
+      superposeRows({ model, targets: targets(['gone', 'other']), fetchText }),
+    ).rejects.toThrow('HTTP 404')
   })
 })

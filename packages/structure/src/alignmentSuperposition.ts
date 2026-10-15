@@ -33,13 +33,6 @@ export interface SuperpositionResult {
   skipped: { row: string; reason: string }[]
 }
 
-/**
- * Lays each row's structure on the reference's using the columns where both
- * have a CA, so the alignment says which residues correspond. `fitColumns`
- * picks the columns the fit uses, such as a selected pocket, and the distances
- * come out for every shared column, which is how a pocket's fit shows where the
- * rest of the fold departs from it.
- */
 export interface Refinement {
   /**
    * a pair farther than this many times the fit's RMSD is set aside, so the
@@ -105,6 +98,13 @@ function refinedFit(
   return { fit, used }
 }
 
+/**
+ * Lays each row's structure on the reference's using the columns where both
+ * have a CA, so the alignment says which residues correspond. `fitColumns`
+ * picks the columns the fit uses, such as a selected pocket, and the distances
+ * come out for every shared column, which is how a pocket's fit shows where the
+ * rest of the fold departs from it.
+ */
 export function superposeOnColumns(
   reference: RowCoordinates,
   others: RowCoordinates[],
@@ -157,7 +157,8 @@ export function superposeOnColumns(
 
 /**
  * One number per residue of the reference row: the mean CA distance to the
- * superposed rows that have a CA in that column, or 0 where none does. Its
+ * superposed rows that have a CA in that column, or 0 where none does, since
+ * a bar track reads 0 as no bar and its tooltip cannot show a missing value. Its
  * length is `referenceColumns`', which lists the column of each residue of the
  * row in order, so the array is a `columnTracks` bar's `values`.
  */

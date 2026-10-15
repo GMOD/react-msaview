@@ -2,14 +2,13 @@ import {
   meanColumnDistances,
   superposeOnColumns,
 } from './alignmentSuperposition.ts'
-import { parseCaCoordinates } from './cif.ts'
-import { rowCoordinates } from './rowCoordinates.ts'
+import { caChain, parseCaCoordinates } from './cif.ts'
 
 import type {
   RowCoordinates,
   RowSuperposition,
 } from './alignmentSuperposition.ts'
-import type { CaCoordinates } from './cif.ts'
+import type { CaCoordinates, Vec3 } from './cif.ts'
 import type { Mat4 } from './superpose.ts'
 import type { MsaViewModel } from 'react-msaview'
 
@@ -40,13 +39,44 @@ const fetchText: FetchText = async url => {
 }
 
 /**
+ * A row's CA positions by file column, 0-based: each residue goes through
+ * `structureResidue` to its `label_seq_id`, then to the CA the mapping's chain
+ * holds there. A residue with no mapping or no CA joins no fit.
+ */
+function rowCoordinates(
+  model: MsaViewModel,
+  row: string,
+  structureId: string,
+  coordinates: CaCoordinates,
+): RowCoordinates {
+  const atColumn = new Map<number, Vec3>()
+  const structure = model.mappedStructures.find(
+    m => m.row === row && m.structure.id === structureId,
+  )?.structure
+  const chain =
+    structure && caChain(coordinates, structure.asymId, structure.asymIdKind)
+  const columns = model.seqPosIndex(row)
+  if (chain && columns) {
+    columns.forEach((column, i) => {
+      const position = model.structureResidue(row, i + 1, structureId)?.position
+      const ca = position === undefined ? undefined : chain.get(position)
+      if (ca) {
+        atColumn.set(column, ca)
+      }
+    })
+  }
+  return { row, atColumn }
+}
+
+/**
  * Superposes the structures of several rows by the alignment. The first target
  * is the reference. Each other row's structure is fitted on the columns where
  * both rows have a CA, limited to `columns` when given, and the CA distance per
  * residue of the reference row comes back as the values of a bar track.
  *
- * Structure files are read as mmCIF; one in another format is skipped with a
- * reason, as is a row that shares a structure with the reference.
+ * Structure files are read as mmCIF or PDB format. A row whose file cannot be
+ * fetched or holds no CA is skipped with a reason, as is a row that shares a
+ * structure with the reference; the reference failing throws.
  */
 export async function superposeRows({
   model,
@@ -67,38 +97,36 @@ export async function superposeRows({
   if (!reference) {
     throw new Error('Pick at least two rows that map onto structures')
   }
-  const urlOf = (structureId: string) =>
-    model.mappedStructures.find(m => m.structure.id === structureId)?.structure
-      .url
-  const cache = new Map<string, Promise<CaCoordinates | undefined>>()
+  const cache = new Map<string, Promise<CaCoordinates>>()
   const coordinatesOf = (structureId: string) => {
-    const url = urlOf(structureId)
+    const url = model.mappedStructures.find(m => m.structure.id === structureId)
+      ?.structure.url
     if (!url) {
-      return Promise.resolve(undefined)
+      return Promise.reject(new Error(`${structureId} has no file to read`))
     }
     let found = cache.get(url)
     if (!found) {
-      found = read(url).then(parseCaCoordinates)
+      found = read(url).then(text => {
+        const parsed = parseCaCoordinates(text)
+        if (!parsed) {
+          throw new Error(`${structureId} holds no CA atoms the page can read`)
+        }
+        return parsed
+      })
       cache.set(url, found)
     }
     return found
   }
 
   const skipped: SuperposeRowsResult['skipped'] = []
-  const refCoordinates = await coordinatesOf(reference.structureId)
-  if (!refCoordinates) {
-    throw new Error(
-      `${reference.structureId} is not an mmCIF file the page can read`,
-    )
-  }
   const referenceRow = rowCoordinates(
     model,
     reference.row,
     reference.structureId,
-    refCoordinates,
+    await coordinatesOf(reference.structureId),
   )
 
-  const others: { structureId: string; coordinates: RowCoordinates }[] = []
+  const others: RowCoordinates[] = []
   const seen = new Set([reference.structureId])
   for (const target of rest) {
     if (seen.has(target.structureId)) {
@@ -108,27 +136,26 @@ export async function superposeRows({
       })
       continue
     }
-    const coordinates = await coordinatesOf(target.structureId)
-    if (!coordinates) {
+    let coordinates
+    try {
+      coordinates = await coordinatesOf(target.structureId)
+    } catch (e) {
       skipped.push({
         row: target.row,
-        reason: `${target.structureId} is not an mmCIF file the page can read`,
+        reason: e instanceof Error ? e.message : String(e),
       })
       continue
     }
     seen.add(target.structureId)
     others.push({
-      structureId: target.structureId,
-      coordinates: {
-        ...rowCoordinates(model, target.row, target.structureId, coordinates),
-        id: target.structureId,
-      },
+      ...rowCoordinates(model, target.row, target.structureId, coordinates),
+      id: target.structureId,
     })
   }
 
   const result = superposeOnColumns(
     referenceRow,
-    others.map(o => o.coordinates),
+    others,
     column =>
       columns === undefined ||
       (column >= columns.start && column <= columns.end),
@@ -142,20 +169,14 @@ export async function superposeRows({
   for (const fit of fits) {
     matrices[fit.structureId] = fit.matrix
   }
-
-  // the column of each residue of the reference row, in order
-  const referenceColumns: number[] = []
-  const sequence = model.rowSequence(reference.row) ?? ''
-  for (let column = 0; column < sequence.length; column++) {
-    if (sequence[column] !== '-' && sequence[column] !== '.') {
-      referenceColumns.push(column)
-    }
-  }
   return {
     referenceId: reference.structureId,
     matrices,
     fits,
-    distanceValues: meanColumnDistances(fits, referenceColumns),
+    distanceValues: meanColumnDistances(
+      fits,
+      Array.from(model.seqPosIndex(reference.row) ?? []),
+    ),
     skipped: [...skipped, ...result.skipped],
   }
 }
