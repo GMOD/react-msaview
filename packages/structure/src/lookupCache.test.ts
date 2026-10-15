@@ -2,10 +2,12 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { networkLookups } from './lookup.ts'
 
+import type * as Identifiers from './identifiers.ts'
+
 const search = vi.hoisted(() => vi.fn())
 
 vi.mock('./identifiers.ts', async original => ({
-  ...(await original<typeof import('./identifiers.ts')>()),
+  ...(await original<typeof Identifiers>()),
   searchAccession: search,
 }))
 
@@ -21,7 +23,7 @@ describe('networkLookups resolveAccession', () => {
     const first = new AbortController()
     const aborted = networkLookups(first.signal).resolveAccession(identifier)
     first.abort()
-    await expect(aborted).rejects.toThrow()
+    await expect(aborted).rejects.toThrow('aborted')
 
     const second = networkLookups(new AbortController().signal)
     const next = second.resolveAccession(identifier)
