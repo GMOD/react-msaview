@@ -1,6 +1,7 @@
 import React from 'react'
 
 import FitScreen from '@mui/icons-material/FitScreen'
+import RestartAlt from '@mui/icons-material/RestartAlt'
 import ZoomIn from '@mui/icons-material/ZoomIn'
 import ZoomOut from '@mui/icons-material/ZoomOut'
 import { IconButton, Tooltip } from '@mui/material'
@@ -35,7 +36,7 @@ const ZoomControls = observer(function ZoomControls({
           <ZoomOut />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Fit to window">
+      <Tooltip title="Fit the whole alignment in the window">
         <IconButton
           aria-label="Fit to window"
           onClick={() => {
@@ -43,6 +44,16 @@ const ZoomControls = observer(function ZoomControls({
           }}
         >
           <FitScreen />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Reset zoom to the default cell size (0)">
+        <IconButton
+          aria-label="Reset zoom"
+          onClick={() => {
+            model.resetZoom()
+          }}
+        >
+          <RestartAlt />
         </IconButton>
       </Tooltip>
     </>

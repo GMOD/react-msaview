@@ -19,6 +19,7 @@ export const keyboardControls: KeyControl[] = [
     shiftKey: true,
   },
   { label: '+ and -', action: 'Zoom in and out', keys: ['+', '=', '-'] },
+  { label: '0', action: 'Reset to the default cell size', keys: ['0'] },
   {
     label: 'Home and End',
     action: 'Jump to the first and last column',

@@ -27,6 +27,9 @@ export function onMsaKey(
     case '-':
       model.zoomOut()
       return true
+    case '0':
+      model.resetZoom()
+      return true
     case 'Home':
       model.setScrollX(0)
       return true

@@ -52,8 +52,9 @@ test('the toolbar zoom holds the column at the center of the view', () => {
   const centerCol = () =>
     (-model.scrollX + model.msaCanvasWidth / 2) / model.colWidth
   expect(centerCol()).toBe(75)
+  // 10 * 1.5 passes the default of 12, so the zoom stops there
   model.zoomIn()
-  expect(model.colWidth).toBe(15)
+  expect(model.colWidth).toBe(12)
   expect(centerCol()).toBeCloseTo(75)
   model.zoomOut()
   model.zoomOut()
@@ -66,7 +67,27 @@ test('the toolbar zoom stops at the cell size limits', () => {
     model.zoomOut()
   }
   expect(model.colWidth).toBe(0.2)
-  expect(model.rowHeight).toBe(1)
+  expect(model.rowHeight).toBe(0.2)
+})
+
+test('a wheel zoom holds at the default cell size before going past it', () => {
+  const model = makeModel()
+  model.resetZoom()
+  model.zoomAtCenter(1.1)
+  model.zoomAtCenter(1.1)
+  expect([model.colWidth, model.rowHeight]).toEqual([12, 16])
+  model.zoomAtCenter(1.1)
+  expect(model.colWidth).toBeCloseTo(12 * 1.1 ** 3)
+})
+
+test('a zoom from either side lands on the default cell size', () => {
+  const model = makeModel()
+  model.setColWidth(11)
+  model.zoomAtCenter(1.2, 'horizontal')
+  expect(model.colWidth).toBe(12)
+  model.setColWidth(13)
+  model.zoomAtCenter(0.8, 'horizontal')
+  expect(model.colWidth).toBe(12)
 })
 
 test('a model with no alignment or no width yet has no viewport', () => {

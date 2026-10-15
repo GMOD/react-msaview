@@ -828,6 +828,30 @@ function sameLength(segment: ResidueSegment) {
   )
 }
 
+// A zoom that passes the default cell size stops on it, and one that starts on
+// it holds there until the wheel has gathered `zoomDetent` worth of scale, so
+// a zoom in or out finds its way back to the default
+const zoomDetent = Math.log(1.3)
+
+function detentZoom(
+  value: number,
+  scale: number,
+  home: number,
+  held: number,
+  min: number,
+) {
+  if (value === home) {
+    const total = held + Math.log(scale)
+    return Math.abs(total) < zoomDetent
+      ? { value, held: total }
+      : { value: clamp(home * Math.exp(total), min, maxCellSize), held: 0 }
+  }
+  const next = clamp(value * scale, min, maxCellSize)
+  return (value - home) * (next - home) < 0
+    ? { value: home, held: 0 }
+    : { value: next, held: 0 }
+}
+
 // fit() divides the viewport by the row or column count and multiplies back, so
 // an exact fit can land a fraction of a pixel over. A plain `>` would then show
 // a scrollbar that shrinks the viewport and leaves a gap.
@@ -1187,6 +1211,12 @@ function stateModelFactory({
        * #volatile
        */
       headerHeight: 0,
+      /**
+       * #volatile
+       * the log scale a wheel zoom has gathered against the detent at the
+       * default column width and row height, per axis
+       */
+      zoomHeld: { col: 0, row: 0 },
       /**
        * #volatile
        * leaves the toolbar out, for a host drawing its own controls. Kept out
@@ -3632,6 +3662,7 @@ function stateModelFactory({
       resetZoom() {
         self.setColWidth(defaultColWidth)
         self.setRowHeight(defaultRowHeight)
+        self.zoomHeld = { col: 0, row: 0 }
       },
       /**
        * #action
@@ -3678,18 +3709,26 @@ function stateModelFactory({
           const colInView = (-self.scrollX + offsetX) / self.colWidth
           const rowInView = (-self.scrollY + offsetY) / self.rowHeight
           if (axis !== 'vertical') {
-            self.colWidth = clamp(
-              self.colWidth * scaleFactor,
+            const { value, held } = detentZoom(
+              self.colWidth,
+              scaleFactor,
+              defaultColWidth,
+              self.zoomHeld.col,
               minColWidth,
-              maxCellSize,
             )
+            self.colWidth = value
+            self.zoomHeld = { ...self.zoomHeld, col: held }
           }
           if (axis !== 'horizontal') {
-            self.rowHeight = clamp(
-              self.rowHeight * scaleFactor,
+            const { value, held } = detentZoom(
+              self.rowHeight,
+              scaleFactor,
+              defaultRowHeight,
+              self.zoomHeld.row,
               minRowHeight,
-              maxCellSize,
             )
+            self.rowHeight = value
+            self.zoomHeld = { ...self.zoomHeld, row: held }
           }
           self.scrollX = clamp(
             offsetX - colInView * self.colWidth,
@@ -4677,23 +4716,26 @@ function stateModelFactory({
        */
       fit() {
         // two passes: each direction's viewport depends on whether the other
-        // overflows (the minimap takes height, the vertical scrollbar width)
+        // overflows (the minimap takes height, the vertical scrollbar width).
+        // Fit shrinks an alignment into the window but never grows one past
+        // the default cell size, which would stretch a small alignment's rows
+        // and columns out of proportion
         transaction(() => {
           for (let pass = 0; pass < 2; pass++) {
-            this.fitHorizontally()
-            this.fitVertically()
+            this.fitHorizontally(defaultColWidth)
+            this.fitVertically(defaultRowHeight)
           }
         })
       },
       /**
        * #action
        */
-      fitVertically() {
+      fitVertically(maxRowHeight = maxCellSize) {
         if (self.numRows > 0) {
           self.rowHeight = clamp(
             self.msaAreaHeight / self.numRows,
             minRowHeight,
-            maxCellSize,
+            maxRowHeight,
           )
         }
         self.scrollY = 0
@@ -4803,13 +4845,13 @@ function stateModelFactory({
       /**
        * #action
        */
-      fitHorizontally() {
+      fitHorizontally(maxColWidth = maxCellSize) {
         if (self.numColumns > 0) {
           // msaCanvasWidth excludes the vertical scrollbar's 20px
           self.colWidth = clamp(
             self.msaCanvasWidth / self.numColumns,
             minColWidth,
-            maxCellSize,
+            maxColWidth,
           )
         }
         self.scrollX = 0

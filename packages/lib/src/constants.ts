@@ -72,7 +72,7 @@ export const labelFitFontSize = fontSizeFor(defaultRowHeight)
 // zoom-in buttons (which otherwise grow unbounded). minColWidth/minRowHeight are
 // the smooth-zoom floors.
 export const minColWidth = 0.2
-export const minRowHeight = 1
+export const minRowHeight = 0.2
 export const maxCellSize = 80
 
 // MSA model defaults

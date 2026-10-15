@@ -67,8 +67,8 @@ you can read one site down the whole family.
   The view centers on the target and lights it, and an entry that names nothing
   turns the box red.
 - **Keyboard**: click the alignment, then the arrow keys move one cell (a page
-  with shift), `+` and `-` zoom, and Home and End jump to the first and last
-  column.
+  with shift), `+` and `-` zoom, `0` resets the zoom, and Home and End jump to
+  the first and last column.
 - **Select** a block of cells by holding shift and dragging across the
   alignment, or a range of columns across every row by dragging along a track,
   such as the Position ruler. The header then shows the block's size, such as
@@ -81,9 +81,13 @@ you can read one site down the whole family.
 - **Zoom on scroll**, the checkbox beside the magnifiers, makes the plain wheel
   zoom, and Shift+wheel then pans. JBrowse 2's views have the same checkbox. The
   `scrollZoomAxis` property limits a wheel zoom to the columns or the rows.
-- **Fit** the alignment to the window with the button beside the magnifiers.
-  **View → Zoom** also fits the width or the height alone, and **Reset zoom**
-  returns to the defaults.
+- **Fit** the alignment to the window with the button beside the magnifiers. It
+  shrinks a large alignment until all of it shows, and leaves a small one at the
+  default cell size. **View → Zoom** also fits the width or the height alone,
+  stretching to fill it.
+- **Reset zoom**, the next button or the `0` key, returns to the default cell
+  size. A zoom that passes the default stops on it, and the wheel holds there
+  briefly before going on.
 - Set a small row height and column width to zoom out far enough to see a whole
   large alignment at once.
 

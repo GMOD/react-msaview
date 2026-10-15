@@ -45,7 +45,31 @@ test('fit leaves no gap and no scrollbar for half a pixel', () => {
   expect(model.showVerticalScrollbar).toBe(false)
   expect(model.showHorizontalScrollbar).toBe(false)
   expect(model.totalHeight).toBeCloseTo(model.msaAreaHeight, 5)
+})
+
+test('fit shrinks into the window but never grows past the default size', () => {
+  const model = makeModel()
+  model.fit()
+  // 17 columns fit at the default width with room to spare
+  expect(model.colWidth).toBe(12)
+  expect(model.rowHeight).toBeLessThan(16)
+  model.fitHorizontally()
   expect(model.totalWidth).toBeCloseTo(model.msaCanvasWidth, 5)
+})
+
+test('fit reaches below a pixel per row for a tall alignment', () => {
+  const model = MSAModelF().create({
+    type: 'MsaView',
+    msaFormat: 'fasta',
+    height: 500,
+    data: {
+      msa: Array.from({ length: 1000 }, (_, i) => `>r${i}\nMKAA`).join('\n'),
+    },
+  })
+  model.setWidth(800)
+  model.fit()
+  expect(model.rowHeight).toBeLessThan(1)
+  expect(model.showVerticalScrollbar).toBe(false)
 })
 
 test('fit measures against the geometry it produces', () => {
