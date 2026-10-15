@@ -259,13 +259,13 @@ export function alignmentSettingsItems(model: MsaViewModel): MenuItem[] {
 // who colors the cells comes first, since a scheme picked while the domains
 // fill them would otherwise change nothing on screen
 export function colorSettingsItems(model: MsaViewModel): MenuItem[] {
-  const { cellFill, allAnnotations } = model
+  const { cellFill, filteredAnnotations } = model
   return [
     { type: 'subHeader', label: 'Fill cells with' },
     radio('Residue colors', cellFill === 'residue', () => {
       model.setCellFill('residue')
     }),
-    ...when(allAnnotations.length > 0, [
+    ...when(filteredAnnotations.length > 0, [
       radio('Domain colors', cellFill === 'domain', () => {
         model.setShowDomains(true)
         model.setCellFill('domain')
