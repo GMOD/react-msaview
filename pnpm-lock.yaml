@@ -328,6 +328,9 @@ importers:
       react:
         specifier: '*'
         version: 19.3.0
+      react-dom:
+        specifier: '*'
+        version: 19.3.0(react@19.3.0)
     devDependencies:
       molstar:
         specifier: ^5.11.0

@@ -22,6 +22,7 @@
     "mobx-react": "*",
     "molstar": "^5.11.0",
     "react": "*",
+    "react-dom": "*",
     "react-msaview": "*"
   },
   "devDependencies": {

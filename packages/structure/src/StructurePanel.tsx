@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { compareStructural, reaction } from 'mobx'
 import { observer } from 'mobx-react'
 import { isBinaryStructureUrl, structureFormatFromContent } from 'p2s_mapper'
+import { schemeResidueColor } from 'react-msaview'
 
 import {
   drawnStructure,
@@ -21,12 +22,14 @@ import {
   rowResidueOfChain,
   solidMappedGroups,
 } from './paint.ts'
+import { identityMatrix } from './superpose.ts'
 
 import type { Molstar, TmAlignment } from './molstar.ts'
 import type { StructureColor } from './paint.ts'
 import type { Loci } from 'molstar/lib/mol-model/loci'
 import type { Structure } from 'molstar/lib/mol-model/structure'
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
+import type { ReactNode } from 'react'
 import type { MsaViewModel } from 'react-msaview'
 
 export interface StructurePanelProps {
@@ -104,6 +107,48 @@ interface Loaded {
   model: Structure['model']
 }
 
+// the file's own first lines say which parser it needs: mmCIF read as PDB
+// loads with no polymer and no error
+async function loadStructure(
+  plugin: PluginUIContext,
+  id: string,
+  url: string,
+): Promise<Loaded | undefined> {
+  let trajectory
+  if (isBinaryStructureUrl(url)) {
+    const data = await plugin.builders.data.download(
+      { url, isBinary: true },
+      { state: { isGhost: true } },
+    )
+    trajectory = await plugin.builders.structure.parseTrajectory(data, 'mmcif')
+  } else {
+    const res = await fetch(url)
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`)
+    }
+    const text = await res.text()
+    const data = await plugin.builders.data.rawData(
+      { data: text, label: id },
+      { state: { isGhost: true } },
+    )
+    trajectory = await plugin.builders.structure.parseTrajectory(
+      data,
+      structureFormatFromContent(text),
+    )
+  }
+  const built = await plugin.builders.structure.hierarchy.applyPreset(
+    trajectory,
+    'default',
+  )
+  const root = built?.structure
+  const structure = root
+    ? plugin.state.data.cells.get(root.ref)?.obj?.data
+    : undefined
+  return root && structure
+    ? { id, ref: root.ref, model: structure.model }
+    : undefined
+}
+
 /**
  * A Mol* view of structures that rows of the alignment map onto. The model
  * drives it: a hovered or clicked alignment cell lights or focuses the residue
@@ -151,8 +196,11 @@ export const StructurePanel = observer(function StructurePanel({
   const framedRef = useRef(false)
   const [state, setState] = useState('Loading structure')
   const [status, setStatus] = useState(idle)
+  const [failed, setFailed] = useState<string[]>([])
   const ready = state === ''
-  const transformKey = JSON.stringify(transforms ?? {})
+  // tm-align ignores `transforms`, so a change to them must not refit
+  const moveKey =
+    fitBy === 'tm-align' ? 'tm-align' : JSON.stringify(transforms ?? {})
 
   useEffect(() => {
     // `key` carries the entries, so the effect depends on the structures shown
@@ -169,12 +217,14 @@ export const StructurePanel = observer(function StructurePanel({
     const life = {
       cancelled: false,
       plugin: undefined as PluginUIContext | undefined,
+      root: undefined as { unmount: () => void } | undefined,
       unsubscribe: [] as (() => void)[],
     }
     const target = document.createElement('div')
     target.style.cssText = 'position:absolute;inset:0'
     hostRef.current?.append(target)
     setState('Loading structure')
+    setFailed([])
 
     void (async () => {
       try {
@@ -185,7 +235,11 @@ export const StructurePanel = observer(function StructurePanel({
         const spec = molstar.DefaultPluginUISpec()
         const plugin = await molstar.createPluginUI({
           target,
-          render: molstar.renderReact18,
+          render: (component: ReactNode, container: Element) => {
+            const root = molstar.createRoot(container)
+            life.root = root
+            root.render(component)
+          },
           spec: {
             ...spec,
             layout: {
@@ -205,55 +259,33 @@ export const StructurePanel = observer(function StructurePanel({
         life.plugin = plugin
         if (life.cancelled) {
           plugin.dispose()
+          life.root?.unmount()
+          target.remove()
           return
         }
         const loaded: Loaded[] = []
+        const problems: string[] = []
         for (const { id, url } of entries) {
-          // the file's own first lines say which parser it needs: mmCIF read
-          // as PDB loads with no polymer and no error
-          let trajectory
-          if (isBinaryStructureUrl(url)) {
-            const data = await plugin.builders.data.download(
-              { url, isBinary: true },
-              { state: { isGhost: true } },
-            )
-            trajectory = await plugin.builders.structure.parseTrajectory(
-              data,
-              'mmcif',
-            )
-          } else {
-            const res = await fetch(url)
-            if (!res.ok) {
-              throw new Error(`${url}: HTTP ${res.status}`)
+          try {
+            const found = await loadStructure(plugin, id, url)
+            if (found) {
+              loaded.push(found)
+            } else {
+              problems.push(`${id} holds no structure to show`)
             }
-            const text = await res.text()
-            const data = await plugin.builders.data.rawData(
-              { data: text, label: id },
-              { state: { isGhost: true } },
+          } catch (e) {
+            problems.push(
+              `${id}: ${e instanceof Error ? e.message : String(e)}`,
             )
-            trajectory = await plugin.builders.structure.parseTrajectory(
-              data,
-              structureFormatFromContent(text),
-            )
-          }
-          const built = await plugin.builders.structure.hierarchy.applyPreset(
-            trajectory,
-            'default',
-          )
-          const root = built?.structure
-          const data2 = root
-            ? plugin.state.data.cells.get(root.ref)?.obj?.data
-            : undefined
-          if (root && data2) {
-            loaded.push({ id, ref: root.ref, model: data2.model })
           }
           if (life.cancelled) {
             return
           }
         }
         if (loaded.length === 0) {
-          throw new Error('the file holds no structure to show')
+          throw new Error(problems.join('; '))
         }
+        setFailed(problems)
         loadedRef.current = loaded
         molstarRef.current = molstar
         pluginRef.current = plugin
@@ -338,7 +370,12 @@ export const StructurePanel = observer(function StructurePanel({
       movedRef.current = new Set()
       framedRef.current = false
       life.plugin?.dispose()
-      target.remove()
+      // React refuses to unmount a root synchronously inside a commit
+      const { root } = life
+      setTimeout(() => {
+        root?.unmount()
+        target.remove()
+      })
     }
   }, [key, model])
 
@@ -355,12 +392,17 @@ export const StructurePanel = observer(function StructurePanel({
             return
           }
           const loaded = loadedRef.current
+          // the fit is onto the pivot's own coordinates, so it stays put
+          const pivot = loaded[0]
+          if (pivot && movedRef.current.delete(pivot.id)) {
+            await transformStructure(plugin, molstar, pivot.ref, identityMatrix)
+          }
           const results = await tmAlignOnto(
             plugin,
             molstar,
             loaded.map(l => l.ref),
           )
-          for (const l of loaded) {
+          for (const l of loaded.slice(1)) {
             movedRef.current.add(l.id)
           }
           frameMapped(plugin, molstar, model, loadedRef.current)
@@ -378,8 +420,7 @@ export const StructurePanel = observer(function StructurePanel({
         })
       return undefined
     }
-    const moves = JSON.parse(transformKey) as Record<string, number[]>
-    const identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    const moves = JSON.parse(moveKey) as Record<string, number[]>
     paintQueue.current = paintQueue.current
       .then(async () => {
         if (pluginRef.current !== plugin) {
@@ -393,7 +434,7 @@ export const StructurePanel = observer(function StructurePanel({
             movedRef.current.add(id)
             moved = true
           } else if (movedRef.current.delete(id)) {
-            await transformStructure(plugin, molstar, ref, identity)
+            await transformStructure(plugin, molstar, ref, identityMatrix)
             moved = true
           }
         }
@@ -406,7 +447,7 @@ export const StructurePanel = observer(function StructurePanel({
         console.error(e)
       })
     return undefined
-  }, [ready, transformKey, fitBy, key, model])
+  }, [ready, moveKey, fitBy, key, model])
 
   useEffect(() => {
     const plugin = pluginRef.current
@@ -521,45 +562,38 @@ export const StructurePanel = observer(function StructurePanel({
         ? [{ ...l, index, residues: polymerResidues(molstar, drawn) }]
         : []
     })
-    const life = { cancelled: false, dispose: () => {} }
-    void import('react-msaview').then(({ schemeResidueColor }) => {
-      if (life.cancelled) {
-        return
-      }
-      life.dispose = reaction(
-        () =>
-          perStructure.map(s => [
-            ...(colorBy !== 'none'
-              ? paintGroups(
+    const dispose = reaction(
+      () =>
+        perStructure.map(s => [
+          ...(colorBy !== 'none'
+            ? paintGroups(
+                model,
+                s.id,
+                s.residues,
+                colorBy === 'scheme'
+                  ? schemeResidueColor(model)
+                  : (row, pos) => conservationColor(model, row, pos),
+              )
+            : several
+              ? solidMappedGroups(
                   model,
                   s.id,
                   s.residues,
-                  colorBy === 'scheme'
-                    ? schemeResidueColor(model)
-                    : (row, pos) => conservationColor(model, row, pos),
+                  solidColor ??
+                    structurePalette[s.index % structurePalette.length]!,
                 )
-              : several
-                ? solidMappedGroups(
-                    model,
-                    s.id,
-                    s.residues,
-                    solidColor ??
-                      structurePalette[s.index % structurePalette.length]!,
-                  )
-                : []),
-            ...(highlights ? highlightGroups(model, s.id, s.residues) : []),
-          ]),
-        groups => {
-          for (const [i, s] of perStructure.entries()) {
-            enqueue(() => paintStructure(plugin, molstar, groups[i]!, s.ref))
-          }
-        },
-        { fireImmediately: true, equals: compareStructural },
-      )
-    })
+              : []),
+          ...(highlights ? highlightGroups(model, s.id, s.residues) : []),
+        ]),
+      groups => {
+        for (const [i, s] of perStructure.entries()) {
+          enqueue(() => paintStructure(plugin, molstar, groups[i]!, s.ref))
+        }
+      },
+      { fireImmediately: true, equals: compareStructural },
+    )
     return () => {
-      life.cancelled = true
-      life.dispose()
+      dispose()
       for (const s of perStructure) {
         enqueue(() => paintStructure(plugin, molstar, [], s.ref))
       }
@@ -595,6 +629,11 @@ export const StructurePanel = observer(function StructurePanel({
           </p>
         ) : null}
       </div>
+      {failed.length > 0 ? (
+        <p role="alert" style={{ margin: '8px 0 0', fontSize: 13 }}>
+          Could not load {failed.join('; ')}
+        </p>
+      ) : null}
       {compact ? null : (
         <p aria-live="polite" style={{ margin: '8px 0 0', fontSize: 14 }}>
           {status}

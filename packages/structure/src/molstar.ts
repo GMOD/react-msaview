@@ -4,7 +4,7 @@ import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
 function importMolstar() {
   return Promise.all([
     import('molstar/lib/mol-plugin-ui'),
-    import('molstar/lib/mol-plugin-ui/react18'),
+    import('react-dom/client'),
     import('molstar/lib/mol-plugin-ui/spec'),
     import('molstar/lib/mol-plugin/config'),
     import('molstar/lib/mol-model/structure'),
@@ -19,7 +19,7 @@ function importMolstar() {
   ]).then(
     ([
       ui,
-      react18,
+      reactDom,
       spec,
       config,
       structure,
@@ -32,7 +32,7 @@ function importMolstar() {
       tmAlignModule,
     ]) => ({
       createPluginUI: ui.createPluginUI,
-      renderReact18: react18.renderReact18,
+      createRoot: reactDom.createRoot,
       DefaultPluginUISpec: spec.DefaultPluginUISpec,
       PluginConfig: config.PluginConfig,
       StructureElement: structure.StructureElement,
