@@ -86,8 +86,36 @@ const fit = await superposeRows({
   after the fit, which is a `columnTracks` bar's `values`
 - Fitting a pocket and reading the distances elsewhere shows where the rest of
   the fold departs from it
+- A fit sets aside the pairs that sit more than twice the RMSD from it and fits
+  again, up to five rounds and never below 40% of the pairs, as PyMOL's `align`
+  does, so a loop the alignment mismatched does not pull the core out of
+  register. `fitted` of `considered` pairs says how many it kept, and
+  `refine: false` keeps them all
 - Structure files are read as mmCIF, and the first model's `ATOM` CA records
   count
+
+## Facets: structures side by side
+
+```tsx
+import { facetsByRowField } from 'react-msaview-structure'
+import { FacetGrid } from 'react-msaview-structure/panel'
+
+const facets = facetsByRowField(model, 'group')
+;<FacetGrid
+  model={model}
+  facets={facets}
+  transforms={fit.matrices}
+  columns={4}
+/>
+```
+
+- A facet is a group of rows, from a field of the row table or from your own
+  grouping with `facetsOfGroups`, with the structures those rows map onto
+- Each facet is its own Mol\* view, so a grid suits a handful of groups
+- Pass the matrices of one `superposeRows` fit over every facet's structures, so
+  all facets share a frame, and the cameras are tied so turning one turns all
+- A structure shows in its facet's color where the alignment covers it and pale
+  where it does not, so a disordered tail or an unaligned domain recedes
 
 ## Show the structure
 
@@ -103,4 +131,10 @@ import { StructurePanel } from 'react-msaview-structure/panel'
   own `scheme`
 - `structureIds` shows several structures, each in its own color unless
   `colorBy` is set, and `transforms` places them
+- `highlights` (on by default) paints the residues the alignment's `highlights`
+  layer marks, on top of the rest, through the rows that map onto the structure
+- `fitBy="tm-align"` superposes by the structures' traces alone and reports
+  TM-score and RMSD through `onTmAlign`
+- The view frames the residues the alignment covers, so a tail does not set the
+  zoom
 - `molstar` is a peer dependency, and the panel loads it on first mount

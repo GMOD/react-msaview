@@ -14,10 +14,12 @@ import {
 } from './molstar.ts'
 import {
   conservationColor,
+  highlightGroups,
+  mappedResidues,
   paintGroups,
   paintStructure,
   rowResidueOfChain,
-  solidGroups,
+  solidMappedGroups,
 } from './paint.ts'
 
 import type { Molstar, TmAlignment } from './molstar.ts'
@@ -45,18 +47,29 @@ export interface StructurePanelProps {
   /** what to paint the structure with; several structures take one color each
    * unless this is set */
   colorBy?: StructureColor
+  /** paint the residues the alignment's `highlights` mark, on top of the rest */
+  highlights?: boolean
+  /** one color for every residue, to tell this panel's structures apart */
+  solidColor?: string
+  /** a line above the view, such as a facet's label */
+  caption?: string
+  /** hides the hover status line, for a small multiple */
+  compact?: boolean
+  /** the Mol* plugin once the structures are loaded, and undefined when it goes */
+  onPlugin?: (plugin: PluginUIContext | undefined) => void
   height?: number
 }
 
-// Okabe-Ito, which stays apart under the common forms of color blindness
+// Cool colors and greys, so the warm colors stay for highlights, which would
+// otherwise sit on a structure of their own color and vanish
 export const structurePalette = [
   '#0072b2',
-  '#d55e00',
   '#009e73',
-  '#cc79a7',
-  '#e69f00',
+  '#7a5195',
   '#56b4e9',
-  '#f0e442',
+  '#6c757d',
+  '#4d9078',
+  '#8c6bb1',
 ]
 
 const idle = 'Hover a residue in the alignment or the structure.'
@@ -106,6 +119,11 @@ export const StructurePanel = observer(function StructurePanel({
   fitBy = 'transforms',
   onTmAlign,
   colorBy = 'none',
+  highlights = true,
+  solidColor,
+  caption,
+  compact = false,
+  onPlugin,
   height = 400,
 }: StructurePanelProps) {
   const mapped = model.mappedStructures
@@ -126,8 +144,11 @@ export const StructurePanel = observer(function StructurePanel({
   // the latest callback, so a new function each render does not refit
   const onTmAlignRef = useRef(onTmAlign)
   onTmAlignRef.current = onTmAlign
+  const onPluginRef = useRef(onPlugin)
+  onPluginRef.current = onPlugin
   // structures a transform has moved, so only those are moved back
   const movedRef = useRef(new Set<string>())
+  const framedRef = useRef(false)
   const [state, setState] = useState('Loading structure')
   const [status, setStatus] = useState(idle)
   const ready = state === ''
@@ -295,6 +316,7 @@ export const StructurePanel = observer(function StructurePanel({
           },
         )
         setState('')
+        onPluginRef.current?.(plugin)
       } catch (e) {
         if (!life.cancelled) {
           console.error(e)
@@ -309,10 +331,12 @@ export const StructurePanel = observer(function StructurePanel({
         fn()
       }
       model.clearHighlight('structure')
+      onPluginRef.current?.(undefined)
       pluginRef.current = undefined
       molstarRef.current = undefined
       loadedRef.current = []
       movedRef.current = new Set()
+      framedRef.current = false
       life.plugin?.dispose()
       target.remove()
     }
@@ -339,7 +363,7 @@ export const StructurePanel = observer(function StructurePanel({
           for (const l of loaded) {
             movedRef.current.add(l.id)
           }
-          plugin.managers.camera.reset()
+          frameMapped(plugin, molstar, model, loadedRef.current)
           onTmAlignRef.current?.(
             Object.fromEntries(
               results.flatMap(r => {
@@ -373,15 +397,16 @@ export const StructurePanel = observer(function StructurePanel({
             moved = true
           }
         }
-        if (moved) {
-          plugin.managers.camera.reset()
+        if (moved || !framedRef.current) {
+          framedRef.current = true
+          frameMapped(plugin, molstar, model, loadedRef.current)
         }
       })
       .catch((e: unknown) => {
         console.error(e)
       })
     return undefined
-  }, [ready, transformKey, fitBy, key])
+  }, [ready, transformKey, fitBy, key, model])
 
   useEffect(() => {
     const plugin = pluginRef.current
@@ -477,8 +502,8 @@ export const StructurePanel = observer(function StructurePanel({
       return undefined
     }
     const loadedNow = loadedRef.current
-    const several = loadedNow.length > 1
-    if (colorBy === 'none' && !several) {
+    const several = loadedNow.length > 1 || solidColor !== undefined
+    if (colorBy === 'none' && !several && !highlights) {
       return undefined
     }
     const enqueue = (step: () => Promise<void>) => {
@@ -503,21 +528,27 @@ export const StructurePanel = observer(function StructurePanel({
       }
       life.dispose = reaction(
         () =>
-          perStructure.map(s =>
-            colorBy === 'none'
-              ? solidGroups(
-                  s.residues,
-                  structurePalette[s.index % structurePalette.length]!,
-                )
-              : paintGroups(
+          perStructure.map(s => [
+            ...(colorBy !== 'none'
+              ? paintGroups(
                   model,
                   s.id,
                   s.residues,
                   colorBy === 'scheme'
                     ? schemeResidueColor(model)
                     : (row, pos) => conservationColor(model, row, pos),
-                ),
-          ),
+                )
+              : several
+                ? solidMappedGroups(
+                    model,
+                    s.id,
+                    s.residues,
+                    solidColor ??
+                      structurePalette[s.index % structurePalette.length]!,
+                  )
+                : []),
+            ...(highlights ? highlightGroups(model, s.id, s.residues) : []),
+          ]),
         groups => {
           for (const [i, s] of perStructure.entries()) {
             enqueue(() => paintStructure(plugin, molstar, groups[i]!, s.ref))
@@ -533,13 +564,18 @@ export const StructurePanel = observer(function StructurePanel({
         enqueue(() => paintStructure(plugin, molstar, [], s.ref))
       }
     }
-  }, [colorBy, ready, model, key])
+  }, [colorBy, highlights, solidColor, ready, model, key])
 
   if (entries.length === 0) {
     return null
   }
   return (
     <div>
+      {caption ? (
+        <div style={{ fontSize: 13, fontWeight: 600, margin: '0 0 4px' }}>
+          {caption}
+        </div>
+      ) : null}
       <div style={{ position: 'relative', height }} ref={hostRef}>
         {state ? (
           <p
@@ -559,12 +595,51 @@ export const StructurePanel = observer(function StructurePanel({
           </p>
         ) : null}
       </div>
-      <p aria-live="polite" style={{ margin: '8px 0 0', fontSize: 14 }}>
-        {status}
-      </p>
+      {compact ? null : (
+        <p aria-live="polite" style={{ margin: '8px 0 0', fontSize: 14 }}>
+          {status}
+        </p>
+      )}
     </div>
   )
 })
+
+/**
+ * Points the camera at the residues the alignment covers, so a disordered tail
+ * or an unaligned domain does not set the zoom. Falls back to the whole view
+ * when nothing is mapped.
+ */
+function frameMapped(
+  plugin: PluginUIContext,
+  molstar: Molstar,
+  model: MsaViewModel,
+  loaded: Loaded[],
+) {
+  const loci = loaded.flatMap(({ id, ref }) => {
+    const drawn = drawnStructure(plugin, molstar, ref)
+    if (!drawn) {
+      return []
+    }
+    const chains = new Map<string, number[]>()
+    for (const r of mappedResidues(
+      model,
+      id,
+      polymerResidues(molstar, drawn),
+    )) {
+      const ids = chains.get(r.labelAsymId) ?? []
+      ids.push(r.labelSeqId)
+      chains.set(r.labelAsymId, ids)
+    }
+    return [...chains].map(([chain, ids]) =>
+      residueLoci(molstar, drawn, ids, chain, 'label'),
+    )
+  })
+  if (loci.length > 0) {
+    plugin.managers.camera.focusLoci(loci)
+  } else {
+    plugin.managers.camera.reset()
+  }
+}
 
 // the first shown structure the hovered or clicked row maps onto
 function pickStructure(

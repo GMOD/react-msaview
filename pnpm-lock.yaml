@@ -220,6 +220,9 @@ importers:
       react-msaview:
         specifier: workspace:*
         version: link:../lib
+      react-msaview-structure:
+        specifier: workspace:*
+        version: link:../structure
       shiki:
         specifier: 4.4.3
         version: 4.4.3

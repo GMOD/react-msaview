@@ -1,3 +1,5 @@
+export { FacetGrid } from './FacetGrid.tsx'
+export type { FacetGridProps } from './FacetGrid.tsx'
 export { StructurePanel, structurePalette } from './StructurePanel.tsx'
 export type { StructurePanelProps } from './StructurePanel.tsx'
 export {

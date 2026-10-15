@@ -52,12 +52,15 @@ export async function superposeRows({
   model,
   targets,
   columns,
+  refine,
   fetchText: read = fetchText,
 }: {
   model: MsaViewModel
   targets: SuperposeTarget[]
   /** file columns, 0-based, inclusive; every column when unset */
   columns?: { start: number; end: number }
+  /** set aside poorly fitting pairs and fit again; on by default */
+  refine?: false
   fetchText?: FetchText
 }): Promise<SuperposeRowsResult> {
   const [reference, ...rest] = targets
@@ -129,6 +132,7 @@ export async function superposeRows({
     column =>
       columns === undefined ||
       (column >= columns.start && column <= columns.end),
+    refine === false ? false : undefined,
   )
   const fits = result.fits.map(fit => ({
     ...fit,

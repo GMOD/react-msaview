@@ -1,4 +1,6 @@
 export { accessionOfRowName } from './accession.ts'
+export { facetsByRowField, facetsOfGroups } from './facets.ts'
+export type { Facet } from './facets.ts'
 export {
   canFindStructures,
   identifiersOfRowName,

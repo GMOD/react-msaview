@@ -69,6 +69,38 @@ describe('superposeOnColumns', () => {
     expect(fit.distances.get(2)).toBeLessThan(1e-6)
   })
 
+  test('sets aside a pair far from the fit and fits the core again', () => {
+    const other = moved(backbone)
+    other[10] = [other[10]![0] + 8, other[10]![1], other[10]![2]]
+    const reference = { row: 'ref', atColumn: columns(backbone) }
+    const target = [{ row: 'other', atColumn: columns(other) }]
+
+    const refined = superposeOnColumns(reference, target).fits[0]!
+    expect(refined.considered).toBe(24)
+    expect(refined.fitted).toBe(23)
+    expect(refined.rmsd).toBeLessThan(1e-6)
+    expect(refined.distances.get(20)).toBeCloseTo(8, 3)
+
+    const plain = superposeOnColumns(reference, target, () => true, false)
+      .fits[0]!
+    expect(plain.fitted).toBe(24)
+    expect(plain.rmsd).toBeGreaterThan(0.5)
+  })
+
+  test('keeps a floor of pairs so a loose alignment cannot empty the fit', () => {
+    // every pair off by a different amount: nothing may be thrown away
+    const other = moved(backbone).map(
+      ([x, y, z], i) => [x + 3 * Math.sin(i), y, z + 3 * Math.cos(i)] as Vec3,
+    )
+    const { fits } = superposeOnColumns(
+      { row: 'ref', atColumn: columns(backbone) },
+      [{ row: 'other', atColumn: columns(other) }],
+    )
+    expect(fits[0]!.fitted).toBeGreaterThanOrEqual(
+      Math.ceil(fits[0]!.considered * 0.4),
+    )
+  })
+
   test('uses only the columns both rows have', () => {
     const { fits } = superposeOnColumns(
       { row: 'ref', atColumn: columns(backbone, 3) },

@@ -14,8 +14,10 @@ export interface RowCoordinates {
 export interface RowSuperposition {
   row: string
   id?: string
-  /** the CA pairs the fit used */
+  /** the CA pairs the final fit used */
   fitted: number
+  /** the pairs the alignment offered before any were set aside */
+  considered: number
   rmsd: number
   /** moves this row's structure into the reference's frame */
   matrix: Mat4
@@ -38,10 +40,76 @@ export interface SuperpositionResult {
  * come out for every shared column, which is how a pocket's fit shows where the
  * rest of the fold departs from it.
  */
+export interface Refinement {
+  /**
+   * a pair farther than this many times the fit's RMSD is set aside, so the
+   * threshold tightens as the fit improves
+   */
+  cutoff: number
+  /** a pair under this distance in Å is never set aside */
+  minDistance: number
+  /** at most this many rounds of fit and set aside */
+  rounds: number
+  /** the fit keeps at least this many pairs, and 40% of those offered */
+  minPairs: number
+}
+
+/** PyMOL's `align` defaults (cutoff 2 RMS, 5 cycles), with a floor so a loose alignment cannot empty the fit */
+export const defaultRefinement: Refinement = {
+  cutoff: 2,
+  minDistance: 1.5,
+  rounds: 5,
+  minPairs: 12,
+}
+
+/**
+ * A fit that sets aside the pairs a first fit leaves far apart and fits again,
+ * so a loop the alignment mismatched or a hinge that moved does not pull the
+ * core out of register. The distances reported afterwards still cover every
+ * shared column, so what was set aside shows as a large distance.
+ */
+function refinedFit(
+  moving: Vec3[],
+  fixed: Vec3[],
+  refinement: Refinement | false,
+) {
+  let used = moving.map((_, i) => i)
+  let fit = fitRigid(moving, fixed)
+  if (!fit || refinement === false) {
+    return fit && { fit, used }
+  }
+  const floor = Math.max(refinement.minPairs, Math.ceil(moving.length * 0.4))
+  for (let round = 0; round < refinement.rounds; round++) {
+    const current = fit
+    const limit = Math.max(
+      refinement.cutoff * current.rmsd,
+      refinement.minDistance,
+    )
+    const keep = used.filter(
+      i =>
+        distance(applyMatrix(current.matrix, moving[i]!), fixed[i]!) <= limit,
+    )
+    if (keep.length === used.length || keep.length < floor) {
+      break
+    }
+    const next = fitRigid(
+      keep.map(i => moving[i]!),
+      keep.map(i => fixed[i]!),
+    )
+    if (!next) {
+      break
+    }
+    used = keep
+    fit = next
+  }
+  return { fit, used }
+}
+
 export function superposeOnColumns(
   reference: RowCoordinates,
   others: RowCoordinates[],
   fitColumns: (column: number) => boolean = () => true,
+  refinement: Refinement | false = defaultRefinement,
 ): SuperpositionResult {
   const fits: RowSuperposition[] = []
   const skipped: SuperpositionResult['skipped'] = []
@@ -55,14 +123,15 @@ export function superposeOnColumns(
         fixed.push(target)
       }
     }
-    const fit = fitRigid(moving, fixed)
-    if (!fit) {
+    const refined = refinedFit(moving, fixed, refinement)
+    if (!refined) {
       skipped.push({
         row: other.row,
         reason: `${moving.length} aligned residues with coordinates in the chosen columns, and a fit takes three`,
       })
       continue
     }
+    const { fit, used } = refined
     const distances = new Map<number, number>()
     for (const [column, position] of other.atColumn) {
       const target = reference.atColumn.get(column)
@@ -76,7 +145,8 @@ export function superposeOnColumns(
     fits.push({
       row: other.row,
       id: other.id,
-      fitted: moving.length,
+      fitted: used.length,
+      considered: moving.length,
       rmsd: fit.rmsd,
       matrix: fit.matrix,
       distances,
