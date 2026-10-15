@@ -190,6 +190,31 @@ export const catalog: CatalogEntry[] = [
       'cell lights its residue on its own row’s chain.',
   },
   {
+    id: 'KinaseLobeFit',
+    name: 'Fit on the columns you select (kinase lobes)',
+    category: 'Protein structure',
+    description:
+      'Four kinases superposed on the selected columns: pick the N- or ' +
+      'C-lobe, or drag along the ruler, and the fit and the CA distance ' +
+      'track follow.',
+  },
+  {
+    id: 'RowIdentifiers',
+    name: 'Rows named any way (p53)',
+    category: 'Protein structure',
+    description:
+      'A RefSeq id, an entry name, a FASTA header, a bare accession and a ' +
+      'name with no id, and the structure each one finds.',
+  },
+  {
+    id: 'FoldseekReplay',
+    name: 'Structures for a row with no id (Foldseek, replayed)',
+    category: 'Protein structure',
+    description:
+      'A recorded Foldseek search for an unnamed globin, mapped in the ' +
+      'browser onto AlphaFold models and the PDB assembly files it searched.',
+  },
+  {
     id: 'DomainLetterColors',
     name: 'Domain boxes or colored letters (p53)',
     category: 'Protein domains',

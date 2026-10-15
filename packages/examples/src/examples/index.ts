@@ -22,6 +22,8 @@ import Ef1a from './Ef1a'
 import Ef1aSrc from './Ef1a.tsx?raw'
 import F12 from './F12'
 import F12Src from './F12.tsx?raw'
+import FoldseekReplay from './FoldseekReplay'
+import FoldseekReplaySrc from './FoldseekReplay.tsx?raw'
 import GeneCluster from './GeneCluster'
 import GeneClusterSrc from './GeneCluster.tsx?raw'
 import Globin from './Globin'
@@ -42,6 +44,8 @@ import KinaseContacts from './KinaseContacts'
 import KinaseContactsSrc from './KinaseContacts.tsx?raw'
 import KinaseFacets from './KinaseFacets'
 import KinaseFacetsSrc from './KinaseFacets.tsx?raw'
+import KinaseLobeFit from './KinaseLobeFit'
+import KinaseLobeFitSrc from './KinaseLobeFit.tsx?raw'
 import LargeTree from './LargeTree'
 import LargeTreeSrc from './LargeTree.tsx?raw'
 import LoadByAccession from './LoadByAccession'
@@ -72,6 +76,8 @@ import Prestin from './Prestin'
 import PrestinSrc from './Prestin.tsx?raw'
 import ProgrammaticControl from './ProgrammaticControl'
 import ProgrammaticControlSrc from './ProgrammaticControl.tsx?raw'
+import RowIdentifiers from './RowIdentifiers'
+import RowIdentifiersSrc from './RowIdentifiers.tsx?raw'
 import SvgFigure from './SvgFigure'
 import SvgFigureSrc from './SvgFigure.tsx?raw'
 import TreeOptions from './TreeOptions'
@@ -109,6 +115,9 @@ const components: Record<string, [ComponentType, string]> = {
   GeneCluster: [GeneCluster, GeneClusterSrc],
   Globin: [Globin, GlobinSrc],
   GlobinSuperposition: [GlobinSuperposition, GlobinSuperpositionSrc],
+  RowIdentifiers: [RowIdentifiers, RowIdentifiersSrc],
+  KinaseLobeFit: [KinaseLobeFit, KinaseLobeFitSrc],
+  FoldseekReplay: [FoldseekReplay, FoldseekReplaySrc],
   HemoglobinChains: [HemoglobinChains, HemoglobinChainsSrc],
   Hammerhead: [Hammerhead, HammerheadSrc],
   HistoneH4: [HistoneH4, HistoneH4Src],
