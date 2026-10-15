@@ -124,3 +124,26 @@ describe('solid colors over the mapped part of a structure', () => {
     ).toEqual([101, 102, 103, 104, 105, 106, 107, 108, 109, 110])
   })
 })
+
+describe('a mapping that names no id space', () => {
+  // label A is author B, and label C is author A, as in 1TUP's DNA and protein
+  const crossed: PolymerResidue[] = [
+    { labelAsymId: 'A', authAsymId: 'B', labelSeqId: 105 },
+    { labelAsymId: 'C', authAsymId: 'A', labelSeqId: 105 },
+  ]
+  const unset = (asymIdKind?: 'auth') =>
+    ({
+      ...fakeModel([]),
+      mappedStructures: [
+        { row: 'r', structure: { id: 'S', asymId: 'A', asymIdKind } },
+      ],
+    }) as unknown as MsaViewModel
+
+  test('reads its chain as the label id the structure carries, never both', () => {
+    expect(mappedResidues(unset(), 'S', crossed)).toEqual([crossed[0]])
+  })
+
+  test('reads an author id as one', () => {
+    expect(mappedResidues(unset('auth'), 'S', crossed)).toEqual([crossed[1]])
+  })
+})

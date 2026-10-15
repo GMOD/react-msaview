@@ -19,30 +19,34 @@ export type ChainResidues = [chain: string, labelSeqIds: number[]][]
 export type PaintGroup = [color: string, chains: ChainResidues]
 
 /**
- * The row residue a structure residue maps to, reading the mapping's own
- * `asymIdKind`: a mapping that says `label` or `auth` is compared on that id
- * alone, and one that says nothing on the label id and then the author id.
+ * Maps a structure's residues to the row residues they correspond to, reading
+ * each mapping's `asymIdKind`. A mapping with no kind reads its chain as a
+ * label id when one of `residues` carries that label, and as an author id
+ * otherwise, so one mapping never lights a chain in each id space. The kinds
+ * are settled once here, since a paint asks for every residue.
  */
-export function rowResidueOfChain(
+export function rowResidueLookup(
   model: MsaViewModel,
   structureId: string,
-  labelSeqId: number,
-  labelAsymId: string,
-  authAsymId: string,
+  residues: PolymerResidue[],
 ) {
+  const labels = new Set(residues.map(r => r.labelAsymId))
   const kinds = new Set(
     model.mappedStructures
       .filter(m => m.structure.id === structureId)
-      .map(m => m.structure.asymIdKind),
+      .map(
+        ({ structure: { asymId, asymIdKind } }) =>
+          asymIdKind ??
+          (asymId === undefined || labels.has(asymId) ? 'label' : 'auth'),
+      ),
   )
-  const byLabel = kinds.has('label') || kinds.has(undefined)
-  const byAuth = kinds.has('auth') || kinds.has(undefined)
-  return (
+  const byLabel = kinds.has('label')
+  const byAuth = kinds.has('auth')
+  return ({ labelSeqId, labelAsymId, authAsymId }: PolymerResidue) =>
     (byLabel
       ? model.rowResidue(structureId, labelSeqId, labelAsymId)
       : undefined) ??
     (byAuth ? model.rowResidue(structureId, labelSeqId, authAsymId) : undefined)
-  )
 }
 
 export function conservationColor(
@@ -76,14 +80,10 @@ export function paintGroups(
   colorOf: (rowName: string, seqPos: number) => string | undefined,
 ): PaintGroup[] {
   const groups = new Map<string, Map<string, number[]>>()
-  for (const { labelAsymId, authAsymId, labelSeqId } of residues) {
-    const hit = rowResidueOfChain(
-      model,
-      structureId,
-      labelSeqId,
-      labelAsymId,
-      authAsymId,
-    )
+  const rowResidueOf = rowResidueLookup(model, structureId, residues)
+  for (const residue of residues) {
+    const { labelAsymId, labelSeqId } = residue
+    const hit = rowResidueOf(residue)
     const color = (hit && colorOf(hit.rowName, hit.seqPos)) ?? noColumnColor
     const chains = groups.get(color) ?? new Map<string, number[]>()
     const ids = chains.get(labelAsymId) ?? []
@@ -138,14 +138,10 @@ export function highlightGroups(
     return []
   }
   const byColor = new Map<string, Map<string, Set<number>>>()
-  for (const { labelAsymId, authAsymId, labelSeqId } of residues) {
-    const hit = rowResidueOfChain(
-      model,
-      structureId,
-      labelSeqId,
-      labelAsymId,
-      authAsymId,
-    )
+  const rowResidueOf = rowResidueLookup(model, structureId, residues)
+  for (const residue of residues) {
+    const { labelAsymId, labelSeqId } = residue
+    const hit = rowResidueOf(residue)
     if (!hit) {
       continue
     }
@@ -217,30 +213,8 @@ export function mappedResidues(
   structureId: string,
   residues: PolymerResidue[],
 ) {
-  return residues.filter(
-    ({ labelAsymId, authAsymId, labelSeqId }) =>
-      rowResidueOfChain(
-        model,
-        structureId,
-        labelSeqId,
-        labelAsymId,
-        authAsymId,
-      ) !== undefined,
-  )
-}
-
-/** every residue of the structure in one color, to tell structures apart */
-export function solidGroups(
-  residues: PolymerResidue[],
-  color: string,
-): PaintGroup[] {
-  const chains = new Map<string, number[]>()
-  for (const { labelAsymId, labelSeqId } of residues) {
-    const ids = chains.get(labelAsymId) ?? []
-    ids.push(labelSeqId)
-    chains.set(labelAsymId, ids)
-  }
-  return [[color, [...chains]]]
+  const rowResidueOf = rowResidueLookup(model, structureId, residues)
+  return residues.filter(r => rowResidueOf(r) !== undefined)
 }
 
 /**
@@ -263,7 +237,9 @@ export async function paintStructure(
       structure =>
         Promise.resolve(
           chains
-            .map(([chain, ids]) => residueLoci(molstar, structure, ids, chain))
+            .map(([chain, ids]) =>
+              residueLoci(molstar, structure, ids, chain, 'label'),
+            )
             .reduce((a, b) => molstar.StructureElement.Loci.union(a, b)),
         ),
     )

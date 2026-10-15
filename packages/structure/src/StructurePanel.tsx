@@ -19,12 +19,12 @@ import {
   mappedResidues,
   paintGroups,
   paintStructure,
-  rowResidueOfChain,
+  rowResidueLookup,
   solidMappedGroups,
 } from './paint.ts'
 import { identityMatrix } from './superpose.ts'
 
-import type { Molstar, TmAlignment } from './molstar.ts'
+import type { Molstar, PolymerResidue, TmAlignment } from './molstar.ts'
 import type { StructureColor } from './paint.ts'
 import type { Loci } from 'molstar/lib/mol-model/loci'
 import type { Structure } from 'molstar/lib/mol-model/structure'
@@ -105,12 +105,14 @@ interface Loaded {
   id: string
   ref: string
   model: Structure['model']
+  residues: PolymerResidue[]
 }
 
 // the file's own first lines say which parser it needs: mmCIF read as PDB
 // loads with no polymer and no error
 async function loadStructure(
   plugin: PluginUIContext,
+  molstar: Molstar,
   id: string,
   url: string,
 ): Promise<Loaded | undefined> {
@@ -145,7 +147,12 @@ async function loadStructure(
     ? plugin.state.data.cells.get(root.ref)?.obj?.data
     : undefined
   return root && structure
-    ? { id, ref: root.ref, model: structure.model }
+    ? {
+        id,
+        ref: root.ref,
+        model: structure.model,
+        residues: polymerResidues(molstar, structure),
+      }
     : undefined
 }
 
@@ -267,7 +274,7 @@ export const StructurePanel = observer(function StructurePanel({
         const problems: string[] = []
         for (const { id, url } of entries) {
           try {
-            const found = await loadStructure(plugin, id, url)
+            const found = await loadStructure(plugin, molstar, id, url)
             if (found) {
               loaded.push(found)
             } else {
@@ -293,17 +300,10 @@ export const StructurePanel = observer(function StructurePanel({
         const lookup = (
           where: NonNullable<ReturnType<typeof readLocation>>,
         ) => {
-          const id = loaded.find(l => l.model === where.model)?.id
-          if (id === undefined) {
-            return undefined
-          }
-          return rowResidueOfChain(
-            model,
-            id,
-            where.labelSeqId,
-            where.labelAsymId,
-            where.authAsymId,
-          )
+          const found = loaded.find(l => l.model === where.model)
+          return found
+            ? rowResidueLookup(model, found.id, found.residues)(where)
+            : undefined
         }
 
         const hover = plugin.behaviors.interaction.hover.subscribe(
@@ -554,14 +554,7 @@ export const StructurePanel = observer(function StructurePanel({
           console.error(e)
         })
     }
-    const perStructure = loadedNow.flatMap((l, index) => {
-      const drawn = plugin.state.data.cells.get(l.ref)?.obj?.data as
-        | Structure
-        | undefined
-      return drawn
-        ? [{ ...l, index, residues: polymerResidues(molstar, drawn) }]
-        : []
-    })
+    const perStructure = loadedNow.map((l, index) => ({ ...l, index }))
     const dispose = reaction(
       () =>
         perStructure.map(s => [
@@ -654,17 +647,13 @@ function frameMapped(
   model: MsaViewModel,
   loaded: Loaded[],
 ) {
-  const loci = loaded.flatMap(({ id, ref }) => {
+  const loci = loaded.flatMap(({ id, ref, residues }) => {
     const drawn = drawnStructure(plugin, molstar, ref)
     if (!drawn) {
       return []
     }
     const chains = new Map<string, number[]>()
-    for (const r of mappedResidues(
-      model,
-      id,
-      polymerResidues(molstar, drawn),
-    )) {
+    for (const r of mappedResidues(model, id, residues)) {
       const ids = chains.get(r.labelAsymId) ?? []
       ids.push(r.labelSeqId)
       chains.set(r.labelAsymId, ids)
