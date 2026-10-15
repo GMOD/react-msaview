@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { tileColorFn } from './components/msa/tileColor.ts'
 import { columnCountsFromColumns } from './columnCounts.ts'
+import { tileColorFn } from './components/msa/tileColor.ts'
 import MSAModelF from './model.ts'
 import {
   blosum62ColumnColors,

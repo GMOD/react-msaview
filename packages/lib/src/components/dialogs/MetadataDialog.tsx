@@ -5,9 +5,9 @@ import { DialogContent, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import MetadataTable, { isEmpty } from '../MetadataTable.tsx'
+import SequenceTextArea from '../SequenceTextArea.tsx'
 import { gfLabels, monospaceKeys, sectionLabels } from './metadataLabels.ts'
 import { groupGeneral } from './metadataRecord.tsx'
-import SequenceTextArea from '../SequenceTextArea.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 
