@@ -794,6 +794,17 @@ colConsensus: {
 colorScheme: Record<string, string>
 ```
 
+#### getter: colSimilarity
+
+Pre-computed similarity shades per column, for blosum62_dynamic. Returns a map
+of letter -> color for each column. Amino acids shade by BLOSUM62 similarity to
+the rest of the column, and an alignment of nucleotides by identity, since the
+matrix names amino acids.
+
+```js
+colSimilarity: (Record < string, string > [])
+```
+
 #### getter: colStats
 
 ```js
