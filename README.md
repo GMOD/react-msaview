@@ -2,12 +2,16 @@
 
 An interactive multiple sequence alignment viewer.
 
+- **In:** an alignment (FASTA, Stockholm, Clustal, A3M or EMF), optionally with
+  a Newick tree and GFF3 domains
+- **Out:** a zoomable view of the tree beside the alignment, a shareable link,
+  or an SVG figure
+
 ![Protein alignment with tree](docs/media/example-protein.svg)
 
 ## Features
 
 - Tree and alignment rendered together, tiled to stay fast on large inputs
-- Parses FASTA, Stockholm, Clustal, A3M, and EMF alignments and Newick/EMF trees
 - Protein domain overlays from GFF3, such as InterProScan output (generate them
   with the [CLI](packages/cli/))
 - Protein and nucleotide color schemes, including per-column dynamic schemes
@@ -45,12 +49,9 @@ export default function App() {
 }
 ```
 
-`MSAViewer` creates the model, measures width and provides the theme. The
-install line is in [USAGE.md](USAGE.md#zero-config-component-recommended); it
-pins the mobx, mobx-state-tree and MUI majors the viewer shares with
-`@jbrowse/core`. That guide also covers the model-based API, the UMD bundle, and
-every prop. The [live examples](https://gmod.org/JBrowseMSA/examples) have
-runnable snippets.
+[USAGE.md](USAGE.md#zero-config-component-recommended) has the install line,
+every prop, the model API and the UMD bundle. The
+[live examples](https://gmod.org/JBrowseMSA/examples) have runnable snippets.
 
 ## Quick start (R)
 
