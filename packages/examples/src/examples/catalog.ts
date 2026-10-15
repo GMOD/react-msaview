@@ -177,23 +177,17 @@ export const catalog: CatalogEntry[] = [
     name: 'A domain motion, fitted three ways (adenylate kinase)',
     category: 'Protein structure',
     description:
-      'E. coli adenylate kinase, crystallized open (4AKE) and closed on an ' +
-      'inhibitor (1AKE), as two rows of one sequence. The page maps each row ' +
-      'onto its own PDB entry and superposes them. Counting every pair ' +
-      'spreads the swing of the two lids over the rigid core; setting the ' +
-      'outliers aside, or fitting the core columns alone, holds the core ' +
-      'still, and the CA distance track then shows how far the LID and NMP ' +
-      'domains travel.',
+      'Adenylate kinase open (4AKE) and closed (1AKE), fitted on every pair, ' +
+      'with outliers set aside, or on the core alone, and the CA distance ' +
+      'track shows how far the two lids swing.',
   },
   {
     id: 'HemoglobinChains',
     name: 'Two rows on two chains of one entry (hemoglobin)',
     category: 'Protein structure',
     description:
-      'The alpha and beta rows of the globin alignment map onto chains A and ' +
-      'B of deoxyhemoglobin, 4HHB, so one structure carries two rows. A ' +
-      'hovered cell lights its residue on its own row’s chain, and the heme ' +
-      'histidines, marked once as column highlights, show on both chains.',
+      'The alpha and beta rows map onto chains A and B of 4HHB, so a hovered ' +
+      'cell lights its residue on its own row’s chain.',
   },
   {
     id: 'DomainLetterColors',
