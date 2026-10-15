@@ -32,7 +32,7 @@ export {
   parseFoldseekResult,
   searchFoldseek,
 } from './foldseek.ts'
-export type { FoldseekFetch, FoldseekHit } from './foldseek.ts'
+export type { FoldseekHit } from './foldseek.ts'
 export type { CaCoordinates, Vec3 } from './cif.ts'
 export { fitRigid } from './superpose.ts'
 export type { Fit, Mat4 } from './superpose.ts'

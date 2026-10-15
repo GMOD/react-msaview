@@ -3,10 +3,9 @@ import {
   describeAlignmentQuality,
   fetchAlphaFoldModels,
   fetchExperimentalStructures,
-  RCSB_DATA_GRAPHQL_URL,
+  fetchLabelChains,
   fetchPdbEntry,
   getPdbStructureUrl,
-  graphqlFetch,
   isLowSimilarity,
   makeUniProtPositionMap,
   pickAlphaFoldModel,
@@ -54,40 +53,6 @@ export interface Lookups {
   labelChain: (pdbId: string, authChain: string) => Promise<string | undefined>
 }
 
-function strings(value: unknown) {
-  return Array.isArray(value)
-    ? value.filter((v): v is string => typeof v === 'string')
-    : []
-}
-
-/**
- * Reads the label id of an author chain off the entry's entities, whose
- * `asym_ids` and `auth_asym_ids` are parallel lists.
- */
-export function labelChainOf(data: unknown, authChain: string) {
-  const entry =
-    typeof data === 'object' && data !== null
-      ? (data as { entry?: unknown }).entry
-      : undefined
-  const entities =
-    typeof entry === 'object' && entry !== null
-      ? (entry as { polymer_entities?: unknown }).polymer_entities
-      : undefined
-  for (const entity of Array.isArray(entities) ? entities : []) {
-    const ids = (entity as Record<string, unknown> | null)
-      ?.rcsb_polymer_entity_container_identifiers as
-      | Record<string, unknown>
-      | undefined
-    const auth = strings(ids?.auth_asym_ids)
-    const label = strings(ids?.asym_ids)
-    const at = auth.indexOf(authChain)
-    if (at !== -1 && auth.length === label.length) {
-      return label[at]
-    }
-  }
-  return undefined
-}
-
 // one resolution per name for the session, since a name in a header repeats
 // across the rows of every alignment that carries it
 const resolved = new Map<string, Promise<string | undefined>>()
@@ -111,15 +76,7 @@ export function networkLookups(signal?: AbortSignal): Lookups {
     experimental: accession => fetchExperimentalStructures(accession, opts),
     pdbEntry: pdbId => fetchPdbEntry(pdbId, opts),
     labelChain: async (pdbId, authChain) =>
-      labelChainOf(
-        await graphqlFetch(
-          RCSB_DATA_GRAPHQL_URL,
-          `{ entry(entry_id: "${pdbId.toUpperCase()}") { polymer_entities { rcsb_polymer_entity_container_identifiers { asym_ids auth_asym_ids } } } }`,
-          undefined,
-          opts,
-        ),
-        authChain,
-      ),
+      (await fetchLabelChains(pdbId, opts)).get(authChain),
   }
 }
 

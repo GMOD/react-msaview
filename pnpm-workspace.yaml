@@ -13,6 +13,8 @@ minimumReleaseAgeExclude:
   - astro
   - tldts
   - tldts-core
+  # our own package, bumped minutes after release; drop once 2.2.0 ages past the window
+  - p2s_mapper
 allowBuilds:
   '@scarf/scarf': false
   core-js-pure: false

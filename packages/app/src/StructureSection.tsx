@@ -208,8 +208,7 @@ const StructureSection = observer(function StructureSection({
     setSearch({ state: 'idle' })
     setFoldseek({ state: 'running', message: 'Starting' })
     try {
-      const hits = await searchFoldseek({
-        sequence,
+      const hits = await searchFoldseek(sequence, {
         signal: controller.signal,
         onStatus: message => {
           if (!controller.signal.aborted) {

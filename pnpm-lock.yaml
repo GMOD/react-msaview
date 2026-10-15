@@ -323,8 +323,8 @@ importers:
         specifier: '*'
         version: 10.0.2(mobx@7.0.3)(react@19.3.0)
       p2s_mapper:
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.2.0
+        version: 2.2.0
       react:
         specifier: '*'
         version: 19.3.0
@@ -3717,8 +3717,8 @@ packages:
     resolution: {integrity: sha512-prbX4Z3YszrFNgH+MW5Zoeq3baXrMtP/MQnFeET90UB/GtGcGDQ5Usg9OCy6ETjTTntOw1SL2z9fMPUppN3Guw==}
     engines: {node: '>=20'}
 
-  p2s_mapper@2.1.0:
-    resolution: {integrity: sha512-WPU/91kcMj/WolPuPchpixSHUTB3LyREnQ17eni0+oa95bBWM+/XYx0nO1tZ5rK0crrG6tMTQzo/a9/0rgjtpw==}
+  p2s_mapper@2.2.0:
+    resolution: {integrity: sha512-nn42jq90Tiwf1QE8a6d1y3Ga0sJ+F28f6XlBPkYQU/CV4PUWbn1p/HlwZxpun3tp10oXaBDpZA9WKZcbTNOWsw==}
 
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
@@ -8167,7 +8167,7 @@ snapshots:
 
   p-timeout@7.0.2: {}
 
-  p2s_mapper@2.1.0:
+  p2s_mapper@2.2.0:
     dependencies:
       g2p_mapper: 2.2.1
 

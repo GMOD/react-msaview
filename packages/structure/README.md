@@ -43,8 +43,7 @@ import {
 } from 'react-msaview-structure'
 
 const rowSequence = model.rowSequence('Human_alpha') ?? ''
-const hits = await searchFoldseek({
-  sequence: foldseekQuery(rowSequence).sequence,
+const hits = await searchFoldseek(foldseekQuery(rowSequence).sequence, {
   onStatus: status => console.log(status),
 })
 const candidates = foldseekCandidates({

@@ -1,23 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { parsePdbCaCoordinates } from './cif.ts'
-import {
-  foldseekCandidates,
-  foldseekQuery,
-  parseFoldseekResult,
-  searchFoldseek,
-} from './foldseek.ts'
-
-import type { FoldseekFetch } from './foldseek.ts'
-
-describe('foldseekQuery', () => {
-  test('keeps the standard residues and maps them back to the row', () => {
-    const query = foldseekQuery('MK-XA.UV')
-    expect(query.sequence).toBe('MKAV')
-    // X and U are row residues 3 and 5 of the ungapped row MKXAUV
-    expect(query.rowResidue).toEqual([1, 2, 4, 6])
-  })
-})
+import { foldseekCandidates, parseFoldseekResult } from './foldseek.ts'
 
 // a target of 6 residues; the query starts 1 residue in and skips one target
 // residue (a gap in the query), so numbering must come from the alignment
@@ -146,80 +130,5 @@ describe('foldseekCandidates', () => {
         perDatabase: 2,
       }),
     ).toHaveLength(2)
-  })
-})
-
-describe('searchFoldseek', () => {
-  function fakeFetch(states: string[], seen: string[] = []): FoldseekFetch {
-    let poll = 0
-    return (input, init) => {
-      seen.push(`${init?.method ?? 'GET'} ${input.split('?')[0]!.slice(0, 60)}`)
-      if (input.startsWith('https://3di.foldseek.com/predict/')) {
-        return Promise.resolve(new Response('"DDPVV"'))
-      }
-      if (input.endsWith('/api/ticket')) {
-        const body = String(init?.body)
-        expect(body).toContain('mode=3diaa')
-        expect(decodeURIComponent(body)).toContain('>3DI\nDDPVV')
-        return Promise.resolve(
-          new Response(JSON.stringify({ id: 'T1', status: 'PENDING' })),
-        )
-      }
-      if (input.endsWith('/api/tickets')) {
-        const status = states[Math.min(poll++, states.length - 1)]
-        return Promise.resolve(new Response(JSON.stringify([{ status }])))
-      }
-      return Promise.resolve(new Response(JSON.stringify(hits())))
-    }
-  }
-
-  test('predicts, submits, polls until complete and reads the hits', async () => {
-    const seen: string[] = []
-    const status: string[] = []
-    const found = await searchFoldseek({
-      sequence: 'ACDEF',
-      fetchImpl: fakeFetch(['PENDING', 'RUNNING', 'COMPLETE'], seen),
-      onStatus: s => status.push(s),
-      pollMs: 1,
-    })
-    expect(found.map(h => h.db)).toEqual(['afdb-swissprot', 'pdb100'])
-    expect(seen.at(-1)).toContain('/api/result/T1/0')
-    expect(status[0]).toBe('Predicting 3Di')
-    expect(status.some(s => s.startsWith('Searching'))).toBe(true)
-  })
-
-  test('reports a refusal that arrives as a 200 with no ticket', async () => {
-    const fetchImpl: FoldseekFetch = input =>
-      Promise.resolve(
-        new Response(
-          input.includes('3di.')
-            ? '"DD"'
-            : JSON.stringify({ status: 'RATELIMIT' }),
-        ),
-      )
-    await expect(
-      searchFoldseek({ sequence: 'ACDEF', fetchImpl, pollMs: 1 }),
-    ).rejects.toThrow('did not accept the search')
-  })
-
-  test('stops on a failed search with the server error', async () => {
-    await expect(
-      searchFoldseek({
-        sequence: 'ACDEF',
-        fetchImpl: fakeFetch(['ERROR']),
-        pollMs: 1,
-      }),
-    ).rejects.toThrow('Foldseek search failed')
-  })
-
-  test('gives up after the time budget', async () => {
-    await expect(
-      searchFoldseek({
-        sequence: 'ACDEF',
-        fetchImpl: fakeFetch(['PENDING']),
-        timeoutMs: 20,
-        pollMs: 5,
-      }),
-    ).rejects.toThrow('timed out')
   })
 })

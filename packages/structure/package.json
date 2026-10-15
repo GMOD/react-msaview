@@ -14,7 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "p2s_mapper": "^2.1.0"
+    "p2s_mapper": "^2.2.0"
   },
   "peerDependencies": {
     "@mui/material": "*",

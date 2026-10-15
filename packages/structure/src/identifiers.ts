@@ -1,5 +1,6 @@
 import {
   isRecognizedDatabaseId,
+  searchUniProtByEntryName,
   searchUniProtEntries,
   stripTrailingVersion,
 } from 'p2s_mapper'
@@ -62,21 +63,6 @@ export function canFindStructures(name: string) {
   )
 }
 
-interface UniProtSearch {
-  results?: {
-    primaryAccession?: unknown
-    entryType?: unknown
-  }[]
-}
-
-function isReviewed(entryType: unknown) {
-  return (
-    typeof entryType === 'string' &&
-    entryType.includes('reviewed') &&
-    !entryType.includes('unreviewed')
-  )
-}
-
 /**
  * The accession a UniProt search names, a reviewed entry before an unreviewed
  * one. A database id goes through p2s_mapper's cross-reference search, and an
@@ -94,20 +80,6 @@ export async function searchAccession(
     )
     return (entries.find(e => e.isReviewed) ?? entries[0])?.accession
   }
-  const query = `id:${value}`
-  const url = `https://rest.uniprot.org/uniprotkb/search?${new URLSearchParams({
-    query,
-    fields: 'accession',
-    format: 'json',
-    size: '5',
-  })}`
-  const res = await fetch(url, signal ? { signal } : undefined)
-  if (!res.ok) {
-    throw new Error(`UniProt answered ${res.status} for ${query}`)
-  }
-  const { results = [] } = (await res.json()) as UniProtSearch
-  const found = results.find(r => isReviewed(r.entryType)) ?? results[0]
-  return typeof found?.primaryAccession === 'string'
-    ? found.primaryAccession
-    : undefined
+  const entries = await searchUniProtByEntryName(value, opts)
+  return entries[0]?.accession
 }
