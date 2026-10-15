@@ -79,6 +79,7 @@ const colorSchemes: Record<string, Record<string, string>> = {
   },
 
   percent_identity_dynamic: {},
+  blosum62_dynamic: {},
   // https://github.com/biotite-dev/biotite/blob/8c460972f8ab904312f130dfb80f3efc8c9bd7c5/src/biotite/sequence/graphics/color_schemes/flower.json
   flower: {
     A: '#b18a51',

@@ -168,9 +168,11 @@ react-msaview-cli export-svg --msa gpcrs.fa \
 `cinema`, and the `jalview_*` family (`jalview_zappo`, `jalview_taylor`,
 `jalview_hydrophobicity`, `jalview_buried`, `jalview_prophelix`,
 `jalview_propstrand`, `jalview_propturn`) color each residue by identity. The
-two `_dynamic` schemes, `clustalx_protein_dynamic` and
-`percent_identity_dynamic`, color each residue by the composition of its column,
-so conserved columns stand out by color. `nucleotide`, `clustalx_dna`,
+three `_dynamic` schemes, `clustalx_protein_dynamic`, `percent_identity_dynamic`
+and `blosum62_dynamic`, color each residue by the composition of its column, so
+conserved columns stand out by color. `blosum62_dynamic` shades each residue by
+its mean BLOSUM62 similarity to the rest of its column, so a conservative
+substitution reads darker than a radical one. `nucleotide`, `clustalx_dna`,
 `jbrowse_dna` and `rainbow_dna` are for DNA; `none` turns background color off.
 
 ### Output

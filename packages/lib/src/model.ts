@@ -110,6 +110,10 @@ import {
 import { resolveScale } from './scales.ts'
 import { buildSeqPosIndex } from './seqPosToGlobalCol.ts'
 import { maxBitsFor } from './sequenceLogo.ts'
+import {
+  blosum62ColumnColors,
+  identityColumnColors,
+} from './similarityColors.ts'
 import { stripDefault } from './stripDefault.ts'
 import { treeTips, widestLabel } from './tipLabels.ts'
 import {
@@ -1265,8 +1269,7 @@ function stateModelFactory({
        * the currently hovered tree node ID and its descendant leaf names
        */
       hoveredTreeNode: undefined as
-        | { nodeId: string; descendantNames: string[] }
-        | undefined,
+        { nodeId: string; descendantNames: string[] } | undefined,
 
       /**
        * #volatile
@@ -2513,6 +2516,22 @@ function stateModelFactory({
         const { colStats } = this
         return Array.from({ length: colStats.numColumns }, (_, col) =>
           clustalXColumnColors(colStats, col),
+        )
+      },
+
+      /**
+       * #getter
+       * Pre-computed similarity shades per column, for blosum62_dynamic.
+       * Returns a map of letter -> color for each column. Amino acids shade by
+       * BLOSUM62 similarity to the rest of the column, and an alignment of
+       * nucleotides by identity, since the matrix names amino acids.
+       */
+      get colSimilarity() {
+        const { colStats, sequenceType } = this
+        const columnColors =
+          sequenceType === 'amino' ? blosum62ColumnColors : identityColumnColors
+        return Array.from({ length: colStats.numColumns }, (_, col) =>
+          columnColors(colStats, col),
         )
       },
 

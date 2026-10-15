@@ -9,6 +9,10 @@ export function tileColorFn(model: MsaViewModel) {
     const { colClustalX } = model
     return (col: number, letter: string) => colClustalX[col]![letter]
   }
+  if (dynamicColorSchemeName === 'blosum62_dynamic') {
+    const { colSimilarity } = model
+    return (col: number, letter: string) => colSimilarity[col]![letter]
+  }
   if (dynamicColorSchemeName === 'percent_identity_dynamic') {
     const { colConsensus } = model
     return (col: number, letter: string) => {
@@ -27,6 +31,9 @@ export function tileColorTable(model: MsaViewModel) {
   const { dynamicColorSchemeName } = model
   if (dynamicColorSchemeName === 'clustalx_protein_dynamic') {
     return model.colClustalX
+  }
+  if (dynamicColorSchemeName === 'blosum62_dynamic') {
+    return model.colSimilarity
   }
   if (dynamicColorSchemeName === 'percent_identity_dynamic') {
     return model.colConsensus

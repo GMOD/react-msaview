@@ -364,7 +364,8 @@ jalview_prophelix, jalview_propstrand, jalview_propturn
 
 **Nucleotide:** nucleotide, jbrowse_dna, rainbow_dna, clustalx_dna
 
-**Dynamic (per-column):** clustalx_protein_dynamic, percent_identity_dynamic
+**Dynamic (per-column):** clustalx_protein_dynamic, percent_identity_dynamic,
+blosum62_dynamic
 
 **No residue colors:** none
 

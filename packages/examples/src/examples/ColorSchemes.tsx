@@ -14,6 +14,7 @@ const colorSchemes = [
   'clustalx_protein',
   'clustalx_protein_dynamic',
   'percent_identity_dynamic',
+  'blosum62_dynamic',
   'lesk',
   'cinema',
   'flower',
