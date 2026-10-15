@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 
 import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
+import { canGoTo } from './GoToBox.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { TreeOrder } from '../../types.ts'
@@ -10,6 +11,7 @@ const GapThresholdDialog = lazy(
   () => import('../dialogs/GapThresholdDialog.tsx'),
 )
 const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog.tsx'))
+const GoToDialog = lazy(() => import('../dialogs/GoToDialog.tsx'))
 
 function radio(label: string, checked: boolean, onClick: () => void) {
   return { label, type: 'radio' as const, checked, onClick }
@@ -86,6 +88,17 @@ export function gapsSubMenu(model: MsaViewModel): MenuItem[] {
 export function viewMenuItems(model: MsaViewModel): MenuItem[] {
   const { drawMsaLetters, scrollZoom, showColumnStats } = model
   return [
+    ...(canGoTo(model)
+      ? [
+          {
+            label: 'Go to row or column…',
+            onClick: () => {
+              model.queueDialog(onClose => [GoToDialog, { model, onClose }])
+            },
+          },
+          { type: 'divider' as const },
+        ]
+      : []),
     {
       label: 'Tracks',
       type: 'subMenu' as const,

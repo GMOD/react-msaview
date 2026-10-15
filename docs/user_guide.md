@@ -62,10 +62,10 @@ The **?** button at the right of the header lists every mouse gesture and key
 below, and links to the color scheme credits.
 
 - **Pan** by click-dragging the alignment, or scroll vertically/horizontally.
-- **Go to** a row, a column or a residue from the box in the header: a row name,
-  which completes as you type, a column number as the ruler reads it, or
-  `name:N` for residue N of that row. The view centers on the target and lights
-  it, and an entry that names nothing turns the box red.
+- **View → Go to row or column…** takes a row name, which completes as you type,
+  a column number as the ruler reads it, or `name:N` for residue N of that row.
+  The view centers on the target and lights it, and an entry that names nothing
+  turns the box red.
 - **Keyboard**: click the alignment, then the arrow keys move one cell (a page
   with shift), `+` and `-` zoom, and Home and End jump to the first and last
   column.
@@ -164,7 +164,7 @@ so a published figure states the scale of its branches.
 
 The **Tree** menu sets the child order and the root, and toggles branch-length
 rendering, right-aligned vs tree-adjacent labels, and the node circles. For an
-alignment loaded without a tree it holds only **Build neighbor joining tree
+alignment loaded without a tree, the menu offers **Build neighbor joining tree
 (BLOSUM62)**, which builds a quick tree up to 500 rows. On a larger alignment
 the calculation would freeze the page for several seconds or more, so the menu
 item explains the limit and does not run. Build a tree that size with FastTree

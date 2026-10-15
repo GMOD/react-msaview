@@ -8,7 +8,6 @@ import { observer } from 'mobx-react'
 import StatusMessage from '../StatusMessage.tsx'
 import ColorSchemeMenu from './ColorSchemeMenu.tsx'
 import FileMenu from './FileMenu.tsx'
-import GoToBox from './GoToBox.tsx'
 import HeaderInfoArea from './HeaderInfoArea.tsx'
 import HiddenColumnsChip from './HiddenColumnsChip.tsx'
 import LoadWarnings from './LoadWarnings.tsx'
@@ -41,7 +40,6 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
       <TreeSettingsMenu model={model} />
       <MSASettingsMenu model={model} />
       <ZoomControls model={model} />
-      <GoToBox model={model} />
       <HiddenColumnsChip model={model} />
       <div style={{ paddingLeft: 20, margin: 'auto' }}>
         <MultiAlignmentSelector model={model} />

@@ -26,14 +26,32 @@ export function labelledInput(params: AutocompleteRenderInputParams) {
     : { inputProps: { ...inputProps, 'aria-label': label } }
 }
 
-const GoToBox = observer(function ({ model }: { model: MsaViewModel }) {
+// the menu that opens the dialog hands focus back to its button as it closes,
+// after an autoFocus input would have taken it
+function focusNextFrame(el: HTMLInputElement | null) {
+  if (el) {
+    requestAnimationFrame(() => {
+      el.focus()
+    })
+  }
+}
+
+export function canGoTo(model: MsaViewModel) {
+  return findableRowNames(model).length > 1 || model.numColumns > 0
+}
+
+const GoToBox = observer(function ({
+  model,
+  onFound,
+}: {
+  model: MsaViewModel
+  onFound?: () => void
+}) {
   const [missed, setMissed] = useState(false)
-  const names = findableRowNames(model)
-  return names.length > 1 || model.numColumns > 0 ? (
+  return (
     <Autocomplete
       freeSolo
-      size="small"
-      options={names}
+      options={findableRowNames(model)}
       filterOptions={(options, { inputValue }) =>
         rowNameSuggestions(options, inputValue)
       }
@@ -44,21 +62,29 @@ const GoToBox = observer(function ({ model }: { model: MsaViewModel }) {
       }}
       onChange={(_, text) => {
         if (text) {
-          setMissed(!goTo(model, text))
+          const found = goTo(model, text)
+          setMissed(!found)
+          if (found) {
+            onFound?.()
+          }
         }
       }}
-      style={{ width: 180, margin: 'auto 8px' }}
       renderInput={params => (
         <TextField
           {...params}
+          inputRef={focusNextFrame}
           error={missed}
-          placeholder={label}
-          title="A row name, a column number, or name:residue"
+          placeholder="Row name or column number"
+          helperText={
+            missed
+              ? 'No row or column matches'
+              : 'Or name:N for residue N of that row'
+          }
           {...labelledInput(params)}
         />
       )}
     />
-  ) : null
+  )
 })
 
 export default GoToBox

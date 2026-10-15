@@ -10,6 +10,7 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeAll, beforeEach, expect, test } from 'vitest'
 
 import MSAView from './components/Loading.tsx'
+import { viewMenuItems } from './components/header/settingsMenuItems.ts'
 import { scaleBarLength } from './components/tree/scaleBar.ts'
 import MSAModelF from './model.ts'
 
@@ -117,10 +118,12 @@ test('the view mounts with both scrollbars', () => {
   expect(byCursor('ns-resize')).toHaveLength(2)
 })
 
-test('the header offers a go-to box', () => {
+test('the view menu offers go-to', () => {
   expect(
-    container.querySelector('input[placeholder="Go to row or column"]'),
-  ).toBeTruthy()
+    viewMenuItems(model).some(
+      item => 'label' in item && item.label === 'Go to row or column…',
+    ),
+  ).toBe(true)
 })
 
 test('dragging the tree divider widens the tree area', async () => {
