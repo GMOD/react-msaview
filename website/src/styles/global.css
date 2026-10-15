@@ -183,6 +183,47 @@ body.app-layout .site-footer {
   margin: 1em 0;
 }
 
+/* the Web | R switch; with no script both panels show and the switch hides */
+.usage {
+  margin: 1.5em 0;
+}
+
+html:not([data-usage]) .usage-switch {
+  display: none;
+}
+
+html[data-usage='web'] .usage-panel:not([data-usage='web']),
+html[data-usage='r'] .usage-panel:not([data-usage='r']) {
+  display: none;
+}
+
+.usage-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.usage-switch button {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 4px 14px;
+  border: 0;
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.usage-switch button + button {
+  border-left: 1px solid var(--border);
+}
+
+html[data-usage='web'] .usage-switch [data-usage-pick='web'],
+html[data-usage='r'] .usage-switch [data-usage-pick='r'] {
+  background: var(--accent);
+  color: #fff;
+}
+
 .prose summary {
   cursor: pointer;
   color: var(--muted);

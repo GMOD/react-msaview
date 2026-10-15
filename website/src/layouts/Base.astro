@@ -49,6 +49,27 @@ const socialImage = new URL(
     <meta name="twitter:title" content={title} />
     {description && <meta name="twitter:description" content={description} />}
     <meta name="twitter:image" content={socialImage} />
+    <script is:inline>
+      // the Web | R switch on the tutorials: the reader's pick, kept across
+      // pages and set before first paint so the other half never flashes
+      ;(() => {
+        const root = document.documentElement
+        try {
+          root.dataset.usage = localStorage.getItem('usage') ?? 'web'
+        } catch {
+          root.dataset.usage = 'web'
+        }
+        document.addEventListener('click', event => {
+          const pick = event.target.closest?.('[data-usage-pick]')
+          if (pick) {
+            root.dataset.usage = pick.dataset.usagePick
+            try {
+              localStorage.setItem('usage', pick.dataset.usagePick)
+            } catch {}
+          }
+        })
+      })()
+    </script>
   </head>
   <body class:list={{ 'app-layout': fullBleed }}>
     <header class="site-header">

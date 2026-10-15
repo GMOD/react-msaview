@@ -173,6 +173,8 @@ the viewer reads a tree from.
 
 ## 6. Open it
 
+<!-- usage: web -->
+
 The alignment, its consensus structure, the SAM contacts and the tree now travel
 in one Stockholm file, so a `#data=` link needs only its URL.
 
@@ -198,6 +200,33 @@ drawn as they stand: `RNA_ligand_SAM`, with an X at each column that touches the
 ligand, and `RF`, the model's own consensus sequence. The blank band across the
 middle is the variable stem loop, which holds most of the 62 columns that are
 gaps in 90% or more of the rows.
+
+<!-- usage: r -->
+
+The alignment, its consensus structure, the SAM contacts and the tree now travel
+in one Stockholm file, so [ggmsaview](https://github.com/GMOD/ggmsaview) needs
+only its URL. `w` alone opens the viewer in RStudio or a notebook, and
+`msaview_plot()` draws the same view as a ggplot2 figure:
+
+```r
+library(ggmsaview)
+w <- msaview(
+  msa = "https://gmod.org/JBrowseMSA/demo/data/rna/sam-riboswitch.sto",
+  color_scheme = "nucleotide"
+)
+w
+ggplot2::ggsave("rna-family-overview-r.png", msaview_plot(w),
+  width = 10, height = 9)
+```
+
+![](../media/rna-family-overview-r.png)
+
+The 37 riboswitches over 187 columns, under the file's three `#=GC` rows, the
+Base pairs arcs (blue for the nested helices, red for the pseudoknot) and the
+conservation bars, with the `#=GF NH` tree on the left. The blank band across
+the middle is the variable stem loop.
+
+<!-- /usage -->
 
 ## 7. The pseudoknot
 

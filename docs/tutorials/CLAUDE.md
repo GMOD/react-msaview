@@ -65,6 +65,43 @@ start. Keep their wording consistent rather than cutting them.
 paragraph, no naming a wrong inference to refute it, no "the honest result".
 Gene symbols are `_italic_` in prose and bare in captions and headings.
 
+## Web and R
+
+The step that opens the finished result gives it two ways, behind a Web | R
+switch the site keeps across pages: the `#data=` link, and the same view in R
+with [ggmsaview](https://github.com/GMOD/ggmsaview). `rna_family.md` step 6 is
+the model:
+
+```md
+<!-- usage: web -->
+
+The snapshot fence, the figure link and its caption, as before.
+
+<!-- usage: r -->
+
+One sentence on what ggmsaview reads, then a fence that builds `w` with
+`msaview()` and its layers over the hosted files, prints `w`, and `ggsave()`s
+`msaview_plot(w)` to the figure below.
+
+![](../media/<topic>-<step>-r.png)
+
+Caption: what the ggplot2 figure shows.
+
+<!-- /usage -->
+```
+
+- The R fence reads the files at `https://gmod.org/JBrowseMSA/demo/data/...`,
+  the same ones the link loads, and a metadata TSV through `read.delim()` into
+  `geom_msa_rowdata()`
+- It carries the view's content, not its zoom or scroll: `col_width`, `scrollX`
+  and `height` belong to the web half
+- `Rscript scripts/tutorials-r.R <topic>` runs every R fence the way a reader
+  pastes it, and copies each file it saves that its panel shows into
+  `docs/media`. `pnpm media:push` then uploads it, like any figure
+- A view the R API cannot express gets the nearest ggmsaview figure and a
+  caption saying what it leaves out; the gap goes to GMOD/ggmsaview, not into
+  the tutorial
+
 ## Figures
 
 A figure is a linked image followed by its caption paragraph; `wrapFigures` in

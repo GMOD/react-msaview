@@ -28,6 +28,51 @@ function rewriteMarkdownImages() {
   }
 }
 
+const usageLabels = { web: 'Web', r: 'R' }
+const usageMarker = /^<!--\s*(?:usage:\s*(\w+)|\/usage)\s*-->$/
+
+// Group the blocks between `<!-- usage: web -->`, `<!-- usage: r -->` and
+// `<!-- /usage -->` into one panel per usage behind a Web | R switch. Base.astro
+// keeps the reader's pick on <html>, so every tutorial opens on it; with no
+// script, and on GitHub, both halves show one after the other.
+function usageTabs() {
+  const node = (hName, hProperties, children) => ({
+    type: 'usage',
+    data: { hName, hProperties },
+    children,
+  })
+  return tree => {
+    const out = []
+    let panels
+    for (const child of tree.children) {
+      const m = child.type === 'html' && usageMarker.exec(child.value.trim())
+      if (!m) {
+        ;(panels ? panels.at(-1).children : out).push(child)
+      } else if (m[1]) {
+        panels ??= []
+        panels.push(
+          node('div', { className: ['usage-panel'], dataUsage: m[1] }, []),
+        )
+      } else if (panels) {
+        const switches = panels.map(panel => {
+          const usage = panel.data.hProperties.dataUsage
+          return node('button', { type: 'button', dataUsagePick: usage }, [
+            { type: 'text', value: usageLabels[usage] ?? usage },
+          ])
+        })
+        out.push(
+          node('div', { className: ['usage'] }, [
+            node('div', { className: ['usage-switch'] }, switches),
+            ...panels,
+          ]),
+        )
+        panels = undefined
+      }
+    }
+    tree.children = out
+  }
+}
+
 // Wrap a standalone screenshot (a <p> containing only an <img>, or an <img>
 // wrapped in a single <a> when the figure links to a live demo) together with
 // the descriptive paragraph right after it into a <figure>, so screenshots read
@@ -140,7 +185,7 @@ export default defineConfig({
   integrations: [react()],
   markdown: {
     processor: unified({
-      remarkPlugins: [rewriteMarkdownImages],
+      remarkPlugins: [rewriteMarkdownImages, usageTabs],
       rehypePlugins: [wrapFigures, rehypeHeadingIds, headingAnchors],
     }),
   },
