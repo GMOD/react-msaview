@@ -2501,6 +2501,15 @@ resize every track sharing a `heightKey`; see `trackHeights`
 setTrackHeight: (heightKey: string, height: number) => void
 ```
 
+#### action: setTracksShown
+
+show or hide several tracks at once, as the track selector's Show all and Hide
+all do
+
+```js
+setTracksShown: (ids: string[], shown: boolean) => void
+```
+
 #### action: setTree
 
 ```js
