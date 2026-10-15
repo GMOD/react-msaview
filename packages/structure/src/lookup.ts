@@ -54,24 +54,47 @@ export interface Lookups {
 }
 
 // one resolution per name for the session, since a name in a header repeats
-// across the rows of every alignment that carries it
+// across the rows of every alignment that carries it. The shared request runs
+// without any caller's signal, so one caller aborting leaves it for the next.
 const resolved = new Map<string, Promise<string | undefined>>()
+
+function abortable<T>(promise: Promise<T>, signal?: AbortSignal) {
+  if (!signal) {
+    return promise
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      reject(signal.reason)
+    }
+    if (signal.aborted) {
+      onAbort()
+      return
+    }
+    signal.addEventListener('abort', onAbort, { once: true })
+    promise.then(resolve, reject).finally(() => {
+      signal.removeEventListener('abort', onAbort)
+    })
+  })
+}
+
+function resolveAccessionShared(identifier: RowIdentifier) {
+  const key = `${identifier.kind}:${identifier.value}`
+  let found = resolved.get(key)
+  if (!found) {
+    found = searchAccession(identifier)
+    resolved.set(key, found)
+    found.catch(() => {
+      resolved.delete(key)
+    })
+  }
+  return found
+}
 
 export function networkLookups(signal?: AbortSignal): Lookups {
   const opts = signal ? { signal } : undefined
   return {
-    resolveAccession: identifier => {
-      const key = `${identifier.kind}:${identifier.value}`
-      let found = resolved.get(key)
-      if (!found) {
-        found = searchAccession(identifier, signal)
-        resolved.set(key, found)
-        found.catch(() => {
-          resolved.delete(key)
-        })
-      }
-      return found
-    },
+    resolveAccession: identifier =>
+      abortable(resolveAccessionShared(identifier), signal),
     alphaFoldModels: accession => fetchAlphaFoldModels(accession, opts),
     experimental: accession => fetchExperimentalStructures(accession, opts),
     pdbEntry: pdbId => fetchPdbEntry(pdbId, opts),
