@@ -358,6 +358,8 @@ helix over Human residues 321 to 340 by NMR.
 
 ## 9. Open the whole thing
 
+<!-- usage: web -->
+
 The view combines four hosted files and three layers. The files go behind URLs,
 and the tracks, the highlights and the row panels go in the link:
 
@@ -387,6 +389,45 @@ characters encoded.
 
 The final view: the two tracks above, the four strips beside the tree, the Pfam
 bands in blue and each row's runs under pLDDT 50 in orange.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the four hosted files and
+`tardbp-layers.json` as they stand: the row data and the layers come in through
+jsonlite, and `msaview()` takes the tracks, highlights and row panels with no
+encoding. `w` alone opens the viewer in RStudio or a notebook, and
+`msaview_plot()` draws the view as a ggplot2 figure:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/tdp43/"
+layers <- jsonlite::fromJSON(paste0(data, "tardbp-layers.json"),
+  simplifyVector = FALSE)
+w <- msaview(
+  msa = paste0(data, "tardbp.afa"),
+  tree = paste0(data, "tardbp.nwk"),
+  gff = paste0(data, "tardbp-lowconf.gff"),
+  color_scheme = "clustalx_protein_dynamic",
+  row_data = jsonlite::fromJSON(paste0(data, "tardbp-rowdata.json")),
+  column_tracks = layers$columnTracks,
+  highlights = layers$highlights,
+  row_panels = layers$rowPanels
+)
+w
+ggplot2::ggsave("alphafold-confidence-r.png",
+  msaview_plot(w, tracks = c("plddt-mean", "plddt-band")),
+  width = 12, height = 6)
+```
+
+![](../media/alphafold-confidence-r.png)
+
+The 14 rows over 431 columns: the mean pLDDT bars and the pLDDT band strip
+above, the four domain strips beside the tree, the Pfam bands in blue and each
+row's runs under pLDDT 50 in orange. Mean pLDDT stays high over the N-terminal
+domain and the two RRMs and drops across the C-terminal domain, where every row
+carries a long low-confidence run.
+
+<!-- /usage -->
 
 ## Reproduce it end to end
 
