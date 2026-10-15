@@ -4,7 +4,7 @@ import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 import { observer } from 'mobx-react'
 
 import colorSchemes from '../../colorSchemes.ts'
-import MenuButtonLabel from './MenuButtonLabel.tsx'
+import MenuButtonLabel, { menuButtonSx } from './MenuButtonLabel.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { MenuItem } from '@jbrowse/core/ui/Menu'
@@ -17,75 +17,69 @@ interface SchemeEntry {
   alphabet: Alphabet
   // the static scheme a swatch borrows its colors from
   swatchFrom?: string
+  // shown at the top level for its alphabet, the rest under More schemes
+  featured?: boolean
 }
 
-const schemeGroups: { title: string; entries: SchemeEntry[] }[] = [
+const schemes: SchemeEntry[] = [
+  { name: 'maeditor', label: 'MAEditor', alphabet: 'protein', featured: true },
   {
-    title: 'Any alignment',
-    entries: [
-      { name: 'none', label: 'None', alphabet: 'any' },
-      {
-        name: 'percent_identity_dynamic',
-        label: 'Percent identity',
-        alphabet: 'any',
-      },
-    ],
+    name: 'clustalx_protein',
+    label: 'Clustal X',
+    alphabet: 'protein',
+    featured: true,
   },
   {
-    title: 'Nucleotide',
-    entries: [
-      { name: 'nucleotide', label: 'Nucleotide', alphabet: 'nucleotide' },
-      { name: 'clustalx_dna', label: 'Clustal X', alphabet: 'nucleotide' },
-      { name: 'rainbow_dna', label: 'Rainbow', alphabet: 'nucleotide' },
-      { name: 'jbrowse_dna', label: 'JBrowse', alphabet: 'nucleotide' },
-    ],
+    name: 'clustalx_protein_dynamic',
+    label: 'Clustal X, by column conservation',
+    alphabet: 'protein',
+    swatchFrom: 'clustalx_protein',
+    featured: true,
   },
   {
-    title: 'Protein',
-    entries: [
-      { name: 'maeditor', label: 'MAEditor', alphabet: 'protein' },
-      { name: 'clustal', label: 'Clustal', alphabet: 'protein' },
-      { name: 'clustalx_protein', label: 'Clustal X', alphabet: 'protein' },
-      {
-        name: 'clustalx_protein_dynamic',
-        label: 'Clustal X, by column conservation',
-        alphabet: 'protein',
-        swatchFrom: 'clustalx_protein',
-      },
-      { name: 'lesk', label: 'Lesk', alphabet: 'protein' },
-      { name: 'flower', label: 'Flower', alphabet: 'protein' },
-      { name: 'cinema', label: 'Cinema', alphabet: 'protein' },
-      { name: 'jalview_zappo', label: 'Zappo', alphabet: 'protein' },
-      { name: 'jalview_taylor', label: 'Taylor', alphabet: 'protein' },
-    ],
+    name: 'jalview_hydrophobicity',
+    label: 'Hydrophobicity',
+    alphabet: 'protein',
+    featured: true,
   },
   {
-    title: 'Protein property',
-    entries: [
-      {
-        name: 'jalview_hydrophobicity',
-        label: 'Hydrophobicity',
-        alphabet: 'protein',
-      },
-      { name: 'jalview_buried', label: 'Buried index', alphabet: 'protein' },
-      {
-        name: 'jalview_prophelix',
-        label: 'Helix propensity',
-        alphabet: 'protein',
-      },
-      {
-        name: 'jalview_propstrand',
-        label: 'Strand propensity',
-        alphabet: 'protein',
-      },
-      {
-        name: 'jalview_propturn',
-        label: 'Turn propensity',
-        alphabet: 'protein',
-      },
-    ],
+    name: 'nucleotide',
+    label: 'Nucleotide',
+    alphabet: 'nucleotide',
+    featured: true,
   },
+  {
+    name: 'rainbow_dna',
+    label: 'Rainbow',
+    alphabet: 'nucleotide',
+    featured: true,
+  },
+  {
+    name: 'percent_identity_dynamic',
+    label: 'Percent identity',
+    alphabet: 'any',
+    featured: true,
+  },
+  { name: 'none', label: 'None', alphabet: 'any', featured: true },
+  { name: 'clustal', label: 'Clustal', alphabet: 'protein' },
+  { name: 'lesk', label: 'Lesk', alphabet: 'protein' },
+  { name: 'flower', label: 'Flower', alphabet: 'protein' },
+  { name: 'cinema', label: 'Cinema', alphabet: 'protein' },
+  { name: 'jalview_zappo', label: 'Zappo', alphabet: 'protein' },
+  { name: 'jalview_taylor', label: 'Taylor', alphabet: 'protein' },
+  { name: 'jalview_buried', label: 'Buried index', alphabet: 'protein' },
+  { name: 'jalview_prophelix', label: 'Helix propensity', alphabet: 'protein' },
+  {
+    name: 'jalview_propstrand',
+    label: 'Strand propensity',
+    alphabet: 'protein',
+  },
+  { name: 'jalview_propturn', label: 'Turn propensity', alphabet: 'protein' },
+  { name: 'clustalx_dna', label: 'Clustal X (DNA)', alphabet: 'nucleotide' },
+  { name: 'jbrowse_dna', label: 'JBrowse (DNA)', alphabet: 'nucleotide' },
 ]
+
+export const catalogedSchemeNames = schemes.map(s => s.name)
 
 const swatchLetters: Record<Alphabet, string[]> = {
   any: [],
@@ -113,25 +107,14 @@ function makeSwatch(entry: SchemeEntry) {
   }
 }
 
-const swatches = new Map(
-  schemeGroups.flatMap(g => g.entries.map(e => [e.name, makeSwatch(e)])),
-)
-
-export const catalogedSchemeNames = [...swatches.keys()]
-
-function fitsAlphabet(model: MsaViewModel, alphabet: Alphabet) {
-  return (
-    alphabet === 'any' ||
-    (alphabet === 'protein') === (model.sequenceType === 'amino')
-  )
-}
+const swatches = new Map(schemes.map(e => [e.name, makeSwatch(e)]))
 
 // While a `customColorScheme` map is set, a checked Custom entry stands for it
 // and no named scheme is checked. Picking a named scheme clears the map. The
-// schemes for the other alphabet go in a submenu at the end, except the
-// checked one, which stays at the top level.
+// active scheme always shows at the top level.
 export function colorSchemeMenuItems(model: MsaViewModel): MenuItem[] {
-  const { colorSchemeName, customColorScheme } = model
+  const { colorSchemeName, customColorScheme, sequenceType, bgColor } = model
+  const alphabet = sequenceType === 'amino' ? 'protein' : 'nucleotide'
   function radio(entry: SchemeEntry) {
     return {
       label: entry.label,
@@ -143,11 +126,9 @@ export function colorSchemeMenuItems(model: MsaViewModel): MenuItem[] {
       },
     } as const
   }
-  const shown = (e: SchemeEntry) =>
-    fitsAlphabet(model, e.alphabet) || e.name === colorSchemeName
-  const others = schemeGroups.flatMap(g =>
-    g.entries.filter(e => !shown(e)).map(e => radio(e)),
-  )
+  const top = (e: SchemeEntry) =>
+    (e.featured && (e.alphabet === 'any' || e.alphabet === alphabet)) ||
+    (!customColorScheme && e.name === colorSchemeName)
   return [
     ...(customColorScheme
       ? [
@@ -159,35 +140,18 @@ export function colorSchemeMenuItems(model: MsaViewModel): MenuItem[] {
           } as const,
         ]
       : []),
-    ...schemeGroups.flatMap(g => {
-      const entries = g.entries.filter(shown)
-      return entries.length > 0
-        ? [
-            { type: 'subHeader', label: g.title } as const,
-            ...entries.map(e => radio(e)),
-          ]
-        : []
-    }),
-    ...(others.length > 0
-      ? [
-          { type: 'divider' } as const,
-          {
-            label:
-              model.sequenceType === 'amino'
-                ? 'Nucleotide schemes'
-                : 'Protein schemes',
-            type: 'subMenu',
-            subMenu: others,
-          } as const,
-        ]
-      : []),
-    { type: 'divider' },
+    ...schemes.filter(top).map(radio),
+    {
+      label: 'More schemes',
+      type: 'subMenu',
+      subMenu: schemes.filter(e => !top(e)).map(radio),
+    },
     {
       label: 'Color letters, not cells',
       type: 'checkbox',
-      checked: !model.bgColor,
+      checked: !bgColor,
       onClick: () => {
-        model.setBgColor(!model.bgColor)
+        model.setBgColor(!bgColor)
       },
     },
   ]
@@ -198,10 +162,8 @@ const ColorSchemeMenu = observer(function ({ model }: { model: MsaViewModel }) {
     <CascadingMenuButton
       data-testid="color_scheme_menu"
       tooltip="Color scheme"
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       menuItems={colorSchemeMenuItems(model)}
-      sx={{ borderRadius: 1 }}
+      sx={menuButtonSx}
     >
       <MenuButtonLabel>Color</MenuButtonLabel>
     </CascadingMenuButton>

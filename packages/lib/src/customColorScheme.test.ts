@@ -69,20 +69,20 @@ test('the menu checks Custom while a map is set, and a named scheme clears it', 
   expect(checkedLabels(colorSchemeMenuItems(model))).toEqual(['Custom'])
 
   const clustal = colorSchemeMenuItems(model).find(
-    item => 'label' in item && item.label === 'Clustal',
+    item => 'label' in item && item.label === 'Clustal X',
   )
   if (clustal && 'onClick' in clustal) {
     clustal.onClick()
   }
   expect(model.customColorScheme).toBeUndefined()
-  expect(model.colorSchemeName).toBe('clustal')
+  expect(model.colorSchemeName).toBe('clustalx_protein')
   expect(JSON.stringify(getSnapshot(model))).not.toContain('customColorScheme')
 
   const after = colorSchemeMenuItems(model)
   expect(after.some(item => 'label' in item && item.label === 'Custom')).toBe(
     false,
   )
-  expect(checkedLabels(after)).toEqual(['Clustal'])
+  expect(checkedLabels(after)).toEqual(['Clustal X'])
 })
 
 test('the menu names every scheme', () => {
@@ -91,10 +91,17 @@ test('the menu names every scheme', () => {
   )
 })
 
-test('a protein alignment tucks the nucleotide schemes into a submenu', () => {
-  const labels = colorSchemeMenuItems(makeModel(protein)).map(
-    item => 'label' in item && item.label,
-  )
-  expect(labels).toContain('Nucleotide schemes')
+test('a protein alignment lists protein schemes, the rest under More schemes', () => {
+  const items = colorSchemeMenuItems(makeModel(protein))
+  const labels = items.map(item => 'label' in item && item.label)
+  expect(labels).toContain('Clustal X')
   expect(labels).not.toContain('Rainbow')
+  const more = items.find(
+    item => 'label' in item && item.label === 'More schemes',
+  )
+  expect(
+    more && 'subMenu' in more && Array.isArray(more.subMenu)
+      ? more.subMenu.map(item => 'label' in item && item.label)
+      : [],
+  ).toContain('Rainbow')
 })

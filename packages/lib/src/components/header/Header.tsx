@@ -1,8 +1,8 @@
 import React, { lazy, useEffect } from 'react'
 
 import useMeasure from '@jbrowse/core/util/useMeasure'
-import Help from '@mui/icons-material/Help'
-import { IconButton, Tooltip } from '@mui/material'
+import HelpOutline from '@mui/icons-material/HelpOutlined'
+import { AppBar, IconButton, Toolbar, Tooltip } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import StatusMessage from '../StatusMessage.tsx'
@@ -34,36 +34,48 @@ const Header = observer(function ({ model }: { model: MsaViewModel }) {
     [model],
   )
   return (
-    <div ref={ref} style={{ display: 'flex', flexWrap: 'wrap' }}>
-      <FileMenu model={model} />
-      <ColorSchemeMenu model={model} />
-      <TreeSettingsMenu model={model} />
-      <MSASettingsMenu model={model} />
-      <ZoomControls model={model} />
-      <HiddenColumnsChip model={model} />
-      <div style={{ paddingLeft: 20, margin: 'auto' }}>
-        <MultiAlignmentSelector model={model} />
-      </div>
-      {/* zero flex-basis, so what appears here on a selection or a hover
+    <AppBar
+      ref={ref}
+      position="static"
+      color="default"
+      elevation={0}
+      sx={{ borderBottom: 1, borderColor: 'divider' }}
+    >
+      <Toolbar
+        variant="dense"
+        disableGutters
+        sx={{ minHeight: 40, flexWrap: 'wrap', px: 0.5 }}
+      >
+        <FileMenu model={model} />
+        <ColorSchemeMenu model={model} />
+        <TreeSettingsMenu model={model} />
+        <MSASettingsMenu model={model} />
+        <ZoomControls model={model} />
+        <HiddenColumnsChip model={model} />
+        <div style={{ paddingLeft: 20, margin: 'auto' }}>
+          <MultiAlignmentSelector model={model} />
+        </div>
+        {/* zero flex-basis, so what appears here on a selection or a hover
       shrinks into the header's spare width and never wraps it */}
-      <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex' }}>
-        <SelectionMenu model={model} />
-        <HeaderInfoArea model={model} />
-      </div>
-      <LoadWarnings model={model} />
-      <UnshareableDataWarning model={model} />
-      <StatusMessage model={model} variant="header" />
-      <Tooltip title="Mouse & keyboard help">
-        <IconButton
-          aria-label="Mouse & keyboard help"
-          onClick={() => {
-            model.queueDialog(onClose => [HelpDialog, { model, onClose }])
-          }}
-        >
-          <Help />
-        </IconButton>
-      </Tooltip>
-    </div>
+        <div style={{ flex: '1 1 0', minWidth: 0, display: 'flex' }}>
+          <SelectionMenu model={model} />
+          <HeaderInfoArea model={model} />
+        </div>
+        <LoadWarnings model={model} />
+        <UnshareableDataWarning model={model} />
+        <StatusMessage model={model} variant="header" />
+        <Tooltip title="Mouse & keyboard help">
+          <IconButton
+            aria-label="Mouse & keyboard help"
+            onClick={() => {
+              model.queueDialog(onClose => [HelpDialog, { model, onClose }])
+            }}
+          >
+            <HelpOutline fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Toolbar>
+    </AppBar>
   )
 })
 

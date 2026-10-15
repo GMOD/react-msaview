@@ -7,6 +7,7 @@ import {
   DialogContent,
   FormControl,
   FormControlLabel,
+  Link,
   Radio,
   RadioGroup,
   TextField,
@@ -16,6 +17,8 @@ import { observer } from 'mobx-react'
 import { annotationTextToGFF } from 'msa-parsers'
 
 import type { MsaViewModel } from '../../model.ts'
+
+const domainsTutorial = 'https://gmod.org/JBrowseMSA/tutorials/protein_family'
 
 async function fetchText(url: string) {
   const response = await fetch(url)
@@ -57,7 +60,14 @@ const AnnotationFileDialog = observer(function ({
         {error ? <ErrorMessage error={error} /> : null}
         <Typography>
           Open a GFF3 file of annotations, such as the one `react-msaview-cli
-          interpro` writes, or the JSON an InterProScan run returns.
+          interpro` writes, or the JSON an InterProScan run returns.{' '}
+          <Link
+            href={domainsTutorial}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            How to make one
+          </Link>
         </Typography>
 
         <div style={{ display: 'flex', margin: 30 }}>

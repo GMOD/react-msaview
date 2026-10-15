@@ -2,6 +2,7 @@ import { lazy } from 'react'
 
 import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
 import { canGoTo } from './GoToBox.tsx'
+import { annotationsSubMenu } from './getAnnotationsMenu.ts'
 
 import type { MsaViewModel } from '../../model.ts'
 import type { TreeOrder } from '../../types.ts'
@@ -10,7 +11,6 @@ import type { MenuItem } from '@jbrowse/core/ui/Menu'
 const GapThresholdDialog = lazy(
   () => import('../dialogs/GapThresholdDialog.tsx'),
 )
-const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog.tsx'))
 const GoToDialog = lazy(() => import('../dialogs/GoToDialog.tsx'))
 
 function radio(label: string, checked: boolean, onClick: () => void) {
@@ -40,6 +40,10 @@ function toggle(label: string, checked: boolean, set: (arg: boolean) => void) {
       set(!checked)
     },
   }
+}
+
+function subMenu(label: string, items: MenuItem[]) {
+  return { label, type: 'subMenu' as const, subMenu: items }
 }
 
 // the only place in the UI to turn a hidden track back on
@@ -86,7 +90,7 @@ export function gapsSubMenu(model: MsaViewModel): MenuItem[] {
 }
 
 export function viewMenuItems(model: MsaViewModel): MenuItem[] {
-  const { drawMsaLetters, scrollZoom, showColumnStats } = model
+  const { drawMsaLetters, scrollZoom, showColumnStats, noDomains } = model
   return [
     ...(canGoTo(model)
       ? [
@@ -96,40 +100,20 @@ export function viewMenuItems(model: MsaViewModel): MenuItem[] {
               model.queueDialog(onClose => [GoToDialog, { model, onClose }])
             },
           },
-          { type: 'divider' as const },
         ]
       : []),
-    {
-      label: 'Tracks',
-      type: 'subMenu' as const,
-      subMenu: tracksSubMenu(model),
-    },
-    {
-      label: 'Gappy columns',
-      type: 'subMenu' as const,
-      subMenu: gapsSubMenu(model),
-    },
-    { type: 'divider' as const },
+    subMenu('Tracks', tracksSubMenu(model)),
+    subMenu('Gappy columns', gapsSubMenu(model)),
+    ...(noDomains ? [] : [subMenu('Annotations', annotationsSubMenu(model))]),
     toggle('Show letters', drawMsaLetters, arg => {
       model.setDrawMsaLetters(arg)
     }),
     toggle('Show track values on hover', showColumnStats, arg => {
       model.setShowColumnStats(arg)
     }),
-    {
-      ...toggle('Scroll wheel zooms', scrollZoom, arg => {
-        model.setScrollZoom(arg)
-      }),
-      helpText:
-        'Off, the wheel scrolls and Ctrl + wheel zooms. On, the wheel zooms and Shift + wheel scrolls.',
-    },
-    { type: 'divider' as const },
-    {
-      label: 'Metadata…',
-      onClick: () => {
-        model.queueDialog(onClose => [MetadataDialog, { model, onClose }])
-      },
-    },
+    toggle('Scroll wheel zooms', scrollZoom, arg => {
+      model.setScrollZoom(arg)
+    }),
   ]
 }
 
@@ -140,8 +124,8 @@ function neighborJoiningItem(model: MsaViewModel): MenuItem {
     label: tooManyRows
       ? `Build neighbor joining tree (over ${maxNeighborJoiningRows} rows, use FastTree)`
       : model.noTree
-        ? 'Build neighbor joining tree (BLOSUM62)'
-        : 'Replace with neighbor joining tree (BLOSUM62)',
+        ? 'Build neighbor joining tree'
+        : 'Replace with neighbor joining tree',
     disabled: tooManyRows || rows < 2,
     onClick: () => {
       try {
@@ -173,62 +157,57 @@ export function treeMenuItems(model: MsaViewModel): MenuItem[] {
     rotated,
   } = model
   return [
-    {
-      label: 'Order',
-      type: 'subMenu' as const,
-      subMenu: [
-        ...treeOrders.map(order =>
-          radio(treeOrderLabels[order], treeOrder === order, () => {
-            model.setTreeOrder(order)
-          }),
-        ),
-        { type: 'divider' as const },
-        {
-          label: 'Undo rotations',
-          disabled: rotated.length === 0,
-          onClick: () => {
-            model.clearRotated()
-          },
-        },
-      ],
-    },
-    {
-      label: 'Root',
-      type: 'subMenu' as const,
-      subMenu: [
-        radio('As written', treeRoot === undefined, () => {
-          model.setTreeRoot(undefined)
+    subMenu('Order', [
+      ...treeOrders.map(order =>
+        radio(treeOrderLabels[order], treeOrder === order, () => {
+          model.setTreeOrder(order)
         }),
-        radio('Midpoint', treeRoot === 'midpoint', () => {
-          model.setTreeRoot('midpoint')
-        }),
-        // "Reroot here" in a node's menu sets the outgroup, so this only
-        // reports it
-        ...(typeof treeRoot === 'object'
-          ? [
-              {
-                ...radio(outgroupLabel(treeRoot.outgroup), true, () => {}),
-                disabled: true,
+      ),
+      ...(rotated.length > 0
+        ? [
+            {
+              label: 'Undo rotations',
+              onClick: () => {
+                model.clearRotated()
               },
-            ]
-          : []),
-      ],
-    },
-    { type: 'divider' as const },
+            },
+          ]
+        : []),
+    ]),
+    subMenu('Root', [
+      radio('As written', treeRoot === undefined, () => {
+        model.setTreeRoot(undefined)
+      }),
+      radio('Midpoint', treeRoot === 'midpoint', () => {
+        model.setTreeRoot('midpoint')
+      }),
+      // "Reroot here" in a node's menu sets the outgroup, so this only
+      // reports it
+      ...(typeof treeRoot === 'object'
+        ? [
+            {
+              ...radio(outgroupLabel(treeRoot.outgroup), true, () => {}),
+              disabled: true,
+            },
+          ]
+        : []),
+    ]),
+    subMenu('Labels', [
+      toggle('Show labels', drawLabels, arg => {
+        model.setDrawLabels(arg)
+      }),
+      toggle('Align right', labelsAlignRight, arg => {
+        model.setLabelsAlignRight(arg)
+      }),
+      toggle('Internal node labels', drawNodeLabels, arg => {
+        model.setDrawNodeLabels(arg)
+      }),
+    ]),
     toggle('Show tree', drawTree, arg => {
       model.setDrawTree(arg)
     }),
     toggle('Scale branches by length', showBranchLen, arg => {
       model.setShowBranchLen(arg)
-    }),
-    toggle('Show labels', drawLabels, arg => {
-      model.setDrawLabels(arg)
-    }),
-    toggle('Align labels right', labelsAlignRight, arg => {
-      model.setLabelsAlignRight(arg)
-    }),
-    toggle('Show internal node labels', drawNodeLabels, arg => {
-      model.setDrawNodeLabels(arg)
     }),
     toggle('Show node circles', drawNodeBubbles, arg => {
       model.setDrawNodeBubbles(arg)
@@ -239,14 +218,16 @@ export function treeMenuItems(model: MsaViewModel): MenuItem[] {
     toggle('Show tree scale bar', showTreeScaleBar, arg => {
       model.setShowTreeScaleBar(arg)
     }),
-    { type: 'divider' as const },
-    {
-      label: 'Reset tree width',
-      disabled: treeAreaWidth === undefined,
-      onClick: () => {
-        model.setTreeAreaWidth(undefined)
-      },
-    },
+    ...(treeAreaWidth === undefined
+      ? []
+      : [
+          {
+            label: 'Reset tree width',
+            onClick: () => {
+              model.setTreeAreaWidth(undefined)
+            },
+          },
+        ]),
     neighborJoiningItem(model),
   ]
 }

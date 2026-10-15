@@ -1,79 +1,49 @@
 import { lazy } from 'react'
 
-import FilterAlt from '@mui/icons-material/FilterAlt'
-import FolderOpen from '@mui/icons-material/FolderOpen'
-import MenuBook from '@mui/icons-material/MenuBook'
-import Sort from '@mui/icons-material/Sort'
-import Visibility from '@mui/icons-material/Visibility'
-
 import type { MsaViewModel } from '../../model.ts'
+import type { MenuItem } from '@jbrowse/core/ui/Menu'
 
 const FeatureFilterDialog = lazy(() => import('../dialogs/FeatureDialog.tsx'))
 const AnnotationFileDialog = lazy(
   () => import('../dialogs/AnnotationFileDialog.tsx'),
 )
 
-const domainsTutorial = 'https://gmod.org/JBrowseMSA/tutorials/protein_family'
+export function openAnnotationFileItem(model: MsaViewModel): MenuItem {
+  return {
+    label: 'Open annotation file…',
+    onClick: () => {
+      model.queueDialog(handleClose => [
+        AnnotationFileDialog,
+        { handleClose, model },
+      ])
+    },
+  }
+}
 
-export function getAnnotationsMenu({ model }: { model: MsaViewModel }) {
-  const { showDomains, actuallyShowDomains, subFeatureRows, noDomains } = model
-  const noneLoaded = noDomains ? ' (none loaded)' : ''
+export function annotationsSubMenu(model: MsaViewModel): MenuItem[] {
+  const { showDomains, actuallyShowDomains, subFeatureRows } = model
   return [
     {
-      label: 'Open annotation file...',
-      icon: FolderOpen,
-      onClick: () => {
-        model.queueDialog(handleClose => [
-          AnnotationFileDialog,
-          {
-            handleClose,
-            model,
-          },
-        ])
-      },
-    },
-    // `react-msaview-cli interpro` reads InterPro's precomputed matches in
-    // seconds, and `interproscan` covers rows InterPro has not seen; this links
-    // the tutorial for both
-    {
-      label: 'How to get a domain file...',
-      icon: MenuBook,
-      onClick: () => {
-        window.open(domainsTutorial, '_blank', 'noopener,noreferrer')
-      },
-    },
-    {
-      label: `Show annotations${noneLoaded}`,
-      disabled: noDomains,
-      icon: Visibility,
+      label: 'Show annotations',
+      type: 'checkbox',
       checked: actuallyShowDomains,
-      type: 'checkbox' as const,
       onClick: () => {
         model.setShowDomains(!showDomains)
       },
     },
     {
-      label: `Use sub-row layout${noneLoaded}`,
-      disabled: noDomains,
-      checked: actuallyShowDomains ? subFeatureRows : false,
-      icon: Sort,
-      type: 'checkbox' as const,
+      label: 'Sub-row layout',
+      type: 'checkbox',
+      disabled: !actuallyShowDomains,
+      checked: actuallyShowDomains && subFeatureRows,
       onClick: () => {
         model.setSubFeatureRows(!subFeatureRows)
       },
     },
     {
-      label: `Filter annotations${noneLoaded}`,
-      icon: FilterAlt,
-      disabled: noDomains,
+      label: 'Filter annotations…',
       onClick: () => {
-        model.queueDialog(onClose => [
-          FeatureFilterDialog,
-          {
-            onClose,
-            model,
-          },
-        ])
+        model.queueDialog(onClose => [FeatureFilterDialog, { onClose, model }])
       },
     },
   ]

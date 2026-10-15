@@ -275,7 +275,7 @@ export const specs = [
     name: 'metadata-dialog',
     url: data({ data: { msa: proteinMSA, tree: proteinTree } }),
     actions: [
-      { click: '[data-testid="msa_settings_menu"]' },
+      { click: '[data-testid="file_menu"]' },
       { click: '::-p-text(Metadata)' },
       { waitFor: '::-p-text(sequence)' },
     ],

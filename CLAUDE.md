@@ -97,11 +97,11 @@ the numbers behind it.
 - Canvas rendering uses a tiled block system (`calculateBlocks.ts`) to avoid
   rendering entire large alignments at once.
 - Domain **visualization** is a core feature; do not remove it. That means the
-  GFF path: `Annotations → Open annotation file...` (GFF3 as the CLI writes it,
-  or an InterProScan JSON response, converted to GFF on the way in), the
-  overlay, the legend, the filter dialog, `annotationsByRow`. The dialog stores
-  its file in `data.gff`, so the annotations travel in the snapshot and the
-  shared URL like every other layer. The viewer does not produce the file.
+  GFF path: `File → Open annotation file…` (GFF3 as the CLI writes it, or an
+  InterProScan JSON response, converted to GFF on the way in), the overlay, the
+  legend, the filter dialog, `annotationsByRow`. The dialog stores its file in
+  `data.gff`, so the annotations travel in the snapshot and the shared URL like
+  every other layer. The viewer does not produce the file.
   `react-msaview-cli interpro` builds it from precomputed matches in seconds,
   where the EBI iprscan5 queue the viewer used to submit to took fifteen
   minutes. A host that computes its spans passes them as the `features` layer,

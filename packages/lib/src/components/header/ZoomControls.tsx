@@ -3,7 +3,6 @@ import React from 'react'
 import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
 import FitScreen from '@mui/icons-material/FitScreen'
-import RestartAlt from '@mui/icons-material/RestartAlt'
 import ZoomIn from '@mui/icons-material/ZoomIn'
 import ZoomOut from '@mui/icons-material/ZoomOut'
 import { IconButton, Tooltip } from '@mui/material'
@@ -65,10 +64,8 @@ const ZoomControls = observer(function ZoomControls({
               model.fitVertically()
             },
           },
-          { type: 'divider' },
           {
             label: 'Reset zoom',
-            icon: RestartAlt,
             onClick: () => {
               model.resetZoom()
             },

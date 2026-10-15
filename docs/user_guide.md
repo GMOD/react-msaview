@@ -164,19 +164,19 @@ so a published figure states the scale of its branches.
 
 The **Tree** menu sets the child order and the root, and toggles branch-length
 rendering, right-aligned vs tree-adjacent labels, and the node circles. For an
-alignment loaded without a tree, the menu offers **Build neighbor joining tree
-(BLOSUM62)**, which builds a quick tree up to 500 rows. On a larger alignment
-the calculation would freeze the page for several seconds or more, so the menu
-item explains the limit and does not run. Build a tree that size with FastTree
-or IQ-TREE and open it beside the alignment; the
+alignment loaded without a tree, the menu offers **Build neighbor joining
+tree**, which builds a BLOSUM62 distance tree a quick tree up to 500 rows. On a
+larger alignment the calculation would freeze the page for several seconds or
+more, so the menu item explains the limit and does not run. Build a tree that
+size with FastTree or IQ-TREE and open it beside the alignment; the
 [protein family tutorial](https://gmod.org/JBrowseMSA/tutorials/protein_family)
 covers the whole path.
 
 ## Protein domains
 
-Load a GFF3 annotation file from the import form, or from **Annotations → Open
-annotation file...**, to overlay domains on the alignment. The overlay accepts
-any GFF3, including exon and gene models; InterProScan output is the most common
+Load a GFF3 annotation file from the import form, or from **File → Open
+annotation file…**, to overlay domains on the alignment. The overlay accepts any
+GFF3, including exon and gene models; InterProScan output is the most common
 input. The dialog also takes the JSON an InterProScan run returns and converts
 it to GFF3 as it loads. Either way the annotations travel in the shared link
 with the rest of the view. The viewer translates each row's annotation
@@ -188,8 +188,9 @@ The [CLI](https://gmod.org/JBrowseMSA/cli) builds the file:
 accessions in seconds, and `interproscan` scans sequences InterPro has not seen.
 The
 [protein family tutorial](https://gmod.org/JBrowseMSA/tutorials/protein_family)
-walks through both, and **Annotations → How to get a domain file...** opens it
-from the app.
+walks through both, and the **Open annotation file** dialog links to it. **View
+→ Annotations** shows or hides the overlay, stacks overlapping domains on
+sub-rows and filters them.
 
 [![](media/real-domains.png)][live-real-domains]
 
@@ -228,7 +229,7 @@ cases look alike, so zoom to base resolution to tell "no domain annotated" from
 ## Viewing metadata
 
 Alignment file headers and per-sequence information are available from the
-**Metadata** dialog (file menu).
+**File → Metadata…** dialog.
 
 [![](media/metadata-dialog.png)][live-metadata-dialog]
 
@@ -371,15 +372,17 @@ the options.
 
 [![](media/settings-menu.png)][live-settings-menu]
 
-- **Color** lists the schemes for the alignment's alphabet, with the others in a
-  submenu, and **Color letters, not cells**.
-- **View** holds the Tracks and Gappy columns submenus, **Show letters**, **Show
-  track values on hover**, **Scroll wheel zooms** and **Metadata…**. Gappy
-  columns hides each column where at least 50%, 90% or a custom share of the
-  rows has a gap, and a chip in the header counts the hidden columns; its ×
-  shows them again.
-- **Tree** holds the Order and Root submenus and the branch-length, label and
-  node-circle toggles.
+- **File** opens another alignment or an annotation file, exports an SVG or the
+  tree, and shows the metadata.
+- **Color** lists the common schemes for the alignment's alphabet, with the rest
+  under **More schemes**, and **Color letters, not cells**.
+- **View** holds **Go to row or column…**, the Tracks, Gappy columns and
+  Annotations submenus, **Show letters**, **Show track values on hover** and
+  **Scroll wheel zooms**. Gappy columns hides each column where at least 50%,
+  90% or a custom share of the rows has a gap, and a chip in the header counts
+  the hidden columns; its × shows them again.
+- **Tree** holds the Order, Root and Labels submenus and the branch-length,
+  node-circle and overview toggles.
 
 ## Scaling to large data
 

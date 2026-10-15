@@ -181,6 +181,6 @@ test('the gappy columns presets set the threshold, and Show all clears it', () =
 test('the tree menu offers a neighbor joining tree without a tree', () => {
   mount({ msa })
   expect(treeMenuItems(model).map(i => 'label' in i && i.label)).toEqual([
-    'Build neighbor joining tree (BLOSUM62)',
+    'Build neighbor joining tree',
   ])
 })
