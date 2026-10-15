@@ -37,8 +37,8 @@ Once data is loaded the view has four parts:
 
 - **Tree panel** (left): the phylogeny, with clickable branch nodes.
 - **Alignment panel** (right): the residues, colored by the active scheme.
-- **Header** (top): menu buttons for files, color schemes, and tree/MSA
-  settings, plus zoom controls.
+- **Header** (top): the File, View, Tools and Help menus, a Settings button
+  that docks the settings panel beside the alignment, and the zoom controls.
 - **Minimap & tracks**: an overview ruler above the alignment for navigation,
   and a strip of per-column tracks sharing the alignment's columns (see
   [Tracks](#tracks)).
@@ -91,8 +91,9 @@ The color-scheme menu, with protein and nucleotide palettes (the
 [embedding guide](https://gmod.org/JBrowseMSA/embedding#color-schemes) lists
 them all).
 
-Two schemes are **dynamic**: they color each column from statistics about the
-residues in that column, where the other schemes use a fixed color per letter.
+Three schemes are **dynamic**: they color each column from statistics about
+the residues in that column, where the other schemes use a fixed color per
+letter.
 
 [![](media/colorscheme-clustalx.png)][live-colorscheme-clustalx]
 
@@ -103,6 +104,9 @@ of each column.
 
 `percent_identity_dynamic` shades each column by its percent identity, so
 conserved sites stand out.
+
+`blosum62_dynamic` shades each amino acid by its BLOSUM62 similarity to the
+rest of its column, and a nucleotide alignment by identity.
 
 A link can also color letters from its own
 [map](https://gmod.org/JBrowseMSA/layers#customcolorscheme) of residue letter to
@@ -250,7 +254,7 @@ options to copy them and to show/hide gaps.
   each with a note drawn beside it. The view state stores them (see the
   [layers reference](https://gmod.org/JBrowseMSA/layers)), so a link can open on
   a band labeled "R248, conserved in 651 of 658 orthologs".
-- **Export an image** with **Export SVG** (file menu): a vector figure of the
+- **Export an image** with **File → Export as SVG…**: a vector figure of the
   current viewport or the entire alignment, optionally with the minimap and
   annotation tracks.
 
@@ -310,8 +314,8 @@ Three things decide whether the link works for the person who opens it:
 Tracks are strips drawn above the alignment, sharing its columns and its
 horizontal scroll. **Settings → Tracks** lists every track under its source and
 turns each on or off. A long list gets a filter box, and Show all and Hide all
-act on every match. The dropdown arrow on a track's label, at the left, also
-closes it and shows its details.
+act on every match. On a track's label, the × hides that track, and the
+dropdown arrow beside it shows the track's details.
 
 Hovering a track reads out what it draws at that column: the two conservation
 scores, the sequence logo's information content and residue composition, the

@@ -1134,10 +1134,10 @@ function stateModelFactory({
 
         /**
          * #property
-         * the user's explicit hide choices per annotation accession, keyed by
-         * accession with the value meaning "off", like `turnedOffTracks`. An
-         * untouched accession is absent and drawn, so the shared URL grows
-         * only with the user's filters
+         * the user's departures from each annotation accession's default,
+         * keyed by accession with the value meaning "off", like
+         * `turnedOffTracks`. An untouched accession is absent and takes its
+         * default, so the shared URL grows only with the user's filters
          */
         turnedOffFeatures: stripDefault(types.map(types.boolean), {}),
         /**
@@ -4797,8 +4797,8 @@ function stateModelFactory({
       },
       /**
        * #action
-       * show or hide an annotation type. Only hidden types are recorded; see
-       * `turnedOffFeatures`
+       * show or hide an annotation type. Only a choice that differs from the
+       * type's default is recorded; see `turnedOffFeatures`
        */
       setFilter(accession: string, shown: boolean) {
         // only a departure from the accession's default is recorded

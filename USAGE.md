@@ -393,8 +393,8 @@ The viewer upper-cases every row before coloring it, as the built-in schemes
 expect, so a map's letters match in either case: `k` or `K` colors every lysine,
 whether the file writes it `k` or `K`. Every letter the map leaves out is
 uncolored, gaps included; list `-` and `.` to color them. The model stores the
-map as `customColorScheme`, and picking a scheme from the palette menu clears
-it.
+map as `customColorScheme`, and picking a scheme under **Settings → Color**
+clears it.
 
 ### Painting another view with the scheme
 
