@@ -19,8 +19,8 @@ import TreeOverview from './tree/TreeOverview.tsx'
 import TreePanel from './tree/TreePanel.tsx'
 import TreeRuler from './tree/TreeRuler.tsx'
 
-import type { ToolbarSlots } from './header/Header.tsx'
 import type { MsaViewModel } from '../model.ts'
+import type { ToolbarSlots } from './header/Header.tsx'
 
 // The band above the panels: the tree overview and scale bar, the strip
 // headers, and the minimap over the alignment. The spacer stands in for the

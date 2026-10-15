@@ -9,8 +9,8 @@ import MSAView from './MSAView.tsx'
 import StatusMessage from './StatusMessage.tsx'
 import ImportForm from './import/ImportForm.tsx'
 
-import type { ToolbarSlots } from './header/Header.tsx'
 import type { MsaViewModel } from '../model.ts'
+import type { ToolbarSlots } from './header/Header.tsx'
 
 const Reset = observer(function ({
   model,

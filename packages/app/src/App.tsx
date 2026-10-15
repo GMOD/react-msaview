@@ -8,8 +8,8 @@ import { ThemeProvider } from '@mui/material/styles'
 import { observer } from 'mobx-react'
 import { MSAView } from 'react-msaview'
 
-import StructureSection from './StructureSection'
 import { AppActions, SiteNav } from './SiteChrome'
+import StructureSection from './StructureSection'
 import { createApp, linkParam } from './model'
 
 import type { AppModel } from './model'
