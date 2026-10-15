@@ -136,6 +136,7 @@ const AnnotationFileDialog = observer(function ({
                 model.setGFFFilehandle(undefined)
                 model.setGFF(annotationTextToGFF(text))
                 model.setShowDomains(true)
+                model.setCellFill('domain')
                 handleClose()
               } catch (e) {
                 console.error(e)

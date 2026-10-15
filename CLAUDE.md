@@ -123,13 +123,18 @@ the numbers behind it.
   name or a scale's `{map}`, which the model keeps as `customColorScheme` and
   which wins over `colorSchemeName` while set. Test for a per-column scheme with
   `dynamicColorSchemeName`, which is undefined under a map.
-- A domain box and the scale contend for the same channel, so `domainUnderline`
-  in `model.ts` decides who gets it. Under `residueEncoding: 'color'` with the
-  letters big enough to draw, the overlay gives up its fill and marks each span
-  with a `domainUnderlineHeight` bar along the bottom of the row. A filled box
-  wins the row back wherever the letters cannot carry the scale: sub-row layout,
-  which stacks its boxes clear of the letters anyway, and zoomed out past
-  `minLetterRowHeight`, where the box is the only thing left to read.
+- A domain box and the scale contend for the cell fill, and `cellFill` in
+  `model.ts` names the owner: `residue` (the scheme), `domain` (the boxes), or
+  `none`, which is `residueEncoding: 'color'`. Domains own it only while shown
+  and `domainFill` is on, its default, so a loaded GFF fills the cells; picking
+  a scheme in the menu sets `domainFill` off, since a scheme picked under the
+  boxes would change nothing on screen. Whenever the domains do not own the fill
+  and the letters are big enough to draw, `domainUnderline` marks each span with
+  a `domainUnderlineHeight` bar along the bottom of the row, drawn after the
+  residue tiles so they do not cover it. A filled box wins the row back wherever
+  the letters cannot carry the scale: sub-row layout, which stacks its boxes
+  clear of the letters anyway, and zoomed out past `minLetterRowHeight`, where
+  the box is the only thing left to read.
 - `rowPanels` is the row-scale counterpart of `columnTracks`:
   `components/rowpanels/RowPanels.tsx` mounts one canvas column per record
   between the tree and the alignment, tiled by `blocksY`, and

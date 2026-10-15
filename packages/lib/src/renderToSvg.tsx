@@ -412,18 +412,25 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
   const raster = rasterBackground({ model, theme, layout })
 
   const msaCtx = new Context(msaAreaWidth, contentHeight)
-  renderBoxFeatureCanvasBlock({
-    model,
-    theme,
-    ctx: msaCtx,
-    offsetX,
-    offsetY,
-    // the overlay culls bands to this width; without it the export falls back
-    // to the on-screen 500px block size and drops every band past it
-    blockSizeXOverride: msaAreaWidth,
-    blockSizeYOverride: contentHeight,
-    highResScaleFactorOverride: 1,
-  })
+  const drawOverlay = () => {
+    renderBoxFeatureCanvasBlock({
+      model,
+      theme,
+      ctx: msaCtx,
+      offsetX,
+      offsetY,
+      // the overlay culls bands to this width; without it the export falls
+      // back to the on-screen 500px block size and drops every band past it
+      blockSizeXOverride: msaAreaWidth,
+      blockSizeYOverride: contentHeight,
+      highResScaleFactorOverride: 1,
+    })
+  }
+  // as on screen: a domain box under the letters, a bar over residue colors
+  const overlayOnTop = model.cellFill === 'residue'
+  if (!overlayOnTop) {
+    drawOverlay()
+  }
   renderMSABlock({
     model,
     theme,
@@ -435,6 +442,9 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
     highResScaleFactorOverride: 1,
     rasterTiles: !!raster,
   })
+  if (overlayOnTop) {
+    drawOverlay()
+  }
   msaCtx.resetTransform()
   renderPersistentHighlights({
     ctx: msaCtx,

@@ -23,21 +23,15 @@ export function getMinimapLayout(model: MsaViewModel) {
 /**
  * The domain overlay's boxes scaled onto the minimap bar, one per row's band,
  * in the colors the alignment draws them, so the overview shows the domains
- * the alignment does. Empty while the overlay is off.
+ * the alignment does. Empty unless the domains fill the cells.
  */
 export function minimapDomainRects(
   model: MsaViewModel,
   width: number,
   height: number,
 ) {
-  const {
-    actuallyShowDomains,
-    domainBands,
-    featureColors,
-    leaves,
-    numColumns,
-  } = model
-  if (!actuallyShowDomains || numColumns <= 0 || leaves.length === 0) {
+  const { cellFill, domainBands, featureColors, leaves, numColumns } = model
+  if (cellFill !== 'domain' || numColumns <= 0 || leaves.length === 0) {
     return []
   }
   const colUnit = width / numColumns

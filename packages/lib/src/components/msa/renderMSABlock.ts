@@ -39,7 +39,7 @@ export function renderMSABlock({
     rowHeight,
     fontSize,
     highResScaleFactor,
-    actuallyShowDomains,
+    cellFill,
     bgColor,
   } = model
   const k = highResScaleFactorOverride ?? highResScaleFactor
@@ -71,9 +71,9 @@ export function renderMSABlock({
     xEnd,
     visibleLeaves,
     referenceSeq,
-    // when domains are shown the background tiles come from
+    // when the domains fill the cells the background comes from
     // renderBoxFeatureCanvasBlock, so only the letters are drawn here
-    drawTiles: !actuallyShowDomains,
+    drawTiles: cellFill !== 'domain',
     // ...and when the caller has already laid the raster down, the tiles are
     // there but nothing here has to paint them
     rasterTiles,

@@ -45,13 +45,12 @@ const MSACanvasBlock = observer(function ({
       drawnAt.current = snap
       ctx.resetTransform()
       ctx.clearRect(0, 0, canvasSize, canvasSize)
-      renderBoxFeatureCanvasBlock({
-        ctx,
-        theme,
-        offsetX,
-        offsetY,
-        model,
-      })
+      // a domain box goes under the letters, and a bar or lane over the
+      // residue colors, which would otherwise cover it
+      const overlayOnTop = model.cellFill === 'residue'
+      if (!overlayOnTop) {
+        renderBoxFeatureCanvasBlock({ ctx, theme, offsetX, offsetY, model })
+      }
       const rasterTiles = rasterApplies(model)
       if (rasterTiles) {
         drawMsaRaster({ ctx, model, theme, offsetX, offsetY })
@@ -64,6 +63,9 @@ const MSACanvasBlock = observer(function ({
         model,
         rasterTiles,
       })
+      if (overlayOnTop) {
+        renderBoxFeatureCanvasBlock({ ctx, theme, offsetX, offsetY, model })
+      }
     },
     width: canvasSize,
     height: canvasSize,

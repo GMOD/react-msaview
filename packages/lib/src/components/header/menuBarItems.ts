@@ -255,12 +255,26 @@ export function alignmentSettingsItems(model: MsaViewModel): MenuItem[] {
   ]
 }
 
+// who colors the cells comes first, since a scheme picked while the domains
+// fill them would otherwise change nothing on screen
 export function colorSettingsItems(model: MsaViewModel): MenuItem[] {
+  const { cellFill, allAnnotations } = model
   return [
-    ...colorSchemeMenuItems(model),
-    toggle('Color letters, not cells', !model.bgColor, arg => {
-      model.setBgColor(!arg)
+    { type: 'subHeader', label: 'Fill cells with' },
+    radio('Residue colors', cellFill === 'residue', () => {
+      model.setCellFill('residue')
     }),
+    ...when(allAnnotations.length > 0, [
+      radio('Domain colors', cellFill === 'domain', () => {
+        model.setShowDomains(true)
+        model.setCellFill('domain')
+      }),
+    ]),
+    radio('Nothing, color the letters', cellFill === 'none', () => {
+      model.setCellFill('none')
+    }),
+    { type: 'subHeader', label: 'Residue scheme' },
+    ...colorSchemeMenuItems(model),
   ]
 }
 

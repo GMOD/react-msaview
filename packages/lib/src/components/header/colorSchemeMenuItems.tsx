@@ -119,6 +119,11 @@ export function colorSchemeMenuItems(model: MsaViewModel): MenuItem[] {
       checked: !customColorScheme && colorSchemeName === entry.name,
       onClick: () => {
         model.setColorSchemeName(entry.name)
+        // a scheme picked while the domains fill the cells would color
+        // nothing, so the pick hands the cells back to the residues
+        if (model.cellFill === 'domain') {
+          model.setCellFill('residue')
+        }
       },
     } as const
   }

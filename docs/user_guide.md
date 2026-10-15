@@ -197,6 +197,13 @@ walks through both, and the **Open annotation file** dialog links to it.
 **Settings → Annotations** shows or hides the overlay, stacks overlapping
 domains on sub-rows and filters them.
 
+Loading a domain file hands the cells to the domains: **Settings → Color → Fill
+cells with** switches to **Domain colors**, and each domain fills the cells it
+covers. **Residue colors** gives the cells back to the residue scheme and marks
+each domain with a bar under its row, and picking a residue scheme does the
+same, so a scheme picked while domains are shown never goes unseen. **Nothing,
+color the letters** colors the letters by the scheme and keeps the bars.
+
 [![](media/real-domains.png)][live-real-domains]
 
 A real Src-family kinase family (SRC, YES, FYN, FGR, HCK, LYN, LCK, BLK) with
@@ -384,11 +391,12 @@ setting's effect shows as it changes.
 - **View** holds **Find row or column…**, the Zoom submenu, which repeats **Zoom
   on scroll**, and a toggle for the settings panel.
 - The **Settings** panel has a section each for Color, Tree, Alignment,
-  Annotations and Tracks. Color lists the common schemes for the alignment's
-  alphabet, with the rest under **More schemes**. Alignment's Gappy columns
-  hides each column where at least 50%, 90% or a custom share of the rows has a
-  gap, and a chip in the header counts the hidden columns; its × shows them
-  again.
+  Annotations and Tracks. Color picks what fills the cells, residue colors,
+  domain colors or nothing, then lists the common residue schemes for the
+  alignment's alphabet, with the rest under **More schemes**. Alignment's Gappy
+  columns hides each column where at least 50%, 90% or a custom share of the
+  rows has a gap, and a chip in the header counts the hidden columns; its ×
+  shows them again.
 - **Tools** builds a neighbor joining tree.
 - **Help** lists the mouse and keyboard controls and links the tutorials and the
   credits.

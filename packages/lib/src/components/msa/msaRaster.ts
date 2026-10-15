@@ -286,15 +286,13 @@ function paint(
 let supported: boolean | undefined
 
 /**
- * Whether the alignment background comes from the raster: true with
- * background coloring on, the domain overlay off, and a 2d context that reads
- * back, which jsdom lacks. renderMSABlock paints each cell otherwise.
+ * Whether the alignment background comes from the raster: true while the
+ * residue scheme fills the cells, with a 2d context that reads back, which
+ * jsdom lacks. renderMSABlock paints each cell otherwise.
  */
-export function rasterApplies(
-  model: Pick<MsaViewModel, 'actuallyShowDomains' | 'bgColor'>,
-) {
+export function rasterApplies(model: Pick<MsaViewModel, 'cellFill'>) {
   supported ??= !!makeRasterCanvas(1, 1)
-  return !model.actuallyShowDomains && model.bgColor && supported
+  return model.cellFill === 'residue' && supported
 }
 
 interface RasterCache {

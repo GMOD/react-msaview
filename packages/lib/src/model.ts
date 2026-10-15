@@ -539,6 +539,7 @@ export const preservedOnReset = new Set([
   'allowedGappyness',
   'subFeatureRows',
   'showDomainLegend',
+  'domainFill',
 ])
 
 // `turnedOffTracks` holds only the user's explicit choices, so a hidden-by-default
@@ -945,6 +946,13 @@ function stateModelFactory({
          * #property
          */
         showDomains: stripDefault(types.boolean, defaultShowDomains),
+        /**
+         * #property
+         * whether shown domains fill the cells they cover. Off, the residue
+         * scheme keeps the cells and each domain draws as a bar under its
+         * row. See `cellFill`.
+         */
+        domainFill: stripDefault(types.boolean, true),
         /**
          * #property
          * whether the domain legend is expanded. The legend floats over the
@@ -1567,6 +1575,23 @@ function stateModelFactory({
       },
       /**
        * #action
+       */
+      setDomainFill(arg: boolean) {
+        self.domainFill = arg
+      },
+      /**
+       * #action
+       * hand the cell fill to the residue scheme, the domains, or neither,
+       * which colors the letters instead
+       */
+      setCellFill(mode: 'residue' | 'domain' | 'none') {
+        self.setBgColor(mode !== 'none')
+        if (mode !== 'none') {
+          self.domainFill = mode === 'domain'
+        }
+      },
+      /**
+       * #action
        * expand or collapse the domain legend that floats over the alignment
        */
       setShowDomainLegend(arg: boolean) {
@@ -1787,6 +1812,18 @@ function stateModelFactory({
        */
       get actuallyShowDomains() {
         return self.showDomains && this.allAnnotations.length > 0
+      },
+      /**
+       * #getter
+       * what colors the alignment's cells: the residue scheme, the domains
+       * covering them, or nothing, which leaves the scheme to the letters
+       */
+      get cellFill(): 'residue' | 'domain' | 'none' {
+        return !self.bgColor
+          ? 'none'
+          : this.actuallyShowDomains && self.domainFill
+            ? 'domain'
+            : 'residue'
       },
       /**
        * #getter
@@ -4113,16 +4150,16 @@ function stateModelFactory({
       /**
        * #getter
        * whether the overlay marks each domain with a bar under its row instead
-       * of filling the row behind the letters. Letter-color mode hands the
-       * background to the color scheme, so a filled box would paint over it and
-       * leave the setting with nothing to show. Sub-row layout already stacks
+       * of filling the row behind the letters: whenever the domains do not own
+       * the cell fill (`cellFill`), a filled box would paint over the residue
+       * colors the user picked. Sub-row layout already stacks
        * the boxes clear of the letters, and with the letters too small to draw
        * the filled box is the only thing left to read.
        */
       get domainUnderline() {
         return (
           self.actuallyShowDomains &&
-          !self.bgColor &&
+          self.cellFill !== 'domain' &&
           !self.subFeatureRows &&
           self.showMsaLetters
         )

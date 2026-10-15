@@ -155,6 +155,15 @@ data from the loaded tree/msa/treeMetadata, generally loaded by autorun
 data: types.optional(DataModelF(maxInlineSnapshotBytes), {})
 ```
 
+#### property: domainFill
+
+whether shown domains fill the cells they cover. Off, the residue scheme keeps
+the cells and each domain draws as a bar under its row. See `cellFill`.
+
+```js
+domainFill: stripDefault(types.boolean, true)
+```
+
 #### property: drawMsaLetters
 
 ```js
@@ -758,6 +767,15 @@ own color and a legend entry
 categoricalDomainTypes: Annotation[]
 ```
 
+#### getter: cellFill
+
+what colors the alignment's cells: the residue scheme, the domains covering
+them, or nothing, which leaves the scheme to the letters
+
+```js
+cellFill: 'domain' | 'none' | 'residue'
+```
+
 #### getter: cladeGutterWidth
 
 the pixel column reserved at the right of the tree area for the bracket mark,
@@ -907,11 +925,10 @@ domainBandsByStart: Map<string, DomainBand[]>
 #### getter: domainUnderline
 
 whether the overlay marks each domain with a bar under its row instead of
-filling the row behind the letters. Letter-color mode hands the background to
-the color scheme, so a filled box would paint over it and leave the setting with
-nothing to show. Sub-row layout already stacks the boxes clear of the letters,
-and with the letters too small to draw the filled box is the only thing left to
-read.
+filling the row behind the letters: whenever the domains do not own the cell
+fill (`cellFill`), a filled box would paint over the residue colors the user
+picked. Sub-row layout already stacks the boxes clear of the letters, and with
+the letters too small to draw the filled box is the only thing left to read.
 
 ```js
 domainUnderline: boolean
@@ -2176,6 +2193,15 @@ keep a hidden overlay hidden.
 setAnnotations: (annotations: Annotation[]) => void
 ```
 
+#### action: setCellFill
+
+hand the cell fill to the residue scheme, the domains, or neither, which colors
+the letters instead
+
+```js
+setCellFill: (mode: "domain" | "none" | "residue") => void
+```
+
 #### action: setClades
 
 replace the clades the viewer marks (see docs/layers.md)
@@ -2215,6 +2241,12 @@ filehandle loaders
 
 ```js
 setData: (data: { msa?: string | undefined; tree?: string | undefined; treeMetadata?: string | undefined; gff?: string | undefined; }) => void
+```
+
+#### action: setDomainFill
+
+```js
+setDomainFill: (arg: boolean) => void
 ```
 
 #### action: setDrawMsaLetters

@@ -2,11 +2,13 @@
 // same pixels the color scheme wants, so the two settings have to divide them:
 // the overlay drops to a bar under the row and the letters take the scheme.
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
+import { getSnapshot } from '@jbrowse/mobx-state-tree'
 import { expect, test } from 'vitest'
 
 import { domainUnderlineHeight } from '../../constants.ts'
 import stateModelFactory from '../../model.ts'
 import { contrastTextFn } from '../../util.ts'
+import { colorSchemeMenuItems } from '../header/colorSchemeMenuItems.tsx'
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock.ts'
 import { renderMSABlock } from './renderMSABlock.ts'
 
@@ -164,4 +166,49 @@ test('letters over a box contrast against the color the box was painted', () => 
   expect(new Set(covered.map(l => l.fill))).toEqual(
     new Set([contrastTextFn(theme)('#000000')]),
   )
+})
+
+test('residue fill keeps the scheme in the cells and draws domains as a bar', () => {
+  const model = makeModel()
+  expect(model.cellFill).toBe('domain')
+  model.setCellFill('residue')
+  expect([model.cellFill, model.domainUnderline]).toEqual(['residue', true])
+  expect(drawOverlay(model).every(r => r.h === domainUnderlineHeight)).toBe(
+    true,
+  )
+  const { ctx, rects } = recordingCtx()
+  renderMSABlock({
+    model,
+    ctx,
+    theme: createJBrowseTheme(),
+    offsetX: 0,
+    offsetY: 0,
+  })
+  // jsdom has no raster, so renderMSABlock paints each residue's cell
+  expect(new Set(rects.map(r => r.fill)).size).toBeGreaterThan(5)
+})
+
+test('the cell fill travels in the snapshot only off its default', () => {
+  const model = makeModel()
+  expect(JSON.stringify(getSnapshot(model))).not.toContain('domainFill')
+  model.setCellFill('residue')
+  expect(getSnapshot(model).domainFill).toBe(false)
+  model.setCellFill('none')
+  expect(model.cellFill).toBe('none')
+  model.setCellFill('domain')
+  expect([model.cellFill, model.bgColor]).toEqual(['domain', true])
+})
+
+test('picking a scheme while the domains fill the cells hands them back', () => {
+  const model = makeModel()
+  const clustal = colorSchemeMenuItems(model).find(
+    item => 'label' in item && item.label === 'Clustal X',
+  )
+  if (clustal && 'onClick' in clustal) {
+    clustal.onClick()
+  }
+  expect([model.colorSchemeName, model.cellFill]).toEqual([
+    'clustalx_protein',
+    'residue',
+  ])
 })
