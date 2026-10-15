@@ -327,6 +327,8 @@ end on eight different columns, the longest 1,091 columns right of the shortest.
 
 ## 7. Share the view
 
+<!-- usage: web -->
+
 The three files go in the alignment, tree and annotation slots of the
 [import form](https://gmod.org/JBrowseMSA/demo/), as local files or as URLs. To
 put the whole view in a link, name the URLs and carry the encodings in the
@@ -371,6 +373,43 @@ inclusive columns, and the COX1 span above is the one the projection printed.
 What that link opens: the three hosted files, the arrows filled by complex and
 labeled by name, and columns 6,134 to 7,679 banded and labeled COX1 across all
 eight rows.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three hosted
+files, and its layers carry the two encodings and the band. `col_width` is the
+link's zoom, which also decides which gene names fit inside their arrows. `w`
+alone opens the viewer in RStudio or a notebook, and `msaview_plot()` draws the
+same view as a ggplot2 figure:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/mitogenome"
+w <- msaview(
+  msa = file.path(data, "mito.afa"),
+  tree = file.path(data, "mito.nwk"),
+  gff = file.path(data, "mito-genes.gff"),
+  col_width = 0.065
+) +
+  scale_row_color("complex", channel = "featureFill", map = c(
+    I = "#4e79a7", III = "#59a14f", IV = "#e15759", V = "#b07aa1",
+    rRNA = "#f28e2b", tRNA = "#bab0ac"
+  )) +
+  scale_row_color("Name", channel = "featureLabel") +
+  geom_msa_highlight(start = 6134, end = 7679, label = "COX1")
+w
+ggplot2::ggsave("mitogenome_genes-7-r.png", msaview_plot(w),
+  width = 12, height = 4.5)
+```
+
+![](../media/mitogenome_genes-7-r.png)
+
+The eight genomes beside their tree, each gene an arrow filled by its complex
+and named where the name fits, under the conservation bars. The COX1 band covers
+columns 6,134 to 7,679 in every row, and the control region at the right end
+keeps the yellow its own GFF `color=` attribute gives it.
+
+<!-- /usage -->
 
 The band covers the columns the projection put _COX1_ in. RefSeq's GFF3 gives
 its position in the human genome:
