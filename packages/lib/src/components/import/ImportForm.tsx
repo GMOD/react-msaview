@@ -19,8 +19,8 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
   const { error } = model
 
   return (
-    <Container>
-      <Box sx={{ width: '50%', [phone]: { width: '100%' } }}>
+    <Container sx={{ pt: 2, pb: 3 }}>
+      <Box sx={{ width: '50%', mb: 2, [phone]: { width: '100%' } }}>
         {error ? <ErrorMessage error={error} /> : null}
         <Typography>
           Open an MSA file (FASTA, Stockholm, Clustal, A3M or EMF format) and/or
@@ -45,7 +45,15 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
           },
         }}
       >
-        <Box sx={{ width: 400, [phone]: { width: 'auto' } }}>
+        <Box
+          sx={{
+            width: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1.5,
+            [phone]: { width: 'auto' },
+          }}
+        >
           <div>
             <Typography>MSA file or URL</Typography>
             <FileSelector inline location={msaFile} setLocation={setMsaFile} />
