@@ -237,6 +237,8 @@ selected (35.6% and 27.9%), the reverse of the V1 patch's ratio.
 
 ## 9. Open it
 
+<!-- usage: web -->
+
 This snapshot combines the last three figures: alignment, tree, exon structure,
 the dN/dS track and both highlights.
 
@@ -245,6 +247,43 @@ the dN/dS track and both highlights.
 The full gene, with the tree and the 7-color exon structure. The RING+B-box
 control on the left has few dN/dS bars above it, and R332 and the SPRY V1 patch
 on the right sit under the densest bars.
+
+<!-- usage: r -->
+
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same hosted alignment,
+exon GFF and dN/dS values, and takes the three highlights as a data frame:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/trim5/"
+dnds <- jsonlite::fromJSON(paste0(data, "trim5-dnds-values.json"))
+sites <- data.frame(
+  row = "human",
+  start = c(43, 976, 994), end = c(396, 1023, 996),
+  label = c("RING + B-box (purifying control)", "SPRY V1 patch", "R332"),
+  color = c("rgba(21,101,192,0.25)", "rgba(255,140,0,0.3)", "#e3242b")
+)
+w <- msaview(
+  msa = paste0(data, "trim5-cds.stock"),
+  gff = paste0(data, "trim5-exons.gff"),
+  color_scheme = "nucleotide"
+) +
+  geom_msa_track(dnds, name = "dN/dS (FEL)", max = 5, color = "#c0392b") +
+  geom_msa_highlight(sites)
+w
+ggplot2::ggsave("codon-final-view-r.png",
+  msaview_plot(w) & ggplot2::theme(legend.position = "none"),
+  width = 12, height = 8)
+```
+
+![](../media/codon-final-view-r.png)
+
+The 32 species over all 1,800 columns, the exons in alternating shades under the
+RING+B-box, SPRY V1 and R332 highlights, with the dN/dS bars and conservation
+above and the tree on the left. The dN/dS bars thin out over the control on the
+left and crowd over the SPRY end on the right.
+
+<!-- /usage -->
 
 ## Reproduce it end to end
 
