@@ -336,14 +336,18 @@ const StructureSection = observer(function StructureSection({
       if (signal.aborted) {
         return
       }
+      const max = Math.ceil(
+        Math.max(1, ...result.distanceValues.filter(Number.isFinite)),
+      )
       model.setColumnTracks([
         ...model.columnTracks.filter(t => t.id !== distanceTrackId),
         {
           id: distanceTrackId,
-          name: `CA distance to ${targets[0]!.row} (Å)`,
+          name: `CA distance to ${targets[0]!.row} (0–${max} Å)`,
           kind: 'bar',
           row: targets[0]!.row,
           values: result.distanceValues,
+          max,
           color: '#d55e00',
           height: 60,
         },

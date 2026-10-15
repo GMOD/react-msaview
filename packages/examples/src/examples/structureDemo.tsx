@@ -5,6 +5,7 @@ import { findStructures, networkLookups } from 'react-msaview-structure'
 
 import type { MsaViewModel } from 'react-msaview'
 import type {
+  Lookups,
   StructureCandidate,
   SuperposeRowsResult,
 } from 'react-msaview-structure'
@@ -13,6 +14,21 @@ import type { TmAlignment } from 'react-msaview-structure/panel'
 export interface DemoProtein {
   row: string
   accession: string
+  /** limits the lookup to this PDB entry and picks it over the AlphaFold model */
+  pdbId?: string
+}
+
+function lookupsFor(signal: AbortSignal, pdbId?: string): Lookups {
+  const network = networkLookups(signal)
+  return pdbId
+    ? {
+        ...network,
+        experimental: async accession =>
+          (await network.experimental(accession)).filter(
+            s => s.pdbId.toUpperCase() === pdbId,
+          ),
+      }
+    : network
 }
 
 export interface MappingState {
@@ -39,12 +55,16 @@ export function caDistanceTrack(
   row: string,
   result: SuperposeRowsResult,
 ) {
+  const max = Math.ceil(
+    Math.max(1, ...result.distanceValues.filter(Number.isFinite)),
+  )
   return {
     id,
-    name: `CA distance to ${row} (Å)`,
+    name: `CA distance to ${row} (0–${max} Å)`,
     kind: 'bar' as const,
     row,
     values: result.distanceValues,
+    max,
     color: '#d55e00',
     height: 60,
   }
@@ -108,15 +128,25 @@ export function useAccessionMappings(
         const chosen = []
         const problems: string[] = []
         const found = await Promise.all(
-          fixed.proteins.map(async ({ row, accession }) => ({
-            row,
-            result: await findStructures({
+          fixed.proteins.map(async ({ row, accession, pdbId }) => {
+            const result = await findStructures({
               rowName: row,
               rowSequence: model.rowSequence(row) ?? '',
               accession,
-              lookups: networkLookups(signal),
-            }),
-          })),
+              lookups: lookupsFor(signal, pdbId),
+            })
+            return {
+              row,
+              result: pdbId
+                ? {
+                    ...result,
+                    candidates: result.candidates.filter(
+                      c => c.mapping.structure.id === pdbId,
+                    ),
+                  }
+                : result,
+            }
+          }),
         )
         for (const { row, result } of found) {
           candidates[row] = result.candidates
