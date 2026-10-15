@@ -67,16 +67,15 @@ export const specs = [
   },
   {
     name: 'settings-menu',
-    url: data({ colorSchemeName: 'maeditor' }),
+    // the panel is as tall as the view, so the view is tall enough to show
+    // every section
+    url: data({ colorSchemeName: 'maeditor', height: 760 }),
     actions: [
       { click: '[data-testid="settings_button"]' },
       { waitFor: '::-p-text(Show letters)' },
     ],
-    // clip: 'full' is required because the menu renders in a portal outside
-    // the viewer, so the viewport is sized to the content; a four-item dropdown
-    // in the default 720px frame is mostly empty space.
-    viewportHeight: 380,
-    clip: 'full',
+    viewportHeight: 900,
+    clip: 'viewer',
   },
   {
     name: 'real-domains',
@@ -244,12 +243,12 @@ export const specs = [
   },
   {
     name: 'color-scheme-menu',
-    url: data({ colorSchemeName: 'clustal' }),
+    url: data({ colorSchemeName: 'clustal', height: 400 }),
     actions: [
       { click: '[data-testid="settings_button"]' },
       { waitFor: '::-p-text(Percent identity)' },
     ],
-    clip: 'full',
+    clip: 'viewer',
   },
   {
     name: 'tree-collapse',
