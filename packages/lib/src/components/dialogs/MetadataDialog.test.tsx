@@ -48,7 +48,7 @@ b MKA-NSE
   )
   expect(text).toContain('Kinase domain')
   expect(text).toContain('P12345')
-  expect(text).toContain('Accessions')
+  expect(text).toContain('Row accessions')
   expect(text).not.toContain('Dbxref')
 })
 
@@ -56,4 +56,24 @@ test('says so when the alignment carries no metadata', () => {
   expect(render('>a\nMKAANSE\n>b\nMKA-NSE', 'fasta')).toContain(
     'This alignment has no metadata.',
   )
+})
+
+test('labels Stockholm tags and groups references', () => {
+  const text = render(
+    `# STOCKHOLM 1.0
+#=GF AC PF00680
+#=GF RN [1]
+#=GF RM 29439438
+#=GF RA Venkataraman S;
+#=GF RL Viruses. 2018;
+a MKAANSE
+b MKA-NSE
+//
+`,
+    'stockholm',
+  )
+  expect(text).toContain('Accession')
+  expect(text).toContain('References')
+  expect(text).toContain('PubMed')
+  expect(text).toContain('Authors')
 })
