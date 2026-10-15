@@ -330,12 +330,12 @@ MST1 and HGF read Y, and azurocidin reads G.
 
 ## 10. Save the widget, or share the link
 
-`saveWidget` writes a page that needs no R to open, and the same two layers go
-into a URL that opens the hosted alignment in the web viewer:
+<!-- usage: web -->
+
+The same two layers go into a URL that opens the hosted alignment in the web
+viewer:
 
 ```r
-htmlwidgets::saveWidget(widget, "proteases.html", selfcontained = FALSE)
-
 snapshot <- list(msaview = list(
   type = "MsaView",
   height = 560,
@@ -357,6 +357,39 @@ the link is 3075 characters
 `unname()` matters: `Map` over a named vector names its result, and a named list
 serializes as a JSON object where the viewer reads an array. `msaview()` drops
 the names on the way in, so the widget above works either way.
+
+<!-- usage: r -->
+
+`saveWidget` writes a page that needs no R to open, and `msaview_plot()` draws
+the widget as a ggplot2 figure. In a fresh session, the hosted alignment, tree
+and `proteases-layers.json`, the two layers as the script writes them, rebuild
+`widget`:
+
+```r
+library(ggmsaview)
+data <- "https://gmod.org/JBrowseMSA/demo/data/proteases/"
+layers <- jsonlite::fromJSON(paste0(data, "proteases-layers.json"),
+  simplifyVector = FALSE)
+widget <- msaview(
+  msa = paste0(data, "proteases.aln"),
+  tree = paste0(data, "proteases.nh"),
+  color_scheme = "clustalx_protein_dynamic",
+  column_tracks = layers$columnTracks,
+  highlights = layers$highlights
+)
+htmlwidgets::saveWidget(widget, "proteases.html", selfcontained = FALSE)
+ggplot2::ggsave("r-protease-triad-r.png",
+  msaview_plot(widget, tracks = c("blosum", "ss")),
+  width = 12, height = 6)
+```
+
+![](../media/r-protease-triad-r.png)
+
+The fourteen S1 domains over 297 columns in ClustalX colors, under the BLOSUM62
+bars and the chymotrypsinogen disulfide arcs, with the His57, Asp102 and Ser195
+columns boxed and the tree on the left.
+
+<!-- /usage -->
 
 ## Reproduce it end to end
 
