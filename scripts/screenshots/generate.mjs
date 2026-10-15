@@ -74,23 +74,6 @@ async function runAction(page, action) {
   }
 }
 
-// Every viewer capture used to include the toolbar, so one change to it restaled
-// every figure at once. A viewer capture hides it and takes a fixed allowance
-// off the height, which keeps the alignment area the size the spec set whatever
-// the toolbar does. A spec about the toolbar sets `header: true`.
-const HEADER_ALLOWANCE = 38
-
-async function hideHeader(page) {
-  await page.waitForFunction(() => window.MSAVIEW_MODEL?.viewInitialized, {
-    timeout: 20000,
-  })
-  await page.evaluate(allowance => {
-    const model = window.MSAVIEW_MODEL
-    model.setHideHeader(true)
-    model.setHeight(model.height - allowance)
-  }, HEADER_ALLOWANCE)
-}
-
 // Fail a spec whose viewer body rendered empty. The app shell always paints its
 // border box, so a capture with a header and no content would otherwise pass.
 // A loaded viewer (import form included) fills its body.
@@ -270,9 +253,6 @@ async function renderSpecToTemp(browser, spec, suffix = '') {
         visible: true,
         timeout: 30000,
       })
-    }
-    if (spec.clip === 'viewer' && spec.url && !spec.header) {
-      await hideHeader(page)
     }
     for (const action of spec.actions ?? []) {
       await runAction(page, action)
