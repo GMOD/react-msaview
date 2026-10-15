@@ -31,7 +31,7 @@ import type {
   StructureSearch,
   SuperposeRowsResult,
 } from 'react-msaview-structure'
-import type { StructureColor } from 'react-msaview-structure/panel'
+import type { StructureColor, TmAlignment } from 'react-msaview-structure/panel'
 
 // Mol* is a large chunk, so it loads when a structure first shows
 const StructurePanel = lazy(() =>
@@ -62,6 +62,7 @@ type Superposition =
   | { state: 'idle' }
   | { state: 'working'; message: string }
   | { state: 'done'; result: SuperposeRowsResult; reference: string }
+  | { state: 'tm'; ids: string[]; fits?: Record<string, TmAlignment> }
   | { state: 'error'; message: string }
 
 const StructureSection = observer(function StructureSection({
@@ -81,6 +82,7 @@ const StructureSection = observer(function StructureSection({
   const [colorBy, setColorBy] = useState<StructureColor>('none')
   const abort = useRef<AbortController | undefined>(undefined)
   const [foldseek, setFoldseek] = useState<FoldseekState>({ state: 'idle' })
+  const [fitBy, setFitBy] = useState<'alignment' | 'tm-align'>('alignment')
   const [superposition, setSuperposition] = useState<Superposition>({
     state: 'idle',
   })
@@ -99,9 +101,11 @@ const StructureSection = observer(function StructureSection({
     superposition.state === 'done' ? superposition.result : undefined
   const shownIds = superposed
     ? [superposed.referenceId, ...Object.keys(superposed.matrices)]
-    : structureId
-      ? [structureId]
-      : []
+    : superposition.state === 'tm'
+      ? superposition.ids
+      : structureId
+        ? [structureId]
+        : []
   const withAccession = names.filter(n => canFindStructures(n))
 
   async function find() {
@@ -219,6 +223,14 @@ const StructureSection = observer(function StructureSection({
         const m = mappings.find(x => x.row === rowName)
         return m ? [{ row: rowName, structureId: m.structure.id }] : []
       })
+      if (fitBy === 'tm-align') {
+        const ids = [...new Set(targets.map(t => t.structureId))]
+        if (ids.length < 2) {
+          throw new Error('TM-align needs structures for at least two rows')
+        }
+        setSuperposition({ state: 'tm', ids })
+        return
+      }
       setSuperposition({ state: 'working', message: 'Fitting' })
       const { selection } = model
       const result = await superposeRows({
@@ -362,6 +374,19 @@ const StructureSection = observer(function StructureSection({
           </Select>
         ) : null}
         {withAccession.length > 1 ? (
+          <Select
+            size="small"
+            value={fitBy}
+            onChange={e => {
+              setFitBy(e.target.value)
+            }}
+            title="What the fit uses"
+          >
+            <MenuItem value="alignment">Fit by alignment</MenuItem>
+            <MenuItem value="tm-align">Fit by structure (TM-align)</MenuItem>
+          </Select>
+        ) : null}
+        {withAccession.length > 1 ? (
           <Button
             variant="outlined"
             size="small"
@@ -373,7 +398,7 @@ const StructureSection = observer(function StructureSection({
             Superpose rows
           </Button>
         ) : null}
-        {superposition.state === 'done' ? (
+        {superposition.state === 'done' || superposition.state === 'tm' ? (
           <Button size="small" onClick={clearSuperposition}>
             Clear superposition
           </Button>
@@ -475,6 +500,18 @@ const StructureSection = observer(function StructureSection({
           {superposition.message}
         </Alert>
       ) : null}
+      {superposition.state === 'tm' ? (
+        <Alert severity="info" sx={{ mt: 1 }}>
+          {superposition.fits
+            ? Object.entries(superposition.fits)
+                .map(
+                  ([id, f]) =>
+                    `${id}: TM-score ${f.tmScore.toFixed(2)}, ${f.rmsd.toFixed(2)} Å over ${f.alignedLength} residues`,
+                )
+                .join(' · ')
+            : 'Aligning by structure'}
+        </Alert>
+      ) : null}
       {superposed ? (
         <Alert severity="info" sx={{ mt: 1 }}>
           {superposed.fits
@@ -496,6 +533,12 @@ const StructureSection = observer(function StructureSection({
               model={model}
               structureIds={shownIds}
               transforms={superposed?.matrices}
+              fitBy={superposition.state === 'tm' ? 'tm-align' : 'transforms'}
+              onTmAlign={fits => {
+                setSuperposition(prev =>
+                  prev.state === 'tm' ? { ...prev, fits } : prev,
+                )
+              }}
               colorBy={colorBy}
               height={panelHeight}
             />

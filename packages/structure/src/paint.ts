@@ -1,4 +1,4 @@
-import { residueLoci } from './molstar.ts'
+import { componentsOfStructure, residueLoci } from './molstar.ts'
 
 import type { Molstar, PolymerResidue } from './molstar.ts'
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
@@ -120,10 +120,7 @@ export async function paintStructure(
   groups: PaintGroup[],
   ref: string,
 ) {
-  const components =
-    plugin.managers.structure.hierarchy.current.structures.find(
-      s => s.cell.transform.ref === ref,
-    )?.components ?? []
+  const components = await componentsOfStructure(plugin, ref)
   await molstar.clearStructureOverpaint(plugin, components)
   for (const [color, chains] of groups) {
     await molstar.setStructureOverpaint(

@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 
 import { compareStructural, reaction } from 'mobx'
 import { observer } from 'mobx-react'
+import { isBinaryStructureUrl, structureFormatFromContent } from 'p2s_mapper'
 
 import {
   drawnStructure,
   loadMolstar,
   polymerResidues,
   residueLoci,
+  tmAlignOnto,
   transformStructure,
 } from './molstar.ts'
 import {
@@ -18,7 +20,7 @@ import {
   solidGroups,
 } from './paint.ts'
 
-import type { Molstar } from './molstar.ts'
+import type { Molstar, TmAlignment } from './molstar.ts'
 import type { StructureColor } from './paint.ts'
 import type { Loci } from 'molstar/lib/mol-model/loci'
 import type { Structure } from 'molstar/lib/mol-model/structure'
@@ -33,6 +35,13 @@ export interface StructurePanelProps {
   structureIds?: string[]
   /** column-major 4x4 by structure id, moving that structure into place */
   transforms?: Record<string, number[]>
+  /**
+   * `tm-align` superposes the structures on the first by their traces alone and
+   * reports each fit through `onTmAlign`, and `transforms` is ignored
+   */
+  fitBy?: 'transforms' | 'tm-align'
+  /** the TM-align fit of each structure after the first, by structure id */
+  onTmAlign?: (fits: Record<string, TmAlignment>) => void
   /** what to paint the structure with; several structures take one color each
    * unless this is set */
   colorBy?: StructureColor
@@ -51,14 +60,6 @@ export const structurePalette = [
 ]
 
 const idle = 'Hover a residue in the alignment or the structure.'
-
-function formatOf(url: string) {
-  return url.startsWith('data:chemical/x-pdb') ||
-    url.endsWith('.pdb') ||
-    url.endsWith('.ent')
-    ? 'pdb'
-    : 'mmcif'
-}
 
 function readLocation(molstar: Molstar, loci: Loci) {
   const loc = molstar.StructureElement.Loci.is(loci)
@@ -102,6 +103,8 @@ export const StructurePanel = observer(function StructurePanel({
   structureId,
   structureIds,
   transforms,
+  fitBy = 'transforms',
+  onTmAlign,
   colorBy = 'none',
   height = 400,
 }: StructurePanelProps) {
@@ -120,6 +123,9 @@ export const StructurePanel = observer(function StructurePanel({
   const molstarRef = useRef<Molstar | undefined>(undefined)
   const loadedRef = useRef<Loaded[]>([])
   const paintQueue = useRef(Promise.resolve())
+  // the latest callback, so a new function each render does not refit
+  const onTmAlignRef = useRef(onTmAlign)
+  onTmAlignRef.current = onTmAlign
   // structures a transform has moved, so only those are moved back
   const movedRef = useRef(new Set<string>())
   const [state, setState] = useState('Loading structure')
@@ -182,14 +188,33 @@ export const StructurePanel = observer(function StructurePanel({
         }
         const loaded: Loaded[] = []
         for (const { id, url } of entries) {
-          const data = await plugin.builders.data.download(
-            { url, isBinary: url.endsWith('.bcif') },
-            { state: { isGhost: true } },
-          )
-          const trajectory = await plugin.builders.structure.parseTrajectory(
-            data,
-            url.endsWith('.bcif') ? 'mmcif' : formatOf(url),
-          )
+          // the file's own first lines say which parser it needs: mmCIF read
+          // as PDB loads with no polymer and no error
+          let trajectory
+          if (isBinaryStructureUrl(url)) {
+            const data = await plugin.builders.data.download(
+              { url, isBinary: true },
+              { state: { isGhost: true } },
+            )
+            trajectory = await plugin.builders.structure.parseTrajectory(
+              data,
+              'mmcif',
+            )
+          } else {
+            const res = await fetch(url)
+            if (!res.ok) {
+              throw new Error(`${url}: HTTP ${res.status}`)
+            }
+            const text = await res.text()
+            const data = await plugin.builders.data.rawData(
+              { data: text, label: id },
+              { state: { isGhost: true } },
+            )
+            trajectory = await plugin.builders.structure.parseTrajectory(
+              data,
+              structureFormatFromContent(text),
+            )
+          }
           const built = await plugin.builders.structure.hierarchy.applyPreset(
             trajectory,
             'default',
@@ -299,6 +324,36 @@ export const StructurePanel = observer(function StructurePanel({
     if (!ready || !plugin || !molstar) {
       return undefined
     }
+    if (fitBy === 'tm-align') {
+      paintQueue.current = paintQueue.current
+        .then(async () => {
+          if (pluginRef.current !== plugin) {
+            return
+          }
+          const loaded = loadedRef.current
+          const results = await tmAlignOnto(
+            plugin,
+            molstar,
+            loaded.map(l => l.ref),
+          )
+          for (const l of loaded) {
+            movedRef.current.add(l.id)
+          }
+          plugin.managers.camera.reset()
+          onTmAlignRef.current?.(
+            Object.fromEntries(
+              results.flatMap(r => {
+                const id = loaded.find(l => l.ref === r.ref)?.id
+                return id === undefined ? [] : [[id, r] as const]
+              }),
+            ),
+          )
+        })
+        .catch((e: unknown) => {
+          console.error(e)
+        })
+      return undefined
+    }
     const moves = JSON.parse(transformKey) as Record<string, number[]>
     const identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
     paintQueue.current = paintQueue.current
@@ -326,7 +381,7 @@ export const StructurePanel = observer(function StructurePanel({
         console.error(e)
       })
     return undefined
-  }, [ready, transformKey])
+  }, [ready, transformKey, fitBy, key])
 
   useEffect(() => {
     const plugin = pluginRef.current

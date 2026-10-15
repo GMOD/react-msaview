@@ -13,6 +13,8 @@ function importMolstar() {
     import('molstar/lib/mol-util/color'),
     import('molstar/lib/mol-plugin-state/transforms'),
     import('molstar/lib/mol-math/linear-algebra'),
+    import('molstar/lib/mol-plugin-state/helpers/structure-selection-query'),
+    import('molstar/lib/mol-model/structure/structure/util/tm-align'),
     import('molstar/build/viewer/molstar.css'),
   ]).then(
     ([
@@ -26,6 +28,8 @@ function importMolstar() {
       color,
       transforms,
       linearAlgebra,
+      selectionQuery,
+      tmAlignModule,
     ]) => ({
       createPluginUI: ui.createPluginUI,
       renderReact18: react18.renderReact18,
@@ -40,6 +44,9 @@ function importMolstar() {
       Color: color.Color,
       StateTransforms: transforms.StateTransforms,
       Mat4: linearAlgebra.Mat4,
+      QueryContext: structure.QueryContext,
+      StructureSelectionQueries: selectionQuery.StructureSelectionQueries,
+      tmAlign: tmAlignModule.tmAlign,
     }),
   )
 }
@@ -81,6 +88,79 @@ export function drawnStructure(
   return (
     transformCell(plugin, molstar, ref) ?? plugin.state.data.cells.get(ref)
   )?.obj?.data as Structure | undefined
+}
+
+/**
+ * The components of a loaded structure, read from the hierarchy Mol*
+ * publishes. That snapshot refreshes only on some state events and on none
+ * while a data transaction is open, so right after a load it can lack the
+ * structure. This waits a bounded time for it and then fails, so a paint that
+ * cannot find its target says so instead of doing nothing.
+ */
+export async function componentsOfStructure(
+  plugin: PluginUIContext,
+  ref: string,
+  { attempts = 30, delayMs = 100 } = {},
+) {
+  for (let i = 0; i < attempts; i++) {
+    const found = plugin.managers.structure.hierarchy.current.structures.find(
+      s => s.cell.transform.ref === ref,
+    )
+    if (found) {
+      return found.components
+    }
+    await new Promise(resolve => setTimeout(resolve, delayMs))
+  }
+  throw new Error(
+    `Mol* has not listed the structure ${ref} among its components`,
+  )
+}
+
+export interface TmAlignment {
+  ref: string
+  tmScore: number
+  rmsd: number
+  alignedLength: number
+}
+
+/**
+ * Superposes every loaded structure on the first by TM-align of their traces,
+ * with no sequence alignment involved, and moves each. A structure whose trace
+ * yields nothing is left where it is.
+ */
+export async function tmAlignOnto(
+  plugin: PluginUIContext,
+  molstar: Molstar,
+  refs: string[],
+) {
+  const { QueryContext, StructureSelection, StructureElement } = molstar
+  const { query } = molstar.StructureSelectionQueries.trace
+  const traces = refs.flatMap(ref => {
+    const root = plugin.state.data.cells.get(ref)?.obj?.data as
+      | Structure
+      | undefined
+    if (!root) {
+      return []
+    }
+    const loci = StructureSelection.toLociWithSourceUnits(
+      query(new QueryContext(root)),
+    )
+    return [{ ref, loci: StructureElement.Loci.remap(loci, root) }]
+  })
+  const [pivot, ...mobile] = traces
+  const results: TmAlignment[] = []
+  if (!pivot) {
+    return results
+  }
+  for (const { ref, loci } of mobile) {
+    const { bTransform, tmScoreA, rmsd, alignedLength } = molstar.tmAlign(
+      pivot.loci,
+      loci,
+    )
+    await transformStructure(plugin, molstar, ref, [...bTransform])
+    results.push({ ref, tmScore: tmScoreA, rmsd, alignedLength })
+  }
+  return results
 }
 
 /** moves a loaded structure by a column-major 4x4, or back with the identity */

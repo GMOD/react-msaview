@@ -7,3 +7,4 @@ export {
   paintGroups,
 } from './paint.ts'
 export type { StructureColor } from './paint.ts'
+export type { TmAlignment } from './molstar.ts'
