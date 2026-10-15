@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { List, ListItemButton, ListItemText } from '@mui/material'
+import { Link, Typography } from '@mui/material'
 import { observer } from 'mobx-react'
 
 import { smallMSA, smallTree } from './data/seq2.ts'
@@ -64,28 +64,31 @@ const ImportFormExamples = observer(function ({
   model: MsaViewModel
 }) {
   return (
-    <List dense disablePadding>
+    <ul>
       {examples.map(({ label, msa, tree, gff, inline }) => (
-        <ListItemButton
-          key={label}
-          onClick={() => {
-            model.setError(undefined)
-            try {
-              if (inline) {
-                model.setData(inline)
-              } else {
-                load(model, uri(msa), uri(tree), uri(gff))
+        <li key={label}>
+          <Link
+            href="#"
+            onClick={event => {
+              event.preventDefault()
+              model.setError(undefined)
+              try {
+                if (inline) {
+                  model.setData(inline)
+                } else {
+                  load(model, uri(msa), uri(tree), uri(gff))
+                }
+              } catch (e) {
+                console.error(e)
+                model.setError(e)
               }
-            } catch (e) {
-              console.error(e)
-              model.setError(e)
-            }
-          }}
-        >
-          <ListItemText primary={label} />
-        </ListItemButton>
+            }}
+          >
+            <Typography component="span">{label}</Typography>
+          </Link>
+        </li>
       ))}
-    </List>
+    </ul>
   )
 })
 

@@ -62,7 +62,7 @@ you can read one site down the whole family.
 → About & credits…** credits the color schemes.
 
 - **Pan** by click-dragging the alignment, or scroll vertically/horizontally.
-- **Edit → Find row or column…** takes a row name, which completes as you type,
+- **View → Find row or column…** takes a row name, which completes as you type,
   a column number as the ruler reads it, or `name:N` for residue N of that row.
   The view centers on the target and lights it, and an entry that names nothing
   turns the box red.
@@ -73,8 +73,8 @@ you can read one site down the whole family.
   alignment, or a range of columns across every row by dragging along a track,
   such as the Position ruler. The header then shows the block's size, such as
   "12 columns × 3 rows", as a button whose menu copies the block as FASTA, zooms
-  to it, or clears it, the same three items the Edit menu holds. Escape clears
-  it too. The selection travels in the `#data=` link.
+  to it, or clears it. Escape clears it too. The selection travels in the
+  `#data=` link.
 - **Zoom** with the magnifier buttons in the header, or Ctrl+wheel (⌘+wheel on a
   Mac, or a trackpad pinch) at the cursor. The first plain scroll over the
   alignment shows a reminder of the shortcut.
@@ -311,9 +311,10 @@ Three things decide whether the link works for the person who opens it:
 ## Tracks
 
 Tracks are strips drawn above the alignment, sharing its columns and its
-horizontal scroll. The **View → Tracks** submenu lists every track and turns
-each on or off. The dropdown arrow on a track's label, at the left, also closes
-it and shows its details.
+horizontal scroll. **View → Tracks…** opens the track selector, which lists
+every track under its source, filters them by name, and turns each on or off, or
+every match at once. The dropdown arrow on a track's label, at the left, also
+closes it and shows its details.
 
 Hovering a track reads out what it draws at that column: the two conservation
 scores, the sequence logo's information content and residue composition, the
@@ -346,7 +347,7 @@ hovered row, residue and position.
   gets one: `SS_cons`, `seq_cons`, Rfam's `RF` and motif lines. Every `#=GR`
   line gets one too, named `<row> <tag>`, but starts hidden, since a Pfam seed
   carries a couple of per-row active-site lines and an Rfam family carries a
-  structure line per row with a PDB entry. Turn them on from View → Tracks.
+  structure line per row with a PDB entry. Turn them on from View → Tracks….
 - **Base pairs**: the same `#=GC SS_cons` annotation drawn as arcs joining the
   columns that pair, shown whenever a Stockholm file carries one. Pseudoknot
   pairs get their own color. WUSS writes those pairs as `A`/`a` because they
@@ -372,21 +373,19 @@ lists the fields.
 
 ## Settings reference
 
-The header's menu bar reads **File**, **Edit**, **View**, **Tools** and
-**Help**.
+The header's menu bar reads **File**, **View**, **Tools** and **Help**.
 
 [![](media/settings-menu.png)][live-settings-menu]
 
 - **File** opens another alignment or an annotation file, exports an SVG or the
   tree, and shows the alignment info.
-- **Edit** finds a row or column, and copies, zooms to or clears the selection.
-- **View** holds the Zoom (which repeats **Zoom on scroll**), Color scheme,
-  Tree, Tracks, Annotations and Gappy columns submenus, and **Show letters**,
-  **Color letters, not cells** and **Show track values on hover**. Color scheme
-  lists the common schemes for the alignment's alphabet, with the rest under
-  **More schemes**. Gappy columns hides each column where at least 50%, 90% or a
-  custom share of the rows has a gap, and a chip in the header counts the hidden
-  columns; its × shows them again.
+- **View** holds **Find row or column…**, **Tracks…**, the Zoom (which repeats
+  **Zoom on scroll**), Color scheme, Tree, Annotations and Gappy columns
+  submenus, and **Show letters**, **Color letters, not cells** and **Show track
+  values on hover**. Color scheme lists the common schemes for the alignment's
+  alphabet, with the rest under **More schemes**. Gappy columns hides each
+  column where at least 50%, 90% or a custom share of the rows has a gap, and a
+  chip in the header counts the hidden columns; its × shows them again.
 - **Tools** builds a neighbor joining tree.
 - **Help** lists the mouse and keyboard controls and links the tutorials and the
   credits.

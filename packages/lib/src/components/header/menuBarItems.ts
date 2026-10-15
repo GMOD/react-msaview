@@ -1,7 +1,6 @@
 import { lazy } from 'react'
 
 import { maxNeighborJoiningRows, treeOrders } from '../../constants.ts'
-import copy from '../../vendor/copyToClipboard.ts'
 import { canGoTo } from './GoToBox.tsx'
 import { scrollZoomLabel } from './ScrollZoomCheckbox.tsx'
 import { colorSchemeMenuItems } from './colorSchemeMenuItems.tsx'
@@ -22,6 +21,9 @@ const GapThresholdDialog = lazy(
 const GoToDialog = lazy(() => import('../dialogs/GoToDialog.tsx'))
 const HelpDialog = lazy(() => import('../dialogs/HelpDialog.tsx'))
 const MetadataDialog = lazy(() => import('../dialogs/MetadataDialog.tsx'))
+const TrackSelectorDialog = lazy(
+  () => import('../dialogs/TrackSelectorDialog.tsx'),
+)
 
 const tutorialsUrl = 'https://gmod.org/JBrowseMSA/tutorials/'
 
@@ -74,40 +76,6 @@ export function fileMenuItems(model: MsaViewModel): MenuItem[] {
   ]
 }
 
-// greyed out until there is a selection, the way a word processor greys out
-// Copy, which is also what tells a newcomer that selecting is possible
-export function editMenuItems(model: MsaViewModel): MenuItem[] {
-  const none = !model.selectionSize
-  return [
-    ...when(canGoTo(model), [
-      action('Find row or column…', () => {
-        model.queueDialog(onClose => [GoToDialog, { model, onClose }])
-      }),
-    ]),
-    action(
-      'Copy selection as FASTA',
-      () => {
-        copy(model.selectionFasta)
-      },
-      none,
-    ),
-    action(
-      'Zoom to selection',
-      () => {
-        model.zoomToSelection()
-      },
-      none,
-    ),
-    action(
-      'Clear selection',
-      () => {
-        model.clearSelection()
-      },
-      none,
-    ),
-  ]
-}
-
 function zoomSubMenu(model: MsaViewModel): MenuItem[] {
   return [
     action('Zoom in', () => {
@@ -132,16 +100,6 @@ function zoomSubMenu(model: MsaViewModel): MenuItem[] {
       model.setScrollZoom(arg)
     }),
   ]
-}
-
-// the only place in the UI to turn a hidden track back on
-function tracksSubMenu(model: MsaViewModel): MenuItem[] {
-  const shown = new Set(model.turnedOnTracks.map(t => t.model.id))
-  return model.tracks.map(({ model: { id, name } }) =>
-    toggle(name, shown.has(id), () => {
-      model.toggleTrack(id)
-    }),
-  )
 }
 
 export const gapPresets = [100, 90, 50]
@@ -279,10 +237,17 @@ export function treeSubMenu(model: MsaViewModel): MenuItem[] {
 export function viewMenuItems(model: MsaViewModel): MenuItem[] {
   const { bgColor, drawMsaLetters, showColumnStats, noDomains, noTree } = model
   return [
+    ...when(canGoTo(model), [
+      action('Find row or column…', () => {
+        model.queueDialog(onClose => [GoToDialog, { model, onClose }])
+      }),
+    ]),
     subMenu('Zoom', zoomSubMenu(model)),
     subMenu('Color scheme', colorSchemeMenuItems(model)),
     ...when(!noTree, [subMenu('Tree', treeSubMenu(model))]),
-    subMenu('Tracks', tracksSubMenu(model)),
+    action('Tracks…', () => {
+      model.queueDialog(onClose => [TrackSelectorDialog, { model, onClose }])
+    }),
     ...when(!noDomains, [subMenu('Annotations', annotationsSubMenu(model))]),
     subMenu('Gappy columns', gapsSubMenu(model)),
     toggle('Show letters', drawMsaLetters, arg => {

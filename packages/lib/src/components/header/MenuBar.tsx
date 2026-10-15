@@ -4,7 +4,6 @@ import CascadingMenuButton from '@jbrowse/core/ui/CascadingMenuButton'
 import { observer } from 'mobx-react'
 
 import {
-  editMenuItems,
   fileMenuItems,
   helpMenuItems,
   toolsMenuItems,
@@ -27,7 +26,6 @@ const menuButtonSx: SxProps<Theme> = {
 
 const menus: [string, (model: MsaViewModel) => MenuItem[]][] = [
   ['File', fileMenuItems],
-  ['Edit', editMenuItems],
   ['View', viewMenuItems],
   ['Tools', toolsMenuItems],
   ['Help', helpMenuItems],

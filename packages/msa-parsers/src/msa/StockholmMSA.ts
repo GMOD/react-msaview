@@ -117,6 +117,7 @@ export default class StockholmMSA extends BaseMSA {
         Object.entries(byRow).map(([row, data]) => ({
           id: `gr-${row}-${tag}`,
           name: `${row} ${tag}`,
+          associatedRowName: row,
           data,
           customColorScheme: structureColors(tag),
           defaultOff: true,

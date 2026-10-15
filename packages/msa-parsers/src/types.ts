@@ -27,6 +27,8 @@ export interface MSATrack {
   data?: string
   customColorScheme?: Record<string, string>
   defaultOff?: boolean
+  // the row a per-row line (#=GR) annotates
+  associatedRowName?: string
 }
 
 export interface GFFRecord {

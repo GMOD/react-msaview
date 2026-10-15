@@ -3860,6 +3860,16 @@ function stateModelFactory({
       },
       /**
        * #action
+       * show or hide several tracks at once, as the track selector's Show all
+       * and Hide all do
+       */
+      setTracksShown(ids: string[], shown: boolean) {
+        for (const id of ids) {
+          self.turnedOffTracks.set(id, !shown)
+        }
+      },
+      /**
+       * #action
        */
       setStatus(status?: { msg: string; onCancel?: () => void }) {
         self.status = status

@@ -7,7 +7,6 @@ import { afterEach, beforeAll, beforeEach, expect, test } from 'vitest'
 import MSAView from './components/Loading.tsx'
 import { keyboardControls } from './components/controls.ts'
 import {
-  editMenuItems,
   gapsSubMenu,
   toolsMenuItems,
   treeSubMenu,
@@ -133,13 +132,41 @@ test('the alignment names its keys to a screen reader', () => {
   expect(label).toContain('Arrow keys: Scroll one cell')
 })
 
-test('the menu bar reads File, Edit, View, Tools, Help', () => {
+test('the menu bar reads File, View, Tools, Help', () => {
   mount({ msa })
   expect(
-    ['file', 'edit', 'view', 'tools', 'help'].map(
+    ['file', 'view', 'tools', 'help'].map(
       n => testId(`${n}_menu`)?.textContent,
     ),
-  ).toEqual(['File', 'Edit', 'View', 'Tools', 'Help'])
+  ).toEqual(['File', 'View', 'Tools', 'Help'])
+})
+
+test('the track selector filters, and shows or hides what matches', async () => {
+  mount({ msa })
+  clickItem(viewMenuItems(model), 'Tracks…')
+  await waitForText('Show all')
+  const input = document.querySelector<HTMLInputElement>(
+    'input[placeholder="Filter tracks"]',
+  )!
+  act(() => {
+    Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      'value',
+    )!.set!.call(input, 'conservation')
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  await click(button('Hide all'))
+  expect(
+    model.turnedOnTracks.filter(t =>
+      t.model.name.toLowerCase().includes('conservation'),
+    ),
+  ).toEqual([])
+  await click(button('Show all'))
+  expect(
+    model.turnedOnTracks.filter(t =>
+      t.model.name.toLowerCase().includes('conservation'),
+    ).length,
+  ).toBeGreaterThan(0)
 })
 
 test('View → Zoom resets the zoom', () => {
@@ -149,21 +176,6 @@ test('View → Zoom resets the zoom', () => {
   expect(model.colWidth).not.toBe(colWidth)
   clickItem(subMenuItems(viewMenuItems(model), 'Zoom'), 'Reset zoom')
   expect(model.colWidth).toBe(colWidth)
-})
-
-test('the selection items stay greyed out until there is a selection', () => {
-  mount({ msa })
-  const disabled = () =>
-    editMenuItems(model)
-      .filter(i => 'disabled' in i && i.disabled)
-      .map(i => 'label' in i && i.label)
-  expect(disabled()).toEqual([
-    'Copy selection as FASTA',
-    'Zoom to selection',
-    'Clear selection',
-  ])
-  model.setSelection({ start: 0, end: 2 })
-  expect(disabled()).toEqual([])
 })
 
 function subMenuItems(items: MenuItem[], label: string) {

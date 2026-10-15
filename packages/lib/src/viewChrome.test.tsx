@@ -10,7 +10,7 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeAll, beforeEach, expect, test } from 'vitest'
 
 import MSAView from './components/Loading.tsx'
-import { editMenuItems } from './components/header/menuBarItems.ts'
+import { viewMenuItems } from './components/header/menuBarItems.ts'
 import { scaleBarLength } from './components/tree/scaleBar.ts'
 import MSAModelF from './model.ts'
 
@@ -118,9 +118,9 @@ test('the view mounts with both scrollbars', () => {
   expect(byCursor('ns-resize')).toHaveLength(2)
 })
 
-test('the edit menu offers find', () => {
+test('the view menu offers find', () => {
   expect(
-    editMenuItems(model).some(
+    viewMenuItems(model).some(
       item => 'label' in item && item.label === 'Find row or column…',
     ),
   ).toBe(true)
