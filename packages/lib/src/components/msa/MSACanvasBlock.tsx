@@ -6,7 +6,6 @@ import { observer } from 'mobx-react'
 import { useCanvasTheme } from '../../darkReader.ts'
 import { useCanvasAutorun } from '../../useCanvasAutorun.ts'
 import { drawMsaRaster, rasterApplies } from './msaRaster.ts'
-import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock.ts'
 import { renderMSABlock } from './renderMSABlock.ts'
 import { useMsaBlockMouse } from './useMsaBlockMouse.ts'
 
@@ -45,12 +44,6 @@ const MSACanvasBlock = observer(function ({
       drawnAt.current = snap
       ctx.resetTransform()
       ctx.clearRect(0, 0, canvasSize, canvasSize)
-      // a domain box goes under the letters, and a bar or lane over the
-      // residue colors, which would otherwise cover it
-      const overlayOnTop = model.cellFill === 'residue'
-      if (!overlayOnTop) {
-        renderBoxFeatureCanvasBlock({ ctx, theme, offsetX, offsetY, model })
-      }
       const rasterTiles = rasterApplies(model)
       if (rasterTiles) {
         drawMsaRaster({ ctx, model, theme, offsetX, offsetY })
@@ -62,10 +55,8 @@ const MSACanvasBlock = observer(function ({
         offsetY,
         model,
         rasterTiles,
+        domains: true,
       })
-      if (overlayOnTop) {
-        renderBoxFeatureCanvasBlock({ ctx, theme, offsetX, offsetY, model })
-      }
     },
     width: canvasSize,
     height: canvasSize,

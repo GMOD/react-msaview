@@ -3,6 +3,7 @@ import { setFontSize } from '../../setFontSize.ts'
 import { adjustColorForContrast, contrastTextFn } from '../../util.ts'
 import { getVisibleLeaves } from '../getVisibleLeaves.ts'
 import { domainBandCursor } from './domainBandCursor.ts'
+import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock.ts'
 import { tileColorFn } from './tileColor.ts'
 import { visibleColRange } from './visibleColRange.ts'
 
@@ -22,6 +23,7 @@ export function renderMSABlock({
   blockSizeXOverride,
   blockSizeYOverride,
   rasterTiles,
+  domains,
 }: {
   offsetX: number
   offsetY: number
@@ -32,6 +34,11 @@ export function renderMSABlock({
   blockSizeXOverride?: number
   blockSizeYOverride?: number
   rasterTiles?: boolean
+  /**
+   * draw the domain overlay too, over the cell colors and under the letters,
+   * which is the one order every cell fill reads right in
+   */
+  domains?: boolean
 }) {
   const {
     colWidth,
@@ -45,12 +52,15 @@ export function renderMSABlock({
   const k = highResScaleFactorOverride ?? highResScaleFactor
   const bx = blockSizeXOverride ?? blockSize
   const by = blockSizeYOverride ?? blockSize
-  ctx.resetTransform()
-  ctx.scale(k, k)
-  ctx.translate(-offsetX, rowHeight / 2 - offsetY)
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'alphabetic'
-  setFontSize(ctx, fontSize, !bgColor)
+  const setup = () => {
+    ctx.resetTransform()
+    ctx.scale(k, k)
+    ctx.translate(-offsetX, rowHeight / 2 - offsetY)
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'alphabetic'
+    setFontSize(ctx, fontSize, !bgColor)
+  }
+  setup()
 
   const { xStart, xEnd } = visibleColRange({
     offsetX,
@@ -63,7 +73,7 @@ export function renderMSABlock({
     ? columns.get(relativeTo)?.slice(xStart, xEnd)
     : null
 
-  drawTilesAndText({
+  const cells = {
     model,
     ctx,
     theme,
@@ -81,7 +91,24 @@ export function renderMSABlock({
       model.showMsaLetters &&
       (!model.wheelZooming ||
         (bx * by) / (colWidth * rowHeight) <= zoomFrameMaxLetters),
-  })
+  }
+  if (domains) {
+    drawTilesAndText({ ...cells, pass: 'tiles' })
+    renderBoxFeatureCanvasBlock({
+      model,
+      theme,
+      ctx,
+      offsetX,
+      offsetY,
+      highResScaleFactorOverride,
+      blockSizeXOverride,
+      blockSizeYOverride,
+    })
+    setup()
+    drawTilesAndText({ ...cells, pass: 'letters' })
+  } else {
+    drawTilesAndText({ ...cells, pass: 'both' })
+  }
   drawInsertionIndicators({
     model,
     ctx,
@@ -102,7 +129,8 @@ function drawTilesAndText({
   referenceSeq,
   drawTiles,
   rasterTiles,
-  letters,
+  letters: lettersOn,
+  pass,
 }: {
   model: MsaViewModel
   theme: Theme
@@ -114,6 +142,7 @@ function drawTilesAndText({
   drawTiles: boolean
   rasterTiles?: boolean
   letters: boolean
+  pass: 'tiles' | 'letters' | 'both'
 }) {
   const {
     bgColor,
@@ -129,7 +158,8 @@ function drawTilesAndText({
   } = model
 
   const tiles = drawTiles && bgColor
-  const paintTiles = tiles && !rasterTiles
+  const paintTiles = tiles && !rasterTiles && pass !== 'letters'
+  const letters = lettersOn && pass !== 'tiles'
   if (paintTiles || letters) {
     const tileColor = tileColorFn(model)
     // Domain fills come from a categorical palette with no fixed lightness, and

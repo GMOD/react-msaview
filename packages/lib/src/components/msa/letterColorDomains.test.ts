@@ -217,3 +217,28 @@ test('picking a scheme while the domains fill the cells hands them back', () => 
     'residue',
   ])
 })
+
+test('sub-row boxes over residue colors sit under the letters', () => {
+  const model = makeModel()
+  model.setCellFill('residue')
+  model.setSubFeatureRows(true)
+  const ops: string[] = []
+  const { ctx } = recordingCtx()
+  const logged = {
+    ...ctx,
+    fill: () => ops.push('fill'),
+    fillRect: () => ops.push('fill'),
+    fillText: () => ops.push('text'),
+  } as unknown as RenderCtx
+  renderMSABlock({
+    model,
+    ctx: logged,
+    theme: createJBrowseTheme(),
+    offsetX: 0,
+    offsetY: 0,
+    domains: true,
+  })
+  const firstText = ops.indexOf('text')
+  expect(firstText).toBeGreaterThan(0)
+  expect(ops.lastIndexOf('fill')).toBeLessThan(firstText)
+})

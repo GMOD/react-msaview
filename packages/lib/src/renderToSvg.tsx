@@ -7,7 +7,6 @@ import { visibleRowRange } from './components/getVisibleLeaves.ts'
 import MinimapSVG from './components/minimap/MinimapSVG.tsx'
 import { legendRows } from './components/msa/legendRows.ts'
 import { rasterApplies, rasterImageHref } from './components/msa/msaRaster.ts'
-import { renderBoxFeatureCanvasBlock } from './components/msa/renderBoxFeatureCanvasBlock.ts'
 import { renderPersistentHighlights } from './components/msa/renderHighlights.ts'
 import { renderMSABlock } from './components/msa/renderMSABlock.ts'
 import { visibleColRange } from './components/msa/visibleColRange.ts'
@@ -412,25 +411,6 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
   const raster = rasterBackground({ model, theme, layout })
 
   const msaCtx = new Context(msaAreaWidth, contentHeight)
-  const drawOverlay = () => {
-    renderBoxFeatureCanvasBlock({
-      model,
-      theme,
-      ctx: msaCtx,
-      offsetX,
-      offsetY,
-      // the overlay culls bands to this width; without it the export falls
-      // back to the on-screen 500px block size and drops every band past it
-      blockSizeXOverride: msaAreaWidth,
-      blockSizeYOverride: contentHeight,
-      highResScaleFactorOverride: 1,
-    })
-  }
-  // as on screen: a domain box under the letters, a bar over residue colors
-  const overlayOnTop = model.cellFill === 'residue'
-  if (!overlayOnTop) {
-    drawOverlay()
-  }
   renderMSABlock({
     model,
     theme,
@@ -441,10 +421,8 @@ function CoreRendering({ model, theme, layout, Context, layers }: LayerProps) {
     blockSizeYOverride: contentHeight,
     highResScaleFactorOverride: 1,
     rasterTiles: !!raster,
+    domains: true,
   })
-  if (overlayOnTop) {
-    drawOverlay()
-  }
   msaCtx.resetTransform()
   renderPersistentHighlights({
     ctx: msaCtx,
