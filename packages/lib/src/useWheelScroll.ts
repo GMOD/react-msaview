@@ -2,24 +2,59 @@ import { useEffect, useRef, useState } from 'react'
 
 import { WheelZoomSmoother } from './wheelZoom.ts'
 
+import type { MsaViewModel } from './model.ts'
+
 const zoomSettleMs = 150
 
+// a wheel event this soon after one the view took belongs to the same gesture,
+// so the view keeps it at an edge rather than handing the momentum to the page
+const wheelLatchMs = 150
+
+type Axes = 'x' | 'y' | 'xy'
+
+/**
+ * Whether a vertical wheel `delta` moves a view at `scrollY`. At the top or
+ * bottom, or when every row fits, the page scrolls instead, so an embedded
+ * viewer never traps the reader scrolling past it.
+ */
+export function canScrollY(model: MsaViewModel, delta: number) {
+  const { scrollY, maxScrollY } = model
+  return delta > 0 ? scrollY > maxScrollY : delta < 0 && scrollY < 0
+}
+
+/**
+ * The CSS touch-action for a pannable area: the browser keeps a touch pan
+ * along every axis the view cannot scroll, and pinch zoom on the page.
+ */
+export function panTouchAction(model: MsaViewModel, axes: Axes) {
+  const x = axes.includes('x') && model.maxScrollX < 0
+  const y = axes.includes('y') && model.maxScrollY < 0
+  return x && y
+    ? 'pinch-zoom'
+    : x
+      ? 'pan-y pinch-zoom'
+      : y
+        ? 'pan-x pinch-zoom'
+        : 'auto'
+}
+
+/**
+ * Wheel scrolling, wheel zoom and pointer-drag panning of `model` over `ref`,
+ * along `axes`. The returned `onPointerDown` starts a pan with a mouse, a pen
+ * or a finger; put `touchAction` on the same element.
+ */
 export function useWheelScroll({
   ref,
-  onScrollX,
-  onScrollY,
-  onZoom,
-  onZoomSettle,
+  model,
+  axes,
+  zoom,
   onWheelScroll,
-  scrollZoom,
 }: {
   ref: React.RefObject<HTMLDivElement | null>
-  onScrollX?: (delta: number) => void
-  onScrollY?: (delta: number) => void
-  onZoom?: (scaleFactor: number, offsetX: number, offsetY: number) => void
-  onZoomSettle?: () => void
+  model: MsaViewModel
+  axes: Axes
+  zoom?: boolean
   onWheelScroll?: (event: WheelEvent) => void
-  scrollZoom?: boolean
 }) {
   const scheduled = useRef(false)
   const zoomFrame = useRef<number | undefined>(undefined)
@@ -28,13 +63,15 @@ export function useWheelScroll({
   )
   const deltaX = useRef(0)
   const deltaY = useRef(0)
+  const lastTaken = useRef(Number.NEGATIVE_INFINITY)
   const zoomSmoother = useRef(new WheelZoomSmoother())
   const zoomX = useRef(0)
   const zoomY = useRef(0)
   const lastZoomTime = useRef<number | null>(null)
-  const prevX = useRef(0)
-  const prevY = useRef(0)
-  const [mouseDragging, setMouseDragging] = useState(false)
+  const prev = useRef({ x: 0, y: 0 })
+  const [dragging, setDragging] = useState(false)
+  const x = axes.includes('x')
+  const y = axes.includes('y')
 
   useEffect(() => {
     const curr = ref.current
@@ -47,11 +84,10 @@ export function useWheelScroll({
       // shift is the escape hatch to pan instead.
       const isCtrlZoom = event.ctrlKey || event.metaKey
       const isScrollZoom =
-        scrollZoom &&
+        model.scrollZoom &&
         !event.shiftKey &&
         Math.abs(event.deltaY) >= Math.abs(event.deltaX)
-      if (onZoom && (isCtrlZoom || isScrollZoom)) {
-        const zoom = onZoom
+      if (zoom && (isCtrlZoom || isScrollZoom)) {
         const rect = curr!.getBoundingClientRect()
         zoomSmoother.current.add(event.deltaY, event.deltaMode, isCtrlZoom)
         zoomX.current = event.clientX - rect.left
@@ -62,14 +98,14 @@ export function useWheelScroll({
             const elapsed =
               lastZoomTime.current === null ? 16.67 : now - lastZoomTime.current
             lastZoomTime.current = now
-            zoom(
+            model.wheelZoomToPos(
               zoomSmoother.current.step(Math.min(100, elapsed)),
               zoomX.current,
               zoomY.current,
             )
             clearTimeout(zoomSettle.current)
             zoomSettle.current = setTimeout(() => {
-              onZoomSettle?.()
+              model.endWheelZoom()
             }, zoomSettleMs)
             zoomFrame.current = zoomSmoother.current.idle
               ? undefined
@@ -81,30 +117,24 @@ export function useWheelScroll({
         event.stopPropagation()
         return
       }
-      // only swallow the wheel event on an axis we actually handle, otherwise a
-      // vertical wheel over an x-only scroller (e.g. a Track) blocks page scroll
-      const consumeX = !!onScrollX && event.deltaX !== 0
-      const consumeY = !!onScrollY && event.deltaY !== 0
-      if (consumeX || consumeY) {
+      // horizontal stays taken at the edges, where the page would read it as
+      // a swipe back through history
+      const latched = event.timeStamp - lastTaken.current < wheelLatchMs
+      const takeX = x && event.deltaX !== 0
+      const takeY =
+        y && event.deltaY !== 0 && (latched || canScrollY(model, event.deltaY))
+      if (takeX || takeY) {
+        lastTaken.current = event.timeStamp
         onWheelScroll?.(event)
-        if (onScrollX) {
-          deltaX.current += event.deltaX
-        }
-        if (onScrollY) {
-          deltaY.current += event.deltaY
-        }
-
+        deltaX.current += takeX ? event.deltaX : 0
+        deltaY.current += takeY ? event.deltaY : 0
         if (!scheduled.current) {
           scheduled.current = true
           requestAnimationFrame(() => {
-            if (onScrollX) {
-              onScrollX(-deltaX.current)
-              deltaX.current = 0
-            }
-            if (onScrollY) {
-              onScrollY(-deltaY.current)
-              deltaY.current = 0
-            }
+            model.doScrollX(-deltaX.current)
+            model.doScrollY(-deltaY.current)
+            deltaX.current = 0
+            deltaY.current = 0
             scheduled.current = false
           })
         }
@@ -121,64 +151,45 @@ export function useWheelScroll({
       }
       clearTimeout(zoomSettle.current)
     }
-  }, [
-    ref,
-    onScrollX,
-    onScrollY,
-    onZoom,
-    onZoomSettle,
-    onWheelScroll,
-    scrollZoom,
-  ])
+  }, [ref, model, x, y, zoom, onWheelScroll])
 
   useEffect(() => {
-    if (!mouseDragging) {
+    if (!dragging) {
       return
     }
-    function globalMouseMove(event: MouseEvent) {
+    function onMove(event: PointerEvent) {
       event.preventDefault()
-      const distanceX = event.clientX - prevX.current
-      const distanceY = event.clientY - prevY.current
-      if ((distanceX && onScrollX) || (distanceY && onScrollY)) {
-        if (!scheduled.current) {
-          scheduled.current = true
-          requestAnimationFrame(() => {
-            onScrollX?.(distanceX)
-            onScrollY?.(distanceY)
-            scheduled.current = false
-            prevX.current = event.clientX
-            prevY.current = event.clientY
-          })
-        }
+      const dx = x ? event.clientX - prev.current.x : 0
+      const dy = y ? event.clientY - prev.current.y : 0
+      if ((dx || dy) && !scheduled.current) {
+        scheduled.current = true
+        requestAnimationFrame(() => {
+          model.doScrollX(dx)
+          model.doScrollY(dy)
+          scheduled.current = false
+          prev.current = { x: event.clientX, y: event.clientY }
+        })
       }
     }
-
-    function globalMouseUp() {
-      prevX.current = 0
-      prevY.current = 0
-      setMouseDragging(false)
+    function onUp() {
+      setDragging(false)
     }
-
-    window.addEventListener('mousemove', globalMouseMove, true)
-    window.addEventListener('mouseup', globalMouseUp, true)
+    window.addEventListener('pointermove', onMove, true)
+    window.addEventListener('pointerup', onUp, true)
+    window.addEventListener('pointercancel', onUp, true)
     return () => {
-      window.removeEventListener('mousemove', globalMouseMove, true)
-      window.removeEventListener('mouseup', globalMouseUp, true)
+      window.removeEventListener('pointermove', onMove, true)
+      window.removeEventListener('pointerup', onUp, true)
+      window.removeEventListener('pointercancel', onUp, true)
     }
-  }, [mouseDragging, onScrollX, onScrollY])
+  }, [dragging, model, x, y])
 
-  function onMouseDown(event: React.MouseEvent) {
+  function onPointerDown(event: React.PointerEvent) {
     if (event.button === 0) {
-      prevX.current = event.clientX
-      prevY.current = event.clientY
-      setMouseDragging(true)
+      prev.current = { x: event.clientX, y: event.clientY }
+      setDragging(true)
     }
   }
 
-  function onMouseUp(event: React.MouseEvent) {
-    event.preventDefault()
-    setMouseDragging(false)
-  }
-
-  return { onMouseDown, onMouseUp }
+  return { onPointerDown, touchAction: panTouchAction(model, axes) }
 }

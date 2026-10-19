@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useRef } from 'react'
 
 import { observer } from 'mobx-react'
 
@@ -17,21 +17,19 @@ const RowPanel = observer(function ({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const { height, blocksY, scrollY } = model
-  const onScrollY = useCallback(
-    (d: number) => {
-      model.doScrollY(d)
-    },
-    [model],
-  )
-  const { onMouseDown, onMouseUp } = useWheelScroll({ ref, onScrollY })
+  const { onPointerDown, touchAction } = useWheelScroll({
+    ref,
+    model,
+    axes: 'y',
+  })
 
   return (
     <div
       ref={ref}
       data-testid={`rowpanel_${panel.id}`}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
+      onPointerDown={onPointerDown}
       style={{
+        touchAction,
         height,
         width: panel.width,
         flexShrink: 0,

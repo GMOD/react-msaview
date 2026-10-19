@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useRef } from 'react'
 
 import { isAlive } from '@jbrowse/mobx-state-tree'
 import { observer } from 'mobx-react'
@@ -20,13 +20,11 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
     scrollY,
     highResScaleFactor,
   } = model
-  const onScrollY = useCallback(
-    (d: number) => {
-      model.doScrollY(d)
-    },
-    [model],
-  )
-  const { onMouseDown, onMouseUp } = useWheelScroll({ ref, onScrollY })
+  const { onPointerDown, touchAction } = useWheelScroll({
+    ref,
+    model,
+    axes: 'y',
+  })
 
   const canvasWidth = effectiveTreeAreaWidth * highResScaleFactor
   const canvasHeight = height * highResScaleFactor
@@ -44,9 +42,9 @@ const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   return (
     <div
       ref={ref}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
+      onPointerDown={onPointerDown}
       style={{
+        touchAction,
         height,
         position: 'relative',
         width: effectiveTreeAreaWidth,

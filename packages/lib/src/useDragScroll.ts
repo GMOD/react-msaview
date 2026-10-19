@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
 /**
- * Tracks a mouse drag along a single axis and reports the scroll delta on each
- * animation frame. Shared by the horizontal Minimap and the VerticalScrollbar.
+ * Tracks a pointer drag along a single axis and reports the scroll delta on
+ * each animation frame. Shared by the horizontal Minimap, the VerticalScrollbar
+ * and the dividers.
  *
  * `onScroll` is invoked with the pixel delta since drag start and the scroll
  * offset captured when the drag began. Memoize it (useCallback) so the document
@@ -21,7 +22,7 @@ export function useDragScroll(
   useEffect(() => {
     if (mouseDown !== undefined) {
       const { client: startClient, startScroll } = mouseDown
-      function onMove(event: MouseEvent) {
+      function onMove(event: PointerEvent) {
         if (!scheduled.current) {
           scheduled.current = true
           requestAnimationFrame(() => {
@@ -34,18 +35,20 @@ export function useDragScroll(
       function onUp() {
         setMouseDown(undefined)
       }
-      document.addEventListener('mousemove', onMove)
-      document.addEventListener('mouseup', onUp)
+      document.addEventListener('pointermove', onMove)
+      document.addEventListener('pointerup', onUp)
+      document.addEventListener('pointercancel', onUp)
       return () => {
-        document.removeEventListener('mousemove', onMove)
-        document.removeEventListener('mouseup', onUp)
+        document.removeEventListener('pointermove', onMove)
+        document.removeEventListener('pointerup', onUp)
+        document.removeEventListener('pointercancel', onUp)
       }
     }
   }, [axis, onScroll, mouseDown])
 
   return {
     dragging: mouseDown !== undefined,
-    startDrag: (event: React.MouseEvent, startScroll: number) => {
+    startDrag: (event: React.PointerEvent, startScroll: number) => {
       setMouseDown({
         client: axis === 'x' ? event.clientX : event.clientY,
         startScroll,

@@ -1,4 +1,4 @@
-import React, { lazy, useCallback, useRef, useState } from 'react'
+import React, { lazy, useRef, useState } from 'react'
 
 import BaseTooltip from '@jbrowse/core/ui/BaseTooltip'
 import { makeStyles } from '@jbrowse/core/util/tss-react'
@@ -153,13 +153,7 @@ const Track = observer(function ({
     model: { height },
   } = track
   const ref = useRef<HTMLDivElement>(null)
-  const onScrollX = useCallback(
-    (d: number) => {
-      model.doScrollX(d)
-    },
-    [model],
-  )
-  useWheelScroll({ ref, onScrollX })
+  useWheelScroll({ ref, model, axes: 'x' })
   const { classes } = useStyles()
   const { anchor, onMouseMove, onMouseDown, onMouseLeave } = useTrackHover({
     model,

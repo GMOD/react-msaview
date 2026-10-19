@@ -85,11 +85,12 @@ export default function DragHandle({
       onMouseLeave={() => {
         setHovered(false)
       }}
-      onMouseDown={event => {
+      onPointerDown={event => {
         startDrag(event, getStart())
       }}
       style={{
         position,
+        touchAction: 'none',
         zIndex,
         cursor: cursor(axis),
         background: hovered ? fillHovered(theme) : fill(theme),

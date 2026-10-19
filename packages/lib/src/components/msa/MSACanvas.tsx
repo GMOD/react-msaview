@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useRef } from 'react'
 
 import { observer } from 'mobx-react'
 
@@ -19,7 +19,6 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     height,
     msaCanvasWidth,
     blocks2d,
-    scrollZoom,
     scrollX,
     scrollY,
     zoomSnapshot,
@@ -33,36 +32,13 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
     ? zoomSnapshotScale(model, zoomSnapshot)
     : undefined
   const ref = useRef<HTMLDivElement>(null)
-  const onScrollX = useCallback(
-    (d: number) => {
-      model.doScrollX(d)
-    },
-    [model],
-  )
-  const onScrollY = useCallback(
-    (d: number) => {
-      model.doScrollY(d)
-    },
-    [model],
-  )
-  const onZoom = useCallback(
-    (scaleFactor: number, offsetX: number, offsetY: number) => {
-      model.wheelZoomToPos(scaleFactor, offsetX, offsetY)
-    },
-    [model],
-  )
-  const onZoomSettle = useCallback(() => {
-    model.endWheelZoom()
-  }, [model])
   const hint = useWheelZoomHint(model)
-  const { onMouseDown, onMouseUp } = useWheelScroll({
+  const { onPointerDown, touchAction } = useWheelScroll({
     ref,
-    onScrollX,
-    onScrollY,
-    onZoom,
-    onZoomSettle,
+    model,
+    axes: 'xy',
+    zoom: true,
     onWheelScroll: hint.onWheelScroll,
-    scrollZoom,
   })
 
   return (
@@ -78,20 +54,23 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
           event.preventDefault()
         }
       }}
+      // a shifted press selects cells (useMsaBlockMouse), so it takes the
+      // focus Escape clears from, and leaves out the pan and the page's own
+      // text selection
       onMouseDown={event => {
-        // a shifted press selects cells (useMsaBlockMouse), so it takes the
-        // focus Escape clears from, and leaves out the pan and the page's own
-        // text selection
         if (event.shiftKey) {
           event.preventDefault()
           ref.current?.focus({ preventScroll: true })
-        } else {
-          onMouseDown(event)
         }
       }}
-      onMouseUp={onMouseUp}
+      onPointerDown={event => {
+        if (!event.shiftKey) {
+          onPointerDown(event)
+        }
+      }}
       style={{
         position: 'relative',
+        touchAction,
         height,
         width: msaCanvasWidth,
         overflow: 'hidden',

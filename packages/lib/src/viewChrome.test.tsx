@@ -2,7 +2,7 @@
 //
 // The chrome around the alignment -- the tree/height resize handles, the
 // minimap and the vertical scrollbar -- is all built from the same
-// mousedown-then-drag hook, and none of it is exercised by the render tests.
+// press-then-drag hook, and none of it is exercised by the render tests.
 // This mounts the real view and drives one handle of each kind.
 import React, { act } from 'react'
 
@@ -87,24 +87,31 @@ function byCursor(cursor: string) {
   )
 }
 
+// a browser fires the pointer event, then the mouse event it stands for
+function fire(
+  target: EventTarget,
+  type: 'down' | 'move' | 'up',
+  init: MouseEventInit = {},
+) {
+  const options = { bubbles: true, ...init }
+  target.dispatchEvent(new PointerEvent(`pointer${type}`, options))
+  target.dispatchEvent(new MouseEvent(`mouse${type}`, options))
+}
+
 // useDragScroll defers each move to an animation frame, so a drag needs one
 // flushed frame before the model has moved
 async function drag(el: HTMLElement, { x = 0, y = 0 }) {
   await act(async () => {
-    el.dispatchEvent(
-      new MouseEvent('mousedown', { bubbles: true, clientX: 0, clientY: 0 }),
-    )
+    fire(el, 'down', { clientX: 0, clientY: 0 })
   })
   await act(async () => {
-    document.dispatchEvent(
-      new MouseEvent('mousemove', { bubbles: true, clientX: x, clientY: y }),
-    )
+    fire(document, 'move', { clientX: x, clientY: y })
     await new Promise(resolve => {
       requestAnimationFrame(resolve)
     })
   })
   await act(async () => {
-    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+    fire(document, 'up')
   })
 }
 
@@ -164,9 +171,7 @@ function thumbs() {
 
 function pressAt(el: Element, clientX: number, clientY: number) {
   act(() => {
-    el.dispatchEvent(
-      new MouseEvent('mousedown', { bubbles: true, clientX, clientY }),
-    )
+    fire(el, 'down', { clientX, clientY })
   })
 }
 
@@ -333,22 +338,13 @@ function dragOver(
   shiftKey: boolean,
 ) {
   act(() => {
-    el.dispatchEvent(
-      new MouseEvent('mousedown', {
-        bubbles: true,
-        clientX: from.x,
-        clientY: from.y,
-        shiftKey,
-      }),
-    )
+    fire(el, 'down', { clientX: from.x, clientY: from.y, shiftKey })
   })
   act(() => {
-    window.dispatchEvent(
-      new MouseEvent('mousemove', { clientX: to.x, clientY: to.y, shiftKey }),
-    )
+    fire(window, 'move', { clientX: to.x, clientY: to.y, shiftKey })
   })
   act(() => {
-    window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+    fire(window, 'up')
   })
 }
 
@@ -455,4 +451,49 @@ test('the selection menu zooms to the block and clears it', () => {
     item('Clear selection').click()
   })
   expect(model.selection).toBeUndefined()
+})
+
+function wheel(deltaY: number) {
+  const el = container.querySelector('[data-testid="msa_canvas"]')!
+  const event = new WheelEvent('wheel', {
+    deltaY,
+    bubbles: true,
+    cancelable: true,
+  })
+  act(() => {
+    el.dispatchEvent(event)
+  })
+  return event.defaultPrevented
+}
+
+test('a wheel past the top row scrolls the page', () => {
+  expect(wheel(-50)).toBe(false)
+  expect(wheel(50)).toBe(true)
+})
+
+test('a wheel past the bottom row scrolls the page', () => {
+  act(() => {
+    model.setScrollY(model.maxScrollY)
+  })
+  expect(wheel(50)).toBe(false)
+  expect(wheel(-50)).toBe(true)
+})
+
+test('a gesture the view took keeps its momentum at the edge', () => {
+  expect(wheel(50)).toBe(true)
+  act(() => {
+    model.setScrollY(model.maxScrollY)
+  })
+  expect(wheel(50)).toBe(true)
+})
+
+test('a touch pan along an axis that fits moves the page', () => {
+  const touchAction = () =>
+    container.querySelector<HTMLElement>('[data-testid="msa_canvas"]')!.style
+      .touchAction
+  expect(touchAction()).toBe('pinch-zoom')
+  act(() => {
+    model.setHeight(2000)
+  })
+  expect(touchAction()).toBe('pan-y pinch-zoom')
 })

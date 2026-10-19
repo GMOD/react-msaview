@@ -65,6 +65,9 @@ you can read one site down the whole family.
   "12 columns × 3 rows", as a button whose menu copies the block as FASTA, zooms
   to it, or clears it. Escape clears it too. The selection travels in the
   `#data=` link.
+- **Scroll** with the wheel or a drag, or a finger on a touch screen. At the top
+  or bottom row, or when every row fits, a vertical scroll passes to the page,
+  so a viewer embedded in a long page does not catch the reader scrolling past.
 - **Zoom** with the magnifier buttons in the header, or Ctrl+wheel (⌘+wheel on a
   Mac, or a trackpad pinch) at the cursor. The first plain scroll over the
   alignment shows a reminder of the shortcut.
