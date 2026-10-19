@@ -43,7 +43,7 @@ cat > "$OUT/index.html" <<HTML
       .msa-embed {
         position: relative;
         max-width: 900px;
-        height: 360px;
+        height: 365px;
       }
       .msa-embed > img {
         display: block;
@@ -76,7 +76,11 @@ cat > "$OUT/index.html" <<HTML
           const script = document.createElement('script')
           script.src = bundle
           script.onload = resolve
-          script.onerror = reject
+          script.onerror = () => {
+            script.remove()
+            bundleLoaded = undefined
+            reject(new Error('the viewer bundle did not load'))
+          }
           document.head.append(script)
         })
         return bundleLoaded
@@ -86,17 +90,22 @@ cat > "$OUT/index.html" <<HTML
         const button = box.querySelector('.msa-explore')
         button.disabled = true
         button.textContent = 'Loading…'
-        const [props] = await Promise.all([
-          fetch(box.dataset.props).then(res => res.json()),
-          loadBundle(),
-        ])
-        box.replaceChildren()
-        window.ReactMSAView.mount(box, props)
+        try {
+          const [props] = await Promise.all([
+            fetch(box.dataset.props).then(res => res.json()),
+            loadBundle(),
+          ])
+          box.replaceChildren()
+          window.ReactMSAView.mount(box, props)
+        } catch {
+          button.disabled = false
+          button.textContent = 'Explore the alignment (retry)'
+        }
       }
 
       for (const box of document.querySelectorAll('.msa-embed')) {
-        box.querySelector('.msa-explore').addEventListener('click', () => explore(box), {
-          once: true,
+        box.querySelector('.msa-explore').addEventListener('click', () => {
+          explore(box)
         })
       }
     </script>
@@ -116,7 +125,7 @@ cat > "$OUT/live.html" <<HTML
     <style>
       .msa-embed {
         max-width: 900px;
-        height: 360px;
+        height: 365px;
       }
     </style>
   </head>
@@ -135,15 +144,22 @@ cat > "$OUT/live.html" <<HTML
 </html>
 HTML
 
-echo "nlrp1.svg: $(wc -c < "$OUT/nlrp1.svg") bytes, $(gzip -9c "$OUT/nlrp1.svg" | wc -c) gzipped"
+echo "nlrp1.svg: $(head -c 200 "$OUT/nlrp1.svg" | grep -o 'width="[0-9]*" height="[0-9]*"'), $(wc -c < "$OUT/nlrp1.svg") bytes, $(gzip -9c "$OUT/nlrp1.svg" | wc -c) gzipped"
 echo "viewer bundle: $(curl -sf "$BUNDLE" | wc -c) bytes, $(curl -sf "$BUNDLE" | gzip -9c | wc -c) gzipped"
 
 # 5. both pages under Lighthouse's default mobile profile, a mid-range phone on
 #    a slow 4G connection, served gzipped by serve
+# npx starts serve as a grandchild, so the server gets a process group of its
+# own and the trap stops the whole group
+set -m
 npx --yes serve@14.2.6 -l 8123 "$OUT" > /dev/null 2>&1 &
 SERVER=$!
-trap 'kill $SERVER' EXIT
-sleep 3
+set +m
+trap 'kill -- -$SERVER' EXIT
+for _ in $(seq 60); do
+  curl -sf -o /dev/null http://localhost:8123/ && break
+  sleep 1
+done
 for page in index live; do
   url=http://localhost:8123/$page
   [ "$page" = index ] && url=http://localhost:8123/

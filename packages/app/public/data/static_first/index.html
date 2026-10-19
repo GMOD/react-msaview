@@ -8,7 +8,7 @@
       .msa-embed {
         position: relative;
         max-width: 900px;
-        height: 360px;
+        height: 365px;
       }
       .msa-embed > img {
         display: block;
@@ -41,7 +41,11 @@
           const script = document.createElement('script')
           script.src = bundle
           script.onload = resolve
-          script.onerror = reject
+          script.onerror = () => {
+            script.remove()
+            bundleLoaded = undefined
+            reject(new Error('the viewer bundle did not load'))
+          }
           document.head.append(script)
         })
         return bundleLoaded
@@ -51,17 +55,22 @@
         const button = box.querySelector('.msa-explore')
         button.disabled = true
         button.textContent = 'Loading…'
-        const [props] = await Promise.all([
-          fetch(box.dataset.props).then(res => res.json()),
-          loadBundle(),
-        ])
-        box.replaceChildren()
-        window.ReactMSAView.mount(box, props)
+        try {
+          const [props] = await Promise.all([
+            fetch(box.dataset.props).then(res => res.json()),
+            loadBundle(),
+          ])
+          box.replaceChildren()
+          window.ReactMSAView.mount(box, props)
+        } catch {
+          button.disabled = false
+          button.textContent = 'Explore the alignment (retry)'
+        }
       }
 
       for (const box of document.querySelectorAll('.msa-embed')) {
-        box.querySelector('.msa-explore').addEventListener('click', () => explore(box), {
-          once: true,
+        box.querySelector('.msa-explore').addEventListener('click', () => {
+          explore(box)
         })
       }
     </script>

@@ -8,7 +8,7 @@
  * fetches the viewer bundle from unpkg and the NLRP1 files from gmod.org, so
  * the capture needs the network. It captures the page as it loads, clicks
  * "Explore the alignment", and captures the viewer that replaces the figure,
- * printing the box's height before and after the click. Last it serves the
+ * printing the box layout before and after the click. Last it serves the
  * page with step 5's IntersectionObserver loop in place of the click handler,
  * 2000 pixels down, and prints the bundle requests before and after a scroll.
  */
@@ -81,8 +81,12 @@ function scrollPage() {
   return html
 }
 
-const boxHeight = page =>
-  page.$eval('.msa-embed', el => el.getBoundingClientRect().height)
+// the box's height and where the paragraph under it starts
+const layout = page =>
+  page.$eval('.msa-embed', el => {
+    const below = el.nextElementSibling.getBoundingClientRect().top
+    return `box ${el.getBoundingClientRect().height} px, paragraph at ${below} px`
+  })
 
 try {
   const svg = tmpShot('static_first-svg')
@@ -101,7 +105,7 @@ try {
   })
   await page.setViewport({ width: 960, height: 560, deviceScaleFactor: 2 })
   await page.goto(`http://localhost:${port}/`, { waitUntil: 'networkidle0' })
-  console.log(`box before the click: ${await boxHeight(page)} px`)
+  console.log(`before the click: ${await layout(page)}`)
   await capture(page, 'static_first-page')
 
   await page.click('.msa-explore')
@@ -110,7 +114,7 @@ try {
   })
   await page.mouse.move(0, 0)
   await delay(2000)
-  console.log(`box after the click: ${await boxHeight(page)} px`)
+  console.log(`after the click: ${await layout(page)}`)
   await capture(page, 'static_first-explore')
 
   const scroll = await browser.newPage()

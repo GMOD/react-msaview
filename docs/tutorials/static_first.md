@@ -60,8 +60,9 @@ the figure and the live view draw from one description. Save this as
 ```
 
 `height` is the viewer's full height in pixels, tracks included, and
-`hideHeader` leaves out the toolbar. Every prop `MSAViewer` takes can go in the
-file; [Embedding](https://gmod.org/JBrowseMSA/embedding) lists them.
+`hideHeader` leaves out the toolbar. Every prop that holds data or a setting can
+go in the file, and [Embedding](https://gmod.org/JBrowseMSA/embedding) lists
+them; the callbacks cannot, since JSON holds no functions.
 
 ## 2. Draw the first frame with the CLI
 
@@ -72,7 +73,7 @@ npx react-msaview-cli@9.1.1 export-svg --props nlrp1.json --viewport --width 900
 The CLI fetches the three files, lays the view out at 900 pixels wide and the
 props' 360 tall, and draws it with no browser. `--viewport` limits the drawing
 to the frame the viewer opens on; without it the CLI draws all 1666 columns. The
-build script printed 118,981 bytes for the SVG, 6,618 gzipped.
+build script printed a 1111 by 304 SVG of 118,981 bytes, 6,618 gzipped.
 
 [![](../media/static_first-svg.png)](https://gmod.org/JBrowseMSA/demo/data/static_first/nlrp1.svg)
 
@@ -84,15 +85,16 @@ to the right of the tracks, which makes the SVG 1111 pixels wide.
 
 ## 3. Put the figure on the page
 
-The page shows the SVG in a box as tall as the viewer's `height`, with a button
-over its corner:
+The page shows the SVG in a box as tall as the live view, with a button over its
+corner. The box is 365 pixels tall: the props' 360 for the viewer, and 5 for the
+divider under it that resizes the view.
 
 ```html
 <style>
   .msa-embed {
     position: relative;
     max-width: 900px;
-    height: 360px;
+    height: 365px;
   }
   .msa-embed > img {
     display: block;
@@ -115,7 +117,7 @@ over its corner:
 </div>
 ```
 
-- The box keeps its 360 pixels when the viewer replaces the image, so the text
+- The box keeps its 365 pixels when the viewer replaces the image, so the text
   under it stays where the reader left it.
 - `max-width: 100%` scales the SVG to the box, and on a phone to the screen:
   Lighthouse's mobile run drew it 396 pixels wide.
@@ -146,7 +148,11 @@ function loadBundle() {
     const script = document.createElement('script')
     script.src = bundle
     script.onload = resolve
-    script.onerror = reject
+    script.onerror = () => {
+      script.remove()
+      bundleLoaded = undefined
+      reject(new Error('the viewer bundle did not load'))
+    }
     document.head.append(script)
   })
   return bundleLoaded
@@ -156,25 +162,30 @@ async function explore(box) {
   const button = box.querySelector('.msa-explore')
   button.disabled = true
   button.textContent = 'Loading…'
-  const [props] = await Promise.all([
-    fetch(box.dataset.props).then(res => res.json()),
-    loadBundle(),
-  ])
-  box.replaceChildren()
-  window.ReactMSAView.mount(box, props)
+  try {
+    const [props] = await Promise.all([
+      fetch(box.dataset.props).then(res => res.json()),
+      loadBundle(),
+    ])
+    box.replaceChildren()
+    window.ReactMSAView.mount(box, props)
+  } catch {
+    button.disabled = false
+    button.textContent = 'Explore the alignment (retry)'
+  }
 }
 
 for (const box of document.querySelectorAll('.msa-embed')) {
-  box
-    .querySelector('.msa-explore')
-    .addEventListener('click', () => explore(box), {
-      once: true,
-    })
+  box.querySelector('.msa-explore').addEventListener('click', () => {
+    explore(box)
+  })
 }
 ```
 
 `loadBundle` keeps its one promise, so a page with several boxes downloads the
-bundle on the first click and reuses it on every later one.
+bundle on the first click and reuses it on every later one. A failed download
+drops the promise and puts the button back, so the next click tries again; the
+button is disabled while it loads, and a disabled button fires no click.
 
 [![](../media/static_first-explore.png)](https://gmod.org/JBrowseMSA/demo/data/static_first/index.html)
 
@@ -257,9 +268,9 @@ npx lighthouse@13.5.0 http://localhost:8123/live --only-categories=performance -
 | Lighthouse, mobile       | `index.html`     | `live.html`           |
 | ------------------------ | ---------------- | --------------------- |
 | Bytes transferred        | 8 KB             | 455 KB                |
-| Speed Index              | 1105 ms          | 4638 ms               |
-| Largest contentful paint | 1442 ms, the SVG | 625 ms, the paragraph |
-| Total blocking time      | 117 ms           | 667 ms                |
+| Speed Index              | 1115 ms          | 4810 ms               |
+| Largest contentful paint | 1407 ms, the SVG | 635 ms, the paragraph |
+| Total blocking time      | 73 ms            | 837 ms                |
 | Cumulative layout shift  | 0                | 0                     |
 
 Speed Index measures when the visible page finishes painting, and it counts the
@@ -271,18 +282,19 @@ byte counts do not.
 ## 7. Check the swap
 
 The click should change what the box holds and nothing around it. The capture
-script prints the box's height on both sides of the click:
+script prints the box's height and the top of the paragraph under it on both
+sides of the click:
 
 ```text
-box before the click: 360 px
-box after the click: 360 px
+before the click: box 365 px, paragraph at 460.875 px
+after the click: box 365 px, paragraph at 460.875 px
 ```
 
-Lighthouse scored a layout shift of 0 for both pages, so neither the image
-arriving nor the viewer mounting moved the text under the box. The SVG and the
-live view open on the same columns: in both figures each row starts at column 1,
-Horse is the one row with residues there, and the green PAAD/DAPIN/Pyrin cells
-start at the same column in the same five rows.
+Lighthouse scored a layout shift of 0 for loading each page, which covers the
+image arriving on `index.html` and the viewer mounting on `live.html`; the lines
+above cover the click. The SVG and the live view open on the same columns: both
+figures start at column 1, where Horse is the one row with a residue, and the
+green PAAD/DAPIN/Pyrin cells start at the same column in the same five rows.
 
 ## Reproduce it end to end
 
@@ -291,8 +303,8 @@ runs the commands above in order:
 
 1. It writes the props file naming the NLRP1 alignment, tree and domains by URL.
 2. It draws the viewer's first frame from those props with
-   `react-msaview-cli export-svg`, and prints the SVG's size beside the
-   bundle's.
+   `react-msaview-cli export-svg`, and prints the SVG's dimensions and size
+   beside the bundle's.
 3. It writes `index.html`, which shows the SVG and loads the viewer on a click,
    and `live.html`, which loads the viewer as the page loads.
 4. It serves both pages gzipped and runs Lighthouse's mobile profile over each,
