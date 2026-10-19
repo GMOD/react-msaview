@@ -342,6 +342,9 @@ reads out the hovered row, residue and position.
   the view is drawn relative to a row (**Use as reference row** in a row's
   menu), it counts that row's residues and skips the columns where the row has a
   gap.
+- **Reference row**: the reference row again, pinned under the other tracks, so
+  it stays in view while the rows compared against it scroll. The row keeps its
+  place in the tree as well. On whenever a reference row is set.
 - **Secondary structure** and the other annotation rows a Stockholm file carries
   inline for the whole alignment appear as text tracks, colored by the active
   scheme. Every `#=GC` line gets one: `SS_cons`, `seq_cons`, Rfam's `RF` and

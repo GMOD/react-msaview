@@ -137,7 +137,8 @@ const TrackTooltipContent = observer(function ({
     case 'logo': {
       return <LogoTooltip model={model} col={col} />
     }
-    case 'text': {
+    case 'text':
+    case 'reference': {
       return <TextTooltip model={model} track={track} col={col} />
     }
     case 'arc': {

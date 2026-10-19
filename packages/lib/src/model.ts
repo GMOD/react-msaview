@@ -2498,6 +2498,30 @@ function stateModelFactory({
         }))
       },
 
+      /**
+       * #getter
+       * the reference row (`relativeTo`) repeated above the alignment, so it
+       * stays in view while the rows compared against it scroll
+       */
+      get referenceTrackModels(): BasicTrack[] {
+        const { relativeTo } = self
+        const data =
+          relativeTo === undefined ? undefined : self.columns.get(relativeTo)
+        return relativeTo === undefined || data === undefined
+          ? []
+          : [
+              {
+                model: {
+                  id: 'reference-row',
+                  name: relativeTo,
+                  kind: 'reference' as const,
+                  data,
+                  height: self.rowHeight,
+                },
+              },
+            ]
+      },
+
       get tracks(): BasicTrack[] {
         return [
           ...this.adapterTrackModels,
@@ -2506,6 +2530,7 @@ function stateModelFactory({
           // every computed track reads the alignment's columns, and a tree, a
           // GFF and a features panel draw a figure with none
           ...(self.numColumns > 0 ? this.computedTrackModels : []),
+          ...this.referenceTrackModels,
         ]
       },
 

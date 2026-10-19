@@ -1313,6 +1313,15 @@ row index of the reference row (`relativeTo`), undefined when unset
 referenceRowIndex: number | undefined
 ```
 
+#### getter: referenceTrackModels
+
+the reference row (`relativeTo`) repeated above the alignment, so it stays in
+view while the rows compared against it scroll
+
+```js
+referenceTrackModels: BasicTrack[]
+```
+
 #### getter: residueMappingProblems
 
 why each ignored residue mapping is ignored, so a host can tell a missing

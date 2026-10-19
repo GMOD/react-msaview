@@ -21,15 +21,20 @@ function trackGroups(model: MsaViewModel) {
   const computed = new Set(model.computedTrackModels.map(t => t.model.id))
   const computedEntries: Entry[] = []
   const alignmentEntries: Entry[] = []
+  const referenceEntries: Entry[] = []
   for (const { model: t } of model.tracks) {
-    ;(computed.has(t.id) ? computedEntries : alignmentEntries).push({
-      id: t.id,
-      label: t.name,
-    })
+    const entries =
+      t.kind === 'reference'
+        ? referenceEntries
+        : computed.has(t.id)
+          ? computedEntries
+          : alignmentEntries
+    entries.push({ id: t.id, label: t.name })
   }
   return [
     { title: 'Computed from the alignment', entries: computedEntries },
     { title: 'Alignment annotations', entries: alignmentEntries },
+    { title: 'Reference row', entries: referenceEntries },
   ].filter(g => g.entries.length > 0)
 }
 

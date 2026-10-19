@@ -279,14 +279,14 @@ the numbers behind it.
   call means adding it there. `renderToSvg` splices each layer's serialized
   markup into the React page as a string, so React never parses it.
 - Tracks (conservation, sequence logo, the position ruler, the Stockholm text
-  tracks) carry a `kind` discriminator and share one draw module,
-  `components/tracks/drawTracks.ts`. `drawTrackBlock` there applies the
-  transform and dispatches on `kind`. The live view calls it from
-  `components/tracks/TrackBlocks.tsx`, the canvas host for every kind, and the
-  SVG export calls it through `renderAllTracks`. Adding a track kind means a new
-  `kind`, a draw function in that module, a case in `drawTrackBlock`, and a case
-  in `components/tracks/TrackTooltipContent.tsx` for that track's reading at the
-  hovered column, with no second rendering path or component.
+  tracks, the pinned copy of the `relativeTo` row) carry a `kind` discriminator
+  and share one draw module, `components/tracks/drawTracks.ts`. `drawTrackBlock`
+  there applies the transform and dispatches on `kind`. The live view calls it
+  from `components/tracks/TrackBlocks.tsx`, the canvas host for every kind, and
+  the SVG export calls it through `renderAllTracks`. Adding a track kind means a
+  new `kind`, a draw function in that module, a case in `drawTrackBlock`, and a
+  case in `components/tracks/TrackTooltipContent.tsx` for that track's reading
+  at the hovered column, with no second rendering path or component.
   `components/Track.tsx` hosts every kind's hover: `useTrackHover` there sets
   the model's mouse column and anchors the tooltip, so the column statistics
   live on the tracks that draw them and the alignment's own tooltip stays about

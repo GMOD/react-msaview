@@ -8,7 +8,7 @@ export interface Accession {
 }
 // every kind draws into the same per-column space; drawTracks.ts dispatches on
 // it to pick the draw function
-export type TrackKind = 'text' | 'bar' | 'logo' | 'arc' | 'ruler'
+export type TrackKind = 'text' | 'bar' | 'logo' | 'arc' | 'ruler' | 'reference'
 
 /**
  * Which channel the color scheme paints. `fill` colors the cell a residue sits

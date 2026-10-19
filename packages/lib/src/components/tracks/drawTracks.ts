@@ -1,6 +1,7 @@
 import { columnLogoStack } from '../../sequenceLogo.ts'
 import { setFontSize } from '../../setFontSize.ts'
 import { contrastTextFn } from '../../util.ts'
+import { tileColorFn } from '../msa/tileColor.ts'
 import { visibleColRange } from '../msa/visibleColRange.ts'
 
 import type { ColumnCounts } from '../../columnCounts.ts'
@@ -106,7 +107,7 @@ function drawArcs({
 function drawTextTrackContent({
   ctx,
   data,
-  colorScheme,
+  colorAt,
   contrastText,
   bgColor,
   drawLetters,
@@ -117,7 +118,7 @@ function drawTextTrackContent({
 }: {
   ctx: RenderCtx
   data: string | undefined
-  colorScheme: Record<string, string>
+  colorAt: (col: number, letter: string) => string | undefined
   contrastText: (color: string | undefined) => string
   bgColor: boolean
   drawLetters: boolean
@@ -135,9 +136,9 @@ function drawTextTrackContent({
 
   for (let i = 0; str && i < str.length; i++) {
     const letter = str[i]!
-    const upper = letter.toUpperCase()
-    const fill = bgColor ? colorScheme[upper] : undefined
-    const x = (xStart + i) * colWidth
+    const col = xStart + i
+    const fill = bgColor ? colorAt(col, letter) : undefined
+    const x = col * colWidth
     if (fill) {
       ctx.fillStyle = fill
       ctx.fillRect(x, 0, colWidth, rowHeight)
@@ -402,15 +403,22 @@ export function drawTrackBlock({
       })
       break
     }
-    case 'text': {
+    case 'text':
+    case 'reference': {
       const { bgColor, fontSize, rowHeight, showMsaLetters } = model
+      const scheme = customColorScheme ?? model.colorScheme
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       setFontSize(ctx, fontSize)
       drawTextTrackContent({
         ctx,
         data,
-        colorScheme: customColorScheme ?? model.colorScheme,
+        // the reference row takes its colors from the alignment's own
+        // scheme, per column under a dynamic one
+        colorAt:
+          kind === 'reference'
+            ? tileColorFn(model)
+            : (_col, letter) => scheme[letter.toUpperCase()],
         contrastText: contrastTextFn(theme),
         bgColor,
         drawLetters: showMsaLetters,
