@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NLRP1, live</title>
+    <script defer src="https://unpkg.com/react-msaview@9.1.1/bundle/index.js"></script>
+    <style>
+      .msa-embed {
+        max-width: 900px;
+        height: 360px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>The NLRP1 family</h1>
+    <div class="msa-embed" data-props="nlrp1.json"></div>
+    <p>Twelve mammalian and fish orthologs, with their InterPro domains.</p>
+    <script>
+      window.addEventListener('DOMContentLoaded', async () => {
+        const box = document.querySelector('.msa-embed')
+        const props = await fetch(box.dataset.props).then(res => res.json())
+        window.ReactMSAView.mount(box, props)
+      })
+    </script>
+  </body>
+</html>

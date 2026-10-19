@@ -34,6 +34,7 @@ import proteaseThumb from '../../../docs/media/r-protease-triad.png'
 import recombinantThumb from '../../../docs/media/recombination_breakpoint-2.png'
 import rnaThumb from '../../../docs/media/rna-family-overview.png'
 import spikeThumb from '../../../docs/media/spike-structure-final.png'
+import staticFirstThumb from '../../../docs/media/static_first-page.png'
 import structureLinkThumb from '../../../docs/media/structure_link-spike.png'
 import temThumb from '../../../docs/media/tem_alleles-strips.png'
 
@@ -45,7 +46,7 @@ export const tutorialCategories = [
   'Structures',
   'Phylogenies and metadata',
   'Genomes and recombination',
-  'R, Python and JBrowse',
+  'R, Python, JBrowse and web pages',
 ] as const
 
 export interface Tutorial {
@@ -256,7 +257,7 @@ export const tutorials: Tutorial[] = [
   },
   {
     slug: 'r_protease_triad',
-    category: 'R, Python and JBrowse',
+    category: 'R, Python, JBrowse and web pages',
     navLabel: 'Protease family in R',
     title: 'A protease family in R',
     blurb:
@@ -268,7 +269,7 @@ export const tutorials: Tutorial[] = [
   },
   {
     slug: 'notebook_flu_drift',
-    category: 'R, Python and JBrowse',
+    category: 'R, Python, JBrowse and web pages',
     navLabel: 'Flu drift in Python',
     title: 'Influenza drift in a notebook',
     blurb:
@@ -280,7 +281,7 @@ export const tutorials: Tutorial[] = [
   },
   {
     slug: 'jbrowse_integration',
-    category: 'R, Python and JBrowse',
+    category: 'R, Python, JBrowse and web pages',
     navLabel: 'JBrowse 2 integration',
     title: 'JBrowse 2 integration',
     blurb:
@@ -289,5 +290,17 @@ export const tutorials: Tutorial[] = [
     thumbAlt:
       'One JBrowse session holding the TP53 gene with ClinVar, the p53 ortholog alignment and the AlphaFold structure, connected',
     thumbPosition: 'center',
+  },
+  {
+    slug: 'static_first',
+    category: 'R, Python, JBrowse and web pages',
+    navLabel: 'Static first on a web page',
+    title: 'An alignment on your own page, static first',
+    blurb:
+      'The NLRP1 family as an SVG the CLI draws, 6.6 KB gzipped, swapped for the live viewer on a click, measured with Lighthouse against loading the viewer at once.',
+    thumb: staticFirstThumb,
+    thumbAlt:
+      'A web page showing the NLRP1 alignment as a static figure, with an Explore the alignment button in its corner',
+    thumbPosition: 'left',
   },
 ]

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NLRP1, static first</title>
+    <style>
+      .msa-embed {
+        position: relative;
+        max-width: 900px;
+        height: 360px;
+      }
+      .msa-embed > img {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+      }
+      .msa-explore {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>The NLRP1 family</h1>
+    <div class="msa-embed" data-props="nlrp1.json">
+      <img
+        src="nlrp1.svg"
+        alt="Twelve NLRP1 orthologs aligned under their tree, with the PAAD/DAPIN/Pyrin domain filled green"
+      />
+      <button type="button" class="msa-explore">Explore the alignment</button>
+    </div>
+    <p>Twelve mammalian and fish orthologs, with their InterPro domains.</p>
+    <script>
+      const bundle = 'https://unpkg.com/react-msaview@9.1.1/bundle/index.js'
+      let bundleLoaded
+
+      function loadBundle() {
+        bundleLoaded ??= new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+          script.src = bundle
+          script.onload = resolve
+          script.onerror = reject
+          document.head.append(script)
+        })
+        return bundleLoaded
+      }
+
+      async function explore(box) {
+        const button = box.querySelector('.msa-explore')
+        button.disabled = true
+        button.textContent = 'Loading…'
+        const [props] = await Promise.all([
+          fetch(box.dataset.props).then(res => res.json()),
+          loadBundle(),
+        ])
+        box.replaceChildren()
+        window.ReactMSAView.mount(box, props)
+      }
+
+      for (const box of document.querySelectorAll('.msa-embed')) {
+        box.querySelector('.msa-explore').addEventListener('click', () => explore(box), {
+          once: true,
+        })
+      }
+    </script>
+  </body>
+</html>

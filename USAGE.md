@@ -317,6 +317,12 @@ merges new props over the current ones, and `destroy` unmounts the viewer.
 The bundle also exports `MSAModelF`, `MSAView`, `React` and `createRoot` for a
 page that builds the model itself, as in the model-based API above.
 
+The bundle is 452 KB gzipped. A page can show an SVG of the viewer's first
+frame, drawn by `react-msaview-cli export-svg --props`, and load the bundle when
+the reader clicks;
+[An alignment on your own page, static first](https://gmod.org/JBrowseMSA/tutorials/static_first)
+builds one and measures it.
+
 ## As a custom element
 
 `defineMsaElement()` registers `<jbrowse-msa>`, which renders `MSAViewer` from
