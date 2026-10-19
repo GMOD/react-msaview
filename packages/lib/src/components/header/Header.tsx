@@ -2,7 +2,8 @@ import React, { useEffect } from 'react'
 
 import useMeasure from '@jbrowse/core/util/useMeasure'
 import Tune from '@mui/icons-material/Tune'
-import { AppBar, Button, IconButton, Toolbar, Tooltip } from '@mui/material'
+import { Button, IconButton, Toolbar, Tooltip } from '@mui/material'
+import AppBar from '@mui/material/AppBar'
 import { observer } from 'mobx-react'
 
 import StatusMessage from '../StatusMessage.tsx'
