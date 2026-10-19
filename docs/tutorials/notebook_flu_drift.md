@@ -181,7 +181,7 @@ drift = {
     "name": "Changes between consecutive strains",
     "kind": "bar",
     "values": changes,
-    "max": int(changes.max()),
+    "scales": {"y": {"domainMax": int(changes.max())}},
     "color": "#c0392b",
     "height": 60,
 }
@@ -380,7 +380,8 @@ w <- msaview(msa = paste0(data, "h3n2-ha.aln"),
     tree = paste0(data, "h3n2-ha.nh"),
     color_scheme = "clustalx_protein_dynamic") +
   geom_msa_track(drift$values[[1]], name = drift$name, id = drift$id,
-    max = drift$max, color = drift$color, height = drift$height) +
+    domain_max = drift$scales$y$domainMax, color = drift$color,
+    height = drift$height) +
   geom_msa_highlight(bands)
 w
 ggplot2::ggsave("flu-drift-share-r.png",

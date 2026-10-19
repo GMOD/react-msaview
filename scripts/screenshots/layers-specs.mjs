@@ -83,7 +83,7 @@ const insulinTracks = [
     name: 'Hydropathy',
     kind: 'bar',
     values: [...insulinHuman].map(aa => (HYDROPATHY[aa] ?? 0) + 4.5),
-    max: 9,
+    scales: { y: { domainMax: 9 } },
     color: '#6a51a3',
     row: 'Human',
     height: 55,
@@ -93,9 +93,11 @@ const insulinTracks = [
     name: 'Chain',
     kind: 'text',
     data: [...insulinHuman].map((_, i) => chainOf(i + 1)).join(''),
-    colors: {
-      ...Object.fromEntries(CHAINS.map(c => [c.char, c.color])),
-      '.': '#fafafa',
+    encoding: {
+      color: {
+        domain: [...CHAINS.map(c => c.char), '.'],
+        range: [...CHAINS.map(c => c.color), '#fafafa'],
+      },
     },
     row: 'Human',
   },
@@ -220,12 +222,13 @@ const cladeMark = (clade, mark, extra) => ({
 const [markedClade, collapsedClade] = pureSubclassClades
 
 const PHENOTYPE_COLORS = {
-  map: {
-    'broad-spectrum': '#4e79a7',
-    'extended-spectrum': '#e15759',
-    'inhibitor-resistant broad-spectrum': '#59a14f',
-    'inhibitor-resistant extended-spectrum': '#b07aa1',
-  },
+  domain: [
+    'broad-spectrum',
+    'extended-spectrum',
+    'inhibitor-resistant broad-spectrum',
+    'inhibitor-resistant extended-spectrum',
+  ],
+  range: ['#4e79a7', '#e15759', '#59a14f', '#b07aa1'],
 }
 const temAmblerPositions = Object.keys(temRowData['TEM-1'])
   .filter(field => field.startsWith('Ambler '))
@@ -257,23 +260,19 @@ const temLetters = [
   ),
 ].sort((a, b) => a.localeCompare(b))
 const RESIDUE_COLORS = {
-  map: Object.fromEntries(
-    temLetters.map((letter, i) => [
-      letter,
-      LETTER_PALETTE[i % LETTER_PALETTE.length],
-    ]),
-  ),
+  domain: temLetters,
+  range: temLetters.map((_, i) => LETTER_PALETTE[i % LETTER_PALETTE.length]),
 }
 
 const temMatrix = [
-  { kind: 'strip', field: 'phenotype', scale: PHENOTYPE_COLORS, width: 14 },
+  { kind: 'strip', field: 'phenotype', ...PHENOTYPE_COLORS, width: 14 },
   ...temAmblerPositions.map(p => ({
     kind: 'strip',
     field: `Ambler ${p}`,
-    scale: RESIDUE_COLORS,
+    ...RESIDUE_COLORS,
     width: 12,
     header: p,
-    legend: 'residue',
+    title: 'residue',
   })),
 ]
 
@@ -307,19 +306,15 @@ const TRP_FILES = {
 }
 // the four values the role attribute takes across trp-neighborhoods.gff
 const ROLE_COLORS = {
-  map: {
-    trp: '#4e79a7',
-    regulator: '#e15759',
-    pseudogene: '#f28e2b',
-    other: '#d9d9d9',
-  },
+  domain: ['trp', 'regulator', 'pseudogene', 'other'],
+  range: ['#4e79a7', '#e15759', '#f28e2b', '#d9d9d9'],
 }
 const trpPanel = extra => ({
   kind: 'features',
   x: 'position',
   width: 1080,
   header: 'trp neighborhood',
-  encoding: { color: { field: 'role', scale: ROLE_COLORS }, label: 'Name' },
+  encoding: { color: { field: 'role', ...ROLE_COLORS }, label: 'Name' },
   transform: [{ type: 'align', on: 'trpB' }],
   ...extra,
 })
@@ -390,12 +385,13 @@ export const specs = [
       ...temBase,
       height: 760,
       encodings: [
-        { channel: 'tipLabel', field: 'phenotype', scale: PHENOTYPE_COLORS },
-        { channel: 'branch', field: 'phenotype', scale: PHENOTYPE_COLORS },
+        { channel: 'tipLabel', field: 'phenotype', ...PHENOTYPE_COLORS },
+        { channel: 'branch', field: 'phenotype', ...PHENOTYPE_COLORS },
         {
           channel: 'rowTint',
           field: 'subclass',
-          scale: { map: { CEPHALOSPORIN: '#e15759' } },
+          domain: ['CEPHALOSPORIN'],
+          range: ['#e15759'],
         },
       ],
     }),
@@ -413,7 +409,7 @@ export const specs = [
       // six rows fewer than the other tem figures, since one clade is folded
       height: 700,
       encodings: [
-        { channel: 'tipLabel', field: 'phenotype', scale: PHENOTYPE_COLORS },
+        { channel: 'tipLabel', field: 'phenotype', ...PHENOTYPE_COLORS },
       ],
       clades: [
         cladeMark(markedClade, 'highlight', { color: '#fff3c4' }),
@@ -438,7 +434,7 @@ export const specs = [
       // the rotated strip headers take a band the other tem figures do not
       height: 830,
       encodings: [
-        { channel: 'tipLabel', field: 'phenotype', scale: PHENOTYPE_COLORS },
+        { channel: 'tipLabel', field: 'phenotype', ...PHENOTYPE_COLORS },
       ],
       rowPanels: temMatrix,
     }),
@@ -462,7 +458,7 @@ export const specs = [
         {
           channel: 'featureFill',
           field: 'description',
-          scale: { palette: 'set1' },
+          range: 'set1',
         },
         { channel: 'featureLabel', field: 'description' },
       ],
@@ -523,7 +519,7 @@ export const linkSpecs = [
         {
           name: 'ClinVar',
           color: '#c0392b',
-          max: 8,
+          scales: { y: { domainMax: 8 } },
           start: 104,
           values: [2, 1, 0, 0, 2, 4],
         },

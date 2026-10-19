@@ -10,7 +10,7 @@
 // node's children by branch length, shortest first, which is the order the
 // viewer lays the rows out in.
 
-import { fileSnap } from '../snap.mjs'
+import { domainRange, fileSnap } from '../snap.mjs'
 
 const FILES = {
   msaFilehandle: { uri: 'data/h5n1/h5n1-ha.fa' },
@@ -46,28 +46,24 @@ const READABLE = {
 
 // One color per amino acid, shared by the eight segment strips, so a state
 // keeps its color across the matrix and the eight columns list one legend.
-const RESIDUE_COLORS = {
-  map: {
-    G: '#4e79a7',
-    I: '#f28e2b',
-    K: '#e15759',
-    M: '#76b7b2',
-    N: '#59a14f',
-    R: '#edc948',
-    S: '#b07aa1',
-    T: '#ff9da7',
-    V: '#9c755f',
-    X: '#bab0ac',
-  },
-}
-const HOST_COLORS = {
-  map: {
-    Avian: '#4e79a7',
-    Cattle: '#8c6d31',
-    Human: '#e15759',
-    'Nonhuman Mammal': '#b07aa1',
-  },
-}
+const RESIDUE_COLORS = domainRange({
+  G: '#4e79a7',
+  I: '#f28e2b',
+  K: '#e15759',
+  M: '#76b7b2',
+  N: '#59a14f',
+  R: '#edc948',
+  S: '#b07aa1',
+  T: '#ff9da7',
+  V: '#9c755f',
+  X: '#bab0ac',
+})
+const HOST_COLORS = domainRange({
+  Avian: '#4e79a7',
+  Cattle: '#8c6d31',
+  Human: '#e15759',
+  'Nonhuman Mammal': '#b07aa1',
+})
 
 // One site per segment, the site in each segment's protein whose minor state
 // the most sampled tips carry.
@@ -84,15 +80,15 @@ const SEGMENT_FIELDS = [
 const hostStrip = {
   kind: 'strip',
   field: 'host',
-  scale: HOST_COLORS,
+  ...HOST_COLORS,
   width: 12,
 }
 const segmentStrips = SEGMENT_FIELDS.map(field => ({
   kind: 'strip',
   field,
-  scale: RESIDUE_COLORS,
+  ...RESIDUE_COLORS,
   width: 11,
-  legend: 'amino acid',
+  title: 'amino acid',
 }))
 const MATRIX = [hostStrip, ...segmentStrips]
 
@@ -237,7 +233,7 @@ export const specs = [
     url: fileSnap({
       ...WHOLE,
       rowPanels: [
-        { kind: 'strip', field: 'NP 119', scale: RESIDUE_COLORS, width: 16 },
+        { kind: 'strip', field: 'NP 119', ...RESIDUE_COLORS, width: 16 },
         { ...hostStrip, width: 16 },
       ],
       ...FILES,

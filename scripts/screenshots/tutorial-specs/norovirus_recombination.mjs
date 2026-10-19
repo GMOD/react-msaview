@@ -12,7 +12,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { fileSnap } from '../snap.mjs'
+import { domainRange, fileSnap } from '../snap.mjs'
 
 const dataDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -32,22 +32,20 @@ const files = {
 const orfs = { gffFilehandle: { uri: 'data/norovirus/noro-orfs.gff' } }
 const parents = { gffFilehandle: { uri: 'data/norovirus/noro-parents.gff' } }
 
-// one color per ORF and one per parent, the maps the page's links carry
+// one color per ORF and one per parent, the colors the page's links carry
 const orfFill = {
   channel: 'featureFill',
   field: 'Name',
-  scale: { map: { ORF1: '#4e79a7', ORF2: '#e15759', ORF3: '#8c8c8c' } },
+  ...domainRange({ ORF1: '#4e79a7', ORF2: '#e15759', ORF3: '#8c8c8c' }),
 }
 const parentFill = {
   channel: 'featureFill',
   field: 'Name',
-  scale: {
-    map: {
-      'GII.P16': '#4e79a7',
-      'GII.4 Sydney': '#e15759',
-      tie: '#bab0ac',
-    },
-  },
+  ...domainRange({
+    'GII.P16': '#4e79a7',
+    'GII.4 Sydney': '#e15759',
+    tie: '#bab0ac',
+  }),
 }
 
 // 7,778 columns across the alignment panel a 1600px viewport leaves beside a

@@ -437,7 +437,11 @@
     52,
     46
    ],
-   "max": 100,
+   "scales": {
+    "y": {
+     "domainMax": 100
+    }
+   },
    "color": "#4e79a7",
    "height": 60
   },
@@ -446,11 +450,21 @@
    "name": "pLDDT band",
    "kind": "text",
    "data": "DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD",
-   "colors": {
-    "V": "#0053d6",
-    "C": "#65cbf3",
-    "L": "#ffdb13",
-    "D": "#ff7d45"
+   "encoding": {
+    "color": {
+     "domain": [
+      "V",
+      "C",
+      "L",
+      "D"
+     ],
+     "range": [
+      "#0053d6",
+      "#65cbf3",
+      "#ffdb13",
+      "#ff7d45"
+     ]
+    }
    },
    "height": 16
   }
@@ -490,60 +504,76 @@
    "kind": "strip",
    "field": "TDP43_N",
    "header": "TDP43_N",
-   "legend": "pLDDT band",
-   "scale": {
-    "map": {
-     "very high": "#0053d6",
-     "confident": "#65cbf3",
-     "low": "#ffdb13",
-     "very low": "#ff7d45"
-    }
-   },
+   "title": "pLDDT band",
+   "domain": [
+    "very high",
+    "confident",
+    "low",
+    "very low"
+   ],
+   "range": [
+    "#0053d6",
+    "#65cbf3",
+    "#ffdb13",
+    "#ff7d45"
+   ],
    "width": 14
   },
   {
    "kind": "strip",
    "field": "RRM1",
    "header": "RRM1",
-   "legend": "pLDDT band",
-   "scale": {
-    "map": {
-     "very high": "#0053d6",
-     "confident": "#65cbf3",
-     "low": "#ffdb13",
-     "very low": "#ff7d45"
-    }
-   },
+   "title": "pLDDT band",
+   "domain": [
+    "very high",
+    "confident",
+    "low",
+    "very low"
+   ],
+   "range": [
+    "#0053d6",
+    "#65cbf3",
+    "#ffdb13",
+    "#ff7d45"
+   ],
    "width": 14
   },
   {
    "kind": "strip",
    "field": "RRM2",
    "header": "RRM2",
-   "legend": "pLDDT band",
-   "scale": {
-    "map": {
-     "very high": "#0053d6",
-     "confident": "#65cbf3",
-     "low": "#ffdb13",
-     "very low": "#ff7d45"
-    }
-   },
+   "title": "pLDDT band",
+   "domain": [
+    "very high",
+    "confident",
+    "low",
+    "very low"
+   ],
+   "range": [
+    "#0053d6",
+    "#65cbf3",
+    "#ffdb13",
+    "#ff7d45"
+   ],
    "width": 14
   },
   {
    "kind": "strip",
    "field": "TDP43_C",
    "header": "TDP43_C",
-   "legend": "pLDDT band",
-   "scale": {
-    "map": {
-     "very high": "#0053d6",
-     "confident": "#65cbf3",
-     "low": "#ffdb13",
-     "very low": "#ff7d45"
-    }
-   },
+   "title": "pLDDT band",
+   "domain": [
+    "very high",
+    "confident",
+    "low",
+    "very low"
+   ],
+   "range": [
+    "#0053d6",
+    "#65cbf3",
+    "#ffdb13",
+    "#ff7d45"
+   ],
    "width": 14
   }
  ]

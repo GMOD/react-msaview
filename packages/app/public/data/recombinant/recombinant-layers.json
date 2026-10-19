@@ -600,7 +600,11 @@
         1,
         1
       ],
-      "max": 7,
+      "scales": {
+        "y": {
+          "domainMax": 7
+        }
+      },
       "color": "#4e79a7",
       "height": 70
     },
@@ -1204,7 +1208,11 @@
         0,
         0
       ],
-      "max": 7,
+      "scales": {
+        "y": {
+          "domainMax": 7
+        }
+      },
       "color": "#e15759",
       "height": 70
     }
@@ -1810,7 +1818,11 @@
         1,
         1
       ],
-      "max": 11,
+      "scales": {
+        "y": {
+          "domainMax": 11
+        }
+      },
       "color": "#4e79a7",
       "height": 70
     },
@@ -2414,7 +2426,11 @@
         0,
         0
       ],
-      "max": 11,
+      "scales": {
+        "y": {
+          "domainMax": 11
+        }
+      },
       "color": "#e15759",
       "height": 70
     }

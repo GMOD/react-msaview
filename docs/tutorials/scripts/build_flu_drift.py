@@ -172,7 +172,7 @@ layers = {
             "name": "Changes between consecutive strains",
             "kind": "bar",
             "values": changes.tolist(),
-            "max": int(changes.max()),
+            "scales": {"y": {"domainMax": int(changes.max())}},
             "color": "#c0392b",
             "height": 60,
         }

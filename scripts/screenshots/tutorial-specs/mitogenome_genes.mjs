@@ -6,7 +6,7 @@
 // writes (data/mitogenome/*), so a figure and the #data= link under it open the
 // same view. Callouts anchor on alignment columns and row labels, never pixels.
 
-import { fileSnap } from '../snap.mjs'
+import { domainRange, fileSnap } from '../snap.mjs'
 
 const files = {
   msaFilehandle: { uri: 'data/mitogenome/mito.afa' },
@@ -14,21 +14,19 @@ const files = {
   gffFilehandle: { uri: 'data/mitogenome/mito-genes.gff' },
 }
 
-// One color per respiratory complex, the map the tutorial's #data= links carry.
+// One color per respiratory complex, the colors the tutorial's #data= links carry.
 // Key order is legend order, and a value the features never take draws nothing.
 const complexFill = {
   channel: 'featureFill',
   field: 'complex',
-  scale: {
-    map: {
-      I: '#4e79a7',
-      III: '#59a14f',
-      IV: '#e15759',
-      V: '#b07aa1',
-      rRNA: '#f28e2b',
-      tRNA: '#bab0ac',
-    },
-  },
+  ...domainRange({
+    I: '#4e79a7',
+    III: '#59a14f',
+    IV: '#e15759',
+    V: '#b07aa1',
+    rRNA: '#f28e2b',
+    tRNA: '#bab0ac',
+  }),
 }
 const nameLabel = { channel: 'featureLabel', field: 'Name' }
 

@@ -150,7 +150,8 @@ cat(sprintf("\n%d disulfide bonds inside the domain\n", nrow(bonds)))
 tracks <- list(
   list(
     id = "blosum", name = "Mean pairwise BLOSUM62", kind = "bar",
-    values = pmax(blosum, 0), max = 9, color = "#6a51a3", height = 60
+    values = pmax(blosum, 0), scales = list(y = list(domainMax = 9)),
+    color = "#6a51a3", height = 60
   ),
   list(
     id = "ss", name = "Disulfide bonds (chymotrypsinogen)", kind = "arc",

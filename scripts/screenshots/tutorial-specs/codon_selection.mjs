@@ -32,7 +32,7 @@ const dndsTrack = {
   name: 'dN/dS (FEL)',
   kind: 'bar',
   values: dndsValues,
-  max: 5,
+  scales: { y: { domainMax: 5 } },
   color: '#c0392b',
 }
 

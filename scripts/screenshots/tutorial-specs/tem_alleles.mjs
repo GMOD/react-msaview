@@ -12,7 +12,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { fileSnap } from '../snap.mjs'
+import { domainRange, fileSnap } from '../snap.mjs'
 
 const dataDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -71,14 +71,12 @@ const FILES = {
 }
 const TABLE = { treeMetadataFilehandle: { uri: 'data/tem/tem-rowdata.json' } }
 
-const PHENOTYPE_COLORS = {
-  map: {
-    'broad-spectrum': '#4e79a7',
-    'extended-spectrum': '#e15759',
-    'inhibitor-resistant broad-spectrum': '#59a14f',
-    'inhibitor-resistant extended-spectrum': '#b07aa1',
-  },
-}
+const PHENOTYPE_COLORS = domainRange({
+  'broad-spectrum': '#4e79a7',
+  'extended-spectrum': '#e15759',
+  'inhibitor-resistant broad-spectrum': '#59a14f',
+  'inhibitor-resistant extended-spectrum': '#b07aa1',
+})
 
 // one color per residue letter, shared by the eight position strips, so a
 // letter keeps its color across the matrix and the strips list one legend
@@ -106,27 +104,26 @@ const letters = [
   ),
 ].sort((a, b) => a.localeCompare(b))
 const RESIDUE_COLORS = {
-  map: Object.fromEntries(
-    letters.map((l, i) => [l, PALETTE[i % PALETTE.length]]),
-  ),
+  domain: letters,
+  range: letters.map((_, i) => PALETTE[i % PALETTE.length]),
 }
 
 const phenotypeStrip = {
   kind: 'strip',
   field: 'phenotype',
-  scale: PHENOTYPE_COLORS,
+  ...PHENOTYPE_COLORS,
   width: 14,
   header: 'phenotype',
 }
 const positionStrips = positions.map(p => ({
   kind: 'strip',
   field: `Ambler ${p}`,
-  scale: RESIDUE_COLORS,
+  ...RESIDUE_COLORS,
   width: 12,
   // the header band is as tall as the minimap, so a header longer than the
   // Ambler number is cut off in it
   header: String(p),
-  legend: 'residue',
+  title: 'residue',
 }))
 const MATRIX = [phenotypeStrip, ...positionStrips]
 

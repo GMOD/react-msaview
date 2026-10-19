@@ -279,7 +279,12 @@ layers = {
             'kind': 'text',
             'row': ROW,
             'data': classes,
-            'colors': CLASS_COLORS,
+            'encoding': {
+                'color': {
+                    'domain': list(CLASS_COLORS),
+                    'range': list(CLASS_COLORS.values()),
+                }
+            },
             'height': 16,
         },
     ],

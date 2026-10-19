@@ -223,7 +223,7 @@ scale between them. The `tipLabel` channel colors the label beside each tip:
 ```
 
 The 23 clade calls run past the end of every named palette, so leaving out
-`scale` gives each value an evenly spaced hue. The script prints the display
+`range` gives each value an evenly spaced hue. The script prints the display
 rows of each clade run of eight rows or more:
 
 ```

@@ -8,7 +8,7 @@
 // three between them have no msa at all, and the features panel is the only
 // thing on the column scale.
 
-import { fileSnap } from '../snap.mjs'
+import { domainRange, fileSnap } from '../snap.mjs'
 
 const tree = { treeFilehandle: { uri: 'data/neighborhoods/trpB.nwk' } }
 const gff = {
@@ -40,7 +40,7 @@ const roleColors = {
 }
 
 const byName = {
-  color: { field: 'Name', scale: { map: nameColors } },
+  color: { field: 'Name', ...domainRange(nameColors) },
   label: 'Name',
 }
 const alignOnTrpE = [{ type: 'align', on: 'trpE' }]
@@ -112,7 +112,7 @@ export const specs = [
       rowPanels: [
         panel(1120, {
           encoding: {
-            color: { field: 'role', scale: { map: roleColors } },
+            color: { field: 'role', ...domainRange(roleColors) },
             label: 'Name',
           },
           transform: alignOnTrpE,

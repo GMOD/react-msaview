@@ -303,7 +303,7 @@ jq -rj --arg msa data/p53/p53-vertebrates.afa \
 
 The whole snapshot travels in the link, and the server stops serving a request
 line past 8,192 characters. This link stays at 7,820 because AlphaMissense goes
-in as a percent against `max: 100`.
+in as a percent against `domainMax: 100`.
 
 <!-- usage: web -->
 

@@ -574,7 +574,11 @@
     0,
     0
    ],
-   "max": 11,
+   "scales": {
+    "y": {
+     "domainMax": 11
+    }
+   },
    "color": "#c0392b",
    "height": 60
   }

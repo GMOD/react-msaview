@@ -261,16 +261,17 @@ RRM2     14 rows confident
 TDP43_C  14 rows very low
 ```
 
-Four `strip` panels read those fields through one map from band to color, so the
-four share one legend:
+Four `strip` panels read those fields through one scale from band to color under
+one `title`, so the four share one legend:
 
 ```json
 "rowPanels": [
   {
     "kind": "strip",
     "field": "RRM1",
-    "legend": "pLDDT band",
-    "scale": { "map": { "confident": "#65cbf3", "very low": "#ff7d45" } }
+    "title": "pLDDT band",
+    "domain": ["very high", "confident", "low", "very low"],
+    "range": ["#0053d6", "#65cbf3", "#ffdb13", "#ff7d45"]
   }
 ]
 ```

@@ -131,7 +131,7 @@ GII.P7-GII.6/UK/2015 and GII.P17-GII.17/KR/2015.
 Load the ORF GFF from step 1 as the annotation file, and the viewer places each
 genome's own spans through that row's gaps.
 
-[![](../media/norovirus_recombination-2.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A300%2C%22rowHeight%22%3A24%2C%22colWidth%22%3A0.162%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orf2.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orfs.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureFill%22%2C%22field%22%3A%22Name%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22ORF1%22%3A%22%234e79a7%22%2C%22ORF2%22%3A%22%23e15759%22%2C%22ORF3%22%3A%22%238c8c8c%22%7D%7D%7D%5D%7D%7D)
+[![](../media/norovirus_recombination-2.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A300%2C%22rowHeight%22%3A24%2C%22colWidth%22%3A0.162%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orf2.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orfs.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureFill%22%2C%22field%22%3A%22Name%22%2C%22domain%22%3A%5B%22ORF1%22%2C%22ORF2%22%2C%22ORF3%22%5D%2C%22range%22%3A%5B%22%234e79a7%22%2C%22%23e15759%22%2C%22%238c8c8c%22%5D%7D%5D%7D%7D)
 
 The alignment with each row's three ORFs as boxes, ORF1 blue, ORF2 red and ORF3
 grey. The ORF1/ORF2 boundary falls within a few columns in all twelve rows.
@@ -162,7 +162,7 @@ for orf in orf1 orf2; do
 done
 ```
 
-[![](../media/norovirus_recombination-3.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A300%2C%22rowHeight%22%3A24%2C%22colWidth%22%3A0.162%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orf1.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orfs.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureFill%22%2C%22field%22%3A%22Name%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22ORF1%22%3A%22%234e79a7%22%2C%22ORF2%22%3A%22%23e15759%22%2C%22ORF3%22%3A%22%238c8c8c%22%7D%7D%7D%5D%2C%22showDomainLegend%22%3Afalse%7D%7D)
+[![](../media/norovirus_recombination-3.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A300%2C%22rowHeight%22%3A24%2C%22colWidth%22%3A0.162%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orf1.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orfs.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureFill%22%2C%22field%22%3A%22Name%22%2C%22domain%22%3A%5B%22ORF1%22%2C%22ORF2%22%2C%22ORF3%22%5D%2C%22range%22%3A%5B%22%234e79a7%22%2C%22%23e15759%22%2C%22%238c8c8c%22%5D%7D%5D%2C%22showDomainLegend%22%3Afalse%7D%7D)
 
 The alignment under the ORF1 tree, which draws GII.P16-GII.4/US/2016 and
 GII.P16-GII.4/US/2017 directly under the four GII.P16-GII.2 rows. The ORF2 tree
@@ -202,7 +202,7 @@ closer, color = (
 )
 ```
 
-[![](../media/norovirus_recombination-4.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A300%2C%22rowHeight%22%3A24%2C%22colWidth%22%3A0.162%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orf2.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-parents.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureFill%22%2C%22field%22%3A%22Name%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22GII.P16%22%3A%22%234e79a7%22%2C%22GII.4%20Sydney%22%3A%22%23e15759%22%2C%22tie%22%3A%22%23bab0ac%22%7D%7D%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A5124%2C%22end%22%3A5124%2C%22label%22%3A%22breakpoint%22%7D%5D%7D%7D)
+[![](../media/norovirus_recombination-4.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A300%2C%22rowHeight%22%3A24%2C%22colWidth%22%3A0.162%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-orf2.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnorovirus%2Fnoro-parents.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureFill%22%2C%22field%22%3A%22Name%22%2C%22domain%22%3A%5B%22GII.P16%22%2C%22GII.4%20Sydney%22%2C%22tie%22%5D%2C%22range%22%3A%5B%22%234e79a7%22%2C%22%23e15759%22%2C%22%23bab0ac%22%5D%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A5124%2C%22end%22%3A5124%2C%22label%22%3A%22breakpoint%22%7D%5D%7D%7D)
 
 Each row's 38 windows, blue (GII.P16) where closer to the polymerase donor, red
 (GII.4 Sydney) where closer to the capsid donor and grey for a tie. The three
@@ -300,7 +300,7 @@ w <- msaview(
   tree = file.path(data, "noro-orf2.nwk"),
   gff = file.path(data, "noro-parents.gff")
 ) +
-  scale_row_color("Name", channel = "featureFill", map = c(
+  scale_row_color("Name", channel = "featureFill", range = c(
     "GII.P16" = "#4e79a7", "GII.4 Sydney" = "#e15759", tie = "#bab0ac"
   )) +
   geom_msa_highlight(start = 5138, end = 6826, label = "ORF2",

@@ -237,7 +237,8 @@ w <- msaview(
   gff = paste0(data, "trim5-exons.gff"),
   color_scheme = "nucleotide"
 ) +
-  geom_msa_track(dnds, name = "dN/dS (FEL)", max = 5, color = "#c0392b") +
+  geom_msa_track(dnds, name = "dN/dS (FEL)", domain_max = 5,
+    color = "#c0392b") +
   geom_msa_highlight(sites)
 w
 ggplot2::ggsave("codon-final-view-r.png",

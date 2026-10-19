@@ -321,7 +321,12 @@ states also go in a `columnTracks` text track:
   "kind": "text",
   "row": "SARS-CoV-2",
   "data": "NNNNNNNNNNNNNUUUUUUUUUUUUUOOOOOOOOOO...",
-  "colors": { "O": "#2e7d32", "U": "#e65100", "N": "#cfd8dc" }
+  "encoding": {
+    "color": {
+      "domain": ["O", "U", "N"],
+      "range": ["#2e7d32", "#e65100", "#cfd8dc"]
+    }
+  }
 }
 ```
 
