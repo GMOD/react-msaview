@@ -4,6 +4,12 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.4.0](https://github.com/GMOD/JBrowseMSA/compare/v9.3.0...v9.4.0) (2026-10-19)
+
+### Other Changes
+
+- Group the domain palette by feature type so CDD sites sit apart from their domain ([5052267](https://github.com/GMOD/JBrowseMSA/commit/50522674e1bde1e2c544bd7aecdf52598e4b0160))
+
 ## [9.3.0](https://github.com/GMOD/JBrowseMSA/compare/v9.2.0...v9.3.0) (2026-10-19)
 
 ### Other Changes
