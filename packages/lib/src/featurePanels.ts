@@ -17,11 +17,11 @@ import type {
 
 // the fill of a span under a scale that gives its value no color, such as a
 // gene a `map` over gene names leaves out
-export const UNSCALED_FEATURE = '#d9d9d9'
+const UNSCALED_FEATURE = '#d9d9d9'
 
 // the fraction of a span a following one may cover before it takes a lane of
 // its own in a `features` panel
-export const laneOverlap = 0.1
+const laneOverlap = 0.1
 
 // a row panel's own width, or a default: the row height, which makes a strip
 // cell square, and a gene neighborhood's width for a features panel. The row
@@ -119,7 +119,7 @@ export function featureLabelMap(annotations: Annotation[], field: string) {
 }
 
 /** what `packDomainLanes` needs to lay a row out, before it has its lane */
-export type Unlaned = Omit<RowPanelSpan, 'lane' | 'laneCount'> & {
+type Unlaned = Omit<RowPanelSpan, 'lane' | 'laneCount'> & {
   startCol: number
   endCol: number
 }
@@ -131,7 +131,7 @@ export type Unlaned = Omit<RowPanelSpan, 'lane' | 'laneCount'> & {
  * out on, so the line between the strands sits at one height down the panel and
  * a reader can scan it. A feature with no strand piles with the forward ones.
  */
-export function strandpileLanes(
+function strandpileLanes(
   rows: [string, Unlaned[]][],
 ): Map<string, RowPanelSpan[]> {
   const piled = rows.map(([name, bands]) => {
@@ -159,7 +159,7 @@ export function strandpileLanes(
 }
 
 /** one row's spans laid out by the panel's `position` */
-export function panelLanes(
+function panelLanes(
   panel: RowFeaturesSpec,
   rows: [string, Unlaned[]][],
 ): Map<string, RowPanelSpan[]> {

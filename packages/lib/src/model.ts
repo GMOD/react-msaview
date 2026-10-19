@@ -136,7 +136,6 @@ import type { ColumnStats } from './columnStats.ts'
 import type { ScrollZoomAxis } from './constants.ts'
 import type { HierarchyNode } from './hierarchy.ts'
 import type { ExportSvgOptions } from './renderToSvg.tsx'
-import type {} from './scales.ts'
 import type {
   Annotation,
   Arc,
@@ -4178,7 +4177,7 @@ function stateModelFactory({
         if (!encoding) {
           return undefined
         }
-        const { order } = preorder(self.tree)
+        const order = preorder(self.tree)
         const values = new Map<NodeWithIds, string | undefined>()
         const colors = new Map<string, string>()
         for (let i = order.length - 1; i >= 0; i--) {

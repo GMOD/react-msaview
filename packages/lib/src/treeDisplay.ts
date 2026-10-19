@@ -36,13 +36,13 @@ export function parseTreeText(text: string) {
 }
 
 // the marks that set tree state from a node rather than drawing
-export const seedingMarks = new Set<CladeMark>(['collapse', 'focus', 'rotate'])
+const seedingMarks = new Set<CladeMark>(['collapse', 'focus', 'rotate'])
 
 /**
  * Each tip of the full tree in the order the tree draws it, with the on-screen
  * row that shows it: its own, or the row of the collapsed node standing for it
  */
-export function tipRows(root: HierarchyNode<NodeWithIds>) {
+function tipRows(root: HierarchyNode<NodeWithIds>) {
   const rows = new Map<string, { order: number; row: number }>()
   let row = 0
   const pushReversed = (
@@ -82,7 +82,7 @@ export function tipRows(root: HierarchyNode<NodeWithIds>) {
  * `tips` gives them, so a collapsed clade inside it counts every leaf it
  * stands for. `index` is the memoized leaf pass over the tree.
  */
-export function cladeRows(
+function cladeRows(
   clade: Clade,
   root: HierarchyNode<NodeWithIds>,
   index: Map<string, HierarchyNode<NodeWithIds> | undefined>,
@@ -156,7 +156,7 @@ export function resolveClades(
   })
 }
 
-export const childOrders: Record<
+const childOrders: Record<
   TreeOrder,
   ((a: HierarchyNode, b: HierarchyNode) => number) | undefined
 > = {
@@ -251,7 +251,7 @@ export function outgroupNode(root: HierarchyNode, outgroup: string[]) {
  */
 export function rootTree(tree: NodeWithIds, treeRoot: TreeRoot) {
   const plain = new Map<NodeWithIds, TreeNode>()
-  for (const node of preorder(tree).order.reverse()) {
+  for (const node of preorder(tree).reverse()) {
     plain.set(node, {
       name: node.name === node.id ? undefined : node.name,
       length: node.length,

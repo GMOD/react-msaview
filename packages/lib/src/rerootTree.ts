@@ -13,19 +13,18 @@ export interface TreeNode {
   children?: TreeNode[]
 }
 
-export function preorder<N extends TreeNode>(root: N) {
+export function preorder<N extends TreeNode>(root: N, parents?: Map<N, N>) {
   const order: N[] = []
-  const parents = new Map<N, N>()
   const stack = [root]
   while (stack.length > 0) {
     const node = stack.pop()!
     order.push(node)
     for (const child of (node.children ?? []) as N[]) {
-      parents.set(child, node)
+      parents?.set(child, node)
       stack.push(child)
     }
   }
-  return { order, parents }
+  return order
 }
 
 function hasLengths(order: TreeNode[]) {
@@ -56,7 +55,8 @@ export function rerootTree<N extends TreeNode>(
   target: N,
   offset?: number,
 ): TreeNode {
-  const { order, parents } = preorder(root)
+  const parents = new Map<N, N>()
+  const order = preorder(root, parents)
   if (!parents.has(target)) {
     return root
   }
@@ -112,7 +112,8 @@ export function rerootTree<N extends TreeNode>(
  * counts branches.
  */
 export function midpointRoot<N extends TreeNode>(root: N): TreeNode {
-  const { order, parents } = preorder(root)
+  const parents = new Map<N, N>()
+  const order = preorder(root, parents)
   const tips = order.filter(n => !n.children?.length)
   if (tips.length < 2) {
     return root
