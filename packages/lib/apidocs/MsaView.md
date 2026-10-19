@@ -630,10 +630,11 @@ resetCount: 0
 
 #### volatile: resizeHandleWidth
 
-resize handle width between tree and msa area, px
+thickness of the dividers, between the tree and the alignment and under the
+view, px
 
 ```js
-resizeHandleWidth: 5
+resizeHandleWidth
 ```
 
 #### volatile: settingsOpen

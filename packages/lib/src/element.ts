@@ -1,5 +1,6 @@
 import { when } from 'mobx'
 
+import { defaultHeight, resizeHandleWidth } from './constants.ts'
 import { mount } from './mount.tsx'
 
 import type { MSAViewerProps } from './components/MSAViewer.tsx'
@@ -46,7 +47,12 @@ const ownAttributes = [
   'theme',
   'reference-row',
   'tree-area-width',
+  'loading',
 ] as const
+
+// how far outside the viewport a lazy element starts mounting, so the viewer
+// is drawing by the time the reader scrolls to it
+const lazyMargin = '200px'
 
 // the attributes a <nightingale-manager> writes on the elements it holds
 const nightingaleAttributes = ['display-start', 'display-end', 'highlight']
@@ -87,13 +93,17 @@ function residueRange(model: MsaViewModel, row: string, viewport: Viewport) {
 /**
  * Registers a custom element that renders MSAViewer, for pages with no React.
  * Attributes: msa-url, tree-url, gff-url, color-scheme, height, hide-header,
- * theme, tree-area-width and reference-row. Properties: msa, tree and gff text,
- * features, colorScheme, highlights, columnTracks, residueMappings and
- * selection. The
- * colorScheme property takes a `{map}` the color-scheme attribute cannot hold,
- * and wins over the attribute while set. Events: cell-hover, cell-click,
- * viewport-change and selection-change, each with the MSAViewer callback's
- * value as detail.
+ * theme, tree-area-width, reference-row and loading. Properties: msa, tree and
+ * gff text, features, colorScheme, highlights, columnTracks, residueMappings
+ * and selection. The colorScheme property takes a `{map}` the color-scheme
+ * attribute cannot hold, and wins over the attribute while set. Events:
+ * cell-hover, cell-click, viewport-change and selection-change, each with the
+ * MSAViewer callback's value as detail.
+ *
+ * `loading="lazy"` mounts the viewer once the element comes within 200 pixels
+ * of the viewport, as `<img loading="lazy">` loads its image. Until then the
+ * element shows its own children, such as an `<img>` of the first frame, and
+ * reserves the viewer's height.
  *
  * Inside a <nightingale-manager>, the element registers with it and speaks its
  * protocol: it follows the display-start, display-end and highlight attributes
@@ -110,6 +120,7 @@ export function defineMsaElement(tagName = 'jbrowse-msa') {
     static observedAttributes = [...ownAttributes, ...nightingaleAttributes]
 
     #viewer?: MountedViewer
+    #nearby?: IntersectionObserver
     #model?: MsaViewModel
     #manager?: NightingaleManager
     #cancelRange?: () => void
@@ -289,7 +300,22 @@ export function defineMsaElement(tagName = 'jbrowse-msa') {
       if (!this.style.display) {
         this.style.display = 'block'
       }
-      this.#viewer = mount(this, this.#props())
+      if (this.#lazy) {
+        const height =
+          numberAttribute(this.getAttribute('height')) ?? defaultHeight
+        this.style.minHeight = `${height + resizeHandleWidth}px`
+        this.#nearby = new IntersectionObserver(
+          entries => {
+            if (entries.some(entry => entry.isIntersecting)) {
+              this.#mount()
+            }
+          },
+          { rootMargin: lazyMargin },
+        )
+        this.#nearby.observe(this)
+      } else {
+        this.#mount()
+      }
       const manager = this.closest<NightingaleManager>('nightingale-manager')
       if (manager) {
         void customElements.whenDefined('nightingale-manager').then(() => {
@@ -301,7 +327,22 @@ export function defineMsaElement(tagName = 'jbrowse-msa') {
       }
     }
 
+    get #lazy() {
+      return (
+        this.getAttribute('loading') === 'lazy' &&
+        typeof IntersectionObserver !== 'undefined'
+      )
+    }
+
+    #mount() {
+      this.#nearby?.disconnect()
+      this.#nearby = undefined
+      this.#viewer ??= mount(this, this.#props())
+    }
+
     disconnectedCallback() {
+      this.#nearby?.disconnect()
+      this.#nearby = undefined
       this.#manager?.unregister(this)
       this.#manager = undefined
       this.#cancelRange?.()
@@ -323,6 +364,10 @@ export function defineMsaElement(tagName = 'jbrowse-msa') {
         }
       } else if (name === 'highlight') {
         this.#followHighlight()
+      } else if (name === 'loading') {
+        if (this.#nearby && !this.#lazy) {
+          this.#mount()
+        }
       } else {
         this.#viewer?.update(this.#props())
       }

@@ -4,6 +4,8 @@ import type { TreeOrder } from './types.ts'
 export const defaultRowHeight = 16
 export const defaultColWidth = 12
 export const defaultHeight = 550
+// the dividers' thickness, between the tree and the alignment and under the view
+export const resizeHandleWidth = 5
 export const defaultScrollX = 0
 export const defaultScrollY = 0
 export const defaultCurrentAlignment = 0

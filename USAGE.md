@@ -345,13 +345,14 @@ components.
 ```
 
 Attributes: `msa-url`, `tree-url`, `gff-url`, `color-scheme`, `height`,
-`hide-header`, `theme`, `tree-area-width` and `reference-row`. Properties:
-`msa`, `tree` and `gff` text, `features`, `colorScheme`, `highlights`,
-`columnTracks`, `residueMappings` and `selection`. The `colorScheme` property
-takes the `{map}` form the attribute cannot hold, and while set it wins over the
-attribute. Reading `selection` gives the block the reader selected. The element
-dispatches `cell-hover`, `cell-click`, `viewport-change` and `selection-change`
-events whose `detail` is the value the matching `MSAViewer` callback receives.
+`hide-header`, `theme`, `tree-area-width`, `reference-row` and `loading`.
+Properties: `msa`, `tree` and `gff` text, `features`, `colorScheme`,
+`highlights`, `columnTracks`, `residueMappings` and `selection`. The
+`colorScheme` property takes the `{map}` form the attribute cannot hold, and
+while set it wins over the attribute. Reading `selection` gives the block the
+reader selected. The element dispatches `cell-hover`, `cell-click`,
+`viewport-change` and `selection-change` events whose `detail` is the value the
+matching `MSAViewer` callback receives.
 
 Inside a [Nightingale](https://github.com/ebi-webcomponents/nightingale)
 `<nightingale-manager>`, the element registers with the manager like a
@@ -363,6 +364,33 @@ element converts between its residues and the alignment's columns. Give the
 manager `reflected-attributes="display-start,display-end,highlight"`. The
 examples page has a live one beside Nightingale's navigation and sequence
 tracks.
+
+`loading="lazy"` mounts the viewer once the element comes within 200 pixels of
+the viewport, the way `<img loading="lazy">` loads its image. Until then the
+element shows its own children and reserves the viewer's height, so an `<img>`
+of the first frame, drawn by `react-msaview-cli export-svg --viewport`, stands
+in for it:
+
+```html
+<script
+  async
+  src="https://unpkg.com/react-msaview/bundle/index.js"
+  onload="ReactMSAView.defineMsaElement()"
+></script>
+
+<jbrowse-msa
+  loading="lazy"
+  height="360"
+  hide-header
+  msa-url="https://example.org/family.aln"
+  tree-url="https://example.org/family.nh"
+>
+  <img src="family.svg" alt="The family's alignment under its tree" />
+</jbrowse-msa>
+```
+
+The `async` script leaves the page's first paint to the image, and the viewer
+fetches its files and builds its model only when the reader scrolls near it.
 
 ## R package (ggmsaview)
 

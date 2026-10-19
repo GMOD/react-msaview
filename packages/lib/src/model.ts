@@ -60,6 +60,7 @@ import {
   minRowHeight,
   minTreeWidth,
   pxPerTreeDepth,
+  resizeHandleWidth,
   rowPanelHeaderHeight,
   rowTintAlpha,
   scrollZoomAxes,
@@ -765,9 +766,10 @@ function stateModelFactory({
       volatileWidth: undefined as number | undefined,
       /**
        * #volatile
-       * resize handle width between tree and msa area, px
+       * thickness of the dividers, between the tree and the alignment and under
+       * the view, px
        */
-      resizeHandleWidth: 5,
+      resizeHandleWidth,
 
       /**
        * #volatile

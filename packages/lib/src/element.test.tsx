@@ -182,3 +182,90 @@ test('the selection property sets the block, and a change dispatches an event', 
     { start: 1, end: 2 },
   ])
 })
+
+// jsdom has no IntersectionObserver; this one reports an entry when told to
+const observers: {
+  callback: IntersectionObserverCallback
+  target?: Element
+}[] = []
+class FakeIntersectionObserver {
+  record: (typeof observers)[number]
+  constructor(callback: IntersectionObserverCallback) {
+    this.record = { callback }
+    observers.push(this.record)
+  }
+  observe(target: Element) {
+    this.record.target = target
+  }
+  disconnect() {
+    this.record.target = undefined
+  }
+}
+
+function scrollIntoReach() {
+  for (const { callback, target } of observers) {
+    if (target) {
+      callback(
+        [{ isIntersecting: true, target } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      )
+    }
+  }
+}
+
+async function lazyElement() {
+  vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
+  captured = undefined
+  observers.length = 0
+  const element = document.createElement('jbrowse-msa') as HTMLElement & {
+    msa?: string
+  }
+  element.setAttribute('loading', 'lazy')
+  element.setAttribute('height', '360')
+  element.msa = msa
+  element.innerHTML = '<img alt="first frame">'
+  await act(async () => {
+    document.body.append(element)
+    await Promise.resolve()
+  })
+  return element
+}
+
+test('a lazy element keeps its children and the viewer height until it nears the viewport', async () => {
+  const element = await lazyElement()
+  expect(captured).toBeUndefined()
+  expect(element.querySelector('img')).toBeTruthy()
+  expect(element.style.minHeight).toBe('365px')
+
+  await act(async () => {
+    scrollIntoReach()
+    await Promise.resolve()
+  })
+  expect(captured?.height).toBe(360)
+  expect(element.querySelector('img')).toBeNull()
+  expect(observers.every(o => !o.target)).toBe(true)
+  vi.unstubAllGlobals()
+})
+
+test('dropping loading="lazy" mounts the viewer at once', async () => {
+  const element = await lazyElement()
+  expect(captured).toBeUndefined()
+  await act(async () => {
+    element.removeAttribute('loading')
+    await Promise.resolve()
+  })
+  expect(captured).toBeDefined()
+  vi.unstubAllGlobals()
+})
+
+test('a lazy element mounts at once where the browser has no IntersectionObserver', async () => {
+  const element = await lazyElement()
+  vi.unstubAllGlobals()
+  captured = undefined
+  await act(async () => {
+    element.remove()
+    document.body.append(element)
+    await Promise.resolve()
+  })
+  expect(captured).toBeDefined()
+})
