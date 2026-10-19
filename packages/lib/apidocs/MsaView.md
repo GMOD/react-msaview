@@ -170,6 +170,15 @@ domainFill: stripDefault(types.boolean, true)
 drawMsaLetters: stripDefault(types.boolean, defaultDrawMsaLetters)
 ```
 
+#### property: embeddedMode
+
+draws the toolbar's menus and Settings as icons without text, for a host with
+little room, such as a JBrowse view
+
+```js
+embeddedMode: stripDefault(types.boolean, false)
+```
+
 #### property: encodings
 
 what the viewer's own marks read from `rowData`: `{channel, field, scale?}` per
@@ -2272,6 +2281,12 @@ setDomainFill: (arg: boolean) => void
 
 ```js
 setDrawMsaLetters: (arg: boolean) => void
+```
+
+#### action: setEmbeddedMode
+
+```js
+setEmbeddedMode: (arg: boolean) => void
 ```
 
 #### action: setEncodings
