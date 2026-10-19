@@ -4,6 +4,37 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.3.0](https://github.com/GMOD/JBrowseMSA/compare/v9.2.0...v9.3.0) (2026-10-19)
+
+### Other Changes
+
+- Hand the wheel to the page at the edges, and pan with pointer events ([70632da](https://github.com/GMOD/JBrowseMSA/commit/70632dac8693f086cd0adfef4c654a2d195e30e1))
+- Say which scrolls pass to the page: a swipe only when the rows fit ([6f5b3a8](https://github.com/GMOD/JBrowseMSA/commit/6f5b3a8649bdebec8d9f3910d59ea70687ae3f10))
+- Reflow the user guide's scroll bullet ([5d2fd0a](https://github.com/GMOD/JBrowseMSA/commit/5d2fd0a824c7b858b3388355766773b8818a7812))
+- Add a static-first tutorial: an SVG on the page, the viewer on a click ([801fe6d](https://github.com/GMOD/JBrowseMSA/commit/801fe6df30180967355aca0a9f87f1f05399cd0e))
+- Destroy each app the app model tests open ([0fa9175](https://github.com/GMOD/JBrowseMSA/commit/0fa9175892f39d13cc4eb45348eecdeecfaa483e))
+- Add loading="lazy" to <jbrowse-msa>, mounting the viewer near the viewport ([7a99125](https://github.com/GMOD/JBrowseMSA/commit/7a991254978fac5a6a052d16f6a24de4ebc9ac5e))
+- Print a default's value in the apidocs, where the model names a constant ([c2af062](https://github.com/GMOD/JBrowseMSA/commit/c2af0629fc2ac62bd50d7d235249a39d8f1fd8e5))
+- Fix three faults in the wheel and pointer pan a review found ([717de97](https://github.com/GMOD/JBrowseMSA/commit/717de97ca48e80df0a8b41df57776e1401421af1))
+- Format docgen's inlineConstants ([a509f27](https://github.com/GMOD/JBrowseMSA/commit/a509f2760f4d6acec8f4ee4b8d72c70cc1c8a937))
+- Tighten the static-first page and its checks after review ([6548968](https://github.com/GMOD/JBrowseMSA/commit/65489688472a66d887451553ab18c69fdc397d6f))
+- Push the recaptured static-first figures ([2b8e72a](https://github.com/GMOD/JBrowseMSA/commit/2b8e72afe045e3583e6a951a360e211f43bcccca))
+- Hand off the remaining embed work ([6a4aaae](https://github.com/GMOD/JBrowseMSA/commit/6a4aaae32d79b7b84e63fbb075a8742c25b75be0))
+- Hold tutorial openings to a list of what the page does ([33cff9f](https://github.com/GMOD/JBrowseMSA/commit/33cff9f38952996d6da2d6b90e945cc89590e1ef))
+- Pare the tutorials down and let the figures carry them ([8dc5396](https://github.com/GMOD/JBrowseMSA/commit/8dc5396a3d44f8cc72b17de4035a2f3584168ec1))
+- Color object: range and domain replace {palette, map}, one scale per declaration ([867e522](https://github.com/GMOD/JBrowseMSA/commit/867e52248e51ec6812899388b91ed4c429770e4e))
+- Docs, USAGE and the Python widget write the color object ([da058aa](https://github.com/GMOD/JBrowseMSA/commit/da058aaa551908217b38eb551988408a9214fc81))
+- Agent docs: the color object, and step 7 of scales-and-guides ([726495f](https://github.com/GMOD/JBrowseMSA/commit/726495fc925c42fd003a6558f4a0ad441cbcbaaa))
+- Setters read the earlier spelling, typed ([5af12e2](https://github.com/GMOD/JBrowseMSA/commit/5af12e2d67b4a02d535ac555af4f064ab48e3109))
+- Specs, tutorial scripts and tutorial prose write the color object ([1182729](https://github.com/GMOD/JBrowseMSA/commit/1182729a08289e4d71bd29dcdc1db56c41a863b9))
+- Regenerated layers, tutorial links and tests in the color object ([0eb48f4](https://github.com/GMOD/JBrowseMSA/commit/0eb48f40629066d9c2eec00edb2250f880527712))
+- Replace tutorial prose with eight new figures ([b2e5f87](https://github.com/GMOD/JBrowseMSA/commit/b2e5f87904d533a8388706290867477e60874afe))
+- Resolve the structure package against the workspace's one React ([dcf3fb3](https://github.com/GMOD/JBrowseMSA/commit/dcf3fb3279dfd782f9e3e550d9eb5f7de5fbec90))
+- Keep the spike figures on the alignment now the structure panel loads ([33ecbfb](https://github.com/GMOD/JBrowseMSA/commit/33ecbfb8669cb41ab44789792034074b2b2028e6))
+- Push the new tutorial figures ([97acb45](https://github.com/GMOD/JBrowseMSA/commit/97acb45fe6378b628d1d37d09dbc6df1201e6656))
+- Deep-import AppBar and ButtonBase, which a JBrowse host's MUI re-exports lack ([1afa87c](https://github.com/GMOD/JBrowseMSA/commit/1afa87c0f915cbd1ab0a627b9ddf6ee8a6293a74))
+- Regenerate MsaView.md for the color object ([e23216a](https://github.com/GMOD/JBrowseMSA/commit/e23216afed24161b1632b5e02917e2d5f146503c))
+
 ## [9.2.0](https://github.com/GMOD/JBrowseMSA/compare/v9.1.1...v9.2.0) (2026-10-19)
 
 ### Other Changes
