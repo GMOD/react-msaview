@@ -3,6 +3,8 @@
  *
  *   node scripts/check-tutorials.mjs [page.md ...]
  *
+ * - the opening ends in 3 to 5 bullets, one per stage of the page, under a
+ *   lead-in ending in a colon
  * - the page opens on `## Prerequisites` then `## The data`,
  *   and closes on `## Reproduce it end to end`, `## See also`, `## References`
  * - neither opening section carries a convenience pitch ("every figure below
@@ -66,6 +68,23 @@ function checkPage(file) {
   const secs = sections(text)
   const titles = secs.map(s => s.title)
   const problems = []
+
+  const opening = text.slice(0, text.search(/^## /m)).trim().split('\n')
+  const firstOpeningBullet = opening.findIndex(l => l.startsWith('- '))
+  const openingBullets = opening.filter(l => l.startsWith('- ')).length
+  if (openingBullets < 3 || openingBullets > 5) {
+    problems.push(
+      `the opening has ${openingBullets} bullets; list 3 to 5 stages the page runs`,
+    )
+  } else if (
+    !opening
+      .slice(0, firstOpeningBullet)
+      .findLast(l => l.trim())
+      ?.trimEnd()
+      .endsWith(':')
+  ) {
+    problems.push('the sentence before the opening bullets must end in a colon')
+  }
 
   if (OPENING.some((t, i) => titles[i] !== t)) {
     problems.push(`opens on ${titles.slice(0, 2).join(', ')}`)

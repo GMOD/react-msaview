@@ -29,10 +29,22 @@ A pipeline that runs inside a language ships that language's script instead,
 runs, so a reader following along and a reader running the script get the same
 files.
 
-Section order: opening paragraph, `## Prerequisites`,
-`## Where the data comes from` (one bullet per file, ending in the raw URL), the
-steps, `## Reproduce it end to end`, `## See also` (bare links),
-`## References`. `pnpm check:tutorials` holds the shape below.
+**The opening ends in a list of what we do.** Two to four sentences say what the
+page looks at and why, in the reader's terms; a lead-in ending "we:" introduces
+three to five bullets, one per stage in page order, each opening on a verb the
+reader performs ("align the coding sequences and infer a tree"). The biology
+goes in the lead-in, never a finding in a bullet.
+
+**Screenshots tell the story.** Each step opens on its action in a sentence or
+two, then the fence or the figure; the caption describes the frame, and prose
+beside it adds only what the caption lacks. Biology gets one or two sentences
+per step, enough to read the next figure: no literature tour, no mechanism
+history, no "why this matters" paragraph. Step headings are
+`## N. <what the reader does or gets>`, parallel across the page.
+
+Section order: opening, `## Prerequisites`, `## The data`, the steps,
+`## Reproduce it end to end`, `## See also` (bare links), `## References`.
+`pnpm check:tutorials` holds the shape below and the opening's list.
 
 **Prerequisites lists what the reader installs**, one bullet per tool with its
 install line, and nothing else. A tool in it is one a fence on the page runs. No
