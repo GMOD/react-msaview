@@ -97,7 +97,7 @@ function zoomSubMenu(model: MsaViewModel): MenuItem[] {
   ]
 }
 
-export const gapPresets = [100, 90, 50]
+const gapPresets = [100, 90, 50]
 
 export function gapsSubMenu(model: MsaViewModel): MenuItem[] {
   const { hideGaps, allowedGappyness } = model

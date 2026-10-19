@@ -18,7 +18,7 @@ import type {
 } from 'react-msaview'
 import type { StructureColor } from 'react-msaview-structure/panel'
 
-export const alignmentSchemes = [
+const alignmentSchemes = [
   { id: 'clustalx_protein_dynamic', label: 'ClustalX' },
   { id: 'jalview_hydrophobicity', label: 'Hydrophobicity' },
   { id: 'jalview_buried', label: 'Buried index' },

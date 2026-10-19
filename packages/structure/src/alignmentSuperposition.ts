@@ -48,7 +48,7 @@ export interface Refinement {
 }
 
 /** PyMOL's `align` defaults (cutoff 2 RMS, 5 cycles), with a floor so a loose alignment cannot empty the fit */
-export const defaultRefinement: Refinement = {
+const defaultRefinement: Refinement = {
   cutoff: 2,
   minDistance: 1.5,
   rounds: 5,

@@ -2,7 +2,7 @@
 // the blosum62_dynamic color scheme
 
 // prettier-ignore
-export const BLOSUM62_KEYS = 'ARNDCQEGHILKMFPSTWYVBZX*'
+const BLOSUM62_KEYS = 'ARNDCQEGHILKMFPSTWYVBZX*'
 // prettier-ignore
 const BLOSUM62_DATA = [
   [ 4,-1,-2,-2, 0,-1,-1, 0,-2,-1,-1,-1,-1,-2,-1, 1, 0,-3,-2, 0,-2,-1, 0,-4],

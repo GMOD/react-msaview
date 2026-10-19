@@ -9,7 +9,7 @@ import type { MsaViewModel } from '../../model.ts'
 // local because a host's older core lacks that export
 export const scrollZoomLabel = 'Zoom on scroll'
 
-export const scrollZoomHelp =
+const scrollZoomHelp =
   'The mouse wheel zooms the alignment instead of scrolling it; shift+scroll still scrolls. ctrl+scroll (⌘+scroll on a Mac) zooms either way.'
 
 const ScrollZoomCheckbox = observer(function ({

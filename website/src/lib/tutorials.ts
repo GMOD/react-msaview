@@ -291,5 +291,3 @@ export const tutorials: Tutorial[] = [
     thumbPosition: 'center',
   },
 ]
-
-export const tutorialBySlug = new Map(tutorials.map(t => [t.slug, t]))

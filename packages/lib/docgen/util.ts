@@ -121,7 +121,7 @@ function typeSignature(
 // stringEnum's choices from churning the docs.
 const STRING_LITERAL_UNION = /"(?:[^"\\]|\\.)*"(?:\s*\|\s*"(?:[^"\\]|\\.)*")+/g
 
-export function sortStringLiteralUnions(sig: string) {
+function sortStringLiteralUnions(sig: string) {
   return sig.replaceAll(STRING_LITERAL_UNION, run =>
     run
       .split('|')
@@ -191,7 +191,7 @@ function topLevelUnion(sig: string) {
 // Generic arguments collapse first, then object types, then a top-level union
 // drops its trailing alternatives. A type that resists all three stays whole:
 // an honest long signature beats one cut off mid-parameter.
-export function elideSignature(sig: string, max = MAX_SIGNATURE) {
+function elideSignature(sig: string, max = MAX_SIGNATURE) {
   let out = sig.replaceAll(/\s+/g, ' ')
   for (const [open, close] of [
     ['<', '>'],

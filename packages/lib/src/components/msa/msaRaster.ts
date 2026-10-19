@@ -6,7 +6,7 @@ import type { Theme } from '@mui/material'
 // One raster tile holds this many cells on a side. A tile costs ~10ms to build
 // and ~1MB to hold, and is then drawn at any zoom for ~1ms, so the cache only
 // has to be large enough to cover a screen without thrashing.
-export const rasterTileSize = 512
+const rasterTileSize = 512
 const maxCachedTiles = 64
 const maxThumbnailColumns = 2000
 const maxColorCacheEntries = 4096

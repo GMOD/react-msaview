@@ -34,7 +34,7 @@ function tokenize(line) {
   )
 }
 
-export function parseAtomSite(cif) {
+function parseAtomSite(cif) {
   const tags = []
   const rows = []
   let inLoop = false

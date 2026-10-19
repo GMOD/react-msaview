@@ -200,7 +200,7 @@ function firstDifference(a: string, b: string) {
  * The row's residues against the protein, or against the `/start-end` slice
  * of it the row name declares. Throws on the first difference.
  */
-export function checkRowSequence({
+function checkRowSequence({
   row,
   accession,
   rowSeq,

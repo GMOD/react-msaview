@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto'
 // One corpus, one bucket.
 export const storeBucket = 's3://jbrowse.org'
 export const storePrefix = 'msaview-figures'
-export const publicBase = 'https://jbrowse.org'
+const publicBase = 'https://jbrowse.org'
 export const extRe = /\.(png|svg)$/i
 
 // aws s3 cp otherwise guesses content-type from the local platform's mime

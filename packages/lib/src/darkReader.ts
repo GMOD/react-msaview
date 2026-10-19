@@ -11,14 +11,14 @@ import type { Theme } from '@mui/material'
 // lacks (see CLAUDE.md on externals).
 const DARK_READER_ATTRIBUTE = 'data-darkreader-scheme'
 
-export function darkReaderIsDark() {
+function darkReaderIsDark() {
   return (
     typeof document !== 'undefined' &&
     document.documentElement.getAttribute(DARK_READER_ATTRIBUTE) === 'dark'
   )
 }
 
-export function onDarkReaderChange(listener: () => void) {
+function onDarkReaderChange(listener: () => void) {
   if (
     typeof MutationObserver !== 'function' ||
     typeof document === 'undefined'

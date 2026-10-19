@@ -11,11 +11,11 @@ import type { Theme } from '@mui/material'
 
 // a fill plus a solid border; the hover wash alone is invisible over clustalx
 // coloring
-export const highlightFill = 'rgba(255,140,0,0.28)'
-export const highlightBorder = 'rgba(210,90,0,0.95)'
+const highlightFill = 'rgba(255,140,0,0.28)'
+const highlightBorder = 'rgba(210,90,0,0.95)'
 export const highlightRowFill = 'rgba(255,140,0,0.18)'
 
-export const labelFontSize = 11
+const labelFontSize = 11
 const labelPad = 3
 // the label box above a highlight band; tree blocks also check rows this far
 // outside themselves

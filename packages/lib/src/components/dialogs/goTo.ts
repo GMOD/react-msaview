@@ -21,7 +21,7 @@ export function rowNameSuggestions(names: string[], input: string, limit = 50) {
  * column the ruler numbers N, or residue N of a row written `name:N`. A name
  * is tried whole first, so a row called `chr1:100` stays reachable.
  */
-export function resolveGoTo(model: MsaViewModel, text: string) {
+function resolveGoTo(model: MsaViewModel, text: string) {
   const query = text.trim()
   const row = model.rowNamesSet.get(query)
   if (row !== undefined) {
