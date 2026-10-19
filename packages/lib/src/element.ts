@@ -95,8 +95,8 @@ function residueRange(model: MsaViewModel, row: string, viewport: Viewport) {
  * Attributes: msa-url, tree-url, gff-url, color-scheme, height, hide-header,
  * theme, tree-area-width, reference-row and loading. Properties: msa, tree and
  * gff text, features, colorScheme, highlights, columnTracks, residueMappings
- * and selection. The colorScheme property takes a `{map}` the color-scheme
- * attribute cannot hold, and wins over the attribute while set. Events:
+ * and selection. The colorScheme property takes a `{domain, range}` the
+ * color-scheme attribute cannot hold, and wins over the attribute while set. Events:
  * cell-hover, cell-click, viewport-change and selection-change, each with the
  * MSAViewer callback's value as detail.
  *

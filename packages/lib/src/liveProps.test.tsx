@@ -95,14 +95,14 @@ test('height, color scheme and zoom follow the props', () => {
 })
 
 test('colorScheme takes a scheme name or a letter map', () => {
-  const model = show({ colorScheme: { map: { K: '#1f77b4' } } })
+  const model = show({ colorScheme: { domain: ['K'], range: ['#1f77b4'] } })
   expect(model.customColorScheme).toEqual({ K: '#1f77b4' })
   expect(model.colorScheme.K).toBe('#1f77b4')
 
-  show({ colorScheme: { map: { K: '#1f77b4' } } })
+  show({ colorScheme: { domain: ['K'], range: ['#1f77b4'] } })
   expect(model.customColorScheme).toEqual({ K: '#1f77b4' })
 
-  show({ colorScheme: { map: { R: '#d62728' } } })
+  show({ colorScheme: { domain: ['R'], range: ['#d62728'] } })
   expect(model.customColorScheme).toEqual({ R: '#d62728' })
 
   show({ colorScheme: 'lesk' })

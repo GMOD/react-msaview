@@ -26,7 +26,11 @@
       "row": "Human",
       "color": "#c0392b",
       "height": 60,
-      "max": 8,
+      "scales": {
+        "y": {
+          "domainMax": 8
+        }
+      },
       "values": [
         0,
         0,
@@ -430,7 +434,11 @@
       "row": "Human",
       "color": "#1565c0",
       "height": 60,
-      "max": 100,
+      "scales": {
+        "y": {
+          "domainMax": 100
+        }
+      },
       "values": [
         49,
         27,
@@ -834,7 +842,11 @@
       "row": "Human",
       "color": "#2e7d32",
       "height": 60,
-      "max": 2,
+      "scales": {
+        "y": {
+          "domainMax": 2
+        }
+      },
       "values": [
         0.00,
         0.00,

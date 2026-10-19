@@ -138,10 +138,12 @@ echo "$CLINVAR" | awk -F, -v n=$LENGTH '{
 }'
 
 # 5. AlphaMissense: the mean predicted pathogenicity of the 19 substitutions at
-#    each residue. The CSV is the one the AlphaFold entry for P04637 points at.
-AM_URL=$(curl -sf https://alphafold.ebi.ac.uk/api/prediction/P04637 |
+#    each residue. The CSV is the one the AlphaFold entry for P04637 points at;
+#    AlphaFold DB refuses a file request that names no user agent.
+UA='msaview-tutorial (https://gmod.org/JBrowseMSA)'
+AM_URL=$(curl -sf -A "$UA" https://alphafold.ebi.ac.uk/api/prediction/P04637 |
   jq -r '.[0].amAnnotationsUrl')
-curl -sf "$AM_URL" -o alphamissense.csv
+curl -sf -A "$UA" "$AM_URL" -o alphamissense.csv
 echo "$(($(wc -l < alphamissense.csv) - 1)) AlphaMissense substitutions"
 
 am_values() {

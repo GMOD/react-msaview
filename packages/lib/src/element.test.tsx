@@ -149,7 +149,7 @@ test('the colorScheme property carries a letter map past the attribute', async (
   expect(model.colorSchemeName).toBe('clustal')
 
   act(() => {
-    el.colorScheme = { map: { K: '#1f77b4' } }
+    el.colorScheme = { domain: ['K'], range: ['#1f77b4'] }
   })
   expect(model.customColorScheme).toEqual({ K: '#1f77b4' })
 
