@@ -5,16 +5,7 @@ import { mount } from './mount.tsx'
 import type { MSAViewerProps } from './components/MSAViewer.tsx'
 import type { MsaViewModel } from './model.ts'
 import type { MountedViewer } from './mount.tsx'
-import type {
-  Cell,
-  ColorScheme,
-  ColumnTrackSpec,
-  Feature,
-  Highlight,
-  MsaSelection,
-  ResidueMapping,
-  Viewport,
-} from './types.ts'
+import type { Cell, Highlight, MsaSelection, Viewport } from './types.ts'
 
 type ElementData = Pick<
   MSAViewerProps,
@@ -28,6 +19,17 @@ type ElementData = Pick<
   | 'residueMappings'
   | 'selection'
 >
+
+const dataProperties = [
+  'msa',
+  'tree',
+  'gff',
+  'features',
+  'colorScheme',
+  'highlights',
+  'columnTracks',
+  'residueMappings',
+] as const satisfies (keyof ElementData)[]
 
 interface NightingaleManager extends HTMLElement {
   register: (element: HTMLElement) => void
@@ -115,54 +117,29 @@ export function defineMsaElement(tagName = 'jbrowse-msa') {
     #reported?: { start: number; end: number }
     #data: ElementData = {}
 
-    get msa() {
-      return this.#data.msa
+    declare msa: ElementData['msa']
+    declare tree: ElementData['tree']
+    declare gff: ElementData['gff']
+    declare features: ElementData['features']
+    declare colorScheme: ElementData['colorScheme']
+    declare highlights: ElementData['highlights']
+    declare columnTracks: ElementData['columnTracks']
+    declare residueMappings: ElementData['residueMappings']
+
+    static {
+      for (const key of dataProperties) {
+        Object.defineProperty(MsaElement.prototype, key, {
+          configurable: true,
+          get(this: MsaElement) {
+            return this.#data[key]
+          },
+          set(this: MsaElement, value: ElementData[typeof key]) {
+            this.#setData({ [key]: value })
+          },
+        })
+      }
     }
-    set msa(value: string | undefined) {
-      this.#setData({ msa: value })
-    }
-    get tree() {
-      return this.#data.tree
-    }
-    set tree(value: string | undefined) {
-      this.#setData({ tree: value })
-    }
-    get gff() {
-      return this.#data.gff
-    }
-    set gff(value: string | undefined) {
-      this.#setData({ gff: value })
-    }
-    get features() {
-      return this.#data.features
-    }
-    set features(value: Feature[] | undefined) {
-      this.#setData({ features: value })
-    }
-    get colorScheme() {
-      return this.#data.colorScheme
-    }
-    set colorScheme(value: ColorScheme | undefined) {
-      this.#setData({ colorScheme: value })
-    }
-    get highlights() {
-      return this.#data.highlights
-    }
-    set highlights(value: Highlight[] | undefined) {
-      this.#setData({ highlights: value })
-    }
-    get columnTracks() {
-      return this.#data.columnTracks
-    }
-    set columnTracks(value: ColumnTrackSpec[] | undefined) {
-      this.#setData({ columnTracks: value })
-    }
-    get residueMappings() {
-      return this.#data.residueMappings
-    }
-    set residueMappings(value: ResidueMapping[] | undefined) {
-      this.#setData({ residueMappings: value })
-    }
+
     // the viewer's selection, which the reader's drags change
     get selection() {
       return this.#model ? this.#model.selection : this.#data.selection
