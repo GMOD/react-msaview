@@ -20,7 +20,7 @@ objects in our source code.
 #### property: drawLabels
 
 ```js
-drawLabels: stripDefault(types.boolean, defaultDrawLabels)
+drawLabels: stripDefault(types.boolean, true)
 ```
 
 #### property: drawNodeBubbles
@@ -28,7 +28,7 @@ drawLabels: stripDefault(types.boolean, defaultDrawLabels)
 draw node bubbles on the tree; the branches stay clickable either way
 
 ```js
-drawNodeBubbles: stripDefault(types.boolean, defaultDrawNodeBubbles)
+drawNodeBubbles: stripDefault(types.boolean, true)
 ```
 
 #### property: drawNodeLabels
@@ -37,7 +37,7 @@ draw the label a newick file gives an internal node, which is where a bootstrap
 or posterior support value lands
 
 ```js
-drawNodeLabels: stripDefault(types.boolean, defaultDrawNodeLabels)
+drawNodeLabels: stripDefault(types.boolean, false)
 ```
 
 #### property: drawTree
@@ -45,7 +45,7 @@ drawNodeLabels: stripDefault(types.boolean, defaultDrawNodeLabels)
 draw tree, boolean
 
 ```js
-drawTree: stripDefault(types.boolean, defaultDrawTree)
+drawTree: stripDefault(types.boolean, true)
 ```
 
 #### property: labelsAlignRight
@@ -53,7 +53,7 @@ drawTree: stripDefault(types.boolean, defaultDrawTree)
 right-align the labels
 
 ```js
-labelsAlignRight: stripDefault(types.boolean, defaultLabelsAlignRight)
+labelsAlignRight: stripDefault(types.boolean, false)
 ```
 
 #### property: overviewHeight
@@ -61,7 +61,7 @@ labelsAlignRight: stripDefault(types.boolean, defaultLabelsAlignRight)
 height of the tree overview band, px
 
 ```js
-overviewHeight: stripDefault(types.number, defaultOverviewHeight)
+overviewHeight: stripDefault(types.number, 120)
 ```
 
 #### property: showBranchLen
@@ -71,7 +71,7 @@ false, the layout is a "cladogram" that does not take into account evolutionary
 distances
 
 ```js
-showBranchLen: stripDefault(types.boolean, defaultShowBranchLen)
+showBranchLen: stripDefault(types.boolean, true)
 ```
 
 #### property: showTreeOverview
@@ -80,7 +80,7 @@ draw the whole tree small above the tree panel, with the focused subtree boxed.
 A click on it focuses the subtree under the pointer
 
 ```js
-showTreeOverview: stripDefault(types.boolean, defaultShowTreeOverview)
+showTreeOverview: stripDefault(types.boolean, false)
 ```
 
 #### property: showTreeScaleBar
@@ -88,7 +88,7 @@ showTreeOverview: stripDefault(types.boolean, defaultShowTreeOverview)
 draw the branch-length scale bar above the tree of a phylogram
 
 ```js
-showTreeScaleBar: stripDefault(types.boolean, defaultShowTreeScaleBar)
+showTreeScaleBar: stripDefault(types.boolean, false)
 ```
 
 #### property: treeAreaWidth
@@ -109,7 +109,7 @@ the order each node's children draw in: `branchLength` (shortest first), `input`
 ```js
 treeOrder: stripDefault(
   types.enumeration < TreeOrder > ('TreeOrder', [...treeOrders]),
-  defaultTreeOrder,
+  'branchLength',
 )
 ```
 

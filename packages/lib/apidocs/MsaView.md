@@ -99,7 +99,7 @@ that declares it.
 #### property: allowedGappyness
 
 ```js
-allowedGappyness: stripDefault(types.number, defaultAllowedGappyness)
+allowedGappyness: stripDefault(types.number, 100)
 ```
 
 #### property: clades
@@ -138,13 +138,13 @@ columnTracks: stripDefault(
 width of columns, px
 
 ```js
-colWidth: stripDefault(types.number, defaultColWidth)
+colWidth: stripDefault(types.number, 12)
 ```
 
 #### property: currentAlignment
 
 ```js
-currentAlignment: stripDefault(types.number, defaultCurrentAlignment)
+currentAlignment: stripDefault(types.number, 0)
 ```
 
 #### property: data
@@ -167,7 +167,7 @@ domainFill: stripDefault(types.boolean, true)
 #### property: drawMsaLetters
 
 ```js
-drawMsaLetters: stripDefault(types.boolean, defaultDrawMsaLetters)
+drawMsaLetters: stripDefault(types.boolean, true)
 ```
 
 #### property: embeddedMode
@@ -210,13 +210,13 @@ gffFilehandle: types.maybe(FileLocation)
 height of the div containing the view, px
 
 ```js
-height: stripDefault(types.number, defaultHeight)
+height: stripDefault(types.number, 550)
 ```
 
 #### property: hideGaps
 
 ```js
-hideGaps: stripDefault(types.boolean, defaultHideGaps)
+hideGaps: stripDefault(types.boolean, true)
 ```
 
 #### property: highlightColumns
@@ -302,7 +302,7 @@ rotated: stripDefault(types.array(types.string), [])
 height of each row, px
 
 ```js
-rowHeight: stripDefault(types.number, defaultRowHeight)
+rowHeight: stripDefault(types.number, 16)
 ```
 
 #### property: rowPanels
@@ -322,7 +322,7 @@ rowPanels: stripDefault(types.array(types.frozen<RowPanelSpec>()), [])
 scroll position, X-offset, px
 
 ```js
-scrollX: stripDefault(types.number, defaultScrollX)
+scrollX: stripDefault(types.number, 0)
 ```
 
 #### property: scrollY
@@ -330,7 +330,7 @@ scrollX: stripDefault(types.number, defaultScrollX)
 scroll position, Y-offset, px
 
 ```js
-scrollY: stripDefault(types.number, defaultScrollY)
+scrollY: stripDefault(types.number, 0)
 ```
 
 #### property: scrollZoom
@@ -338,7 +338,7 @@ scrollY: stripDefault(types.number, defaultScrollY)
 zoom in/out on plain mouse-wheel without holding ctrl
 
 ```js
-scrollZoom: stripDefault(types.boolean, defaultScrollZoom)
+scrollZoom: stripDefault(types.boolean, false)
 ```
 
 #### property: scrollZoomAxis
@@ -348,7 +348,7 @@ which cell dimensions a wheel zoom scales, while `scrollZoom` is on
 ```js
 scrollZoomAxis: stripDefault(
   types.enumeration('ScrollZoomAxis', [...scrollZoomAxes]),
-  defaultScrollZoomAxis,
+  'both',
 )
 ```
 
@@ -370,13 +370,13 @@ the alignment and covers residues, so a session or figure can open with it
 collapsed.
 
 ```js
-showDomainLegend: stripDefault(types.boolean, defaultShowDomainLegend)
+showDomainLegend: stripDefault(types.boolean, true)
 ```
 
 #### property: showDomains
 
 ```js
-showDomains: stripDefault(types.boolean, defaultShowDomains)
+showDomains: stripDefault(types.boolean, true)
 ```
 
 #### property: showOnly
@@ -390,7 +390,7 @@ showOnly: types.maybe(types.string)
 #### property: subFeatureRows
 
 ```js
-subFeatureRows: stripDefault(types.boolean, defaultSubFeatureRows)
+subFeatureRows: stripDefault(types.boolean, false)
 ```
 
 #### property: trackHeights
@@ -634,7 +634,7 @@ thickness of the dividers, between the tree and the alignment and under the
 view, px
 
 ```js
-resizeHandleWidth
+resizeHandleWidth: 5
 ```
 
 #### volatile: settingsOpen

@@ -71,7 +71,7 @@ export function extractWithComment(
         name,
         comment,
         signature,
-        node: node.getFullText(),
+        node: inlineConstants(checker, node),
         filename: node.getSourceFile().fileName,
         selfDeclId: declId,
         composedOf: tags.includes('stateModel')
@@ -84,6 +84,68 @@ export function extractWithComment(
     }
     ts.forEachChild(node, visit)
   }
+}
+
+// The literal a `const` holds, such as the 550 of `defaultHeight = 550`, or
+// undefined for any other symbol
+function constLiteral(checker: ts.TypeChecker, symbol: ts.Symbol | undefined) {
+  const decl = symbol ? followAlias(checker, symbol).valueDeclaration : undefined
+  const init =
+    decl &&
+    ts.isVariableDeclaration(decl) &&
+    ts.getCombinedNodeFlags(decl) & ts.NodeFlags.Const
+      ? decl.initializer
+      : undefined
+  const literal =
+    init &&
+    (ts.isNumericLiteral(init) ||
+      ts.isStringLiteral(init) ||
+      ts.isNoSubstitutionTemplateLiteral(init) ||
+      init.kind === ts.SyntaxKind.TrueKeyword ||
+      init.kind === ts.SyntaxKind.FalseKeyword ||
+      (ts.isPrefixUnaryExpression(init) && ts.isNumericLiteral(init.operand)))
+  return literal ? init.getText() : undefined
+}
+
+// A member's source with each reference to a literal `const` replaced by the
+// literal, so the page reads `height: 550` where the model says `defaultHeight`
+function inlineConstants(checker: ts.TypeChecker, node: ts.Node) {
+  const base = node.getFullStart()
+  const edits: { start: number; end: number; text: string }[] = []
+  function walk(n: ts.Node) {
+    if (ts.isShorthandPropertyAssignment(n)) {
+      const value = constLiteral(
+        checker,
+        checker.getShorthandAssignmentValueSymbol(n),
+      )
+      if (value !== undefined) {
+        edits.push({
+          start: n.name.getStart(),
+          end: n.name.getEnd(),
+          text: `${n.name.text}: ${value}`,
+        })
+      }
+      return
+    }
+    const parent = n.parent as ts.Node | undefined
+    const isName =
+      parent &&
+      ((ts.isPropertyAccessExpression(parent) && parent.name === n) ||
+        getNameNode(parent) === n)
+    if (ts.isIdentifier(n) && !isName) {
+      const value = constLiteral(checker, checker.getSymbolAtLocation(n))
+      if (value !== undefined) {
+        edits.push({ start: n.getStart(), end: n.getEnd(), text: value })
+      }
+    }
+    ts.forEachChild(n, walk)
+  }
+  walk(node)
+  let text = node.getFullText()
+  for (const { start, end, text: value } of edits.toReversed()) {
+    text = text.slice(0, start - base) + value + text.slice(end - base)
+  }
+  return text
 }
 
 function describeSymbol(checker: ts.TypeChecker, node: ts.Node) {

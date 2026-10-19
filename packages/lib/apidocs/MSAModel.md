@@ -22,7 +22,7 @@ objects in our source code.
 draw MSA tiles with a background color
 
 ```js
-bgColor: stripDefault(types.boolean, defaultBgColor)
+bgColor: stripDefault(types.boolean, true)
 ```
 
 #### property: colorSchemeName
@@ -30,7 +30,7 @@ bgColor: stripDefault(types.boolean, defaultBgColor)
 default color scheme name
 
 ```js
-colorSchemeName: stripDefault(types.string, defaultColorSchemeName)
+colorSchemeName: stripDefault(types.string, 'maeditor')
 ```
 
 #### property: customColorScheme
@@ -59,7 +59,7 @@ show a tooltip with the hovered column's value for a track while hovering that
 track: the conservation scores, the logo's composition, an arc's partner columns
 
 ```js
-showColumnStats: stripDefault(types.boolean, defaultShowColumnStats)
+showColumnStats: stripDefault(types.boolean, true)
 ```
 
 ### MSAModel - Actions
