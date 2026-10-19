@@ -123,6 +123,10 @@ body.app-layout .site-footer {
   margin-top: 0;
 }
 
+.prose {
+  overflow-wrap: anywhere;
+}
+
 .prose img {
   max-width: 100%;
   height: auto;

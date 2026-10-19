@@ -17,35 +17,29 @@ which reads the same parent on both sides of the junction.
   biocontainers images.
 - Python 3, standard library only
 
-## Where the data comes from
+## The data
 
 Twelve norovirus GII genomes as GenBank holds them, sequence and annotation
-both. The commands below fetch these, so there is nothing to download by hand.
+both. Nothing to download: the commands below fetch them from NCBI.
 
-- all twelve genomes, one request:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=MK773584.1,MK762638.1,LC175468.1,NC_039476.1,KY771081.1,MK752935.1,MG892974.3,KJ196281.1,KJ196296.1,KY486271.1,NC_040876.1,NC_039475.1&rettype=fasta&retmode=text
-- the same twelve as GenBank flatfiles, which carry the CDS spans:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=MK773584.1,MK762638.1,LC175468.1,NC_039476.1,KY771081.1,MK752935.1,MG892974.3,KJ196281.1,KJ196296.1,KY486271.1,NC_040876.1,NC_039475.1&rettype=gb&retmode=text
+| What it is                                                      | File                                                                                                                                                                                                                                                    |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All twelve genomes, one request                                 | [noro.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=MK773584.1,MK762638.1,LC175468.1,NC_039476.1,KY771081.1,MK752935.1,MG892974.3,KJ196281.1,KJ196296.1,KY486271.1,NC_040876.1,NC_039475.1&rettype=fasta&retmode=text) |
+| The same twelve as GenBank flatfiles, which carry the CDS spans | [noro.gb](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=MK773584.1,MK762638.1,LC175468.1,NC_039476.1,KY771081.1,MK752935.1,MG892974.3,KJ196281.1,KJ196296.1,KY486271.1,NC_040876.1,NC_039475.1&rettype=gb&retmode=text)       |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the row table the commands below start from:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-rows.tsv
-- the alignment they write:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro.afa
-- the tree from the ORF1 columns:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-orf1.nwk
-- the tree from the ORF2 columns:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-orf2.nwk
-- the three ORFs of every genome:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-orfs.gff
-- each row's closer parent in 200-base windows:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-parents.gff
-- the 600 columns centered on the junction, 300 either side:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-junction.afa
-- the identity tracks, the layers the links below carry:
-  https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-layers.json
+| What it is                                                | File                                                                                   |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| The row table the commands below start from               | [noro-rows.tsv](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-rows.tsv)         |
+| The alignment they write                                  | [noro.afa](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro.afa)                   |
+| The tree from the ORF1 columns                            | [noro-orf1.nwk](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-orf1.nwk)         |
+| The tree from the ORF2 columns                            | [noro-orf2.nwk](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-orf2.nwk)         |
+| The three ORFs of every genome                            | [noro-orfs.gff](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-orfs.gff)         |
+| Each row's closer parent in 200-base windows              | [noro-parents.gff](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-parents.gff)   |
+| The 600 columns centered on the junction, 300 either side | [noro-junction.afa](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-junction.afa) |
+| The identity tracks, the layers the links below carry     | [noro-layers.json](https://gmod.org/JBrowseMSA/demo/data/norovirus/noro-layers.json)   |
 
 </details>
 

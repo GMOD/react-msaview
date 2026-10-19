@@ -16,25 +16,27 @@ stay where they were.
   on macOS. ClustalW both aligns and infers a tree, so this page needs no other
   aligner.
 
-## Where the data comes from
+## The data
 
 RefSeq's own annotation of each of the twelve genomes. The build script fetches
-these, so there is nothing to download by hand. Each annotation is about 3 MB
-and NCBI takes 20 to 30 seconds to serve one, so the script caches them.
+these. Nothing to download. Each annotation is about 3 MB and NCBI takes 20 to
+30 seconds to serve one, so the script caches them.
 
-- one GFF3 per genome, from the NCBI sequence viewer, for example:
-  https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_000913.3&report=gff3&retmode=text
+| What it is                                                      | File                                                                                                         |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| One GFF3 per genome, from the NCBI sequence viewer, for example | [NC_000913.3.gff3](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_000913.3&report=gff3&retmode=text) |
+
 - the TrpB proteins, from NCBI efetch by the `protein_id` on each _trpB_ CDS
   line
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the neighborhood GFF, 176 genes over twelve rows:
-  https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trp-neighborhoods.gff
-- the TrpB alignment:
-  https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trpB.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trpB.nwk
+| What it is                                       | File                                                                                               |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| The neighborhood GFF, 176 genes over twelve rows | [trp-neighborhoods.gff](https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trp-neighborhoods.gff) |
+| The TrpB alignment                               | [trpB.afa](https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trpB.afa)                           |
+| Its tree                                         | [trpB.nwk](https://gmod.org/JBrowseMSA/demo/data/neighborhoods/trpB.nwk)                           |
 
 </details>
 

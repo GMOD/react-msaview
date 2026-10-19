@@ -17,30 +17,23 @@ human to zebrafish, and ends on a link that opens the result.
   `quay.io/biocontainers/fasttree:2.1.11--h031d066_4`. The build script takes
   either.
 
-## Where the data comes from
+## The data
 
 Sequences from NCBI RefSeq, the clinical classifications from ClinVar, the
 predictions from AlphaMissense as the AlphaFold entry publishes them, and one
-saturation screen from MaveDB. The commands below fetch these, so there is
-nothing to download by hand.
+saturation screen from MaveDB. Nothing to download: the commands below fetch
+these.
 
-- the 660 vertebrate orthologs NCBI lists for _TP53_, GeneID 7157, the source of
-  the accession list below:
-  https://api.ncbi.nlm.nih.gov/datasets/v2alpha/gene/id/7157/orthologs?taxon_filter=vertebrates
-- one protein per accession, all fifteen in one request, shown here with the
-  human accession only:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=NP_000537.3&rettype=fasta&retmode=text
-- ClinVar's _TP53_ missense records, searched and then summarized:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmax=5000&term=TP53%5Bgene%5D+AND+%22missense+variant%22%5Bmolecular+consequence%5D
-- the AlphaFold entry for P04637, which names its AlphaMissense file:
-  https://alphafold.ebi.ac.uk/api/prediction/P04637
-- that file, 7,467 substitutions with a pathogenicity score each:
-  https://alphafold.ebi.ac.uk/files/AF-P04637-F1-aa-substitutions.csv
-- the Giacomelli 2018 screen, scores for 8,274 variants, CC0:
-  https://api.mavedb.org/api/v1/score-sets/urn:mavedb:00000068-a-1/scores
-- the alignment the commands below write, which the link in step 7 opens:
-  https://gmod.org/JBrowseMSA/demo/data/p53/p53-vertebrates.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/p53/p53-vertebrates.nh
+| What it is                                                                                              | File                                                                                                                                                                        |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The 660 vertebrate orthologs NCBI lists for _TP53_, GeneID 7157, the source of the accession list below | [orthologs](https://api.ncbi.nlm.nih.gov/datasets/v2alpha/gene/id/7157/orthologs?taxon_filter=vertebrates)                                                                  |
+| One protein per accession, all fifteen in one request, shown here with the human accession only         | [efetch.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=NP_000537.3&rettype=fasta&retmode=text)                                              |
+| ClinVar's _TP53_ missense records, searched and then summarized                                         | [esearch.fcgi](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmax=5000&term=TP53%5Bgene%5D+AND+%22missense+variant%22%5Bmolecular+consequence%5D) |
+| The AlphaFold entry for P04637, which names its AlphaMissense file                                      | [P04637](https://alphafold.ebi.ac.uk/api/prediction/P04637)                                                                                                                 |
+| That file, 7,467 substitutions with a pathogenicity score each                                          | [AF-P04637-F1-aa-substitutions.csv](https://alphafold.ebi.ac.uk/files/AF-P04637-F1-aa-substitutions.csv)                                                                    |
+| The Giacomelli 2018 screen, scores for 8,274 variants, CC0                                              | [scores](https://api.mavedb.org/api/v1/score-sets/urn:mavedb:00000068-a-1/scores)                                                                                           |
+| The alignment the commands below write, which the link in step 7 opens                                  | [p53-vertebrates.afa](https://gmod.org/JBrowseMSA/demo/data/p53/p53-vertebrates.afa)                                                                                        |
+| Its tree                                                                                                | [p53-vertebrates.nh](https://gmod.org/JBrowseMSA/demo/data/p53/p53-vertebrates.nh)                                                                                          |
 
 The build script writes the domain bands in as residue numbers, taken from
 [UniProt's annotation of P04637](https://rest.uniprot.org/uniprotkb/P04637.json?fields=ft_domain,ft_region).
@@ -48,8 +41,9 @@ The build script writes the domain bands in as residue numbers, taken from
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the three tracks, as the viewer takes them:
-  https://gmod.org/JBrowseMSA/demo/data/p53/p53-layers.json
+| What it is                                 | File                                                                         |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| The three tracks, as the viewer takes them | [p53-layers.json](https://gmod.org/JBrowseMSA/demo/data/p53/p53-layers.json) |
 
 </details>
 

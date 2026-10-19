@@ -17,30 +17,26 @@ The pipeline runs `curl`, `python3`, `cmsearch`, `cmalign` and FastTree.
   Ubuntu, `brew install infernal` on macOS
 - FastTree, `apt install fasttree`, or `brew install fasttree`
 
-## Where the data comes from
+## The data
 
 Rfam release 15.1 for the family, NCBI RefSeq for the genomes and their
-annotation, and the RCSB PDB for one crystal structure. The commands below and
-the build script fetch these, so there is nothing to download by hand.
+annotation, and the RCSB PDB for one crystal structure. Nothing to download: the
+commands below and the build script fetch these.
 
-- the RF00162 covariance model: https://rfam.org/family/RF00162/cm
-- the RF00162 seed alignment, 457 curated sequences with the consensus
-  structure: https://rfam.org/family/RF00162/alignment/stockholm
-- one RefSeq genome per request, for example Bacillus subtilis 168:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_000964.3&rettype=fasta&retmode=text
-  The other five are NC_003869.1, NC_003030.1, NC_003210.1, NC_007795.1 and
-  NC_009089.1.
-- the annotation of a 1500 nt window of one of those records, which names the
-  gene a hit leads, one request per hit, for example:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_000964.3&seq_start=1179185&seq_stop=1180684&strand=2&rettype=ft&retmode=text
-- the sequence of the crystallized aptamer, PDB 2GIS:
-  https://www.rcsb.org/fasta/entry/2GIS
+| What it is                                                                                                                                              | File                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The RF00162 covariance model                                                                                                                            | [cm](https://rfam.org/family/RF00162/cm)                                                                                                                             |
+| The RF00162 seed alignment, 457 curated sequences with the consensus structure                                                                          | [stockholm](https://rfam.org/family/RF00162/alignment/stockholm)                                                                                                     |
+| One RefSeq genome per request, for example Bacillus subtilis 168; the other five are NC_003869.1, NC_003030.1, NC_003210.1, NC_007795.1 and NC_009089.1 | [efetch.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_000964.3&rettype=fasta&retmode=text)                                       |
+| The annotation of a 1500 nt window of one of those records, which names the gene a hit leads, one request per hit, for example                          | [efetch.ft](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_000964.3&seq_start=1179185&seq_stop=1180684&strand=2&rettype=ft&retmode=text) |
+| The sequence of the crystallized aptamer, PDB 2GIS                                                                                                      | [2GIS](https://www.rcsb.org/fasta/entry/2GIS)                                                                                                                        |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the finished alignment every link on this page opens:
-  https://gmod.org/JBrowseMSA/demo/data/rna/sam-riboswitch.sto
+| What it is                                           | File                                                                               |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| The finished alignment every link on this page opens | [sam-riboswitch.sto](https://gmod.org/JBrowseMSA/demo/data/rna/sam-riboswitch.sto) |
 
 </details>
 

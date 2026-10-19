@@ -15,16 +15,15 @@ arrow in the alignment's columns, filled by complex and labeled by name.
   aligner.
 - Python 3, for the step that reshapes RefSeq's GFF3
 
-## Where the data comes from
+## The data
 
 Eight mammal mitochondrial genomes as RefSeq holds them, with RefSeq's own
-annotation of each. The commands below fetch these, so there is nothing to
-download by hand.
+annotation of each. Nothing to download: the commands below fetch these.
 
-- one genome per accession, for example:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_012920.1&rettype=fasta&retmode=text
-- its annotation as GFF3, for example:
-  https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_012920.1&report=gff3&retmode=text
+| What it is                            | File                                                                                                                           |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| One genome per accession, for example | [efetch.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_012920.1&rettype=fasta&retmode=text) |
+| Its annotation as GFF3, for example   | [NC_012920.1.gff3](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_012920.1&report=gff3&retmode=text)                   |
 
 Both endpoints serve one accession per request, so the eight genomes take eight
 requests to each.
@@ -32,13 +31,12 @@ requests to each.
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the eight genomes before alignment, right-padded to one width so the viewer
-  opens them:
-  https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito-unaligned.afa
-- the alignment the commands below write:
-  https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito.nwk
-- its genes: https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito-genes.gff
+| What it is                                                                             | File                                                                                      |
+| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| The eight genomes before alignment, right-padded to one width so the viewer opens them | [mito-unaligned.afa](https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito-unaligned.afa) |
+| The alignment the commands below write                                                 | [mito.afa](https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito.afa)                     |
+| Its tree                                                                               | [mito.nwk](https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito.nwk)                     |
+| Its genes                                                                              | [mito-genes.gff](https://gmod.org/JBrowseMSA/demo/data/mitogenome/mito-genes.gff)         |
 
 </details>
 

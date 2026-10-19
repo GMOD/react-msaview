@@ -14,21 +14,23 @@ export.
 
 - Python 3, standard library only
 
-## Where the data comes from
+## The data
 
 One dated snapshot of Nextstrain's H5N1 cattle-outbreak genome build. The build
-script fetches it, so there is nothing to download by hand.
+script fetches it. Nothing to download.
 
-- the build every field and every sequence comes from, pinned to 2026-09-15:
-  https://nextstrain.org/avian-flu/h5n1-cattle-outbreak/genome@2026-09-15
+| What it is                                                                | File                                                                                         |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| The build every field and every sequence comes from, pinned to 2026-09-15 | [genome@2026-09-15](https://nextstrain.org/avian-flu/h5n1-cattle-outbreak/genome@2026-09-15) |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the HA alignment, 204 rows:
-  https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1-ha.fa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1.nwk
-- the row table: https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1-rowdata.json
+| What it is                 | File                                                                              |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| The HA alignment, 204 rows | [h5n1-ha.fa](https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1-ha.fa)               |
+| Its tree                   | [h5n1.nwk](https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1.nwk)                   |
+| The row table              | [h5n1-rowdata.json](https://gmod.org/JBrowseMSA/demo/data/h5n1/h5n1-rowdata.json) |
 
 </details>
 

@@ -19,35 +19,30 @@ section reads two columns of the models residue by residue.
   aligner.
 - python3, standard library only
 
-## Where the data comes from
+## The data
 
 Fourteen UniProtKB entries and their AlphaFold models. AlphaFold DB is keyed on
 UniProt accession, so one accession fetches the sequence and the model both. The
-commands below fetch these, so there is nothing to download by hand.
+commands below fetch these. Nothing to download.
 
-- every sequence in one request, shown here with two of the fourteen accessions:
-  https://rest.uniprot.org/uniprotkb/accessions?accessions=Q13148,Q921F2&format=fasta
-- one AlphaFold record per accession, which names its files, for example:
-  https://alphafold.ebi.ac.uk/api/prediction/Q13148
-- the model that record names, whose B-factor column holds the pLDDT, for
-  example: https://alphafold.ebi.ac.uk/files/AF-Q13148-F1-model_v6.pdb
-- the Pfam matches of the human sequence:
-  https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q13148
+| What it is                                                                      | File                                                                                                        |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Every sequence in one request, shown here with two of the fourteen accessions   | [uniprotkb-accessions](https://rest.uniprot.org/uniprotkb/accessions?accessions=Q13148,Q921F2&format=fasta) |
+| One AlphaFold record per accession, which names its files, for example          | [Q13148](https://alphafold.ebi.ac.uk/api/prediction/Q13148)                                                 |
+| The model that record names, whose B-factor column holds the pLDDT, for example | [AF-Q13148-F1-model_v6.pdb](https://alphafold.ebi.ac.uk/files/AF-Q13148-F1-model_v6.pdb)                    |
+| The Pfam matches of the human sequence                                          | [Q13148](https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q13148)                              |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the row table the commands below start from:
-  https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-rows.tsv
-- the alignment they write:
-  https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp.nwk
-- the runs each model scores under 50:
-  https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-lowconf.gff
-- the band each row falls in per domain:
-  https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-rowdata.json
-- the tracks and the highlights, the layers the links below carry:
-  https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-layers.json
+| What it is                                                      | File                                                                                   |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| The row table the commands below start from                     | [tardbp-rows.tsv](https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-rows.tsv)         |
+| The alignment they write                                        | [tardbp.afa](https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp.afa)                   |
+| Its tree                                                        | [tardbp.nwk](https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp.nwk)                   |
+| The runs each model scores under 50                             | [tardbp-lowconf.gff](https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-lowconf.gff)   |
+| The band each row falls in per domain                           | [tardbp-rowdata.json](https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-rowdata.json) |
+| The tracks and the highlights, the layers the links below carry | [tardbp-layers.json](https://gmod.org/JBrowseMSA/demo/data/tdp43/tardbp-layers.json)   |
 
 </details>
 

@@ -29,15 +29,14 @@ should call conserved.
 - [react-msaview-cli](https://gmod.org/JBrowseMSA/cli),
   `npm install -g react-msaview-cli`, NodeJS v22+
 
-## Where the data comes from
+## The data
 
 _TRIM5_ orthologs from NCBI Gene, as the Datasets v2 API serves them for human
-Gene ID 85363. The commands below fetch these, so there is nothing to download
-by hand.
+Gene ID 85363. Nothing to download: the commands below fetch these.
 
-- the orthologs with their genes, coding sequences and proteins, fetched with
-  the NCBI Datasets CLI:
-  https://api.ncbi.nlm.nih.gov/datasets/v2/gene/id/85363/download
+| What it is                                                                                        | File                                                                              |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| The orthologs with their genes, coding sequences and proteins, fetched with the NCBI Datasets CLI | [85363-download](https://api.ncbi.nlm.nih.gov/datasets/v2/gene/id/85363/download) |
 
 The domain boundaries this page uses on the canonical human _TRIM5_ protein
 (UniProtKB Q9C035) come from InterPro's PROSITE profile calls, which the script
@@ -50,10 +49,10 @@ loops.
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the codon alignment the commands below write:
-  https://gmod.org/JBrowseMSA/demo/data/trim5/trim5-cds.stock
-- its exon structure:
-  https://gmod.org/JBrowseMSA/demo/data/trim5/trim5-exons.gff
+| What it is                                   | File                                                                           |
+| -------------------------------------------- | ------------------------------------------------------------------------------ |
+| The codon alignment the commands below write | [trim5-cds.stock](https://gmod.org/JBrowseMSA/demo/data/trim5/trim5-cds.stock) |
+| Its exon structure                           | [trim5-exons.gff](https://gmod.org/JBrowseMSA/demo/data/trim5/trim5-exons.gff) |
 
 </details>
 

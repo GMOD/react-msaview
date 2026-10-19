@@ -16,31 +16,28 @@ that inherits from neither parent, run through the same scan.
   aligner.
 - Python 3, standard library only
 
-## Where the data comes from
+## The data
 
 Five SARS-CoV-2 genomes as GenBank holds them, and NCBI's own annotation of the
-reference. The commands below and the build script fetch these, so there is
-nothing to download by hand.
+reference. Nothing to download: the commands below and the build script fetch
+these.
 
-- all five genomes, one request:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_045512.2,OQ859938.1,OP911098.1,PV014247.1,PQ577962.1&rettype=fasta&retmode=text
-- the reference annotation as GFF3:
-  https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&report=gff3&retmode=text
+| What it is                       | File                                                                                                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All five genomes, one request    | [efetch.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_045512.2,OQ859938.1,OP911098.1,PV014247.1,PQ577962.1&rettype=fasta&retmode=text) |
+| The reference annotation as GFF3 | [NC_045512.2.gff3](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&report=gff3&retmode=text)                                                               |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the row table step 1 writes:
-  https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-rows.tsv
-- the alignment:
-  https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant.nwk
-- the genes:
-  https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-genes.gff
-- the receptor-binding domain cut out of the alignment:
-  https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-rbd.afa
-- the tracks the scan writes, the layers the links below carry:
-  https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-layers.json
+| What it is                                                   | File                                                                                                 |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| The row table step 1 writes                                  | [recombinant-rows.tsv](https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-rows.tsv)       |
+| The alignment                                                | [recombinant.afa](https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant.afa)                 |
+| Its tree                                                     | [recombinant.nwk](https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant.nwk)                 |
+| The genes                                                    | [recombinant-genes.gff](https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-genes.gff)     |
+| The receptor-binding domain cut out of the alignment         | [recombinant-rbd.afa](https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-rbd.afa)         |
+| The tracks the scan writes, the layers the links below carry | [recombinant-layers.json](https://gmod.org/JBrowseMSA/demo/data/recombinant/recombinant-layers.json) |
 
 </details>
 

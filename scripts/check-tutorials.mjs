@@ -3,11 +3,11 @@
  *
  *   node scripts/check-tutorials.mjs [page.md ...]
  *
- * - the page opens on `## Prerequisites` then `## Where the data comes from`,
+ * - the page opens on `## Prerequisites` then `## The data`,
  *   and closes on `## Reproduce it end to end`, `## See also`, `## References`
  * - neither opening section carries a convenience pitch ("every figure below
  *   links to the live view"), which every page could say and so says nothing
- * - `## Where the data comes from` says who fetches the files before it lists
+ * - `## The data` says who fetches the files before it lists
  *   them, and lists a file this repo hosts only where a fence on the page reads
  *   it; the rest go in a <details>, since a reader takes a visible bullet as
  *   something to download
@@ -29,7 +29,7 @@ const tutorialDir = path.join(repoRoot, 'docs', 'tutorials')
 const HOSTED = 'https://gmod.org/JBrowseMSA/demo/data/'
 const PITCH =
   /every figure below links|nothing to read along|nothing to install/i
-const OPENING = ['Prerequisites', 'Where the data comes from']
+const OPENING = ['Prerequisites', 'The data']
 const CLOSING = ['Reproduce it end to end', 'See also', 'References']
 
 function sections(text) {
@@ -82,15 +82,19 @@ function checkPage(file) {
     }
   }
 
-  const data = byTitle.get('Where the data comes from') ?? []
-  const firstBullet = data.findIndex(l => l.startsWith('- '))
+  const data = byTitle.get('The data') ?? []
+  const firstBullet = data.findIndex(l => /^(- |\|)/.test(l))
   const lead = data.slice(0, firstBullet === -1 ? data.length : firstBullet)
   if (!/fetch|download/i.test(lead.join(' '))) {
-    problems.push('Where the data comes from never says who fetches the files')
+    problems.push('The data never says who fetches the files')
+  }
+  const bare = data.find(l => /^\s*(- )?(?!.*\]\()[^|]*https?:\/\/\S{60,}\s*$/.test(l))
+  if (bare) {
+    problems.push(`The data prints a bare URL, link a file name instead: ${bare.trim()}`)
   }
   const fenceText = fences(text)
   for (const line of withoutDetails(data)) {
-    for (const url of line.match(/https:\/\/\S+/g) ?? []) {
+    for (const url of line.match(/https:\/\/[^\s)]+/g) ?? []) {
       if (
         url.startsWith(HOSTED) &&
         !fenceText.includes(url.slice(HOSTED.length))

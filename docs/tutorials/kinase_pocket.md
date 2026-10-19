@@ -15,29 +15,26 @@ those landmarks between kinases imatinib inhibits and kinases it does not.
   (`quay.io/biocontainers/hmmer`, `quay.io/biocontainers/fasttree`); both are
   also on `apt` and `brew`
 
-## Where the data comes from
+## The data
 
 The kinase list and the sequences are UniProt's; the domain the alignment is
-built on is Pfam's, as InterPro serves it. The build script fetches these, so
-there is nothing to download by hand.
+built on is Pfam's, as InterPro serves it. Nothing to download: the build script
+fetches these.
 
-- UniProt's own classification of the human and mouse kinomes, release 2026_03:
-  https://www.uniprot.org/docs/pkinfam.txt
-- one UniProt sequence per accession through the `/stream` endpoint, which the
-  script batches 50 accessions to a request, for example:
-  https://rest.uniprot.org/uniprotkb/stream?query=accession:P00519&format=fasta
-- the Pfam protein kinase domain HMM, PF00069, as InterPro serves it:
-  https://www.ebi.ac.uk/interpro/api/entry/pfam/PF00069/?annotation=hmm
+| What it is                                                                                                                          | File                                                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| UniProt's own classification of the human and mouse kinomes, release 2026_03                                                        | [pkinfam.txt](https://www.uniprot.org/docs/pkinfam.txt)                                           |
+| One UniProt sequence per accession through the `/stream` endpoint, which the script batches 50 accessions to a request, for example | [uniprotkb-stream](https://rest.uniprot.org/uniprotkb/stream?query=accession:P00519&format=fasta) |
+| The Pfam protein kinase domain HMM, PF00069, as InterPro serves it                                                                  | [PF00069](https://www.ebi.ac.uk/interpro/api/entry/pfam/PF00069/?annotation=hmm)                  |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the alignment the figures below load:
-  https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.afa
-- its tree:
-  https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.nwk
-- and its row metadata (kinase group, UniProt accession):
-  https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket-metadata.json
+| What it is                                             | File                                                                                                           |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| The alignment the figures below load                   | [kinase-pocket.afa](https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.afa)                     |
+| Its tree                                               | [kinase-pocket.nwk](https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket.nwk)                     |
+| And its row metadata (kinase group, UniProt accession) | [kinase-pocket-metadata.json](https://gmod.org/JBrowseMSA/demo/data/kinase-pocket/kinase-pocket-metadata.json) |
 
 </details>
 

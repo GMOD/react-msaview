@@ -19,28 +19,21 @@ and one chain.
 - [react-msaview-cli](https://gmod.org/JBrowseMSA/cli) for the domain GFF,
   `npm install -g react-msaview-cli`, NodeJS v22+
 
-## Where the data comes from
+## The data
 
 Eleven spike glycoproteins as NCBI holds them, the UniProtKB entry for the
 SARS-CoV-2 one, InterPro release 110.0 for the domains, and PDBe for everything
-about the structure. The commands below fetch these, so there is nothing to
-download by hand.
+about the structure. Nothing to download: the commands below fetch these.
 
-- all eleven protein sequences in one efetch request, shown here with one
-  accession, for example:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=YP_009724390.1&rettype=fasta&retmode=text
-- the UniProtKB entry, for its sequence and its feature table:
-  https://rest.uniprot.org/uniprotkb/P0DTC2.json
-- precomputed Pfam matches for one accession:
-  https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/P0DTC2/
-- the SIFTS residue correspondence between UniProt and the PDB entry:
-  https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/6vxx
-- which residues of chain A have coordinates:
-  https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/6vxx/chain/A
-- the sequence the entry deposited, tags included:
-  https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6vxx
-- the structure itself, for a structure viewer:
-  https://files.rcsb.org/download/6VXX.cif
+| What it is                                                                                     | File                                                                                                                              |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| All eleven protein sequences in one efetch request, shown here with one accession, for example | [efetch.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=YP_009724390.1&rettype=fasta&retmode=text) |
+| The UniProtKB entry, for its sequence and its feature table                                    | [P0DTC2.json](https://rest.uniprot.org/uniprotkb/P0DTC2.json)                                                                     |
+| Precomputed Pfam matches for one accession                                                     | [P0DTC2](https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/P0DTC2/)                                                   |
+| The SIFTS residue correspondence between UniProt and the PDB entry                             | [6vxx](https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/6vxx)                                                                      |
+| Which residues of chain A have coordinates                                                     | [A](https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/6vxx/chain/A)                                                       |
+| The sequence the entry deposited, tags included                                                | [6vxx](https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6vxx)                                                                   |
+| The structure itself, for a structure viewer                                                   | [6VXX.cif](https://files.rcsb.org/download/6VXX.cif)                                                                              |
 
 Every PDBe and UniProt endpoint here serves a single record per request and
 sends `Access-Control-Allow-Origin: *`.
@@ -48,11 +41,12 @@ sends `Access-Control-Allow-Origin: *`.
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the alignment: https://gmod.org/JBrowseMSA/demo/data/spike/spike.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/spike/spike.nwk
-- its domains: https://gmod.org/JBrowseMSA/demo/data/spike/spike-domains.gff
-- the three layers, as the build script wrote them:
-  https://gmod.org/JBrowseMSA/demo/data/spike/spike-layers.json
+| What it is                                       | File                                                                               |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| The alignment                                    | [spike.afa](https://gmod.org/JBrowseMSA/demo/data/spike/spike.afa)                 |
+| Its tree                                         | [spike.nwk](https://gmod.org/JBrowseMSA/demo/data/spike/spike.nwk)                 |
+| Its domains                                      | [spike-domains.gff](https://gmod.org/JBrowseMSA/demo/data/spike/spike-domains.gff) |
+| The three layers, as the build script wrote them | [spike-layers.json](https://gmod.org/JBrowseMSA/demo/data/spike/spike-layers.json) |
 
 </details>
 

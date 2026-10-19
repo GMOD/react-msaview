@@ -16,26 +16,25 @@ in a browser.
 - Bioconductor: `BiocManager::install(c("Biostrings", "DECIPHER"))`
 - CRAN: `install.packages(c("ape", "jsonlite", "htmlwidgets"))`
 
-## Where the data comes from
+## The data
 
 UniProtKB, twice: once for the feature table that says where each domain starts
 and which residues carry the charge-relay system, once for the sequences. The
-commands below fetch these, so there is nothing to download by hand.
+commands below fetch these. Nothing to download.
 
-- the feature table for all fourteen accessions in one request, shown here with
-  two of them:
-  https://rest.uniprot.org/uniprotkb/accessions?accessions=P00766,P07477&fields=accession,ft_domain,ft_act_site,ft_disulfid&format=tsv
-- the sequences, from the same endpoint:
-  https://rest.uniprot.org/uniprotkb/accessions?accessions=P00766,P07477&format=fasta
-- the alignment the commands below write, which the link in step 10 opens:
-  https://gmod.org/JBrowseMSA/demo/data/proteases/proteases.aln
-- its tree: https://gmod.org/JBrowseMSA/demo/data/proteases/proteases.nh
+| What it is                                                                                | File                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| The feature table for all fourteen accessions in one request, shown here with two of them | [uniprotkb-accessions](https://rest.uniprot.org/uniprotkb/accessions?accessions=P00766,P07477&fields=accession,ft_domain,ft_act_site,ft_disulfid&format=tsv) |
+| The sequences, from the same endpoint                                                     | [uniprotkb-accessions](https://rest.uniprot.org/uniprotkb/accessions?accessions=P00766,P07477&format=fasta)                                                  |
+| The alignment the commands below write, which the link in step 10 opens                   | [proteases.aln](https://gmod.org/JBrowseMSA/demo/data/proteases/proteases.aln)                                                                               |
+| Its tree                                                                                  | [proteases.nh](https://gmod.org/JBrowseMSA/demo/data/proteases/proteases.nh)                                                                                 |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the layers R computed:
-  https://gmod.org/JBrowseMSA/demo/data/proteases/proteases-layers.json
+| What it is            | File                                                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| The layers R computed | [proteases-layers.json](https://gmod.org/JBrowseMSA/demo/data/proteases/proteases-layers.json) |
 
 </details>
 

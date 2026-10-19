@@ -16,24 +16,25 @@ same 567 columns as the antigenic sites that change every few years.
 - ClustalW, `apt install clustalw` on Debian or Ubuntu, `brew install clustal-w`
   on macOS
 
-## Where the data comes from
+## The data
 
 NCBI protein records, one per vaccine strain as
 [WHO published them](https://www.who.int/teams/global-influenza-programme/vaccines/who-recommendations),
 fetched by accession so a rerun aligns the same sequences. The commands below
-fetch these, so there is nothing to download by hand.
+fetch these. Nothing to download.
 
-- all 25 records in one request, shown here with the first and last accession:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=AFG71887.1,YGK08660.1&rettype=fasta&retmode=text
-- the alignment the commands below write, which the link in step 9 opens:
-  https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-ha.aln
-- its tree: https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-ha.nh
+| What it is                                                                  | File                                                                                                                                     |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| All 25 records in one request, shown here with the first and last accession | [efetch.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=AFG71887.1,YGK08660.1&rettype=fasta&retmode=text) |
+| The alignment the commands below write, which the link in step 9 opens      | [h3n2-ha.aln](https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-ha.aln)                                                                    |
+| Its tree                                                                    | [h3n2-ha.nh](https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-ha.nh)                                                                      |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the layers the notebook computed:
-  https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-layers.json
+| What it is                       | File                                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------- |
+| The layers the notebook computed | [h3n2-layers.json](https://gmod.org/JBrowseMSA/demo/data/h3n2/h3n2-layers.json) |
 
 </details>
 

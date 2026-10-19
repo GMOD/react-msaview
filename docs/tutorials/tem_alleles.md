@@ -18,24 +18,25 @@ any variable position in the data.
   aligner.
 - python3, standard library only
 
-## Where the data comes from
+## The data
 
 Two files of the AMRFinderPlus database, and four this page writes from them.
-The build script fetches the two, so there is nothing to download by hand.
+The build script fetches the two. Nothing to download.
 
-- the catalog, one row per allele with its phenotype and protein accession:
-  https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/ReferenceGeneCatalog.txt
-- the reference proteins the catalog's accessions point at:
-  https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMRProt.fa
+| What it is                                                               | File                                                                                                                                              |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The catalog, one row per allele with its phenotype and protein accession | [ReferenceGeneCatalog.txt](https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/ReferenceGeneCatalog.txt) |
+| The reference proteins the catalog's accessions point at                 | [AMRProt.fa](https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMRProt.fa)                             |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the 46 selected alleles:
-  https://gmod.org/JBrowseMSA/demo/data/tem/tem-alleles.tsv
-- their alignment: https://gmod.org/JBrowseMSA/demo/data/tem/tem.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/tem/tem.nwk
-- the row table: https://gmod.org/JBrowseMSA/demo/data/tem/tem-rowdata.json
+| What it is              | File                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| The 46 selected alleles | [tem-alleles.tsv](https://gmod.org/JBrowseMSA/demo/data/tem/tem-alleles.tsv)   |
+| Their alignment         | [tem.afa](https://gmod.org/JBrowseMSA/demo/data/tem/tem.afa)                   |
+| Its tree                | [tem.nwk](https://gmod.org/JBrowseMSA/demo/data/tem/tem.nwk)                   |
+| The row table           | [tem-rowdata.json](https://gmod.org/JBrowseMSA/demo/data/tem/tem-rowdata.json) |
 
 </details>
 

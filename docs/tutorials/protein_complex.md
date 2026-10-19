@@ -19,29 +19,26 @@ on the surface, which touch nothing.
 - python3 with Biopython, `pip install biopython`, for the contacts and the
   solvent exposure
 
-## Where the data comes from
+## The data
 
 Twenty-two globin proteins as NCBI RefSeq holds them, and one crystal structure
-from RCSB. The commands below fetch both, so there is nothing to download by
-hand.
+from RCSB. Nothing to download: the commands below fetch both.
 
-- all 22 protein sequences in one request, shown here with the human pair only:
-  https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=NP_000549.1,NP_000509.1&rettype=fasta&retmode=text
-- the human deoxyhemoglobin tetramer, PDB 2HHB, as mmCIF:
-  https://files.rcsb.org/download/2HHB.cif
+| What it is                                                                   | File                                                                                                                                       |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| All 22 protein sequences in one request, shown here with the human pair only | [efetch.fasta](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=NP_000549.1,NP_000509.1&rettype=fasta&retmode=text) |
+| The human deoxyhemoglobin tetramer, PDB 2HHB, as mmCIF                       | [2HHB.cif](https://files.rcsb.org/download/2HHB.cif)                                                                                       |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the row table the commands below start from:
-  https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-rows.tsv
-- the alignment they write:
-  https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.afa
-- its tree: https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.nwk
-- the subunit spans:
-  https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-subunits.gff
-- the contacts and the chain mappings, the layers the links below carry:
-  https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-layers.json
+| What it is                                                            | File                                                                                                |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| The row table the commands below start from                           | [hemoglobin-rows.tsv](https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-rows.tsv)         |
+| The alignment they write                                              | [hemoglobin.afa](https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.afa)                   |
+| Its tree                                                              | [hemoglobin.nwk](https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin.nwk)                   |
+| The subunit spans                                                     | [hemoglobin-subunits.gff](https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-subunits.gff) |
+| The contacts and the chain mappings, the layers the links below carry | [hemoglobin-layers.json](https://gmod.org/JBrowseMSA/demo/data/hemoglobin/hemoglobin-layers.json)   |
 
 </details>
 

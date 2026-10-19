@@ -16,26 +16,26 @@ draws.
 
 - Python 3, standard library only
 
-## Where the data comes from
+## The data
 
 Nextstrain's RSV-A build, updated 2024-07-16: a tree over 1,840 genomes, one
 ancestral sequence, the nucleotide substitutions on every branch between them,
-and the metadata of every tip. The build script fetches it, so there is nothing
-to download by hand.
+and the metadata of every tip. Nothing to download: the build script fetches it.
 
-- the auspice JSON itself: https://data.nextstrain.org/rsv_a_genome.json
-- the subsampled whole-genome alignment the later figures use:
-  https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.aln
-- its tree: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.nh
-- the subsample's row table:
-  https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample-rowdata.json
+| What it is                                                  | File                                                                                           |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| The auspice JSON itself                                     | [rsv_a_genome.json](https://data.nextstrain.org/rsv_a_genome.json)                             |
+| The subsampled whole-genome alignment the later figures use | [rsv-sample.aln](https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.aln)                   |
+| Its tree                                                    | [rsv-sample.nh](https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample.nh)                     |
+| The subsample's row table                                   | [rsv-sample-rowdata.json](https://gmod.org/JBrowseMSA/demo/data/scale/rsv-sample-rowdata.json) |
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the full-tip alignment the build script reconstructs from the JSON, sliced to
-  the _G_ gene: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.aln
-- its tree: https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.nh
+| What it is                                                                                 | File                                                                     |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| The full-tip alignment the build script reconstructs from the JSON, sliced to the _G_ gene | [rsv-full.aln](https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.aln) |
+| Its tree                                                                                   | [rsv-full.nh](https://gmod.org/JBrowseMSA/demo/data/scale/rsv-full.nh)   |
 
 </details>
 

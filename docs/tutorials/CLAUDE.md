@@ -39,17 +39,18 @@ install line, and nothing else. A tool in it is one a fence on the page runs. No
 convenience pitch ("every figure below links to the live view", "nothing to
 install"): every page could say it, so it tells the reader nothing.
 
-**Where the data comes from opens on who fetches the files**, because a list of
-URLs under a provenance heading does not tell a reader whether to start
-downloading: "The commands below fetch these, so there is nothing to download by
-hand", or the same of the build script. One sentence before it names the release
-and cites it. The visible list is what those commands download. The files this
-repo hosts at `gmod.org/JBrowseMSA/demo/data/` stay visible only where a fence
-on the page reads them; the rest go in a `<details>` under the list, summarised
-"The files this page writes, hosted for the figure links", since a reader takes
-every visible bullet as something to get first. A bullet standing for one
-request of many says so and shows the one URL ("one sequence per accession, for
-example: ..."), rather than promising all of them.
+**The data opens on who fetches the files**, because a list of URLs under a
+provenance heading does not tell a reader whether to start downloading: "Nothing
+to download: the commands below fetch these", or the same of the build script.
+One sentence before it names the release and cites it. The visible table, **What
+it is** and **File** with a link whose text is the file name and never a bare
+URL, is what those commands download. The files this repo hosts at
+`gmod.org/JBrowseMSA/demo/data/` stay visible only where a fence on the page
+reads them; the rest go in a `<details>` under the list, summarised "The files
+this page writes, hosted for the figure links", since a reader takes every
+visible row as something to get first. A row standing for one request of many
+says so and shows the one URL ("one sequence per accession, for example: ..."),
+rather than promising all of them.
 
 **Reproduce it end to end hands the script over with its reasoning.** Above the
 `curl` fence, a numbered list of three or four steps says what the script does,

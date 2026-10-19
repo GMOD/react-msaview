@@ -17,16 +17,15 @@ alignment's coordinates. Four commands produce the three files.
 - [react-msaview-cli](https://gmod.org/JBrowseMSA/cli),
   `npm install -g react-msaview-cli`, NodeJS v22+
 
-## Where the data comes from
+## The data
 
 Twelve NLRP1 orthologs as UniProtKB holds them, with Pfam matches from InterPro
-release 110.0. The commands below fetch these, so there is nothing to download
-by hand.
+release 110.0. Nothing to download: the commands below fetch these.
 
-- one protein sequence per accession, for example:
-  https://rest.uniprot.org/uniprotkb/Q9C000.fasta
-- precomputed Pfam matches per accession, for example:
-  https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q9C000/
+| What it is                                          | File                                                                            |
+| --------------------------------------------------- | ------------------------------------------------------------------------------- |
+| One protein sequence per accession, for example     | [Q9C000.fasta](https://rest.uniprot.org/uniprotkb/Q9C000.fasta)                 |
+| Precomputed Pfam matches per accession, for example | [Q9C000](https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q9C000/) |
 
 Both endpoints serve one protein per request, so the whole family takes twelve
 requests to each.
@@ -34,11 +33,12 @@ requests to each.
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-- the twelve sequences before alignment, right-padded to one width so the viewer
-  opens them: https://gmod.org/JBrowseMSA/demo/data/nlrp1-unaligned.aln
-- the alignment: https://gmod.org/JBrowseMSA/demo/data/nlrp1.aln
-- its tree: https://gmod.org/JBrowseMSA/demo/data/nlrp1.nh
-- its domains: https://gmod.org/JBrowseMSA/demo/data/nlrp1-domains.gff
+| What it is                                                                                | File                                                                             |
+| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| The twelve sequences before alignment, right-padded to one width so the viewer opens them | [nlrp1-unaligned.aln](https://gmod.org/JBrowseMSA/demo/data/nlrp1-unaligned.aln) |
+| The alignment                                                                             | [nlrp1.aln](https://gmod.org/JBrowseMSA/demo/data/nlrp1.aln)                     |
+| Its tree                                                                                  | [nlrp1.nh](https://gmod.org/JBrowseMSA/demo/data/nlrp1.nh)                       |
+| Its domains                                                                               | [nlrp1-domains.gff](https://gmod.org/JBrowseMSA/demo/data/nlrp1-domains.gff)     |
 
 </details>
 
