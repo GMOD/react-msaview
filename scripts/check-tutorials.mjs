@@ -88,9 +88,13 @@ function checkPage(file) {
   if (!/fetch|download/i.test(lead.join(' '))) {
     problems.push('The data never says who fetches the files')
   }
-  const bare = data.find(l => /^\s*(- )?(?!.*\]\()[^|]*https?:\/\/\S{60,}\s*$/.test(l))
+  const bare = data.find(l =>
+    /^\s*(- )?(?!.*\]\()[^|]*https?:\/\/\S{60,}\s*$/.test(l),
+  )
   if (bare) {
-    problems.push(`The data prints a bare URL, link a file name instead: ${bare.trim()}`)
+    problems.push(
+      `The data prints a bare URL, link a file name instead: ${bare.trim()}`,
+    )
   }
   const fenceText = fences(text)
   for (const line of withoutDetails(data)) {

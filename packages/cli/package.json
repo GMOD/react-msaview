@@ -22,18 +22,18 @@
     "readme": "node src/readme.ts"
   },
   "devDependencies": {
-    "@jbrowse/core": "^5.0.0-beta.9",
+    "@jbrowse/core": "^5.0.0-beta.15",
     "@types/jsdom": "^30.0.0",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.5",
     "esbuild": "^0.28.2",
     "mobx-react": "^10.0.2",
     "msa-parsers": "workspace:*",
     "react-msaview": "workspace:*"
   },
   "dependencies": {
-    "jsdom": "^30.1.1"
+    "jsdom": "^30.1.3"
   },
   "optionalDependencies": {
-    "@napi-rs/canvas": "^1.0.9"
+    "@napi-rs/canvas": "^1.0.11"
   }
 }

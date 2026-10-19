@@ -16,8 +16,8 @@ objects in our source code.
 ## Example usage
 
 ```js
-import { MSAModelF } from 'react-msaview'
 import { types } from '@jbrowse/mobx-state-tree'
+import { MSAModelF } from 'react-msaview'
 
 const RootModel = types.model({ view: types.optional(MSAModelF(), {}) })
 const root = RootModel.create({})
