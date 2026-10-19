@@ -41,11 +41,14 @@ const specs = [...figureSpecs, ...linkSpecs]
 const urlByName = new Map(specs.map(s => [s.name, `${DEMO}${s.url ?? ''}`]))
 
 // each [live-*]: url pair, with the wrapping oxfmt may have applied collapsed
-// away, so --check compares link targets rather than line breaks
+// away and the <angle brackets> it puts round a wrapped target dropped, so
+// --check compares link targets rather than formatting
 const pairs = text =>
   Object.fromEntries(
     [
-      ...text.replaceAll(/\n\s+/g, ' ').matchAll(/\[(live-[\w-]+)\]:\s*(\S+)/g),
+      ...text
+        .replaceAll(/\n\s+/g, ' ')
+        .matchAll(/\[(live-[\w-]+)\]:\s*<?([^\s>]+)>?/g),
     ].map(m => [m[1], m[2]]),
   )
 
