@@ -94,7 +94,13 @@ function fire(
   init: MouseEventInit = {},
 ) {
   const options = { bubbles: true, ...init }
-  target.dispatchEvent(new PointerEvent(`pointer${type}`, options))
+  target.dispatchEvent(
+    new PointerEvent(`pointer${type}`, {
+      ...options,
+      pointerId: 1,
+      isPrimary: true,
+    }),
+  )
   target.dispatchEvent(new MouseEvent(`mouse${type}`, options))
 }
 
@@ -453,10 +459,11 @@ test('the selection menu zooms to the block and clears it', () => {
   expect(model.selection).toBeUndefined()
 })
 
-function wheel(deltaY: number) {
+function wheel(deltaY: number, deltaX = 0) {
   const el = container.querySelector('[data-testid="msa_canvas"]')!
   const event = new WheelEvent('wheel', {
     deltaY,
+    deltaX,
     bubbles: true,
     cancelable: true,
   })
@@ -479,6 +486,14 @@ test('a wheel past the bottom row scrolls the page', () => {
   expect(wheel(-50)).toBe(true)
 })
 
+test('a vertical swipe with a little sideways drift scrolls the page at the bottom row', () => {
+  act(() => {
+    model.setScrollY(model.maxScrollY)
+  })
+  expect(wheel(50, 2)).toBe(false)
+  expect(wheel(2, 50)).toBe(true)
+})
+
 test('a gesture the view took keeps its momentum at the edge', () => {
   expect(wheel(50)).toBe(true)
   act(() => {
@@ -496,4 +511,42 @@ test('a touch pan along an axis that fits moves the page', () => {
     model.setHeight(2000)
   })
   expect(touchAction()).toBe('pan-y pinch-zoom')
+})
+
+test('a second finger neither moves nor ends the pan', async () => {
+  const block = msaBlock()
+  const press = (type: string, pointerId: number, clientX: number) => {
+    const target = type === 'pointerdown' ? block : window
+    target.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        pointerId,
+        isPrimary: pointerId === 1,
+        clientX,
+        clientY: 50,
+      }),
+    )
+  }
+  const frame = () =>
+    new Promise(resolve => {
+      requestAnimationFrame(resolve)
+    })
+  await act(async () => {
+    press('pointerdown', 1, 200)
+  })
+  await act(async () => {
+    press('pointerdown', 2, 600)
+    press('pointermove', 2, 400)
+    press('pointerup', 2, 400)
+    await frame()
+  })
+  expect(model.scrollX).toBe(0)
+  await act(async () => {
+    press('pointermove', 1, 150)
+    await frame()
+  })
+  expect(model.scrollX).toBe(-50)
+  await act(async () => {
+    press('pointerup', 1, 150)
+  })
 })

@@ -22,19 +22,31 @@ export function canScrollY(model: MsaViewModel, delta: number) {
   return delta > 0 ? scrollY > maxScrollY : delta < 0 && scrollY < 0
 }
 
+// Safari reads a touch-action holding pinch-zoom as invalid and falls back to
+// auto, which hands every swipe to the page
+const pinchZoom =
+  typeof CSS !== 'undefined' && CSS.supports('touch-action', 'pinch-zoom')
+    ? 'pinch-zoom'
+    : undefined
+
+function withPinch(pan: string) {
+  return pinchZoom ? `${pan} ${pinchZoom}` : pan
+}
+
 /**
  * The CSS touch-action for a pannable area: the browser keeps a touch pan
- * along every axis the view cannot scroll, and pinch zoom on the page.
+ * along every axis the view cannot scroll, and pinch zoom on the page where it
+ * supports that value.
  */
 export function panTouchAction(model: MsaViewModel, axes: Axes) {
   const x = axes.includes('x') && model.maxScrollX < 0
   const y = axes.includes('y') && model.maxScrollY < 0
   return x && y
-    ? 'pinch-zoom'
+    ? (pinchZoom ?? 'none')
     : x
-      ? 'pan-y pinch-zoom'
+      ? withPinch('pan-y')
       : y
-        ? 'pan-x pinch-zoom'
+        ? withPinch('pan-x')
         : 'auto'
 }
 
@@ -69,7 +81,10 @@ export function useWheelScroll({
   const zoomY = useRef(0)
   const lastZoomTime = useRef<number | null>(null)
   const prev = useRef({ x: 0, y: 0 })
-  const [dragging, setDragging] = useState(false)
+  const latest = useRef({ x: 0, y: 0 })
+  const panFrame = useRef(false)
+  // the pointer that started the pan; a second finger neither moves nor ends it
+  const [panPointer, setPanPointer] = useState<number>()
   const x = axes.includes('x')
   const y = axes.includes('y')
 
@@ -117,14 +132,20 @@ export function useWheelScroll({
         event.stopPropagation()
         return
       }
-      // horizontal stays taken at the edges, where the page would read it as
-      // a swipe back through history
+      // the dominant axis decides: a trackpad's vertical swipe carries a pixel
+      // or two of deltaX, which must not hold the page at the bottom row. A
+      // horizontal wheel stays taken at the edges, where the page would read
+      // it as a swipe back through history.
+      const { deltaX: dx, deltaY: dy } = event
+      const vertical = Math.abs(dy) >= Math.abs(dx)
       const latched = event.timeStamp - lastTaken.current < wheelLatchMs
-      const takeX = x && event.deltaX !== 0
       const takeY =
-        y && event.deltaY !== 0 && (latched || canScrollY(model, event.deltaY))
+        y && dy !== 0 && (latched || canScrollY(model, dy) || !vertical)
+      const takeX = x && dx !== 0 && (!vertical || takeY)
       if (takeX || takeY) {
-        lastTaken.current = event.timeStamp
+        if (takeY && vertical) {
+          lastTaken.current = event.timeStamp
+        }
         onWheelScroll?.(event)
         deltaX.current += takeX ? event.deltaX : 0
         deltaY.current += takeY ? event.deltaY : 0
@@ -154,25 +175,32 @@ export function useWheelScroll({
   }, [ref, model, x, y, zoom, onWheelScroll])
 
   useEffect(() => {
-    if (!dragging) {
+    if (panPointer === undefined) {
       return
     }
+    // a frame applies the distance from the last applied position to the
+    // newest one, so a move landing while a frame is pending is not dropped
     function onMove(event: PointerEvent) {
+      if (event.pointerId !== panPointer) {
+        return
+      }
       event.preventDefault()
-      const dx = x ? event.clientX - prev.current.x : 0
-      const dy = y ? event.clientY - prev.current.y : 0
-      if ((dx || dy) && !scheduled.current) {
-        scheduled.current = true
+      latest.current = { x: event.clientX, y: event.clientY }
+      if (!panFrame.current) {
+        panFrame.current = true
         requestAnimationFrame(() => {
-          model.doScrollX(dx)
-          model.doScrollY(dy)
-          scheduled.current = false
-          prev.current = { x: event.clientX, y: event.clientY }
+          const to = latest.current
+          model.doScrollX(x ? to.x - prev.current.x : 0)
+          model.doScrollY(y ? to.y - prev.current.y : 0)
+          prev.current = to
+          panFrame.current = false
         })
       }
     }
-    function onUp() {
-      setDragging(false)
+    function onUp(event: PointerEvent) {
+      if (event.pointerId === panPointer) {
+        setPanPointer(undefined)
+      }
     }
     window.addEventListener('pointermove', onMove, true)
     window.addEventListener('pointerup', onUp, true)
@@ -182,12 +210,13 @@ export function useWheelScroll({
       window.removeEventListener('pointerup', onUp, true)
       window.removeEventListener('pointercancel', onUp, true)
     }
-  }, [dragging, model, x, y])
+  }, [panPointer, model, x, y])
 
   function onPointerDown(event: React.PointerEvent) {
-    if (event.button === 0) {
+    if (event.button === 0 && event.isPrimary && panPointer === undefined) {
       prev.current = { x: event.clientX, y: event.clientY }
-      setDragging(true)
+      latest.current = prev.current
+      setPanPointer(event.pointerId)
     }
   }
 
