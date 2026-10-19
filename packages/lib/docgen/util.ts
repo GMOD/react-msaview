@@ -89,7 +89,9 @@ export function extractWithComment(
 // The literal a `const` holds, such as the 550 of `defaultHeight = 550`, or
 // undefined for any other symbol
 function constLiteral(checker: ts.TypeChecker, symbol: ts.Symbol | undefined) {
-  const decl = symbol ? followAlias(checker, symbol).valueDeclaration : undefined
+  const decl = symbol
+    ? followAlias(checker, symbol).valueDeclaration
+    : undefined
   const init =
     decl &&
     ts.isVariableDeclaration(decl) &&
