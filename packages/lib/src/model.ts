@@ -145,6 +145,9 @@ import type { HierarchyNode } from './hierarchy.ts'
 import type { ExportSvgOptions } from './renderToSvg.tsx'
 import type {
   ColorChannel,
+  LegacyColumnTrack,
+  LegacyEncoding,
+  LegacyRowPanel,
   ScaleTable,
   ScaleUse,
   SharedScale,
@@ -3456,8 +3459,8 @@ function stateModelFactory({
       /**
        * #action
        */
-      setColumnTracks(tracks: ColumnTrackSpec[]) {
-        self.columnTracks.replace(tracks)
+      setColumnTracks(tracks: (ColumnTrackSpec | LegacyColumnTrack)[]) {
+        self.columnTracks.replace(tracks.map(readColumnTrack))
       },
       /**
        * #action
@@ -3471,15 +3474,15 @@ function stateModelFactory({
        * #action
        * replace what the viewer's marks read from the row table
        */
-      setEncodings(encodings: Encoding[]) {
-        self.encodings.replace(encodings)
+      setEncodings(encodings: (Encoding | LegacyEncoding)[]) {
+        self.encodings.replace(encodings.map(readEncoding))
       },
       /**
        * #action
        * replace the panels drawn between the tree and the alignment
        */
-      setRowPanels(panels: RowPanelSpec[]) {
-        self.rowPanels.replace(panels)
+      setRowPanels(panels: (RowPanelSpec | LegacyRowPanel)[]) {
+        self.rowPanels.replace(panels.map(readRowPanel))
       },
       /**
        * #action

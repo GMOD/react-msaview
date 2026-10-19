@@ -232,3 +232,20 @@ test('a field the table lacks colors nothing and lists nothing', () => {
   expect(model.resolvedRowPanels[0]!.colors.size).toBe(0)
   expect(model.legends).toEqual([])
 })
+
+test('a setter lifts the earlier spelling too', () => {
+  const model = makeModel([])
+  model.setEncodings([
+    { channel: 'tipLabel', field: 'HA', scale: { palette: 'set1' } },
+  ])
+  model.setColumnTracks([
+    { id: 't', name: 'T', kind: 'bar', values: [1, 2], max: 2 },
+  ])
+  expect(model.encodings[0]).toEqual({
+    channel: 'tipLabel',
+    field: 'HA',
+    range: 'set1',
+  })
+  expect(model.columnTracks[0]!.scales).toEqual({ y: { domainMax: 2 } })
+  expect(model.columnTrackContent.get('t')?.values).toEqual([0.5, 1])
+})
