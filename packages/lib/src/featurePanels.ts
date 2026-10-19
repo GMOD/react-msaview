@@ -1,0 +1,280 @@
+import { notEmpty } from '@jbrowse/core/util'
+
+import { packDomainLanes } from './components/msa/packDomainLanes.ts'
+import { defaultFeaturePanelWidth } from './constants.ts'
+import { featureField } from './featureFields.ts'
+import { resolveScale } from './scales.ts'
+import { outlineColor } from './util.ts'
+
+import type { ScaleSpec } from './scales.ts'
+import type {
+  Annotation,
+  DomainBand,
+  RowFeaturesSpec,
+  RowPanelSpan,
+  ResolvedFeaturePanel,
+  ResolvedStripPanel,
+  RowPanelSpec,
+} from './types.ts'
+
+// the fill of a span under a scale that gives its value no color, such as a
+// gene a `map` over gene names leaves out
+export const UNSCALED_FEATURE = '#d9d9d9'
+
+// the fraction of a span a following one may cover before it takes a lane of
+// its own in a `features` panel
+export const laneOverlap = 0.1
+
+// a row panel's own width, or a default: the row height, which makes a strip
+// cell square, and a gene neighborhood's width for a features panel. The row
+// height is read only when used, so a panel with a width of its own does not
+// recompute on a vertical zoom
+export function rowPanelWidth(
+  panel: RowPanelSpec,
+  view: { rowHeight: number },
+) {
+  return (
+    panel.width ??
+    (panel.kind === 'features' ? defaultFeaturePanelWidth : view.rowHeight)
+  )
+}
+
+// one row of the row table as the channels read it. A number or a boolean
+// reads as its string, the way a GFF value does, and null or an object drops
+export function stringFields(row: unknown) {
+  if (typeof row !== 'object' || row === null) {
+    return undefined
+  }
+  const fields: Record<string, string> = {}
+  for (const [field, value] of Object.entries(row)) {
+    if (typeof value === 'string') {
+      fields[field] = value
+    } else if (typeof value === 'number' || typeof value === 'boolean') {
+      fields[field] = String(value)
+    }
+  }
+  return fields
+}
+
+// the color each row takes from a field of the row table under a scale
+export function colorByRow(
+  rowData: Record<string, Record<string, string> | undefined>,
+  field: string,
+  colorOf: (value: string) => string | undefined,
+) {
+  const colors = new Map<string, string>()
+  for (const [name, row] of Object.entries(rowData)) {
+    const value = row?.[field]
+    const color = value === undefined ? undefined : colorOf(value)
+    if (color) {
+      colors.set(name, color)
+    }
+  }
+  return colors
+}
+
+export type StripPanelScale = Omit<
+  ResolvedStripPanel,
+  'id' | 'width' | 'offsetX'
+>
+export type FeaturePanelScale = Omit<
+  ResolvedFeaturePanel,
+  'id' | 'width' | 'offsetX' | 'spans'
+>
+
+// the fill and outline of every feature in a list: its own GFF `color=` first,
+// then the scale an encoding resolves over one of its fields, then the
+// accession palette
+export function featureColorMap(
+  annotations: Annotation[],
+  encoding:
+    | { field: string; colorOf: (value: string) => string | undefined }
+    | undefined,
+  fillPalette: Record<string, string>,
+) {
+  const strokes = new Map<string, string>()
+  const strokeOf = (fill: string) => {
+    const hit = strokes.get(fill)
+    if (hit !== undefined) {
+      return hit
+    }
+    const stroke = outlineColor(fill)
+    strokes.set(fill, stroke)
+    return stroke
+  }
+  return new Map(
+    annotations.map(annotation => {
+      const value = encoding
+        ? featureField(annotation, encoding.field)
+        : undefined
+      const fill =
+        annotation.color ??
+        (value === undefined ? undefined : encoding!.colorOf(value)) ??
+        (encoding ? UNSCALED_FEATURE : fillPalette[annotation.accession]!)
+      return [annotation, { fill, stroke: strokeOf(fill) }]
+    }),
+  )
+}
+
+// the text a label channel draws inside each span, for the features carrying
+// the field it names
+export function featureLabelMap(annotations: Annotation[], field: string) {
+  const labels = new Map<Annotation, string>()
+  for (const annotation of annotations) {
+    const value = featureField(annotation, field)
+    if (value !== undefined) {
+      labels.set(annotation, value)
+    }
+  }
+  return labels
+}
+
+/** what `packDomainLanes` needs to lay a row out, before it has its lane */
+export type Unlaned = Omit<RowPanelSpan, 'lane' | 'laneCount'> & {
+  startCol: number
+  endCol: number
+}
+
+/**
+ * Lanes for `position: "strandpile"`, gggenomes' `position_strandpile`: the
+ * forward features stack above the line and the reverse below it, each strand
+ * packing on its own. The deepest row on each side sets the grid every row lays
+ * out on, so the line between the strands sits at one height down the panel and
+ * a reader can scan it. A feature with no strand piles with the forward ones.
+ */
+export function strandpileLanes(
+  rows: [string, Unlaned[]][],
+): Map<string, RowPanelSpan[]> {
+  const piled = rows.map(([name, bands]) => {
+    const reverse = packDomainLanes(
+      bands.filter(b => b.annotation.strand === -1),
+    )
+    const forward = packDomainLanes(
+      bands.filter(b => b.annotation.strand !== -1),
+    )
+    return { name, forward, reverse }
+  })
+  const up = Math.max(0, ...piled.map(p => p.forward[0]?.laneCount ?? 0))
+  const down = Math.max(0, ...piled.map(p => p.reverse[0]?.laneCount ?? 0))
+  const laneCount = up + down
+  return new Map(
+    piled.map(({ name, forward, reverse }) => [
+      name,
+      [
+        // forward level 0 is the lane just above the line, stacking upward
+        ...forward.map(b => ({ ...b, lane: up - 1 - b.lane, laneCount })),
+        ...reverse.map(b => ({ ...b, lane: up + b.lane, laneCount })),
+      ],
+    ]),
+  )
+}
+
+/** one row's spans laid out by the panel's `position` */
+export function panelLanes(
+  panel: RowFeaturesSpec,
+  rows: [string, Unlaned[]][],
+): Map<string, RowPanelSpan[]> {
+  return panel.position === 'strandpile'
+    ? strandpileLanes(rows)
+    : new Map(rows.map(([name, bands]) => [name, packDomainLanes(bands)]))
+}
+
+/**
+ * The spans a `features` panel draws, keyed by row name and measured in the
+ * panel's own pixels. `column` takes the bands the overlay draws, at the
+ * alignment's column width. `position` packs each row's features in its own
+ * residue positions, shifted by an `align` transform, and maps the extent they
+ * cover across every row onto the panel width, so a row with no alignment
+ * still has an x.
+ */
+export function featurePanelSpans({
+  panel,
+  width,
+  colWidth,
+  domainBands,
+  annotationsByRow,
+  shifts,
+}: {
+  panel: RowFeaturesSpec
+  width: number
+  colWidth: number
+  domainBands: Map<string, DomainBand[]>
+  annotationsByRow: Record<string, Annotation[]>
+  shifts: Map<string, number> | undefined
+}): Map<string, RowPanelSpan[]> {
+  if (panel.x === 'column') {
+    return panelLanes(
+      panel,
+      [...domainBands].map(([name, bands]) => [
+        name,
+        bands.map(band => ({
+          ...band,
+          xStart: band.startCol * colWidth,
+          xEnd: band.endCol * colWidth,
+        })),
+      ]),
+    )
+  }
+  const shifted = Object.entries(annotationsByRow).map(
+    ([name, annotations]) => {
+      const shift = shifts?.get(name) ?? 0
+      return [
+        name,
+        annotations.map(annotation => ({
+          annotation,
+          start: annotation.start - 1 + shift,
+          end: annotation.end + shift,
+        })),
+      ] as const
+    },
+  )
+  let min = Infinity
+  let max = -Infinity
+  for (const [, features] of shifted) {
+    for (const { start, end } of features) {
+      min = Math.min(min, start)
+      max = Math.max(max, end)
+    }
+  }
+  // a gene arrow ends where its feature does, so the extent maps onto the whole
+  // panel less the pixel the rightmost stroke needs
+  const drawable = Math.max(1, width - 1)
+  const scale = max > min ? drawable / (max - min) : 0
+  // a lane opens where a span covers more than a tenth of the one before it,
+  // which keeps the genes of an operon on one lane: adjacent genes commonly
+  // share a few bases, and a stop codon overlapping the next start reads as a
+  // second lane over the whole row
+  return panelLanes(
+    panel,
+    shifted.map(([name, features]) => [
+      name,
+      features.map(({ annotation, start, end }) => ({
+        annotation,
+        xStart: (start - min) * scale,
+        xEnd: (end - min) * scale,
+        startCol: start,
+        endCol: end - (end - start) * laneOverlap,
+      })),
+    ]),
+  )
+}
+
+// a scale over the values a field takes across every feature loaded, so hiding
+// a type in the filter dialog leaves the rest in their colors, and a legend of
+// the values the features drawn carry
+export function resolveFeatureScale(
+  field: string,
+  scale: ScaleSpec | undefined,
+  annotations: Annotation[],
+  drawn: Annotation[],
+) {
+  const valuesOf = (list: Annotation[]) =>
+    list.map(a => featureField(a, field)).filter(notEmpty)
+  const resolved = resolveScale(scale, valuesOf(annotations))
+  const shown = new Set(valuesOf(drawn))
+  return {
+    field,
+    ...resolved,
+    legend: resolved.legend.filter(entry => shown.has(entry.id)),
+  }
+}

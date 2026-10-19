@@ -13,7 +13,7 @@ export interface TreeNode {
   children?: TreeNode[]
 }
 
-function preorder<N extends TreeNode>(root: N) {
+export function preorder<N extends TreeNode>(root: N) {
   const order: N[] = []
   const parents = new Map<N, N>()
   const stack = [root]

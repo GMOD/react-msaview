@@ -17,10 +17,8 @@ import {
 import {
   generateNodeIds,
   gffToAnnotations,
-  parseEmfTree,
   parseGFF,
   parseMSA,
-  parseNewick,
 } from 'msa-parsers'
 
 import { blockFasta } from './blockFasta.ts'
@@ -34,14 +32,11 @@ import { visibleColRange } from './components/msa/visibleColRange.ts'
 import { cladeGutterWidth } from './components/tree/cladeBrackets.ts'
 import { scaleBarLength } from './components/tree/scaleBar.ts'
 import {
-  cladeHighlightAlpha,
-  cladeHighlightColor,
   defaultAllowedGappyness,
   defaultColWidth,
   defaultColorSchemeName,
   defaultCurrentAlignment,
   defaultDrawMsaLetters,
-  defaultFeaturePanelWidth,
   defaultHeight,
   defaultHideGaps,
   defaultRowHeight,
@@ -75,31 +70,32 @@ import {
 } from './constants.ts'
 import { createPaletteMap } from './createPaletteMap.ts'
 import { exportFileName } from './exportFileName.ts'
-import { featureField, featureName } from './featureFields.ts'
+import { featureName } from './featureFields.ts'
+import {
+  colorByRow,
+  featureColorMap,
+  featureLabelMap,
+  featurePanelSpans,
+  resolveFeatureScale,
+  rowPanelWidth,
+  stringFields,
+} from './featurePanels.ts'
 import { featuresToAnnotations } from './featuresLayer.ts'
 import { installFilehandleLoader } from './filehandleLoader.ts'
-import { flatToTree } from './flatToTree.ts'
 import {
-  collapse,
   find,
-  forEachDescendant,
   hierarchy,
   layoutTree,
-  leafIndex,
   leaves,
-  mrca,
   nodeCoveringRows,
-  sort,
-  sum as hierarchySum,
 } from './hierarchy.ts'
 import { DataModelF } from './model/DataModel.ts'
 import { DialogQueueSessionMixin } from './model/DialogQueue.ts'
 import { MSAModelF } from './model/msaModel.ts'
 import { TreeModelF } from './model/treeModel.ts'
 import { calculateNeighborJoiningTree } from './neighborJoining.ts'
-import { parseAsn1 } from './parseAsn1.ts'
 import { calculatePropertyConservation } from './propertyConservation.ts'
-import { midpointRoot, rerootTree } from './rerootTree.ts'
+import { preorder } from './rerootTree.ts'
 import {
   globalColToVisibleCol,
   seqPosOfGlobalCol,
@@ -116,10 +112,17 @@ import {
 import { stripDefault } from './stripDefault.ts'
 import { treeTips, widestLabel } from './tipLabels.ts'
 import {
+  buildTreeRoot,
+  outgroupNode,
+  parseTreeText,
+  resolveClades,
+  rootTree,
+  tipRange,
+} from './treeDisplay.ts'
+import {
   computeRowInsertions,
   dropBlanks,
   len,
-  outlineColor,
   readComputed,
   skipBlanks,
   withAlpha,
@@ -131,17 +134,16 @@ import { takeZoomSnapshot, zoomSnapshotCovers } from './zoomSnapshot.ts'
 
 import type { ColumnStats } from './columnStats.ts'
 import type { ScrollZoomAxis } from './constants.ts'
+import type { FeaturePanelScale, StripPanelScale } from './featurePanels.ts'
 import type { HierarchyNode } from './hierarchy.ts'
 import type { ExportSvgOptions } from './renderToSvg.tsx'
-import type { TreeNode } from './rerootTree.ts'
-import type { ScaleSpec } from './scales.ts'
+import type {} from './scales.ts'
 import type {
   Annotation,
   Arc,
   BasicTrack,
   Cell,
   Clade,
-  CladeMark,
   ResidueMappingProblem,
   ColumnTrackSpec,
   DomainBand,
@@ -158,15 +160,10 @@ import type {
   ResidueSegment,
   ResolvedClade,
   ResolvedEncoding,
-  ResolvedFeaturePanel,
   ResolvedHighlight,
   ResolvedSelection,
-  TreeOrder,
   TreeRoot,
   ResolvedRowPanel,
-  ResolvedStripPanel,
-  RowFeaturesSpec,
-  RowPanelSpan,
   RowDataInput,
   RowPanelSpec,
   RowResidue,
@@ -179,13 +176,6 @@ import type { ZoomSnapshot } from './zoomSnapshot.ts'
 import type { FileLocation as FileLocationType } from '@jbrowse/core/util/types'
 import type { Instance } from '@jbrowse/mobx-state-tree'
 import type { IComputedValue } from 'mobx'
-
-function parseTreeText(text: string) {
-  if (text.startsWith('BioTreeContainer')) {
-    return flatToTree(parseAsn1(text))
-  }
-  return parseNewick(text.startsWith('SEQ') ? parseEmfTree(text).tree : text)
-}
 
 // The height each kind draws at before the user drags a divider. A text track
 // is absent: it is one alignment row tall and follows rowHeight, so the zoom
@@ -214,262 +204,6 @@ const ownHeightKey = (id: string) => `own:${id}`
 // them
 const HELIX_ARC = '#4e79a7'
 const PSEUDOKNOT_ARC = '#e15759'
-
-// the fill of a span under a scale that gives its value no color, such as a
-// gene a `map` over gene names leaves out
-const UNSCALED_FEATURE = '#d9d9d9'
-
-// the fraction of a span a following one may cover before it takes a lane of
-// its own in a `features` panel
-const laneOverlap = 0.1
-
-// a row panel's own width, or a default: the row height, which makes a strip
-// cell square, and a gene neighborhood's width for a features panel. The row
-// height is read only when used, so a panel with a width of its own does not
-// recompute on a vertical zoom
-function rowPanelWidth(panel: RowPanelSpec, view: { rowHeight: number }) {
-  return (
-    panel.width ??
-    (panel.kind === 'features' ? defaultFeaturePanelWidth : view.rowHeight)
-  )
-}
-
-// one row of the row table as the channels read it. A number or a boolean
-// reads as its string, the way a GFF value does, and null or an object drops
-function stringFields(row: unknown) {
-  if (typeof row !== 'object' || row === null) {
-    return undefined
-  }
-  const fields: Record<string, string> = {}
-  for (const [field, value] of Object.entries(row)) {
-    if (typeof value === 'string') {
-      fields[field] = value
-    } else if (typeof value === 'number' || typeof value === 'boolean') {
-      fields[field] = String(value)
-    }
-  }
-  return fields
-}
-
-// the color each row takes from a field of the row table under a scale
-function colorByRow(
-  rowData: Record<string, Record<string, string> | undefined>,
-  field: string,
-  colorOf: (value: string) => string | undefined,
-) {
-  const colors = new Map<string, string>()
-  for (const [name, row] of Object.entries(rowData)) {
-    const value = row?.[field]
-    const color = value === undefined ? undefined : colorOf(value)
-    if (color) {
-      colors.set(name, color)
-    }
-  }
-  return colors
-}
-
-type StripPanelScale = Omit<ResolvedStripPanel, 'id' | 'width' | 'offsetX'>
-type FeaturePanelScale = Omit<
-  ResolvedFeaturePanel,
-  'id' | 'width' | 'offsetX' | 'spans'
->
-
-// the fill and outline of every feature in a list: its own GFF `color=` first,
-// then the scale an encoding resolves over one of its fields, then the
-// accession palette
-function featureColorMap(
-  annotations: Annotation[],
-  encoding:
-    | { field: string; colorOf: (value: string) => string | undefined }
-    | undefined,
-  fillPalette: Record<string, string>,
-) {
-  const strokes = new Map<string, string>()
-  const strokeOf = (fill: string) => {
-    const hit = strokes.get(fill)
-    if (hit !== undefined) {
-      return hit
-    }
-    const stroke = outlineColor(fill)
-    strokes.set(fill, stroke)
-    return stroke
-  }
-  return new Map(
-    annotations.map(annotation => {
-      const value = encoding
-        ? featureField(annotation, encoding.field)
-        : undefined
-      const fill =
-        annotation.color ??
-        (value === undefined ? undefined : encoding!.colorOf(value)) ??
-        (encoding ? UNSCALED_FEATURE : fillPalette[annotation.accession]!)
-      return [annotation, { fill, stroke: strokeOf(fill) }]
-    }),
-  )
-}
-
-// the text a label channel draws inside each span, for the features carrying
-// the field it names
-function featureLabelMap(annotations: Annotation[], field: string) {
-  const labels = new Map<Annotation, string>()
-  for (const annotation of annotations) {
-    const value = featureField(annotation, field)
-    if (value !== undefined) {
-      labels.set(annotation, value)
-    }
-  }
-  return labels
-}
-
-/** what `packDomainLanes` needs to lay a row out, before it has its lane */
-type Unlaned = Omit<RowPanelSpan, 'lane' | 'laneCount'> & {
-  startCol: number
-  endCol: number
-}
-
-/**
- * Lanes for `position: "strandpile"`, gggenomes' `position_strandpile`: the
- * forward features stack above the line and the reverse below it, each strand
- * packing on its own. The deepest row on each side sets the grid every row lays
- * out on, so the line between the strands sits at one height down the panel and
- * a reader can scan it. A feature with no strand piles with the forward ones.
- */
-function strandpileLanes(
-  rows: [string, Unlaned[]][],
-): Map<string, RowPanelSpan[]> {
-  const piled = rows.map(([name, bands]) => {
-    const reverse = packDomainLanes(
-      bands.filter(b => b.annotation.strand === -1),
-    )
-    const forward = packDomainLanes(
-      bands.filter(b => b.annotation.strand !== -1),
-    )
-    return { name, forward, reverse }
-  })
-  const up = Math.max(0, ...piled.map(p => p.forward[0]?.laneCount ?? 0))
-  const down = Math.max(0, ...piled.map(p => p.reverse[0]?.laneCount ?? 0))
-  const laneCount = up + down
-  return new Map(
-    piled.map(({ name, forward, reverse }) => [
-      name,
-      [
-        // forward level 0 is the lane just above the line, stacking upward
-        ...forward.map(b => ({ ...b, lane: up - 1 - b.lane, laneCount })),
-        ...reverse.map(b => ({ ...b, lane: up + b.lane, laneCount })),
-      ],
-    ]),
-  )
-}
-
-/** one row's spans laid out by the panel's `position` */
-function panelLanes(
-  panel: RowFeaturesSpec,
-  rows: [string, Unlaned[]][],
-): Map<string, RowPanelSpan[]> {
-  return panel.position === 'strandpile'
-    ? strandpileLanes(rows)
-    : new Map(rows.map(([name, bands]) => [name, packDomainLanes(bands)]))
-}
-
-/**
- * The spans a `features` panel draws, keyed by row name and measured in the
- * panel's own pixels. `column` takes the bands the overlay draws, at the
- * alignment's column width. `position` packs each row's features in its own
- * residue positions, shifted by an `align` transform, and maps the extent they
- * cover across every row onto the panel width, so a row with no alignment
- * still has an x.
- */
-function featurePanelSpans({
-  panel,
-  width,
-  colWidth,
-  domainBands,
-  annotationsByRow,
-  shifts,
-}: {
-  panel: RowFeaturesSpec
-  width: number
-  colWidth: number
-  domainBands: Map<string, DomainBand[]>
-  annotationsByRow: Record<string, Annotation[]>
-  shifts: Map<string, number> | undefined
-}): Map<string, RowPanelSpan[]> {
-  if (panel.x === 'column') {
-    return panelLanes(
-      panel,
-      [...domainBands].map(([name, bands]) => [
-        name,
-        bands.map(band => ({
-          ...band,
-          xStart: band.startCol * colWidth,
-          xEnd: band.endCol * colWidth,
-        })),
-      ]),
-    )
-  }
-  const shifted = Object.entries(annotationsByRow).map(
-    ([name, annotations]) => {
-      const shift = shifts?.get(name) ?? 0
-      return [
-        name,
-        annotations.map(annotation => ({
-          annotation,
-          start: annotation.start - 1 + shift,
-          end: annotation.end + shift,
-        })),
-      ] as const
-    },
-  )
-  let min = Infinity
-  let max = -Infinity
-  for (const [, features] of shifted) {
-    for (const { start, end } of features) {
-      min = Math.min(min, start)
-      max = Math.max(max, end)
-    }
-  }
-  // a gene arrow ends where its feature does, so the extent maps onto the whole
-  // panel less the pixel the rightmost stroke needs
-  const drawable = Math.max(1, width - 1)
-  const scale = max > min ? drawable / (max - min) : 0
-  // a lane opens where a span covers more than a tenth of the one before it,
-  // which keeps the genes of an operon on one lane: adjacent genes commonly
-  // share a few bases, and a stop codon overlapping the next start reads as a
-  // second lane over the whole row
-  return panelLanes(
-    panel,
-    shifted.map(([name, features]) => [
-      name,
-      features.map(({ annotation, start, end }) => ({
-        annotation,
-        xStart: (start - min) * scale,
-        xEnd: (end - min) * scale,
-        startCol: start,
-        endCol: end - (end - start) * laneOverlap,
-      })),
-    ]),
-  )
-}
-
-// a scale over the values a field takes across every feature loaded, so hiding
-// a type in the filter dialog leaves the rest in their colors, and a legend of
-// the values the features drawn carry
-function resolveFeatureScale(
-  field: string,
-  scale: ScaleSpec | undefined,
-  annotations: Annotation[],
-  drawn: Annotation[],
-) {
-  const valuesOf = (list: Annotation[]) =>
-    list.map(a => featureField(a, field)).filter(notEmpty)
-  const resolved = resolveScale(scale, valuesOf(annotations))
-  const shown = new Set(valuesOf(drawn))
-  return {
-    field,
-    ...resolved,
-    legend: resolved.legend.filter(entry => shown.has(entry.id)),
-  }
-}
 
 const columnTrackBytes = new WeakMap<ColumnTrackSpec, number>()
 
@@ -551,251 +285,9 @@ function trackIsOff(
   return turnedOffTracks.get(id) ?? defaultOffTracks.has(id)
 }
 
-// the marks that set tree state from a node rather than drawing
-const seedingMarks = new Set<CladeMark>(['collapse', 'focus', 'rotate'])
-
 // shared empty results, so observers don't see a fresh [] as a change
 const noDomains: Annotation[] = []
 const noClades: ResolvedClade[] = []
-
-/**
- * Each tip of the full tree in the order the tree draws it, with the on-screen
- * row that shows it: its own, or the row of the collapsed node standing for it
- */
-function tipRows(root: HierarchyNode<NodeWithIds>) {
-  const rows = new Map<string, { order: number; row: number }>()
-  let row = 0
-  const pushReversed = (
-    stack: HierarchyNode<NodeWithIds>[],
-    nodes: HierarchyNode<NodeWithIds>[],
-  ) => {
-    for (let i = nodes.length - 1; i >= 0; i--) {
-      stack.push(nodes[i]!)
-    }
-  }
-  const stack = [root]
-  while (stack.length > 0) {
-    const node = stack.pop()!
-    if (node.children?.length) {
-      pushReversed(stack, node.children)
-    } else {
-      const hidden = [node]
-      while (hidden.length > 0) {
-        const tip = hidden.pop()!
-        const kids = tip.children ?? tip._children
-        if (kids?.length) {
-          pushReversed(hidden, kids)
-        } else {
-          rows.set(tip.data.name, { order: rows.size, row })
-        }
-      }
-      row++
-    }
-  }
-  return rows
-}
-
-/**
- * The rows a clade covers and the node an `mrca` names, or undefined when the
- * clade does not resolve: a tip name the tree does not have or has twice, or a
- * leaf count `tips` disagrees with. A `range` counts its tips in the order
- * `tips` gives them, so a collapsed clade inside it counts every leaf it
- * stands for. `index` is the memoized leaf pass over the tree.
- */
-function cladeRows(
-  clade: Clade,
-  root: HierarchyNode<NodeWithIds>,
-  index: Map<string, HierarchyNode<NodeWithIds> | undefined>,
-  tips: Map<string, { order: number; row: number }>,
-): { rows: [number, number]; nodeId?: string } | undefined {
-  if (clade.range) {
-    const [a, b] = clade.range.map(name =>
-      index.get(name) ? tips.get(name) : undefined,
-    )
-    if (a === undefined || b === undefined) {
-      return undefined
-    }
-    const [first, last] = a.order <= b.order ? [a, b] : [b, a]
-    return last.order - first.order + 1 === clade.tips
-      ? { rows: [first.row, last.row] }
-      : undefined
-  }
-  const node = clade.mrca ? mrca(root, clade.mrca, index) : undefined
-  if (!node) {
-    return undefined
-  }
-  const nodeTips = leaves(node)
-  if (nodeTips.length !== clade.tips) {
-    return undefined
-  }
-  let first = Infinity
-  let last = -Infinity
-  for (const tip of nodeTips) {
-    const row = tips.get(tip.data.name)?.row
-    if (row !== undefined) {
-      first = Math.min(first, row)
-      last = Math.max(last, row)
-    }
-  }
-  return first <= last
-    ? { rows: [first, last], nodeId: node.data.id }
-    : undefined
-}
-
-/**
- * Every clade that resolves, with its fill color settled, against the rows of
- * `displayed`, the tree as drawn. The tree panel resolves against the
- * displayed rows and the overview against its own, so both take the tree they
- * draw. A `range` record names no node, so the seeding marks, which need one,
- * drop it.
- */
-function resolveClades(
-  clades: Clade[],
-  root: HierarchyNode<NodeWithIds>,
-  displayed: HierarchyNode<NodeWithIds>,
-): ResolvedClade[] {
-  const index = leafIndex(root)
-  const tips = tipRows(displayed)
-  return clades.flatMap(clade => {
-    const resolved = cladeRows(clade, root, index, tips)
-    const seeding = seedingMarks.has(clade.mark)
-    return resolved && !(seeding && resolved.nodeId === undefined)
-      ? [
-          {
-            ...resolved,
-            mark: clade.mark,
-            color: withAlpha(
-              clade.color ?? cladeHighlightColor,
-              cladeHighlightAlpha,
-            ),
-            markColor: clade.color,
-            label: clade.label,
-          },
-        ]
-      : []
-  })
-}
-
-const childOrders: Record<
-  TreeOrder,
-  ((a: HierarchyNode, b: HierarchyNode) => number) | undefined
-> = {
-  input: undefined,
-  branchLength: (a, b) => (a.data.length ?? 1) - (b.data.length ?? 1),
-  ladderize: (a, b) => a.value! - b.value!,
-  ladderizeReverse: (a, b) => b.value! - a.value!,
-}
-
-/**
- * The tree with the display transforms applied: leaf counts summed, children
- * put in `order` and each `rotated` node's reversed, `showOnly` taken as the
- * new root, and each `collapsed` clade folded. The overview builds the same
- * tree without the focus, so it shows the focused subtree inside the whole.
- */
-function buildTreeRoot(
-  tree: NodeWithIds,
-  {
-    collapsed,
-    rotated,
-    order,
-    showOnly,
-  }: {
-    collapsed: readonly string[]
-    rotated: readonly string[]
-    order: TreeOrder
-    showOnly?: string
-  },
-) {
-  let hier = hierarchy(tree, d => d.children)
-  hierarchySum(hier, d => (d.children.length > 0 ? 0 : 1))
-  const compare = childOrders[order]
-  if (compare) {
-    sort(hier, compare)
-  }
-  if (rotated.length > 0) {
-    const flip = new Set(rotated)
-    forEachDescendant(hier, n => {
-      if (flip.has(n.data.id)) {
-        n.children?.reverse()
-      }
-    })
-  }
-
-  if (showOnly) {
-    const res = find(hier, n => n.data.id === showOnly)
-    if (res) {
-      hier = res
-    }
-  }
-
-  for (const collapsedId of collapsed) {
-    const node = find(hier, n => n.data.id === collapsedId)
-    if (node) {
-      if (node.children) {
-        collapse(node)
-      } else if (node.parent?.children) {
-        node.parent.children = node.parent.children.filter(
-          c => c.data.id !== collapsedId,
-        )
-      }
-    }
-  }
-
-  return hier
-}
-
-/**
- * The node whose branch an outgroup roots the tree on: the outgroup's most
- * recent common ancestor, or the rest of the tips' where that ancestor is the
- * root, since the outgroup then straddles the root and the branch above the
- * other side is the same branch of the unrooted tree.
- */
-function outgroupNode(root: HierarchyNode, outgroup: string[]) {
-  const index = leafIndex(root)
-  const node = mrca(root, outgroup, index)
-  if (node !== root) {
-    return node
-  }
-  const out = new Set(outgroup)
-  const rest = leaves(root)
-    .map(n => n.data.name)
-    .filter(name => !out.has(name))
-  const other = mrca(root, rest, index)
-  return other === root ? undefined : other
-}
-
-/**
- * `tree` rerooted as `treeRoot` asks, with fresh path ids. The ids of the tree
- * as written become names on unnamed nodes, and a rerooting would carry them
- * along as labels, so they come off first.
- */
-function rootTree(tree: NodeWithIds, treeRoot: TreeRoot) {
-  const plain = new Map<NodeWithIds, TreeNode>()
-  for (const node of preorder(tree).reverse()) {
-    plain.set(node, {
-      name: node.name === node.id ? undefined : node.name,
-      length: node.length,
-      children: node.children.map(c => plain.get(c)!),
-    })
-  }
-  const input = plain.get(tree)!
-  if (treeRoot === 'midpoint') {
-    return generateNodeIds(midpointRoot(input))
-  }
-  const target = outgroupNode(
-    hierarchy(tree, d => d.children),
-    treeRoot.outgroup,
-  )
-  return target
-    ? generateNodeIds(rerootTree(input, plain.get(target.data)!))
-    : tree
-}
-
-// the inclusive tip indices a node covers, from its xMin/xMax in a layout one
-// row per tip
-function tipRange(node: HierarchyNode): [number, number] {
-  return [Math.round(node.xMin! - 0.5), Math.round(node.xMax! - 0.5)]
-}
 
 // the channels reading the feature table; every other channel reads rowData
 const featureChannels = new Set<EncodingChannel>([
@@ -884,20 +376,6 @@ function sharedValue(values: (string | undefined)[]) {
   return first !== undefined && values.every(v => v === first)
     ? first
     : undefined
-}
-
-// preorder, so reversing the list puts every node after its descendants
-function preorder(tree: NodeWithIds) {
-  const order: NodeWithIds[] = []
-  const stack = [tree]
-  while (stack.length > 0) {
-    const node = stack.pop()!
-    order.push(node)
-    for (const child of node.children) {
-      stack.push(child)
-    }
-  }
-  return order
 }
 
 /**
@@ -4693,7 +4171,7 @@ function stateModelFactory({
         if (!encoding) {
           return undefined
         }
-        const order = preorder(self.tree)
+        const { order } = preorder(self.tree)
         const values = new Map<NodeWithIds, string | undefined>()
         const colors = new Map<string, string>()
         for (let i = order.length - 1; i >= 0; i--) {
