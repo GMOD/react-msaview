@@ -48,7 +48,7 @@ def test_save_writes_every_prop_the_front_end_sends():
 def test_props_convert_the_traits_the_way_render_ts_does():
     view = MSAView(msa=MSA, color_scheme={"A": "red"}, tree_root="Mouse", msa_url="https://x.org/a.fa")
     p = props(view)
-    assert p["colorScheme"] == {"map": {"A": "red"}}
+    assert p["colorScheme"] == {"domain": ["A"], "range": ["red"]}
     assert p["treeRoot"] == {"outgroup": ["Mouse"]}
     assert p["msaUrl"] == "https://x.org/a.fa"
     assert "theme" not in p and "height" not in p and "tree" not in p

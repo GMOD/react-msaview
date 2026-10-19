@@ -117,10 +117,11 @@ function optional<T>(value: T | null | '') {
   return value === null || value === '' ? undefined : value
 }
 
-// a scheme name, or a dict of residue letter to color
+// a scheme name, or a dict of residue letter to color, which goes to the
+// viewer as a color object over the letters
 function colorScheme(scheme: Traits['color_scheme']) {
   return typeof scheme === 'object' && scheme !== null
-    ? { map: scheme }
+    ? { domain: Object.keys(scheme), range: Object.values(scheme) }
     : optional(scheme)
 }
 

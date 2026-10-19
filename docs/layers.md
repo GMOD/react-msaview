@@ -50,7 +50,7 @@ through unchanged.
     {
       "name": "ClinVar",
       "color": "#c0392b",
-      "max": 8,
+      "scales": { "y": { "domainMax": 8 } },
       "start": 104,
       "values": [2, 1, 0, 0, 2, 4]
     }
@@ -104,7 +104,7 @@ B19-A20 reach across the C peptide that processing cuts out.
       "name": "dN/dS",
       "kind": "bar",
       "values": [0.1, 0.4, 1.8, 0.2, 0.3, 0.1],
-      "max": 2,
+      "scales": { "y": { "domainMax": 2 } },
       "color": "#6a51a3",
       "row": "human"
     },
@@ -113,7 +113,12 @@ B19-A20 reach across the C peptide that processing cuts out.
       "name": "Codon frame",
       "kind": "text",
       "data": "1231231",
-      "colors": { "1": "#ddd", "2": "#bbb", "3": "#999" }
+      "encoding": {
+        "color": {
+          "domain": ["1", "2", "3"],
+          "range": ["#ddd", "#bbb", "#999"]
+        }
+      }
     },
     {
       "id": "disulfides",
@@ -130,18 +135,18 @@ B19-A20 reach across the C peptide that processing cuts out.
 }
 ```
 
-| Field    | Kind | Meaning                                                                     |
-| -------- | ---- | --------------------------------------------------------------------------- |
-| `id`     | both | Unique key. The Tracks menu and `turnedOffTracks` use it                    |
-| `name`   | both | Label beside the track                                                      |
-| `values` | bar  | One number per column, or per residue of `row`                              |
-| `max`    | bar  | Value drawn at full height (default 1)                                      |
-| `color`  | bar  | Bar fill (default gray)                                                     |
-| `data`   | text | One character per column, or per residue of `row`                           |
-| `colors` | text | Upper-case character to background color; the active color scheme otherwise |
-| `arcs`   | arc  | `{start, end, color?}` pairs; each end is a column or a residue             |
-| `row`    | both | Row name whose residues the values or characters index                      |
-| `height` | both | Pixel height (default 40 for a bar, 50 for an arc, the row height for text) |
+| Field      | Kind | Meaning                                                                                                    |
+| ---------- | ---- | ---------------------------------------------------------------------------------------------------------- |
+| `id`       | both | Unique key. The Tracks menu and `turnedOffTracks` use it                                                   |
+| `name`     | both | Label beside the track                                                                                     |
+| `values`   | bar  | One number per column, or per residue of `row`                                                             |
+| `scales`   | bar  | `{y: {domainMax}}`, the value drawn at full height (default 1)                                             |
+| `color`    | bar  | Bar fill (default gray)                                                                                    |
+| `data`     | text | One character per column, or per residue of `row`                                                          |
+| `encoding` | text | `{color: {domain, range}}`, a background color per upper-case character; the active color scheme otherwise |
+| `arcs`     | arc  | `{start, end, color?}` pairs; each end is a column or a residue                                            |
+| `row`      | both | Row name whose residues the values or characters index                                                     |
+| `height`   | both | Pixel height (default 40 for a bar, 50 for an arc, the row height for text)                                |
 
 A `row` on an arc track carries both ends of every arc, so a contact map
 computed in a protein's own numbering lands on the alignment without conversion.
@@ -485,35 +490,41 @@ of dicts or a DataFrame.
 ## encodings
 
 What the viewer's own marks read from a table. Each entry names a `channel`, the
-`field` feeding it, and the `scale` that turns a field value into a color.
+`field` feeding it, and the color object's members, the scale that turns a field
+value into a color: its `domain` of values, the `range` of colors they map onto
+and the `title` of its legend.
 
 [![](media/layers-encodings.png)][live-layers-encodings]
 
 The same 46 alleles with three channels over the row table: `tipLabel` and
 `branch` over the phenotype field, and `rowTint` over the subclass field through
-a `{map}` that names one of its two values, so the alleles it leaves out take no
-tint. Each field lists its own legend.
+a `domain` that names one of its two values, so the alleles it leaves out take
+no tint. Each field lists its own legend.
 
 ```json
 {
   "type": "MsaView",
   "data": { "msa": ">duck\nMKAANSE\n>chicken\nMKA-NSE" },
   "encodings": [
-    { "channel": "tipLabel", "field": "clade", "scale": { "palette": "set1" } },
+    { "channel": "tipLabel", "field": "clade", "range": "set1" },
     {
       "channel": "rowTint",
       "field": "clade",
-      "scale": { "map": { "2.3.4.4b": "#e41a1c" } }
+      "domain": ["2.3.4.4b"],
+      "range": ["#e41a1c"]
     }
   ]
 }
 ```
 
-| Field     | Meaning                                                            |
-| --------- | ------------------------------------------------------------------ |
-| `channel` | one of the five below                                              |
-| `field`   | the field the channel reads                                        |
-| `scale`   | `{palette}` or `{map}`; the ggplot palette when the entry omits it |
+| Field     | Meaning                                                                    |
+| --------- | -------------------------------------------------------------------------- |
+| `channel` | one of the five below                                                      |
+| `field`   | the field the channel reads                                                |
+| `scale`   | the scale kind, `categorical`, the only one so far and the default         |
+| `domain`  | values in legend order, each taking the `range` color at its index         |
+| `range`   | a palette name or a list of colors; the ggplot palette when both are unset |
+| `title`   | the legend's title; records with the same members and title share a scale  |
 
 | Channel        | What it sets                                                  | Reads a field of |
 | -------------- | ------------------------------------------------------------- | ---------------- |
@@ -523,14 +534,27 @@ tint. Each field lists its own legend.
 | `featureFill`  | the fill of each span of the annotation overlay               | the `gff`        |
 | `featureLabel` | the text drawn inside a span                                  | the `gff`        |
 
-A `{palette}` names one of `ggplot` (the default), `set1`, `dark2`, `okabeito`
-and `tableau`, and the scale hands its colors to the field's distinct values in
-sorted order, so a value keeps its color as rows are collapsed, filtered or
-re-ordered. Past the end of a palette every value takes an evenly spaced hue
-instead, which keeps a forty-clade field readable. A `{map}` names a color per
-value, and a value it leaves out keeps the plain mark: an uncolored tip label
-draws in the theme's text color, an uncolored row takes no tint, and an
-uncolored span draws grey.
+A palette name in `range` is one of `ggplot` (the default), `set1`, `dark2`,
+`okabeito` and `tableau`, with `okabeIto` and `tableau10` read as aliases. The
+scale hands its colors to the field's distinct values: the values `domain` lists
+first, in that order, then the rest in natural order, numbers by value and digit
+runs by magnitude, so `2` sorts before `10` and `2.3.2.1a` before `2.3.4.4b`. A
+value keeps its color as rows are collapsed, filtered or re-ordered. Past the
+end of a named palette every value takes an evenly spaced hue instead, which
+keeps a forty-clade field readable.
+
+A list of colors in `range` colors as many values as it holds, so a `domain` and
+a `range` of one length color the values they name, and a value they leave out
+keeps the plain mark: an uncolored tip label draws in the theme's text color, an
+uncolored row takes no tint, and an uncolored span draws grey.
+
+A snapshot written before the color object reads the same:
+
+- `scale: {palette}` reads as `range`
+- `scale: {map}` reads as `domain` and `range`
+- a strip's `legend` reads as `title`
+- a column track's `colors` reads as `encoding.color`, and its `max` as
+  `scales.y.domainMax`
 
 A tint draws at 25% opacity so the residues under it stay readable. A color
 carrying its own alpha, such as `rgba(228,26,28,0.5)`, draws at that alpha.
@@ -542,9 +566,9 @@ default color, and a collapsed clade's triangle takes the color of the value its
 tips agree on. This is ggtree's `groupClade` followed by `aes(color = group)`,
 with the group read from the table.
 
-Every field an encoding reads carries a legend of its scale, titled by the field
-name, drawn by the overlay on screen and reserved as a column in the SVG export.
-Two channels over one field list that field once.
+Every scale an encoding reads carries a legend, titled by `title` or else the
+field name, drawn by the overlay on screen and reserved as a column in the SVG
+export. Two channels declaring the same members over one field list it once.
 
 ### The feature channels
 
@@ -566,11 +590,7 @@ reading the GFF's `description` attribute: `featureFill` colors each span from a
     "gff": "##gff-version 3\nduck\tncbi\tgene\t1\t5\t.\t+\t.\tName=HA;class=surface\nchicken\tncbi\tgene\t1\t4\t.\t+\t.\tName=NP;class=internal;color=255,0,0"
   },
   "encodings": [
-    {
-      "channel": "featureFill",
-      "field": "class",
-      "scale": { "palette": "set1" }
-    },
+    { "channel": "featureFill", "field": "class", "range": "set1" },
     { "channel": "featureLabel", "field": "Name" }
   ]
 }
@@ -588,7 +608,7 @@ draws whether or not the residue letters do.
 
 A color per residue letter, which replaces the built-in color scheme while it is
 set. The letters the map lists take its colors, and every other letter is
-uncolored, the rule a `{map}` scale in `encodings` follows.
+uncolored, the rule a `domain` and `range` in `encodings` follow.
 
 ```json
 {
@@ -611,7 +631,7 @@ the map lists `-` or `.`. The map paints whichever channel `residueEncoding`
 picks, the cell or the letter, and it colors the sequence logo's letters too.
 Picking a scheme under **Settings → Color** clears the map.
 
-React: `colorScheme={{ map: { K: '#1f77b4' } }}` on `MSAViewer`, or
+React: `colorScheme={{ domain: ['K'], range: ['#1f77b4'] }}` on `MSAViewer`, or
 `model.setCustomColorScheme(map)`. R: `color_scheme = c(K = "#1f77b4")`, or
 `scale_residue_color(c(K = "#1f77b4"))`. Python:
 `color_scheme={"K": "#1f77b4"}`.
@@ -620,15 +640,15 @@ React: `colorScheme={{ map: { K: '#1f77b4' } }}` on `MSAViewer`, or
 
 A panel beside the tree on the row scale, the counterpart of `columnTracks` on
 the column scale. Each record names a `kind`. A `strip` reads a field of
-`rowData` and colors each row's cell through `scale`, and eight strips make the
-tip-aligned matrix ggtree draws with `gheatmap`. A `features` panel draws the
-spans `gff` carries, one row per alignment row, which is gggenes.
+`rowData` and colors each row's cell through its color object, and eight strips
+make the tip-aligned matrix ggtree draws with `gheatmap`. A `features` panel
+draws the spans `gff` carries, one row per alignment row, which is gggenes.
 
 [![](media/layers-rowpanels.png)][live-layers-rowpanels]
 
 Nine strips between the tree and the alignment: the phenotype of each allele,
 then the residue it carries at each of eight Ambler positions. The eight
-position strips share one `legend`, so the matrix carries a single key for its
+position strips share one `title`, so the matrix carries a single key for its
 residue colors.
 
 ```json
@@ -639,25 +659,21 @@ residue colors.
     "treeMetadata": "{\"duck\":{\"HA\":\"H5\",\"NA\":\"N1\"},\"chicken\":{\"HA\":\"H5\",\"NA\":\"N8\"}}"
   },
   "rowPanels": [
-    {
-      "kind": "strip",
-      "field": "HA",
-      "scale": { "palette": "set1" },
-      "width": 12
-    },
+    { "kind": "strip", "field": "HA", "range": "set1", "width": 12 },
     { "kind": "strip", "field": "NA", "header": "NA segment" }
   ]
 }
 ```
 
-| Field    | Meaning                                                              |
-| -------- | -------------------------------------------------------------------- |
-| `kind`   | `strip` or `features`                                                |
-| `field`  | the `rowData` field a strip's cells read                             |
-| `scale`  | `{palette}` or `{map}`; the ggplot palette when the record omits it  |
-| `width`  | the column's pixel width: a row height for a strip, 200 for features |
-| `header` | the name drawn above the column, defaulting to a strip's field       |
-| `legend` | the title a strip's values list under, defaulting to its field       |
+| Field    | Meaning                                                                    |
+| -------- | -------------------------------------------------------------------------- |
+| `kind`   | `strip` or `features`                                                      |
+| `field`  | the `rowData` field a strip's cells read                                   |
+| `domain` | a strip's values in legend order, as in `encodings`                        |
+| `range`  | a palette name or a list of colors; the ggplot palette when both are unset |
+| `title`  | the title a strip's values list under, defaulting to its field             |
+| `width`  | the column's pixel width: a row height for a strip, 200 for features       |
+| `header` | the name drawn above the column, defaulting to a strip's field             |
 
 The panels take their width out of the alignment's, so the alignment scrolls and
 fits within what is left. A strip scrolls with the tree and the alignment, and a
@@ -668,14 +684,16 @@ on its side, and it exports with the figure. The band is as tall as the minimap,
 so a longer header is clipped to it and the full name is the column's tooltip.
 
 A panel's scale carries a legend of its own, titled by the field, and every
-panel and encoding over one field lists that field once. Eight columns over one
-set of colors read eight fields, so give them one `legend` and the figure
-carries one key for the matrix:
+panel and encoding declaring the same members over one field lists it once.
+Eight columns over one set of colors read eight fields, so give them one
+`title`. The strips then share one scale over every value the eight fields take,
+a value two segments carry draws one color in both, and the figure carries one
+key for the matrix:
 
 ```json
 "rowPanels": [
-  { "kind": "strip", "field": "PB2", "scale": { "map": { "am2.2": "#4e79a7" } }, "legend": "segment lineage" },
-  { "kind": "strip", "field": "PB1", "scale": { "map": { "am4": "#f28e2b" } }, "legend": "segment lineage" }
+  { "kind": "strip", "field": "PB2", "range": "set1", "title": "segment lineage" },
+  { "kind": "strip", "field": "PB1", "range": "set1", "title": "segment lineage" }
 ]
 ```
 
@@ -684,7 +702,7 @@ overlay draws, and with no alignment behind it the panel's own entries are that
 key.
 
 React: the `rowPanels` prop on `MSAViewer`, or `model.setRowPanels(list)`. R:
-`geom_msa_strip("HA", palette = "set1", width = 12, legend = "amino acid")` and
+`geom_msa_strip("HA", range = "set1", width = 12, title = "amino acid")` and
 `geom_msa_features(color = "Name", label = "Name", align = "genE")`. Python: the
 `row_panels` trait.
 
@@ -705,7 +723,7 @@ attribute while `encoding.label` reads `Name`.
 | Field       | Meaning                                                                                   |
 | ----------- | ----------------------------------------------------------------------------------------- |
 | `x`         | `column` draws in the alignment's columns; `position` in each row's own residue positions |
-| `encoding`  | `{color: {field, scale}, label: field}` over a field of the features                      |
+| `encoding`  | `{color: {field, range, domain, title}, label: field}` over a field of the features       |
 | `transform` | `[{type: "align", on: <Name value>}]`, only under `x: "position"`                         |
 | `position`  | `identity` stacks overlapping features; `strandpile` splits the row by strand             |
 
@@ -748,7 +766,7 @@ with the forward ones.
       "width": 320,
       "header": "neighborhood",
       "encoding": {
-        "color": { "field": "Name", "scale": { "palette": "set1" } },
+        "color": { "field": "Name", "range": "set1" },
         "label": "Name"
       },
       "transform": [{ "type": "align", "on": "genE" }]

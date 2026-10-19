@@ -39,7 +39,11 @@ def props(view: Any) -> dict[str, Any]:
         "msaFilehandle": view.msa_filehandle,
         "treeFilehandle": view.tree_filehandle,
         "gffFilehandle": view.gff_filehandle,
-        "colorScheme": {"map": scheme} if isinstance(scheme, dict) else _optional(scheme),
+        "colorScheme": (
+            {"domain": list(scheme), "range": list(scheme.values())}
+            if isinstance(scheme, dict)
+            else _optional(scheme)
+        ),
         "height": view.height,
         "colWidth": view.col_width,
         "rowHeight": view.row_height,

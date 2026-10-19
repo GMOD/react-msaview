@@ -22,7 +22,7 @@ positions and aligned on one gene, which needs no alignment at all::
                 "width": 320,
                 "header": "neighborhood",
                 "encoding": {
-                    "color": {"field": "Name", "scale": {"palette": "set1"}},
+                    "color": {"field": "Name", "range": "set1"},
                     "label": "Name",
                 },
                 "transform": [{"type": "align", "on": "genE"}],
