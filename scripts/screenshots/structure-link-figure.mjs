@@ -32,10 +32,15 @@ const url = opt(
   'http://127.0.0.1:4321/JBrowseMSA/tutorials/structure_link',
 )
 const name = 'structure_link-spike'
-const mappedHover = /^SARS-CoV-2 residue \d+ · 6VXX chain A residue \d+$/
+const mappedHover = /^SARS-CoV-2 residue \d+ · 6VXX residue \d+$/
+
+const structureLoaded = () =>
+  !document
+    .querySelector('.structure-link-canvas')
+    ?.textContent.includes('Loading structure')
 
 const status = page =>
-  page.$eval('.structure-link-status', el => el.textContent.trim())
+  page.$eval('.structure-link-canvas p[aria-live]', el => el.textContent.trim())
 
 async function sweep(page, selector, rows, cols) {
   const box = await (await page.$(selector)).boundingBox()
@@ -75,10 +80,7 @@ try {
   await page.waitForSelector('.structure-link-canvas canvas', {
     timeout: 120_000,
   })
-  await page.waitForFunction(
-    () => !document.querySelector('.structure-link-loading'),
-    { timeout: 120_000 },
-  )
+  await page.waitForFunction(structureLoaded, { timeout: 120_000 })
   await page.waitForFunction(
     () => document.querySelector('.structure-link-mapped')?.textContent,
     { timeout: 60_000 },
@@ -111,7 +113,7 @@ try {
 
   const target = [...alignment].find(([text]) => mappedHover.test(text))
   if (!target) {
-    throw new Error('no hover over the alignment reached 6VXX chain A')
+    throw new Error('no hover over the alignment reached 6VXX')
   }
   const [, { x, y }] = target
   await page.mouse.move(x, y)
@@ -139,10 +141,10 @@ try {
   await page.waitForFunction(
     () =>
       document.querySelector('.structure-link-mapped')?.textContent ===
-        'Mapped: Human onto 2HHB chain A, Human onto 2HHB chain B' &&
-      !document.querySelector('.structure-link-loading'),
+      'Mapped: Human onto 2HHB chain A, Human onto 2HHB chain B',
     { timeout: 120_000 },
   )
+  await page.waitForFunction(structureLoaded, { timeout: 120_000 })
   await delay(2000)
   console.log('hemoglobin alignment hover statuses on the Human row:')
   for (const text of (await sweep(page, msaSelector, 48, 8)).keys()) {
