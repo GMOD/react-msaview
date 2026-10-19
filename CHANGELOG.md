@@ -4,6 +4,16 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.2.0](https://github.com/GMOD/JBrowseMSA/compare/v9.1.1...v9.2.0) (2026-10-19)
+
+### Other Changes
+
+- Pin the reference row above the alignment as a track ([6749167](https://github.com/GMOD/JBrowseMSA/commit/674916789c60e87ede9919618b2e09669b77fc21))
+- Document relativeTo, and read the TEM alleles against a pinned TEM-1 ([8ae3c77](https://github.com/GMOD/JBrowseMSA/commit/8ae3c776194102b3853443d6f9048a16e8369cf6))
+- Regenerate the 18 figures that set a reference row ([0f91372](https://github.com/GMOD/JBrowseMSA/commit/0f913723232cb8f9cbe41574035cce22dcf6fe06))
+- Rename the Python package to jbrowsemsa ([e7227ce](https://github.com/GMOD/JBrowseMSA/commit/e7227ceb5ad9a43b9daef000ae56bd6e774d1b3e))
+- Read #data= JSON as typed, so a hand-written link needs no encoding ([ac56381](https://github.com/GMOD/JBrowseMSA/commit/ac563810a8f472d4a8822e92b8c535730988f987))
+
 ## [9.1.1](https://github.com/GMOD/JBrowseMSA/compare/v9.1.0...v9.1.1) (2026-10-19)
 
 ### Other Changes
