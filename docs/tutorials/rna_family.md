@@ -322,10 +322,17 @@ col  commonest base   best partner   SS_cons pairs them with
 178             57%       5 at  84%       -
 ```
 
+[![](../media/rna-family-covariation.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A240%2C%22colWidth%22%3A26%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frna%2Fsam-riboswitch.sto%22%7D%2C%22height%22%3A978%2C%22rowHeight%22%3A17%2C%22allowedGappyness%22%3A50%2C%22scrollX%22%3A-1144%7D%7D)
+
+Columns 56-58 and 131-133 in red, with the 82 columns that are gaps in half the
+rows or more hidden, so both sides of the helix fit in one frame. Read the
+second box right to left: 56 pairs with 133, 57 with 132 and 58 with 131, the
+partners `SS_cons` names. Column 60 in blue, which `SS_cons` leaves unpaired,
+finds its best partner, column 131, at 62%.
+
 Column 36, the control from the helix figure, tops out at 76%, and the best
 scores of the five come from nearly invariant columns such as column 5, which
-turns up twice, where each of the seven above matched the one column `SS_cons`
-names.
+turns up twice.
 
 ## Reproduce it end to end
 

@@ -155,6 +155,41 @@ export const specs = [
     ],
   },
   {
+    name: 'codon-r332',
+    // the V1 patch at a column width where each codon's dN/dS bar reads on
+    // its own, and R332's sits among them at its unclamped ratio
+    url: fileSnap({
+      ...base,
+      colWidth: 12,
+      height: 480,
+      gffFilehandle: { uri: GFF_URI },
+      columnTracks: [dndsTrack],
+      highlights: [
+        highlights[1],
+        { ...highlights[2], color: 'rgba(227,36,43,0.3)' },
+      ],
+      scrollX: -972 * 12,
+    }),
+    viewportWidth: 1600,
+    settle: 2000,
+    clip: 'viewer',
+    annotations: [
+      { type: 'box', anchor: COL.r332, color: '#e3242b', pad: 3 },
+      {
+        type: 'arrow',
+        fromAnchor: { col: 995, alignX: 'left', alignY: 'top', dy: -112 },
+        anchor: { ...COL.r332, alignY: 'top', dy: -64 },
+      },
+      {
+        type: 'text',
+        text: "R332's bar",
+        textAlign: 'end',
+        anchor: { col: 995, alignX: 'left', alignY: 'top', dy: -112 },
+        fontSize: 14,
+      },
+    ],
+  },
+  {
     name: 'codon-purifying-control',
     // the RING and B-box zinc fingers: same dN/dS track, same scale, showing
     // the near-flat control region the SPRY patch is being compared against

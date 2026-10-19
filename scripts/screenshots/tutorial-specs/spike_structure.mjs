@@ -200,6 +200,41 @@ export const specs = [
     ],
   },
   {
+    name: 'spike-structure-loop',
+    // the S1/S2 junction at residue resolution: the ruler numbers the row's
+    // residues, and the ribbon under it reads U across the loop 6VXX declares
+    // and did not resolve
+    viewportWidth: 1600,
+    url: fileSnap({
+      ...closeUp(col(loopRow[0]) - 30, 22),
+      height: 540,
+      relativeTo: ROW,
+      turnedOffTracks: { 'position-ruler': false },
+      columnTracks: [coverage],
+      highlights: layers.highlights,
+    }),
+    settle: 2500,
+    clip: 'viewer',
+    annotations: [
+      {
+        type: 'box',
+        anchor: { col: col(loopRow[0]), colEnd: col(loopRow[1]) },
+        pad: 2,
+      },
+      {
+        type: 'text',
+        text: `row residues ${loopRow[0]}-${loopRow[1]} are ${structure} residues ${loopRow[0] + offset}-${loopRow[1] + offset}, all U`,
+        fontSize: 16,
+        anchor: {
+          col: col(loopRow[0]),
+          alignX: 'left',
+          alignY: 'bottom',
+          dy: 46,
+        },
+      },
+    ],
+  },
+  {
     name: 'spike-structure-control',
     // HR1, the same row and the same structure, at base resolution: a helix
     // the crystal resolved end to end, under columns every spike here shares

@@ -92,7 +92,54 @@ const closeUp = {
   ...files,
 }
 
+// the ORF1/ORF2 overlap at base resolution, each ORF on a lane of its own
+const OVERLAP = 18
+const overlapFrom = columns.orf2[0] - 20
+// 0-based, for the callout anchors
+const orf2Start = columns.orf2[0] - 1
+const orf1Stop = columns.orf1[1] - 1
+
 export const specs = [
+  {
+    name: 'norovirus_recombination-overlap',
+    viewportWidth: 1600,
+    url: fileSnap({
+      height: 620,
+      treeAreaWidth: 300,
+      rowHeight: 34,
+      colWidth: OVERLAP,
+      scrollX: -(overlapFrom - 1) * OVERLAP,
+      ...files,
+      ...orfs,
+      encodings: [orfFill],
+      subFeatureRows: true,
+      showDomainLegend: false,
+    }),
+    settle: 2500,
+    clip: 'viewer',
+    annotations: [
+      {
+        type: 'box',
+        anchor: { col: orf2Start, colEnd: orf2Start + 2 },
+        pad: 2,
+      },
+      { type: 'box', anchor: { col: orf1Stop - 2, colEnd: orf1Stop }, pad: 2 },
+      {
+        type: 'text',
+        text: `ORF2 starts, column ${columns.orf2[0]}`,
+        fontSize: 16,
+        textAlign: 'end',
+        anchor: { col: orf2Start, alignX: 'right', alignY: 'bottom', dy: 34 },
+      },
+      {
+        type: 'text',
+        text: `ORF1 stops, column ${columns.orf1[1]}`,
+        fontSize: 16,
+        textAlign: 'start',
+        anchor: { col: orf1Stop, alignX: 'left', alignY: 'bottom', dy: 34 },
+      },
+    ],
+  },
   {
     name: 'norovirus_recombination-1',
     // the twelve genomes and the ORF2 tree, no annotation loaded

@@ -79,6 +79,9 @@ const bumpResidues = {
 
 // the column inside RRM1 the page reads row by row, 21 residues into the domain
 const probeColumn = col(rrm1.start + 21)
+// and the one inside the C-terminal region, 44 columns into the domain
+const ctdProbeColumn = col(ctd.start) + 44
+const ctdProbeResidue = columnOfResidue.indexOf(ctdProbeColumn) + 1
 
 const files = {
   msaFilehandle: { uri: 'data/tdp43/tardbp.afa' },
@@ -136,6 +139,23 @@ export const specs = [
           alignY: 'bottom',
           dy: 34,
         },
+      },
+      {
+        type: 'arrow',
+        fromAnchor: {
+          col: 0,
+          alignX: 'left',
+          alignY: 'bottom',
+          dx: 40,
+          dy: 18,
+        },
+        anchor: { col: 0, rowLabel: REF, alignX: 'left', dx: -96 },
+      },
+      {
+        type: 'text',
+        text: `${REF}, outside the other mammals`,
+        fontSize: 16,
+        anchor: { col: 0, alignX: 'left', alignY: 'bottom', dy: 34 },
       },
     ],
   },
@@ -210,6 +230,43 @@ export const specs = [
         maxWidth: 520,
         anchor: {
           col: probeColumn,
+          alignX: 'left',
+          alignY: 'bottom',
+          dy: 46,
+        },
+      },
+    ],
+  },
+  {
+    name: 'alphafold_confidence-ctd-column',
+    // the C-terminal column the page reads row by row, framed like the RRM1
+    // one so the two compare
+    viewportWidth: 1600,
+    url: fileSnap({
+      ...closeUp(ctdProbeResidue - 13, 20),
+      ...tracks,
+      ...gff,
+      showDomainLegend: false,
+      highlights: [
+        {
+          row: REF,
+          start: ctdProbeResidue,
+          end: ctdProbeResidue,
+          label: `${REF} ${ctdProbeResidue}`,
+        },
+      ],
+    }),
+    settle: 3000,
+    clip: 'viewer',
+    annotations: [
+      { type: 'box', anchor: { col: ctdProbeColumn }, pad: 3 },
+      {
+        type: 'text',
+        text: 'inside TDP43_C: four letters, a low bar, an orange box in every row',
+        fontSize: 16,
+        maxWidth: 560,
+        anchor: {
+          col: ctdProbeColumn,
           alignX: 'left',
           alignY: 'bottom',
           dy: 46,

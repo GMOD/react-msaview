@@ -174,6 +174,56 @@ export const specs = [
     ],
   },
   {
+    name: 'rna-family-covariation',
+    // allowedGappyness 50 hides the variable stem loop's insert columns, so
+    // anchors count visible columns: 56-58 are 49-51, 60 is 53, 131-133 are
+    // 59-61
+    url: view({
+      colWidth: 26,
+      rowHeight: 17,
+      allowedGappyness: 50,
+      height: 245 + (ROWS + GC_TRACKS) * 17 + 70,
+      scrollX: -44 * 26,
+    }),
+    viewportWidth: 1200,
+    viewportHeight: 1060,
+    settle: 2500,
+    clip: 'viewer',
+    annotations: [
+      {
+        type: 'box',
+        anchor: { col: 49, colEnd: 51 },
+        pad: 2,
+        color: RED,
+        strokeWidth: 3,
+      },
+      {
+        type: 'box',
+        anchor: { col: 59, colEnd: 61 },
+        pad: 2,
+        color: RED,
+        strokeWidth: 3,
+      },
+      { type: 'box', anchor: { col: 53 }, pad: 2, color: BLUE, strokeWidth: 3 },
+      {
+        type: 'text',
+        text: 'columns 56-58 and 131-133, the six most variable: each finds its best partner on the other side, the one SS_cons names',
+        fontSize: 15,
+        maxWidth: 380,
+        color: RED,
+        anchor: { col: 49, alignX: 'left', alignY: 'bottom', dy: 36 },
+      },
+      {
+        type: 'text',
+        text: 'column 60: unpaired, best partner at 62%',
+        fontSize: 15,
+        maxWidth: 260,
+        color: BLUE,
+        anchor: { col: 53, alignX: 'left', alignY: 'top', dy: -40 },
+      },
+    ],
+  },
+  {
     name: 'rna-family-tree',
     // the tree the alignment produced, with the two B. subtilis rows that lead
     // tandem paralogs tinted

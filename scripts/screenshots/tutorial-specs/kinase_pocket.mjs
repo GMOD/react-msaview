@@ -148,15 +148,14 @@ export const specs = [
   },
   {
     name: 'kinase-pocket-gatekeeper-abl',
-    part: true,
     // ABL1 and ABL2, the Abl family imatinib was built against: both carry
     // the small threonine gatekeeper the drug's methylpiperazine arm reaches
     // past to a back pocket only a small gatekeeper leaves open.
     viewportWidth: 1100,
-    viewportHeight: 300,
+    viewportHeight: 380,
     url: fileSnap({
       height: 280,
-      treeAreaWidth: 110,
+      treeAreaWidth: 160,
       colWidth: 34,
       rowHeight: 46,
       colorSchemeName: 'clustalx_protein_dynamic',
@@ -189,16 +188,15 @@ export const specs = [
   },
   {
     name: 'kinase-pocket-gatekeeper-cdk',
-    part: true,
     // CDK1-3: the same column, same colWidth/scrollX as the Abl pair above,
     // a different row band. CDKs are not imatinib targets, and the bulky
     // phenylalanine here is a structural reason why: it fills the pocket a
     // small gatekeeper leaves open.
     viewportWidth: 1100,
-    viewportHeight: 340,
+    viewportHeight: 420,
     url: fileSnap({
       height: 320,
-      treeAreaWidth: 110,
+      treeAreaWidth: 160,
       colWidth: 34,
       rowHeight: 46,
       colorSchemeName: 'clustalx_protein_dynamic',
@@ -219,15 +217,11 @@ export const specs = [
       },
       {
         type: 'text',
-        text: 'same column, CDK1/2/3',
+        text: 'T315 column (ABL1 numbering)',
         color: '#e3242b',
         fontSize: 18,
         anchor: { col: GATEKEEPER, rowLabel: 'CDK2', alignY: 'top', dy: -18 },
       },
     ],
-  },
-  {
-    name: 'kinase-pocket-gatekeeper',
-    parts: ['kinase-pocket-gatekeeper-abl', 'kinase-pocket-gatekeeper-cdk'],
   },
 ]

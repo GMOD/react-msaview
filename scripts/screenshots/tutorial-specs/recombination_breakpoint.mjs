@@ -66,6 +66,17 @@ const differsAt = (name, from, to) => {
   return out
 }
 
+const genomeRows = {}
+for (const line of read('recombinant.afa').split('\n')) {
+  if (line.startsWith('>')) {
+    row = line.slice(1).trim()
+    genomeRows[row] = ''
+  } else if (row) {
+    genomeRows[row] += line.trim()
+  }
+}
+const firstBase = name => genomeRows[name].search(/[^-]/) + 1
+
 const genome = {
   msaFilehandle: { uri: 'data/recombinant/recombinant.afa' },
   treeFilehandle: { uri: 'data/recombinant/recombinant.nwk' },
@@ -122,7 +133,35 @@ const bmRight = differsAt(
   windowColumns,
 )
 
+const END_WIDTH = 20
+
 export const specs = [
+  {
+    name: 'recombination_breakpoint-ends',
+    // the 5' end at base resolution, where the two shorter records start after
+    // the first base of the reference
+    viewportWidth: 1600,
+    url: fileSnap({
+      height: 380,
+      treeAreaWidth: 300,
+      treeWidth: 120,
+      colWidth: END_WIDTH,
+      rowHeight: 34,
+      colorSchemeName: 'nucleotide',
+      ...genome,
+    }),
+    settle: 2500,
+    clip: 'viewer',
+    annotations: [
+      {
+        type: 'text',
+        text: `BJ.1 starts at column ${firstBase('BJ.1')}, XBB.1 at column ${firstBase(CHILD)}`,
+        fontSize: 16,
+        maxWidth: 520,
+        anchor: { col: 0, alignX: 'left', alignY: 'bottom', dy: 34 },
+      },
+    ],
+  },
   {
     name: 'recombination_breakpoint-1',
     // the five genomes, the tree from them, and the reference annotation

@@ -116,6 +116,12 @@ BJ.1:0.00048,XBB.1:0.00033);
 The reference row takes a column of its own for every one of its bases, so a
 column number is a Wuhan-Hu-1 coordinate for the rest of this page.
 
+[![](../media/recombination_breakpoint-ends.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A380%2C%22treeAreaWidth%22%3A300%2C%22treeWidth%22%3A120%2C%22colWidth%22%3A20%2C%22rowHeight%22%3A34%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.nwk%22%7D%7D%7D)
+
+The 5' end of the alignment at base resolution. Wuhan-Hu-1, BM.1.1.1 and BA.5
+have a base in every column, while BJ.1 starts at column 26 and XBB.1 at
+column 44.
+
 ## 3. Project the reference genes onto every row
 
 RefSeq annotates NC_045512.2 and none of the other four accessions, so the gene

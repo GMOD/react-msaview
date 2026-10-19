@@ -127,10 +127,9 @@ nodes hold alleles of one phenotype.
 
 ## 4. Map Ambler numbering onto the columns
 
-Ambler's scheme starts at 3, skips 239 and 253, and ends at 290 over 286
-residues, so Ambler 238 is residue 236 and reading index 238 lands two residues
-away with no error. The script maps each position through the TEM-1 row and
-checks the result against the residues the reviews name:
+Ambler numbering runs from 3 to 290 over TEM-1's 286 residues. The script maps
+each position through the TEM-1 row and checks the result against the residues
+the reviews name:
 
 ```python
 found = {p: reference[ambler_column[p]] for p in sorted(TEM1_RESIDUES)}
@@ -147,6 +146,12 @@ Ambler [104, 164, 238, 240, 69, 244, 276] are columns 102, 162, 236, 237, 67, 24
 
 All twelve residues the reviews name for TEM-1, the catalytic S70 and K73 and
 the omega-loop E166 among them, come out where the mapping says.
+
+[![](../media/tem_alleles-ambler.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1002%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%2C%22conservation%22%3Atrue%2C%22position-ruler%22%3Afalse%7D%2C%22treeAreaWidth%22%3A200%2C%22colWidth%22%3A22%2C%22rowHeight%22%3A16%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.nwk%22%7D%2C%22scrollX%22%3A-5016%2C%22relativeTo%22%3A%22TEM-1%22%7D%7D)
+
+Columns 229 to 286 under the position ruler, every row read against the pinned
+TEM-1 row. Ambler numbering skips 239 and 253, so the boxed columns 236 and 237
+are Ambler 238 and 240, and 249 and 250 are Ambler 252 and 254.
 
 ## 5. Draw the positions as strips
 

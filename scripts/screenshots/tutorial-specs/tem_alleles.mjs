@@ -197,6 +197,47 @@ export const specs = [
     clip: 'viewer',
   },
   {
+    name: 'tem_alleles-ambler',
+    // the column ruler over the TEM-1 row, where Ambler numbering skips 239
+    // and 253
+    viewportWidth: 1600,
+    viewportHeight: 1150,
+    url: fileSnap({
+      ...closeUp(238),
+      height: closeUp(238).height + 50,
+      turnedOffTracks: {
+        'property-conservation': true,
+        conservation: true,
+        'position-ruler': false,
+      },
+    }),
+    settle: 2500,
+    clip: 'viewer',
+    annotations: [
+      ...[
+        [238, 240, 30],
+        [252, 254, 80],
+      ].flatMap(([before, after, dy]) => [
+        {
+          type: 'box',
+          anchor: { col: amblerColumn[before], colEnd: amblerColumn[after] },
+          pad: 1,
+        },
+        {
+          type: 'text',
+          text: `column ${amblerColumn[before] + 1} is Ambler ${before}, column ${amblerColumn[after] + 1} is Ambler ${after}`,
+          fontSize: 16,
+          anchor: {
+            col: amblerColumn[before],
+            alignX: 'left',
+            alignY: 'bottom',
+            dy,
+          },
+        },
+      ]),
+    ],
+  },
+  {
     name: 'tem_alleles-strips',
     // the phenotype strip and one strip per Ambler position, between the tree
     // and the alignment
