@@ -1,12 +1,10 @@
 import { clamp, groupBy, notEmpty, sum } from '@jbrowse/core/util'
-import { openLocation } from '@jbrowse/core/util/io'
 import { ElementId, FileLocation } from '@jbrowse/core/util/types/mst'
 import {
   addDisposer,
   applySnapshot,
   cast,
   getSnapshot,
-  isAlive,
   types,
 } from '@jbrowse/mobx-state-tree'
 import {
@@ -79,7 +77,7 @@ import { createPaletteMap } from './createPaletteMap.ts'
 import { exportFileName } from './exportFileName.ts'
 import { featureField, featureName } from './featureFields.ts'
 import { featuresToAnnotations } from './featuresLayer.ts'
-import { fetchTextWithProgress, isAbortError } from './fetchUtils.ts'
+import { installFilehandleLoader } from './filehandleLoader.ts'
 import { flatToTree } from './flatToTree.ts'
 import {
   collapse,
@@ -122,6 +120,7 @@ import {
   dropBlanks,
   len,
   outlineColor,
+  readComputed,
   skipBlanks,
   withAlpha,
 } from './util.ts'
@@ -1321,7 +1320,8 @@ function stateModelFactory({
        * the currently hovered tree node ID and its descendant leaf names
        */
       hoveredTreeNode: undefined as
-        { nodeId: string; descendantNames: string[] } | undefined,
+        | { nodeId: string; descendantNames: string[] }
+        | undefined,
 
       /**
        * #volatile
@@ -5062,107 +5062,7 @@ function stateModelFactory({
           })
         }
 
-        /**
-         * Fetch a filehandle whenever it changes, and hand the text to
-         * `onLoad`.
-         *
-         * A generation guard keeps a slower superseded request from overwriting
-         * the newer one's data, status or loading flag. A superseded or cleared
-         * request is aborted and clears its status line.
-         *
-         * `clearFilehandle` runs after a local file loads, since a blob has no
-         * URL to refetch, and when the user cancels, which returns the view to
-         * the import form.
-         *
-         * `what` names the layer in a failure message. An `optional` layer
-         * (annotations, row metadata) that fails adds a warning instead of an
-         * error.
-         */
-        const loadOnFilehandleChange = ({
-          what,
-          getFilehandle,
-          onLoad,
-          setLoading,
-          clearFilehandle,
-          optional = false,
-        }: {
-          what: string
-          getFilehandle: () => FileLocationType | undefined
-          onLoad: (text: string) => void
-          setLoading?: (arg: boolean) => void
-          clearFilehandle?: () => void
-          optional?: boolean
-        }) => {
-          let generation = 0
-          let cancelInFlight: (() => void) | undefined
-          addDisposer(self, () => {
-            cancelInFlight?.()
-          })
-          addDisposer(
-            self,
-            autorun(async () => {
-              const filehandle = getFilehandle()
-              const current = ++generation
-              cancelInFlight?.()
-              cancelInFlight = undefined
-              if (!filehandle) {
-                setLoading?.(false)
-                return
-              }
-              const isCurrent = () => current === generation && isAlive(self)
-              const controller = new AbortController()
-              cancelInFlight = () => {
-                controller.abort()
-                if (isAlive(self)) {
-                  self.setStatus(undefined)
-                }
-              }
-              try {
-                setLoading?.(true)
-                if (!optional) {
-                  self.setError(undefined)
-                }
-                const text = await fetchTextWithProgress(
-                  openLocation(filehandle),
-                  status => {
-                    if (isCurrent()) {
-                      self.setStatus(status)
-                    }
-                  },
-                  { controller },
-                )
-                if (isCurrent()) {
-                  transaction(() => {
-                    onLoad(text)
-                    if (filehandle.locationType === 'BlobLocation') {
-                      clearFilehandle?.()
-                    }
-                  })
-                }
-              } catch (e) {
-                if (isCurrent()) {
-                  if (isAbortError(e)) {
-                    clearFilehandle?.()
-                  } else {
-                    console.error(e)
-                    if (optional) {
-                      self.addWarning(`The ${what} did not load: ${e}`)
-                    } else {
-                      self.setError(e)
-                    }
-                  }
-                }
-              } finally {
-                if (isCurrent()) {
-                  cancelInFlight = undefined
-                  setLoading?.(false)
-                }
-              }
-            }),
-          )
-        }
-
-        loadOnFilehandleChange({
+        installFilehandleLoader(self, {
           what: 'tree',
           getFilehandle: () => self.treeFilehandle,
           onLoad: text => {
@@ -5177,7 +5077,7 @@ function stateModelFactory({
         })
 
         // treeMetadata has no import-form step, so no loading flag or cancel
-        loadOnFilehandleChange({
+        installFilehandleLoader(self, {
           what: 'row metadata',
           optional: true,
           getFilehandle: () => self.treeMetadataFilehandle,
@@ -5209,7 +5109,7 @@ function stateModelFactory({
         )
 
         // gffFilehandle loads into data.gff, which the autorun above parses
-        loadOnFilehandleChange({
+        installFilehandleLoader(self, {
           what: 'annotations',
           optional: true,
           getFilehandle: () => self.gffFilehandle,
@@ -5221,7 +5121,7 @@ function stateModelFactory({
           },
         })
 
-        loadOnFilehandleChange({
+        installFilehandleLoader(self, {
           what: 'alignment',
           getFilehandle: () => self.msaFilehandle,
           onLoad: text => {
@@ -5245,20 +5145,16 @@ function stateModelFactory({
           self,
           autorun(() => {
             if (self.dynamicColorSchemeName) {
-              // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
-              self.colStats
+              readComputed(self.colStats)
             }
             if (self.showColumnStats) {
-              // everything the hover tooltip reads per column
-              // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
-              self.colStats
-              // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
-              self.conservation
-              // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
-              self.propertyConservation
+              readComputed(
+                self.colStats,
+                self.conservation,
+                self.propertyConservation,
+              )
             }
-            // eslint-disable-next-line  @typescript-eslint/no-unused-expressions
-            self.columns
+            readComputed(self.columns)
           }),
         )
       },

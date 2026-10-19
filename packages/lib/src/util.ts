@@ -142,3 +142,6 @@ export function computeRowInsertions(blanks: number[], seq: string) {
 export function len(a: { end: number; start: number }) {
   return a.end - a.start
 }
+
+/** reads computeds so a reaction observes them, which keeps them cached */
+export function readComputed(..._values: unknown[]) {}
