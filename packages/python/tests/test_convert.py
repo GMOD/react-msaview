@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from msaview import MSAView
+from jbrowsemsa import MSAView
 
 DATA = Path(__file__).resolve().parents[2] / "examples" / "data"
 

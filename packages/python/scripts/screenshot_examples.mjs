@@ -1,4 +1,4 @@
-// Render msaview/static/widget.js with the traits run_examples.py captured and
+// Render jbrowsemsa/static/widget.js with the traits run_examples.py captured and
 // write docs/media/python-<notebook>.png. The page loads the bundle from a blob
 // URL, as anywidget does, and hands it a model holding those traits.
 //
@@ -30,7 +30,7 @@ const harness = `<!doctype html><html><head><meta charset="utf8">
 <style>body{margin:0;font-family:sans-serif}#root{width:960px;padding:8px}</style>
 </head><body><div id="root"></div>
 <script type="module">
-const esm = await (await fetch('/msaview/static/widget.js')).text()
+const esm = await (await fetch('/jbrowsemsa/static/widget.js')).text()
 const url = URL.createObjectURL(new Blob([esm], { type: 'text/javascript' }))
 const widget = (await import(url)).default
 const store = { ...window.__traits }

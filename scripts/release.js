@@ -95,7 +95,7 @@ const versionTsPath = path.join(rootDir, 'packages/lib/src/version.ts')
 fs.writeFileSync(versionTsPath, `export const version = '${newVersion}'\n`)
 console.log('Updated packages/lib/src/version.ts')
 
-// msaview-widget releases with everything else, at the same version, as the R
+// jbrowsemsa releases with everything else, at the same version, as the R
 // package does. publish.yml builds its wheel from the pushed tag.
 const pyprojectPath = path.join(rootDir, 'packages/python/pyproject.toml')
 const pyproject = fs.readFileSync(pyprojectPath, 'utf8')
@@ -117,7 +117,7 @@ console.log('Updated packages/python/pyproject.toml and package.json')
 // Build before tagging so a broken build never gets a release tag pushed
 console.log('\nBuilding all packages...')
 run('pnpm build')
-run('pnpm --filter msaview-widget build')
+run('pnpm --filter jbrowsemsa build')
 
 // Commit the version bump, tag, and push. The pushed tag triggers publish.yml
 // (npm and PyPI), and the push to main triggers deploy-docs.yml (GitHub Pages).

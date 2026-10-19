@@ -21,7 +21,7 @@ const root = path.resolve(
 const read = (p: string) => fs.readFileSync(path.join(root, p), 'utf8')
 
 const PROPS_FILE = 'packages/lib/src/components/MSAViewer.tsx'
-const PY_TRAITS = 'packages/python/msaview/__init__.py'
+const PY_TRAITS = 'packages/python/jbrowsemsa/__init__.py'
 const PY_RENDER = 'packages/python/src/render.ts'
 
 const PY_FIX =

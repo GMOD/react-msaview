@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import traitlets
 
-from msaview import MSAView
+from jbrowsemsa import MSAView
 
 SRC = Path(__file__).resolve().parents[1] / "src" / "render.ts"
 

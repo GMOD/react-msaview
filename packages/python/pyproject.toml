@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "msaview-widget"
+name = "jbrowsemsa"
 version = "9.1.1"
 description = "Interactive multiple sequence alignment and tree viewer for notebooks, from react-msaview"
 readme = "README.md"
@@ -30,12 +30,12 @@ examples = ["nbclient", "nbformat", "ipykernel", "ipywidgets", "numpy"]
 
 [tool.hatch.build]
 # widget.js is gitignored, so it ships as an artifact
-artifacts = ["msaview/static/widget.js"]
+artifacts = ["jbrowsemsa/static/widget.js"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["msaview"]
+packages = ["jbrowsemsa"]
 
 [tool.hatch.build.targets.sdist]
-include = ["msaview", "tests", "README.md", "hatch_build.py"]
+include = ["jbrowsemsa", "tests", "README.md", "hatch_build.py"]
 
 [tool.hatch.build.hooks.custom]

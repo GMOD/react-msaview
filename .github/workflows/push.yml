@@ -138,7 +138,7 @@ jobs:
 
       # the package installs only with the bundle built, since the wheel ships it
       - name: Build the widget bundle
-        run: pnpm --filter msaview-widget build
+        run: pnpm --filter jbrowsemsa build
 
       - uses: actions/setup-python@v5
         with:
@@ -157,7 +157,7 @@ jobs:
       - name: Build the wheel and check it carries the bundle
         run: |
           python -m build --wheel --outdir dist packages/python
-          unzip -l dist/*.whl | grep msaview/static/widget.js
+          unzip -l dist/*.whl | grep jbrowsemsa/static/widget.js
 
   spellcheck:
     name: Spell check

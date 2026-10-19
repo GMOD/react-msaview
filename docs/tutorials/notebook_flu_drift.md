@@ -4,15 +4,15 @@ The H3N2 vaccine is reformulated because the virus's hemagglutinin changes where
 antibodies bind it. This page takes the 25 H3N2 strains chosen for the northern
 hemisphere vaccine between 1968 and 2022, aligns their hemagglutinin, counts how
 often each column changed from one strain to the next, and draws the result in
-Jupyter with `msaview-widget`. The alignment carries its own control: the HA2
-fusion peptide, which has to stay the same for the protein to work, sits in the
-same 567 columns as the antigenic sites that change every few years.
+Jupyter with `jbrowsemsa`. The alignment carries its own control: the HA2 fusion
+peptide, which has to stay the same for the protein to work, sits in the same
+567 columns as the antigenic sites that change every few years.
 
 ## Prerequisites
 
 - Python 3.10 or newer, in a notebook (JupyterLab, Jupyter Notebook, VS Code,
   Colab, or marimo)
-- `pip install msaview-widget biopython numpy pandas`
+- `pip install jbrowsemsa biopython numpy pandas`
 - ClustalW, `apt install clustalw` on Debian or Ubuntu, `brew install clustal-w`
   on macOS
 
@@ -218,7 +218,7 @@ bands = [
 Everything so far goes into the widget in one call:
 
 ```python
-from msaview import MSAView
+from jbrowsemsa import MSAView
 
 view = MSAView(
     msa="h3n2-ha.aln",

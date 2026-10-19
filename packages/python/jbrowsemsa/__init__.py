@@ -4,7 +4,7 @@ The traits are the viewer's `MSAViewer` props in snake case, documented in
 https://github.com/GMOD/JBrowseMSA/blob/main/USAGE.md, and `highlights` and
 `column_tracks` take the JSON shapes in docs/layers.md there::
 
-    from msaview import MSAView
+    from jbrowsemsa import MSAView
 
     MSAView(msa="globin.aln", tree="globin.nh", hide_header=True)
 

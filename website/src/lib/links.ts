@@ -65,7 +65,7 @@ export const docs: DocPage[] = [
     'python-package',
     'packages/python/README.md',
     'Python package',
-    'The msaview-widget anywidget for JupyterLab, Notebook, VS Code and Colab, with Biopython, numpy and pandas interop.',
+    'The jbrowsemsa anywidget for JupyterLab, Notebook, VS Code and Colab, with Biopython, numpy and pandas interop.',
   ),
   doc(
     'cli',

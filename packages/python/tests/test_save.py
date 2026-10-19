@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from msaview import MSAView
-from msaview._save import props
+from jbrowsemsa import MSAView
+from jbrowsemsa._save import props
 
 SRC = Path(__file__).resolve().parents[1] / "src" / "render.ts"
 MSA = ">Homo sapiens\nMKAANSE\n>Mouse\nMKA-NSE\n"

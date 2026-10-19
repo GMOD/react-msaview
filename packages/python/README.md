@@ -1,10 +1,9 @@
-# msaview-widget
+# jbrowsemsa
 
 A notebook widget for [react-msaview](https://github.com/GMOD/JBrowseMSA): a
 multiple sequence alignment beside its phylogenetic tree, in JupyterLab, Jupyter
 Notebook, VS Code and any other host [anywidget](https://anywidget.dev)
-supports. The distribution is `msaview-widget` and the import is `msaview`,
-because the name `msaview` on PyPI belongs to another project.
+supports. The distribution and the import are both `jbrowsemsa`.
 
 ![The globin alignment and tree](../../docs/media/python-quickstart.png)
 
@@ -14,14 +13,14 @@ The wheel ships the widget's JavaScript, which a checkout builds first:
 
 ```sh
 pnpm install
-pnpm --filter msaview-widget build
+pnpm --filter jbrowsemsa build
 pip install packages/python
 ```
 
 ## Quick start
 
 ```python
-from msaview import MSAView
+from jbrowsemsa import MSAView
 
 view = MSAView(msa="globin.aln", tree="globin.nh", hide_header=True)
 view

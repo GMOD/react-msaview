@@ -21,7 +21,7 @@ import type {
   mount,
 } from 'react-msaview'
 
-/** the traits of msaview.MSAView, as they arrive from the kernel */
+/** the traits of jbrowsemsa.MSAView, as they arrive from the kernel */
 export interface Traits {
   msa: string
   tree: string
@@ -183,7 +183,7 @@ function showError(el: HTMLElement, e: unknown) {
   box.style.cssText =
     'margin:0;padding:8px;white-space:pre-wrap;font:12px monospace;' +
     'color:#a00;background:#fff5f5;border:1px solid #a00'
-  box.textContent = `msaview failed to render\n\n${e instanceof Error ? (e.stack ?? e.message) : String(e)}`
+  box.textContent = `jbrowsemsa failed to render\n\n${e instanceof Error ? (e.stack ?? e.message) : String(e)}`
   el.append(box)
 }
 

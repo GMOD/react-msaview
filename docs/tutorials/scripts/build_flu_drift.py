@@ -7,7 +7,7 @@ Every step is the one shown in docs/tutorials/notebook_flu_drift.md, in the
 order the notebook runs them.
 
 Needs: biopython, numpy, pandas, and clustalw on PATH (apt install clustalw,
-brew install clustal-w). `pip install msaview-widget` adds the viewer the
+brew install clustal-w). `pip install jbrowsemsa` adds the viewer the
 notebook draws this with; the script itself writes the files and the link.
 """
 

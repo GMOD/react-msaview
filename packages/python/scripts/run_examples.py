@@ -28,7 +28,7 @@ SPECS = PACKAGE / "scripts" / "screenshot_specs.json"
 
 CAPTURE = """
 import json as _json
-from msaview import MSAView as _MSAView
+from jbrowsemsa import MSAView as _MSAView
 
 _widgets = [
     _o

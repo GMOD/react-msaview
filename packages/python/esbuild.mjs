@@ -1,5 +1,5 @@
 /**
- * Builds msaview/static/widget.js, the anywidget front end. anywidget sends the
+ * Builds jbrowsemsa/static/widget.js, the anywidget front end. anywidget sends the
  * file's text to the page and imports it from a blob URL, so the bundle is one
  * self-contained ES module: React, MUI, mobx and the viewer included, and no
  * relative imports or extra chunks.
@@ -10,7 +10,7 @@ const options = {
   entryPoints: ['src/widget.ts'],
   bundle: true,
   format: 'esm',
-  outfile: 'msaview/static/widget.js',
+  outfile: 'jbrowsemsa/static/widget.js',
   platform: 'browser',
   target: 'es2022',
   jsx: 'automatic',
