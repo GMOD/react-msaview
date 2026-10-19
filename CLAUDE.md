@@ -145,9 +145,10 @@ the numbers behind it.
   that name travels in the shared URL. The vocabulary is the one
   jbrowse-components uses for `LinearMarkDisplay` (marks, encodings, channels,
   scales); name new public API to match. The `colorScheme` prop takes a scheme
-  name or a scale's `{map}`, which the model keeps as `customColorScheme` and
-  which wins over `colorSchemeName` while set. Test for a per-column scheme with
-  `dynamicColorSchemeName`, which is undefined under a map.
+  name or a color object's `{domain, range}` over letters, which the model keeps
+  as the letter map `customColorScheme` and which wins over `colorSchemeName`
+  while set. Test for a per-column scheme with `dynamicColorSchemeName`, which
+  is undefined under a map.
 - A domain box and the scale contend for the cell fill, and `cellFill` in
   `model.ts` names the owner: `residue` (the scheme), `domain` (the boxes), or
   `none`, which is `residueEncoding: 'color'`. Domains own it only while shown
@@ -229,10 +230,13 @@ the numbers behind it.
   `{ id, title, entries }`, and `legendRows` flattens the list into the rows
   both renderings stack top to bottom, giving each legend a title row once there
   is more than one. The domain overlay, the row-table encodings and the row
-  panels are its producers, each keyed by the field its scale reads. A strip's
-  `legend` overrides that key, so a matrix of columns over one set of colors
-  lists one legend. The property behind the overlay's collapse toggle stays
-  `showDomainLegend`, because that name travels in the shared URL.
+  panels are its producers, each keyed by its scale's declaration
+  (`resolvedScales`), so a matrix of strips naming one `title` lists one legend.
+  A `snapshotProcessor` on `encodings`, `rowPanels` and `columnTracks` lifts the
+  earlier spellings (`scale: {palette}`, `{map}`, `legend`, `colors`, `max`) on
+  the way in, so no stored record has them. The property behind the overlay's
+  collapse toggle stays `showDomainLegend`, because that name travels in the
+  shared URL.
 - The viewer calls no remote compute queue and runs no analysis long enough to
   freeze the tab. The one exception is neighbor joining, capped at
   `maxNeighborJoiningRows`, because on a small alignment it is faster than

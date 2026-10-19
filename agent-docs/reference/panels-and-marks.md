@@ -30,8 +30,10 @@ Two target figures, in order of work:
   one is a draw function.
 - **Channel.** A visual property of a mark that a field feeds: `color`, `label`,
   `glyph`, `x`, `x2`.
-- **Scale.** How a channel reads a field: a categorical scale with a palette or
-  an explicit map, later a linear one. A categorical scale produces a legend.
+- **Scale.** How a channel reads a field: the color object's `scale`, `domain`,
+  `range` and `title`, `scales.ts`. A categorical scale takes a palette name or
+  a color list as its `range` and produces a legend; the continuous kinds are in
+  `ideas/ready/scales-and-guides.md`.
 - **Transform.** A change of coordinates before drawing. The viewer has one
   today, the projection of residue positions through gaps, and gains one more,
   `align`.
@@ -106,13 +108,13 @@ What the layout gives the API:
 
 ```json
 "rowPanels": [
-  { "kind": "strip", "field": "HA", "scale": { "palette": "ggplot" }, "width": 12 },
+  { "kind": "strip", "field": "HA", "range": "ggplot", "width": 12 },
   { "kind": "strip", "field": "NA", "header": "NA segment" },
   {
     "kind": "features",
     "x": "position",
     "encoding": {
-      "color": { "field": "Name", "scale": { "palette": "ggplot" } },
+      "color": { "field": "Name", "range": "ggplot" },
       "label": "Name"
     },
     "transform": [{ "type": "align", "on": "genE" }]
@@ -128,15 +130,15 @@ panel's channels sit beside the panel they color. A strip's `width` is in pixels
 and defaults to the row height, and `header` defaults to the field, covering
 `gheatmap`'s `width` and `custom_column_labels`. A strip over a field every row
 shares one scale, so eight strips of segment lineages share one legend when they
-name the same `scale`.
+declare the same members and `title`.
 
 The top-level `encodings` array covers channels on the marks the viewer always
 draws:
 
 ```json
 "encodings": [
-  { "channel": "tipLabel", "field": "lineage", "scale": { "palette": "ggplot" } },
-  { "channel": "rowTint", "field": "clade", "scale": { "map": { "19B": "#e41a1c" } } },
+  { "channel": "tipLabel", "field": "lineage", "range": "ggplot" },
+  { "channel": "rowTint", "field": "clade", "domain": ["19B"], "range": ["#e41a1c"] },
   { "channel": "branch", "field": "clade" },
   { "channel": "featureFill", "field": "Name" }
 ]

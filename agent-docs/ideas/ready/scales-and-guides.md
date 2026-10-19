@@ -1,59 +1,58 @@
 ---
 name: scales-and-guides
 description:
-  The colour object jbrowse-components declares, with linear, log and threshold
+  The color object jbrowse-components declares, with linear, log and threshold
   scales, a gradient legend, an axis guide, and the bar, point, text and column
-  strip marks they unlock. Step 1 fixes two strips over one palette colouring a
-  shared value two ways.
+  strip marks they unlock. Step 1, the color object and the shared domain, is
+  built; steps 2 to 7 remain.
 ---
 
 # Scales and guides
 
 Every scale in react-msaview is categorical. `resolveScale` in
-`packages/lib/src/scales.ts` reads a `ScaleSpec` of `{palette, map}` and returns
-a colour per distinct string value, and `encodings`, the `strip` and `features`
-row panels and `colorScheme` all read it. A number has no scale to go through,
-so a strip over a sampling date, a feature fill over pLDDT, a node coloured by
-support and a bar per row are each blocked on the same missing piece. This
-document adopts the colour object jbrowse-components' displays declare, adds the
-continuous and threshold scales it names, gives every scale its guide, a legend
-or an axis, and lists the marks those unlock.
-[panels-and-marks](../../reference/panels-and-marks.md) holds the vocabulary of
-panels, marks and channels this builds on.
+`packages/lib/src/scales.ts` reads the color object of step 1, `ColorSpec`, and
+returns a color per distinct string value, and `encodings`, the `strip` and
+`features` row panels, a text column track and `colorScheme` all read it. A
+number has no scale to go through, so a strip over a sampling date, a feature
+fill over pLDDT, a node colored by support and a bar per row are each blocked on
+the same missing piece. This document adopts the color object
+jbrowse-components' displays declare, adds the continuous and threshold scales
+it names, gives every scale its guide, a legend or an axis, and lists the marks
+those unlock. [panels-and-marks](../../reference/panels-and-marks.md) holds the
+vocabulary of panels, marks and channels this builds on.
 
 Two target figures, in order of work:
 
 - **A surveillance tree with a date strip.** The RSV tree of
   `docs/tutorials/phylogeny_at_scale.md` with its lineage strip, and beside it a
   strip of collection years through a `viridis` ramp with a gradient legend, and
-  the tips coloured by the same ramp.
+  the tips colored by the same ramp.
 - **A protein with per-residue confidence.** A kinase alignment with an
   AlphaFold pLDDT column track as a heatmap row through a threshold scale at 50,
-  70 and 90, the four intervals in the legend, and a dN/dS bar track coloured
-  red above 1 and blue below it.
+  70 and 90, the four intervals in the legend, and a dN/dS bar track colored red
+  above 1 and blue below it.
 
 ## Vocabulary
 
-- **Colour object.** The members a channel declares to read a field into a
-  colour: `field`, `scale`, `domain`, `range`, `scheme`, `domainMin`,
-  `domainMax`, `domainMid`, `domainQuantile`, `reverse`, `title`, `labels`,
-  `missingLabel`. jbrowse-components spells it this way on every display
+- **Color object.** The members a channel declares to read a field into a color:
+  `field`, `scale`, `domain`, `range`, `scheme`, `domainMin`, `domainMax`,
+  `domainMid`, `domainQuantile`, `reverse`, `title`, `labels`, `missingLabel`.
+  jbrowse-components spells it this way on every display
   (`packages/core/src/util/colorScale.ts` there, and its
   `config_guides/mark_display.md`), and its ADR-151 replaced an earlier
   `palette` member with `range`. react-msaview's `{palette, map}` is that
   earlier spelling.
 - **Scale kind.** The `scale` member: `categorical`, `linear`, `log` or
-  `threshold`. A categorical scale hands a `range` colour to each distinct
-  value. A linear or log scale samples a ramp between `domainMin` and
-  `domainMax`. A threshold scale cuts the number line at the values `domain`
-  lists and hands `range` one colour per interval, so `range` is one longer than
-  `domain`.
+  `threshold`. A categorical scale hands a `range` color to each distinct value.
+  A linear or log scale samples a ramp between `domainMin` and `domainMax`. A
+  threshold scale cuts the number line at the values `domain` lists and hands
+  `range` one color per interval, so `range` is one longer than `domain`.
 - **Value scale.** The scale a bar or point mark reads its value through into a
   length: `{type, domainMin, domainMax, domainQuantile}`, spelled `scales.y` on
   a column track and `scales.x` on a row panel, the axis each one draws along.
-- **Guide.** What a reader checks a scale against. A colour scale has a legend,
-  a value scale has an axis. A guide derives from its scale and takes no record
-  of its own.
+- **Guide.** What a reader checks a scale against. A color scale has a legend, a
+  value scale has an axis. A guide derives from its scale and takes no record of
+  its own.
 - **Declaration.** The members of a scale as written, with `field` left out. Two
   records whose declarations match read one scale over the union of their
   fields' values and list one legend. This is Vega-Lite's shared `resolve` and
@@ -71,7 +70,7 @@ Two target figures, in order of work:
 | a bar track's `color`        | `encoding.color.value`, with `color` kept as the shorthand                                   |
 | absent                       | `linear`, `log`, `threshold`, `scheme`, the domain ends, `reverse`, `labels`, `missingLabel` |
 
-`range` takes a list of colours or a palette name. The names stay `ggplot`,
+`range` takes a list of colors or a palette name. The names stay `ggplot`,
 `set1`, `dark2`, `okabeito` and `tableau`, and `okabeIto` and `tableau10` read
 as aliases, since those are the names jbrowse-components' `paletteFromSpec`
 accepts. `scheme` names a ramp from the same table jbrowse-components bakes:
@@ -89,7 +88,7 @@ that stays readable after its public spelling moves.
 
 ## Decisions
 
-### One colour object on every channel
+### One color object on every channel
 
 The object above replaces `ScaleSpec` and is the type of `Encoding.scale`,
 `RowStripSpec.scale`, `FeatureEncodingSpec.color`, a column track's
@@ -102,7 +101,7 @@ object.
 
 `scale` left unset is `categorical`, which is what every record written so far
 means. A field whose every value parses as a number still takes categorical
-colours until the record says `scale: "linear"`, and its legend carries a note
+colors until the record says `scale: "linear"`, and its legend carries a note
 saying so, the way jbrowse-components' `CategoricalScale.note` does, so a
 producer who meant a ramp sees which member to write. A preset table keyed by
 field name, jbrowse-components' `score` to `linear` and `strand` to red and
@@ -117,17 +116,17 @@ under `missingLabel`, grey in the legend.
 ### A categorical scale over several records resolves one domain
 
 Two strips over one palette resolve their domains apart today, so a value both
-fields hold takes two colours. With the two-strip example in `docs/layers.md`,
+fields hold takes two colors. With the two-strip example in `docs/layers.md`,
 PB2 over `am2.2, am4` and PB1 over `am4, eu1` through `set1`, `am4` is `#377eb8`
 in the first strip and `#e41a1c` in the second, and the shared `legend` title
-merges the entries by id and keeps the first, so the key shows a colour the
+merges the entries by id and keeps the first, so the key shows a color the
 second strip never draws. A two-line call of `resolveScale` over those two value
 lists reproduces it, and the test in step 1 pins the fix.
 
 The fix keys resolution on the declaration. `resolvedScales` groups every
-record's colour object by its members with `field` left out, resolves each group
+record's color object by its members with `field` left out, resolves each group
 once over the union of its fields' values, and hands each record the group's
-`colorOf`. Two strips over `{range: "set1", title: "segment lineage"}` colour
+`colorOf`. Two strips over `{range: "set1", title: "segment lineage"}` color
 `am4` alike, and two strips over `{range: "set1"}` with no title are two fields,
 two legends and two scales, which is what their two legends say. `domain` on the
 object lists values in legend order and spends `range` from the first entry, so
@@ -149,11 +148,11 @@ one gradient legend. This is jbrowse-components' rule in ADR-136 as amended
 2026-09-23, and it means a figure pins both ends.
 
 `domainQuantile` defaults to 1, the loaded values' extremes. Below 1 each end
-clips its own tail, the value past the clip draws at the end colour, and the
+clips its own tail, the value past the clip draws at the end color, and the
 legend prints the clipped ends. jbrowse-components settled this in ADR-179 after
 checking ggplot2, Vega-Lite, Observable Plot and GenomeSpy, none of which name a
 robust domain; it is here because one outlier date or one huge genome flattens a
-strip to one colour.
+strip to one color.
 
 ### Domain order is natural sort, listed values first
 
@@ -182,7 +181,7 @@ of `renderToSvg.tsx` emits, so `packages/svgcanvas` still draws no gradient. A
 legend past twenty rows lists the twenty and a `+N more` note,
 jbrowse-components' `MAX_LEGEND_ITEMS`.
 
-Every scale from a colour object lists one legend section keyed by its
+Every scale from a color object lists one legend section keyed by its
 declaration and titled by `title`, else by `field`. The domain overlay's
 accession key stays the one producer with no field.
 
@@ -230,14 +229,14 @@ axis has `strip` and `features` where the column axis has `bar`, `text`, `arc`,
   defaults to 80.
 - **A `text` row panel** prints a `rowData` field beside the tips, the way a
   tip-aligned table does, in the panel's width.
-- **A `strip` column track**: one cell per column coloured from `values` through
+- **A `strip` column track**: one cell per column colored from `values` through
   `encoding.color`, a heatmap row. pLDDT per residue, disorder, a hydropathy
   scale. It is the column twin of the row strip and shares its legend machinery.
 - **`encoding.color` on a `bar` column track** over `values`, so a threshold
-  scale at 1 colours dN/dS, and on a `text` column track in place of `colors`.
+  scale at 1 colors dN/dS, and on a `text` column track in place of `colors`.
 - **`nodePoint` in `encodings`**, reading each internal node's support value
-  through a colour object and filling the node bubble, which `drawNodeBubbles`
-  draws in one colour today. ggtree's `geom_nodepoint(aes(color = support))`.
+  through a color object and filling the node bubble, which `drawNodeBubbles`
+  draws in one color today. ggtree's `geom_nodepoint(aes(color = support))`.
 - **`rowLabel` in `encodings`**, naming the `rowData` field drawn as the tip
   label. The label reads a `genome` field at `model.ts:2657` and
   `renderTreeCanvas.ts:407` today, which becomes the default when no encoding
@@ -268,20 +267,23 @@ commit.
   and `strand` through red and blue before a config says so. No field of
   `rowData` or a GFF has one meaning across figures, and `strand` already picks
   the arrow glyph. A record writes `scale: "linear"`.
-- **`identity` as a scale kind.** A GFF `color=` attribute already colours its
+- **`identity` as a scale kind.** A GFF `color=` attribute already colors its
   own feature ahead of any scale. Declaring it adds a word for what happens.
 - **`jexl` channels.** A derived value is computed by the agent that wrote the
   table and stored in a field, under `viewer-not-analysis-tool`.
 - **A top-level `scales` map.** See the declaration rule above.
 - **`opacity` and `size` channels on the span mark.** No figure has asked.
   `size` on a `point` row panel takes a number, one diameter per record.
-- **A per-cell colour matrix.** See `data-layers.md`.
+- **A per-cell color matrix.** See `data-layers.md`.
 
 ## The work, in order
 
-### 1. The colour object, the shared domain and the comparator
+### 1. The color object, the shared domain and the comparator
 
-`scales.ts`: the colour object type, `resolveScale` over `categorical` with
+Built: `ColorSpec` in `scales.ts` has `scale`, `domain`, `range` and `title`,
+and step 2 adds the domain members with their kinds.
+
+`scales.ts`: the color object type, `resolveScale` over `categorical` with
 `range` as a list or a name, `domain` order then `compareGroupKeys`, and the
 readers for `palette`, `map`, `legend`, `colors` and `max`. `model.ts`:
 `resolvedScales` keyed by declaration, read by `resolvedEncodings`,
@@ -310,10 +312,10 @@ and an open one not. About 400 lines plus 200 of test. Two days.
 `export-svg --spec`, the `MSAViewer` surface beside the mapping problems. Half a
 day.
 
-### 4. Column tracks read a colour object and a value scale
+### 4. Column tracks read a color object and a value scale
 
 `ColumnTrackSpec` gains `encoding.color` and `scales.y`; `drawConservationBars`
-takes a colour per bar; `drawTextTrackContent` reads the resolved scale; the
+takes a color per bar; `drawTextTrackContent` reads the resolved scale; the
 `strip` kind and its draw function in `drawTracks.ts`, its case in
 `drawTrackBlock` and in `TrackTooltipContent.tsx`; a column-track producer in
 `legends`. One day.
@@ -332,13 +334,29 @@ panel with an axis takes its header as the axis title. Two days.
 `renderTreeLabels`, with the `genome` fallback kept. The overview draws no node
 points. One day.
 
+### 7. One fill object for the cell
+
+The cell fill has five spellings today: `bgColor` and `residueEncoding` pick the
+cell or the letter, `colorSchemeName` names a built-in scheme,
+`customColorScheme` holds a letter map that wins while set, and `domainFill`
+with the `cellFill` getter decides whether the domain boxes own the cell
+instead. One color object on a residue channel collapses them: `field` is
+`residue` or a feature field, `scheme` or `range` and `domain` say the colors,
+and the channel names cell or letter. It breaks the snapshot and URL keys
+`bgColor`, `colorSchemeName`, `customColorScheme` and `domainFill`, the
+`colorScheme` and `residueEncoding` props, and the R `color_scheme` and Python
+`color_scheme` and `residue_encoding` arguments, so it needs a snapshot lift
+that reads the five old keys into the one object, the way step 1's readers lift
+`{palette, map}`.
+
 ## Sequence
 
-Steps 1 through 6 run about a week and a half. Step 1 ships alone and fixes the
-shared-value defect; steps 2 and 3 ship together, since a problem list with no
-continuous scale has one rule to report; steps 4, 5 and 6 each ship alone
-after 2. Building step 4 or 5 before step 2 puts a second value-scale reader in
-`drawTracks.ts` and a second legend shape, and then needs both replaced.
+Steps 1 through 6 run about a week and a half, and step 7 after them. Step 1
+ships alone and fixes the shared-value defect; steps 2 and 3 ship together,
+since a problem list with no continuous scale has one rule to report; steps 4, 5
+and 6 each ship alone after 2. Building step 4 or 5 before step 2 puts a second
+value-scale reader in `drawTracks.ts` and a second legend shape, and then needs
+both replaced.
 
 ## Tutorials
 

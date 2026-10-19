@@ -4054,7 +4054,7 @@ function stateModelFactory({
        * of the values its records' fields take, so a value two strips share
        * takes one color in both. A feature field reads every feature loaded,
        * so hiding a type in the filter dialog leaves the rest in their
-       * colors, and its legend lists the values the drawn features carry.
+       * colors, and its legend lists the values of the drawn features.
        */
       get resolvedScales() {
         const rows = Object.values(self.rowData)
