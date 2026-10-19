@@ -129,6 +129,19 @@ test('linkParam reads #data= first and falls back to ?data=', () => {
   expect(linkParam({ hash: '#other=1', search: '' })).toBeNull()
 })
 
+test('#data= takes JSON as typed, and as encodeURIComponent writes it', () => {
+  const view = { type: 'MsaView', label: 'R&D 5+ 50% %41' }
+  const json = JSON.stringify(view)
+  // what location.hash holds after the browser escapes the quotes and spaces
+  const typed = new URL(`https://x.org/#data=${json}`).hash
+  expect(JSON.parse(linkParam({ hash: typed, search: '' })!)).toEqual({
+    ...view,
+    label: 'R&D 5+ 50% A',
+  })
+  const encoded = `#data=${encodeURIComponent(json)}`
+  expect(JSON.parse(linkParam({ hash: encoded, search: '' })!)).toEqual(view)
+})
+
 function randomProtein(length: number) {
   let seed = 1
   return Array.from({ length }, () => {

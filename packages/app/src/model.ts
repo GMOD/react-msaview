@@ -18,15 +18,22 @@ export const maxLinkLength = 1_000_000
 
 const gzipPrefix = 'z.'
 
+const dataHash = /^#data=(?={|%7b)/i
+
 /**
  * The snapshot a link carries: `#data=`, or `?data=` for a link written before
- * the snapshot moved into the fragment
+ * the snapshot moved into the fragment. JSON in `#data=` runs to the end of the
+ * link, so a hand-written one can leave a `&`, `+` or lone `%` in a label as
+ * typed.
  */
 export function linkParam({ hash, search }: { hash: string; search: string }) {
-  return (
-    new URLSearchParams(hash.slice(1)).get('data') ??
-    new URLSearchParams(search).get('data')
-  )
+  const json = dataHash.exec(hash)
+  return json
+    ? decodeURIComponent(
+        hash.slice(json[0].length).replaceAll(/%(?![\da-f]{2})/gi, '%25'),
+      )
+    : (new URLSearchParams(hash.slice(1)).get('data') ??
+        new URLSearchParams(search).get('data'))
 }
 
 function withParam(href: string, param?: string) {

@@ -264,10 +264,17 @@ viewport, and checkboxes for the minimap and tracks.
 
 ## Link to a view
 
-Besides **Copy link**, a script can build a link. The app reads the view from
-the URL's fragment, `#data=`, holding the URL-encoded JSON of the view. A link
-written with the `?data=` query parameter, as older links were, opens too, and
-the app moves it into the fragment.
+Besides **Copy link**, a person or a script can write a link. The app reads the
+view from the URL's fragment, `#data=`, which holds the JSON of the view, as
+typed or URL-encoded. A link written with the `?data=` query parameter, as older
+links were, opens too, and the app moves it into the fragment.
+
+```
+https://gmod.org/JBrowseMSA/demo/#data={"type":"MsaView","msaFilehandle":{"uri":"https://example.org/kinase.aln"},"relativeTo":"SRC_HUMAN"}
+```
+
+A script can encode the JSON, which keeps the link whole in a chat message or a
+markdown file that would cut it short at a quote or a space:
 
 ```js
 const view = {

@@ -9,9 +9,16 @@ inclusive, as in GFF, and the viewer projects them through the alignment's gaps.
 Without a row, positions are alignment columns.
 
 **Every figure below links to the app in the state it shows.** Each one is an
-`MsaView` snapshot; to open one, URL-encode the JSON and put it in `#data=`,
-either bare or wrapped as `{"msaview": {...}}`, the form the app writes back to
-the address bar:
+`MsaView` snapshot. To open one, put its JSON in `#data=`, either bare or
+wrapped as `{"msaview": {...}}`, the form the app writes back to the address
+bar. The JSON can go in as typed:
+
+```
+https://gmod.org/JBrowseMSA/demo/#data={"type":"MsaView","msaFilehandle":{"uri":"data/p53/p53-vertebrates.afa"},"relativeTo":"Human"}
+```
+
+A script can URL-encode it instead. The encoded link survives a chat message or
+a markdown file that would cut a link short at a quote or a space:
 
 ```js
 const snapshot = {
