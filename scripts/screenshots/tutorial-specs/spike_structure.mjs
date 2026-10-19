@@ -99,6 +99,10 @@ const closeUp = (startCol, colWidth) => ({
   ...files,
 })
 
+// a link carrying residueMappings opens the Mol* panel beside the alignment,
+// and these figures show the alignment alone
+const closeStructure = [{ click: '::-p-text(3D structure)' }]
+
 export const specs = [
   {
     name: 'spike-structure-alignment',
@@ -177,6 +181,7 @@ export const specs = [
       highlights: layers.highlights,
       residueMappings: [mapping],
     }),
+    actions: closeStructure,
     settle: 2500,
     clip: 'viewer',
     annotations: [
@@ -212,7 +217,9 @@ export const specs = [
       turnedOffTracks: { 'position-ruler': false },
       columnTracks: [coverage],
       highlights: layers.highlights,
+      residueMappings: [mapping],
     }),
+    actions: closeStructure,
     settle: 2500,
     clip: 'viewer',
     annotations: [
@@ -246,6 +253,7 @@ export const specs = [
       highlights: [highlight('HR1')],
       residueMappings: [mapping],
     }),
+    actions: closeStructure,
     settle: 2500,
     clip: 'viewer',
     annotations: [
@@ -274,6 +282,7 @@ export const specs = [
       highlights: layers.highlights,
       residueMappings: [mapping],
     }),
+    actions: closeStructure,
     settle: 2500,
     clip: 'viewer',
   },
