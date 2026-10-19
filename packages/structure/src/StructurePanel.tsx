@@ -160,6 +160,133 @@ async function loadStructure(
   return { id, ref: root.ref, model: structure.model, residues }
 }
 
+interface Session {
+  plugin: PluginUIContext
+  molstar: Molstar
+  loaded: Loaded[]
+  /** structures a transform has moved, so only those are moved back */
+  moved: Set<string>
+  framed: boolean
+}
+
+type Cell = Parameters<typeof pickStructure>[2]
+
+async function createViewer(
+  molstar: Molstar,
+  target: HTMLElement,
+  onRoot: (root: { unmount: () => void }) => void,
+) {
+  const spec = molstar.DefaultPluginUISpec()
+  return molstar.createPluginUI({
+    target,
+    render: (component: ReactNode, container: Element) => {
+      const root = molstar.createRoot(container)
+      onRoot(root)
+      root.render(component)
+    },
+    spec: {
+      ...spec,
+      layout: {
+        initial: {
+          isExpanded: false,
+          showControls: false,
+          controlsDisplay: 'reactive',
+        },
+      },
+      config: [
+        [molstar.PluginConfig.Viewport.ShowExpand, false],
+        [molstar.PluginConfig.Viewport.ShowSelectionMode, false],
+        [molstar.PluginConfig.Viewport.ShowAnimation, false],
+      ],
+    },
+  })
+}
+
+// the structure the cell maps onto and the loci of its residue there
+function locateCell(session: Session, model: MsaViewModel, cell: Cell) {
+  const { plugin, molstar, loaded } = session
+  const found = pickStructure(
+    model,
+    loaded.map(l => l.id),
+    cell,
+  )
+  const entry = found ? loaded.find(l => l.id === found.id) : undefined
+  const drawn = entry ? drawnStructure(plugin, molstar, entry.ref) : undefined
+  const loci =
+    found && drawn
+      ? residueLoci(
+          molstar,
+          drawn,
+          [found.hit.position],
+          found.hit.structure.asymId,
+          found.hit.structure.asymIdKind,
+        )
+      : undefined
+  return { found, loci }
+}
+
+// hover and click in the structure drive the alignment
+function subscribeToStructure(
+  session: Session,
+  model: MsaViewModel,
+  setStatus: (status: string) => void,
+) {
+  const { plugin, molstar, loaded } = session
+  const lookup = (where: NonNullable<ReturnType<typeof readLocation>>) => {
+    const found = loaded.find(l => l.model === where.model)
+    return found
+      ? rowResidueLookup(model, found.id, found.residues)(where)
+      : undefined
+  }
+  const hover = plugin.behaviors.interaction.hover.subscribe(({ current }) => {
+    const where = readLocation(molstar, current.loci)
+    if (!where) {
+      model.clearHighlight('structure')
+      setStatus(idle)
+      return
+    }
+    const id = loaded.find(l => l.model === where.model)?.id ?? ''
+    const label = where.polymer
+      ? `${id} chain ${where.authAsymId} residue ${where.labelSeqId} ${where.compId}`
+      : `${id} ${where.compId}`
+    const hit = where.polymer ? lookup(where) : undefined
+    if (hit) {
+      model.applyHighlight('structure', [
+        { row: hit.rowName, start: hit.seqPos, end: hit.seqPos },
+      ])
+      setStatus(`${label} · ${hit.rowName} residue ${hit.seqPos}`)
+    } else {
+      model.clearHighlight('structure')
+      setStatus(`${label} · no row maps here`)
+    }
+  })
+  const click = plugin.behaviors.interaction.click.subscribe(({ current }) => {
+    const where = readLocation(molstar, current.loci)
+    const hit = where?.polymer ? lookup(where) : undefined
+    if (hit) {
+      centerOnResidue(model, hit.rowName, hit.seqPos)
+    }
+  })
+  return () => {
+    hover.unsubscribe()
+    click.unsubscribe()
+  }
+}
+
+// runs after the earlier steps, and only while the session is the live one
+function enqueue(
+  queue: { current: Promise<void> },
+  live: { current: Session | undefined },
+  session: Session,
+  step: () => Promise<void>,
+) {
+  queue.current = queue.current
+    .then(() => (live.current === session ? step() : undefined))
+    .catch((e: unknown) => {
+      console.error(e)
+    })
+}
+
 /**
  * A Mol* view of structures that rows of the alignment map onto. The model
  * drives it: a hovered or clicked alignment cell lights or focuses the residue
@@ -207,18 +334,13 @@ export const StructurePanel = observer(function StructurePanel({
     : ''
 
   const hostRef = useRef<HTMLDivElement>(null)
-  const pluginRef = useRef<PluginUIContext | undefined>(undefined)
-  const molstarRef = useRef<Molstar | undefined>(undefined)
-  const loadedRef = useRef<Loaded[]>([])
+  const sessionRef = useRef<Session | undefined>(undefined)
   const paintQueue = useRef(Promise.resolve())
   // the latest callback, so a new function each render does not refit
   const onTmAlignRef = useRef(onTmAlign)
   onTmAlignRef.current = onTmAlign
   const onPluginRef = useRef(onPlugin)
   onPluginRef.current = onPlugin
-  // structures a transform has moved, so only those are moved back
-  const movedRef = useRef(new Set<string>())
-  const framedRef = useRef(false)
   const [state, setState] = useState('Loading structure')
   const [status, setStatus] = useState(idle)
   const [failed, setFailed] = useState<string[]>([])
@@ -243,7 +365,7 @@ export const StructurePanel = observer(function StructurePanel({
       cancelled: false,
       plugin: undefined as PluginUIContext | undefined,
       root: undefined as { unmount: () => void } | undefined,
-      unsubscribe: [] as (() => void)[],
+      stopListening: undefined as (() => void) | undefined,
     }
     const target = document.createElement('div')
     target.style.cssText = 'position:absolute;inset:0'
@@ -257,29 +379,8 @@ export const StructurePanel = observer(function StructurePanel({
         if (life.cancelled) {
           return
         }
-        const spec = molstar.DefaultPluginUISpec()
-        const plugin = await molstar.createPluginUI({
-          target,
-          render: (component: ReactNode, container: Element) => {
-            const root = molstar.createRoot(container)
-            life.root = root
-            root.render(component)
-          },
-          spec: {
-            ...spec,
-            layout: {
-              initial: {
-                isExpanded: false,
-                showControls: false,
-                controlsDisplay: 'reactive',
-              },
-            },
-            config: [
-              [molstar.PluginConfig.Viewport.ShowExpand, false],
-              [molstar.PluginConfig.Viewport.ShowSelectionMode, false],
-              [molstar.PluginConfig.Viewport.ShowAnimation, false],
-            ],
-          },
+        const plugin = await createViewer(molstar, target, root => {
+          life.root = root
         })
         life.plugin = plugin
         if (life.cancelled) {
@@ -319,60 +420,15 @@ export const StructurePanel = observer(function StructurePanel({
           throw new Error(problems.join('; '))
         }
         setFailed(problems)
-        loadedRef.current = loaded
-        molstarRef.current = molstar
-        pluginRef.current = plugin
-
-        const lookup = (
-          where: NonNullable<ReturnType<typeof readLocation>>,
-        ) => {
-          const found = loaded.find(l => l.model === where.model)
-          return found
-            ? rowResidueLookup(model, found.id, found.residues)(where)
-            : undefined
+        const session: Session = {
+          plugin,
+          molstar,
+          loaded,
+          moved: new Set(),
+          framed: false,
         }
-
-        const hover = plugin.behaviors.interaction.hover.subscribe(
-          ({ current }) => {
-            const where = readLocation(molstar, current.loci)
-            if (!where) {
-              model.clearHighlight('structure')
-              setStatus(idle)
-              return
-            }
-            const id = loaded.find(l => l.model === where.model)?.id ?? ''
-            const label = where.polymer
-              ? `${id} chain ${where.authAsymId} residue ${where.labelSeqId} ${where.compId}`
-              : `${id} ${where.compId}`
-            const hit = where.polymer ? lookup(where) : undefined
-            if (hit) {
-              model.applyHighlight('structure', [
-                { row: hit.rowName, start: hit.seqPos, end: hit.seqPos },
-              ])
-              setStatus(`${label} · ${hit.rowName} residue ${hit.seqPos}`)
-            } else {
-              model.clearHighlight('structure')
-              setStatus(`${label} · no row maps here`)
-            }
-          },
-        )
-        const click = plugin.behaviors.interaction.click.subscribe(
-          ({ current }) => {
-            const where = readLocation(molstar, current.loci)
-            const hit = where?.polymer ? lookup(where) : undefined
-            if (hit) {
-              centerOnResidue(model, hit.rowName, hit.seqPos)
-            }
-          },
-        )
-        life.unsubscribe.push(
-          () => {
-            hover.unsubscribe()
-          },
-          () => {
-            click.unsubscribe()
-          },
-        )
+        sessionRef.current = session
+        life.stopListening = subscribeToStructure(session, model, setStatus)
         setState('')
         onPluginRef.current?.(plugin)
       } catch (e) {
@@ -385,16 +441,10 @@ export const StructurePanel = observer(function StructurePanel({
 
     return () => {
       life.cancelled = true
-      for (const fn of life.unsubscribe) {
-        fn()
-      }
+      life.stopListening?.()
       model.clearHighlight('structure')
       onPluginRef.current?.(undefined)
-      pluginRef.current = undefined
-      molstarRef.current = undefined
-      loadedRef.current = []
-      movedRef.current = new Set()
-      framedRef.current = false
+      sessionRef.current = undefined
       life.plugin?.dispose()
       // React refuses to unmount a root synchronously inside a commit
       const { root } = life
@@ -406,105 +456,70 @@ export const StructurePanel = observer(function StructurePanel({
   }, [key, chainKey, model])
 
   useEffect(() => {
-    const plugin = pluginRef.current
-    const molstar = molstarRef.current
-    if (!ready || !plugin || !molstar) {
+    const session = sessionRef.current
+    if (!ready || !session) {
       return undefined
     }
+    const { plugin, molstar, loaded, moved } = session
     if (fitBy === 'tm-align') {
-      paintQueue.current = paintQueue.current
-        .then(async () => {
-          if (pluginRef.current !== plugin) {
-            return
-          }
-          const loaded = loadedRef.current
-          // the fit is onto the pivot's own coordinates, so it stays put
-          const pivot = loaded[0]
-          if (pivot && movedRef.current.delete(pivot.id)) {
-            await transformStructure(plugin, molstar, pivot.ref, identityMatrix)
-          }
-          const results = await tmAlignOnto(
-            plugin,
-            molstar,
-            loaded.map(l => l.ref),
-          )
-          for (const l of loaded.slice(1)) {
-            movedRef.current.add(l.id)
-          }
-          frameMapped(plugin, molstar, model, loadedRef.current)
-          onTmAlignRef.current?.(
-            Object.fromEntries(
-              results.flatMap(r => {
-                const id = loaded.find(l => l.ref === r.ref)?.id
-                return id === undefined ? [] : [[id, r] as const]
-              }),
-            ),
-          )
-        })
-        .catch((e: unknown) => {
-          console.error(e)
-        })
+      enqueue(paintQueue, sessionRef, session, async () => {
+        // the fit is onto the pivot's own coordinates, so it stays put
+        const pivot = loaded[0]
+        if (pivot && moved.delete(pivot.id)) {
+          await transformStructure(plugin, molstar, pivot.ref, identityMatrix)
+        }
+        const results = await tmAlignOnto(
+          plugin,
+          molstar,
+          loaded.map(l => l.ref),
+        )
+        for (const l of loaded.slice(1)) {
+          moved.add(l.id)
+        }
+        frameMapped(plugin, molstar, model, loaded)
+        onTmAlignRef.current?.(
+          Object.fromEntries(
+            results.flatMap(r => {
+              const id = loaded.find(l => l.ref === r.ref)?.id
+              return id === undefined ? [] : [[id, r] as const]
+            }),
+          ),
+        )
+      })
       return undefined
     }
     const moves = JSON.parse(moveKey) as Record<string, number[]>
-    paintQueue.current = paintQueue.current
-      .then(async () => {
-        if (pluginRef.current !== plugin) {
-          return
+    enqueue(paintQueue, sessionRef, session, async () => {
+      let changed = false
+      for (const { id, ref } of loaded) {
+        const matrix = moves[id]
+        if (matrix) {
+          await transformStructure(plugin, molstar, ref, matrix)
+          moved.add(id)
+          changed = true
+        } else if (moved.delete(id)) {
+          await transformStructure(plugin, molstar, ref, identityMatrix)
+          changed = true
         }
-        let moved = false
-        for (const { id, ref } of loadedRef.current) {
-          const matrix = moves[id]
-          if (matrix) {
-            await transformStructure(plugin, molstar, ref, matrix)
-            movedRef.current.add(id)
-            moved = true
-          } else if (movedRef.current.delete(id)) {
-            await transformStructure(plugin, molstar, ref, identityMatrix)
-            moved = true
-          }
-        }
-        if (moved || !framedRef.current) {
-          framedRef.current = true
-          frameMapped(plugin, molstar, model, loadedRef.current)
-        }
-      })
-      .catch((e: unknown) => {
-        console.error(e)
-      })
+      }
+      if (changed || !session.framed) {
+        session.framed = true
+        frameMapped(plugin, molstar, model, loaded)
+      }
+    })
     return undefined
   }, [ready, moveKey, fitBy, key, model])
 
   useEffect(() => {
-    const plugin = pluginRef.current
-    const molstar = molstarRef.current
-    if (!ready || !plugin || !molstar) {
+    const session = sessionRef.current
+    if (!ready || !session) {
       return undefined
     }
-    const stop = reaction(
+    const { plugin, molstar } = session
+    const stopClick = reaction(
       () => model.clickedCell,
       cell => {
-        const found = pickStructure(
-          model,
-          loadedRef.current.map(l => l.id),
-          cell,
-        )
-        const loaded = found
-          ? loadedRef.current.find(l => l.id === found.id)
-          : undefined
-        const drawn = loaded
-          ? drawnStructure(plugin, molstar, loaded.ref)
-          : undefined
-        const loci =
-          found && drawn
-            ? residueLoci(
-                molstar,
-                drawn,
-                [found.hit.position],
-                found.hit.structure.asymId,
-                found.hit.structure.asymIdKind,
-              )
-            : undefined
+        const { loci } = locateCell(session, model, cell)
         if (loci && !molstar.StructureElement.Loci.isEmpty(loci)) {
           plugin.managers.camera.focusLoci(loci, { minRadius: 20 })
           plugin.managers.structure.focus.setFromLoci(loci)
@@ -517,31 +532,10 @@ export const StructurePanel = observer(function StructurePanel({
     const stopHover = reaction(
       () => model.hoveredCell,
       cell => {
-        const found = pickStructure(
-          model,
-          loadedRef.current.map(l => l.id),
-          cell,
-        )
-        const loaded = found
-          ? loadedRef.current.find(l => l.id === found.id)
-          : undefined
-        const drawn = loaded
-          ? drawnStructure(plugin, molstar, loaded.ref)
-          : undefined
+        const { found, loci } = locateCell(session, model, cell)
         const { lociHighlights } = plugin.managers.interactivity
-        if (found && drawn) {
-          lociHighlights.highlightOnly(
-            {
-              loci: residueLoci(
-                molstar,
-                drawn,
-                [found.hit.position],
-                found.hit.structure.asymId,
-                found.hit.structure.asymIdKind,
-              ),
-            },
-            false,
-          )
+        if (found && loci) {
+          lociHighlights.highlightOnly({ loci }, false)
           setStatus(
             `${cell?.row} residue ${cell?.residue} · ${found.id} residue ${found.hit.position}${found.hit.observed ? '' : ' · no coordinates'}`,
           )
@@ -557,30 +551,22 @@ export const StructurePanel = observer(function StructurePanel({
       { equals: compareStructural },
     )
     return () => {
-      stop()
+      stopClick()
       stopHover()
     }
   }, [ready, model, key])
 
   useEffect(() => {
-    const plugin = pluginRef.current
-    const molstar = molstarRef.current
-    if (!ready || !plugin || !molstar) {
+    const session = sessionRef.current
+    if (!ready || !session) {
       return undefined
     }
-    const loadedNow = loadedRef.current
-    const several = loadedNow.length > 1 || solidColor !== undefined
+    const { plugin, molstar, loaded } = session
+    const several = loaded.length > 1 || solidColor !== undefined
     if (colorBy === 'none' && !several && !highlights) {
       return undefined
     }
-    const enqueue = (step: () => Promise<void>) => {
-      paintQueue.current = paintQueue.current
-        .then(() => (pluginRef.current === plugin ? step() : undefined))
-        .catch((e: unknown) => {
-          console.error(e)
-        })
-    }
-    const perStructure = loadedNow.map((l, index) => ({ ...l, index }))
+    const perStructure = loaded.map((l, index) => ({ ...l, index }))
     const dispose = reaction(
       () =>
         perStructure.map(s => [
@@ -606,7 +592,9 @@ export const StructurePanel = observer(function StructurePanel({
         ]),
       groups => {
         for (const [i, s] of perStructure.entries()) {
-          enqueue(() => paintStructure(plugin, molstar, groups[i]!, s.ref))
+          enqueue(paintQueue, sessionRef, session, () =>
+            paintStructure(plugin, molstar, groups[i]!, s.ref),
+          )
         }
       },
       { fireImmediately: true, equals: compareStructural },
@@ -614,7 +602,9 @@ export const StructurePanel = observer(function StructurePanel({
     return () => {
       dispose()
       for (const s of perStructure) {
-        enqueue(() => paintStructure(plugin, molstar, [], s.ref))
+        enqueue(paintQueue, sessionRef, session, () =>
+          paintStructure(plugin, molstar, [], s.ref),
+        )
       }
     }
   }, [colorBy, highlights, solidColor, ready, model, key])
