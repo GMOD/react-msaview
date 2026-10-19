@@ -1,14 +1,16 @@
 # TEM beta-lactamase alleles and what they hydrolyze
 
-NCBI's Reference Gene Catalog names 233 TEM beta-lactamase alleles and records a
-phenotype for many of them: broad-spectrum, extended-spectrum,
-inhibitor-resistant broad-spectrum, and inhibitor-resistant extended-spectrum.
-The proteins are 286 residues and differ from TEM-1 by a handful of
-substitutions, so this page puts 46 of them in one alignment, gives each row the
-catalog's phenotype and the residue it carries at seven positions the literature
-names, and reads the two groups of positions against each other. The control is
-a polymorphic position picked for being the least associated with phenotype of
-any variable position in the data.
+NCBI's Reference Gene Catalog names 233 TEM beta-lactamase alleles, many with a
+phenotype: broad-spectrum or extended-spectrum, each with or without inhibitor
+resistance. The 286-residue proteins differ from TEM-1 by a few substitutions,
+four of which the literature ties to extended-spectrum activity and three to
+inhibitor resistance. For 46 alleles, we:
+
+- align them and infer a tree
+- give each row its phenotype and its residue at seven named positions
+- draw the positions as strips and as bands
+- compare the two groups of positions against a control
+- open the result from one link
 
 ## Prerequisites
 
@@ -42,9 +44,9 @@ The build script fetches the two. Nothing to download.
 
 ## 1. Pick the alleles
 
-The catalog's `product_name` carries the phenotype, and its `gene_family` column
-is `blaTEM` for every TEM allele. The selection takes the twelve lowest-numbered
-alleles of each phenotype, which are the ones described first and cited most:
+The catalog's `product_name` holds the phenotype and its `gene_family` column is
+`blaTEM`, so the selection takes the twelve lowest-numbered alleles of each
+phenotype:
 
 ```python
 number = re.fullmatch(r'blaTEM-(\d+)', row['allele'])
@@ -62,10 +64,8 @@ inhibitor-resistant extended-spectrum: 10 alleles in the catalog, 10 kept
 46 alleles selected, lengths 285 aa x 1, 286 aa x 45
 ```
 
-The catalog holds 94 further TEM alleles whose product name is a plain
-`class A beta-lactamase`, with no phenotype recorded, and the selection leaves
-them out. The inhibitor-resistant extended-spectrum class has ten members in
-all, so all ten are here.
+The 94 TEM alleles whose product name is a plain `class A beta-lactamase`, with
+no phenotype, stay out.
 
 ## 2. Align and infer a tree
 
@@ -80,19 +80,19 @@ tr -d '[:space:]' < tem.ph > tem.nwk
 46 rows, 286 alignment columns
 ```
 
-One column per residue of TEM-1: the only allele of another length is TEM-178,
+One column per residue of TEM-1. TEM-178 is the only allele of another length,
 at 285 residues, and its deletion is the alignment's one gap.
 
 [![](../media/tem_alleles-alignment.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A920%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22treeAreaWidth%22%3A200%2C%22colWidth%22%3A4.2%2C%22rowHeight%22%3A16%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.nwk%22%7D%7D%7D)
 
-Forty-six alleles beside the tree ClustalW inferred from them. Each column draws
-in one color because the rows agree on it; the white and off-color specks are
-the 31 positions that vary.
+Forty-six alleles beside the tree ClustalW inferred from them, with the 31
+varying positions as white and off-color specks in otherwise single-colored
+columns.
 
-## 3. The row table
+## 3. Write the row table
 
-Every row gets the phenotype the catalog records and the residue it carries at
-the seven positions named below, keyed by row name, which is the allele name:
+Each row gets its phenotype and its residue at the seven positions of step 4,
+keyed by allele name:
 
 ```python
 record = {'phenotype': phenotype[row], 'subclass': subclass[row]}
@@ -104,9 +104,8 @@ for position in fields:
 wrote ./tem-rowdata.json: 46 rows, 10 fields, 11 kB
 ```
 
-Eleven kilobytes percent-encode to more than 8,000 characters, so the snapshot
-names the file instead, which keeps the link short, and the viewer fetches it at
-startup:
+Eleven kilobytes percent-encode past 8,000 characters, so the snapshot names the
+file instead and the viewer fetches it at startup:
 
 ```json
 {
@@ -122,18 +121,16 @@ startup:
 
 The `tipLabel` channel reading the phenotype field: olive for extended-spectrum,
 cyan for inhibitor-resistant broad-spectrum, purple for inhibitor-resistant
-extended-spectrum, salmon for broad-spectrum. The tree puts most of the olive
-rows in the top half and most of the cyan rows in the bottom half, and 6 of its
-44 internal nodes hold alleles of one phenotype.
+extended-spectrum, salmon for broad-spectrum. Most olive rows are in the top
+half and most cyan rows in the bottom half, and 6 of the tree's 44 internal
+nodes hold alleles of one phenotype.
 
-## 4. Ambler numbering against the sequence index
+## 4. Map Ambler numbering onto the columns
 
-The literature numbers class A beta-lactamases by Ambler's scheme, which starts
-at 3, skips 239 and 253, and ends at 290 over a 286-residue protein. Ambler 238
-is therefore residue 236 of the sequence, and reading a residue at index 238
-lands two residues away with no error. The script maps every position through
-the TEM-1 row and checks the result against the residues the reviews name for
-TEM-1 before anything downstream uses it:
+Ambler's scheme starts at 3, skips 239 and 253, and ends at 290 over 286
+residues, so Ambler 238 is residue 236 and reading index 238 lands two residues
+away with no error. The script maps each position through the TEM-1 row and
+checks the result against the residues the reviews name:
 
 ```python
 found = {p: reference[ambler_column[p]] for p in sorted(TEM1_RESIDUES)}
@@ -148,17 +145,14 @@ the mapping is Ambler = residue index + 2 up to 238, + 3 from 240 to 252, + 4 fr
 Ambler [104, 164, 238, 240, 69, 244, 276] are columns 102, 162, 236, 237, 67, 241, 272
 ```
 
-M69, S70, K73, E104, S130, R164, E166, K234, G238, E240, R244 and N276 are the
-residues TEM-1 carries in every review of the family, including the catalytic
-S70 and K73 and the omega-loop E166, and all twelve come out where the mapping
-says.
+All twelve residues the reviews name for TEM-1, the catalytic S70 and K73 and
+the omega-loop E166 among them, come out where the mapping says.
 
-## 5. The positions as strips
+## 5. Draw the positions as strips
 
 Four positions carry the extended-spectrum substitutions (104, 164, 238, 240),
-three carry the inhibitor-resistance ones (69, 244, 276), and the eighth is the
-control of step 7. Each is a `strip` row panel over its field, and the eight
-share one `legend` so the figure carries one residue key:
+three the inhibitor-resistance ones (69, 244, 276), and the eighth is step 7's
+control. Each is a `strip` row panel, and the eight share one `legend`:
 
 ```json
 "rowPanels": [
@@ -170,9 +164,9 @@ share one `legend` so the figure carries one residue key:
 [![](../media/tem_alleles-strips.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A920%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22treeAreaWidth%22%3A200%2C%22colWidth%22%3A4.2%2C%22rowHeight%22%3A16%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem-rowdata.json%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22phenotype%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22phenotype%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22broad-spectrum%22%3A%22%234e79a7%22%2C%22extended-spectrum%22%3A%22%23e15759%22%2C%22inhibitor-resistant%20broad-spectrum%22%3A%22%2359a14f%22%2C%22inhibitor-resistant%20extended-spectrum%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A14%2C%22header%22%3A%22phenotype%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20104%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22104%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20164%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22164%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20238%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22238%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20240%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22240%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%2069%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%2269%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20244%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22244%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20276%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22276%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20265%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22265%22%2C%22legend%22%3A%22residue%22%7D%5D%7D%7D)
 
 The phenotype strip and the eight position strips between the tree and the
-alignment, in the order 104, 164, 238, 240, then 69, 244, 276, then 265. The
-rows whose phenotype cell is olive or purple carry a minority residue in the
-first four columns; the rows whose cell is cyan carry one in the next three.
+alignment, in the order 104, 164, 238, 240, 69, 244, 276, 265. Olive and purple
+rows show a minority residue in the first four strips, cyan rows in the next
+three.
 
 ```
 Ambler 104: E 36, K 10
@@ -185,7 +179,7 @@ Ambler 276: N 38, D 8
 Ambler 265: T 42, M 4
 ```
 
-## 6. The two groups of positions
+## 6. Compare the two groups of positions
 
 For each allele, whether it differs from TEM-1 at any of the four
 extended-spectrum positions, and at any of the three inhibitor-resistance ones:
@@ -195,15 +189,12 @@ ESBL positions 104/164/238/240: broad-spectrum 0/12, extended-spectrum 12/12, in
 inhibitor positions 69/244/276: broad-spectrum 0/12, extended-spectrum 0/12, inhibitor-resistant broad-spectrum 12/12, inhibitor-resistant extended-spectrum 7/10
 ```
 
-All 22 alleles the catalog calls extended-spectrum carry a substitution at 104,
-164, 238 or 240, and the 12 broad-spectrum and 12 inhibitor-resistant
-broad-spectrum alleles carry none. The three inhibitor-resistance positions
-split the other way: every inhibitor-resistant broad-spectrum allele is
-substituted at one of them, and no extended-spectrum allele is.
+Every extended-spectrum allele carries a substitution at 104, 164, 238 or 240
+and no broad-spectrum allele does, and the three inhibitor-resistance positions
+split the other way.
 
-The same positions are bands over the alignment columns, which is what
-`highlights` draws. A band with no `row` takes 1-based alignment columns, so
-Ambler 238 is `start: 236`:
+The eight positions also go over the alignment columns as `highlights`, which
+take 1-based columns where a band has no `row`, so Ambler 238 is `start: 236`:
 
 ```json
 "highlights": [{ "start": 236, "end": 236, "label": "Ambler 238" }]
@@ -214,11 +205,8 @@ Ambler 238 is `start: 236`:
 Eight bands over the 286 columns, seven red and the control grey, each labeled
 with its Ambler position.
 
-A close-up reads best against one allele. `relativeTo` names a row, and the
-viewer draws each other allele's residue as a dot where it matches TEM-1's and
-as its letter where it differs. The viewer also pins a copy of the TEM-1 row
-above the alignment, so the residue each dot stands for sits at the head of its
-column however far down the rows scroll:
+`relativeTo` names a row, and the viewer draws a residue matching TEM-1 as a dot
+and a differing one as its letter, under a pinned copy of the TEM-1 row:
 
 ```json
 "relativeTo": "TEM-1"
@@ -229,13 +217,11 @@ In R the same field is `msaview(relative_to = "TEM-1")` or
 
 [![](../media/tem_alleles-esbl.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A952%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22treeAreaWidth%22%3A200%2C%22colWidth%22%3A22%2C%22rowHeight%22%3A16%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.nwk%22%7D%2C%22scrollX%22%3A-5016%2C%22relativeTo%22%3A%22TEM-1%22%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem-rowdata.json%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22phenotype%22%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A102%2C%22end%22%3A102%2C%22label%22%3A%22Ambler%20104%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A162%2C%22end%22%3A162%2C%22label%22%3A%22Ambler%20164%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A236%2C%22end%22%3A236%2C%22label%22%3A%22Ambler%20238%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A237%2C%22end%22%3A237%2C%22label%22%3A%22Ambler%20240%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A67%2C%22end%22%3A67%2C%22label%22%3A%22Ambler%2069%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A241%2C%22end%22%3A241%2C%22label%22%3A%22Ambler%20244%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A272%2C%22end%22%3A272%2C%22label%22%3A%22Ambler%20276%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A261%2C%22end%22%3A261%2C%22label%22%3A%22Ambler%20265%22%2C%22color%22%3A%22rgba(120%2C120%2C120%2C0.35)%22%7D%5D%2C%22showDomainLegend%22%3Afalse%7D%7D>)
 
-Ambler 238 and 240 at residue resolution with every row read against TEM-1, so a
-dot is the same residue and a letter a different one. The pinned TEM-1 row under
-the conservation track reads G and E over the boxed columns, which read S and K
-in olive and purple rows and a dot in every salmon and cyan row. Ambler 244,
-eleven columns to the right, reads C, L and S in cyan rows alone.
+Ambler 238 and 240 at residue resolution, every row read against TEM-1. The
+boxed columns read G and E in the pinned TEM-1 row, S and K in olive and purple
+rows, and a dot in every salmon and cyan row.
 
-## 7. The control
+## 7. Read the control position
 
 For every variable position, how its residues split across the four phenotypes,
 scored by Cramer's V over the residue-by-phenotype table:
@@ -253,8 +239,8 @@ position  residues                  Cramer's V
      265  42T,4M                          0.22
 ```
 
-The control is the lowest-scoring position whose minor residues at least three
-alleles carry, so the column has something to read:
+The control is the lowest-scoring position with minor residues in at least three
+alleles, so the column has something to read:
 
 ```
 control position: Ambler 265, T in TEM-1, minor residues in 4 alleles, Cramer's V 0.22
@@ -262,19 +248,14 @@ control position: Ambler 265, T in TEM-1, minor residues in 4 alleles, Cramer's 
 
 [![](../media/tem_alleles-control.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A952%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22treeAreaWidth%22%3A200%2C%22colWidth%22%3A22%2C%22rowHeight%22%3A16%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.nwk%22%7D%2C%22scrollX%22%3A-5016%2C%22relativeTo%22%3A%22TEM-1%22%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem-rowdata.json%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22phenotype%22%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A102%2C%22end%22%3A102%2C%22label%22%3A%22Ambler%20104%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A162%2C%22end%22%3A162%2C%22label%22%3A%22Ambler%20164%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A236%2C%22end%22%3A236%2C%22label%22%3A%22Ambler%20238%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A237%2C%22end%22%3A237%2C%22label%22%3A%22Ambler%20240%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A67%2C%22end%22%3A67%2C%22label%22%3A%22Ambler%2069%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A241%2C%22end%22%3A241%2C%22label%22%3A%22Ambler%20244%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A272%2C%22end%22%3A272%2C%22label%22%3A%22Ambler%20276%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A261%2C%22end%22%3A261%2C%22label%22%3A%22Ambler%20265%22%2C%22color%22%3A%22rgba(120%2C120%2C120%2C0.35)%22%7D%5D%2C%22showDomainLegend%22%3Afalse%7D%7D>)
 
-Ambler 265 at the same resolution as the figure above. The four alleles reading
-M are TEM-110, TEM-9, TEM-4 and TEM-68, whose phenotypes are broad-spectrum,
-extended-spectrum, extended-spectrum and inhibitor-resistant extended-spectrum.
-
-Ambler 39 scores 0.42, between the two groups. Q39K is the one substitution
-separating TEM-2 from TEM-1, and both are broad-spectrum; the eight alleles
-carrying K here are one broad-spectrum, five extended-spectrum and two
-inhibitor-resistant extended-spectrum.
+Ambler 265 at the resolution of the figure above. The four alleles reading M
+cover three of the four phenotypes: TEM-110 broad-spectrum, TEM-9 and TEM-4
+extended-spectrum, TEM-68 inhibitor-resistant extended-spectrum.
 
 ## 8. Check it against the raw data
 
-The check reads the letters out of the unaligned NCBI sequences by the Ambler
-arithmetic alone and compares them with the row table the viewer loads:
+The check reads the letters from the unaligned NCBI sequences by Ambler
+arithmetic and compares them with the row table:
 
 ```python
 letters = [unaligned[row][residue_of_ambler[p]] for p in fields]
@@ -295,25 +276,24 @@ TEM-32       E    R    G    E    I    R    N    T  inhibitor-resistant broad-spe
 TEM-125      E    S    G    E    L    R    D    T  inhibitor-resistant extended-spectrum
 ```
 
-TEM-3 reads E104K and G238S, TEM-10 reads R164S and E240K, TEM-12 reads R164S,
-TEM-30 reads R244S, TEM-32 reads M69I, and TEM-125 reads R164S with M69L and
-N276D. Those are the substitutions the primary literature gives for each allele.
+TEM-3 reads E104K and G238S, TEM-10 R164S and E240K, TEM-12 R164S, TEM-30 R244S,
+TEM-32 M69I, and TEM-125 R164S with M69L and N276D, the substitutions the
+primary literature gives for each allele.
 
-## 9. Open the whole thing
+## 9. Open the result from one link
 
 <!-- usage: web -->
 
 [![](../media/tem_alleles-final.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A920%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22treeAreaWidth%22%3A200%2C%22colWidth%22%3A4.2%2C%22rowHeight%22%3A16%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftem%2Ftem-rowdata.json%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22phenotype%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22phenotype%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22broad-spectrum%22%3A%22%234e79a7%22%2C%22extended-spectrum%22%3A%22%23e15759%22%2C%22inhibitor-resistant%20broad-spectrum%22%3A%22%2359a14f%22%2C%22inhibitor-resistant%20extended-spectrum%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A14%2C%22header%22%3A%22phenotype%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20104%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22104%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20164%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22164%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20238%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22238%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20240%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22240%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%2069%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%2269%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20244%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22244%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20276%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22276%22%2C%22legend%22%3A%22residue%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22Ambler%20265%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22C%22%3A%22%234e79a7%22%2C%22D%22%3A%22%23f28e2b%22%2C%22E%22%3A%22%23e15759%22%2C%22G%22%3A%22%2376b7b2%22%2C%22H%22%3A%22%2359a14f%22%2C%22I%22%3A%22%23edc948%22%2C%22K%22%3A%22%23b07aa1%22%2C%22L%22%3A%22%23ff9da7%22%2C%22M%22%3A%22%239c755f%22%2C%22N%22%3A%22%23bab0ac%22%2C%22R%22%3A%22%2386bcb6%22%2C%22S%22%3A%22%23d37295%22%2C%22T%22%3A%22%23a0cbe8%22%2C%22V%22%3A%22%238cd17d%22%7D%7D%2C%22width%22%3A12%2C%22header%22%3A%22265%22%2C%22legend%22%3A%22residue%22%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A102%2C%22end%22%3A102%2C%22label%22%3A%22Ambler%20104%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A162%2C%22end%22%3A162%2C%22label%22%3A%22Ambler%20164%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A236%2C%22end%22%3A236%2C%22label%22%3A%22Ambler%20238%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A237%2C%22end%22%3A237%2C%22label%22%3A%22Ambler%20240%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A67%2C%22end%22%3A67%2C%22label%22%3A%22Ambler%2069%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A241%2C%22end%22%3A241%2C%22label%22%3A%22Ambler%20244%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A272%2C%22end%22%3A272%2C%22label%22%3A%22Ambler%20276%22%2C%22color%22%3A%22rgba(225%2C87%2C89%2C0.35)%22%7D%2C%7B%22start%22%3A261%2C%22end%22%3A261%2C%22label%22%3A%22Ambler%20265%22%2C%22color%22%3A%22rgba(120%2C120%2C120%2C0.35)%22%7D%5D%7D%7D>)
 
-The three hosted files, the `tipLabel` encoding, the nine strips and the eight
-bands in one view.
+One view over the three hosted files, with the `tipLabel` encoding, the nine
+strips and the eight bands.
 
 <!-- usage: r -->
 
-[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three hosted
-files. The row table is JSON keyed by allele, which `geom_msa_rowdata()` takes
-as it comes from `jsonlite::fromJSON()`, and one loop adds a strip per Ambler
-position:
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three files,
+`geom_msa_rowdata()` takes the row table as `jsonlite::fromJSON()` returns it,
+and one loop adds a strip per Ambler position:
 
 ```r
 library(ggmsaview)
@@ -350,10 +330,8 @@ ggplot2::ggsave("tem_alleles-final-r.png",
 
 ![](../media/tem_alleles-final-r.png)
 
-The phenotype strip and the eight position strips between the tree and the
-alignment, the eight bands over the alignment and conservation above it. One key
-covers the eight residue strips, and the row names take their phenotype's color,
-as in the web view.
+ggmsaview draws the same strips, bands and conservation track, with one key for
+the residue strips and each row name in its phenotype's color.
 
 <!-- /usage -->
 
@@ -363,18 +341,13 @@ as in the web view.
 runs the commands above in order:
 
 1. It downloads the catalog and the reference proteins, then keeps the twelve
-   lowest-numbered alleles of each of the four phenotypes the catalog spells
-   out, which are the ones described first.
-2. ClustalW aligns the alleles and infers a neighbor-joining tree from the
-   alignment.
-3. It maps each Ambler position through the TEM-1 row, checks it against the
-   residue the reviews name there, and writes the row table of the phenotype and
-   the residue every allele carries at those positions.
-4. It picks the control position, reports the largest clade of the tree holding
-   one phenotype only, and reads a few named alleles straight out of the
-   unaligned NCBI sequences to check the row table.
+   lowest-numbered alleles of each phenotype.
+2. ClustalW aligns the alleles and infers a tree.
+3. It maps each Ambler position through the TEM-1 row and writes the row table.
+4. It picks the control position and checks the row table against the unaligned
+   NCBI sequences.
 
-It needs the tools under [Prerequisites](#prerequisites).
+The script needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_tem_alleles.sh

@@ -2,19 +2,21 @@
 
 A web page that mounts the viewer as it loads asks every reader for 452 KB of
 gzipped JavaScript before the first residue draws, including a reader who only
-scrolls past. This page draws the viewer's first frame once, as an SVG, shows
-that SVG on the page, and loads the viewer when the reader clicks to explore.
-The alignment is the NLRP1 family that
+scrolls past. A page that shows the first frame as an SVG and loads the viewer
+on request sends 8 KB instead. For the NLRP1 family that
 [A protein family from a list of accessions](https://gmod.org/JBrowseMSA/tutorials/protein_family)
-builds, and the page ends by measuring both versions of the page with
-Lighthouse.
+builds, we:
 
-The pipeline runs `npx`, which fetches react-msaview-cli, serve and Lighthouse.
+- write one props file for both views
+- draw the first frame as an SVG
+- put the SVG on a page and load the viewer on a click or on scroll
+- measure both pages with Lighthouse
+- check that the swap moves nothing on the page
 
 ## Prerequisites
 
-- Node.js 18 or later, which brings `npx`: `apt install nodejs`, or
-  `brew install node`
+- Node.js 18 or later, which brings the `npx` that fetches react-msaview-cli,
+  serve and Lighthouse: `apt install nodejs`, or `brew install node`
 - Chrome or Chromium, for Lighthouse in step 6: `apt install chromium`, or
   `brew install --cask google-chrome`
 
@@ -42,12 +44,11 @@ CLI and the viewer fetch these by URL from the props file of step 1.
 
 </details>
 
-## 1. One props file for both views
+## 1. Write one props file for both views
 
-`MSAViewer` takes its data and settings as props. Written to a JSON file, the
-same props reach the CLI through `--props` and the viewer through `mount()`, so
-the figure and the live view draw from one description. Save this as
-`nlrp1.json`:
+The CLI reads `MSAViewer` props through `--props` and the viewer through
+`mount()`, so one JSON file describes both the figure and the live view. Save
+this as `nlrp1.json`:
 
 ```json
 {
@@ -60,9 +61,8 @@ the figure and the live view draw from one description. Save this as
 ```
 
 `height` is the viewer's full height in pixels, tracks included, and
-`hideHeader` leaves out the toolbar. Every prop that holds data or a setting can
-go in the file, and [Embedding](https://gmod.org/JBrowseMSA/embedding) lists
-them; the callbacks cannot, since JSON holds no functions.
+`hideHeader` leaves out the toolbar. Any prop but a callback can go in the file,
+and [Embedding](https://gmod.org/JBrowseMSA/embedding) lists them.
 
 ## 2. Draw the first frame with the CLI
 
@@ -70,24 +70,22 @@ them; the callbacks cannot, since JSON holds no functions.
 npx react-msaview-cli@9.1.1 export-svg --props nlrp1.json --viewport --width 900 -o nlrp1.svg
 ```
 
-The CLI fetches the three files, lays the view out at 900 pixels wide and the
-props' 360 tall, and draws it with no browser. `--viewport` limits the drawing
-to the frame the viewer opens on; without it the CLI draws all 1666 columns. The
-build script printed a 1111 by 304 SVG of 118,981 bytes, 6,618 gzipped.
+The CLI fetches the three files and draws the view 900 by 360 pixels with no
+browser. `--viewport` limits the drawing to the frame the viewer opens on, where
+the default is all 1666 columns. The build script printed a 1111 by 304 SVG of
+118,981 bytes, 6,618 gzipped.
 
 [![](../media/static_first-svg.png)](https://gmod.org/JBrowseMSA/demo/data/static_first/nlrp1.svg)
 
-The first 61 columns of the twelve rows, under the Conservation and Property
-conservation tracks, with the tree on the left. The PAAD/DAPIN/Pyrin domain
-fills the cells green from column 39, the ninth residue, in Chimp, Human,
-Rhesus, Dog and Hedgehog. The CLI draws the domain legend in a panel of its own
-to the right of the tracks, which makes the SVG 1111 pixels wide.
+The first 61 columns of the twelve rows under the Conservation and Property
+conservation tracks. The PAAD/DAPIN/Pyrin domain fills the cells green from
+column 39 in Chimp, Human, Rhesus, Dog and Hedgehog. The domain legend in a
+panel at the right makes the SVG 1111 pixels wide.
 
 ## 3. Put the figure on the page
 
-The page shows the SVG in a box as tall as the live view, with a button over its
-corner. The box is 365 pixels tall: the props' 360 for the viewer, and 5 for the
-divider under it that resizes the view.
+The page shows the SVG, with a button over its corner, in a box as tall as the
+live view: the props' 360 pixels for the viewer and 5 for the divider under it.
 
 ```html
 <style>
@@ -118,26 +116,25 @@ divider under it that resizes the view.
 ```
 
 - The box keeps its 365 pixels when the viewer replaces the image, so the text
-  under it stays where the reader left it.
+  under it stays put.
 - `max-width: 100%` scales the SVG to the box, and on a phone to the screen:
   Lighthouse's mobile run drew it 396 pixels wide.
-- The rules name `.msa-explore` and `.msa-embed > img`. The viewer mounts its
-  own buttons into the box, and the browser applies a rule on
-  `.msa-embed button` to them as well, which stacks the live view's track menus
-  in the Explore button's corner.
+- The rules name `.msa-explore` and `.msa-embed > img`, because a rule on
+  `.msa-embed button` also reaches the viewer's own buttons and stacks its track
+  menus in the Explore button's corner.
 
 [![](../media/static_first-page.png)](https://gmod.org/JBrowseMSA/demo/data/static_first/index.html)
 
-The page as it loads: a heading, the SVG of step 2 scaled to the 900-pixel box,
-the Explore button in the box's lower right corner, and a paragraph under the
-box. The page has fetched 8 KB and no JavaScript file.
+The page as it loads: a heading, the SVG scaled to the 900-pixel box, the
+Explore button in its lower right corner, and a paragraph under the box. The
+page has fetched 8 KB and no JavaScript file.
 
 ## 4. Load the viewer on a click
 
 <!-- usage: web -->
 
-The script fetches the bundle and the props on the reader's click, then empties
-the box and mounts the viewer into it:
+On the reader's click, the script fetches the bundle and the props, empties the
+box and mounts the viewer into it:
 
 ```js
 const bundle = 'https://unpkg.com/react-msaview@9.1.1/bundle/index.js'
@@ -182,24 +179,21 @@ for (const box of document.querySelectorAll('.msa-embed')) {
 }
 ```
 
-`loadBundle` keeps its one promise, so a page with several boxes downloads the
-bundle on the first click and reuses it on every later one. A failed download
-drops the promise and puts the button back, so the next click tries again; the
-button is disabled while it loads, and a disabled button fires no click.
+`loadBundle` keeps one promise, so a page with several boxes downloads the
+bundle once. A failed download drops the promise and re-enables the button, so
+the next click tries again.
 
 [![](../media/static_first-explore.png)](https://gmod.org/JBrowseMSA/demo/data/static_first/index.html)
 
-The page of step 3 after the click. The viewer fills the box: the minimap across
-the top, the two tracks with their menus, the tree and the twelve rows, and the
-domain legend over the right of the alignment. The paragraph under the box has
-not moved.
+The page of step 3 after the click, with the viewer filling the box: the
+minimap, the two tracks with their menus, the tree, the twelve rows and the
+domain legend. The paragraph under the box has not moved.
 
 <!-- usage: r -->
 
 [ggmsaview](https://github.com/GMOD/ggmsaview) gives an R Markdown or Quarto
-page the same two forms. A chunk that prints `msaview_plot(w)` puts a ggplot2
-figure on the page as a PNG, and a chunk that prints `w` puts the widget there,
-with the viewer bundle inside it:
+page the same two forms: a chunk that prints `msaview_plot(w)` puts a ggplot2
+PNG on the page, and one that prints `w` puts the widget, bundle included:
 
 ```r
 library(ggmsaview)
@@ -214,17 +208,16 @@ ggplot2::ggsave("static_first-r.png", msaview_plot(w), width = 10, height = 4)
 
 ![](../media/static_first-r.png)
 
-The whole family as a ggplot2 figure: the tree on the left, the Conservation and
-Property conservation tracks over all 1666 columns, and each row's domains as
-boxes, with the PAAD/DAPIN/Pyrin domain in Chimp, Human, Rhesus, Dog and
-Hedgehog alone.
+The whole family as a ggplot2 figure: the tree, the two conservation tracks over
+all 1666 columns, and each row's domains as boxes, with PAAD/DAPIN/Pyrin in
+Chimp, Human, Rhesus, Dog and Hedgehog alone.
 
 <!-- /usage -->
 
-## 5. Or load it when the figure comes into view
+## 5. Load the viewer when the figure scrolls into view
 
-On a page where most readers reach the figure, the script can start the download
-as the box nears the viewport. This loop replaces the click handler of step 4:
+To start the download as the box nears the viewport, replace the click handler
+of step 4 with this loop:
 
 ```js
 const nearby = new IntersectionObserver(
@@ -243,8 +236,8 @@ for (const box of document.querySelectorAll('.msa-embed')) {
 }
 ```
 
-The capture script for this page's figures serves the page with this loop and
-the box 2000 pixels down, and counts the requests for the bundle:
+The capture script for this page's figures serves the page with the box 2000
+pixels down and counts the requests for the bundle:
 
 ```text
 scroll page at load: 0 bundle requests
@@ -254,10 +247,9 @@ scroll page after scrolling: 1 bundle requests
 ## 6. Measure both pages
 
 `live.html` is the same page with the bundle in a deferred script tag and the
-viewer mounted as the page loads. The build script serves the two pages gzipped,
-the way unpkg and most hosts send them, and runs Lighthouse's mobile profile
-over each, which loads the page on an emulated mid-range phone over a slow 4G
-connection:
+viewer mounted as the page loads. The build script serves both pages gzipped and
+runs Lighthouse's mobile profile, an emulated mid-range phone on slow 4G, over
+each:
 
 ```bash
 npx serve@14.2.6 -l 8123 . &
@@ -273,28 +265,26 @@ npx lighthouse@13.5.0 http://localhost:8123/live --only-categories=performance -
 | Total blocking time      | 73 ms            | 837 ms                |
 | Cumulative layout shift  | 0                | 0                     |
 
-Speed Index measures when the visible page finishes painting, and it counts the
-viewer's canvases. Largest contentful paint does not count a canvas, so on
-`live.html` it records the paragraph under the box, which paints seconds before
-the alignment. The times move by a few hundred milliseconds from run to run; the
-byte counts do not.
+Speed Index counts the viewer's canvases and largest contentful paint does not,
+so on `live.html` the latter records the paragraph under the box, which paints
+seconds before the alignment. The times vary by a few hundred milliseconds from
+run to run.
 
 ## 7. Check the swap
 
-The click should change what the box holds and nothing around it. The capture
-script prints the box's height and the top of the paragraph under it on both
-sides of the click:
+The capture script prints the box's height and the top of the paragraph under it
+before and after the click:
 
 ```text
 before the click: box 365 px, paragraph at 460.875 px
 after the click: box 365 px, paragraph at 460.875 px
 ```
 
-Lighthouse scored a layout shift of 0 for loading each page, which covers the
-image arriving on `index.html` and the viewer mounting on `live.html`; the lines
-above cover the click. The SVG and the live view open on the same columns: both
-figures start at column 1, where Horse is the one row with a residue, and the
-green PAAD/DAPIN/Pyrin cells start at the same column in the same five rows.
+Lighthouse's layout shift of 0 covers the image arriving and the viewer mounting
+as each page loads, and the lines above cover the click. The SVG and the live
+view also open on the same columns: both start at column 1, where Horse is the
+one row with a residue, with the green PAAD/DAPIN/Pyrin cells at the same column
+in the same five rows.
 
 ## Reproduce it end to end
 
@@ -302,13 +292,11 @@ green PAAD/DAPIN/Pyrin cells start at the same column in the same five rows.
 runs the commands above in order:
 
 1. It writes the props file naming the NLRP1 alignment, tree and domains by URL.
-2. It draws the viewer's first frame from those props with
-   `react-msaview-cli export-svg`, and prints the SVG's dimensions and size
-   beside the bundle's.
-3. It writes `index.html`, which shows the SVG and loads the viewer on a click,
-   and `live.html`, which loads the viewer as the page loads.
-4. It serves both pages gzipped and runs Lighthouse's mobile profile over each,
-   printing the bytes, the paint times, the blocking time and the layout shift.
+2. It draws the first frame with `react-msaview-cli export-svg` and prints the
+   SVG's size beside the bundle's.
+3. It writes `index.html`, which loads the viewer on a click, and `live.html`,
+   which loads it as the page loads.
+4. It serves both pages gzipped and runs Lighthouse's mobile profile over each.
 
 It needs the tools under [Prerequisites](#prerequisites). Set `CHROME_PATH` when
 Lighthouse does not find Chrome on its own.
@@ -318,8 +306,8 @@ curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/sc
 bash build_static_first.sh out/
 ```
 
-The script writes the four files of the hosted folder into `out/`, and the
-numbers quoted here are the ones it prints.
+The script writes the four hosted files into `out/` and prints the numbers
+quoted here.
 
 ## See also
 

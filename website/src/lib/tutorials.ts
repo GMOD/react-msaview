@@ -132,7 +132,7 @@ export const tutorials: Tutorial[] = [
       '32 TRIM5 orthologs to a codon alignment, a tree, an exon structure and a per-codon dN/dS track from HyPhy.',
     thumb: codonThumb,
     thumbAlt:
-      '32 primate TRIM5 orthologs at codon resolution over the SPRY v1 patch, with a red per-codon dN/dS track above',
+      '32 primate TRIM5 orthologs at codon resolution over the SPRY V1 patch, with a red per-codon dN/dS track above',
     thumbPosition: 'left',
   },
   {
@@ -141,7 +141,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Spike and PDB 6VXX',
     title: 'The SARS-CoV-2 furin insert and PDB 6VXX',
     blurb:
-      'Eleven coronavirus spikes, the four residues only SARS-CoV-2 carries, and a SIFTS correspondence recording which residues of that row PDB 6VXX resolved.',
+      'Eleven coronavirus spikes, the four residues its closest relatives lack, and a SIFTS correspondence recording which residues of that row PDB 6VXX resolved.',
     thumb: spikeThumb,
     thumbAlt:
       'Eleven coronavirus spike proteins with their domains as colored blocks and a track marking the residues PDB 6VXX resolved',
@@ -249,7 +249,7 @@ export const tutorials: Tutorial[] = [
     navLabel: 'Norovirus recombination',
     title: 'Recombination at the norovirus ORF1/ORF2 junction',
     blurb:
-      'Twelve norovirus GII genomes aligned whole, with one tree from the ORF1 columns and another from the ORF2 columns.',
+      'Twelve norovirus GII genomes aligned whole, each row colored by its closer parent to place the ORF1/ORF2 breakpoint.',
     thumb: norovirusThumb,
     thumbAlt:
       'Twelve norovirus rows of 200-base windows colored by closer parent, three of them turning from blue to red at the ORF1/ORF2 junction',

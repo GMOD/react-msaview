@@ -1,12 +1,15 @@
 # Gene neighborhoods of the tryptophan operon
 
 The tryptophan pathway is one operon in _Escherichia coli_ and a scattered set
-of genes in others. This page takes twelve RefSeq bacterial genomes, cuts 8 kb
-either side of _trpB_ out of each, and draws the result as one row of strand
-arrows per genome beside a tree built from the TrpB protein. The panel reads
-each row in that genome's own coordinates, so an `align` transform on _trpE_
-brings the rows onto a common origin, and the two genomes that carry no _trpE_
-stay where they were.
+of genes in other bacteria. A row of gene arrows per genome, lined up on one
+gene and drawn beside a tree, shows which genomes keep the operon together. For
+twelve RefSeq bacterial genomes, we:
+
+- cut 8 kb either side of _trpB_ out of each genome and write its genes as GFF
+- align the TrpB proteins and infer a tree
+- draw each window as a row of gene arrows beside the tree
+- line the rows up on _trpE_ and color the genes by role
+- open the gene arrows beside the TrpB alignment
 
 ## Prerequisites
 
@@ -18,9 +21,8 @@ stay where they were.
 
 ## The data
 
-RefSeq's own annotation of each of the twelve genomes. The build script fetches
-these. Nothing to download. Each annotation is about 3 MB and NCBI takes 20 to
-30 seconds to serve one, so the script caches them.
+RefSeq's own annotation of each of the twelve genomes. Nothing to download: the
+build script fetches these.
 
 | What it is                                                      | File                                                                                                         |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -40,7 +42,7 @@ these. Nothing to download. Each annotation is about 3 MB and NCBI takes 20 to
 
 </details>
 
-## 1. The window around trpB
+## 1. Cut the window around trpB
 
 The row list is twelve accessions and the label each becomes:
 
@@ -51,10 +53,9 @@ NC_002505.1	V_cholerae
 ...
 ```
 
-RefSeq serves the whole annotation for each, and the script cuts the window
-itself. _trpB_ is the anchor because every genome here carries exactly one, and
-the window is turned so that _trpB_ points right, so a genome whose operon runs
-on the minus strand reads the same way as one on the plus strand:
+The script cuts each window out of the genome's full RefSeq annotation. Every
+genome here has exactly one _trpB_, which anchors the window, and the script
+flips a minus-strand window so that _trpB_ points right in every row:
 
 ```python
 flip = b['strand'] == '-'
@@ -64,7 +65,8 @@ inside = [g for g in genes if g['start'] >= lo and g['end'] <= hi]
 ```
 
 Position 1 of each window is the first base of its first whole gene, not the
-base 8,000 before _trpB_, so no row is placed by where the cut fell:
+base 8,000 before _trpB_, so a row's position does not depend on where the cut
+fell:
 
 ```python
 base = rows[0][0] - 1
@@ -94,13 +96,8 @@ bash build_gene_neighborhoods.sh trp-rows.tsv .
   * RefSeq annotates the gene as a pseudogene
 ```
 
-Ten of the twelve windows hold both _trpE_ and _trpA_. _Haemophilus influenzae_
-and _Pseudomonas aeruginosa_ hold _trpB_ and _trpA_ and nothing else of the
-pathway, so the rest of their tryptophan genes sit somewhere the window does not
-reach.
-
-RefSeq gives many of these genes a product and no gene symbol, and the script
-reads a symbol off eleven product strings, which names 16 of the 176 genes:
+RefSeq gives many of these genes a product and no gene symbol, so the script
+maps eleven product strings to symbols, which names 16 of the 176 genes:
 
 ```python
 PRODUCT_SYMBOL = [
@@ -112,8 +109,8 @@ PRODUCT_SYMBOL = [
 ]
 ```
 
-Each gene becomes a GFF3 line at its position inside the window, carrying its
-name, its role and the locus tag it came from:
+The script writes each gene as a GFF3 line at its position in the window, with
+its name, role and locus tag:
 
 ```
 ##gff-version 3
@@ -121,11 +118,11 @@ E_coli	RefSeq	gene	1	621	.	-	.	Name=yciO;role=other;locus_tag=b1267
 E_coli	RefSeq	gene	618	1499	.	-	.	Name=rnm;role=other;locus_tag=b1266
 ```
 
-## 2. The marker, and the tree
+## 2. Align TrpB and infer a tree
 
-TrpB is the one protein every genome here carries, so it is both the anchor of
-the window and the marker the tree is built from. The script fetches all twelve
-by the `protein_id` on the _trpB_ CDS line and aligns them:
+The tree comes from TrpB, since every genome has one. The script fetches the
+twelve proteins by the `protein_id` on each _trpB_ CDS line, and ClustalW aligns
+them and infers a tree:
 
 ```bash
 clustalw -INFILE=trpB.fasta -ALIGN -TYPE=PROTEIN -OUTPUT=FASTA -OUTFILE=trpB.afa
@@ -141,20 +138,18 @@ Alignment Score 95830
   423 columns
 ```
 
-The twelve proteins run 393 to 417 residues and align into 423 columns.
-
 [![](../media/gene_neighborhoods-1.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A480%2C%22treeAreaWidth%22%3A250%2C%22rowHeight%22%3A26%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2FtrpB.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2FtrpB.nwk%22%7D%2C%22colWidth%22%3A2.9%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%7D%7D)
 
 The TrpB alignment with the neighbor-joining tree ClustalW built from it.
-E_coli, Y_pestis and H_influenzae sit together on one clade with V_cholerae and
-S_oneidensis beside them, and B_thetaiotaomicron carries the longest branch at
-0.25 substitutions per site.
+E_coli, Y_pestis and H_influenzae share a clade with V_cholerae and S_oneidensis
+beside it, and B_thetaiotaomicron has the longest branch, 0.25 substitutions per
+site.
 
-## 3. The neighborhood as a features panel
+## 3. Draw the genes as a features panel
 
 A `rowPanels` record of kind `features` draws the GFF's spans per row.
-`x: "position"` reads each row in its own residue positions, which is the scale
-a genome window is on, and the panel packs the spans into lanes per row:
+`x: "position"` places each span by its position in the window, and the panel
+packs the spans into lanes per row:
 
 ```json
 "rowPanels": [
@@ -171,34 +166,29 @@ a genome window is on, and the panel packs the spans into lanes per row:
 ]
 ```
 
-The panel's `encoding` reads the feature table, so `color` names a GFF attribute
-and a `map` over it. A gene the map leaves out draws grey, so a map of ten trp
-names colors 66 of the 176 genes and leaves the other 110 as grey arrows.
-`label` draws the same attribute inside each arrow wherever the text fits.
+A gene the `map` leaves out draws grey, so a map of ten trp names colors 66 of
+the 176 genes. `label` writes the name inside each arrow wherever it fits.
 
-This view carries a tree and a GFF and no alignment at all. The alignment panel
-is zero columns wide, and the conservation, logo and ruler tracks all measure
-columns, so none of them draws.
+With no alignment loaded, the alignment panel is zero columns wide, and the
+conservation, logo and ruler tracks draw nothing.
 
 [![](../media/gene_neighborhoods-2.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A430%2C%22treeAreaWidth%22%3A250%2C%22rowHeight%22%3A26%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2FtrpB.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2Ftrp-neighborhoods.gff%22%7D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22features%22%2C%22x%22%3A%22position%22%2C%22width%22%3A1120%2C%22header%22%3A%22trp%20neighborhood%22%2C%22encoding%22%3A%7B%22color%22%3A%7B%22field%22%3A%22Name%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22trpL%22%3A%22%2376b7b2%22%2C%22trpE%22%3A%22%234e79a7%22%2C%22trpG%22%3A%22%23a0cbe8%22%2C%22trpD%22%3A%22%23f28e2b%22%2C%22trpC%22%3A%22%2359a14f%22%2C%22trpCF%22%3A%22%238cd17d%22%2C%22trpF%22%3A%22%23b6992d%22%2C%22trpB%22%3A%22%23e15759%22%2C%22trpA%22%3A%22%23b07aa1%22%2C%22trpI%22%3A%22%239c755f%22%7D%7D%7D%2C%22label%22%3A%22Name%22%7D%7D%5D%7D%7D)
 
-Twelve rows of gene arrows, each in its own window coordinates, with the tree
-from the TrpB alignment beside them. The arrows point in the direction of the
-gene, turned so that trpB points right in every row. Nothing lines up: E_coli
-starts trpE at 1,773 and B_subtilis starts it at 3,702, so the same gene sits at
-a different x from row to row.
+Twelve rows of gene arrows in window coordinates beside the TrpB tree, each
+window turned so that trpB points right. E_coli starts trpE at 1,773 and
+B_subtilis at 3,702, so the same gene sits at a different x in each row.
 
-## 4. Aligning every row on trpE
+## 4. Line the rows up on trpE
 
 An `align` transform shifts each row so that the first feature named `on` starts
-at zero, which is gggenes' `make_alignment_dummies`:
+at zero, as gggenes' `make_alignment_dummies` does:
 
 ```json
 "transform": [{ "type": "align", "on": "trpE" }]
 ```
 
-The script computes the same shift per row, and prints where _trpD_ lands once
-it is applied:
+The script computes the same shift per row and prints where _trpD_ lands after
+it:
 
 ```
   E_coli              trpE at 1773, shift -1772: trpD starts at 1562 (genes between: none)
@@ -215,23 +205,18 @@ it is applied:
   B_thetaiotaomicron  trpE at 8644, shift -8643: trpD starts at 2046 (genes between: trpG)
 ```
 
-_trpD_ starts at 1562 in _E. coli_ and in _Yersinia pestis_, where it follows
-_trpE_ directly. In the six rows that carry a _trpG_ between them it starts
-between 1975 and 2343, the length of that gene further along.
-
 [![](../media/gene_neighborhoods-3.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A430%2C%22treeAreaWidth%22%3A250%2C%22rowHeight%22%3A26%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2FtrpB.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2Ftrp-neighborhoods.gff%22%7D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22features%22%2C%22x%22%3A%22position%22%2C%22width%22%3A1120%2C%22header%22%3A%22trp%20neighborhood%22%2C%22encoding%22%3A%7B%22color%22%3A%7B%22field%22%3A%22Name%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22trpL%22%3A%22%2376b7b2%22%2C%22trpE%22%3A%22%234e79a7%22%2C%22trpG%22%3A%22%23a0cbe8%22%2C%22trpD%22%3A%22%23f28e2b%22%2C%22trpC%22%3A%22%2359a14f%22%2C%22trpCF%22%3A%22%238cd17d%22%2C%22trpF%22%3A%22%23b6992d%22%2C%22trpB%22%3A%22%23e15759%22%2C%22trpA%22%3A%22%23b07aa1%22%2C%22trpI%22%3A%22%239c755f%22%7D%7D%7D%2C%22label%22%3A%22Name%22%7D%2C%22transform%22%3A%5B%7B%22type%22%3A%22align%22%2C%22on%22%3A%22trpE%22%7D%5D%7D%5D%7D%7D)
 
-The same twelve rows with the align transform on trpE. Every trpE arrow starts
-at one x, and trpD begins where the table above puts it: flush against trpE in
-E_coli and Y_pestis, one trpG further along in the six rows that carry one.
-H_influenzae and P_aeruginosa carry no trpE, so the transform leaves them on
-their own origin and their trpB sits where the window put it.
+The twelve neighborhoods aligned on trpE, so every trpE arrow starts at one x.
+trpD starts flush against trpE in E_coli and Y_pestis, and one trpG further
+along in the six rows with a trpG between them. H_influenzae and P_aeruginosa
+have no trpE, so the transform leaves both rows at the origin of their window.
 
-## 5. The same spans colored by role
+## 5. Color the genes by role
 
-`encoding` is the panel's own, so a second figure over the same GFF reads a
-different attribute. The script writes a `role` of `trp`, `regulator`,
-`pseudogene` or `other` on every line:
+The script writes a `role` of `trp`, `regulator`, `pseudogene` or `other` on
+every GFF line, and pointing the panel's `encoding` at it colors the same spans
+by role:
 
 ```json
 "encoding": {
@@ -242,19 +227,18 @@ different attribute. The script writes a `role` of `trp`, `regulator`,
 
 [![](../media/gene_neighborhoods-4.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A430%2C%22treeAreaWidth%22%3A250%2C%22rowHeight%22%3A26%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2FtrpB.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2Ftrp-neighborhoods.gff%22%7D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22features%22%2C%22x%22%3A%22position%22%2C%22width%22%3A1120%2C%22header%22%3A%22trp%20neighborhood%22%2C%22encoding%22%3A%7B%22color%22%3A%7B%22field%22%3A%22role%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22trp%22%3A%22%234e79a7%22%2C%22regulator%22%3A%22%23e15759%22%2C%22pseudogene%22%3A%22%23f28e2b%22%2C%22other%22%3A%22%23d9d9d9%22%7D%7D%7D%2C%22label%22%3A%22Name%22%7D%2C%22transform%22%3A%5B%7B%22type%22%3A%22align%22%2C%22on%22%3A%22trpE%22%7D%5D%7D%5D%7D%7D)
 
-The same aligned rows colored by role: blue for the 63 trp genes, red for the
-four regulators, orange for the six genes RefSeq annotates as pseudogenes, grey
-for the other 103. RefSeq annotates Y_pestis trpD and B_subtilis trpC as
-pseudogenes, each orange inside an otherwise blue run. P_aeruginosa's red trpI
-sits beside its trpB, in a row with no trpE.
+The neighborhoods aligned on trpE and colored by role: blue for the 63 trp
+genes, red for the four regulators, orange for the six genes RefSeq annotates as
+pseudogenes, grey for the other 103. Y_pestis trpD and B_subtilis trpC show
+orange inside otherwise blue runs, and P_aeruginosa's red trpI sits beside its
+trpB.
 
-## 6. The panel beside the alignment it came from
+## 6. Open the panel beside the alignment
 
 <!-- usage: web -->
 
-The panel and the alignment are two views of the same twelve rows, so both fit
-in one figure. The panel takes its width out of the alignment's, and the
-alignment scrolls and fits within what is left:
+Loading the TrpB alignment puts it to the right of the panel, which takes its
+width out of the alignment's:
 
 ```json
 {
@@ -266,25 +250,21 @@ alignment scrolls and fits within what is left:
 }
 ```
 
-The GFF's positions are genome coordinates, so `showDomains` is off: the
-alignment's own overlay reads a GFF span as residues of the row, and 1,562 would
-land far past the 423rd column.
+`showDomains` is off because the alignment's overlay reads a GFF span as
+residues of the row, and a window position such as 1,562 would land far past the
+423rd column.
 
 [![](../media/gene_neighborhoods-5.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A480%2C%22treeAreaWidth%22%3A250%2C%22rowHeight%22%3A26%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2FtrpB.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2FtrpB.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fneighborhoods%2Ftrp-neighborhoods.gff%22%7D%2C%22colWidth%22%3A0.9%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22showDomains%22%3Afalse%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22features%22%2C%22x%22%3A%22position%22%2C%22width%22%3A760%2C%22header%22%3A%22trp%20neighborhood%22%2C%22encoding%22%3A%7B%22color%22%3A%7B%22field%22%3A%22Name%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22trpL%22%3A%22%2376b7b2%22%2C%22trpE%22%3A%22%234e79a7%22%2C%22trpG%22%3A%22%23a0cbe8%22%2C%22trpD%22%3A%22%23f28e2b%22%2C%22trpC%22%3A%22%2359a14f%22%2C%22trpCF%22%3A%22%238cd17d%22%2C%22trpF%22%3A%22%23b6992d%22%2C%22trpB%22%3A%22%23e15759%22%2C%22trpA%22%3A%22%23b07aa1%22%2C%22trpI%22%3A%22%239c755f%22%7D%7D%7D%2C%22label%22%3A%22Name%22%7D%2C%22transform%22%3A%5B%7B%22type%22%3A%22align%22%2C%22on%22%3A%22trpE%22%7D%5D%7D%5D%7D%7D)
 
-The 423 TrpB columns and the trp neighborhood in one figure, with the tree from
-the alignment on the left. The alignment gives the two conservation tracks
-columns to measure, so both draw.
+The trp neighborhood panel between the TrpB tree and the 423 alignment columns,
+with the two conservation tracks drawn over the alignment.
 
 <!-- usage: r -->
 
 [ggmsaview](https://github.com/GMOD/ggmsaview) reads the same hosted alignment,
-tree and GFF, and `geom_msa_features()` is the panel, its colors, labels and
-`align` transform as arguments. The GFF's spans count genome positions, not TrpB
-columns, so `features = FALSE` keeps them off the alignment, as the link's
-switched-off overlay does. `w` alone opens the viewer in RStudio or a notebook,
-and `msaview_plot()` draws the ggplot2 figure, whose key lists the trp genes the
-panel's `map` colors:
+tree and GFF, and `geom_msa_features()` takes the panel's colors, labels and
+`align` transform as arguments. `features = FALSE` keeps the genome positions
+off the alignment, as `showDomains: false` does in the link:
 
 ```r
 library(ggmsaview)
@@ -310,31 +290,27 @@ ggsave("gene_neighborhoods-5-r.png",
 
 ![](../media/gene_neighborhoods-5-r.png)
 
-The twelve neighborhoods between the trpB tree and the TrpB alignment, every row
-shifted so its trpE starts at one x, the trp genes in their colors and every
-other gene grey. The H. influenzae row has no trpE and keeps its own origin, its
-trpB and trpA among grey genes.
+The twelve neighborhoods in ggplot2, between the TrpB tree and alignment, each
+row shifted so that trpE starts at one x. The trp genes take the colors the key
+lists and every other gene is grey. The H. influenzae row has no trpE and stays
+at the origin of its window.
 
 <!-- /usage -->
 
-Two rows never moved. _H. influenzae_ and _P. aeruginosa_ carry _trpB_ and
-_trpA_ in their windows and nothing else of the pathway, so they have no _trpE_
-to align on. RefSeq places the rest of their tryptophan genes elsewhere in each
-genome, past the 8 kb the window reaches, and the figure leaves both rows on
-their own origin.
+RefSeq places the other tryptophan genes of _Haemophilus influenzae_ and
+_Pseudomonas aeruginosa_ elsewhere in each genome, past the 8 kb the window
+reaches, so neither row has a _trpE_ to align on.
 
 ## Reproduce it end to end
 
 [`build_gene_neighborhoods.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_gene_neighborhoods.sh)
-runs every step above, from the genome list to the _trpE_ shifts:
+runs every step above:
 
-1. It fetches RefSeq's GFF3 for each genome into `raw/`, where a rerun finds it
-   and skips the download.
-2. It cuts 8 kb either side of _trpB_ out of each genome, turns the window so
-   _trpB_ points right, names the genes RefSeq gives only a product, and writes
-   one GFF row per genome.
-3. It fetches the twelve TrpB proteins from NCBI, and ClustalW aligns them and
-   infers a neighbor-joining tree from the alignment.
+1. It fetches RefSeq's GFF3 for each genome into `raw/`, where a rerun finds it.
+2. It cuts 8 kb either side of _trpB_, turns each window so _trpB_ points right,
+   names the genes RefSeq gives only a product, and writes the GFF.
+3. It fetches the twelve TrpB proteins, and ClustalW aligns them and infers a
+   neighbor-joining tree.
 4. It shifts each row to start at _trpE_, as the viewer's `align` transform
    does, and prints where _trpD_ starts after the shift.
 
@@ -345,9 +321,9 @@ curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/sc
 bash build_gene_neighborhoods.sh
 ```
 
-The script writes the twelve-row TSV itself when none is given, so it runs with
-no arguments. It writes `trp-neighborhoods.gff`, `trpB.afa` and `trpB.nwk` into
-the current directory and prints every number on this page.
+With no arguments the script writes the default twelve-row TSV. It writes
+`trp-neighborhoods.gff`, `trpB.afa` and `trpB.nwk` into the current directory
+and prints every number on this page.
 
 ## See also
 

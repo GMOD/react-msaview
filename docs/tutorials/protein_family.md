@@ -1,12 +1,16 @@
 # A protein family from a list of accessions
 
-Human _NLRP1_, an immune sensor, starts with about eighty residues, a pyrin
-domain, that the mouse protein lacks. Aligning the two with their relatives puts
-the shared domains in the same columns, and the pyrin domain's absence shows as
-blank space in the rows without it. This page starts from twelve UniProt
-accessions for _NLRP1_ and ends on a link that opens the twelve sequences
-aligned, with the tree inferred from them and their Pfam domains drawn in the
-alignment's coordinates. Four commands produce the three files.
+Human _NLRP1_, an inflammasome sensor, starts with a pyrin domain (PYD) of about
+eighty residues that the mouse protein lacks. Aligned with its orthologs, the
+domains every vertebrate copy shares fall in one band of columns each, and a
+missing PYD shows as blank space. For twelve _NLRP1_ orthologs named by UniProt
+accession, we:
+
+- fetch the sequences and align them
+- infer a tree from the alignment
+- look up the Pfam domains in InterPro and open the three files together
+- filter the overlay to the PYD and check it against the GFF
+- share the view as one link
 
 ## Prerequisites
 
@@ -27,33 +31,17 @@ release 110.0. Nothing to download: the commands below fetch these.
 | One protein sequence per accession, for example     | [Q9C000.fasta](https://rest.uniprot.org/uniprotkb/Q9C000.fasta)                 |
 | Precomputed Pfam matches per accession, for example | [Q9C000](https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q9C000/) |
 
-Both endpoints serve one protein per request, so the whole family takes twelve
-requests to each.
-
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
 
-| What it is                                                                                | File                                                                             |
-| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| The twelve sequences before alignment, right-padded to one width so the viewer opens them | [nlrp1-unaligned.aln](https://gmod.org/JBrowseMSA/demo/data/nlrp1-unaligned.aln) |
-| The alignment                                                                             | [nlrp1.aln](https://gmod.org/JBrowseMSA/demo/data/nlrp1.aln)                     |
-| Its tree                                                                                  | [nlrp1.nh](https://gmod.org/JBrowseMSA/demo/data/nlrp1.nh)                       |
-| Its domains                                                                               | [nlrp1-domains.gff](https://gmod.org/JBrowseMSA/demo/data/nlrp1-domains.gff)     |
+| What it is                                                       | File                                                                             |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| The twelve sequences before alignment, right-padded to one width | [nlrp1-unaligned.aln](https://gmod.org/JBrowseMSA/demo/data/nlrp1-unaligned.aln) |
+| The alignment                                                    | [nlrp1.aln](https://gmod.org/JBrowseMSA/demo/data/nlrp1.aln)                     |
+| Its tree                                                         | [nlrp1.nh](https://gmod.org/JBrowseMSA/demo/data/nlrp1.nh)                       |
+| Its domains                                                      | [nlrp1-domains.gff](https://gmod.org/JBrowseMSA/demo/data/nlrp1-domains.gff)     |
 
 </details>
-
-## The family
-
-_NLRP1_ is an inflammasome sensor. Every vertebrate ortholog shares the same
-core in the same order: a NACHT nucleotide-binding domain, a winged helix, a
-helical domain, then FIIND and CARD at the C terminus. The orthologs differ at
-the N terminus, where primates carry a pyrin (PYD) death-fold domain and rodents
-do not.
-
-The proteins run from 1143 to 1537 residues, so residue 328 is a different place
-in every row. Drawing the domains in each protein's own coordinates puts the
-shared core in twelve different places; drawing them in the alignment's
-coordinates puts it in one.
 
 ## 1. Name the rows
 
@@ -76,9 +64,7 @@ A0ABM2XMM7	Hamster
 A0A386CAB9	Zebrafish
 ```
 
-Save that as `accessions.tsv`. The separator is a tab, and a line starting with
-`#` is a comment, so the file can carry its own notes about why each row is in
-it.
+Save that as `accessions.tsv`, with a tab between the two columns.
 
 ## 2. Fetch the sequences
 
@@ -93,9 +79,8 @@ while IFS=$'\t' read -r accession label; do
 done < accessions.tsv
 ```
 
-`tail -n +2` drops UniProt's own defline, which carries the accession, the
-species and the protein name; `tr -d '\n'` unwraps the sequence onto one line.
-Check what you got before aligning it:
+`tail -n +2` drops UniProt's defline, and `tr -d '\n'` unwraps the sequence onto
+one line. Check the lengths before aligning:
 
 ```bash
 awk '/^>/{name=$0; next}{print name, length($0)}' family.fasta
@@ -116,18 +101,14 @@ awk '/^>/{name=$0; next}{print name, length($0)}' family.fasta
 >Zebrafish 1355
 ```
 
-All twelve records have plausible lengths for a full-length _NLRP1_. A truncated
-fragment or a stray isoform would show up here as an outlier length.
-
-The viewer opens unaligned sequences as readily as an alignment, once every row
-is the same length. Right-pad the shorter ones and `family.fasta` loads as a
-block of twelve rows.
+A truncated fragment or a stray isoform would show here as an outlier length.
+The viewer opens unaligned sequences once every row is the same length, so
+right-padding the shorter ones loads `family.fasta` as twelve rows.
 
 [![](../media/protein-family-sequences.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A360%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A0.76%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1-unaligned.aln%22%7D%7D%7D)
 
-The twelve sequences before alignment, one row each, colored by residue. Every
-row starts at residue 1 and stops at its own length, which is the ragged right
-edge. The conservation track above them is near flat.
+The twelve sequences before alignment, colored by residue, with a ragged right
+edge where each row ends. The conservation track above is near flat.
 
 ## 3. Align them
 
@@ -136,20 +117,14 @@ clustalw -INFILE=family.fasta -ALIGN -TYPE=PROTEIN \
   -OUTPUT=FASTA -OUTFILE=family.afa
 ```
 
-The alignment takes under two seconds. ClustalW reports `Alignment Score 258590`
-and 1666 columns, 129 more than the longest input, to make room for insertions.
-
-ClustalW is a progressive aligner. It is fast and deterministic, needs no
-configuration, and places the domain architecture below in the right columns.
-For a figure about the phylogeny, use MAFFT or MUSCLE for the alignment and
-IQ-TREE or RAxML for the tree.
+ClustalW finishes in under two seconds and reports `Alignment Score 258590` over
+1666 columns, 129 more than the longest input.
 
 [![](../media/protein-family-aligned.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A360%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A0.7%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%7D%7D)
 
-The same twelve after ClustalW, at 1666 columns. Vertical bands of color run
-through every row where the aligner found the same residues, and the pale
-stretches are gaps it inserted to keep them there. The conservation track has
-structure now.
+The twelve sequences after ClustalW, at 1666 columns. Vertical bands of color
+run through every row where the rows share residues, the pale stretches are gaps
+ClustalW inserted, and the conservation track now rises and falls.
 
 ## 4. Infer a tree
 
@@ -161,41 +136,34 @@ clustalw -INFILE=family.afa -TREE -TYPE=PROTEIN -OUTPUTTREE=phylip
 tr -d '[:space:]' < family.ph > family.nwk
 ```
 
-Read the result before trusting it:
+The Newick puts Zebrafish inside the rodents:
 
 ```
 (((((Mouse:0.11672,Rat:0.11797):0.05644,Hamster:0.14779):0.05664,
 Zebrafish:0.56540):0.02478,Hedgehog:0.22128):0.01141,...
 ```
 
-Zebrafish sits inside the rodents. It should be the outgroup, and its branch
-length is 0.56540 against 0.11 to 0.22 for everything else, the longest branch
-in the tree by a factor of three. Neighbor joining pulls the longest branch
-towards whichever other branch is longest (long-branch attraction). This page
-uses the tree to order the rows; its topology is not a phylogenetic result.
-
-With the tree open beside the alignment, the viewer draws the rows in tree
-order.
+Zebrafish should be the outgroup, but its branch of 0.56540, against 0.11 to
+0.22 for every other tip, draws it to the next longest (long-branch attraction).
+This page uses the tree only to order the rows.
 
 [![](../media/protein-family-tree.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A400%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A0.7%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%7D%7D)
 
-The alignment with the ClustalW tree drawn beside it. The three primates are
-adjacent rows and so are the three rodents, and Zebrafish is drawn next to the
-rodents on the long branch that put it there.
+The alignment in the order of the ClustalW tree beside it. The three primates
+are adjacent rows and so are the three rodents, and Zebrafish sits next to the
+rodents on its long branch.
 
-Clicking a node in the tree collapses the clade under it into one triangle,
-labelled with how many tips it holds, and hides those rows from the alignment.
+Click a node to collapse its clade into one triangle labelled with the number of
+tips.
 
 [![](../media/protein-family-collapsed.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A320%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A0.7%2C%22collapsed%22%3A%5B%22node-0-0-1-0-2-0-3%22%5D%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%7D%7D)
 
-Mouse, Rat and Hamster collapsed into the triangle marked 3. Eleven rows are
-drawn where there were twelve, and the columns of the rows that remain do not
-move.
+Mouse, Rat and Hamster collapsed into the triangle marked 3, leaving eleven rows
+in the same columns.
 
-## 5. Ask InterPro what the domains are
+## 5. Look up the domains
 
-InterPro precomputes matches for every UniProtKB sequence, so for accessions the
-CLI looks them up:
+The CLI looks up InterPro's precomputed Pfam matches for each accession:
 
 ```bash
 react-msaview-cli interpro accessions.tsv -o family-domains.gff
@@ -208,15 +176,9 @@ InterPro release 110.0; reading precomputed pfam matches...
 12 fetched, 0 from /home/you/.cache/react-msaview-cli/interpro
 ```
 
-The lookup takes four seconds for twelve proteins. The CLI writes the release
-number into the GFF header, which pins the coordinates in the figures to one
-InterPro version. A rerun reads from the disk cache and makes a single request.
-
-The other command, `react-msaview-cli interproscan`, submits sequences to the
-EBI job queue and waits about fifteen minutes. Use it for de novo assemblies or
-predicted proteins that InterPro has never seen.
-
-Count what came back before drawing it:
+For predicted proteins InterPro has never seen, `react-msaview-cli interproscan`
+submits the sequences to the EBI job queue and waits about fifteen minutes.
+Count what came back:
 
 ```bash
 grep IPR004020 family-domains.gff | cut -f1
@@ -230,42 +192,38 @@ Dog
 Hedgehog
 ```
 
-Five rows out of twelve carry the PYD, at residues 9-83 in each.
+Five rows out of twelve have the PYD, at residues 9-83 in each.
 
 ## 6. Open the three files
 
 <!-- usage: web -->
 
-`family.afa`, `family.nwk` and `family-domains.gff` go in the alignment, tree
-and annotation slots of the [import form](https://gmod.org/JBrowseMSA/demo/),
-either as local files or as URLs. Each slot has a FILE and a URL toggle, and the
-GFF slot is the one marked optional.
+Load `family.afa`, `family.nwk` and `family-domains.gff` into the alignment,
+tree and optional annotation slots of the
+[import form](https://gmod.org/JBrowseMSA/demo/), as local files or URLs.
 
 [![](../media/protein-family-domains.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A370%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A0.7%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1-domains.gff%22%7D%7D%7D)
 
-All three files in one view. The domain boxes replace the residue colors: NACHT
-first, the winged helix and the helical domain next to it, the leucine-rich
-repeats scattered through the middle, then the two FIIND blocks and the CARD at
-the right. Each of those spans one band of columns across all twelve rows. The
-PYD at the far left is drawn on five rows, and the other seven are blank there.
+The alignment, tree and domains, with domain boxes in place of the residue
+colors. NACHT, the winged helix and the helical domain come first, leucine-rich
+repeats fall through the middle, and the two FIIND blocks and the CARD sit at
+the right. The PYD at the far left is drawn on five rows, and the other seven
+are blank there.
 
-The legend in the top right names every accession in the file, and **Settings →
-Annotations** lists the same accessions with a checkbox each.
+**Settings → Annotations** lists each InterPro accession in the GFF with a
+checkbox.
 
 [![](../media/protein-family-filter.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A370%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A0.7%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1-domains.gff%22%7D%7D%7D)
 
-The Settings panel beside the view it filters, one checkbox per InterPro
-accession. IPR004020, the pyrin domain, has 5 matches in the GFF where NACHT,
-the winged helix, the helical domain and the CARD each have 12. IPR025307 has 24
-because it matches twice in every row, once as FIIND and once as the UPA-FIIND
-block beside it.
+The Settings panel, one checkbox per InterPro accession with its match count.
+IPR004020, the pyrin domain, has 5, and IPR025307 has 24 because it matches
+twice in every row, as FIIND and as the UPA-FIIND block beside it.
 
 <!-- usage: r -->
 
 [ggmsaview](https://github.com/GMOD/ggmsaview) takes the same three files as the
-alignment, tree and annotation arguments of `msaview()`, as paths or URLs. `w`
-alone opens the viewer in RStudio or a notebook, and `msaview_plot()` draws the
-same view as a ggplot2 figure:
+alignment, tree and annotation arguments of `msaview()`. `w` opens the viewer in
+RStudio or a notebook, and `msaview_plot()` draws the view as a ggplot2 figure:
 
 ```r
 library(ggmsaview)
@@ -282,29 +240,24 @@ ggplot2::ggsave("protein-family-domains-r.png", msaview_plot(w),
 
 ![](../media/protein-family-domains-r.png)
 
-The twelve rows over 1,666 columns with the GFF's domains as filled boxes and
-one legend entry per domain name. NACHT, the winged helix, the helical domain,
-the two FIIND blocks and the CARD each cover all twelve rows, the leucine-rich
-repeats fall in short runs through the middle, and the PYD at the far left
-covers five rows. Conservation and property conservation run above.
+The twelve rows with the GFF's domains as filled boxes and one legend entry per
+domain name. The PYD at the far left covers five rows.
 
 <!-- /usage -->
 
-## Rows with the pyrin domain
+## 7. Filter to the pyrin domain
 
-Unchecking everything except IPR004020 leaves only the pyrin domain on screen.
+Uncheck every accession but IPR004020, and the overlay draws the PYD alone.
 
 [![](../media/protein-family-pyd-only.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A370%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A0.7%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffFeatures%22%3A%7B%22IPR001315%22%3Atrue%2C%22IPR001611%22%3Atrue%2C%22IPR007111%22%3Atrue%2C%22IPR025307%22%3Atrue%2C%22IPR041075%22%3Atrue%2C%22IPR041267%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1-domains.gff%22%7D%7D%7D)
 
-The overlay reduced to the pyrin domain. The three primates carry it as one
-block of rows, Dog carries it in the row right under them, and Hedgehog carries
-it in the last row of the frame. Cow, Pig and Horse sit between those two
-without it.
+The overlay with only the pyrin domain turned on. The three primates and Dog
+have it in four adjacent rows, Hedgehog in the last row of the frame, and Cow,
+Pig and Horse, between them, lack it.
 
-## Domain coordinates and columns
+## 8. Compare residues with columns
 
-The NACHT domain is annotated in all twelve rows, and InterPro reports it at a
-different residue in each:
+InterPro reports NACHT at a different residue in each of the twelve rows:
 
 ```bash
 grep IPR007111 family-domains.gff | cut -f1,4,5
@@ -325,17 +278,14 @@ Hamster	93	258
 Zebrafish	258	428
 ```
 
-Human 328 and Hamster 93 are 235 residues apart. In the viewer, Human, Chimp,
-Rhesus, Dog, Hedgehog, Cow, Pig and Horse all begin that domain in column 371,
-and Mouse, Rat, Hamster and Zebrafish begin it in column 372, because the
-overlay projects each row's residue coordinates through that row's own gaps
-before drawing. The same projection draws the PYD in one place in the five rows
-that carry it, and the seven rows without it are empty there.
+Human 328 and Hamster 93 are 235 residues apart. In the viewer, Mouse, Rat,
+Hamster and Zebrafish begin NACHT in column 372 and the other eight rows in
+column 371, because the overlay maps each row's residue coordinates through the
+gaps in that row before drawing.
 
-## Missing annotations
+## 9. Look for missing annotations
 
-Cow, Hedgehog and Zebrafish have no leucine-rich repeats called at all, where
-Human has three and Rhesus four:
+Cow, Hedgehog and Zebrafish have no leucine-rich repeats called at all:
 
 ```bash
 grep IPR001611 family-domains.gff | cut -f1 | sort | uniq -c
@@ -353,25 +303,23 @@ grep IPR001611 family-domains.gff | cut -f1 | sort | uniq -c
       4 Rhesus
 ```
 
-A region that draws blank can mean the protein has none, or that nobody
-annotated the ones it has. Several of these rows are unreviewed entries whose
-gene models under-call. At whole-protein scale the two look identical; at base
-resolution a row with residues under an unannotated stretch looks different from
-a row that is gap there.
+A blank region means the protein lacks the domain or its entry, often an
+unreviewed gene model, has no call there. At one letter per column, a row with
+residues under the blank differs from a row of gaps.
 
 [![](../media/protein-family-closeup.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A520%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A14%2C%22rowHeight%22%3A20%2C%22scrollX%22%3A-476%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1-domains.gff%22%7D%7D%7D)
 
 The left edge of the PYD block at one letter per column. The five rows with the
-domain are green. Cow fills all 75 of those columns with residues and carries no
-pyrin domain over them; Horse fills 73 of them. Mouse, Rat and Hamster are
-mostly dashes there, and Hamster has 24 residues in the 75 columns.
+domain are green. Cow fills all 75 of those columns with residues and has no
+pyrin domain called over them, and Horse fills 73 of them. Mouse, Rat and
+Hamster are mostly dashes there, and Hamster has 24 residues in the 75 columns.
 
-## Share the view
+## 10. Share the view
 
-A file you opened from your own computer travels inside the page URL, and an
-alignment this size does not fit, so the header says **Not in the link**. Put
-the three files on a server that sends them over HTTPS with CORS (a GitHub repo
-through `raw.githubusercontent.com` works), and name the URLs instead:
+An alignment this size opened from your own computer does not fit in the page
+URL, so the header says **Not in the link**. Put the three files on a server
+that sends CORS headers over HTTPS (`raw.githubusercontent.com` works), and name
+the URLs:
 
 ```json
 {
@@ -387,13 +335,13 @@ through `raw.githubusercontent.com` works), and name the URLs instead:
 }
 ```
 
-URL-encode that and append it to the app as `#data=`. The link carries the
-addresses of the files, so it works at any size. The optional `highlights` takes
-1-based inclusive columns and puts the PYD band in the link.
+URL-encode that and append it to the app as `#data=`. The link holds the file
+addresses, so it works at any size. The optional `highlights` takes 1-based
+inclusive columns.
 
 [![](../media/protein-family-link.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A370%2C%22treeAreaWidth%22%3A150%2C%22colWidth%22%3A0.7%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22highlights%22%3A%5B%7B%22start%22%3A39%2C%22end%22%3A113%2C%22label%22%3A%22PYD%2C%20Pfam%20PF02758%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1.nh%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fnlrp1-domains.gff%22%7D%7D%7D)
 
-What that link opens: the three hosted files, and columns 39 to 113 banded and
+The three hosted files opened from that link, with columns 39 to 113 banded and
 labelled PYD across all twelve rows.
 
 ## Reproduce it end to end
@@ -402,12 +350,10 @@ labelled PYD across all twelve rows.
 runs the four commands above in order:
 
 1. It fetches one sequence per accession from UniProt and names each FASTA
-   record by its label, since the label is what the viewer draws down the side.
-2. ClustalW aligns the records and infers a neighbor-joining tree from the
-   alignment.
-3. `react-msaview-cli interpro` reads InterPro's precomputed Pfam matches for
-   the same accessions and writes them as a GFF, each domain in its own
-   protein's residue numbering.
+   record by its label.
+2. ClustalW aligns the records and infers a neighbor-joining tree.
+3. `react-msaview-cli interpro` writes InterPro's precomputed Pfam matches for
+   the accessions as a GFF, in each protein's residue numbering.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
@@ -416,9 +362,8 @@ curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/sc
 bash build_protein_family.sh
 ```
 
-With no arguments the script writes the accession list above and builds all
-three files beside it. Point it at your own list to do the same for another
-family:
+With no arguments the script writes the accession list above and builds the
+three files beside it. Point it at your own list for another family:
 
 ```bash
 bash build_protein_family.sh my-accessions.tsv out/

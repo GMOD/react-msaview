@@ -1,12 +1,15 @@
 # Influenza drift in a notebook
 
 The H3N2 vaccine is reformulated because the virus's hemagglutinin changes where
-antibodies bind it. This page takes the 25 H3N2 strains chosen for the northern
-hemisphere vaccine between 1968 and 2022, aligns their hemagglutinin, counts how
-often each column changed from one strain to the next, and draws the result in
-Jupyter with `jbrowsemsa`. The alignment carries its own control: the HA2 fusion
-peptide, which has to stay the same for the protein to work, sits in the same
-567 columns as the antigenic sites that change every few years.
+antibodies bind it, while its HA2 fusion peptide has to stay the same for the
+protein to work. In a Jupyter notebook with `jbrowsemsa`, for the 25 strains
+chosen for the northern hemisphere vaccine from 1968 to 2022, we:
+
+- fetch the hemagglutinins and align them in year order
+- infer a tree and check it against the dates
+- count each column's changes between strains and add them as a track
+- mark antigenic site B and the fusion peptide, and read both year by year
+- read clicks back into Python and share the view as a link
 
 ## Prerequisites
 
@@ -38,10 +41,10 @@ fetch these. Nothing to download.
 
 </details>
 
-## 1. The strains
+## 1. List the strains
 
-Each row is a year, the strain WHO named for that season, and the accession of a
-full-length HA0 record for it.
+Each entry names a year, the strain WHO chose for that season, and the accession
+of its full-length HA0 record:
 
 ```python
 STRAINS = [
@@ -60,15 +63,13 @@ strains["row"] = [
 ]
 ```
 
-Each accession came from one Entrez search of the protein database for the
-strain name, `"A/Darwin/9/2021"[All Fields] AND hemagglutinin[Protein Name]`. A
-strain has several records, some of them partial, and the one kept is the
-full-length HA0 of 566 residues. The build script at the bottom of this page
-pins the list above, because a search run next year can return a different first
-hit.
+An Entrez search for the strain name,
+`"A/Darwin/9/2021"[All Fields] AND hemagglutinin[Protein Name]`, found each
+accession. The list is pinned, because the same search next year can return a
+different first hit.
 
-`strains.row` is the label the viewer draws down the side: the year first, so
-the rows sort by date and a Newick tip name carries no space.
+`strains.row` is the label the viewer draws down the side, year first so the
+rows sort by date, and with no space so it survives as a Newick tip name.
 
 ## 2. Fetch the records
 
@@ -100,7 +101,7 @@ All 25 are 566 residues: a 16-residue signal peptide, then HA1 at 329 residues,
 then HA2. H3 numbering counts from HA1's first residue, so every position quoted
 below is that number plus 16.
 
-## 3. Align
+## 3. Align the records in year order
 
 ```python
 subprocess.run(
@@ -116,20 +117,19 @@ SeqIO.write([aligned[row] for row in strains.row], "h3n2-ha.aln", "fasta")
 alignment: 25 rows x 567 columns
 ```
 
-The second write puts the rows back in year order. ClustalW writes its output in
-guide-tree order, and the viewer draws the rows in the order the file gives
-them, so without the rewrite the first row is a 2013 strain.
+The second write puts the rows back in year order. ClustalW writes them in
+guide-tree order, which puts a 2013 strain first.
 
 [![](../media/flu-drift-alignment.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A640%2C%22treeAreaWidth%22%3A210%2C%22colWidth%22%3A2.2%2C%22rowHeight%22%3A16%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh3n2%2Fh3n2-ha.aln%22%7D%7D%7D)
 
-The 25 hemagglutinins in year order, 1968 at the top and 2022 at the bottom.
-Every record is 566 residues, and the alignment is 567 columns wide, because
-A/Victoria/3/1975 carries one extra residue near the end of the signal peptide.
+The 25 hemagglutinins in year order, 1968 at the top. The alignment is 567
+columns wide, one more than every record, because A/Victoria/3/1975 has an extra
+residue near the end of the signal peptide.
 
-## 4. A tree, and a date check
+## 4. Infer a tree and check it against the dates
 
-Biopython builds the distance matrix and the neighbor-joining tree, and the tree
-carries no year.
+Biopython builds a neighbor-joining tree from the alignment alone, rooted on the
+1968 strain:
 
 ```python
 msa = MultipleSeqAlignment([aligned[row] for row in strains.row])
@@ -138,8 +138,7 @@ tree.root_with_outgroup(strains.row[0])
 Phylo.write(tree, "h3n2-ha.nh", "newick")
 ```
 
-A tree built from sequences alone can be checked against the dates the sequences
-came with. Distance from the 1968 root should grow with the year:
+Distance from the 1968 root should grow with the year, which the tree never saw:
 
 ```python
 depth = tree.depths()
@@ -154,14 +153,13 @@ root-to-tip distance against year: r = 0.985
 
 [![](../media/flu-drift-tree.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A640%2C%22treeAreaWidth%22%3A210%2C%22colWidth%22%3A2.2%2C%22rowHeight%22%3A16%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh3n2%2Fh3n2-ha.aln%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh3n2%2Fh3n2-ha.nh%22%7D%7D%7D)
 
-The tree beside the alignment. The 1968 root is at the top, and the branch
-lengths grow down the series.
+The tree beside the alignment, with the 1968 root at the top and branch lengths
+growing down the series.
 
-## 5. Count the changes the alignment carries
+## 5. Count the changes between consecutive strains
 
-The viewer's conservation track reads a column across all 25 rows at once. A
-series that runs in time supports a different count: how often the letter
-changed from one vaccine strain to the next.
+For each column, count how often the letter changed from one vaccine strain to
+the next:
 
 ```python
 columns = np.array([list(str(aligned[row].seq)) for row in strains.row])
@@ -174,9 +172,8 @@ the busiest column changed 11 times
 the 2022 strain matches the 1968 one in 479 of 567 columns
 ```
 
-Four fifths of the columns hold the same letter from one strain to the next all
-the way through, and the 2022 strain matches the 1968 one in 479 of the 567. The
-`column_tracks` trait takes the counts as one bar per column:
+The `column_tracks` trait takes the counts as one bar per column, and `values`
+takes the numpy array as it is:
 
 ```python
 drift = {
@@ -190,14 +187,12 @@ drift = {
 }
 ```
 
-`values` takes a numpy array as it is.
-
 ## 6. Mark the antigenic sites and the fusion peptide
 
 Antigenic site B is two stretches of HA1, 155 to 160 and 186 to 198, on the rim
-of the receptor-binding site. The fusion peptide is the first 11 residues of
-HA2, which insert into the endosome membrane. Both go in as highlights on the
-1968 row, and the viewer projects a row's residues onto columns:
+of the receptor-binding site, and the fusion peptide is the first 11 residues of
+HA2. Both go in as highlights on the 1968 row, which the viewer projects onto
+columns:
 
 ```python
 SIGNAL, HA1_LENGTH = 16, 329
@@ -237,9 +232,9 @@ view
 
 The drift track over the alignment, with `relative_to` drawing every row as its
 differences from 1968. The two orange bands are site B, the blue band is the
-fusion peptide, and the red bars stand highest in HA1.
+fusion peptide, and the red bars are tallest in HA1.
 
-## 7. Read the two regions
+## 7. Read site B and the fusion peptide year by year
 
 ```python
 residue_column = np.cumsum([c != "-" for c in str(aligned[reference].seq)])
@@ -301,14 +296,14 @@ few rows.
 
 [![](../media/flu-drift-fusion.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A780%2C%22treeAreaWidth%22%3A210%2C%22colWidth%22%3A13%2C%22rowHeight%22%3A20%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh3n2%2Fh3n2-ha.aln%22%7D%2C%22scrollX%22%3A-4446%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22drift%22%2C%22name%22%3A%22Changes%20between%20consecutive%20strains%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C5%2C0%2C1%2C0%2C2%2C1%2C3%2C5%2C0%2C2%2C3%2C0%2C0%2C0%2C0%2C0%2C2%2C0%2C0%2C0%2C2%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C1%2C0%2C4%2C0%2C0%2C2%2C1%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C5%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C1%2C0%2C0%2C0%2C1%2C4%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2%2C1%2C0%2C2%2C0%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C3%2C0%2C3%2C0%2C1%2C0%2C5%2C0%2C0%2C3%2C0%2C3%2C0%2C3%2C0%2C6%2C6%2C0%2C4%2C0%2C5%2C1%2C9%2C10%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3%2C7%2C1%2C3%2C7%2C4%2C0%2C0%2C1%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C3%2C3%2C2%2C2%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C11%2C0%2C3%2C5%2C4%2C0%2C2%2C5%2C4%2C1%2C5%2C2%2C3%2C0%2C0%2C2%2C1%2C0%2C0%2C0%2C0%2C1%2C2%2C0%2C0%2C0%2C1%2C1%2C4%2C0%2C0%2C2%2C0%2C4%2C0%2C0%2C1%2C6%2C0%2C8%2C5%2C1%2C0%2C2%2C0%2C0%2C0%2C2%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C1%2C0%2C0%2C0%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C2%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C2%2C0%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C2%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C4%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2%2C0%2C1%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2%2C3%2C0%2C0%2C0%2C0%2C3%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%5D%2C%22max%22%3A11%2C%22color%22%3A%22%23c0392b%22%2C%22height%22%3A60%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%221968_HongKong%22%2C%22start%22%3A171%2C%22end%22%3A176%2C%22label%22%3A%22site%20B%20155-160%22%7D%2C%7B%22row%22%3A%221968_HongKong%22%2C%22start%22%3A202%2C%22end%22%3A214%2C%22label%22%3A%22site%20B%20186-198%22%7D%2C%7B%22row%22%3A%221968_HongKong%22%2C%22start%22%3A346%2C%22end%22%3A356%2C%22label%22%3A%22fusion%20peptide%22%2C%22color%22%3A%22rgba(0%2C120%2C255%2C0.18)%22%7D%5D%7D%7D>)
 
-The fusion peptide in the same alignment at the same resolution. The boxed
-column is the one substitution the series carries there, a leucine in 1968 and
-1972 and an isoleucine in the 23 strains after them.
+The fusion peptide at the same resolution, where the boxed column holds its one
+substitution in the series, leucine in 1968 and 1972 and isoleucine in the 23
+strains after them.
 
-## 8. The loop back to Python
+## 8. Read clicks back in Python
 
-The widget sets two traits from the browser. `clicked` holds the cell a click
-pinned, and `viewport` holds the columns on screen:
+The browser sets two traits on the widget: `clicked`, the cell a click pinned,
+and `viewport`, the columns on screen:
 
 ```python
 def show(change):
@@ -319,10 +314,9 @@ def show(change):
 view.observe(show, "clicked")
 ```
 
-Both are 1-based, `column` counts every column of the alignment, and `residue`
-counts the clicked row's own letters. A click on a column of the figure above
-answers with the year, the column and the residue, which indexes straight back
-into the DataFrame:
+`column` and `residue` count from 1, `column` over every alignment column and
+`residue` over the clicked row's letters, so a click indexes back into the
+DataFrame:
 
 ```python
 view.observe(
@@ -336,16 +330,15 @@ view.observe(
 )
 ```
 
-Setting a trait redraws the widget in place and keeps its scroll and zoom, so a
-cell that changes `view.color_scheme` or `view.highlights` restyles the view
-above it.
+Setting a trait such as `view.color_scheme` or `view.highlights` redraws the
+widget in place and keeps its scroll and zoom.
 
 ## 9. Share the link
 
 <!-- usage: web -->
 
-The same layers go into a URL that opens the hosted alignment in the web viewer,
-for a reader with no kernel:
+The drift track and the bands also go into a URL that opens the hosted alignment
+in the web viewer, for a reader with no kernel:
 
 ```python
 snapshot = {"msaview": {
@@ -374,8 +367,8 @@ whole.
 <!-- usage: r -->
 
 [ggmsaview](https://github.com/GMOD/ggmsaview) opens the same hosted alignment
-and tree. `h3n2-layers.json` holds the drift counts and the three bands the
-notebook computed, so R reads them rather than counting again:
+and tree, and reads the drift counts and the three bands from
+`h3n2-layers.json`:
 
 ```r
 library(ggmsaview)
@@ -396,9 +389,9 @@ ggplot2::ggsave("flu-drift-share-r.png",
 
 ![](../media/flu-drift-share-r.png)
 
-The 25 strains in tree order beside the drift track, its red bars tallest in HA1
-between columns 150 and 250, where the two orange site B bands sit. The blue
-band is the fusion peptide, under a stretch of columns with almost no changes.
+The 25 strains in tree order beside the drift track, whose red bars are tallest
+in HA1 under the two orange site B bands, between columns 150 and 250. The blue
+fusion-peptide band sits over columns with almost no changes.
 
 <!-- /usage -->
 
@@ -408,15 +401,13 @@ band is the fusion peptide, under a stretch of columns with almost no changes.
 runs the steps above in a plain Python process, without the widget:
 
 1. It fetches the 25 HA0 records from NCBI in one request, aligns them with
-   ClustalW, and puts the rows back in year order, since ClustalW writes them in
-   guide-tree order.
-2. It builds a neighbor-joining tree from the alignment's own distances, rooted
-   on the 1968 strain, and correlates each strain's distance from the root with
-   its year as a date check.
-3. It counts how often each column changed from one strain to the next, and
+   ClustalW and restores year order.
+2. It builds a neighbor-joining tree rooted on the 1968 strain and correlates
+   root-to-tip distance with year.
+3. It counts how often each column changed between consecutive strains, and
    reads site B and the fusion peptide year by year.
-4. It writes the drift track and the bands on the two regions as a layers file,
-   and the `#data=` link that opens them over the hosted alignment.
+4. It writes the drift track and the bands as a layers file, and the `#data=`
+   link that opens them over the hosted alignment.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
@@ -426,7 +417,7 @@ python build_flu_drift.py out/
 ```
 
 The script writes `out/h3n2-ha.aln`, `out/h3n2-ha.nh` and
-`out/h3n2-layers.json`, the files the links on this page open, and prints the
+`out/h3n2-layers.json`, which the links on this page open, and prints the
 numbers quoted here.
 
 ## See also

@@ -2,11 +2,15 @@
 
 SARS-CoV-2 XBB descends from two BA.2 lineages at once. BJ.1 gave it the 5' end
 of its genome and BM.1.1.1 the 3' end, and the join between the two falls inside
-the spike gene. This page takes five whole genomes from GenBank, aligns them,
-counts the differences between the XBB.1 row and each parent row in a sliding
-window, and reads the breakpoint off the column where the lower of the two
-counts changes hands. A BA.5 genome is the control: a BA.2 descendant of its own
-that inherits from neither parent, run through the same scan.
+the spike gene, so the XBB.1 row of an alignment matches one parent to the left
+of the join and the other to the right. For five whole genomes from GenBank,
+with a BA.5 genome as a control that inherits from neither parent, we:
+
+- fetch the genomes, align them and infer a tree
+- project the reference genes onto every row
+- count the differences to each parent in a sliding window
+- pin the breakpoint with the informative sites, for XBB.1 and the control
+- check the result against the raw columns
 
 ## Prerequisites
 
@@ -41,11 +45,11 @@ these.
 
 </details>
 
-## 1. Name the rows
+## 1. Fetch the five genomes
 
-Write one genome per line: the label the viewer draws, the GenBank accession,
-and the Pango lineage NCBI Virus assigns it. The label becomes the FASTA
-defline, the tree tip and the GFF seq_id.
+Write one genome per line, with the label the viewer draws, the GenBank
+accession, and the Pango lineage NCBI Virus assigns it. The label becomes the
+FASTA defline, the tree tip and the GFF seq_id.
 
 ```
 Wuhan-Hu-1	NC_045512.2	reference
@@ -55,23 +59,16 @@ XBB.1	PV014247.1	XBB.1
 BA.5	PQ577962.1	BA.5
 ```
 
-Pango lineage is a field of NCBI Virus metadata, and the `datasets` CLI filters
-on it:
+The `datasets` CLI filters on NCBI Virus's Pango lineage field:
 
 ```bash
 datasets summary virus genome taxon sars-cov-2 --lineage BJ.1 \
   --complete-only --annotated --as-json-lines
 ```
 
-BJ.1 is the scarce one. GenBank holds a single complete genome of it,
-OQ859938.1, collected in India in September 2022, and that record is the BJ.1
-row. The BM.1.1.1, XBB.1 and BA.5 rows are each the longest record their own
-lineage filter returned with no ambiguous base.
-
-## 2. Fetch the genomes
-
-One `efetch` request takes all five accessions, and a short script relabels each
-record to its row name:
+GenBank holds one complete BJ.1 genome, OQ859938.1, so that record is the BJ.1
+row. The other three rows are each the longest record their lineage filter
+returned with no ambiguous base. One `efetch` request takes all five accessions:
 
 ```bash
 ids=$(awk -F'\t' '{printf "%s%s", sep, $2; sep=","}' recombinant-rows.tsv)
@@ -87,12 +84,11 @@ curl -sf "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&i
   BA.5         PQ577962.1   BA.5             29835 bp  0 N
 ```
 
-The reference is the longest at 29,903 bases and the four Omicron genomes run
-between 29,712 and 29,847. The BJ.1 record carries 101 ambiguous bases, 57 of
-them in three runs inside the first 500 bases of the spike gene, and the scan
-below counts only the columns where both rows carry a base.
+The BJ.1 record has 101 ambiguous bases, 57 of them inside the first 500 bases
+of the spike gene, so the scan below counts only the columns where both rows
+have a base.
 
-## 3. Align them and infer a tree
+## 2. Align the genomes and infer a tree
 
 ```bash
 clustalw -INFILE=recombinant.fasta -ALIGN -TYPE=DNA -OUTORDER=INPUT \
@@ -108,10 +104,6 @@ Five whole genomes take about four minutes on a laptop.
 BJ.1:0.00048,XBB.1:0.00033);
 ```
 
-Wuhan-Hu-1 has the longest branch at 0.00174 and the rest run between 0.00031
-and 0.00064, and neighbor joining draws Wuhan-Hu-1 beside BA.5. XBB.1 and BJ.1
-share the base of the tree, and the tree here orders the rows in the viewer.
-
 ```
 5 rows, 29903 alignment columns, 29903 of them a base of Wuhan-Hu-1
   Wuhan-Hu-1     0 gap columns before its first base,   0 after its last,   0 deleted in between
@@ -122,16 +114,13 @@ share the base of the tree, and the tree here orders the rows in the viewer.
 ```
 
 The reference row takes a column of its own for every one of its bases, so a
-column number is a Wuhan-Hu-1 coordinate for the rest of this page. The other
-four rows each fit inside those 29,903 columns: two of them start and stop short
-of the ends, and three carry between 56 and 68 deleted bases in between.
+column number is a Wuhan-Hu-1 coordinate for the rest of this page.
 
-## 4. Put the genes on every row
+## 3. Project the reference genes onto every row
 
-RefSeq annotates NC_045512.2 and no other accession here, so the gene
-coordinates reach the other four rows through the alignment: a reference
-position gives an alignment column, and that column gives each row its own
-position.
+RefSeq annotates NC_045512.2 and none of the other four accessions, so the gene
+coordinates reach the other rows through the alignment. A reference position
+gives an alignment column, and that column gives each row its own position.
 
 ```python
 col_of_ref = [i for i, c in enumerate(seqs[REF]) if c != '-']
@@ -140,9 +129,9 @@ b = pos_of_col[row][col_of_ref[end - 1]]
 g.write(f'{row}\tRefSeq\t{kind}\t{a}\t{b}\t.\t{strand}\t.\tName={name};color={color}\n')
 ```
 
-The same projection puts two subregions of spike on every row: the
-receptor-binding domain, spike residues 331 to 528, and the receptor-binding
-motif inside it, residues 438 to 506.
+Two subregions of spike go on every row the same way, the receptor-binding
+domain at residues 331 to 528 and the receptor-binding motif inside it at 438
+to 506.
 
 ```
 11 genes in the Wuhan-Hu-1 annotation, ORF1ab at 266-21555 through ORF10 at 29558-29674
@@ -155,21 +144,20 @@ BJ.1	RefSeq	gene	21538	25359	.	+	.	Name=S;color=%234e79a7
 XBB.1	RefSeq	gene	21508	25317	.	+	.	Name=S;color=%234e79a7
 ```
 
-Each row's spike span starts earlier than the reference's by the number of
-columns upstream of it that the row leaves as a gap: 25 for BJ.1 and 55 for
-XBB.1.
+Each row's spike span starts earlier than the reference's by the gap columns
+upstream of it, 25 for BJ.1 and 55 for XBB.1.
 
 [![](../media/recombination_breakpoint-1.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A340%2C%22treeAreaWidth%22%3A230%2C%22colWidth%22%3A0.04347389893990569%2C%22rowHeight%22%3A34%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant-genes.gff%22%7D%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22featureLabel%22%2C%22field%22%3A%22Name%22%7D%5D%2C%22showDomainLegend%22%3Afalse%7D%7D)
 
-Five rows of 29,903 columns, each carrying the 11 genes as arrows. ORF1ab fills
-the first two thirds, S is the blue arrow after it, and inside S sit the red
+Five rows of 29,903 columns with the 11 genes as arrows. ORF1ab fills the first
+two thirds, S is the blue arrow after it, and inside S sit the red
 receptor-binding domain and the purple receptor-binding motif.
 
-## 5. Count the differences to each parent
+## 4. Count the differences to each parent
 
-Two rows differ at a column when both carry a base and the two bases are not the
-same. The scan counts those differences in a window of 200 columns centered on
-every column of the alignment, once against each parent:
+The scan counts the columns where a row and a parent have different bases, in a
+window of 200 columns centered on every column of the alignment, once per
+parent:
 
 ```python
 def compare(a, b):
@@ -187,8 +175,7 @@ def scan(diff):
             for i in range(ncol)]
 ```
 
-All four Omicron rows descend from BA.2, so over the whole genome every pair
-sits above 99.8% identity:
+All four Omicron rows descend from BA.2, so every pair is above 99.8% identical:
 
 ```
 XBB.1     against BJ.1       24 differences over 29660 comparable columns, 99.92% identity
@@ -199,7 +186,7 @@ BA.5      against BM.1.1.1   46 differences over 29832 comparable columns, 99.85
 
 A `bar` track holds one value per alignment column, so the two curves travel
 over the receptor-binding domain cut out of the alignment, which keeps the link
-short. The tree file serves both files, whose rows carry the same names.
+short and lets one tree file serve both alignments.
 
 ```
 the receptor-binding domain is columns 22553-23146, Wuhan-Hu-1 22553-23146, 594 columns
@@ -213,13 +200,10 @@ XBB.1: the two counts reach 7 differences per 200 columns inside the receptor-bi
 
 [![](../media/recombination_breakpoint-2.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A230%2C%22colWidth%22%3A2.1885521885521886%2C%22rowHeight%22%3A26%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant-rbd.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22xbb1-bj1%22%2C%22name%22%3A%22XBB.1%20vs%20BJ.1%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C4%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C3%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C1%2C1%2C1%2C1%2C1%2C1%5D%2C%22max%22%3A7%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A70%7D%2C%7B%22id%22%3A%22xbb1-bm111%22%2C%22name%22%3A%22XBB.1%20vs%20BM.1.1.1%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C2%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%5D%2C%22max%22%3A7%2C%22color%22%3A%22%23e15759%22%2C%22height%22%3A70%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A344%2C%22end%22%3A390%2C%22label%22%3A%22breakpoint%2022896-22942%22%2C%22color%22%3A%22rgba(0%2C0%2C0%2C0.18)%22%7D%5D%7D%7D>)
 
-The 594 columns of the receptor-binding domain with the two counts above them,
-blue for the differences to BJ.1 and red for those to BM.1.1.1. Blue holds at 0
-or 1 across the columns left of the break and reaches 7 to the right of it. Red
-runs between 0 and 2 on the left and between 0 and 3 on the right, so the blue
-count is under the red one on one side and over it on the other. The vertical
-marker at column 22,931 is where the two change places, and it lands inside the
-grey band, the 22,896-22,942 interval the next section pins.
+The 594 columns of the receptor-binding domain under the two counts, blue for
+the differences to BJ.1 and red for those to BM.1.1.1. The marker at column
+22,931 is where the two change places, inside the grey band of the 22,896-22,942
+interval the next step pins.
 
 <!-- usage: r -->
 
@@ -251,19 +235,18 @@ ggplot2::ggsave("recombination_breakpoint-2-r.png",
 
 ![](../media/recombination_breakpoint-2-r.png)
 
-The same 594 columns under the two counts, blue against BJ.1 and red against
-BM.1.1.1, and the grey band of the 22,896-22,942 interval. The figure has no
-marker at column 22,931, which the web figure draws as a callout rather than
-from the data.
+The same 594 columns under the two counts as a ggplot2 figure, with the grey
+band of the 22,896-22,942 interval. The marker at column 22,931 is missing,
+because the web figure draws it as a callout rather than from the data.
 
 <!-- /usage -->
 
-## 6. Pin the breakpoint with the informative sites
+## 5. Pin the breakpoint with the informative sites
 
-A column where the two parents carry different bases and the third row carries
-one of them is a vote for that parent. A recombinant's votes fall into a 5'
-block and a 3' block, so the split that puts the most votes on their own side is
-the breakpoint:
+A column where the two parents have different bases and the third row has one of
+them is a vote for that parent. A recombinant's votes fall into a 5' block and a
+3' block, so the split that puts the most votes on their own side is the
+breakpoint:
 
 ```python
 def best_split(sites):
@@ -283,18 +266,16 @@ XBB.1: 3 sites on the other side: 1093, 10189, 23438
 the breakpoint interval is Wuhan-Hu-1 22896-22942, 47 nt, spike codons 445 to 460
 ```
 
-41 of the 44 sites land on the side the split predicts, and the three that do
-not sit at 1,093, 10,189 and 23,438. The 47 bases between the last BJ.1 vote and
-the first BM.1.1.1 vote are spike codons 445 to 460, both inside the
-receptor-binding motif. 22,895 and 22,896 are the first two bases of codon 445
-and 22,942 is the third base of codon 460, so the substitutions the interval
-runs between are S:V445P and S:N460K.
+41 of the 44 sites fall on the side the split predicts. The 47 bases between the
+last BJ.1 vote and the first BM.1.1.1 vote are spike codons 445 to 460, inside
+the receptor-binding motif, so the interval runs between the substitutions
+S:V445P and S:N460K.
 
-## 7. The control
+## 6. Run the same scan on the control
 
 BA.5 and the two parents are three separate BA.2 descendants, so the BA.5 row
-stands to both parents the way a recombinant's row would if the recombination
-had never happened. The same scan and the same split run over it.
+stands to both parents as a row with no recombination behind it. The same scan
+and split run over it:
 
 ```
 BA.5: 42 informative sites, 19 voting BJ.1 and 23 voting BM.1.1.1
@@ -306,20 +287,17 @@ BA.5: the two counts reach 11 differences per 200 columns inside the receptor-bi
   BA.5 vs BM.1.1.1: 2 to 6 left of the break, 0 to 6 right of it
 ```
 
-The best split for BA.5 leaves 14 of its 42 sites on the other side, and the
-interval it names runs from 12,444 to 15,738, a 3.3 kb stretch inside ORF1ab.
-Six of the 14 sit between 22,001 and 22,331, inside the spike gene.
+The best split for BA.5 leaves 14 of its 42 sites on the other side and names a
+3.3 kb interval inside ORF1ab, 12,444 to 15,738.
 
 [![](../media/recombination_breakpoint-3.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A500%2C%22treeAreaWidth%22%3A230%2C%22colWidth%22%3A2.1885521885521886%2C%22rowHeight%22%3A26%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant-rbd.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22ba5-bj1%22%2C%22name%22%3A%22BA.5%20vs%20BJ.1%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C4%2C4%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C4%2C5%2C5%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C8%2C9%2C9%2C9%2C9%2C9%2C9%2C9%2C9%2C9%2C9%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C11%2C11%2C11%2C11%2C11%2C11%2C11%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C10%2C9%2C8%2C8%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C7%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C1%2C1%2C1%2C1%2C1%2C1%5D%2C%22max%22%3A11%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A70%7D%2C%7B%22id%22%3A%22ba5-bm111%22%2C%22name%22%3A%22BA.5%20vs%20BM.1.1.1%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C3%2C3%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C6%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C4%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C3%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%5D%2C%22max%22%3A11%2C%22color%22%3A%22%23e15759%22%2C%22height%22%3A70%7D%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A344%2C%22end%22%3A390%2C%22label%22%3A%22breakpoint%2022896-22942%22%2C%22color%22%3A%22rgba(0%2C0%2C0%2C0.18)%22%7D%5D%7D%7D>)
 
-The same window with the control's two counts. Both rise and fall together, and
+The same window under the control's two counts. Both rise and fall together, and
 the blue count stays at or above the red one across all 594 columns.
 
-## 8. Check it against the raw columns
+## 7. Check it against the raw columns
 
-Each difference the counts add up is a column of the alignment. In the 2 kb
-either side of the break they fall almost all on one parent per side, and the
-side changes at the break.
+Count the differences to each parent in the 2 kb either side of the break:
 
 ```
 2000 columns left of the break: XBB.1 and BJ.1 differ at 1 of the 1942 columns where both carry a base
@@ -330,12 +308,11 @@ side changes at the break.
 
 [![](../media/recombination_breakpoint-4.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A380%2C%22treeAreaWidth%22%3A230%2C%22colWidth%22%3A2.1885521885521886%2C%22rowHeight%22%3A34%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant-rbd.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.nwk%22%7D%2C%22columnTracks%22%3A%5B%5D%2C%22highlights%22%3A%5B%7B%22start%22%3A344%2C%22end%22%3A390%2C%22label%22%3A%22breakpoint%2022896-22942%22%2C%22color%22%3A%22rgba(0%2C0%2C0%2C0.18)%22%7D%5D%2C%22relativeTo%22%3A%22XBB.1%22%7D%7D>)
 
-The receptor-binding domain read against the XBB.1 row: a pale cell where a row
-carries the same base, a colored one where it carries another. The BJ.1 row
-carries no colored cell across the 344 columns left of the break, and the
-BM.1.1.1 row carries one across the 205 to its right.
+The receptor-binding domain read against the XBB.1 row, with a pale cell for the
+same base and a colored one for a different base. The BJ.1 row has no colored
+cell left of the break, and the BM.1.1.1 row has one to its right.
 
-The six informative sites nearest the break carry the swap base by base:
+The six informative sites nearest the break, base by base:
 
 ```
 position  Wuhan-Hu-1        BJ.1    BM.1.1.1       XBB.1        BA.5
@@ -349,9 +326,9 @@ position  Wuhan-Hu-1        BJ.1    BM.1.1.1       XBB.1        BA.5
 
 [![](../media/recombination_breakpoint-5.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A420%2C%22treeAreaWidth%22%3A230%2C%22colWidth%22%3A21%2C%22rowHeight%22%3A30%2C%22scrollX%22%3A-480564%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22relativeTo%22%3A%22XBB.1%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Frecombinant%2Frecombinant.nwk%22%7D%2C%22highlights%22%3A%5B%7B%22start%22%3A22896%2C%22end%22%3A22942%2C%22color%22%3A%22rgba(0%2C0%2C0%2C0.18)%22%7D%5D%7D%7D>)
 
-The same six columns at base resolution. XBB.1 reads C and C at 22,895 and
-22,896, the bases BJ.1 carries, while BM.1.1.1, Wuhan-Hu-1 and BA.5 read G and
-T. At 22,942 XBB.1 reads G, the base BM.1.1.1 carries, and BJ.1 reads T.
+The same six columns at base resolution. XBB.1 reads the BJ.1 bases C and C at
+22,895 and 22,896, where BM.1.1.1, Wuhan-Hu-1 and BA.5 read G and T, and at
+22,942 it reads the BM.1.1.1 base G against BJ.1's T.
 
 ## Reproduce it end to end
 
@@ -360,14 +337,13 @@ runs the commands above in order:
 
 1. It fetches the five genomes in one efetch request and the reference
    annotation as GFF3, and relabels each sequence to its row name.
-2. ClustalW aligns the genomes and infers a neighbor-joining tree from the
-   alignment, which takes about four minutes on five whole genomes.
-3. It projects each reference gene through the alignment, so every row carries
-   the span in its own coordinates, and adds the receptor-binding domain and
-   motif the same way.
+2. ClustalW aligns the genomes and infers a neighbor-joining tree, which takes
+   about four minutes on five whole genomes.
+3. It projects each reference gene through the alignment into every row's own
+   coordinates, and the two spike subregions the same way.
 4. It scans the XBB.1 row and the BA.5 control against each parent, pins the
-   breakpoint with the informative sites, cuts the receptor-binding domain out
-   of the alignment, and writes the tracks the figure links carry.
+   breakpoint with the informative sites, and writes the receptor-binding domain
+   cut and the tracks the figure links carry.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
@@ -377,8 +353,8 @@ bash build_recombination_breakpoint.sh
 ```
 
 With no arguments the script writes the row table above and builds every file
-beside it. Pass your own table to do the same for another recombinant and
-another pair of parents:
+beside it. Pass your own table for another recombinant and another pair of
+parents:
 
 ```bash
 bash build_recombination_breakpoint.sh my-rows.tsv out/

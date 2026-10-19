@@ -1,14 +1,16 @@
 # An RNA family, from a model and six genomes
 
-A riboswitch is a piece of an mRNA that folds up in front of the gene it
-controls and binds a small molecule through its fold. The sequence can drift as
-long as every base pair keeps two complementary sides, so a change on one side
-has to be met by a change on the other. This page takes one such family, finds
-its copies in six bacterial genomes, aligns them and opens the result with the
-base pairs drawn over the columns, where each row shows whether its pairs still
-match.
+A riboswitch folds up in front of the gene it controls and binds a small
+molecule through its fold. Its sequence can drift as long as every base pair
+keeps two complementary sides, so a change on one side comes with a change on
+the other. For the SAM-I riboswitch, Rfam RF00162, in six bacterial genomes, we:
 
-The pipeline runs `curl`, `python3`, `cmsearch`, `cmalign` and FastTree.
+- search the genomes with the family's covariance model
+- name each hit by the gene it leads
+- align the hits to the model and put the pseudoknot back
+- infer a tree and open the result from one link
+- read the base pairs, the ligand contacts and the tree, then check the
+  structure against the rows
 
 ## Prerequisites
 
@@ -40,25 +42,21 @@ commands below and the build script fetch these.
 
 </details>
 
-## The family
+## 1. Search six genomes with the family model
 
-The SAM-I riboswitch, Rfam RF00162, sits in the leader of methionine and
-cysteine biosynthesis genes in Firmicutes and binds S-adenosylmethionine, the
-product those genes lead to. Rfam publishes two files for it: a seed alignment
-of 457 curated sequences carrying a consensus secondary structure, and a
-covariance model built from that seed. A covariance model scores a candidate on
-sequence and on fold at once, so it recognizes a copy that shares the fold and
-little of the sequence.
+The SAM-I riboswitch sits in the leader of methionine and cysteine biosynthesis
+genes in Firmicutes and binds S-adenosylmethionine, the product those genes lead
+to. Rfam publishes a seed alignment of 457 curated sequences with a consensus
+secondary structure, and a covariance model built from it that scores a
+candidate on sequence and fold at once.
 
 ```bash
 curl -o RF00162.cm https://rfam.org/family/RF00162/cm
 curl -o RF00162.seed.sto https://rfam.org/family/RF00162/alignment/stockholm
 ```
 
-## 1. Search six genomes
-
-Six Firmicutes, downloaded one FASTA at a time from NCBI and concatenated: B.
-subtilis 168, Caldanaerobacter subterraneus subsp. tengcongensis MB4,
+The genomes are six Firmicutes, one FASTA at a time from NCBI and concatenated:
+B. subtilis 168, Caldanaerobacter subterraneus subsp. tengcongensis MB4,
 Clostridium acetobutylicum ATCC 824, Listeria monocytogenes EGD-e,
 Staphylococcus aureus NCTC 8325 and Clostridioides difficile 630.
 
@@ -80,14 +78,13 @@ The search over six chromosomes takes seconds, and the table has 37 rows:
   NC_009089.1  5 hits
 ```
 
-B. subtilis has eleven, and it is the species in which Grundy and Henkin first
-described the S box regulon.
+B. subtilis has eleven, the species where Grundy and Henkin first described the
+S box regulon.
 
 ## 2. Name each row by the gene it leads
 
-A riboswitch is a leader sequence, so each row is labeled with the gene
-downstream of it. NCBI serves the annotation of any window of a record as a
-feature table, so naming a hit takes one request. The hit at
+A riboswitch is a leader sequence, so each row takes the name of the gene
+downstream of it, out of the annotation of a 1500 nt window. The hit at
 NC_000964.3:1180802-1180685 runs on the minus strand, so the window is the 1500
 nt below it, read in the same direction:
 
@@ -104,17 +101,17 @@ curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore\
 			product	bifunctional homocysteine S-methyltransferase using (R,S)AdoMet and methylenetetrahydrofolate reductase [NAD(P)H]
 ```
 
-The first CDS that reads forward in that frame is the gene downstream, and its
-symbol plus a four-letter species prefix is the row name: `Bsub_samT`. Where the
-annotation has no symbol the script uses the locus tag, as in
+The first CDS reading forward in that frame is the gene downstream, and its
+symbol with a four-letter species prefix makes the row name `Bsub_samT`. Where
+the annotation has no symbol the script uses the locus tag, as in
 `Cdif_CD630_RS06510` in the figures below.
 
 ```
 35 of 37 hits named by a gene, 2 with no same-strand gene within 1500 nt
 ```
 
-Those two keep their coordinate instead, `Cace_1073888` and `Saur_2391667`. Both
-sit in an intergenic gap whose flanking genes run the other way.
+The two unnamed hits keep their coordinate as a name, `Cace_1073888` and
+`Saur_2391667`.
 
 ## 3. Align the hits to the model
 
@@ -130,26 +127,20 @@ cmalign --noprob -o cmalign.sto RF00162.cm hits.fa
 62 columns are gaps in 90% or more of the rows
 ```
 
-The model has 108 consensus positions and the alignment 187 columns. The other
-79 are insertions, and most of them fall in one place: the hits run from 92 to
-157 nt, and the rows at the long end put their extra sequence in the variable
-stem loop.
+The hits run from 92 to 157 nt, and the rows at the long end put most of the 79
+insert columns in one place, the variable stem loop.
 
 ## 4. Put the pseudoknot back
 
-A covariance model pairs columns the way brackets nest, and a pseudoknot is a
-pair that crosses a helix instead of nesting inside it. Rfam annotates the SAM-I
-pseudoknot in the seed's `SS_cons` with letters, `A` for an opening end and `a`
-for its partner, and `cmalign` writes back only the nested helices its model
-holds.
+A covariance model pairs columns the way brackets nest, so `cmalign` writes back
+only the nested helices its model holds. The four pairs of the SAM-I pseudoknot
+cross a helix, and Rfam marks them in the seed's `SS_cons` with `A` for an
+opening end and `a` for its partner.
 
-Both alignments mark their consensus columns in `#=GC RF`, so the k-th consensus
-column of one is the k-th of the other. The build script copies the seed's
-`SS_cons` across that correspondence, along with `RNA_ligand_SAM`, the columns
-Rfam marks as touching the ligand. The script leaves `RNA_structural_elements`
-behind, because the seed spells the element names across its own columns, insert
-columns included, and a per-column copy would keep the brackets and lose the
-labels.
+The seed and the new alignment both mark their consensus columns in `#=GC RF`,
+so the k-th consensus column of one is the k-th of the other. The build script
+copies the seed's `SS_cons` across that correspondence, along with
+`RNA_ligand_SAM`, the columns Rfam marks as touching the ligand.
 
 ```
 4 pseudoknot pairs copied from the seed
@@ -164,15 +155,15 @@ with `U` written as `T` and Rfam's insert gaps written as `-`:
 FastTree -nt -gtr -nosupport tree-input.afa > family.nwk
 ```
 
-The script then writes the Newick into the Stockholm as a `#=GF NH` line, where
-the viewer reads a tree from.
+The script then writes the Newick into the Stockholm as the `#=GF NH` line the
+viewer reads a tree from.
 
-## 6. Open it
+## 6. Open the result from one link
 
 <!-- usage: web -->
 
-The alignment, its consensus structure, the SAM contacts and the tree now travel
-in one Stockholm file, so a `#data=` link needs only its URL.
+The alignment, its structure, the SAM contacts and the tree travel in one
+Stockholm file, so a `#data=` link needs only its URL.
 
 ```json
 {
@@ -188,21 +179,18 @@ in one Stockholm file, so a `#data=` link needs only its URL.
 
 [![](../media/rna-family-overview.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A240%2C%22colWidth%22%3A8%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frna%2Fsam-riboswitch.sto%22%7D%2C%22height%22%3A775%2C%22rowHeight%22%3A15%7D%7D)
 
-The alignment holds 37 riboswitches over 187 columns. The tree on the left comes
-from the `#=GF NH` line, the Secondary-structure track from `#=GC SS_cons`, and
-the Base pairs arcs from that same string: blue for the nested helices, red for
-the pseudoknot. The other two tracks are the file's remaining `#=GC` lines,
-drawn as they stand: `RNA_ligand_SAM`, with an X at each column that touches the
-ligand, and `RF`, the model's own consensus sequence. The blank band across the
-middle is the variable stem loop, which holds most of the 62 columns that are
-gaps in 90% or more of the rows.
+37 riboswitches over 187 columns, with the `#=GF NH` tree on the left. The
+Secondary-structure track and the Base pairs arcs both come from `#=GC SS_cons`,
+the arcs blue for the nested helices and red for the pseudoknot, and the two
+tracks below them are `RNA_ligand_SAM`, an X at each ligand contact, and `RF`,
+the model's consensus sequence. The blank band across the middle is the variable
+stem loop.
 
 <!-- usage: r -->
 
-The alignment, its consensus structure, the SAM contacts and the tree now travel
-in one Stockholm file, so [ggmsaview](https://github.com/GMOD/ggmsaview) needs
-only its URL. `w` alone opens the viewer in RStudio or a notebook, and
-`msaview_plot()` draws the same view as a ggplot2 figure:
+[ggmsaview](https://github.com/GMOD/ggmsaview) needs only the same URL. `w`
+alone opens the viewer in RStudio or a notebook, and `msaview_plot()` draws the
+same view as a ggplot2 figure:
 
 ```r
 library(ggmsaview)
@@ -217,92 +205,80 @@ ggplot2::ggsave("rna-family-overview-r.png", msaview_plot(w),
 
 ![](../media/rna-family-overview-r.png)
 
-The 37 riboswitches over 187 columns, under the file's three `#=GC` rows, the
-Base pairs arcs (blue for the nested helices, red for the pseudoknot) and the
-conservation bars, with the `#=GF NH` tree on the left. The blank band across
-the middle is the variable stem loop.
+The 37 riboswitches as a ggplot2 figure, under the file's three `#=GC` rows, the
+Base pairs arcs and the conservation bars, with the `#=GF NH` tree on the left.
 
 <!-- /usage -->
 
-## 7. The pseudoknot
+## 7. Read the pseudoknot off the arcs
 
 [![](../media/rna-family-pseudoknot.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A240%2C%22colWidth%22%3A8%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frna%2Fsam-riboswitch.sto%22%7D%2C%22height%22%3A775%2C%22rowHeight%22%3A15%7D%7D)
 
-The same view with the pseudoknot marked. Its four pairs join columns 28-31 to
-147-153, and the red arcs cross blue helix arcs instead of nesting with them.
-The structure track records the crossing with the letters A and a, and the arc
-track with the red color.
+The pseudoknot marked on the same view. Its four pairs join columns 28-31 to
+147-153, with the red arcs crossing blue helix arcs, and the structure track
+records the crossing with the letters A and a.
 
-## 8. One helix, four base pairs
+## 8. Read one helix pair by pair
 
-The view below zooms to the helix that runs from column 13 to column 46, where a
-change on one side of a pair comes with a matching change on the other.
+The helix from column 13 to column 46 fills the frame below.
 
 [![](../media/rna-family-helix.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A240%2C%22colWidth%22%3A26%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frna%2Fsam-riboswitch.sto%22%7D%2C%22height%22%3A978%2C%22rowHeight%22%3A17%2C%22scrollX%22%3A-312%7D%7D)
 
 Columns 18 and 41 in red, columns 35 and 36 in blue. Column 18 is U in 26 rows,
-C in 9 and G in 2; column 41 is G in 18, A in 17 and C in 2. Read as a pair they
-are UA in 17 rows, CG in 9, UG in 9 and GC in 2: four different base pairs, and
-a base pair in all 37 rows.
+C in 9 and G in 2, and read against column 41 the pairs are UA in 17 rows, CG in
+9, UG in 9 and GC in 2, four different base pairs and a base pair in all 37
+rows.
 
-Columns 35 and 36 are the control, in the same frame. Column 36 varies more than
-column 18 does, its commonest base holding 57% of the rows against 26 of 37.
-`SS_cons` leaves both of them unpaired, and the last section searches the
-alignment for whatever does pair with them.
+Columns 35 and 36 in the same frame are the control, which `SS_cons` leaves
+unpaired. Column 36 varies more than column 18 does, its commonest base holding
+57% of the rows against 26 of 37, and step 11 searches the alignment for
+whatever does pair with it.
 
-## 9. Where the ligand touches
+## 9. Mark where the ligand touches
 
-Seven columns of the Rfam consensus are annotated as contacts with SAM, and the
-`#=GC RNA_ligand_SAM` track marks each of them with an X. Written into the
-snapshot as `highlights` as well, the same seven columns also get a labeled band
-down the rows.
+Seven columns of the Rfam consensus are annotated as SAM contacts. The
+`#=GC RNA_ligand_SAM` track marks each with an X, and the snapshot repeats them
+as `highlights`, a labeled band down the rows.
 
 [![](../media/rna-family-sam.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A240%2C%22colWidth%22%3A8%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frna%2Fsam-riboswitch.sto%22%7D%2C%22height%22%3A825%2C%22rowHeight%22%3A15%2C%22turnedOffTracks%22%3A%7B%22sequence-logo%22%3Afalse%7D%2C%22highlights%22%3A%5B%7B%22start%22%3A7%2C%22end%22%3A7%2C%22label%22%3A%22SAM%22%7D%2C%7B%22start%22%3A11%2C%22end%22%3A11%2C%22label%22%3A%22SAM%22%7D%2C%7B%22start%22%3A50%2C%22end%22%3A50%2C%22label%22%3A%22SAM%22%7D%2C%7B%22start%22%3A139%2C%22end%22%3A141%2C%22label%22%3A%22SAM%22%7D%2C%7B%22start%22%3A182%2C%22end%22%3A182%2C%22label%22%3A%22SAM%22%7D%5D%7D%7D)
 
 Columns 7, 11, 50, 139, 140, 141 and 182, with the sequence logo track switched
 on above them. Averaged over the seven, the commonest base holds 99.2% of the
-rows. The paired columns average 75.5% and the columns that are neither paired
-nor in contact 78.0%.
+rows, against 75.5% for the paired columns and 78.0% for the columns that are
+neither paired nor in contact.
 
-Three of the seven, columns 139 to 141, are one side of a helix whose other side
-is at columns 48 to 50.
+Columns 139 to 141 are one side of a helix whose other side is at columns 48
+to 50.
 
 [![](../media/rna-family-frozen-pair.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A240%2C%22colWidth%22%3A30%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frna%2Fsam-riboswitch.sto%22%7D%2C%22height%22%3A978%2C%22rowHeight%22%3A17%2C%22scrollX%22%3A-3960%7D%7D)
 
 Columns 139, 140 and 141 read U, G and C down the rows. They pair with 50, 49
-and 48, and those pairs are AU in 37 rows, CG in 37 and GC in 35. Unlike columns
-18 and 41, each of these pairs holds one base pair in 35 to 37 of the 37 rows.
+and 48, and those pairs are AU in 37 rows, CG in 37 and GC in 35, one base pair
+each rather than the four of columns 18 and 41.
 
-The aptamer whose crystal structure is PDB 2GIS, the structure Rfam took those
-contacts from, was cut out of one of the six genomes searched here. Comparing
-the construct against every row, the longest stretch it shares with one is 48 nt
-with `Tten_TTE_RS08660`, the riboswitch in front of the
-methylenetetrahydrofolate reductase gene of C. subterraneus, against 34 nt for
-the next row.
+PDB 2GIS, the crystal structure Rfam took those contacts from, was cut out of
+one of these six genomes, and its construct shares 48 nt with
+`Tten_TTE_RS08660`, the C. subterraneus row, against 34 nt for the next row.
 
-## 10. The tree
+## 10. Read the tree
 
 [![](../media/rna-family-tree.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A330%2C%22colWidth%22%3A3%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Frna%2Fsam-riboswitch.sto%22%7D%2C%22height%22%3A853%2C%22rowHeight%22%3A17%2C%22highlights%22%3A%5B%7B%22rows%22%3A%5B%22Bsub_yxjG%22%2C%22Bsub_yxjH%22%5D%2C%22color%22%3A%22rgba(21%2C101%2C192%2C0.18)%22%7D%5D%7D%7D>)
 
 The tree with the whole alignment beside it at three pixels per column. Rows
-that lead the same gene in different species mostly do not come out together:
-the five rows named metK sit in three separate places. The tinted pair does come
-out together, and those two are the riboswitches of _yxjG_ and _yxjH_, tandem
-paralogs whose leaders sit 1.4 kb apart on the B. subtilis chromosome. Four of
-the five C. difficile rows form another such clade.
+that lead the same gene in different species mostly sit apart, with the five
+rows named metK in three separate places. The tinted pair are the riboswitches
+of _yxjG_ and _yxjH_, tandem paralogs whose leaders sit 1.4 kb apart on the B.
+subtilis chromosome, and four of the five C. difficile rows form another such
+clade.
 
-The tree comes from 187 columns of a 108 nt RNA. It places related rows next to
-each other for reading, and its deeper branching is poorly supported.
+The tree comes from 187 columns of a 108 nt RNA, so its deeper branching is
+poorly supported.
 
 ## 11. Check it against the raw data
 
-The figures show the consensus structure Rfam supplies. The last step of the
-build script re-derives what it can from the alignment alone, and prints three
-counts.
-
-Every pair in `SS_cons`, over every row that has a base in both columns: 1223
-complementary out of 1322, or 92.5%. Watson-Crick and GU both count, since GU is
-a pair a helix accepts.
+The figures above show the consensus structure Rfam supplies. The build script's
+last step re-derives the pairs from the alignment alone, counting a pair as
+complementary when it is Watson-Crick or GU:
 
 ```
 paired columns: 1223/1322 = 92.5% can pair
@@ -310,12 +286,11 @@ pseudoknot only: 126/148 = 85.1% can pair
 unpaired columns drawn at random: 8934/25415 = 35.2% can pair
 ```
 
-The third line is the same statistic over pairs of columns drawn at random from
-the columns `SS_cons` leaves unpaired. Two nucleotide columns agree by chance
-often enough to matter, and 35.2% is how often.
+The third line is the same statistic over random pairs of unpaired columns,
+which is how often two columns pair by chance.
 
-The last check throws the structure away. For each of the ten most variable
-columns, search every other column for the one it pairs with best:
+The last check throws the structure away and searches, for each of the ten most
+variable columns, every other column for the one it pairs with best:
 
 ```
 col  commonest base   best partner   SS_cons pairs them with
@@ -332,9 +307,8 @@ col  commonest base   best partner   SS_cons pairs them with
 7 of 10 find the partner SS_cons names
 ```
 
-Seven of the ten land on the column the published structure pairs them with, out
-of 98 candidates each. The three that miss are columns 1, 171 and 187, two of
-them at the ends of the alignment where fewer rows have a base at all.
+Seven of the ten find the column the published structure pairs them with, out of
+98 candidates each, and the three misses are columns 1, 171 and 187.
 
 The same search over the five most variable columns `SS_cons` leaves unpaired,
 which have no partner to find:
@@ -348,10 +322,10 @@ col  commonest base   best partner   SS_cons pairs them with
 178             57%       5 at  84%       -
 ```
 
-Column 36, the control from the helix figure, tops out at 76%. Two of the five
-reach the eighties, since a column scores well against any nearly invariant
-column carrying a complementary base. The seven hits above each found one
-specific column out of 98, the one `SS_cons` names, and these five did not.
+Column 36, the control from the helix figure, tops out at 76%, and the best
+scores of the five come from nearly invariant columns such as column 5, which
+turns up twice, where each of the seven above matched the one column `SS_cons`
+names.
 
 ## Reproduce it end to end
 
@@ -359,17 +333,17 @@ specific column out of 98, the one `SS_cons` names, and these five did not.
 runs the commands above in order:
 
 1. It fetches the RF00162 covariance model and seed alignment from Rfam and the
-   six genomes from NCBI, then searches the genomes with the model at the
-   family's own curated threshold.
-2. It names each hit by the first gene downstream on the same strand, asking
-   NCBI for the annotation of a 1500 nt window per hit, and cuts the hit
-   sequences out of the genomes.
+   six genomes from NCBI, then searches the genomes at the family's own curated
+   threshold.
+2. It names each hit by the first gene downstream on the same strand, from the
+   annotation of a 1500 nt window, and cuts the hit sequences out of the
+   genomes.
 3. `cmalign` aligns the hits to the model's consensus columns, and the script
    copies the seed's consensus structure and SAM contacts onto those columns,
    which puts back the pseudoknot the model cannot carry.
-4. FastTree infers a tree from the alignment, the script writes both into one
-   Stockholm file, and it re-derives the base pairs from the alignment alone to
-   check the structure against the rows.
+4. FastTree infers a tree, the script writes it and the alignment into one
+   Stockholm file, and it re-derives the base pairs from the alignment alone as
+   a check on the structure.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
@@ -379,7 +353,7 @@ bash build_rna_family.sh out/
 ```
 
 The script writes `out/sam-riboswitch.sto`, the file the links on this page
-open, and the numbers quoted here are the ones it prints.
+open, and prints every number quoted here.
 
 ## See also
 

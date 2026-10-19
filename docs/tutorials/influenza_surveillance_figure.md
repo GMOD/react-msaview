@@ -1,14 +1,16 @@
 # An H5N1 surveillance figure
 
-Nextstrain's H5N1 cattle-outbreak build places 5,608 genomes on one tree and
-records a host, a collecting state, a collection date and a GenoFLU genotype for
-each of them. This page subsamples that build to 204 genomes, writes those
-fields and one amino-acid site per segment out as a row table, and composes the
-result into one figure: tip labels and tree edges colored by state, nine strips
-between the tree and the alignment, three groups marked in the gutter, a
-collapsed clade, and the whole tree in an overview band above the view. Every
-layer is a property of the view, so the finished figure is one link and one SVG
-export.
+Nextstrain's H5N1 cattle-outbreak build places 5,608 genomes on one tree, with a
+host, a collecting state, a collection date and a GenoFLU genotype for each.
+Drawn beside the tree, those fields show which follow the phylogeny and which
+follow the sampling. From 204 of the genomes, we:
+
+- reconstruct the HA alignment and write a row table of host, state and one
+  amino-acid site per segment
+- color the tip labels and branches by state
+- add nine strips between the tree and the alignment
+- mark three groups, collapse a clade and focus a subtree under an overview
+- open the figure from one link and check one row against the build
 
 ## Prerequisites
 
@@ -34,17 +36,13 @@ script fetches it. Nothing to download.
 
 </details>
 
-## 1. The build, and the sample
+## 1. Reconstruct and sample the build
 
-The auspice JSON holds a root sequence and one mutation list per branch, and the
-script reconstructs every tip from them the way
+The script rebuilds every tip from the build's root sequence and branch
+mutations, as
 [the RSV tutorial](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#1-reconstruct-the-alignment-from-the-tree)
-does: the root copied down each path, one base overwritten per mutation, every
-tip in the reference's coordinates.
-
-The sample is every 24th tip whose record names a GenBank accession and a
-collecting state, which keeps the proportions of the whole build with no seed to
-explain:
+does, then keeps every 24th tip whose record names a GenBank accession and a
+collecting state:
 
 ```bash
 python3 build_influenza_surveillance_figure.py .
@@ -63,15 +61,13 @@ sample: every 24th of them, 204 tips
   cleavage site: 3 values (RRKR 185, RKKR 18, RRRR 1)
 ```
 
-All 204 tips carry the same GenoFLU genotype, B3.13, because the build is the
-cattle outbreak and GenoFLU names a genotype by its eight segment lineages. A
-strip over that field would draw one color for every row, so the figure reads an
-amino-acid site per segment instead.
+All 204 tips have the same GenoFLU genotype, B3.13, so the figure reads one
+amino-acid site per segment in its place.
 
-## 2. The row table
+## 2. Write the row table
 
-For each segment's gene the script takes the amino-acid site whose minor state
-the most sampled tips carry:
+For each segment's gene, the script picks the amino-acid site where the most
+sampled tips differ from the majority state:
 
 ```python
 for i in range(length):
@@ -96,9 +92,8 @@ for i in range(length):
   NS1 67: G 138, R 66
 ```
 
-Each site becomes a field named for its gene and its position, so a strip's
-header names what its column reads. The five metadata fields and the eight
-segment sites go into one file keyed by tip name:
+The script writes the five metadata fields and the eight sites, each named for
+its gene and position, to one file keyed by tip name:
 
 ```
 wrote ./h5n1-rowdata.json: 204 rows, 53 kB
@@ -107,13 +102,9 @@ wrote ./h5n1-ha.fa: 204 rows, 1707 columns (HA 6937-8643 of the genome), 348 kB
 wrote ./h5n1.nwk: 204 tips, 149 internal nodes, 352 edges
 ```
 
-The alignment is the HA coding sequence cut out of each reconstructed genome at
-the coordinates the build annotates. The tree is the build's own topology pruned
-to the 204 tips, with each surviving branch's length taken from the difference
-in cumulative divergence. Nextstrain infers that topology with IQ-TREE and
-publishes a divergence and an inferred date per node, so the Newick written here
-carries no support values on its internal nodes. A 53 kB table runs past the
-8,192-character request line a link fits in, so the snapshot names the three
+Nextstrain infers the tree with IQ-TREE and publishes a divergence and a date
+per node, so the pruned Newick has no support values. A 53 kB table runs past
+the 8,192-character request line a link fits in, so the snapshot names the three
 files and the viewer fetches them at startup:
 
 ```json
@@ -127,16 +118,16 @@ files and the viewer fetches them at startup:
 
 [![](../media/influenza_surveillance_figure-rows.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A700%2C%22treeAreaWidth%22%3A560%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A18%2C%22drawLabels%22%3Atrue%2C%22scrollY%22%3A-738%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
-Thirty-eight of the 204 rows at a row height that draws labels, starting on
-display row 41, with the table loaded and no channel reading it. Every tip label
-is in the theme's text color, and the callout names five of the thirteen fields
-the table gives the row it points at.
+Thirty-eight rows from display row 41, with the table loaded and no channel
+reading it, so every tip label is in the theme's text color. The callout lists
+five of the row's thirteen fields.
 
-## 3. Labels and branches colored by state
+## 3. Color labels and branches by state
 
-The `tipLabel` and `branch` channels, which the
-[RSV tutorial](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#9-tip-labels-colored-by-clade)
-points at its clade field, read the state field here:
+Two encodings point the `tipLabel` and `branch` channels at the state field, as
+the
+[RSV tutorial](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#9-color-the-tip-labels-by-clade)
+does with its clade field:
 
 ```json
 "encodings": [
@@ -147,19 +138,16 @@ points at its clade field, read the state field here:
 
 [![](../media/influenza_surveillance_figure-lineage.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A700%2C%22treeAreaWidth%22%3A560%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A18%2C%22drawLabels%22%3Atrue%2C%22scrollY%22%3A-1890%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22state%22%7D%2C%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22state%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
-Display rows 105 to 142, where the 17-row Idaho run starts. The California
-labels at the top of the frame are red and the Idaho labels below them are
-yellow, with one green Nevada tip among the California rows and one purple Utah
-tip inside the Idaho block. The backbone above the Idaho rows draws black,
-because the tips under those nodes carry both states between them. The legend in
-the top right lists all 16 states.
+Display rows 105 to 142, where the 17-row Idaho run starts. California labels
+are red and Idaho labels yellow, with one green Nevada tip among the California
+rows and one purple Utah tip in the Idaho block. The backbone above the Idaho
+rows is black, because the tips under those nodes have both states.
 
-## 4. Nine strips between the tree and the alignment
+## 4. Add nine strips between the tree and the alignment
 
-A `rowPanels` record draws a column of cells, one per row, in the space between
-the tree and the alignment. The host field takes one strip and the eight segment
-sites take eight more, all nine sharing a color map over amino acids so a state
-keeps its color across the matrix:
+A `rowPanels` record draws a column of cells, one per row, between the tree and
+the alignment. One strip reads host, and eight read the segment sites through
+one color map over amino acids, so a state keeps its color across the matrix:
 
 ```json
 {
@@ -184,30 +172,21 @@ keeps its color across the matrix:
 }
 ```
 
-The other seven segment strips repeat that record with their own `field`. The
-host strip takes a map of its own over the four host values, at a width of 12.
-
-`legend` names the legend a strip lists under. All eight segment strips name the
-same one, so the ten amino-acid states are listed once instead of eight times.
+The other seven site strips repeat the record with a different `field`, and
+their shared `legend` lists the ten amino-acid states once.
 
 [![](../media/influenza_surveillance_figure-matrix.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1700%2C%22treeAreaWidth%22%3A430%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22state%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22host%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22Avian%22%3A%22%234e79a7%22%2C%22Cattle%22%3A%22%238c6d31%22%2C%22Human%22%3A%22%23e15759%22%2C%22Nonhuman%20Mammal%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A12%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB2%20670%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB1%20517%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PA%20432%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22HA%20147%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NP%20119%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NA%2071%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22M1%2082%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NS1%2067%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
-All 204 rows at a row height of 8, with the branches colored by state and the
-nine strips drawn between the tree and the HA alignment. Each strip's header
-runs up the band above it. The PB2 670, PA 432, NP 119, M1 82 and NS1 67 columns
-each read one state over display rows 41 to 178 and another outside them:
-exactly those 138 rows for NP 119, M1 82 and NS1 67, 134 of them for PB2 670 and
-137 for PA 432. HA 147 and NA 71 change many times down the column. Three
-legends stack in the top right, one per field name plus the shared amino-acid
-one.
+All 204 rows, branches colored by state, with the nine strips between the tree
+and the HA alignment. NP 119, M1 82 and NS1 67 read one state over exactly
+display rows 41 to 178 and another outside them, PB2 670 and PA 432 nearly so,
+while HA 147 and NA 71 change many times down the column.
 
-## 5. How far a field follows the tree
+## 5. Measure how far each field follows the tree
 
-The build script counts, for each field, how many edges take a color and how
-many maximal clades the field's values cut the tree into. A field that follows
-the tree perfectly has one clade per value. Each line the script prints goes on
-to name the largest clades per value, and the block below stops at the edge
-counts:
+The script counts, for each field, the maximal clades its values cut the tree
+into and the edges that take a color. A field that follows the tree perfectly
+has one clade per value:
 
 ```
 host: 4 values in 112 clades, 285/352 edges colored, 81/148 of them above an internal node
@@ -217,25 +196,26 @@ M1 82: 2 values in 15 clades, 345/352 edges colored, 141/148 of them above an in
 NS1 67: 2 values in 15 clades, 345/352 edges colored, 141/148 of them above an internal node
 ```
 
-Two strips put the two extremes side by side: NP 119, whose two states cut the
-tree into 15 clades, and host, whose four values cut it into 112.
+The state field is the build's `division_metadata`, the state each record
+reports. Its `division` field fills in a state Nextstrain infers from the tree,
+so it follows the tree by construction.
+
+Two strips set the extremes side by side, NP 119 in 15 clades and host in 112.
 
 [![](../media/influenza_surveillance_figure-control.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1700%2C%22treeAreaWidth%22%3A430%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NP%20119%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A16%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22host%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22Avian%22%3A%22%234e79a7%22%2C%22Cattle%22%3A%22%238c6d31%22%2C%22Human%22%3A%22%23e15759%22%2C%22Nonhuman%20Mammal%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A16%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
-The same 204 rows with two strips at a width of 16. NP 119 reads as three
-blocks: 41 orange I rows, the 138 brown V rows of the clade, and 25 orange I
-rows at the bottom. Host reads as a brown column of cattle speckled with the 16
-avian, 7 nonhuman-mammal and 4 human rows, which sit wherever the sampling put
-them.
+The NP 119 and host strips over all 204 rows. NP 119 reads as three blocks: 41
+orange I rows, the 138 brown V rows of the clade, and 25 orange I rows at the
+bottom. Host reads as a brown column of cattle speckled with the 16 avian, 7
+nonhuman-mammal and 4 human rows, which sit wherever the sampling put them.
 
-## 6. Three groups marked in the gutter
+## 6. Mark three groups in the gutter
 
-A `clades` record marks a group of rows. `mrca` and `tips` address a clade the
-way the
-[RSV tutorial's rectangle](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#13-a-rectangle-over-one-clade)
+A `clades` record marks a group of rows. `mrca` and `tips` address a clade as
+the
+[RSV tutorial's rectangle](https://gmod.org/JBrowseMSA/tutorials/phylogeny_at_scale#13-draw-a-rectangle-over-one-clade)
 does, and `range` names the first and last row of a run that is not a clade.
-`highlight` fills the rows, and `bracket` draws a bar with the record's label in
-the gutter at the right of the tree area:
+`highlight` fills the rows, and `bracket` draws a labeled bar in the gutter:
 
 ```json
 "clades": [
@@ -267,21 +247,19 @@ largest all-California clade: 38 of the 111 California tips, display rows 45-82
   range ends: A/cattle/ID/25-012902-006-original/2025 and A/cattle/ID/26G09268-001-original/2026
 ```
 
-The same 138 tips carry NP 119V, M1 82N and NS1 67G, so one bracket covers all
-three sites.
+The 138 tips have NP 119V, M1 82N and NS1 67G, so one bracket covers all three
+sites.
 
 [![](../media/influenza_surveillance_figure-clades.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1700%2C%22treeAreaWidth%22%3A430%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22state%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22host%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22Avian%22%3A%22%234e79a7%22%2C%22Cattle%22%3A%22%238c6d31%22%2C%22Human%22%3A%22%23e15759%22%2C%22Nonhuman%20Mammal%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A12%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB2%20670%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB1%20517%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PA%20432%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22HA%20147%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NP%20119%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NA%2071%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22M1%2082%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NS1%2067%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%5D%2C%22clades%22%3A%5B%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22highlight%22%2C%22color%22%3A%22%23ffd54f%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23a16207%22%2C%22label%22%3A%22NP%20119V%2C%20138%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fchicken%2FCA%2F24-031667-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037821-002-original%2F2024%22%5D%2C%22tips%22%3A38%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23c2410c%22%2C%22label%22%3A%22California%2C%2038%22%7D%2C%7B%22range%22%3A%5B%22A%2Fcattle%2FID%2F25-012902-006-original%2F2025%22%2C%22A%2Fcattle%2FID%2F26G09268-001-original%2F2026%22%5D%2C%22tips%22%3A17%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%231d4ed8%22%2C%22label%22%3A%22Idaho%2C%2017%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
-The amber rectangle over display rows 41 to 178, and three bars in the gutter
-between the tip labels and the first strip: orange for the 38-tip California
-clade, brown for the 138-tip NP 119V clade, blue for the 17 Idaho rows. The
-Idaho bar covers rows that sit together on screen without descending from one
-node, which is why that record uses `range`.
+An amber rectangle covers display rows 41 to 178. Three bars in the gutter mark
+the 38-tip California clade in orange, the 138-tip NP 119V clade in brown and
+the 17 Idaho rows in blue, which sit together without descending from one node.
 
-## 7. Collapsing a clade
+## 7. Collapse a clade
 
-A `collapse` mark folds a clade into one triangle, and the alignment loses the
-same rows. The script takes the largest node whose tips share one state and one
+A `collapse` mark folds a clade into one triangle and drops its rows from the
+alignment. The script picks the largest node whose tips share one state and one
 host:
 
 ```
@@ -302,17 +280,14 @@ collapse target: 31 tips, all Cattle from California, display rows 147-177
 
 [![](../media/influenza_surveillance_figure-collapse.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1700%2C%22treeAreaWidth%22%3A430%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A8%2C%22drawLabels%22%3Afalse%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22state%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22host%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22Avian%22%3A%22%234e79a7%22%2C%22Cattle%22%3A%22%238c6d31%22%2C%22Human%22%3A%22%23e15759%22%2C%22Nonhuman%20Mammal%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A12%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB2%20670%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB1%20517%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PA%20432%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22HA%20147%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NP%20119%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NA%2071%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22M1%2082%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NS1%2067%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%5D%2C%22clades%22%3A%5B%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22highlight%22%2C%22color%22%3A%22%23ffd54f%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23a16207%22%2C%22label%22%3A%22NP%20119V%2C%20138%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fchicken%2FCA%2F24-031667-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037821-002-original%2F2024%22%5D%2C%22tips%22%3A38%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23c2410c%22%2C%22label%22%3A%22California%2C%2038%22%7D%2C%7B%22range%22%3A%5B%22A%2Fcattle%2FID%2F25-012902-006-original%2F2025%22%2C%22A%2Fcattle%2FID%2F26G09268-001-original%2F2026%22%5D%2C%22tips%22%3A17%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%231d4ed8%22%2C%22label%22%3A%22Idaho%2C%2017%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-034698-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037190-002-original%2F2024%22%5D%2C%22tips%22%3A31%2C%22mark%22%3A%22collapse%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
-The same figure with the 31 rows replaced by one filled triangle labeled 31, at
-the bottom of the amber rectangle. The 173 remaining rows move up by 31, and the
-brackets follow them: the NP 119V bar is 31 rows shorter than it was in the
-figure above.
+The step 6 figure with the 31 rows folded into a triangle labeled 31 at the
+bottom of the amber rectangle, which shortens the NP 119V bar by 31 rows.
 
-## 8. The overview band
+## 8. Focus a subtree under the overview band
 
-`showTreeOverview` draws the whole tree in the band above the tree panel, with
-the clade highlights in place and a box around the rows the view shows. A
-`focus` mark seeds the view with one subtree, so the alignment shows 138 of the
-204 rows while the band keeps drawing all 204:
+`showTreeOverview` draws the whole tree in a band above the tree panel and boxes
+the rows in view. A `focus` mark seeds the view with one subtree, so the
+alignment shows 138 of the 204 rows:
 
 ```json
 {
@@ -327,21 +302,17 @@ the clade highlights in place and a box around the rows the view shows. A
 
 [![](../media/influenza_surveillance_figure-overview.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1300%2C%22treeAreaWidth%22%3A620%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A12%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22showTreeOverview%22%3Atrue%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22state%22%7D%2C%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22state%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22host%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22Avian%22%3A%22%234e79a7%22%2C%22Cattle%22%3A%22%238c6d31%22%2C%22Human%22%3A%22%23e15759%22%2C%22Nonhuman%20Mammal%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A12%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB2%20670%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB1%20517%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PA%20432%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22HA%20147%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NP%20119%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NA%2071%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22M1%2082%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NS1%2067%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%5D%2C%22clades%22%3A%5B%7B%22mrca%22%3A%5B%22A%2Fchicken%2FCA%2F24-031667-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037821-002-original%2F2024%22%5D%2C%22tips%22%3A38%2C%22mark%22%3A%22highlight%22%2C%22color%22%3A%22%23ffd54f%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fchicken%2FCA%2F24-031667-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037821-002-original%2F2024%22%5D%2C%22tips%22%3A38%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23c2410c%22%2C%22label%22%3A%22California%2C%2038%22%7D%2C%7B%22range%22%3A%5B%22A%2Fcattle%2FID%2F25-012902-006-original%2F2025%22%2C%22A%2Fcattle%2FID%2F26G09268-001-original%2F2026%22%5D%2C%22tips%22%3A17%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%231d4ed8%22%2C%22label%22%3A%22Idaho%2C%2017%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-034698-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037190-002-original%2F2024%22%5D%2C%22tips%22%3A31%2C%22mark%22%3A%22collapse%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22focus%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
-The finished figure. The band across the top holds the whole 204-tip tree with
-the orange California rows and the blue Idaho rows marked on it and the focused
-subtree boxed; the scale bar under it reads 0.005 substitutions per site. Below
-that sit the 138 focused rows with their labels and branches colored by state,
-the nine strips, the California and Idaho bars, and the collapsed clade.
+In the finished figure, the band across the top holds the whole 204-tip tree
+with the California and Idaho rows marked and the focused subtree boxed. Below
+it sit the 138 focused rows, the nine strips, the two bars and the collapsed
+clade.
 
-## 9. The link, the export, and one row read against the build
+## 9. Open the figure and check one row against the build
 
 <!-- usage: web -->
 
 Every layer above is a property of the view, so the whole figure travels in one
-link: three filehandles, two encodings, nine row panels and four clade records.
-**Export SVG** in the file menu writes the same figure as vector graphics, with
-the overview band, the strips, the bracket labels, the legends and the scale bar
-each drawn by the same code the screen uses.
+link. **Export SVG** in the file menu writes it as vector graphics.
 
 [![](../media/influenza_surveillance_figure-export.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A1300%2C%22treeAreaWidth%22%3A620%2C%22colWidth%22%3A0.35%2C%22rowHeight%22%3A12%2C%22drawLabels%22%3Atrue%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22showTreeOverview%22%3Atrue%2C%22encodings%22%3A%5B%7B%22channel%22%3A%22tipLabel%22%2C%22field%22%3A%22state%22%7D%2C%7B%22channel%22%3A%22branch%22%2C%22field%22%3A%22state%22%7D%5D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22host%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22Avian%22%3A%22%234e79a7%22%2C%22Cattle%22%3A%22%238c6d31%22%2C%22Human%22%3A%22%23e15759%22%2C%22Nonhuman%20Mammal%22%3A%22%23b07aa1%22%7D%7D%2C%22width%22%3A12%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB2%20670%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PB1%20517%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22PA%20432%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22HA%20147%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NP%20119%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NA%2071%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22M1%2082%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22NS1%2067%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22G%22%3A%22%234e79a7%22%2C%22I%22%3A%22%23f28e2b%22%2C%22K%22%3A%22%23e15759%22%2C%22M%22%3A%22%2376b7b2%22%2C%22N%22%3A%22%2359a14f%22%2C%22R%22%3A%22%23edc948%22%2C%22S%22%3A%22%23b07aa1%22%2C%22T%22%3A%22%23ff9da7%22%2C%22V%22%3A%22%239c755f%22%2C%22X%22%3A%22%23bab0ac%22%7D%7D%2C%22width%22%3A11%2C%22legend%22%3A%22amino%20acid%22%7D%5D%2C%22clades%22%3A%5B%7B%22mrca%22%3A%5B%22A%2Fchicken%2FCA%2F24-031667-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037821-002-original%2F2024%22%5D%2C%22tips%22%3A38%2C%22mark%22%3A%22highlight%22%2C%22color%22%3A%22%23ffd54f%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fchicken%2FCA%2F24-031667-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037821-002-original%2F2024%22%5D%2C%22tips%22%3A38%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%23c2410c%22%2C%22label%22%3A%22California%2C%2038%22%7D%2C%7B%22range%22%3A%5B%22A%2Fcattle%2FID%2F25-012902-006-original%2F2025%22%2C%22A%2Fcattle%2FID%2F26G09268-001-original%2F2026%22%5D%2C%22tips%22%3A17%2C%22mark%22%3A%22bracket%22%2C%22color%22%3A%22%231d4ed8%22%2C%22label%22%3A%22Idaho%2C%2017%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-034698-001-original%2F2024%22%2C%22A%2Fcattle%2FCA%2F24-037190-002-original%2F2024%22%5D%2C%22tips%22%3A31%2C%22mark%22%3A%22collapse%22%7D%2C%7B%22mrca%22%3A%5B%22A%2Fcattle%2FCA%2F24-027807-002-original%2F2024%22%2C%22A%2Fchicken%2FCA%2F24-031285-004-original%2F2024%22%5D%2C%22tips%22%3A138%2C%22mark%22%3A%22focus%22%7D%5D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-ha.fa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1.nwk%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Fh5n1%2Fh5n1-rowdata.json%22%7D%7D%7D)
 
@@ -351,9 +322,7 @@ minimap and the tracks checked.
 <!-- usage: r -->
 
 [ggmsaview](https://github.com/GMOD/ggmsaview) builds the same figure from the
-three hosted files. Each layer above is one `+`: the row table, the two channels
-over `state`, nine strips and the four clade records, which collapse and focus
-the tree before `msaview_plot()` lays it out:
+three hosted files, one `+` per layer:
 
 ```r
 library(ggmsaview)
@@ -398,15 +367,14 @@ ggplot2::ggsave("influenza_surveillance_figure-r.png", msaview_plot(w),
 
 ![](../media/influenza_surveillance_figure-r.png)
 
-The 138-tip focus with its 31-tip clade collapsed to the grey wedge at the
-bottom, the host strip and the eight site strips beside it, the amber wash over
-the California clade and the two brackets in the gutter. The branches take their
-state's color, as in the web view, and one key covers the eight site strips.
+The ggplot2 figure shows the 138-tip focus with the 31-tip clade collapsed to a
+grey wedge, the nine strips under one key for the eight sites, the amber
+California clade and the two brackets.
 
 <!-- /usage -->
 
-The script ends by printing the most recent human case in the sample beside the
-build's own record for it:
+The script ends by printing the sample's most recent human case beside the
+build's record for it:
 
 ```
 check tip: A/California/227/2024, display row 49
@@ -422,32 +390,24 @@ check tip: A/California/227/2024, display row 49
   NS1 67: G (root R)
 ```
 
-On screen that row sits at display row 49, inside the amber rectangle whose 138
-tips carry NP 119V, and its host strip reads the red of Human. Seven of its
-eight segment sites differ from the root state, and the one that matches, PB1
-517 I, is the site whose minor state only 9 of the 204 tips carry.
-
-The state field the strip and the two channels read is `division_metadata`, the
-state the record itself reports. The build also carries a `division` field,
-which is the state Nextstrain infers for a tip whose record names none. An
-inferred value follows the tree by construction, so a strip over it would answer
-the question step 5 asks before the data did.
+Display row 49 sits inside the amber NP 119V rectangle, and its host strip is
+the red of Human. Seven of its eight segment sites differ from the root state.
+The one that matches, PB1 517 I, is the site where only 9 of the 204 tips have
+the minor state.
 
 ## Reproduce it end to end
 
 [`build_influenza_surveillance_figure.py`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_influenza_surveillance_figure.py)
 runs every step of this page in one pass:
 
-1. It fetches the pinned build and reconstructs every tip from it, the root
-   sequence copied down each path with one base overwritten per mutation.
-2. It samples every 24th tip whose record names a GenBank accession and a
-   collecting state, and picks for each segment the amino-acid site whose minor
-   state the most sampled tips carry.
-3. It writes the row table, the HA coding sequence of each sampled tip as the
-   alignment, and the build's own tree pruned to the sample.
-4. It prints what the later steps read off the tree: how far each field follows
-   it, the groups a clade record can mark, the clade to collapse and one tip
-   read against the build.
+1. It fetches the pinned build and reconstructs every tip from the root sequence
+   and the mutations on each path.
+2. It samples every 24th tip with a GenBank accession and a collecting state,
+   and picks one variable amino-acid site per segment.
+3. It writes the row table, the HA alignment and the build's tree pruned to the
+   sample.
+4. It prints how far each field follows the tree, the groups to mark, the clade
+   to collapse and one tip read against the build.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
@@ -456,13 +416,7 @@ curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/sc
 python3 build_influenza_surveillance_figure.py .
 ```
 
-The argument is the directory to work in. The pin makes a rerun write the same
-files, so the row indices and tip names in the snapshots above keep resolving.
-
-The build is assembled from GenBank and SRA. The per-segment builds that carry a
-GenoFLU lineage per tip, `avian-flu/h5n1/<segment>/2y`, draw on GISAID as well,
-and the GISAID database access agreement does not allow those sequences to be
-redistributed, so this page stays on the GenBank-and-SRA build.
+The argument is the directory to work in.
 
 ## See also
 

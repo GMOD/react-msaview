@@ -1,22 +1,19 @@
 # TRIM5 and the primate antiviral arms race
 
-_TRIM5_ is a restriction factor: a protein that recognizes an incoming
-retrovirus capsid and destroys it before the virus can establish an infection.
-Every primate lineage carries a copy, and the copies restrict different viruses.
-Human _TRIM5_ barely restricts HIV-1, and rhesus macaque _TRIM5_ restricts it
-strongly. A single substitution (R332P) converts the human protein into an HIV-1
-restrictor (Stremlau et al. 2005; Yap et al. 2005). R332 sits in a patch of the
-protein that has been under positive selection across the primates for tens of
-millions of years (Sawyer et al. 2005): as viral capsids change, the restriction
-factor's binding surface changes with them, and a codon alignment records that
-as an excess of amino-acid-changing substitutions over silent ones.
+_TRIM5_ is a primate restriction factor that binds incoming retrovirus capsids,
+and a single residue, R332, decides whether the human copy restricts HIV-1
+(Stremlau et al. 2005; Yap et al. 2005). Positive selection has reshaped its
+capsid-binding patch across the primates (Sawyer et al. 2005), and a codon
+alignment records that selection as an excess of amino-acid-changing
+substitutions over silent ones. For 32 _TRIM5_ orthologs, primates with a rodent
+outgroup, we:
 
-This page builds that alignment for 32 _TRIM5_ orthologs, infers a tree, adds
-the 7-exon gene structure and a per-codon dN/dS track from HyPhy, and ends on a
-link that opens all of it together: the alignment, the tree, the exons, the
-selection track and labels on the variable patch, on the single residue R332,
-and on the RING/B-box zinc fingers, a built-in control that the same analysis
-should call conserved.
+- download the orthologs and keep one coding sequence per species
+- align the coding sequences codon by codon and infer a tree
+- add the 7-exon gene structure
+- add a per-codon dN/dS track from HyPhy
+- label the variable patch, R332 and the conserved RING/B-box control, and open
+  the result from one link
 
 ## Prerequisites
 
@@ -38,13 +35,11 @@ Gene ID 85363. Nothing to download: the commands below fetch these.
 | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | The orthologs with their genes, coding sequences and proteins, fetched with the NCBI Datasets CLI | [85363-download](https://api.ncbi.nlm.nih.gov/datasets/v2/gene/id/85363/download) |
 
-The domain boundaries this page uses on the canonical human _TRIM5_ protein
-(UniProtKB Q9C035) come from InterPro's PROSITE profile calls, which the script
-fetches: RING (PS50089, aa 15-59), B-box (PS50119, aa 90-132) and B30.2/SPRY
-(PS50188, aa 281-493),
-https://www.ebi.ac.uk/interpro/api/entry/profile/protein/uniprot/Q9C035/. Pfam's
-own SPRY entry (aa 358-488) stops short of the domain's N-terminal variable
-loops.
+The script takes the domain boundaries on the human protein (UniProtKB Q9C035)
+from InterPro's
+[PROSITE profile calls](https://www.ebi.ac.uk/interpro/api/entry/profile/protein/uniprot/Q9C035/):
+RING (PS50089, aa 15-59), B-box (PS50119, aa 90-132) and B30.2/SPRY (PS50188, aa
+281-493).
 
 <details>
 <summary>The files this page writes, hosted for the figure links</summary>
@@ -56,7 +51,9 @@ loops.
 
 </details>
 
-## 1. Every ortholog NCBI knows about
+## 1. Download the orthologs
+
+NCBI Datasets downloads every ortholog of human Gene ID 85363:
 
 ```bash
 datasets download gene gene-id 85363 --ortholog all \
@@ -64,18 +61,15 @@ datasets download gene gene-id 85363 --ortholog all \
 unzip -o trim5_orthologs.zip -d ortho
 ```
 
-The download holds 33 records: 28 primates and, as the outgroup, 5
-rodents/squirrels (mouse relative _Mus pahari_, rat, and three ground
-squirrels). `cds.fna` in the package carries every predicted transcript for
-every gene; human alone has 21.
+The download holds 33 records: 28 primates and an outgroup of 5 rodents and
+squirrels.
 
-## 2. One coding sequence per species
+## 2. Pick one coding sequence per species
 
-Pick the curated (`NM_`) RefSeq transcript where the species has one; where
-every transcript is a predicted (`XM_`) gene model, pick whichever is closest in
-length to the well-annotated human isoform (1482 nt, 493 amino acids plus the
-stop codon). A gene with dozens of predicted splice variants offers no better
-criterion for choosing one transcript to align:
+`cds.fna` lists every predicted transcript of every gene, 21 for human alone.
+Keep the curated (`NM_`) RefSeq transcript where the species has one, and
+otherwise the predicted (`XM_`) model closest in length to the human isoform
+(1482 nt, 493 amino acids plus the stop codon):
 
 ```python
 nm = [t for t in transcripts if t.accession.startswith('NM_')]
@@ -83,14 +77,15 @@ pool = nm if nm else transcripts
 chosen = min(pool, key=lambda t: abs(len(t.seq) - 1482))
 ```
 
-All 33 chosen sequences have a length that is a multiple of 3. Translating each
-and scanning for a stop codon before the last one finds one problem: the black
-snub-nosed monkey (_Rhinopithecus bieti_) has only one transcript on file,
-`XM_017887309.1`, and it translates with two internal stops, at codons 260
-and 265. The species has no other transcript, so the script drops it, and 32
-orthologs go forward.
+All 33 chosen lengths are multiples of 3, but the black snub-nosed monkey
+(_Rhinopithecus bieti_) has one transcript on file, `XM_017887309.1`, which
+translates with internal stops at codons 260 and 265. The script drops it, and
+32 orthologs go forward.
 
-## 3. A codon-aware alignment
+## 3. Align the codons
+
+MACSE aligns in amino-acid space and writes back nucleotides, so every codon
+fills three whole columns:
 
 ```bash
 docker run --rm -v "$PWD":/data -w /data \
@@ -99,17 +94,14 @@ docker run --rm -v "$PWD":/data -w /data \
   -out_NT trim5_macse_NT.fasta -out_AA trim5_macse_AA.fasta
 ```
 
-MACSE aligns in amino-acid space and writes back nucleotides, so every codon
-occupies three whole columns and the aligner introduces no frameshift. The
-result has 1800 nucleotide columns (600 codons) and takes a few minutes for 32
-sequences.
+The result has 1800 nucleotide columns (600 codons). Each row ends on its stop
+codon, and the gaps put each stop in a different column, so the script blanks
+the last codon of each row separately.
 
-Every sequence's CDS includes its own stop codon, and the gaps put each one in a
-different alignment column. The script therefore checks and blanks each row's
-last codon individually. All 32 rows carry exactly one stop codon, in the last
-position.
+## 4. Infer a tree
 
-## 4. A tree
+FastTree infers the tree from the protein translation, which holds more signal
+than the codons at this depth of divergence:
 
 ```bash
 docker run --rm -v "$PWD":/data -w /data \
@@ -117,26 +109,19 @@ docker run --rm -v "$PWD":/data -w /data \
   sh -c "FastTree trim5_macse_AA.fasta > trim5.nwk"
 ```
 
-FastTree runs on the protein translation, which carries more signal than the
-codons at this depth of divergence. Read the support values before relying on
-the topology (see also
-[a protein family from a list of accessions](https://gmod.org/JBrowseMSA/tutorials/protein_family)).
-The weakest node in this tree has a local support of 0.135 and the
-second-weakest 0.177, both around the boundary between Old World monkey
-lineages, where a single gene's tree is expected to be uncertain. The selection
-tests below depend on branch lengths, not on that part of the topology being
-right.
+The weakest node has a local support of 0.135 and the second-weakest 0.177, both
+between Old World monkey lineages.
 
 [![](../media/codon-alignment-tree.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A170%2C%22rowHeight%22%3A11%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-cds.stock%22%7D%2C%22colWidth%22%3A0.7%2C%22height%22%3A420%7D%7D)
 
-The 32-ortholog codon alignment with its tree, colored by nucleotide. Apes, Old
+The 32-ortholog codon alignment with its tree, colored by nucleotide: apes, Old
 World monkeys, New World monkeys, a tarsier, two strepsirrhines and the
-rodent/squirrel outgroup, all in one frame-correct alignment.
+rodent/squirrel outgroup.
 
-## 5. The exon structure
+## 5. Add the exon structure
 
-`genestructure` projects _TRIM5_'s MANE Select transcript, `NM_033034.3`, from
-the human reference row onto every row:
+`genestructure` projects the human MANE Select transcript, `NM_033034.3`, onto
+every row:
 
 ```bash
 react-msaview-cli genestructure trim5_cds_aln.fasta \
@@ -144,21 +129,17 @@ react-msaview-cli genestructure trim5_cds_aln.fasta \
   -o trim5-exons.gff
 ```
 
-The transcript has 7 coding exons. Both zinc fingers this page uses as a
-control, RING and B-box, fall in the gene's large first coding exon, and the
-variable patch in the SPRY domain falls in the last one.
-
 [![](../media/codon-exon-structure.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A170%2C%22rowHeight%22%3A11%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-cds.stock%22%7D%2C%22colWidth%22%3A0.7%2C%22height%22%3A420%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-exons.gff%22%7D%7D%7D)
 
-The same alignment with the 7-exon structure overlaid, one color per exon,
-projected through every row's own gaps. The B30.2/SPRY domain spans exons 5 to
-7, and exon 7, the longest, holds most of it.
+The alignment with the 7 exons overlaid, one color per exon, projected through
+the gaps of each row. RING and B-box fall in the large first exon, and the
+B30.2/SPRY domain spans exons 5 to 7, most of it in exon 7.
 
-## 6. Per-codon selection with HyPhy
+## 6. Add per-codon selection from HyPhy
 
-[FEL](https://doi.org/10.1093/molbev/msi105) (Fixed Effects Likelihood) fits a
-synonymous rate (alpha) and a non-synonymous rate (beta) at every codon and
-tests beta against alpha with a likelihood ratio:
+HyPhy's [FEL](https://doi.org/10.1093/molbev/msi105) (Fixed Effects Likelihood)
+fits a synonymous rate (alpha) and a non-synonymous rate (beta) at every codon
+and tests one against the other:
 
 ```bash
 docker run --rm -v "$PWD":/data -w /data \
@@ -167,36 +148,29 @@ docker run --rm -v "$PWD":/data -w /data \
   --output trim5_fel.json --branches All
 ```
 
-HyPhy's single ratio across the whole tree and every codon is 0.82, so most of
-_TRIM5_ is under mild purifying selection. FEL's per-site test (default p<0.1,
-32 taxa, all 600 codon columns) calls 33 of 600 sites (5.5%) positively selected
-and 80 (13.3%) negatively selected. The strongest positively selected site in
-the gene is human residue 337 (alpha near zero, beta = 23.5, p = 0.0063), inside
-the variable patch that step 7 zooms into.
+HyPhy's single ratio across the whole tree is 0.82, mild purifying selection. At
+the default p<0.1, FEL calls 33 of 600 codons (5.5%) positively selected and 80
+(13.3%) negatively selected.
 
-The track draws the per-codon beta/alpha ratio. A site with almost no synonymous
-substitutions puts alpha near zero, and the ratio grows without bound. Human
-residue 337, with beta = 23.5 over alpha = 2.45e-7, has a ratio near 10^8, so
-the script clamps the values to 5 and writes them as one nucleotide-column-wide
-JSON array (`packages/app/public/data/trim5/trim5-dnds-values.json`), repeated
-three times per codon and passed as a `columnTracks` bar (see
+The track draws beta/alpha per codon, clamped at 5, because the ratio nears 10^8
+at human residue 337, the strongest positive site (beta = 23.5, p = 0.0063). The
+script writes the values to `trim5-dnds-values.json`, one per nucleotide column,
+for a `columnTracks` bar (see
 [data layers](https://gmod.org/JBrowseMSA/layers)):
 
 [![](../media/codon-dnds-track.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A170%2C%22rowHeight%22%3A11%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-cds.stock%22%7D%2C%22colWidth%22%3A0.7%2C%22height%22%3A480%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-exons.gff%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22dnds%22%2C%22name%22%3A%22dN%2FdS%20(FEL)%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0.117%2C0.117%2C0.117%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C3.57%2C3.57%2C3.57%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.001%2C0.001%2C0.001%2C0.779%2C0.779%2C0.779%2C2.016%2C2.016%2C2.016%2C0.73%2C0.73%2C0.73%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C1.225%2C1.225%2C1.225%2C0.951%2C0.951%2C0.951%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.145%2C0.145%2C0.145%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.438%2C0.438%2C0.438%2C0%2C0%2C0%2C0.262%2C0.262%2C0.262%2C0.3%2C0.3%2C0.3%2C5%2C5%2C5%2C1.074%2C1.074%2C1.074%2C0.332%2C0.332%2C0.332%2C5%2C5%2C5%2C5%2C5%2C5%2C1.644%2C1.644%2C1.644%2C0%2C0%2C0%2C1.354%2C1.354%2C1.354%2C0.497%2C0.497%2C0.497%2C5%2C5%2C5%2C0.408%2C0.408%2C0.408%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C1.27%2C1.27%2C1.27%2C0.918%2C0.918%2C0.918%2C0%2C0%2C0%2C5%2C5%2C5%2C1.919%2C1.919%2C1.919%2C1.339%2C1.339%2C1.339%2C0.164%2C0.164%2C0.164%2C5%2C5%2C5%2C0.567%2C0.567%2C0.567%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.337%2C0.337%2C0.337%2C1.065%2C1.065%2C1.065%2C5%2C5%2C5%2C0.166%2C0.166%2C0.166%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.564%2C0.564%2C0.564%2C0.632%2C0.632%2C0.632%2C2.655%2C2.655%2C2.655%2C5%2C5%2C5%2C1%2C1%2C1%2C0.261%2C0.261%2C0.261%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.472%2C0.472%2C0.472%2C0.93%2C0.93%2C0.93%2C5%2C5%2C5%2C0.228%2C0.228%2C0.228%2C0.269%2C0.269%2C0.269%2C5%2C5%2C5%2C0.29%2C0.29%2C0.29%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.163%2C1.163%2C1.163%2C0.001%2C0.001%2C0.001%2C0%2C0%2C0%2C0%2C0%2C0%2C1.3%2C1.3%2C1.3%2C0.34%2C0.34%2C0.34%2C0%2C0%2C0%2C2.204%2C2.204%2C2.204%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.367%2C0.367%2C0.367%2C0.296%2C0.296%2C0.296%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.869%2C0.869%2C0.869%2C0.001%2C0.001%2C0.001%2C1.221%2C1.221%2C1.221%2C0%2C0%2C0%2C0.152%2C0.152%2C0.152%2C0%2C0%2C0%2C0.501%2C0.501%2C0.501%2C5%2C5%2C5%2C1.022%2C1.022%2C1.022%2C0.271%2C0.271%2C0.271%2C0.207%2C0.207%2C0.207%2C1.145%2C1.145%2C1.145%2C5%2C5%2C5%2C0.281%2C0.281%2C0.281%2C5%2C5%2C5%2C3.361%2C3.361%2C3.361%2C5%2C5%2C5%2C0%2C0%2C0%2C1.336%2C1.336%2C1.336%2C0.202%2C0.202%2C0.202%2C2.44%2C2.44%2C2.44%2C5%2C5%2C5%2C2.293%2C2.293%2C2.293%2C1.196%2C1.196%2C1.196%2C0.545%2C0.545%2C0.545%2C0.631%2C0.631%2C0.631%2C5%2C5%2C5%2C0.748%2C0.748%2C0.748%2C0.55%2C0.55%2C0.55%2C5%2C5%2C5%2C0.833%2C0.833%2C0.833%2C5%2C5%2C5%2C5%2C5%2C5%2C0.097%2C0.097%2C0.097%2C0.407%2C0.407%2C0.407%2C0.975%2C0.975%2C0.975%2C0.842%2C0.842%2C0.842%2C0.194%2C0.194%2C0.194%2C1.143%2C1.143%2C1.143%2C5%2C5%2C5%2C1.069%2C1.069%2C1.069%2C0%2C0%2C0%2C5%2C5%2C5%2C0.442%2C0.442%2C0.442%2C5%2C5%2C5%2C0%2C0%2C0%2C0.488%2C0.488%2C0.488%2C0.395%2C0.395%2C0.395%2C0.539%2C0.539%2C0.539%2C0.717%2C0.717%2C0.717%2C5%2C5%2C5%2C0.071%2C0.071%2C0.071%2C0.748%2C0.748%2C0.748%2C0.503%2C0.503%2C0.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C1.424%2C1.424%2C1.424%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.247%2C0.247%2C0.247%2C0%2C0%2C0%2C0.215%2C0.215%2C0.215%2C1.659%2C1.659%2C1.659%2C2.023%2C2.023%2C2.023%2C5%2C5%2C5%2C0%2C0%2C0%2C1.032%2C1.032%2C1.032%2C0.253%2C0.253%2C0.253%2C0%2C0%2C0%2C0.244%2C0.244%2C0.244%2C0.162%2C0.162%2C0.162%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.557%2C0.557%2C0.557%2C0%2C0%2C0%2C0.801%2C0.801%2C0.801%2C5%2C5%2C5%2C0.313%2C0.313%2C0.313%2C5%2C5%2C5%2C0.936%2C0.936%2C0.936%2C0.306%2C0.306%2C0.306%2C0.215%2C0.215%2C0.215%2C0.836%2C0.836%2C0.836%2C1.341%2C1.341%2C1.341%2C1.264%2C1.264%2C1.264%2C0%2C0%2C0%2C0%2C0%2C0%2C0.74%2C0.74%2C0.74%2C0.364%2C0.364%2C0.364%2C1.294%2C1.294%2C1.294%2C0.843%2C0.843%2C0.843%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.244%2C0.244%2C0.244%2C0.312%2C0.312%2C0.312%2C0.731%2C0.731%2C0.731%2C4.833%2C4.833%2C4.833%2C5%2C5%2C5%2C1.184%2C1.184%2C1.184%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.032%2C0.032%2C0.032%2C5%2C5%2C5%2C0.12%2C0.12%2C0.12%2C5%2C5%2C5%2C0.541%2C0.541%2C0.541%2C0%2C0%2C0%2C0.251%2C0.251%2C0.251%2C5%2C5%2C5%2C5%2C5%2C5%2C0.715%2C0.715%2C0.715%2C0.168%2C0.168%2C0.168%2C1.21%2C1.21%2C1.21%2C0.235%2C0.235%2C0.235%2C0%2C0%2C0%2C0%2C0%2C0%2C1.252%2C1.252%2C1.252%2C0.822%2C0.822%2C0.822%2C0.728%2C0.728%2C0.728%2C0.816%2C0.816%2C0.816%2C5%2C5%2C5%2C0.292%2C0.292%2C0.292%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C1.585%2C1.585%2C1.585%2C1.031%2C1.031%2C1.031%2C1.122%2C1.122%2C1.122%2C0.686%2C0.686%2C0.686%2C5%2C5%2C5%2C0.251%2C0.251%2C0.251%2C0%2C0%2C0%2C5%2C5%2C5%2C0.36%2C0.36%2C0.36%2C0.067%2C0.067%2C0.067%2C0.264%2C0.264%2C0.264%2C0.895%2C0.895%2C0.895%2C0.883%2C0.883%2C0.883%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.213%2C0.213%2C0.213%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.165%2C0.165%2C0.165%2C5%2C5%2C5%2C0%2C0%2C0%2C0.935%2C0.935%2C0.935%2C0.694%2C0.694%2C0.694%2C5%2C5%2C5%2C0%2C0%2C0%2C0.948%2C0.948%2C0.948%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.467%2C0.467%2C0.467%2C5%2C5%2C5%2C5%2C5%2C5%2C0.498%2C0.498%2C0.498%2C1.584%2C1.584%2C1.584%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.433%2C0.433%2C0.433%2C5%2C5%2C5%2C0.278%2C0.278%2C0.278%2C0.999%2C0.999%2C0.999%2C5%2C5%2C5%2C5%2C5%2C5%2C0.39%2C0.39%2C0.39%2C5%2C5%2C5%2C5%2C5%2C5%2C0.595%2C0.595%2C0.595%2C1.009%2C1.009%2C1.009%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.758%2C0.758%2C0.758%2C1.753%2C1.753%2C1.753%2C0%2C0%2C0%2C2.709%2C2.709%2C2.709%2C0%2C0%2C0%2C0.333%2C0.333%2C0.333%2C1.087%2C1.087%2C1.087%2C1.993%2C1.993%2C1.993%2C2.012%2C2.012%2C2.012%2C1.72%2C1.72%2C1.72%2C0%2C0%2C0%2C5%2C5%2C5%2C0.066%2C0.066%2C0.066%2C0.177%2C0.177%2C0.177%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.304%2C0.304%2C0.304%2C5%2C5%2C5%2C1.223%2C1.223%2C1.223%2C2.148%2C2.148%2C2.148%2C3.426%2C3.426%2C3.426%2C2.677%2C2.677%2C2.677%2C4.651%2C4.651%2C4.651%2C0.232%2C0.232%2C0.232%2C5%2C5%2C5%2C1.788%2C1.788%2C1.788%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C4.747%2C4.747%2C4.747%2C1.127%2C1.127%2C1.127%2C5%2C5%2C5%2C5%2C5%2C5%2C1.527%2C1.527%2C1.527%2C1.464%2C1.464%2C1.464%2C1.441%2C1.441%2C1.441%2C5%2C5%2C5%2C2.726%2C2.726%2C2.726%2C0.113%2C0.113%2C0.113%2C1.172%2C1.172%2C1.172%2C5%2C5%2C5%2C0%2C0%2C0%2C0.431%2C0.431%2C0.431%2C5%2C5%2C5%2C1.365%2C1.365%2C1.365%2C0%2C0%2C0%2C0.994%2C0.994%2C0.994%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.505%2C0.505%2C0.505%2C0%2C0%2C0%2C0.079%2C0.079%2C0.079%2C0.004%2C0.004%2C0.004%2C0.508%2C0.508%2C0.508%2C0.447%2C0.447%2C0.447%2C0%2C0%2C0%2C5%2C5%2C5%2C0.749%2C0.749%2C0.749%2C0%2C0%2C0%2C0.919%2C0.919%2C0.919%2C5%2C5%2C5%2C0%2C0%2C0%2C0.739%2C0.739%2C0.739%2C5%2C5%2C5%2C5%2C5%2C5%2C2.732%2C2.732%2C2.732%2C0.295%2C0.295%2C0.295%2C1.218%2C1.218%2C1.218%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2.101%2C2.101%2C2.101%2C5%2C5%2C5%2C0.532%2C0.532%2C0.532%2C5%2C5%2C5%2C0.75%2C0.75%2C0.75%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.814%2C1.814%2C1.814%2C5%2C5%2C5%2C0.941%2C0.941%2C0.941%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3.964%2C3.964%2C3.964%2C5%2C5%2C5%2C0%2C0%2C0%2C1.949%2C1.949%2C1.949%2C0.994%2C0.994%2C0.994%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.398%2C0.398%2C0.398%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.818%2C0.818%2C0.818%2C0%2C0%2C0%2C0.102%2C0.102%2C0.102%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.975%2C0.975%2C0.975%2C0.263%2C0.263%2C0.263%2C1.545%2C1.545%2C1.545%2C0.415%2C0.415%2C0.415%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.353%2C1.353%2C1.353%2C1.191%2C1.191%2C1.191%2C0.262%2C0.262%2C0.262%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.511%2C0.511%2C0.511%2C0%2C0%2C0%2C0.276%2C0.276%2C0.276%2C1.452%2C1.452%2C1.452%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.734%2C0.734%2C0.734%2C2.025%2C2.025%2C2.025%2C0.803%2C0.803%2C0.803%2C5%2C5%2C5%2C5%2C5%2C5%2C2.283%2C2.283%2C2.283%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.171%2C0.171%2C0.171%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.361%2C0.361%2C0.361%2C0.797%2C0.797%2C0.797%2C0.855%2C0.855%2C0.855%2C0.438%2C0.438%2C0.438%2C0.231%2C0.231%2C0.231%2C0%2C0%2C0%2C5%2C5%2C5%2C1.061%2C1.061%2C1.061%2C0.38%2C0.38%2C0.38%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C5%2C5%2C5%2C0.265%2C0.265%2C0.265%2C0%2C0%2C0%2C0.609%2C0.609%2C0.609%2C0.187%2C0.187%2C0.187%2C0.839%2C0.839%2C0.839%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.42%2C0.42%2C0.42%2C0.512%2C0.512%2C0.512%2C0.405%2C0.405%2C0.405%2C0.396%2C0.396%2C0.396%2C0.061%2C0.061%2C0.061%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.071%2C0.071%2C0.071%2C0%2C0%2C0%2C0.354%2C0.354%2C0.354%2C5%2C5%2C5%2C5%2C5%2C5%2C3.431%2C3.431%2C3.431%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.909%2C0.909%2C0.909%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0.669%2C0.669%2C0.669%2C0.16%2C0.16%2C0.16%2C0.183%2C0.183%2C0.183%2C5%2C5%2C5%2C1.503%2C1.503%2C1.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.455%2C0.455%2C0.455%2C5%2C5%2C5%2C0.388%2C0.388%2C0.388%2C0.295%2C0.295%2C0.295%2C5%2C5%2C5%2C0.325%2C0.325%2C0.325%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%5D%2C%22max%22%3A5%2C%22color%22%3A%22%23c0392b%22%7D%5D%7D%7D>)
 
 Red bars are FEL's per-codon dN/dS, clamped at 5, above the exon-colored
-alignment. The spikes cluster toward the SPRY-domain half on the right and thin
-out over the first three exons on the left. The next two figures zoom into each
-end.
+alignment. The bars cluster over the SPRY half on the right and thin out over
+the first three exons on the left.
 
-## 7. The SPRY variable patch
+## 7. Label the SPRY variable patch
 
-Sawyer et al. (2005) found a small patch of the SPRY domain carrying most of the
-gene's positively selected sites, overlapping the "variable region 1" (V1) loop
-later work narrowed the HIV-1 restriction specificity down to (Stremlau et al.
-2005; Yap et al. 2005; Ohkura et al. 2006), human residues 326-341. R332 sits in
-the middle of it, and R332P alone is the substitution that converts human
-_TRIM5_ into an HIV-1 restrictor:
+Sawyer et al. (2005) found most of the gene's positively selected sites in a
+small SPRY patch that overlaps variable region 1 (V1), human residues 326-341,
+where the HIV-1 restriction specificity maps (Stremlau et al. 2005; Yap et al.
+2005; Ohkura et al. 2006). Two highlights label the patch and R332 at its
+center:
 
 ```json
 "highlights": [
@@ -205,45 +179,41 @@ _TRIM5_ into an HIV-1 restrictor:
 ]
 ```
 
-(`start`/`end` are the human row's own nucleotide positions: residue 326 is
-nucleotide 976, `(326-1)*3+1`, and R332 is nucleotides 994-996.)
+`start` and `end` count nucleotides along the human row: residue 326 starts at
+nucleotide 976, `(326-1)*3+1`, and R332 is nucleotides 994-996.
 
 [![](../media/codon-spry-patch.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A170%2C%22rowHeight%22%3A11%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-cds.stock%22%7D%2C%22colWidth%22%3A6%2C%22height%22%3A480%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-exons.gff%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22dnds%22%2C%22name%22%3A%22dN%2FdS%20(FEL)%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0.117%2C0.117%2C0.117%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C3.57%2C3.57%2C3.57%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.001%2C0.001%2C0.001%2C0.779%2C0.779%2C0.779%2C2.016%2C2.016%2C2.016%2C0.73%2C0.73%2C0.73%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C1.225%2C1.225%2C1.225%2C0.951%2C0.951%2C0.951%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.145%2C0.145%2C0.145%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.438%2C0.438%2C0.438%2C0%2C0%2C0%2C0.262%2C0.262%2C0.262%2C0.3%2C0.3%2C0.3%2C5%2C5%2C5%2C1.074%2C1.074%2C1.074%2C0.332%2C0.332%2C0.332%2C5%2C5%2C5%2C5%2C5%2C5%2C1.644%2C1.644%2C1.644%2C0%2C0%2C0%2C1.354%2C1.354%2C1.354%2C0.497%2C0.497%2C0.497%2C5%2C5%2C5%2C0.408%2C0.408%2C0.408%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C1.27%2C1.27%2C1.27%2C0.918%2C0.918%2C0.918%2C0%2C0%2C0%2C5%2C5%2C5%2C1.919%2C1.919%2C1.919%2C1.339%2C1.339%2C1.339%2C0.164%2C0.164%2C0.164%2C5%2C5%2C5%2C0.567%2C0.567%2C0.567%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.337%2C0.337%2C0.337%2C1.065%2C1.065%2C1.065%2C5%2C5%2C5%2C0.166%2C0.166%2C0.166%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.564%2C0.564%2C0.564%2C0.632%2C0.632%2C0.632%2C2.655%2C2.655%2C2.655%2C5%2C5%2C5%2C1%2C1%2C1%2C0.261%2C0.261%2C0.261%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.472%2C0.472%2C0.472%2C0.93%2C0.93%2C0.93%2C5%2C5%2C5%2C0.228%2C0.228%2C0.228%2C0.269%2C0.269%2C0.269%2C5%2C5%2C5%2C0.29%2C0.29%2C0.29%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.163%2C1.163%2C1.163%2C0.001%2C0.001%2C0.001%2C0%2C0%2C0%2C0%2C0%2C0%2C1.3%2C1.3%2C1.3%2C0.34%2C0.34%2C0.34%2C0%2C0%2C0%2C2.204%2C2.204%2C2.204%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.367%2C0.367%2C0.367%2C0.296%2C0.296%2C0.296%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.869%2C0.869%2C0.869%2C0.001%2C0.001%2C0.001%2C1.221%2C1.221%2C1.221%2C0%2C0%2C0%2C0.152%2C0.152%2C0.152%2C0%2C0%2C0%2C0.501%2C0.501%2C0.501%2C5%2C5%2C5%2C1.022%2C1.022%2C1.022%2C0.271%2C0.271%2C0.271%2C0.207%2C0.207%2C0.207%2C1.145%2C1.145%2C1.145%2C5%2C5%2C5%2C0.281%2C0.281%2C0.281%2C5%2C5%2C5%2C3.361%2C3.361%2C3.361%2C5%2C5%2C5%2C0%2C0%2C0%2C1.336%2C1.336%2C1.336%2C0.202%2C0.202%2C0.202%2C2.44%2C2.44%2C2.44%2C5%2C5%2C5%2C2.293%2C2.293%2C2.293%2C1.196%2C1.196%2C1.196%2C0.545%2C0.545%2C0.545%2C0.631%2C0.631%2C0.631%2C5%2C5%2C5%2C0.748%2C0.748%2C0.748%2C0.55%2C0.55%2C0.55%2C5%2C5%2C5%2C0.833%2C0.833%2C0.833%2C5%2C5%2C5%2C5%2C5%2C5%2C0.097%2C0.097%2C0.097%2C0.407%2C0.407%2C0.407%2C0.975%2C0.975%2C0.975%2C0.842%2C0.842%2C0.842%2C0.194%2C0.194%2C0.194%2C1.143%2C1.143%2C1.143%2C5%2C5%2C5%2C1.069%2C1.069%2C1.069%2C0%2C0%2C0%2C5%2C5%2C5%2C0.442%2C0.442%2C0.442%2C5%2C5%2C5%2C0%2C0%2C0%2C0.488%2C0.488%2C0.488%2C0.395%2C0.395%2C0.395%2C0.539%2C0.539%2C0.539%2C0.717%2C0.717%2C0.717%2C5%2C5%2C5%2C0.071%2C0.071%2C0.071%2C0.748%2C0.748%2C0.748%2C0.503%2C0.503%2C0.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C1.424%2C1.424%2C1.424%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.247%2C0.247%2C0.247%2C0%2C0%2C0%2C0.215%2C0.215%2C0.215%2C1.659%2C1.659%2C1.659%2C2.023%2C2.023%2C2.023%2C5%2C5%2C5%2C0%2C0%2C0%2C1.032%2C1.032%2C1.032%2C0.253%2C0.253%2C0.253%2C0%2C0%2C0%2C0.244%2C0.244%2C0.244%2C0.162%2C0.162%2C0.162%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.557%2C0.557%2C0.557%2C0%2C0%2C0%2C0.801%2C0.801%2C0.801%2C5%2C5%2C5%2C0.313%2C0.313%2C0.313%2C5%2C5%2C5%2C0.936%2C0.936%2C0.936%2C0.306%2C0.306%2C0.306%2C0.215%2C0.215%2C0.215%2C0.836%2C0.836%2C0.836%2C1.341%2C1.341%2C1.341%2C1.264%2C1.264%2C1.264%2C0%2C0%2C0%2C0%2C0%2C0%2C0.74%2C0.74%2C0.74%2C0.364%2C0.364%2C0.364%2C1.294%2C1.294%2C1.294%2C0.843%2C0.843%2C0.843%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.244%2C0.244%2C0.244%2C0.312%2C0.312%2C0.312%2C0.731%2C0.731%2C0.731%2C4.833%2C4.833%2C4.833%2C5%2C5%2C5%2C1.184%2C1.184%2C1.184%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.032%2C0.032%2C0.032%2C5%2C5%2C5%2C0.12%2C0.12%2C0.12%2C5%2C5%2C5%2C0.541%2C0.541%2C0.541%2C0%2C0%2C0%2C0.251%2C0.251%2C0.251%2C5%2C5%2C5%2C5%2C5%2C5%2C0.715%2C0.715%2C0.715%2C0.168%2C0.168%2C0.168%2C1.21%2C1.21%2C1.21%2C0.235%2C0.235%2C0.235%2C0%2C0%2C0%2C0%2C0%2C0%2C1.252%2C1.252%2C1.252%2C0.822%2C0.822%2C0.822%2C0.728%2C0.728%2C0.728%2C0.816%2C0.816%2C0.816%2C5%2C5%2C5%2C0.292%2C0.292%2C0.292%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C1.585%2C1.585%2C1.585%2C1.031%2C1.031%2C1.031%2C1.122%2C1.122%2C1.122%2C0.686%2C0.686%2C0.686%2C5%2C5%2C5%2C0.251%2C0.251%2C0.251%2C0%2C0%2C0%2C5%2C5%2C5%2C0.36%2C0.36%2C0.36%2C0.067%2C0.067%2C0.067%2C0.264%2C0.264%2C0.264%2C0.895%2C0.895%2C0.895%2C0.883%2C0.883%2C0.883%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.213%2C0.213%2C0.213%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.165%2C0.165%2C0.165%2C5%2C5%2C5%2C0%2C0%2C0%2C0.935%2C0.935%2C0.935%2C0.694%2C0.694%2C0.694%2C5%2C5%2C5%2C0%2C0%2C0%2C0.948%2C0.948%2C0.948%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.467%2C0.467%2C0.467%2C5%2C5%2C5%2C5%2C5%2C5%2C0.498%2C0.498%2C0.498%2C1.584%2C1.584%2C1.584%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.433%2C0.433%2C0.433%2C5%2C5%2C5%2C0.278%2C0.278%2C0.278%2C0.999%2C0.999%2C0.999%2C5%2C5%2C5%2C5%2C5%2C5%2C0.39%2C0.39%2C0.39%2C5%2C5%2C5%2C5%2C5%2C5%2C0.595%2C0.595%2C0.595%2C1.009%2C1.009%2C1.009%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.758%2C0.758%2C0.758%2C1.753%2C1.753%2C1.753%2C0%2C0%2C0%2C2.709%2C2.709%2C2.709%2C0%2C0%2C0%2C0.333%2C0.333%2C0.333%2C1.087%2C1.087%2C1.087%2C1.993%2C1.993%2C1.993%2C2.012%2C2.012%2C2.012%2C1.72%2C1.72%2C1.72%2C0%2C0%2C0%2C5%2C5%2C5%2C0.066%2C0.066%2C0.066%2C0.177%2C0.177%2C0.177%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.304%2C0.304%2C0.304%2C5%2C5%2C5%2C1.223%2C1.223%2C1.223%2C2.148%2C2.148%2C2.148%2C3.426%2C3.426%2C3.426%2C2.677%2C2.677%2C2.677%2C4.651%2C4.651%2C4.651%2C0.232%2C0.232%2C0.232%2C5%2C5%2C5%2C1.788%2C1.788%2C1.788%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C4.747%2C4.747%2C4.747%2C1.127%2C1.127%2C1.127%2C5%2C5%2C5%2C5%2C5%2C5%2C1.527%2C1.527%2C1.527%2C1.464%2C1.464%2C1.464%2C1.441%2C1.441%2C1.441%2C5%2C5%2C5%2C2.726%2C2.726%2C2.726%2C0.113%2C0.113%2C0.113%2C1.172%2C1.172%2C1.172%2C5%2C5%2C5%2C0%2C0%2C0%2C0.431%2C0.431%2C0.431%2C5%2C5%2C5%2C1.365%2C1.365%2C1.365%2C0%2C0%2C0%2C0.994%2C0.994%2C0.994%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.505%2C0.505%2C0.505%2C0%2C0%2C0%2C0.079%2C0.079%2C0.079%2C0.004%2C0.004%2C0.004%2C0.508%2C0.508%2C0.508%2C0.447%2C0.447%2C0.447%2C0%2C0%2C0%2C5%2C5%2C5%2C0.749%2C0.749%2C0.749%2C0%2C0%2C0%2C0.919%2C0.919%2C0.919%2C5%2C5%2C5%2C0%2C0%2C0%2C0.739%2C0.739%2C0.739%2C5%2C5%2C5%2C5%2C5%2C5%2C2.732%2C2.732%2C2.732%2C0.295%2C0.295%2C0.295%2C1.218%2C1.218%2C1.218%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2.101%2C2.101%2C2.101%2C5%2C5%2C5%2C0.532%2C0.532%2C0.532%2C5%2C5%2C5%2C0.75%2C0.75%2C0.75%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.814%2C1.814%2C1.814%2C5%2C5%2C5%2C0.941%2C0.941%2C0.941%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3.964%2C3.964%2C3.964%2C5%2C5%2C5%2C0%2C0%2C0%2C1.949%2C1.949%2C1.949%2C0.994%2C0.994%2C0.994%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.398%2C0.398%2C0.398%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.818%2C0.818%2C0.818%2C0%2C0%2C0%2C0.102%2C0.102%2C0.102%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.975%2C0.975%2C0.975%2C0.263%2C0.263%2C0.263%2C1.545%2C1.545%2C1.545%2C0.415%2C0.415%2C0.415%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.353%2C1.353%2C1.353%2C1.191%2C1.191%2C1.191%2C0.262%2C0.262%2C0.262%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.511%2C0.511%2C0.511%2C0%2C0%2C0%2C0.276%2C0.276%2C0.276%2C1.452%2C1.452%2C1.452%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.734%2C0.734%2C0.734%2C2.025%2C2.025%2C2.025%2C0.803%2C0.803%2C0.803%2C5%2C5%2C5%2C5%2C5%2C5%2C2.283%2C2.283%2C2.283%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.171%2C0.171%2C0.171%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.361%2C0.361%2C0.361%2C0.797%2C0.797%2C0.797%2C0.855%2C0.855%2C0.855%2C0.438%2C0.438%2C0.438%2C0.231%2C0.231%2C0.231%2C0%2C0%2C0%2C5%2C5%2C5%2C1.061%2C1.061%2C1.061%2C0.38%2C0.38%2C0.38%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C5%2C5%2C5%2C0.265%2C0.265%2C0.265%2C0%2C0%2C0%2C0.609%2C0.609%2C0.609%2C0.187%2C0.187%2C0.187%2C0.839%2C0.839%2C0.839%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.42%2C0.42%2C0.42%2C0.512%2C0.512%2C0.512%2C0.405%2C0.405%2C0.405%2C0.396%2C0.396%2C0.396%2C0.061%2C0.061%2C0.061%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.071%2C0.071%2C0.071%2C0%2C0%2C0%2C0.354%2C0.354%2C0.354%2C5%2C5%2C5%2C5%2C5%2C5%2C3.431%2C3.431%2C3.431%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.909%2C0.909%2C0.909%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0.669%2C0.669%2C0.669%2C0.16%2C0.16%2C0.16%2C0.183%2C0.183%2C0.183%2C5%2C5%2C5%2C1.503%2C1.503%2C1.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.455%2C0.455%2C0.455%2C5%2C5%2C5%2C0.388%2C0.388%2C0.388%2C0.295%2C0.295%2C0.295%2C5%2C5%2C5%2C0.325%2C0.325%2C0.325%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%5D%2C%22max%22%3A5%2C%22color%22%3A%22%23c0392b%22%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22human%22%2C%22start%22%3A43%2C%22end%22%3A396%2C%22label%22%3A%22RING%20%2B%20B-box%20(purifying%20control)%22%2C%22color%22%3A%22rgba(21%2C101%2C192%2C0.25)%22%7D%2C%7B%22row%22%3A%22human%22%2C%22start%22%3A976%2C%22end%22%3A1023%2C%22label%22%3A%22SPRY%20V1%20patch%22%2C%22color%22%3A%22rgba(255%2C140%2C0%2C0.3)%22%7D%2C%7B%22row%22%3A%22human%22%2C%22start%22%3A994%2C%22end%22%3A996%2C%22label%22%3A%22R332%22%2C%22color%22%3A%22%23e3242b%22%7D%5D%2C%22scrollX%22%3A-5580%7D%7D>)
 
 The V1 patch (orange) and R332 (red) at base resolution, under the dense red
-spikes of the dN/dS track. The patch is 16 codons long. FEL calls 3 of them
-(18.8%) positively selected and none negatively selected, twice the positive
-fraction of the whole B30.2/SPRY domain (19 of 213 codons, 8.9%). The 16-codon
-windows starting at human residues 376-382 hold 4 positive sites each, one more
-than the patch. R332 is not one of the 3: alpha = 1.77 and beta = 3.80 give an
-elevated ratio of about 2.1, but p = 0.52 misses FEL's significance threshold in
-this 32-species set, although R332 is the residue the published point mutation
-targets.
+bars of the dN/dS track. FEL calls 3 of the patch's 16 codons (18.8%) positively
+selected and none negatively selected, twice the positive fraction of the whole
+B30.2/SPRY domain (19 of 213 codons, 8.9%). The 16-codon windows starting at
+human residues 376-382 hold 4 positive sites each, one more than the patch.
 
-## 8. The purifying control
+R332 is not one of the 3: alpha = 1.77 and beta = 3.80 give a ratio of about
+2.1, but p = 0.52 misses FEL's threshold in this 32-species set.
 
-RING and B-box are the zinc-finger domains that fold the protein and drive its
-E3 ubiquitin ligase activity, so the same analysis should call them conserved.
-The figure above shows both as a combined highlight, and this figure zooms into
-them:
+## 8. Check the RING and B-box control
+
+RING and B-box are the zinc fingers that fold the protein and drive its E3
+ubiquitin ligase activity, so the same analysis should call them conserved:
 
 [![](../media/codon-purifying-control.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A170%2C%22rowHeight%22%3A11%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-cds.stock%22%7D%2C%22colWidth%22%3A3%2C%22height%22%3A480%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-exons.gff%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22dnds%22%2C%22name%22%3A%22dN%2FdS%20(FEL)%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0.117%2C0.117%2C0.117%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C3.57%2C3.57%2C3.57%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.001%2C0.001%2C0.001%2C0.779%2C0.779%2C0.779%2C2.016%2C2.016%2C2.016%2C0.73%2C0.73%2C0.73%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C1.225%2C1.225%2C1.225%2C0.951%2C0.951%2C0.951%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.145%2C0.145%2C0.145%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.438%2C0.438%2C0.438%2C0%2C0%2C0%2C0.262%2C0.262%2C0.262%2C0.3%2C0.3%2C0.3%2C5%2C5%2C5%2C1.074%2C1.074%2C1.074%2C0.332%2C0.332%2C0.332%2C5%2C5%2C5%2C5%2C5%2C5%2C1.644%2C1.644%2C1.644%2C0%2C0%2C0%2C1.354%2C1.354%2C1.354%2C0.497%2C0.497%2C0.497%2C5%2C5%2C5%2C0.408%2C0.408%2C0.408%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C1.27%2C1.27%2C1.27%2C0.918%2C0.918%2C0.918%2C0%2C0%2C0%2C5%2C5%2C5%2C1.919%2C1.919%2C1.919%2C1.339%2C1.339%2C1.339%2C0.164%2C0.164%2C0.164%2C5%2C5%2C5%2C0.567%2C0.567%2C0.567%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.337%2C0.337%2C0.337%2C1.065%2C1.065%2C1.065%2C5%2C5%2C5%2C0.166%2C0.166%2C0.166%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.564%2C0.564%2C0.564%2C0.632%2C0.632%2C0.632%2C2.655%2C2.655%2C2.655%2C5%2C5%2C5%2C1%2C1%2C1%2C0.261%2C0.261%2C0.261%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.472%2C0.472%2C0.472%2C0.93%2C0.93%2C0.93%2C5%2C5%2C5%2C0.228%2C0.228%2C0.228%2C0.269%2C0.269%2C0.269%2C5%2C5%2C5%2C0.29%2C0.29%2C0.29%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.163%2C1.163%2C1.163%2C0.001%2C0.001%2C0.001%2C0%2C0%2C0%2C0%2C0%2C0%2C1.3%2C1.3%2C1.3%2C0.34%2C0.34%2C0.34%2C0%2C0%2C0%2C2.204%2C2.204%2C2.204%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.367%2C0.367%2C0.367%2C0.296%2C0.296%2C0.296%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.869%2C0.869%2C0.869%2C0.001%2C0.001%2C0.001%2C1.221%2C1.221%2C1.221%2C0%2C0%2C0%2C0.152%2C0.152%2C0.152%2C0%2C0%2C0%2C0.501%2C0.501%2C0.501%2C5%2C5%2C5%2C1.022%2C1.022%2C1.022%2C0.271%2C0.271%2C0.271%2C0.207%2C0.207%2C0.207%2C1.145%2C1.145%2C1.145%2C5%2C5%2C5%2C0.281%2C0.281%2C0.281%2C5%2C5%2C5%2C3.361%2C3.361%2C3.361%2C5%2C5%2C5%2C0%2C0%2C0%2C1.336%2C1.336%2C1.336%2C0.202%2C0.202%2C0.202%2C2.44%2C2.44%2C2.44%2C5%2C5%2C5%2C2.293%2C2.293%2C2.293%2C1.196%2C1.196%2C1.196%2C0.545%2C0.545%2C0.545%2C0.631%2C0.631%2C0.631%2C5%2C5%2C5%2C0.748%2C0.748%2C0.748%2C0.55%2C0.55%2C0.55%2C5%2C5%2C5%2C0.833%2C0.833%2C0.833%2C5%2C5%2C5%2C5%2C5%2C5%2C0.097%2C0.097%2C0.097%2C0.407%2C0.407%2C0.407%2C0.975%2C0.975%2C0.975%2C0.842%2C0.842%2C0.842%2C0.194%2C0.194%2C0.194%2C1.143%2C1.143%2C1.143%2C5%2C5%2C5%2C1.069%2C1.069%2C1.069%2C0%2C0%2C0%2C5%2C5%2C5%2C0.442%2C0.442%2C0.442%2C5%2C5%2C5%2C0%2C0%2C0%2C0.488%2C0.488%2C0.488%2C0.395%2C0.395%2C0.395%2C0.539%2C0.539%2C0.539%2C0.717%2C0.717%2C0.717%2C5%2C5%2C5%2C0.071%2C0.071%2C0.071%2C0.748%2C0.748%2C0.748%2C0.503%2C0.503%2C0.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C1.424%2C1.424%2C1.424%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.247%2C0.247%2C0.247%2C0%2C0%2C0%2C0.215%2C0.215%2C0.215%2C1.659%2C1.659%2C1.659%2C2.023%2C2.023%2C2.023%2C5%2C5%2C5%2C0%2C0%2C0%2C1.032%2C1.032%2C1.032%2C0.253%2C0.253%2C0.253%2C0%2C0%2C0%2C0.244%2C0.244%2C0.244%2C0.162%2C0.162%2C0.162%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.557%2C0.557%2C0.557%2C0%2C0%2C0%2C0.801%2C0.801%2C0.801%2C5%2C5%2C5%2C0.313%2C0.313%2C0.313%2C5%2C5%2C5%2C0.936%2C0.936%2C0.936%2C0.306%2C0.306%2C0.306%2C0.215%2C0.215%2C0.215%2C0.836%2C0.836%2C0.836%2C1.341%2C1.341%2C1.341%2C1.264%2C1.264%2C1.264%2C0%2C0%2C0%2C0%2C0%2C0%2C0.74%2C0.74%2C0.74%2C0.364%2C0.364%2C0.364%2C1.294%2C1.294%2C1.294%2C0.843%2C0.843%2C0.843%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.244%2C0.244%2C0.244%2C0.312%2C0.312%2C0.312%2C0.731%2C0.731%2C0.731%2C4.833%2C4.833%2C4.833%2C5%2C5%2C5%2C1.184%2C1.184%2C1.184%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.032%2C0.032%2C0.032%2C5%2C5%2C5%2C0.12%2C0.12%2C0.12%2C5%2C5%2C5%2C0.541%2C0.541%2C0.541%2C0%2C0%2C0%2C0.251%2C0.251%2C0.251%2C5%2C5%2C5%2C5%2C5%2C5%2C0.715%2C0.715%2C0.715%2C0.168%2C0.168%2C0.168%2C1.21%2C1.21%2C1.21%2C0.235%2C0.235%2C0.235%2C0%2C0%2C0%2C0%2C0%2C0%2C1.252%2C1.252%2C1.252%2C0.822%2C0.822%2C0.822%2C0.728%2C0.728%2C0.728%2C0.816%2C0.816%2C0.816%2C5%2C5%2C5%2C0.292%2C0.292%2C0.292%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C1.585%2C1.585%2C1.585%2C1.031%2C1.031%2C1.031%2C1.122%2C1.122%2C1.122%2C0.686%2C0.686%2C0.686%2C5%2C5%2C5%2C0.251%2C0.251%2C0.251%2C0%2C0%2C0%2C5%2C5%2C5%2C0.36%2C0.36%2C0.36%2C0.067%2C0.067%2C0.067%2C0.264%2C0.264%2C0.264%2C0.895%2C0.895%2C0.895%2C0.883%2C0.883%2C0.883%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.213%2C0.213%2C0.213%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.165%2C0.165%2C0.165%2C5%2C5%2C5%2C0%2C0%2C0%2C0.935%2C0.935%2C0.935%2C0.694%2C0.694%2C0.694%2C5%2C5%2C5%2C0%2C0%2C0%2C0.948%2C0.948%2C0.948%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.467%2C0.467%2C0.467%2C5%2C5%2C5%2C5%2C5%2C5%2C0.498%2C0.498%2C0.498%2C1.584%2C1.584%2C1.584%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.433%2C0.433%2C0.433%2C5%2C5%2C5%2C0.278%2C0.278%2C0.278%2C0.999%2C0.999%2C0.999%2C5%2C5%2C5%2C5%2C5%2C5%2C0.39%2C0.39%2C0.39%2C5%2C5%2C5%2C5%2C5%2C5%2C0.595%2C0.595%2C0.595%2C1.009%2C1.009%2C1.009%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.758%2C0.758%2C0.758%2C1.753%2C1.753%2C1.753%2C0%2C0%2C0%2C2.709%2C2.709%2C2.709%2C0%2C0%2C0%2C0.333%2C0.333%2C0.333%2C1.087%2C1.087%2C1.087%2C1.993%2C1.993%2C1.993%2C2.012%2C2.012%2C2.012%2C1.72%2C1.72%2C1.72%2C0%2C0%2C0%2C5%2C5%2C5%2C0.066%2C0.066%2C0.066%2C0.177%2C0.177%2C0.177%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.304%2C0.304%2C0.304%2C5%2C5%2C5%2C1.223%2C1.223%2C1.223%2C2.148%2C2.148%2C2.148%2C3.426%2C3.426%2C3.426%2C2.677%2C2.677%2C2.677%2C4.651%2C4.651%2C4.651%2C0.232%2C0.232%2C0.232%2C5%2C5%2C5%2C1.788%2C1.788%2C1.788%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C4.747%2C4.747%2C4.747%2C1.127%2C1.127%2C1.127%2C5%2C5%2C5%2C5%2C5%2C5%2C1.527%2C1.527%2C1.527%2C1.464%2C1.464%2C1.464%2C1.441%2C1.441%2C1.441%2C5%2C5%2C5%2C2.726%2C2.726%2C2.726%2C0.113%2C0.113%2C0.113%2C1.172%2C1.172%2C1.172%2C5%2C5%2C5%2C0%2C0%2C0%2C0.431%2C0.431%2C0.431%2C5%2C5%2C5%2C1.365%2C1.365%2C1.365%2C0%2C0%2C0%2C0.994%2C0.994%2C0.994%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.505%2C0.505%2C0.505%2C0%2C0%2C0%2C0.079%2C0.079%2C0.079%2C0.004%2C0.004%2C0.004%2C0.508%2C0.508%2C0.508%2C0.447%2C0.447%2C0.447%2C0%2C0%2C0%2C5%2C5%2C5%2C0.749%2C0.749%2C0.749%2C0%2C0%2C0%2C0.919%2C0.919%2C0.919%2C5%2C5%2C5%2C0%2C0%2C0%2C0.739%2C0.739%2C0.739%2C5%2C5%2C5%2C5%2C5%2C5%2C2.732%2C2.732%2C2.732%2C0.295%2C0.295%2C0.295%2C1.218%2C1.218%2C1.218%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2.101%2C2.101%2C2.101%2C5%2C5%2C5%2C0.532%2C0.532%2C0.532%2C5%2C5%2C5%2C0.75%2C0.75%2C0.75%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.814%2C1.814%2C1.814%2C5%2C5%2C5%2C0.941%2C0.941%2C0.941%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3.964%2C3.964%2C3.964%2C5%2C5%2C5%2C0%2C0%2C0%2C1.949%2C1.949%2C1.949%2C0.994%2C0.994%2C0.994%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.398%2C0.398%2C0.398%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.818%2C0.818%2C0.818%2C0%2C0%2C0%2C0.102%2C0.102%2C0.102%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.975%2C0.975%2C0.975%2C0.263%2C0.263%2C0.263%2C1.545%2C1.545%2C1.545%2C0.415%2C0.415%2C0.415%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.353%2C1.353%2C1.353%2C1.191%2C1.191%2C1.191%2C0.262%2C0.262%2C0.262%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.511%2C0.511%2C0.511%2C0%2C0%2C0%2C0.276%2C0.276%2C0.276%2C1.452%2C1.452%2C1.452%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.734%2C0.734%2C0.734%2C2.025%2C2.025%2C2.025%2C0.803%2C0.803%2C0.803%2C5%2C5%2C5%2C5%2C5%2C5%2C2.283%2C2.283%2C2.283%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.171%2C0.171%2C0.171%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.361%2C0.361%2C0.361%2C0.797%2C0.797%2C0.797%2C0.855%2C0.855%2C0.855%2C0.438%2C0.438%2C0.438%2C0.231%2C0.231%2C0.231%2C0%2C0%2C0%2C5%2C5%2C5%2C1.061%2C1.061%2C1.061%2C0.38%2C0.38%2C0.38%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C5%2C5%2C5%2C0.265%2C0.265%2C0.265%2C0%2C0%2C0%2C0.609%2C0.609%2C0.609%2C0.187%2C0.187%2C0.187%2C0.839%2C0.839%2C0.839%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.42%2C0.42%2C0.42%2C0.512%2C0.512%2C0.512%2C0.405%2C0.405%2C0.405%2C0.396%2C0.396%2C0.396%2C0.061%2C0.061%2C0.061%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.071%2C0.071%2C0.071%2C0%2C0%2C0%2C0.354%2C0.354%2C0.354%2C5%2C5%2C5%2C5%2C5%2C5%2C3.431%2C3.431%2C3.431%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.909%2C0.909%2C0.909%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0.669%2C0.669%2C0.669%2C0.16%2C0.16%2C0.16%2C0.183%2C0.183%2C0.183%2C5%2C5%2C5%2C1.503%2C1.503%2C1.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.455%2C0.455%2C0.455%2C5%2C5%2C5%2C0.388%2C0.388%2C0.388%2C0.295%2C0.295%2C0.295%2C5%2C5%2C5%2C0.325%2C0.325%2C0.325%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%5D%2C%22max%22%3A5%2C%22color%22%3A%22%23c0392b%22%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22human%22%2C%22start%22%3A43%2C%22end%22%3A396%2C%22label%22%3A%22RING%20%2B%20B-box%20(purifying%20control)%22%2C%22color%22%3A%22rgba(21%2C101%2C192%2C0.25)%22%7D%2C%7B%22row%22%3A%22human%22%2C%22start%22%3A976%2C%22end%22%3A1023%2C%22label%22%3A%22SPRY%20V1%20patch%22%2C%22color%22%3A%22rgba(255%2C140%2C0%2C0.3)%22%7D%2C%7B%22row%22%3A%22human%22%2C%22start%22%3A994%2C%22end%22%3A996%2C%22label%22%3A%22R332%22%2C%22color%22%3A%22%23e3242b%22%7D%5D%2C%22scrollX%22%3A-90%7D%7D>)
 
-RING (human aa 15-59, 45 codons) and B-box (aa 90-132, 43 codons), same color
-scale as every other figure on this page. FEL calls 1 RING codon and 2 B-box
-codons positively selected (2.2% and 4.7%), against 16 and 12 negatively
-selected (35.6% and 27.9%), the reverse of the V1 patch's ratio.
+RING (human aa 15-59, 45 codons) and B-box (aa 90-132, 43 codons) under the
+dN/dS track. FEL calls 1 RING codon and 2 B-box codons positively selected (2.2%
+and 4.7%), against 16 and 12 negatively selected (35.6% and 27.9%), the reverse
+of the V1 patch.
 
-## 9. Open it
+## 9. Open the result
 
 <!-- usage: web -->
 
-This snapshot combines the last three figures: alignment, tree, exon structure,
-the dN/dS track and both highlights.
+The snapshot combines every layer above:
 
 [![](../media/codon-final-view.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22treeAreaWidth%22%3A170%2C%22rowHeight%22%3A11%2C%22colorSchemeName%22%3A%22nucleotide%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-cds.stock%22%7D%2C%22colWidth%22%3A0.7%2C%22height%22%3A480%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftrim5%2Ftrim5-exons.gff%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22dnds%22%2C%22name%22%3A%22dN%2FdS%20(FEL)%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B0%2C0%2C0%2C0%2C0%2C0%2C0.117%2C0.117%2C0.117%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C3.57%2C3.57%2C3.57%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.001%2C0.001%2C0.001%2C0.779%2C0.779%2C0.779%2C2.016%2C2.016%2C2.016%2C0.73%2C0.73%2C0.73%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C1.225%2C1.225%2C1.225%2C0.951%2C0.951%2C0.951%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.145%2C0.145%2C0.145%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.438%2C0.438%2C0.438%2C0%2C0%2C0%2C0.262%2C0.262%2C0.262%2C0.3%2C0.3%2C0.3%2C5%2C5%2C5%2C1.074%2C1.074%2C1.074%2C0.332%2C0.332%2C0.332%2C5%2C5%2C5%2C5%2C5%2C5%2C1.644%2C1.644%2C1.644%2C0%2C0%2C0%2C1.354%2C1.354%2C1.354%2C0.497%2C0.497%2C0.497%2C5%2C5%2C5%2C0.408%2C0.408%2C0.408%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C1.27%2C1.27%2C1.27%2C0.918%2C0.918%2C0.918%2C0%2C0%2C0%2C5%2C5%2C5%2C1.919%2C1.919%2C1.919%2C1.339%2C1.339%2C1.339%2C0.164%2C0.164%2C0.164%2C5%2C5%2C5%2C0.567%2C0.567%2C0.567%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.337%2C0.337%2C0.337%2C1.065%2C1.065%2C1.065%2C5%2C5%2C5%2C0.166%2C0.166%2C0.166%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.564%2C0.564%2C0.564%2C0.632%2C0.632%2C0.632%2C2.655%2C2.655%2C2.655%2C5%2C5%2C5%2C1%2C1%2C1%2C0.261%2C0.261%2C0.261%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.472%2C0.472%2C0.472%2C0.93%2C0.93%2C0.93%2C5%2C5%2C5%2C0.228%2C0.228%2C0.228%2C0.269%2C0.269%2C0.269%2C5%2C5%2C5%2C0.29%2C0.29%2C0.29%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.163%2C1.163%2C1.163%2C0.001%2C0.001%2C0.001%2C0%2C0%2C0%2C0%2C0%2C0%2C1.3%2C1.3%2C1.3%2C0.34%2C0.34%2C0.34%2C0%2C0%2C0%2C2.204%2C2.204%2C2.204%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.367%2C0.367%2C0.367%2C0.296%2C0.296%2C0.296%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.869%2C0.869%2C0.869%2C0.001%2C0.001%2C0.001%2C1.221%2C1.221%2C1.221%2C0%2C0%2C0%2C0.152%2C0.152%2C0.152%2C0%2C0%2C0%2C0.501%2C0.501%2C0.501%2C5%2C5%2C5%2C1.022%2C1.022%2C1.022%2C0.271%2C0.271%2C0.271%2C0.207%2C0.207%2C0.207%2C1.145%2C1.145%2C1.145%2C5%2C5%2C5%2C0.281%2C0.281%2C0.281%2C5%2C5%2C5%2C3.361%2C3.361%2C3.361%2C5%2C5%2C5%2C0%2C0%2C0%2C1.336%2C1.336%2C1.336%2C0.202%2C0.202%2C0.202%2C2.44%2C2.44%2C2.44%2C5%2C5%2C5%2C2.293%2C2.293%2C2.293%2C1.196%2C1.196%2C1.196%2C0.545%2C0.545%2C0.545%2C0.631%2C0.631%2C0.631%2C5%2C5%2C5%2C0.748%2C0.748%2C0.748%2C0.55%2C0.55%2C0.55%2C5%2C5%2C5%2C0.833%2C0.833%2C0.833%2C5%2C5%2C5%2C5%2C5%2C5%2C0.097%2C0.097%2C0.097%2C0.407%2C0.407%2C0.407%2C0.975%2C0.975%2C0.975%2C0.842%2C0.842%2C0.842%2C0.194%2C0.194%2C0.194%2C1.143%2C1.143%2C1.143%2C5%2C5%2C5%2C1.069%2C1.069%2C1.069%2C0%2C0%2C0%2C5%2C5%2C5%2C0.442%2C0.442%2C0.442%2C5%2C5%2C5%2C0%2C0%2C0%2C0.488%2C0.488%2C0.488%2C0.395%2C0.395%2C0.395%2C0.539%2C0.539%2C0.539%2C0.717%2C0.717%2C0.717%2C5%2C5%2C5%2C0.071%2C0.071%2C0.071%2C0.748%2C0.748%2C0.748%2C0.503%2C0.503%2C0.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C1.424%2C1.424%2C1.424%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.247%2C0.247%2C0.247%2C0%2C0%2C0%2C0.215%2C0.215%2C0.215%2C1.659%2C1.659%2C1.659%2C2.023%2C2.023%2C2.023%2C5%2C5%2C5%2C0%2C0%2C0%2C1.032%2C1.032%2C1.032%2C0.253%2C0.253%2C0.253%2C0%2C0%2C0%2C0.244%2C0.244%2C0.244%2C0.162%2C0.162%2C0.162%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.557%2C0.557%2C0.557%2C0%2C0%2C0%2C0.801%2C0.801%2C0.801%2C5%2C5%2C5%2C0.313%2C0.313%2C0.313%2C5%2C5%2C5%2C0.936%2C0.936%2C0.936%2C0.306%2C0.306%2C0.306%2C0.215%2C0.215%2C0.215%2C0.836%2C0.836%2C0.836%2C1.341%2C1.341%2C1.341%2C1.264%2C1.264%2C1.264%2C0%2C0%2C0%2C0%2C0%2C0%2C0.74%2C0.74%2C0.74%2C0.364%2C0.364%2C0.364%2C1.294%2C1.294%2C1.294%2C0.843%2C0.843%2C0.843%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.244%2C0.244%2C0.244%2C0.312%2C0.312%2C0.312%2C0.731%2C0.731%2C0.731%2C4.833%2C4.833%2C4.833%2C5%2C5%2C5%2C1.184%2C1.184%2C1.184%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.032%2C0.032%2C0.032%2C5%2C5%2C5%2C0.12%2C0.12%2C0.12%2C5%2C5%2C5%2C0.541%2C0.541%2C0.541%2C0%2C0%2C0%2C0.251%2C0.251%2C0.251%2C5%2C5%2C5%2C5%2C5%2C5%2C0.715%2C0.715%2C0.715%2C0.168%2C0.168%2C0.168%2C1.21%2C1.21%2C1.21%2C0.235%2C0.235%2C0.235%2C0%2C0%2C0%2C0%2C0%2C0%2C1.252%2C1.252%2C1.252%2C0.822%2C0.822%2C0.822%2C0.728%2C0.728%2C0.728%2C0.816%2C0.816%2C0.816%2C5%2C5%2C5%2C0.292%2C0.292%2C0.292%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C1.585%2C1.585%2C1.585%2C1.031%2C1.031%2C1.031%2C1.122%2C1.122%2C1.122%2C0.686%2C0.686%2C0.686%2C5%2C5%2C5%2C0.251%2C0.251%2C0.251%2C0%2C0%2C0%2C5%2C5%2C5%2C0.36%2C0.36%2C0.36%2C0.067%2C0.067%2C0.067%2C0.264%2C0.264%2C0.264%2C0.895%2C0.895%2C0.895%2C0.883%2C0.883%2C0.883%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.213%2C0.213%2C0.213%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.165%2C0.165%2C0.165%2C5%2C5%2C5%2C0%2C0%2C0%2C0.935%2C0.935%2C0.935%2C0.694%2C0.694%2C0.694%2C5%2C5%2C5%2C0%2C0%2C0%2C0.948%2C0.948%2C0.948%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.467%2C0.467%2C0.467%2C5%2C5%2C5%2C5%2C5%2C5%2C0.498%2C0.498%2C0.498%2C1.584%2C1.584%2C1.584%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.433%2C0.433%2C0.433%2C5%2C5%2C5%2C0.278%2C0.278%2C0.278%2C0.999%2C0.999%2C0.999%2C5%2C5%2C5%2C5%2C5%2C5%2C0.39%2C0.39%2C0.39%2C5%2C5%2C5%2C5%2C5%2C5%2C0.595%2C0.595%2C0.595%2C1.009%2C1.009%2C1.009%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.758%2C0.758%2C0.758%2C1.753%2C1.753%2C1.753%2C0%2C0%2C0%2C2.709%2C2.709%2C2.709%2C0%2C0%2C0%2C0.333%2C0.333%2C0.333%2C1.087%2C1.087%2C1.087%2C1.993%2C1.993%2C1.993%2C2.012%2C2.012%2C2.012%2C1.72%2C1.72%2C1.72%2C0%2C0%2C0%2C5%2C5%2C5%2C0.066%2C0.066%2C0.066%2C0.177%2C0.177%2C0.177%2C0.716%2C0.716%2C0.716%2C5%2C5%2C5%2C0.304%2C0.304%2C0.304%2C5%2C5%2C5%2C1.223%2C1.223%2C1.223%2C2.148%2C2.148%2C2.148%2C3.426%2C3.426%2C3.426%2C2.677%2C2.677%2C2.677%2C4.651%2C4.651%2C4.651%2C0.232%2C0.232%2C0.232%2C5%2C5%2C5%2C1.788%2C1.788%2C1.788%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C4.747%2C4.747%2C4.747%2C1.127%2C1.127%2C1.127%2C5%2C5%2C5%2C5%2C5%2C5%2C1.527%2C1.527%2C1.527%2C1.464%2C1.464%2C1.464%2C1.441%2C1.441%2C1.441%2C5%2C5%2C5%2C2.726%2C2.726%2C2.726%2C0.113%2C0.113%2C0.113%2C1.172%2C1.172%2C1.172%2C5%2C5%2C5%2C0%2C0%2C0%2C0.431%2C0.431%2C0.431%2C5%2C5%2C5%2C1.365%2C1.365%2C1.365%2C0%2C0%2C0%2C0.994%2C0.994%2C0.994%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.505%2C0.505%2C0.505%2C0%2C0%2C0%2C0.079%2C0.079%2C0.079%2C0.004%2C0.004%2C0.004%2C0.508%2C0.508%2C0.508%2C0.447%2C0.447%2C0.447%2C0%2C0%2C0%2C5%2C5%2C5%2C0.749%2C0.749%2C0.749%2C0%2C0%2C0%2C0.919%2C0.919%2C0.919%2C5%2C5%2C5%2C0%2C0%2C0%2C0.739%2C0.739%2C0.739%2C5%2C5%2C5%2C5%2C5%2C5%2C2.732%2C2.732%2C2.732%2C0.295%2C0.295%2C0.295%2C1.218%2C1.218%2C1.218%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C2.101%2C2.101%2C2.101%2C5%2C5%2C5%2C0.532%2C0.532%2C0.532%2C5%2C5%2C5%2C0.75%2C0.75%2C0.75%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.814%2C1.814%2C1.814%2C5%2C5%2C5%2C0.941%2C0.941%2C0.941%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C3.964%2C3.964%2C3.964%2C5%2C5%2C5%2C0%2C0%2C0%2C1.949%2C1.949%2C1.949%2C0.994%2C0.994%2C0.994%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.398%2C0.398%2C0.398%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0.818%2C0.818%2C0.818%2C0%2C0%2C0%2C0.102%2C0.102%2C0.102%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.975%2C0.975%2C0.975%2C0.263%2C0.263%2C0.263%2C1.545%2C1.545%2C1.545%2C0.415%2C0.415%2C0.415%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1.353%2C1.353%2C1.353%2C1.191%2C1.191%2C1.191%2C0.262%2C0.262%2C0.262%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.511%2C0.511%2C0.511%2C0%2C0%2C0%2C0.276%2C0.276%2C0.276%2C1.452%2C1.452%2C1.452%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.734%2C0.734%2C0.734%2C2.025%2C2.025%2C2.025%2C0.803%2C0.803%2C0.803%2C5%2C5%2C5%2C5%2C5%2C5%2C2.283%2C2.283%2C2.283%2C5%2C5%2C5%2C0%2C0%2C0%2C5%2C5%2C5%2C0.171%2C0.171%2C0.171%2C5%2C5%2C5%2C5%2C5%2C5%2C0%2C0%2C0%2C0.361%2C0.361%2C0.361%2C0.797%2C0.797%2C0.797%2C0.855%2C0.855%2C0.855%2C0.438%2C0.438%2C0.438%2C0.231%2C0.231%2C0.231%2C0%2C0%2C0%2C5%2C5%2C5%2C1.061%2C1.061%2C1.061%2C0.38%2C0.38%2C0.38%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.599%2C0.599%2C0.599%2C0%2C0%2C0%2C5%2C5%2C5%2C0.265%2C0.265%2C0.265%2C0%2C0%2C0%2C0.609%2C0.609%2C0.609%2C0.187%2C0.187%2C0.187%2C0.839%2C0.839%2C0.839%2C0%2C0%2C0%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0.42%2C0.42%2C0.42%2C0.512%2C0.512%2C0.512%2C0.405%2C0.405%2C0.405%2C0.396%2C0.396%2C0.396%2C0.061%2C0.061%2C0.061%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0.071%2C0.071%2C0.071%2C0%2C0%2C0%2C0.354%2C0.354%2C0.354%2C5%2C5%2C5%2C5%2C5%2C5%2C3.431%2C3.431%2C3.431%2C0%2C0%2C0%2C5%2C5%2C5%2C5%2C5%2C5%2C0.909%2C0.909%2C0.909%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%2C0.669%2C0.669%2C0.669%2C0.16%2C0.16%2C0.16%2C0.183%2C0.183%2C0.183%2C5%2C5%2C5%2C1.503%2C1.503%2C1.503%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C5%2C0.455%2C0.455%2C0.455%2C5%2C5%2C5%2C0.388%2C0.388%2C0.388%2C0.295%2C0.295%2C0.295%2C5%2C5%2C5%2C0.325%2C0.325%2C0.325%2C0%2C0%2C0%2C5%2C5%2C5%2C0%2C0%2C0%2C0%2C0%2C0%5D%2C%22max%22%3A5%2C%22color%22%3A%22%23c0392b%22%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22human%22%2C%22start%22%3A43%2C%22end%22%3A396%2C%22label%22%3A%22RING%20%2B%20B-box%20(purifying%20control)%22%2C%22color%22%3A%22rgba(21%2C101%2C192%2C0.25)%22%7D%2C%7B%22row%22%3A%22human%22%2C%22start%22%3A976%2C%22end%22%3A1023%2C%22label%22%3A%22SPRY%20V1%20patch%22%2C%22color%22%3A%22rgba(255%2C140%2C0%2C0.3)%22%7D%2C%7B%22row%22%3A%22human%22%2C%22start%22%3A994%2C%22end%22%3A996%2C%22label%22%3A%22R332%22%2C%22color%22%3A%22%23e3242b%22%7D%5D%7D%7D>)
 
-The full gene, with the tree and the 7-color exon structure. The RING+B-box
+The full gene with the tree and the 7-color exon structure. The RING+B-box
 control on the left has few dN/dS bars above it, and R332 and the SPRY V1 patch
 on the right sit under the densest bars.
 
@@ -277,32 +247,25 @@ ggplot2::ggsave("codon-final-view-r.png",
 
 ![](../media/codon-final-view-r.png)
 
-The 32 species over all 1,800 columns, the exons in alternating shades under the
-RING+B-box, SPRY V1 and R332 highlights, with the dN/dS bars and conservation
-above and the tree on the left. The dN/dS bars thin out over the control on the
-left and crowd over the SPRY end on the right.
+The ggplot2 figure of all 1,800 columns, with the exons in alternating shades
+and the tree on the left. The dN/dS bars above thin out over the RING+B-box
+control on the left and crowd over the SPRY V1 patch and R332 on the right.
 
 <!-- /usage -->
 
 ## Reproduce it end to end
 
 [`build_codon_selection.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_codon_selection.sh)
-runs the alignment, tree, exon and FEL steps above in order:
+runs the steps above in order:
 
-1. It downloads every _TRIM5_ ortholog from NCBI Datasets and keeps one coding
-   sequence per species: the curated `NM_` transcript where one exists, else the
-   predicted one closest in length to the human isoform. It drops any that
+1. It downloads every _TRIM5_ ortholog and keeps one coding sequence per
+   species, the curated `NM_` transcript where one exists, and drops any that
    translates with an internal stop codon.
-2. MACSE aligns the coding sequences codon by codon, the script blanks each
-   row's own stop codon, and FastTree infers a tree from the protein
-   translation. The script writes the alignment and the tree together as one
-   Stockholm file.
-3. `react-msaview-cli genestructure` projects the exons of the human MANE Select
-   transcript onto every row.
-4. HyPhy FEL fits a synonymous and a non-synonymous rate at every codon, and the
-   script writes their ratio, clamped at 5, as the values of the dN/dS track.
-5. It prints the alignment, tree and exon numbers quoted above, and FEL's site
-   counts overall and for the V1 patch, RING, B-box and B30.2/SPRY.
+2. MACSE aligns the coding sequences codon by codon, and FastTree infers a tree
+   from the protein translation. The script writes both into one Stockholm file.
+3. `react-msaview-cli genestructure` projects the human exons onto every row.
+4. HyPhy FEL tests every codon for selection, and the script writes the clamped
+   dN/dS ratios as the track's values and prints the numbers quoted above.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
@@ -311,9 +274,8 @@ curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/sc
 bash build_codon_selection.sh
 ```
 
-With no arguments the script writes every file into the current directory. Point
-it at another gene by editing the `GENE_ID` and the `--transcript` argument to
-`genestructure`; the CDS-selection and stop-codon QC steps are generic.
+The script writes every file into the current directory. For another gene, edit
+`GENE_ID` and the `--transcript` argument to `genestructure`.
 
 ## See also
 

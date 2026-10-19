@@ -1,14 +1,14 @@
 # The SARS-CoV-2 furin insert and PDB 6VXX
 
-The SARS-CoV-2 spike protein carries four residues, PRRA, that its closest
-relatives do not, and they sit where the protein gets cut in two. The first
-cryo-EM structure of the trimer, PDB 6VXX, was solved from a construct with that
-site engineered away, and the loop carrying it has no coordinates in the
-deposited model. This page aligns eleven coronavirus spikes, puts the four
-residues on the alignment, and then maps each residue of the SARS-CoV-2 row to
-the structure to find which ones 6VXX resolved. The link carries the result as
-data: the alignment, the tree, the domains, and a correspondence between one row
-and one chain.
+The SARS-CoV-2 spike protein has four residues, PRRA, that its closest relatives
+lack, and the loop holding them has no coordinates in PDB 6VXX, the first
+cryo-EM structure of the trimer. For eleven coronavirus spikes, we:
+
+- align the proteins and infer a tree
+- add the InterPro domains and mark the four residues
+- map the SARS-CoV-2 row onto 6VXX chain A to find the residues it resolved
+- compare a fully resolved region and check the numbers against the raw data
+- open the result from one link
 
 ## Prerequisites
 
@@ -50,10 +50,10 @@ sends `Access-Control-Allow-Origin: *`.
 
 </details>
 
-## 1. Name the rows
+## 1. Choose the rows
 
-The row table has three columns: the NCBI protein the alignment uses, the label
-the viewer draws, and the UniProtKB entry for the same protein where one exists.
+Three columns: the NCBI protein, the label the viewer draws, and the UniProtKB
+entry for the same protein where one exists.
 
 ```
 YP_009724390.1	SARS-CoV-2	P0DTC2
@@ -69,14 +69,13 @@ NP_073551.1	229E	P15423
 YP_003767.1	NL63	Q6Q1S2
 ```
 
-Save that as `rows.tsv`. The separators are tabs. The label travels through the
-whole page: it becomes the FASTA defline, the tree tip, the GFF `seq_id`, and
-the `row` field of every layer, and the viewer matches them to each other by it.
+Save that as `rows.tsv`, tab separated. The label becomes the FASTA defline, the
+tree tip, the GFF `seq_id` and the `row` field of every layer, and the viewer
+matches them by it.
 
-InterPro keys its precomputed matches by the third column. A `-` means UniProtKB
-has no entry for that isolate's spike: BANAL-20-52 is the Laos bat virus from
-Temmam et al., Pangolin-GX is the GX-P5L isolate, and both exist only as GenBank
-records.
+InterPro keys its precomputed matches by the third column, where a `-` means
+UniProtKB has no entry for that spike: BANAL-20-52, the Laos bat virus, and
+Pangolin-GX, the GX-P5L isolate, exist only as GenBank records.
 
 ## 2. Fetch the sequences
 
@@ -105,23 +104,17 @@ OC43         YP_009555241.1   1353 aa
 NL63         YP_003767.1      1356 aa
 ```
 
-All eleven are full-length spikes of 1173 to 1356 residues. The four
-sarbecoviruses at the top are within six residues of each other, and the rest
-differ from them by up to 180 residues. A truncated fragment or a stray
-polyprotein would show up in this list as an outlying length.
+All eleven are full-length spikes of 1173 to 1356 residues, with no outlier that
+would mark a fragment or a stray polyprotein.
 
-## 3. Align them
+## 3. Align them and infer a tree
 
 ```bash
 mafft --auto spike.fasta > spike.afa
 ```
 
-`--auto` picks its strategy from the size of the input, and on eleven sequences
-MAFFT reports choosing L-INS-i, the accurate and slow one. The run takes five
-seconds and writes 1660 columns, 304 more than the longest input, to hold the
-insertions.
-
-## 4. Infer a tree
+`--auto` picks L-INS-i for eleven sequences, and the five-second run writes 1660
+columns, 304 more than the longest input.
 
 ```bash
 # -lg is the amino-acid substitution model; the Newick goes to stdout and the
@@ -135,22 +128,17 @@ FastTree -lg spike.afa > spike.nwk
 NL63:0.306929144)1.000:1.267772518,((MERS-CoV:0.289975358,HKU4:0.170994428)...
 ```
 
-The four sarbecoviruses sit on branches of 0.005 to 0.04 while the two
-alphacoronaviruses are at 0.23 and 0.31, so most of the tree's width separates
-229E and NL63 from the other rows.
-
 [![](../media/spike-structure-alignment.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A400%2C%22treeAreaWidth%22%3A170%2C%22colWidth%22%3A0.8%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.nwk%22%7D%7D%7D)
 
-Eleven spikes in 1660 columns, with rows ordered by the tree. The left half, S1,
-breaks into blocks separated by long gaps; the right half, S2, runs nearly
-unbroken across all eleven rows.
+Eleven spikes in 1660 columns, rows ordered by the tree. The left half, S1,
+breaks into blocks separated by long gaps, and the right half, S2, runs nearly
+unbroken.
 
-## 5. Ask InterPro for the domains
+## 4. Add the InterPro domains
 
-InterPro precomputes the matches for every UniProtKB sequence, so no scan is
-needed. The matches use the UniProtKB entry's numbering, and these rows are NCBI
-records, so the entry has to be the same protein as the row before its
-coordinates apply to it:
+InterPro precomputes matches for every UniProtKB sequence in that entry's
+numbering, so its coordinates apply to an NCBI row only when the two are the
+same protein. A length check finds those rows:
 
 ```bash
 # same length means substitutions only, so residue n is residue n in both;
@@ -180,12 +168,10 @@ OC43         P36334 same length, 2 substitution(s)
 NL63         Q6Q1S2 same length, 0 substitution(s)
 ```
 
-Eight rows pass. The HKU1 RefSeq protein and the HKU1 UniProt entry are
-different isolates five residues apart in length, and the domains of one placed
-on the other would be off by five past the indel.
+Eight rows pass. The HKU1 RefSeq protein and UniProt entry are isolates five
+residues apart, so its domains would land five residues off past the indel.
 
-The eight go into `spike-uniprot.tsv`, one accession and label per line, which
-the CLI reads:
+The eight go into `spike-uniprot.tsv`, one accession and label per line:
 
 ```bash
 react-msaview-cli interpro spike-uniprot.tsv -o spike-domains.gff
@@ -200,16 +186,13 @@ InterPro release 110.0; reading precomputed pfam matches...
 
 [![](../media/spike-structure-domains.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A400%2C%22treeAreaWidth%22%3A170%2C%22colWidth%22%3A0.8%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike-domains.gff%22%7D%7D%7D)
 
-The betacoronavirus rows share a four-part architecture: S1 N-terminal domain,
-S1 receptor-binding, S1 C-terminal, then S2. 229E and NL63 carry the
-alphacoronavirus S1 signature instead, one box where the others have three. The
-three rows the arrows point at are empty: two of those isolates are in no
-UniProtKB entry, and the third is HKU1, whose entry the length check dropped.
+Pfam domains on eight rows. The betacoronavirus rows share an S1 N-terminal
+domain, S1 receptor-binding and S1 C-terminal domains, then S2, while 229E and
+NL63 have one alphacoronavirus S1 box. The three rows the arrows mark are empty.
 
-## 6. The PRRA insert
+## 5. Mark the PRRA insert
 
-No feature table annotates the insert, since it is defined by what the other
-sequences lack. Find it in the sequence:
+The insert has no entry in a feature table, so find it in the sequence:
 
 ```bash
 awk '/^>SARS-CoV-2/{getline; print index($0, "PRRA")}' spike.fasta
@@ -219,9 +202,9 @@ awk '/^>SARS-CoV-2/{getline; print index($0, "PRRA")}' spike.fasta
 681
 ```
 
-The insert is residues 681 to 684, in alignment columns 992 to 995. A
-`highlights` entry in residue coordinates puts a labeled band on them, and the
-viewer converts the coordinates to columns:
+PRRA is residues 681 to 684, in alignment columns 992 to 995. A `highlights`
+entry in residue coordinates puts a labeled band on them, and the viewer
+converts the coordinates to columns:
 
 ```json
 "highlights": [
@@ -232,20 +215,17 @@ viewer converts the coordinates to columns:
 
 [![](../media/spike-structure-insertion.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A522%2C%22treeAreaWidth%22%3A170%2C%22colWidth%22%3A22%2C%22rowHeight%22%3A22%2C%22scrollX%22%3A-21318%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.nwk%22%7D%2C%22relativeTo%22%3A%22SARS-CoV-2%22%2C%22highlights%22%3A%5B%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A319%2C%22end%22%3A541%2C%22label%22%3A%22RBD%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A437%2C%22end%22%3A508%2C%22label%22%3A%22RBM%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A681%2C%22end%22%3A684%2C%22label%22%3A%22PRRA%20insert%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A685%2C%22end%22%3A686%2C%22label%22%3A%22Furin%20cleavage%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A816%2C%22end%22%3A837%2C%22label%22%3A%22Fusion%20peptide%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A920%2C%22end%22%3A970%2C%22label%22%3A%22HR1%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A1163%2C%22end%22%3A1202%2C%22label%22%3A%22HR2%22%7D%5D%7D%7D)
 
-The S1/S2 junction at base resolution, every row read against SARS-CoV-2: a dot
-is the same residue, a letter a different one. The boxed columns are the insert,
-and the band beside it is the furin cleavage site UniProt annotates at 685-686.
+The S1/S2 junction at residue resolution, every row read against SARS-CoV-2: a
+dot is the same residue, a letter a different one. The boxed columns are PRRA,
+beside the furin cleavage site UniProt annotates at 685-686.
 
-Columns 992, 993 and 994 are gap in all ten other rows. Column 995 is gap in six
-of them and carries S in HKU1, K in OC43, and I in both 229E and NL63, the four
-rows furthest from SARS-CoV-2 in the tree. The column immediately after the
-insert, 996, is R685 here and an R in every other betacoronavirus row, so the
-arginine is shared and the four residues before it are not.
+Columns 992 to 994 are gaps in all ten other rows, and column 995 has a residue
+only in the four rows furthest from SARS-CoV-2 in the tree.
 
-## 7. Residues resolved in 6VXX
+## 6. Map the row onto 6VXX
 
-A PDB entry numbers its residues its own way, so SIFTS supplies the
-correspondence between residues of the row and residues of the structure:
+A PDB entry numbers residues its own way, so SIFTS supplies the row-to-structure
+correspondence:
 
 ```bash
 curl -s https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/6vxx |
@@ -258,8 +238,8 @@ curl -s https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/6vxx |
 {"unp_start":14,"unp_end":1211,"start":33,"end":1230,"identity":0.97}
 ```
 
-SIFTS returns one block, offset by 19 for its whole length, with an identity of
-0.97. The construct accounts for both, and the entry describes it:
+SIFTS returns one block, offset by 19, with an identity of 0.97. The deposited
+construct explains both:
 
 ```bash
 curl -s https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6vxx |
@@ -272,13 +252,8 @@ MGILPSPGMPALLSLVSLLSVLLMGCVAETGT
 GSGRENLYFQGGGGSGYIPEAPRDGQAYVRKDGEWVLLSTFLGHHHHHHHH
 ```
 
-The deposited entity is 1281 residues. It opens with 32 that are not spike, a
-signal peptide the expression vector supplied, and ends with 51 more that are
-not spike either: a TEV site, a foldon that trimerizes it, and a His tag. The 32
-leading residues set the offset of 19.
-
-Comparing the mapped stretch of the entity against the row position by position
-turns up five differences, which the build script prints:
+The 1281-residue entity opens with 32 residues that are not spike, which set the
+offset of 19. Comparing the mapped stretch with the row prints five differences:
 
 ```
 6VXX 701 is S where row residue 682 is R
@@ -288,9 +263,8 @@ turns up five differences, which the build script prints:
 6VXX 1006 is P where row residue 987 is V
 ```
 
-The construct replaces the three arginines of the furin site with S, G and G,
-which disables the site so the trimer survives purification. K986P and V987P are
-the two prolines that hold it in the prefusion conformation.
+Three differences are at the cleavage site, which the construct disables, and
+K986P and V987P hold the prefusion conformation.
 
 Author numbering is a third system again:
 
@@ -303,15 +277,13 @@ curl -s https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/6vxx/chain/A |
 {"residue_number":46,"author_residue_number":27,"author_insertion_code":null,"struct_asym_id":"A"}
 ```
 
-Twelve stretches of the chain have coordinates, and the first begins here. The
-residue the authors call 27 is the 46th position of the entry's own SEQRES, and
-the layer uses `label_seq_id` throughout, because author numbering carries
-insertion codes and integer arithmetic on it is wrong.
+The residue the authors call 27 is position 46 of the entry's SEQRES. The layer
+uses `label_seq_id` throughout, because author numbering has insertion codes
+that integer arithmetic gets wrong.
 
-The `residueMappings` layer holds both: the SIFTS block as a segment, the gaps
-between the observed stretches as `unobserved`, and the ungapped length of the
-row it was computed against, so the viewer ignores the mapping if it is loaded
-beside a different alignment.
+The `residueMappings` layer holds the SIFTS block as a segment, the gaps as
+`unobserved`, and the row's ungapped length, which the viewer checks before
+applying the mapping:
 
 ```json
 "residueMappings": [
@@ -338,12 +310,9 @@ beside a different alignment.
 ]
 ```
 
-Of the 1273 residues in the row, 972 are mapped and observed, 226 are mapped and
-not resolved, and 75 are outside the construct. The layer itself draws nothing,
-so the build script turns the same three states into a `columnTracks` text
-track, one character per residue of the row, which the viewer projects through
-that row's gaps and colors: green for observed, orange for declared and not
-resolved, gray for outside the construct.
+Of the row's 1273 residues, 972 are mapped and observed, 226 mapped and not
+resolved, and 75 outside the construct. The layer draws nothing, so the three
+states also go in a `columnTracks` text track:
 
 ```json
 {
@@ -358,25 +327,23 @@ resolved, gray for outside the construct.
 
 [![](../media/spike-structure-mapping.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A450%2C%22treeAreaWidth%22%3A170%2C%22colWidth%22%3A0.8%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%226vxx-coverage%22%2C%22name%22%3A%226VXX%20chain%20A%22%2C%22kind%22%3A%22text%22%2C%22row%22%3A%22SARS-CoV-2%22%2C%22data%22%3A%22NNNNNNNNNNNNNUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUOOOOOOOOUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUOOOOOOOOUUUUUUUOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN%22%2C%22colors%22%3A%7B%22O%22%3A%22%232e7d32%22%2C%22U%22%3A%22%23e65100%22%2C%22N%22%3A%22%23cfd8dc%22%7D%2C%22height%22%3A16%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A319%2C%22end%22%3A541%2C%22label%22%3A%22RBD%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A437%2C%22end%22%3A508%2C%22label%22%3A%22RBM%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A681%2C%22end%22%3A684%2C%22label%22%3A%22PRRA%20insert%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A685%2C%22end%22%3A686%2C%22label%22%3A%22Furin%20cleavage%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A816%2C%22end%22%3A837%2C%22label%22%3A%22Fusion%20peptide%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A920%2C%22end%22%3A970%2C%22label%22%3A%22HR1%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A1163%2C%22end%22%3A1202%2C%22label%22%3A%22HR2%22%7D%5D%2C%22residueMappings%22%3A%5B%7B%22row%22%3A%22SARS-CoV-2%22%2C%22accession%22%3A%22P0DTC2%22%2C%22structure%22%3A%7B%22id%22%3A%226VXX%22%2C%22kind%22%3A%22experimental%22%2C%22asymId%22%3A%22A%22%2C%22url%22%3A%22https%3A%2F%2Ffiles.rcsb.org%2Fdownload%2F6VXX.cif%22%7D%2C%22segments%22%3A%5B%7B%22rowStart%22%3A14%2C%22rowEnd%22%3A1211%2C%22structStart%22%3A33%2C%22structEnd%22%3A1230%7D%5D%2C%22unobserved%22%3A%5B%5B33%2C45%5D%2C%5B89%2C98%5D%2C%5B163%2C183%5D%2C%5B192%2C204%5D%2C%5B265%2C281%5D%2C%5B464%2C465%5D%2C%5B474%2C480%5D%2C%5B488%2C507%5D%2C%5B521%2C521%5D%2C%5B640%2C659%5D%2C%5B696%2C707%5D%2C%5B847%2C872%5D%2C%5B1167%2C1230%5D%5D%2C%22rowLength%22%3A1273%2C%22generated%22%3A%7B%22by%22%3A%22sifts%22%2C%22date%22%3A%222026-09-13%22%7D%7D%5D%7D%7D)
 
-The correspondence over the whole alignment. The ribbon above the rows is chain
-A of 6VXX read along the SARS-CoV-2 row, gray at both ends where the construct
-is not spike, and orange wherever the model declares residues it did not
-resolve. The boxed columns are the furin loop.
+The correspondence over the whole alignment. The ribbon is chain A of 6VXX along
+the SARS-CoV-2 row: green where the model resolves a residue, orange where it
+declares one it did not resolve, gray outside the construct. The boxed columns
+are the unresolved loop.
 
 6VXX declares residues 696 to 707, row residues 677 to 688, and resolves none of
-them. The insert sits in the middle of that stretch: 0 of its 4 residues are
-observed, and 0 of the 2 in the cleavage site beside it.
+them, so the four residues and the cleavage site beside them are unobserved.
 
-## 8. A fully resolved region
+## 7. Compare a fully resolved region
 
 The control is the same row, chain and layer at the first heptad repeat:
 
 [![](../media/spike-structure-control.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A520%2C%22treeAreaWidth%22%3A170%2C%22colWidth%22%3A14%2C%22rowHeight%22%3A22%2C%22scrollX%22%3A-17472%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%226vxx-coverage%22%2C%22name%22%3A%226VXX%20chain%20A%22%2C%22kind%22%3A%22text%22%2C%22row%22%3A%22SARS-CoV-2%22%2C%22data%22%3A%22NNNNNNNNNNNNNUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUOOOOOOOOUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUOOOOOOOOUUUUUUUOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN%22%2C%22colors%22%3A%7B%22O%22%3A%22%232e7d32%22%2C%22U%22%3A%22%23e65100%22%2C%22N%22%3A%22%23cfd8dc%22%7D%2C%22height%22%3A16%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A920%2C%22end%22%3A970%2C%22label%22%3A%22HR1%22%7D%5D%2C%22residueMappings%22%3A%5B%7B%22row%22%3A%22SARS-CoV-2%22%2C%22accession%22%3A%22P0DTC2%22%2C%22structure%22%3A%7B%22id%22%3A%226VXX%22%2C%22kind%22%3A%22experimental%22%2C%22asymId%22%3A%22A%22%2C%22url%22%3A%22https%3A%2F%2Ffiles.rcsb.org%2Fdownload%2F6VXX.cif%22%7D%2C%22segments%22%3A%5B%7B%22rowStart%22%3A14%2C%22rowEnd%22%3A1211%2C%22structStart%22%3A33%2C%22structEnd%22%3A1230%7D%5D%2C%22unobserved%22%3A%5B%5B33%2C45%5D%2C%5B89%2C98%5D%2C%5B163%2C183%5D%2C%5B192%2C204%5D%2C%5B265%2C281%5D%2C%5B464%2C465%5D%2C%5B474%2C480%5D%2C%5B488%2C507%5D%2C%5B521%2C521%5D%2C%5B640%2C659%5D%2C%5B696%2C707%5D%2C%5B847%2C872%5D%2C%5B1167%2C1230%5D%5D%2C%22rowLength%22%3A1273%2C%22generated%22%3A%7B%22by%22%3A%22sifts%22%2C%22date%22%3A%222026-09-13%22%7D%7D%5D%7D%7D)
 
-HR1 at base resolution, row residues 920-970, structure residues 939-989. The
-ribbon reads O for all 51, and the columns underneath are the most conserved
-block in the figure. The blank stretch in the ribbon is where SARS-CoV-2 has no
-residue at all: 229E and NL63 carry an insertion there.
+HR1 at residue resolution, row residues 920-970, structure residues 939-989. The
+ribbon reads O for all 51, over the most conserved columns in the figure, and it
+is blank where SARS-CoV-2 has no residue and 229E and NL63 have an insertion.
 
 Coverage across the regions UniProt annotates on this row:
 
@@ -390,11 +357,9 @@ Coverage across the regions UniProt annotates on this row:
 | HR1 (920-970)            |       51 |                      0 |
 | HR2 (1163-1202)          |        0 |                     40 |
 
-The receptor-binding motif is the tip that swings up to meet ACE2, and 30 of its
-72 residues are unresolved in this closed trimer. HR2 sits past residue 1147,
-where the model stops.
+HR2 sits past residue 1147, where the model stops.
 
-## 9. Check it against the raw data
+## 8. Check it against the raw data
 
 Three commands recover the key numbers from the source data:
 
@@ -420,18 +385,16 @@ curl -s https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/6vxx/chain/A |
 [708,846]
 ```
 
-The highlight starts at 681. `[14,1211,33,1230]` is the segment in the layer,
-offset 19. The observed stretches on either side end at 695 and resume at 708,
-so 696 to 707 have no coordinates. Those are row residues 677 to 688, the loop
-that holds the insert.
+The highlight starts at 681 and `[14,1211,33,1230]` is the segment in the layer.
+The observed stretches end at 695 and resume at 708, so 696 to 707, row residues
+677 to 688, have no coordinates.
 
-## 10. Open the whole thing
+## 9. Open the result from one link
 
 <!-- usage: web -->
 
-The view combines three hosted files and three layers. The files go behind URLs,
-because an alignment does not fit in a link, and the layers go in the link,
-because they take a few kilobytes:
+An alignment does not fit in a link, so the three files go behind URLs and the
+three layers go in the link:
 
 ```json
 {
@@ -447,20 +410,18 @@ because they take a few kilobytes:
 }
 ```
 
-Add the `columnTracks`, `highlights` and `residueMappings` entries from the
-sections above beside those three, URL-encode the whole object, and hang it off
-the app as `#data=`.
+Add the `columnTracks`, `highlights` and `residueMappings` entries from above,
+then URL-encode the object as `#data=`.
 
 [![](../media/spike-structure-final.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A400%2C%22treeAreaWidth%22%3A170%2C%22colWidth%22%3A0.8%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike.nwk%22%7D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Fspike%2Fspike-domains.gff%22%7D%2C%22showDomainLegend%22%3Afalse%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%226vxx-coverage%22%2C%22name%22%3A%226VXX%20chain%20A%22%2C%22kind%22%3A%22text%22%2C%22row%22%3A%22SARS-CoV-2%22%2C%22data%22%3A%22NNNNNNNNNNNNNUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUOOOOOOOOUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUOOOOOOOOUUUUUUUOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN%22%2C%22colors%22%3A%7B%22O%22%3A%22%232e7d32%22%2C%22U%22%3A%22%23e65100%22%2C%22N%22%3A%22%23cfd8dc%22%7D%2C%22height%22%3A16%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A319%2C%22end%22%3A541%2C%22label%22%3A%22RBD%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A437%2C%22end%22%3A508%2C%22label%22%3A%22RBM%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A681%2C%22end%22%3A684%2C%22label%22%3A%22PRRA%20insert%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A685%2C%22end%22%3A686%2C%22label%22%3A%22Furin%20cleavage%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A816%2C%22end%22%3A837%2C%22label%22%3A%22Fusion%20peptide%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A920%2C%22end%22%3A970%2C%22label%22%3A%22HR1%22%7D%2C%7B%22row%22%3A%22SARS-CoV-2%22%2C%22start%22%3A1163%2C%22end%22%3A1202%2C%22label%22%3A%22HR2%22%7D%5D%2C%22residueMappings%22%3A%5B%7B%22row%22%3A%22SARS-CoV-2%22%2C%22accession%22%3A%22P0DTC2%22%2C%22structure%22%3A%7B%22id%22%3A%226VXX%22%2C%22kind%22%3A%22experimental%22%2C%22asymId%22%3A%22A%22%2C%22url%22%3A%22https%3A%2F%2Ffiles.rcsb.org%2Fdownload%2F6VXX.cif%22%7D%2C%22segments%22%3A%5B%7B%22rowStart%22%3A14%2C%22rowEnd%22%3A1211%2C%22structStart%22%3A33%2C%22structEnd%22%3A1230%7D%5D%2C%22unobserved%22%3A%5B%5B33%2C45%5D%2C%5B89%2C98%5D%2C%5B163%2C183%5D%2C%5B192%2C204%5D%2C%5B265%2C281%5D%2C%5B464%2C465%5D%2C%5B474%2C480%5D%2C%5B488%2C507%5D%2C%5B521%2C521%5D%2C%5B640%2C659%5D%2C%5B696%2C707%5D%2C%5B847%2C872%5D%2C%5B1167%2C1230%5D%5D%2C%22rowLength%22%3A1273%2C%22generated%22%3A%7B%22by%22%3A%22sifts%22%2C%22date%22%3A%222026-09-13%22%7D%7D%5D%7D%7D)
 
-The final view shows the tree, the domain architecture, the seven labeled
-regions of the SARS-CoV-2 row, and the 6VXX ribbon along the top.
+The tree, the domains, the seven labeled regions of the SARS-CoV-2 row and the
+6VXX ribbon in one view.
 
 <!-- usage: r -->
 
-[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three hosted
-files, and takes the three layers from the hosted `spike-layers.json`, which
-holds the `columnTracks`, `highlights` and `residueMappings` entries above:
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the same three hosted files
+and takes the three layers from `spike-layers.json`:
 
 ```r
 library(ggmsaview)
@@ -488,12 +449,12 @@ The eleven spikes over 1,660 columns, the InterPro domains keyed on the right,
 the seven SARS-CoV-2 regions as orange bands, and the 6VXX chain A row along the
 top: green where the structure resolves a residue, orange where it does not,
 grey past the construct. The residue mapping reaches the widget `w`, which looks
-residues up in 6VXX, but draws nothing in a static figure.
+residues up in 6VXX, and draws nothing in a static figure.
 
 <!-- /usage -->
 
-A host that loads this view can look up a row residue in the structure, and gets
-`undefined` where the mapping has no answer:
+A host looks a row residue up in the structure and gets `undefined` where the
+mapping has no answer:
 
 ```js
 model.structureResidue('SARS-CoV-2', 970) // 6VXX 989, observed
@@ -509,17 +470,16 @@ model.rowResidue('6VXX', 700) // SARS-CoV-2, residue 681
 runs the commands above in order:
 
 1. It fetches the eleven protein sequences in one efetch request and relabels
-   each record by its virus, the label that travels into the tree tips, the GFF
-   seq_id and the `row` field of every layer.
-2. MAFFT aligns the sequences and FastTree infers a tree from the alignment.
+   each record by its virus.
+2. MAFFT aligns the sequences and FastTree infers a tree.
 3. `react-msaview-cli interpro` writes the domain GFF from InterPro's
-   precomputed matches, keyed by UniProtKB accession, and drops the domains of
-   any row whose NCBI record and UniProt entry differ in length.
-4. It reads UniProt's feature table, the SIFTS residue correspondence and PDBe's
-   polymer coverage of 6VXX chain A, writes them as the snapshot layers, and
-   checks the insert and the unresolved loop against the raw sequence.
+   precomputed matches, dropping the domains of any row whose NCBI record and
+   UniProt entry differ in length.
+4. It reads UniProt's feature table, the SIFTS correspondence and PDBe's polymer
+   coverage of 6VXX chain A, writes them as the snapshot layers, and checks the
+   result against the raw sequence.
 
-It needs the tools under [Prerequisites](#prerequisites).
+The script needs the tools under [Prerequisites](#prerequisites).
 
 ```bash
 curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/scripts/build_spike_structure.sh
@@ -527,8 +487,7 @@ bash build_spike_structure.sh
 ```
 
 With no arguments the script writes the row table above and builds all four
-files beside it. Pass your own table to do the same for another family and
-another structure:
+files beside it. Pass your own table for another family and structure:
 
 ```bash
 bash build_spike_structure.sh my-rows.tsv out/

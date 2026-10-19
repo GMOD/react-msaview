@@ -1,15 +1,18 @@
 # AlphaFold confidence across a protein family
 
-AlphaFold scores every residue it models with pLDDT, a number from 0 to 100 that
-it writes into the B-factor column of the model file, and AlphaFold DB bands
-those scores: above 90 very high, 70 to 90 confident, 50 to 70 low, below 50
-very low. TDP-43, the protein the _TARDBP_ gene encodes, has three folded
-domains and a 150-residue C-terminal region, so its models carry scores from
-both ends of that range. This page takes fourteen vertebrate orthologs from
-UniProt, aligns them, reads the pLDDT of each ortholog from its own AlphaFold
-model, and puts the mean per alignment column on a bar track. The folded domains
-are the control: the same track has to sit high there in every row, and the last
-section reads two columns of the models residue by residue.
+AlphaFold scores every residue it models with pLDDT, a confidence from 0 to 100
+that AlphaFold DB bands as very high (above 90), confident (70 to 90), low (50
+to 70) and very low (below 50). TDP-43, the protein the _TARDBP_ gene encodes,
+has three folded domains and a 150-residue C-terminal region, so its models
+score at both ends of that range, and the folded domains should score high in
+every model. For fourteen vertebrate TDP-43 orthologs, we:
+
+- fetch the UniProt sequences, align them and infer a tree
+- read the pLDDT from each AlphaFold model and add the mean per column as a
+  track
+- mark the Pfam domains and each row's runs under pLDDT 50
+- add one strip per domain with each row's band
+- check two columns against the model files and open the result
 
 ## Prerequisites
 
@@ -22,8 +25,8 @@ section reads two columns of the models residue by residue.
 ## The data
 
 Fourteen UniProtKB entries and their AlphaFold models. AlphaFold DB is keyed on
-UniProt accession, so one accession fetches the sequence and the model both. The
-commands below fetch these. Nothing to download.
+UniProt accession, so one accession fetches the sequence and the model both.
+Nothing to download: the commands below fetch these.
 
 | What it is                                                                      | File                                                                                                        |
 | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -69,9 +72,8 @@ Seabream	A0A671WI33
 Ghostshark	A0A4W3GN84
 ```
 
-Six mammals, three sauropsids, a frog, a coelacanth, two teleosts and a
-chimaera. Both teleost entries are the `tardbpb` paralog, which runs the full
-length of the protein.
+Both teleost entries are the `tardbpb` paralog, which runs the full length of
+the protein.
 
 ## 2. Fetch the sequences
 
@@ -101,10 +103,9 @@ curl -sf "https://rest.uniprot.org/uniprotkb/accessions?accessions=$accessions&f
   Ghostshark   A0A4W3GN84   404 aa
 ```
 
-Every ortholog is 404 to 415 residues, and eight of the nine amniotes are 414
-apiece.
-
 ## 3. Align and infer a tree
+
+ClustalW aligns the sequences in input order and infers a neighbor-joining tree:
 
 ```bash
 clustalw -INFILE=tardbp.fasta -ALIGN -TYPE=PROTEIN -OUTORDER=INPUT \
@@ -121,19 +122,18 @@ Ghostshark:0.07870):0.03228):0.01066):0.02077):0.01299):0.00134,Mouse:0.01773):0
 Cow:0.00108):0.00132,Platypus:0.00236):0.00000,Elephant:0.00238,Opossum:0.00000);
 ```
 
-The mammal rows sit on branches of 0.001 to 0.02 substitutions per site, and
-neighbor joining places Human beside the sauropsids on those distances. The two
-teleosts and the chimaera carry the long branches.
+The mammal rows sit on branches of 0.001 to 0.02 substitutions per site, and on
+those distances neighbor joining places Human beside the sauropsids.
 
 [![](../media/alphafold_confidence-1.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A520%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A3.2%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%7D%7D)
 
-Fourteen rows of 431 columns, 387 of which carry a residue in every row. The
-gaps cluster in the right third, right of the callout.
+Fourteen rows of 431 columns, 387 of which have a residue in every row. The gaps
+cluster in the right third, right of the callout.
 
-## 4. Read the pLDDT off the models
+## 4. Read the pLDDT from the models
 
-The API record for an accession names the model files. It answers a request with
-no `User-Agent` header with a 403, so send one:
+The AlphaFold API record for each accession names its model file. Send a
+`User-Agent` header, since the API answers a request without one with a 403:
 
 ```bash
 url=$(curl -sf -A "$UA" "https://alphafold.ebi.ac.uk/api/prediction/Q13148" |
@@ -141,9 +141,9 @@ url=$(curl -sf -A "$UA" "https://alphafold.ebi.ac.uk/api/prediction/Q13148" |
 curl -sf -A "$UA" "$url" -o models/Q13148.pdb
 ```
 
-The pLDDT of a residue is the B-factor of its CA atom, and the same line carries
-the residue name, so one pass over the file reads the model's sequence and its
-confidence together:
+AlphaFold writes each residue's pLDDT into the B-factor column of its CA atom,
+beside the residue name, so one pass reads the model's sequence and confidence
+together:
 
 ```python
 def read_model(path):
@@ -155,8 +155,8 @@ def read_model(path):
     return seq, plddt
 ```
 
-A model is built from the UniProt sequence of the day it was made, so the script
-compares it to the row letter by letter before reading a position off either:
+A model follows the UniProt sequence of the day it was built, so the script
+compares it to the row letter by letter first:
 
 ```
   Human        Q13148       model 414 aa matches the row, mean pLDDT  65.2, 156 residues under 50
@@ -175,11 +175,9 @@ compares it to the row letter by letter before reading a position off either:
   Ghostshark   A0A4W3GN84   model 404 aa matches the row, mean pLDDT  62.0, 172 residues under 50
 ```
 
-Every model matches, and each one scores 149 to 178 of its residues under 50.
-The column track is the mean over the rows that carry a residue in a column,
-rounded to an integer, with a second `text` track giving each column the band
-AlphaFold DB colors its models by: `V` above 90, `C` from 70 to 90, `L` from 50
-to 70, `D` below 50.
+Every model matches its row. The column track holds the rounded mean over the
+rows with a residue in each column, and a `text` track writes each column's band
+as one letter, `V`, `C`, `L` or `D` from very high to very low:
 
 ```python
 means = [round(sum(values) / len(values)) for values in by_column]
@@ -192,22 +190,21 @@ columns by mean pLDDT band: 6 very high, 214 confident, 24 low, 187 very low
 
 [![](../media/alphafold_confidence-2.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A520%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A3.2%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22plddt-mean%22%2C%22name%22%3A%22Mean%20pLDDT%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B48%2C55%2C63%2C80%2C84%2C89%2C89%2C89%2C88%2C83%2C75%2C67%2C68%2C76%2C81%2C85%2C86%2C89%2C88%2C87%2C87%2C87%2C79%2C80%2C81%2C88%2C89%2C89%2C88%2C87%2C89%2C89%2C87%2C88%2C87%2C86%2C82%2C80%2C85%2C85%2C88%2C90%2C89%2C88%2C84%2C81%2C76%2C78%2C80%2C79%2C79%2C84%2C83%2C86%2C89%2C88%2C88%2C87%2C85%2C84%2C89%2C89%2C87%2C83%2C79%2C71%2C71%2C80%2C81%2C78%2C80%2C83%2C86%2C88%2C88%2C88%2C86%2C84%2C76%2C64%2C49%2C46%2C40%2C44%2C47%2C41%2C42%2C42%2C44%2C41%2C40%2C43%2C45%2C44%2C43%2C43%2C39%2C43%2C44%2C41%2C40%2C38%2C37%2C35%2C39%2C40%2C49%2C55%2C60%2C72%2C81%2C85%2C87%2C89%2C87%2C86%2C89%2C87%2C87%2C87%2C86%2C89%2C89%2C89%2C90%2C90%2C90%2C91%2C90%2C89%2C89%2C89%2C86%2C86%2C86%2C88%2C82%2C79%2C89%2C85%2C89%2C85%2C87%2C82%2C78%2C81%2C82%2C79%2C80%2C85%2C83%2C84%2C89%2C89%2C89%2C89%2C84%2C87%2C81%2C80%2C79%2C81%2C84%2C83%2C80%2C85%2C87%2C84%2C83%2C81%2C84%2C87%2C88%2C87%2C83%2C84%2C86%2C88%2C89%2C85%2C87%2C82%2C81%2C70%2C60%2C52%2C47%2C44%2C43%2C44%2C46%2C46%2C40%2C45%2C42%2C47%2C47%2C51%2C55%2C62%2C74%2C83%2C86%2C86%2C86%2C82%2C81%2C80%2C80%2C79%2C78%2C77%2C86%2C85%2C85%2C86%2C86%2C87%2C86%2C86%2C85%2C84%2C83%2C80%2C81%2C84%2C87%2C83%2C81%2C87%2C85%2C86%2C81%2C82%2C80%2C82%2C77%2C81%2C86%2C87%2C89%2C88%2C85%2C86%2C80%2C76%2C76%2C77%2C80%2C77%2C75%2C79%2C79%2C75%2C70%2C71%2C77%2C78%2C79%2C77%2C71%2C71%2C77%2C77%2C83%2C80%2C84%2C77%2C80%2C71%2C70%2C58%2C56%2C44%2C38%2C40%2C41%2C46%2C43%2C42%2C43%2C42%2C44%2C41%2C39%2C42%2C38%2C38%2C36%2C39%2C42%2C35%2C34%2C36%2C36%2C37%2C39%2C34%2C33%2C35%2C36%2C37%2C35%2C33%2C38%2C36%2C36%2C35%2C36%2C36%2C35%2C37%2C35%2C38%2C38%2C38%2C34%2C36%2C35%2C34%2C34%2C32%2C33%2C35%2C38%2C34%2C34%2C34%2C34%2C34%2C37%2C40%2C47%2C46%2C52%2C51%2C52%2C55%2C51%2C48%2C51%2C51%2C51%2C50%2C48%2C48%2C48%2C40%2C34%2C38%2C39%2C37%2C35%2C36%2C33%2C35%2C37%2C38%2C36%2C34%2C35%2C34%2C31%2C28%2C44%2C33%2C33%2C35%2C35%2C36%2C40%2C34%2C33%2C34%2C36%2C35%2C34%2C34%2C43%2C36%2C34%2C33%2C31%2C31%2C32%2C32%2C31%2C34%2C30%2C33%2C31%2C31%2C33%2C33%2C35%2C33%2C33%2C34%2C34%2C29%2C32%2C32%2C33%2C32%2C35%2C34%2C37%2C33%2C35%2C37%2C34%2C35%2C33%2C35%2C34%2C35%2C33%2C36%2C34%2C39%2C37%2C40%2C39%2C40%2C41%2C43%2C45%2C43%2C44%2C52%2C46%5D%2C%22max%22%3A100%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A60%7D%2C%7B%22id%22%3A%22plddt-band%22%2C%22name%22%3A%22pLDDT%20band%22%2C%22kind%22%3A%22text%22%2C%22data%22%3A%22DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD%22%2C%22colors%22%3A%7B%22V%22%3A%22%230053d6%22%2C%22C%22%3A%22%2365cbf3%22%2C%22L%22%3A%22%23ffdb13%22%2C%22D%22%3A%22%23ff7d45%22%7D%2C%22height%22%3A16%7D%5D%7D%7D)
 
-The mean pLDDT per column as a bar, and its band below in AlphaFold DB's colors.
-Three blue blocks of confident columns, separated by two dips, and a run of very
-low columns from column 272 to the right edge.
+The mean pLDDT per column as bars, with its band below in AlphaFold DB's colors.
+Three blue blocks of confident columns sit between two dips, and the columns
+from 272 to the right edge are very low.
 
-## 5. Where the Pfam domains fall
+## 5. Mark the Pfam domains
 
-The Pfam matches of the human sequence name its domains, and InterPro serves
-them for one accession in one request:
+InterPro serves the Pfam matches of the human sequence in one request:
 
 ```bash
 curl -sf https://www.ebi.ac.uk/interpro/api/entry/pfam/protein/uniprot/Q13148 \
   -o tardbp-pfam.json
 ```
 
-Each match becomes a highlight on the Human row, in that row's own residue
-numbering:
+The script writes each match as a highlight on the Human row, in that row's
+residue numbering:
 
 ```
 TDP43_N  PF18694 Human 4-76: columns 5-77, mean pLDDT  84.0
@@ -216,20 +213,16 @@ RRM2     PF00076 Human 193-241: columns 203-251, mean pLDDT  82.7
 TDP43_C  PF20910 Human 262-371: columns 272-387, mean pLDDT  38.4
 ```
 
-The N-terminal domain and the two RNA recognition motifs land on the three high
-blocks, each with a mean above 82. PF20910 covers the C-terminal region, where
-the mean is 38.4.
-
 [![](../media/alphafold_confidence-3.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A520%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A3.2%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22plddt-mean%22%2C%22name%22%3A%22Mean%20pLDDT%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B48%2C55%2C63%2C80%2C84%2C89%2C89%2C89%2C88%2C83%2C75%2C67%2C68%2C76%2C81%2C85%2C86%2C89%2C88%2C87%2C87%2C87%2C79%2C80%2C81%2C88%2C89%2C89%2C88%2C87%2C89%2C89%2C87%2C88%2C87%2C86%2C82%2C80%2C85%2C85%2C88%2C90%2C89%2C88%2C84%2C81%2C76%2C78%2C80%2C79%2C79%2C84%2C83%2C86%2C89%2C88%2C88%2C87%2C85%2C84%2C89%2C89%2C87%2C83%2C79%2C71%2C71%2C80%2C81%2C78%2C80%2C83%2C86%2C88%2C88%2C88%2C86%2C84%2C76%2C64%2C49%2C46%2C40%2C44%2C47%2C41%2C42%2C42%2C44%2C41%2C40%2C43%2C45%2C44%2C43%2C43%2C39%2C43%2C44%2C41%2C40%2C38%2C37%2C35%2C39%2C40%2C49%2C55%2C60%2C72%2C81%2C85%2C87%2C89%2C87%2C86%2C89%2C87%2C87%2C87%2C86%2C89%2C89%2C89%2C90%2C90%2C90%2C91%2C90%2C89%2C89%2C89%2C86%2C86%2C86%2C88%2C82%2C79%2C89%2C85%2C89%2C85%2C87%2C82%2C78%2C81%2C82%2C79%2C80%2C85%2C83%2C84%2C89%2C89%2C89%2C89%2C84%2C87%2C81%2C80%2C79%2C81%2C84%2C83%2C80%2C85%2C87%2C84%2C83%2C81%2C84%2C87%2C88%2C87%2C83%2C84%2C86%2C88%2C89%2C85%2C87%2C82%2C81%2C70%2C60%2C52%2C47%2C44%2C43%2C44%2C46%2C46%2C40%2C45%2C42%2C47%2C47%2C51%2C55%2C62%2C74%2C83%2C86%2C86%2C86%2C82%2C81%2C80%2C80%2C79%2C78%2C77%2C86%2C85%2C85%2C86%2C86%2C87%2C86%2C86%2C85%2C84%2C83%2C80%2C81%2C84%2C87%2C83%2C81%2C87%2C85%2C86%2C81%2C82%2C80%2C82%2C77%2C81%2C86%2C87%2C89%2C88%2C85%2C86%2C80%2C76%2C76%2C77%2C80%2C77%2C75%2C79%2C79%2C75%2C70%2C71%2C77%2C78%2C79%2C77%2C71%2C71%2C77%2C77%2C83%2C80%2C84%2C77%2C80%2C71%2C70%2C58%2C56%2C44%2C38%2C40%2C41%2C46%2C43%2C42%2C43%2C42%2C44%2C41%2C39%2C42%2C38%2C38%2C36%2C39%2C42%2C35%2C34%2C36%2C36%2C37%2C39%2C34%2C33%2C35%2C36%2C37%2C35%2C33%2C38%2C36%2C36%2C35%2C36%2C36%2C35%2C37%2C35%2C38%2C38%2C38%2C34%2C36%2C35%2C34%2C34%2C32%2C33%2C35%2C38%2C34%2C34%2C34%2C34%2C34%2C37%2C40%2C47%2C46%2C52%2C51%2C52%2C55%2C51%2C48%2C51%2C51%2C51%2C50%2C48%2C48%2C48%2C40%2C34%2C38%2C39%2C37%2C35%2C36%2C33%2C35%2C37%2C38%2C36%2C34%2C35%2C34%2C31%2C28%2C44%2C33%2C33%2C35%2C35%2C36%2C40%2C34%2C33%2C34%2C36%2C35%2C34%2C34%2C43%2C36%2C34%2C33%2C31%2C31%2C32%2C32%2C31%2C34%2C30%2C33%2C31%2C31%2C33%2C33%2C35%2C33%2C33%2C34%2C34%2C29%2C32%2C32%2C33%2C32%2C35%2C34%2C37%2C33%2C35%2C37%2C34%2C35%2C33%2C35%2C34%2C35%2C33%2C36%2C34%2C39%2C37%2C40%2C39%2C40%2C41%2C43%2C45%2C43%2C44%2C52%2C46%5D%2C%22max%22%3A100%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A60%7D%2C%7B%22id%22%3A%22plddt-band%22%2C%22name%22%3A%22pLDDT%20band%22%2C%22kind%22%3A%22text%22%2C%22data%22%3A%22DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD%22%2C%22colors%22%3A%7B%22V%22%3A%22%230053d6%22%2C%22C%22%3A%22%2365cbf3%22%2C%22L%22%3A%22%23ffdb13%22%2C%22D%22%3A%22%23ff7d45%22%7D%2C%22height%22%3A16%7D%5D%2C%22highlights%22%3A%5B%7B%22row%22%3A%22Human%22%2C%22start%22%3A4%2C%22end%22%3A76%2C%22label%22%3A%22TDP43_N%204-76%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%2C%7B%22row%22%3A%22Human%22%2C%22start%22%3A106%2C%22end%22%3A164%2C%22label%22%3A%22RRM1%20106-164%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%2C%7B%22row%22%3A%22Human%22%2C%22start%22%3A193%2C%22end%22%3A241%2C%22label%22%3A%22RRM2%20193-241%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%2C%7B%22row%22%3A%22Human%22%2C%22start%22%3A262%2C%22end%22%3A371%2C%22label%22%3A%22TDP43_C%20262-371%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%5D%7D%7D>)
 
-The four Pfam matches as bands over the alignment, against the same two tracks.
-The first three bands sit under confident columns and the fourth under very low
-ones.
+The four Pfam matches (TDP43_N, RRM1, RRM2 and TDP43_C) as blue bands over the
+alignment, under the mean pLDDT and band tracks. The first three bands sit under
+confident columns and the fourth under very low ones.
 
-## 6. Each row's own low-confidence runs
+## 6. Mark each row's low-confidence runs
 
-The mean is one number over fourteen models, so each model's own runs under 50
-go into a GFF in that row's residue numbering, five residues and longer:
+The script writes each model's runs of five or more residues under pLDDT 50 to a
+GFF, in that row's residue numbering:
 
 ```python
 gff.write(f'{label}\tAlphaFold\tpolypeptide_region\t{start + 1}\t{i}\t.\t.\t.\t'
@@ -242,16 +235,14 @@ gff.write(f'{label}\tAlphaFold\tpolypeptide_region\t{start + 1}\t{i}\t.\t.\t.\t'
 
 [![](../media/alphafold_confidence-4.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A520%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A3.2%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22plddt-mean%22%2C%22name%22%3A%22Mean%20pLDDT%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B48%2C55%2C63%2C80%2C84%2C89%2C89%2C89%2C88%2C83%2C75%2C67%2C68%2C76%2C81%2C85%2C86%2C89%2C88%2C87%2C87%2C87%2C79%2C80%2C81%2C88%2C89%2C89%2C88%2C87%2C89%2C89%2C87%2C88%2C87%2C86%2C82%2C80%2C85%2C85%2C88%2C90%2C89%2C88%2C84%2C81%2C76%2C78%2C80%2C79%2C79%2C84%2C83%2C86%2C89%2C88%2C88%2C87%2C85%2C84%2C89%2C89%2C87%2C83%2C79%2C71%2C71%2C80%2C81%2C78%2C80%2C83%2C86%2C88%2C88%2C88%2C86%2C84%2C76%2C64%2C49%2C46%2C40%2C44%2C47%2C41%2C42%2C42%2C44%2C41%2C40%2C43%2C45%2C44%2C43%2C43%2C39%2C43%2C44%2C41%2C40%2C38%2C37%2C35%2C39%2C40%2C49%2C55%2C60%2C72%2C81%2C85%2C87%2C89%2C87%2C86%2C89%2C87%2C87%2C87%2C86%2C89%2C89%2C89%2C90%2C90%2C90%2C91%2C90%2C89%2C89%2C89%2C86%2C86%2C86%2C88%2C82%2C79%2C89%2C85%2C89%2C85%2C87%2C82%2C78%2C81%2C82%2C79%2C80%2C85%2C83%2C84%2C89%2C89%2C89%2C89%2C84%2C87%2C81%2C80%2C79%2C81%2C84%2C83%2C80%2C85%2C87%2C84%2C83%2C81%2C84%2C87%2C88%2C87%2C83%2C84%2C86%2C88%2C89%2C85%2C87%2C82%2C81%2C70%2C60%2C52%2C47%2C44%2C43%2C44%2C46%2C46%2C40%2C45%2C42%2C47%2C47%2C51%2C55%2C62%2C74%2C83%2C86%2C86%2C86%2C82%2C81%2C80%2C80%2C79%2C78%2C77%2C86%2C85%2C85%2C86%2C86%2C87%2C86%2C86%2C85%2C84%2C83%2C80%2C81%2C84%2C87%2C83%2C81%2C87%2C85%2C86%2C81%2C82%2C80%2C82%2C77%2C81%2C86%2C87%2C89%2C88%2C85%2C86%2C80%2C76%2C76%2C77%2C80%2C77%2C75%2C79%2C79%2C75%2C70%2C71%2C77%2C78%2C79%2C77%2C71%2C71%2C77%2C77%2C83%2C80%2C84%2C77%2C80%2C71%2C70%2C58%2C56%2C44%2C38%2C40%2C41%2C46%2C43%2C42%2C43%2C42%2C44%2C41%2C39%2C42%2C38%2C38%2C36%2C39%2C42%2C35%2C34%2C36%2C36%2C37%2C39%2C34%2C33%2C35%2C36%2C37%2C35%2C33%2C38%2C36%2C36%2C35%2C36%2C36%2C35%2C37%2C35%2C38%2C38%2C38%2C34%2C36%2C35%2C34%2C34%2C32%2C33%2C35%2C38%2C34%2C34%2C34%2C34%2C34%2C37%2C40%2C47%2C46%2C52%2C51%2C52%2C55%2C51%2C48%2C51%2C51%2C51%2C50%2C48%2C48%2C48%2C40%2C34%2C38%2C39%2C37%2C35%2C36%2C33%2C35%2C37%2C38%2C36%2C34%2C35%2C34%2C31%2C28%2C44%2C33%2C33%2C35%2C35%2C36%2C40%2C34%2C33%2C34%2C36%2C35%2C34%2C34%2C43%2C36%2C34%2C33%2C31%2C31%2C32%2C32%2C31%2C34%2C30%2C33%2C31%2C31%2C33%2C33%2C35%2C33%2C33%2C34%2C34%2C29%2C32%2C32%2C33%2C32%2C35%2C34%2C37%2C33%2C35%2C37%2C34%2C35%2C33%2C35%2C34%2C35%2C33%2C36%2C34%2C39%2C37%2C40%2C39%2C40%2C41%2C43%2C45%2C43%2C44%2C52%2C46%5D%2C%22max%22%3A100%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A60%7D%2C%7B%22id%22%3A%22plddt-band%22%2C%22name%22%3A%22pLDDT%20band%22%2C%22kind%22%3A%22text%22%2C%22data%22%3A%22DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD%22%2C%22colors%22%3A%7B%22V%22%3A%22%230053d6%22%2C%22C%22%3A%22%2365cbf3%22%2C%22L%22%3A%22%23ffdb13%22%2C%22D%22%3A%22%23ff7d45%22%7D%2C%22height%22%3A16%7D%5D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp-lowconf.gff%22%7D%2C%22showDomainLegend%22%3Afalse%7D%7D)
 
-The overlay draws each row's own runs. Every row carries a block near Human
-residues 80 to 101 and a block filling the C-terminal region, and thirteen of
-the fourteen carry the short block near 181 to 187, and the Zebrafish row has
-none there. The residue colors show through where no run covers them.
+Each row's runs under pLDDT 50 in orange over its residues. Every row has a run
+near Human residues 80 to 101 and one filling the C-terminal region, and every
+row but Zebrafish has a short run near residues 181 to 187.
 
-## 7. One band per row per domain
+## 7. Add one strip per domain
 
-A row panel puts the same reading on the row scale. For each row the script
-takes the mean over the columns a Pfam domain spans and writes the band it falls
-in, one field per domain:
+For each row and Pfam domain, the script writes the band of the row's mean pLDDT
+over the domain's columns:
 
 ```json
 {
@@ -270,8 +261,8 @@ RRM2     14 rows confident
 TDP43_C  14 rows very low
 ```
 
-Four `strip` panels read those fields, each through the same map from band name
-to AlphaFold DB's color, so the four columns list one legend:
+Four `strip` panels read those fields through one map from band to color, so the
+four share one legend:
 
 ```json
 "rowPanels": [
@@ -286,14 +277,13 @@ to AlphaFold DB's color, so the four columns list one legend:
 
 [![](../media/alphafold_confidence-5.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A520%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A3.2%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22plddt-mean%22%2C%22name%22%3A%22Mean%20pLDDT%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B48%2C55%2C63%2C80%2C84%2C89%2C89%2C89%2C88%2C83%2C75%2C67%2C68%2C76%2C81%2C85%2C86%2C89%2C88%2C87%2C87%2C87%2C79%2C80%2C81%2C88%2C89%2C89%2C88%2C87%2C89%2C89%2C87%2C88%2C87%2C86%2C82%2C80%2C85%2C85%2C88%2C90%2C89%2C88%2C84%2C81%2C76%2C78%2C80%2C79%2C79%2C84%2C83%2C86%2C89%2C88%2C88%2C87%2C85%2C84%2C89%2C89%2C87%2C83%2C79%2C71%2C71%2C80%2C81%2C78%2C80%2C83%2C86%2C88%2C88%2C88%2C86%2C84%2C76%2C64%2C49%2C46%2C40%2C44%2C47%2C41%2C42%2C42%2C44%2C41%2C40%2C43%2C45%2C44%2C43%2C43%2C39%2C43%2C44%2C41%2C40%2C38%2C37%2C35%2C39%2C40%2C49%2C55%2C60%2C72%2C81%2C85%2C87%2C89%2C87%2C86%2C89%2C87%2C87%2C87%2C86%2C89%2C89%2C89%2C90%2C90%2C90%2C91%2C90%2C89%2C89%2C89%2C86%2C86%2C86%2C88%2C82%2C79%2C89%2C85%2C89%2C85%2C87%2C82%2C78%2C81%2C82%2C79%2C80%2C85%2C83%2C84%2C89%2C89%2C89%2C89%2C84%2C87%2C81%2C80%2C79%2C81%2C84%2C83%2C80%2C85%2C87%2C84%2C83%2C81%2C84%2C87%2C88%2C87%2C83%2C84%2C86%2C88%2C89%2C85%2C87%2C82%2C81%2C70%2C60%2C52%2C47%2C44%2C43%2C44%2C46%2C46%2C40%2C45%2C42%2C47%2C47%2C51%2C55%2C62%2C74%2C83%2C86%2C86%2C86%2C82%2C81%2C80%2C80%2C79%2C78%2C77%2C86%2C85%2C85%2C86%2C86%2C87%2C86%2C86%2C85%2C84%2C83%2C80%2C81%2C84%2C87%2C83%2C81%2C87%2C85%2C86%2C81%2C82%2C80%2C82%2C77%2C81%2C86%2C87%2C89%2C88%2C85%2C86%2C80%2C76%2C76%2C77%2C80%2C77%2C75%2C79%2C79%2C75%2C70%2C71%2C77%2C78%2C79%2C77%2C71%2C71%2C77%2C77%2C83%2C80%2C84%2C77%2C80%2C71%2C70%2C58%2C56%2C44%2C38%2C40%2C41%2C46%2C43%2C42%2C43%2C42%2C44%2C41%2C39%2C42%2C38%2C38%2C36%2C39%2C42%2C35%2C34%2C36%2C36%2C37%2C39%2C34%2C33%2C35%2C36%2C37%2C35%2C33%2C38%2C36%2C36%2C35%2C36%2C36%2C35%2C37%2C35%2C38%2C38%2C38%2C34%2C36%2C35%2C34%2C34%2C32%2C33%2C35%2C38%2C34%2C34%2C34%2C34%2C34%2C37%2C40%2C47%2C46%2C52%2C51%2C52%2C55%2C51%2C48%2C51%2C51%2C51%2C50%2C48%2C48%2C48%2C40%2C34%2C38%2C39%2C37%2C35%2C36%2C33%2C35%2C37%2C38%2C36%2C34%2C35%2C34%2C31%2C28%2C44%2C33%2C33%2C35%2C35%2C36%2C40%2C34%2C33%2C34%2C36%2C35%2C34%2C34%2C43%2C36%2C34%2C33%2C31%2C31%2C32%2C32%2C31%2C34%2C30%2C33%2C31%2C31%2C33%2C33%2C35%2C33%2C33%2C34%2C34%2C29%2C32%2C32%2C33%2C32%2C35%2C34%2C37%2C33%2C35%2C37%2C34%2C35%2C33%2C35%2C34%2C35%2C33%2C36%2C34%2C39%2C37%2C40%2C39%2C40%2C41%2C43%2C45%2C43%2C44%2C52%2C46%5D%2C%22max%22%3A100%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A60%7D%2C%7B%22id%22%3A%22plddt-band%22%2C%22name%22%3A%22pLDDT%20band%22%2C%22kind%22%3A%22text%22%2C%22data%22%3A%22DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD%22%2C%22colors%22%3A%7B%22V%22%3A%22%230053d6%22%2C%22C%22%3A%22%2365cbf3%22%2C%22L%22%3A%22%23ffdb13%22%2C%22D%22%3A%22%23ff7d45%22%7D%2C%22height%22%3A16%7D%5D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp-rowdata.json%22%7D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22TDP43_N%22%2C%22header%22%3A%22TDP43_N%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22RRM1%22%2C%22header%22%3A%22RRM1%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22RRM2%22%2C%22header%22%3A%22RRM2%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22TDP43_C%22%2C%22header%22%3A%22TDP43_C%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%5D%7D%7D)
 
-Four strips between the tree and the alignment, one per Pfam domain. Three read
-confident in all fourteen rows and the fourth reads very low in all fourteen.
+Four strips between the tree and the alignment, one per Pfam domain. Three are
+confident in all fourteen rows and the fourth is very low in all fourteen.
 
-## 8. Check it against the models
+## 8. Check two columns against the models
 
-The script prints the residue and the pLDDT every row carries at one column
-inside RRM1 and one inside the C-terminal region, read from the B-factor column
-of each model file:
+The script reads each model file at one column inside RRM1 and one inside the
+C-terminal region:
 
 ```
 RRM1, alignment column 133 (Human residue 127):
@@ -329,11 +319,11 @@ TDP43_C, alignment column 316 (Human residue 303):
 ```
 
 Column 133 is phenylalanine in all fourteen rows and scores 82.4 to 88.2. Column
-316 scores 30.5 to 48.8, and three rows carry a different residue there.
+316 scores 30.5 to 48.8, and three rows have a different residue there.
 
 [![](../media/alphafold_confidence-6.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A620%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A20%2C%22rowHeight%22%3A22%2C%22scrollX%22%3A-2380%2C%22relativeTo%22%3A%22Human%22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22plddt-mean%22%2C%22name%22%3A%22Mean%20pLDDT%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B48%2C55%2C63%2C80%2C84%2C89%2C89%2C89%2C88%2C83%2C75%2C67%2C68%2C76%2C81%2C85%2C86%2C89%2C88%2C87%2C87%2C87%2C79%2C80%2C81%2C88%2C89%2C89%2C88%2C87%2C89%2C89%2C87%2C88%2C87%2C86%2C82%2C80%2C85%2C85%2C88%2C90%2C89%2C88%2C84%2C81%2C76%2C78%2C80%2C79%2C79%2C84%2C83%2C86%2C89%2C88%2C88%2C87%2C85%2C84%2C89%2C89%2C87%2C83%2C79%2C71%2C71%2C80%2C81%2C78%2C80%2C83%2C86%2C88%2C88%2C88%2C86%2C84%2C76%2C64%2C49%2C46%2C40%2C44%2C47%2C41%2C42%2C42%2C44%2C41%2C40%2C43%2C45%2C44%2C43%2C43%2C39%2C43%2C44%2C41%2C40%2C38%2C37%2C35%2C39%2C40%2C49%2C55%2C60%2C72%2C81%2C85%2C87%2C89%2C87%2C86%2C89%2C87%2C87%2C87%2C86%2C89%2C89%2C89%2C90%2C90%2C90%2C91%2C90%2C89%2C89%2C89%2C86%2C86%2C86%2C88%2C82%2C79%2C89%2C85%2C89%2C85%2C87%2C82%2C78%2C81%2C82%2C79%2C80%2C85%2C83%2C84%2C89%2C89%2C89%2C89%2C84%2C87%2C81%2C80%2C79%2C81%2C84%2C83%2C80%2C85%2C87%2C84%2C83%2C81%2C84%2C87%2C88%2C87%2C83%2C84%2C86%2C88%2C89%2C85%2C87%2C82%2C81%2C70%2C60%2C52%2C47%2C44%2C43%2C44%2C46%2C46%2C40%2C45%2C42%2C47%2C47%2C51%2C55%2C62%2C74%2C83%2C86%2C86%2C86%2C82%2C81%2C80%2C80%2C79%2C78%2C77%2C86%2C85%2C85%2C86%2C86%2C87%2C86%2C86%2C85%2C84%2C83%2C80%2C81%2C84%2C87%2C83%2C81%2C87%2C85%2C86%2C81%2C82%2C80%2C82%2C77%2C81%2C86%2C87%2C89%2C88%2C85%2C86%2C80%2C76%2C76%2C77%2C80%2C77%2C75%2C79%2C79%2C75%2C70%2C71%2C77%2C78%2C79%2C77%2C71%2C71%2C77%2C77%2C83%2C80%2C84%2C77%2C80%2C71%2C70%2C58%2C56%2C44%2C38%2C40%2C41%2C46%2C43%2C42%2C43%2C42%2C44%2C41%2C39%2C42%2C38%2C38%2C36%2C39%2C42%2C35%2C34%2C36%2C36%2C37%2C39%2C34%2C33%2C35%2C36%2C37%2C35%2C33%2C38%2C36%2C36%2C35%2C36%2C36%2C35%2C37%2C35%2C38%2C38%2C38%2C34%2C36%2C35%2C34%2C34%2C32%2C33%2C35%2C38%2C34%2C34%2C34%2C34%2C34%2C37%2C40%2C47%2C46%2C52%2C51%2C52%2C55%2C51%2C48%2C51%2C51%2C51%2C50%2C48%2C48%2C48%2C40%2C34%2C38%2C39%2C37%2C35%2C36%2C33%2C35%2C37%2C38%2C36%2C34%2C35%2C34%2C31%2C28%2C44%2C33%2C33%2C35%2C35%2C36%2C40%2C34%2C33%2C34%2C36%2C35%2C34%2C34%2C43%2C36%2C34%2C33%2C31%2C31%2C32%2C32%2C31%2C34%2C30%2C33%2C31%2C31%2C33%2C33%2C35%2C33%2C33%2C34%2C34%2C29%2C32%2C32%2C33%2C32%2C35%2C34%2C37%2C33%2C35%2C37%2C34%2C35%2C33%2C35%2C34%2C35%2C33%2C36%2C34%2C39%2C37%2C40%2C39%2C40%2C41%2C43%2C45%2C43%2C44%2C52%2C46%5D%2C%22max%22%3A100%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A60%7D%2C%7B%22id%22%3A%22plddt-band%22%2C%22name%22%3A%22pLDDT%20band%22%2C%22kind%22%3A%22text%22%2C%22data%22%3A%22DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD%22%2C%22colors%22%3A%7B%22V%22%3A%22%230053d6%22%2C%22C%22%3A%22%2365cbf3%22%2C%22L%22%3A%22%23ffdb13%22%2C%22D%22%3A%22%23ff7d45%22%7D%2C%22height%22%3A16%7D%5D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp-lowconf.gff%22%7D%2C%22showDomainLegend%22%3Afalse%2C%22highlights%22%3A%5B%7B%22row%22%3A%22Human%22%2C%22start%22%3A127%2C%22end%22%3A127%2C%22label%22%3A%22Human%20127%22%7D%5D%7D%7D)
 
-The RRM1 column at residue resolution, every row read against the Human row: a
+The RRM1 column at residue resolution, every row compared with the Human row: a
 dot is the same residue, a letter a different one. The boxed column is Human
 residue 127, and the orange boxes at the right edge are the runs under 50 that
 begin near Human residue 181.
@@ -346,17 +336,16 @@ inside TDP43_C, columns 335-339 rise to a mean of 52, which is Human residues 32
 
 [![](../media/alphafold_confidence-7.png)](https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A620%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A20%2C%22rowHeight%22%3A22%2C%22scrollX%22%3A-6400%2C%22relativeTo%22%3A%22Human%22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22plddt-mean%22%2C%22name%22%3A%22Mean%20pLDDT%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B48%2C55%2C63%2C80%2C84%2C89%2C89%2C89%2C88%2C83%2C75%2C67%2C68%2C76%2C81%2C85%2C86%2C89%2C88%2C87%2C87%2C87%2C79%2C80%2C81%2C88%2C89%2C89%2C88%2C87%2C89%2C89%2C87%2C88%2C87%2C86%2C82%2C80%2C85%2C85%2C88%2C90%2C89%2C88%2C84%2C81%2C76%2C78%2C80%2C79%2C79%2C84%2C83%2C86%2C89%2C88%2C88%2C87%2C85%2C84%2C89%2C89%2C87%2C83%2C79%2C71%2C71%2C80%2C81%2C78%2C80%2C83%2C86%2C88%2C88%2C88%2C86%2C84%2C76%2C64%2C49%2C46%2C40%2C44%2C47%2C41%2C42%2C42%2C44%2C41%2C40%2C43%2C45%2C44%2C43%2C43%2C39%2C43%2C44%2C41%2C40%2C38%2C37%2C35%2C39%2C40%2C49%2C55%2C60%2C72%2C81%2C85%2C87%2C89%2C87%2C86%2C89%2C87%2C87%2C87%2C86%2C89%2C89%2C89%2C90%2C90%2C90%2C91%2C90%2C89%2C89%2C89%2C86%2C86%2C86%2C88%2C82%2C79%2C89%2C85%2C89%2C85%2C87%2C82%2C78%2C81%2C82%2C79%2C80%2C85%2C83%2C84%2C89%2C89%2C89%2C89%2C84%2C87%2C81%2C80%2C79%2C81%2C84%2C83%2C80%2C85%2C87%2C84%2C83%2C81%2C84%2C87%2C88%2C87%2C83%2C84%2C86%2C88%2C89%2C85%2C87%2C82%2C81%2C70%2C60%2C52%2C47%2C44%2C43%2C44%2C46%2C46%2C40%2C45%2C42%2C47%2C47%2C51%2C55%2C62%2C74%2C83%2C86%2C86%2C86%2C82%2C81%2C80%2C80%2C79%2C78%2C77%2C86%2C85%2C85%2C86%2C86%2C87%2C86%2C86%2C85%2C84%2C83%2C80%2C81%2C84%2C87%2C83%2C81%2C87%2C85%2C86%2C81%2C82%2C80%2C82%2C77%2C81%2C86%2C87%2C89%2C88%2C85%2C86%2C80%2C76%2C76%2C77%2C80%2C77%2C75%2C79%2C79%2C75%2C70%2C71%2C77%2C78%2C79%2C77%2C71%2C71%2C77%2C77%2C83%2C80%2C84%2C77%2C80%2C71%2C70%2C58%2C56%2C44%2C38%2C40%2C41%2C46%2C43%2C42%2C43%2C42%2C44%2C41%2C39%2C42%2C38%2C38%2C36%2C39%2C42%2C35%2C34%2C36%2C36%2C37%2C39%2C34%2C33%2C35%2C36%2C37%2C35%2C33%2C38%2C36%2C36%2C35%2C36%2C36%2C35%2C37%2C35%2C38%2C38%2C38%2C34%2C36%2C35%2C34%2C34%2C32%2C33%2C35%2C38%2C34%2C34%2C34%2C34%2C34%2C37%2C40%2C47%2C46%2C52%2C51%2C52%2C55%2C51%2C48%2C51%2C51%2C51%2C50%2C48%2C48%2C48%2C40%2C34%2C38%2C39%2C37%2C35%2C36%2C33%2C35%2C37%2C38%2C36%2C34%2C35%2C34%2C31%2C28%2C44%2C33%2C33%2C35%2C35%2C36%2C40%2C34%2C33%2C34%2C36%2C35%2C34%2C34%2C43%2C36%2C34%2C33%2C31%2C31%2C32%2C32%2C31%2C34%2C30%2C33%2C31%2C31%2C33%2C33%2C35%2C33%2C33%2C34%2C34%2C29%2C32%2C32%2C33%2C32%2C35%2C34%2C37%2C33%2C35%2C37%2C34%2C35%2C33%2C35%2C34%2C35%2C33%2C36%2C34%2C39%2C37%2C40%2C39%2C40%2C41%2C43%2C45%2C43%2C44%2C52%2C46%5D%2C%22max%22%3A100%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A60%7D%2C%7B%22id%22%3A%22plddt-band%22%2C%22name%22%3A%22pLDDT%20band%22%2C%22kind%22%3A%22text%22%2C%22data%22%3A%22DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD%22%2C%22colors%22%3A%7B%22V%22%3A%22%230053d6%22%2C%22C%22%3A%22%2365cbf3%22%2C%22L%22%3A%22%23ffdb13%22%2C%22D%22%3A%22%23ff7d45%22%7D%2C%22height%22%3A16%7D%5D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp-lowconf.gff%22%7D%2C%22showDomainLegend%22%3Afalse%2C%22highlights%22%3A%5B%7B%22row%22%3A%22Human%22%2C%22start%22%3A320%2C%22end%22%3A324%2C%22label%22%3A%22Human%20320-324%22%7D%5D%7D%7D)
 
-Human residues 320 to 324, where the band track turns yellow. The overlay boxes
-break on both sides of the boxed columns in most rows, so the run under 50 stops
-there and starts again after it. Conicella et al. 2016 measured a transient
-helix over Human residues 321 to 340 by NMR.
+Human residues 320 to 324, where the band track turns yellow. In most rows the
+orange run under 50 stops at the boxed columns and starts again after them.
+Conicella et al. 2016 measured a transient helix over Human residues 321 to 340
+by NMR.
 
-## 9. Open the whole thing
+## 9. Open the result
 
 <!-- usage: web -->
 
-The view combines four hosted files and three layers. The files go behind URLs,
-and the tracks, the highlights and the row panels go in the link:
+The snapshot loads the four files by URL:
 
 ```json
 {
@@ -376,22 +365,19 @@ and the tracks, the highlights and the row panels go in the link:
 ```
 
 Add the `columnTracks`, `highlights` and `rowPanels` entries from
-`tardbp-layers.json` beside those, URL-encode the whole object, and hang it off
-the app as `#data=`. The two tracks and the four strips come to about 5,400
-characters encoded.
+`tardbp-layers.json` beside them, URL-encode the object, and append it to the
+app URL as `#data=`, about 5,400 characters in all.
 
 [![](../media/alphafold_confidence-8.png)](<https://gmod.org/JBrowseMSA/demo/#data=%7B%22msaview%22%3A%7B%22type%22%3A%22MsaView%22%2C%22height%22%3A540%2C%22treeAreaWidth%22%3A190%2C%22colWidth%22%3A3.2%2C%22rowHeight%22%3A22%2C%22colorSchemeName%22%3A%22clustalx_protein_dynamic%22%2C%22turnedOffTracks%22%3A%7B%22property-conservation%22%3Atrue%7D%2C%22msaFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.afa%22%7D%2C%22treeFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp.nwk%22%7D%2C%22columnTracks%22%3A%5B%7B%22id%22%3A%22plddt-mean%22%2C%22name%22%3A%22Mean%20pLDDT%22%2C%22kind%22%3A%22bar%22%2C%22values%22%3A%5B48%2C55%2C63%2C80%2C84%2C89%2C89%2C89%2C88%2C83%2C75%2C67%2C68%2C76%2C81%2C85%2C86%2C89%2C88%2C87%2C87%2C87%2C79%2C80%2C81%2C88%2C89%2C89%2C88%2C87%2C89%2C89%2C87%2C88%2C87%2C86%2C82%2C80%2C85%2C85%2C88%2C90%2C89%2C88%2C84%2C81%2C76%2C78%2C80%2C79%2C79%2C84%2C83%2C86%2C89%2C88%2C88%2C87%2C85%2C84%2C89%2C89%2C87%2C83%2C79%2C71%2C71%2C80%2C81%2C78%2C80%2C83%2C86%2C88%2C88%2C88%2C86%2C84%2C76%2C64%2C49%2C46%2C40%2C44%2C47%2C41%2C42%2C42%2C44%2C41%2C40%2C43%2C45%2C44%2C43%2C43%2C39%2C43%2C44%2C41%2C40%2C38%2C37%2C35%2C39%2C40%2C49%2C55%2C60%2C72%2C81%2C85%2C87%2C89%2C87%2C86%2C89%2C87%2C87%2C87%2C86%2C89%2C89%2C89%2C90%2C90%2C90%2C91%2C90%2C89%2C89%2C89%2C86%2C86%2C86%2C88%2C82%2C79%2C89%2C85%2C89%2C85%2C87%2C82%2C78%2C81%2C82%2C79%2C80%2C85%2C83%2C84%2C89%2C89%2C89%2C89%2C84%2C87%2C81%2C80%2C79%2C81%2C84%2C83%2C80%2C85%2C87%2C84%2C83%2C81%2C84%2C87%2C88%2C87%2C83%2C84%2C86%2C88%2C89%2C85%2C87%2C82%2C81%2C70%2C60%2C52%2C47%2C44%2C43%2C44%2C46%2C46%2C40%2C45%2C42%2C47%2C47%2C51%2C55%2C62%2C74%2C83%2C86%2C86%2C86%2C82%2C81%2C80%2C80%2C79%2C78%2C77%2C86%2C85%2C85%2C86%2C86%2C87%2C86%2C86%2C85%2C84%2C83%2C80%2C81%2C84%2C87%2C83%2C81%2C87%2C85%2C86%2C81%2C82%2C80%2C82%2C77%2C81%2C86%2C87%2C89%2C88%2C85%2C86%2C80%2C76%2C76%2C77%2C80%2C77%2C75%2C79%2C79%2C75%2C70%2C71%2C77%2C78%2C79%2C77%2C71%2C71%2C77%2C77%2C83%2C80%2C84%2C77%2C80%2C71%2C70%2C58%2C56%2C44%2C38%2C40%2C41%2C46%2C43%2C42%2C43%2C42%2C44%2C41%2C39%2C42%2C38%2C38%2C36%2C39%2C42%2C35%2C34%2C36%2C36%2C37%2C39%2C34%2C33%2C35%2C36%2C37%2C35%2C33%2C38%2C36%2C36%2C35%2C36%2C36%2C35%2C37%2C35%2C38%2C38%2C38%2C34%2C36%2C35%2C34%2C34%2C32%2C33%2C35%2C38%2C34%2C34%2C34%2C34%2C34%2C37%2C40%2C47%2C46%2C52%2C51%2C52%2C55%2C51%2C48%2C51%2C51%2C51%2C50%2C48%2C48%2C48%2C40%2C34%2C38%2C39%2C37%2C35%2C36%2C33%2C35%2C37%2C38%2C36%2C34%2C35%2C34%2C31%2C28%2C44%2C33%2C33%2C35%2C35%2C36%2C40%2C34%2C33%2C34%2C36%2C35%2C34%2C34%2C43%2C36%2C34%2C33%2C31%2C31%2C32%2C32%2C31%2C34%2C30%2C33%2C31%2C31%2C33%2C33%2C35%2C33%2C33%2C34%2C34%2C29%2C32%2C32%2C33%2C32%2C35%2C34%2C37%2C33%2C35%2C37%2C34%2C35%2C33%2C35%2C34%2C35%2C33%2C36%2C34%2C39%2C37%2C40%2C39%2C40%2C41%2C43%2C45%2C43%2C44%2C52%2C46%5D%2C%22max%22%3A100%2C%22color%22%3A%22%234e79a7%22%2C%22height%22%3A60%7D%2C%7B%22id%22%3A%22plddt-band%22%2C%22name%22%3A%22pLDDT%20band%22%2C%22kind%22%3A%22text%22%2C%22data%22%3A%22DLLCCCCCCCCLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLDDDDDDDDDDDDDDDDDDDDDDDDDDDLLCCCCCCCCCCCCCCCVVVVVCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDLLLCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLLLLDLLLLDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLD%22%2C%22colors%22%3A%7B%22V%22%3A%22%230053d6%22%2C%22C%22%3A%22%2365cbf3%22%2C%22L%22%3A%22%23ffdb13%22%2C%22D%22%3A%22%23ff7d45%22%7D%2C%22height%22%3A16%7D%5D%2C%22gffFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp-lowconf.gff%22%7D%2C%22treeMetadataFilehandle%22%3A%7B%22uri%22%3A%22data%2Ftdp43%2Ftardbp-rowdata.json%22%7D%2C%22rowPanels%22%3A%5B%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22TDP43_N%22%2C%22header%22%3A%22TDP43_N%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22RRM1%22%2C%22header%22%3A%22RRM1%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22RRM2%22%2C%22header%22%3A%22RRM2%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%2C%7B%22kind%22%3A%22strip%22%2C%22field%22%3A%22TDP43_C%22%2C%22header%22%3A%22TDP43_C%22%2C%22legend%22%3A%22pLDDT%20band%22%2C%22scale%22%3A%7B%22map%22%3A%7B%22very%20high%22%3A%22%230053d6%22%2C%22confident%22%3A%22%2365cbf3%22%2C%22low%22%3A%22%23ffdb13%22%2C%22very%20low%22%3A%22%23ff7d45%22%7D%7D%2C%22width%22%3A14%7D%5D%2C%22showDomainLegend%22%3Afalse%2C%22highlights%22%3A%5B%7B%22row%22%3A%22Human%22%2C%22start%22%3A4%2C%22end%22%3A76%2C%22label%22%3A%22TDP43_N%204-76%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%2C%7B%22row%22%3A%22Human%22%2C%22start%22%3A106%2C%22end%22%3A164%2C%22label%22%3A%22RRM1%20106-164%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%2C%7B%22row%22%3A%22Human%22%2C%22start%22%3A193%2C%22end%22%3A241%2C%22label%22%3A%22RRM2%20193-241%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%2C%7B%22row%22%3A%22Human%22%2C%22start%22%3A262%2C%22end%22%3A371%2C%22label%22%3A%22TDP43_C%20262-371%22%2C%22color%22%3A%22rgba(78%2C121%2C167%2C0.18)%22%7D%5D%7D%7D>)
 
-The final view: the two tracks above, the four strips beside the tree, the Pfam
-bands in blue and each row's runs under pLDDT 50 in orange.
+The final view, with the two tracks above, the four strips beside the tree, the
+Pfam bands in blue and each row's runs under pLDDT 50 in orange.
 
 <!-- usage: r -->
 
-[ggmsaview](https://github.com/GMOD/ggmsaview) reads the four hosted files and
-`tardbp-layers.json` as they stand: the row data and the layers come in through
-jsonlite, and `msaview()` takes the tracks, highlights and row panels with no
-encoding. `w` alone opens the viewer in RStudio or a notebook, and
-`msaview_plot()` draws the view as a ggplot2 figure:
+[ggmsaview](https://github.com/GMOD/ggmsaview) reads the four hosted files, and
+`msaview()` takes the row data and layers from `tardbp-layers.json` through
+jsonlite as they stand:
 
 ```r
 library(ggmsaview)
@@ -416,11 +402,10 @@ ggplot2::ggsave("alphafold-confidence-r.png",
 
 ![](../media/alphafold-confidence-r.png)
 
-The 14 rows over 431 columns: the mean pLDDT bars and the pLDDT band strip
-above, the four domain strips beside the tree, the Pfam bands in blue and each
-row's runs under pLDDT 50 in orange. Mean pLDDT stays high over the N-terminal
-domain and the two RRMs and drops across the C-terminal domain, where every row
-carries a long low-confidence run.
+The 14 rows in ggplot2, with the four domain strips beside the tree and the Pfam
+bands in blue. The mean pLDDT bars above stay high over the N-terminal domain
+and the two RRMs and drop across the C-terminal domain, where every row has a
+long orange run under 50.
 
 <!-- /usage -->
 
@@ -429,16 +414,13 @@ carries a long low-confidence run.
 [`build_alphafold_confidence.sh`](https://github.com/GMOD/JBrowseMSA/blob/main/docs/tutorials/scripts/build_alphafold_confidence.sh)
 runs the commands and the Python above in order:
 
-1. It fetches the fourteen sequences from UniProt in one request and names each
-   FASTA record by its species label, since every layer names its row by that
-   label.
-2. ClustalW aligns the records and infers a neighbor-joining tree from the
-   alignment.
-3. It downloads each accession's AlphaFold model and the Pfam matches of the
-   human sequence, and stops if a model's sequence differs from its row.
-4. It writes the layers: the mean pLDDT per column and its band as tracks, the
-   Pfam domains as highlights, each row's runs under 50 as a GFF and each row's
-   band per domain for the strips, then prints the residue check of step 8.
+1. It fetches the fourteen sequences from UniProt and names each FASTA record by
+   its species label, which every layer uses as the row name.
+2. ClustalW aligns the records and infers a neighbor-joining tree.
+3. It downloads each AlphaFold model and the human Pfam matches, and stops if a
+   model's sequence differs from its row.
+4. It writes the tracks, highlights, GFF and strip fields, then prints the
+   residue check of step 8.
 
 It needs the tools under [Prerequisites](#prerequisites).
 
@@ -447,16 +429,16 @@ curl -O https://raw.githubusercontent.com/GMOD/JBrowseMSA/main/docs/tutorials/sc
 bash build_alphafold_confidence.sh
 ```
 
-With no arguments the script writes the row table above and builds every file
-beside it, printing every number on this page. Pass your own table of labels and
-UniProt accessions to do the same for another family:
+With no arguments the script writes the row table above, builds every file
+beside it and prints every number on this page. For another family, pass a table
+of labels and UniProt accessions:
 
 ```bash
 bash build_alphafold_confidence.sh my-rows.tsv out/
 ```
 
-The reference row is the first `Human` line, and the Pfam short names in the
-script's `SHORT` map name the domains the highlights and the strips carry.
+The script takes the first `Human` line as the reference row, and its `SHORT`
+map names the Pfam domains for the highlights and strips.
 
 ## See also
 
