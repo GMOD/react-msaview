@@ -3595,11 +3595,19 @@ function stateModelFactory({
       /**
        * #getter
        * categorical feature types (InterPro domains and the like) that each get
-       * their own color and a legend entry
+       * their own color and a legend entry, in palette order: grouped by
+       * feature type, types in the order they first appear. A GenPept
+       * record's CDD Sites follow every Region, so the palette spends the
+       * colors after the domains' on the sites inside them
        */
       get categoricalDomainTypes() {
-        return [...self.annotationTypes.values()].filter(
+        const types = [...self.annotationTypes.values()].filter(
           d => !segmentFeatureTypes.has(d.featureType ?? ''),
+        )
+        const typeOrder = [...new Set(types.map(d => d.featureType))]
+        return types.toSorted(
+          (a, b) =>
+            typeOrder.indexOf(a.featureType) - typeOrder.indexOf(b.featureType),
         )
       },
       get fillPalette() {
