@@ -67,8 +67,8 @@ you can read one site down the whole family.
   `#data=` link.
 - **Scroll** with the wheel or a drag, or a finger on a touch screen. A vertical
   wheel passes to the page at the top or bottom row, and a vertical wheel or
-  swipe passes whenever every row fits, so a viewer embedded in a long page
-  lets the reader scroll past it.
+  swipe passes whenever every row fits, so a viewer embedded in a long page lets
+  the reader scroll past it.
 - **Zoom** with the magnifier buttons in the header, or Ctrl+wheel (⌘+wheel on a
   Mac, or a trackpad pinch) at the cursor. The first plain scroll over the
   alignment shows a reminder of the shortcut.
