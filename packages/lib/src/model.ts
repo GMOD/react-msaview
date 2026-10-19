@@ -4466,21 +4466,18 @@ function stateModelFactory({
           self.setHighlightedColumns(self.highlightColumns)
         }
 
-        // The `collapse`, `focus` and `rotate` clade marks seed the collapsed
-        // list, the subtree in focus and the rotated nodes, which the tree,
-        // `hideGapsEffective` and the alignment all read. The tree arrives with
-        // the model for inline data and later for a filehandle, so the seeding
-        // waits for it and then runs once per data load, per change of
-        // `clades` and per reroot, which clears the node ids the seeding
-        // wrote: expanding a seeded clade sticks until one of those changes.
-        // `dataInitialized` is true once the MSA alone has loaded, when the
-        // tree is still the flat stub, so a tree filehandle holds the seeding
-        // until its text lands.
+        const awaitingTree = () => !!self.treeFilehandle && !self.data.tree
+
+        // `collapse`, `focus` and `rotate` marks seed `collapsed`, `showOnly`
+        // and `rotated`. Seeding runs once per data load, `clades` change and
+        // reroot, so expanding a seeded clade sticks until one of those. A tree
+        // filehandle holds it back, since `dataInitialized` is true while the
+        // tree is still the flat stub.
         addDisposer(
           self,
           reaction(
             () =>
-              self.dataInitialized && !(self.treeFilehandle && !self.data.tree)
+              self.dataInitialized && !awaitingTree()
                 ? { clades: getSnapshot(self.clades), treeRoot: self.treeRoot }
                 : undefined,
             seed => {
@@ -4518,7 +4515,7 @@ function stateModelFactory({
               region &&
               self.viewInitialized &&
               self.numColumns > 0 &&
-              !(self.treeFilehandle && !self.data.tree)
+              !awaitingTree()
             ) {
               this.revealRegion(region)
               self.setRegion(undefined)
