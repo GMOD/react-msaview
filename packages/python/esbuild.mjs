@@ -12,7 +12,7 @@ const options = {
   format: 'esm',
   outfile: 'msaview/static/widget.js',
   platform: 'browser',
-  target: 'es2020',
+  target: 'es2022',
   jsx: 'automatic',
   minify: true,
   define: { 'process.env.NODE_ENV': '"production"' },

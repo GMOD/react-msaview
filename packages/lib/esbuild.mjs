@@ -14,7 +14,7 @@ await esbuild.build({
   globalName: 'ReactMSAView',
   outfile: 'bundle/index.js',
   platform: 'browser',
-  target: 'es2020',
+  target: 'es2022',
   jsx: 'automatic',
   minify: true,
   sourcemap: true,
