@@ -51,8 +51,19 @@ export type { InterProScanResults } from 'msa-parsers'
 export type { ColumnCounts } from './columnCounts.ts'
 export type { ColumnStats } from './columnStats.ts'
 export type { ZoomSnapshot } from './zoomSnapshot.ts'
-// the scale an encoding reads its field through, and what resolving one gives
-export type { ResolvedScale, ScaleSpec } from './scales.ts'
+// the color object a channel reads its field through, and what resolving one
+// gives
+export type {
+  ColorChannel,
+  ColorSpec,
+  LegacyColumnTrack,
+  LegacyEncoding,
+  LegacyRowPanel,
+  LegacyScale,
+  ResolvedScale,
+  ScaleTable,
+  SharedScale,
+} from './scales.ts'
 export type {
   Accession,
   Annotation,

@@ -1,4 +1,4 @@
-import type { ResolvedScale, ScaleSpec } from './scales.ts'
+import type { ColorChannel, ColorSpec, SharedScale } from './scales.ts'
 import type { Annotation } from 'msa-parsers'
 
 export interface Accession {
@@ -18,11 +18,17 @@ export type TrackKind = 'text' | 'bar' | 'logo' | 'arc' | 'ruler' | 'reference'
 export type ResidueEncoding = 'fill' | 'color'
 
 /**
- * The residue colors: a scheme name from the built-in table, or a scale's
- * `{map}` of letter to color, which leaves every letter it does not list
- * uncolored
+ * The residue colors: a scheme name from the built-in table, or a color object
+ * over residue letters, `{domain: ['K', 'R'], range: ['#1f77b4', '#1f77b4']}`,
+ * which leaves every letter it does not list uncolored
  */
-export type ColorScheme = string | Required<Pick<ScaleSpec, 'map'>>
+export type ColorScheme =
+  | string
+  | Pick<ColorSpec, 'domain' | 'range'>
+  | {
+      /** @deprecated the earlier spelling of `{domain, range}` */
+      map: Record<string, string>
+    }
 
 export interface BasicTrackModel {
   id: string
@@ -75,7 +81,8 @@ export interface ArcSpec {
 // a track supplied as data in the snapshot rather than computed from the
 // alignment. `values` (bar) or `data` (text) index alignment columns, or the
 // 1-based residues of `row` when it names one; `arcs` (arc) name two such
-// positions each
+// positions each. `scales.y.domainMax` is the bar value drawn at full height,
+// and a text track's `encoding.color` colors its characters
 export interface ColumnTrackSpec {
   id: string
   name: string
@@ -83,32 +90,29 @@ export interface ColumnTrackSpec {
   values?: number[]
   data?: string
   arcs?: ArcSpec[]
-  max?: number
   color?: string
-  colors?: Record<string, string>
+  encoding?: { color?: ColorSpec }
+  scales?: { y?: { domainMax?: number } }
   row?: string
   height?: number
 }
 
 /**
- * A strip panel: one cell per row, colored from a `rowData` field through
- * `scale`, which is ggtree's `gheatmap`. `width` is in pixels and defaults to
- * the row height, and `header` labels the column and defaults to the field.
- * `legend` titles the strip's legend and defaults to the field, and strips
- * naming one title share one legend.
+ * A strip panel: one cell per row, colored from a `rowData` field through the
+ * color object's members, which is ggtree's `gheatmap`. `width` is in pixels
+ * and defaults to the row height, and `header` labels the column and defaults
+ * to the field. Strips declaring the same members and `title` share one scale
+ * and one legend.
  */
-export interface RowStripSpec {
+export interface RowStripSpec extends ColorChannel {
   kind: 'strip'
-  field: string
-  scale?: ScaleSpec
   width?: number
   header?: string
-  legend?: string
 }
 
 /** the channels a `features` panel reads off the feature table */
 export interface FeatureEncodingSpec {
-  color?: { field: string; scale?: ScaleSpec }
+  color?: ColorChannel
   label?: string
 }
 
@@ -150,7 +154,8 @@ interface ResolvedPanelBase {
   width: number
   offsetX: number
   legend: LegendEntry[]
-  /** the legend this panel's entries go under; absent means the domain key */
+  /** the scale this panel's entries list under; absent means the domain key */
+  legendKey?: string
   legendTitle?: string
 }
 
@@ -497,17 +502,15 @@ export type EncodingChannel =
   | 'featureLabel'
 
 /**
- * A channel, the field feeding it, and the scale it reads that field through.
- * See docs/layers.md
+ * A channel, the field feeding it, and the color object's members it reads
+ * that field through. See docs/layers.md
  */
-export interface Encoding {
+export interface Encoding extends ColorChannel {
   channel: EncodingChannel
-  field: string
-  scale?: ScaleSpec
 }
 
 /** an Encoding with its scale resolved against the values in the table */
-export type ResolvedEncoding = Encoding & ResolvedScale
+export type ResolvedEncoding = Encoding & SharedScale
 
 /** a Highlight resolved to visible column indices and row indices */
 export interface ResolvedHighlight {

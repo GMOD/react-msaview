@@ -28,7 +28,8 @@ const panels: RowPanelSpec[] = [
     encoding: {
       color: {
         field: 'class',
-        scale: { map: { core: '#e41a1c', accessory: '#377eb8' } },
+        domain: ['core', 'accessory'],
+        range: ['#e41a1c', '#377eb8'],
       },
       label: 'Name',
     },

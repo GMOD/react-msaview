@@ -12,6 +12,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { compareStructural, reaction, when } from 'mobx'
 
 import MSAModelF from '../model.ts'
+import { letterColors } from '../scales.ts'
 import {
   fileLocations,
   resolveTheme,
@@ -57,8 +58,9 @@ export interface MSAViewerProps {
   /** a URL the viewer fetches the GFF from; `gffFilehandle` wins */
   gffUrl?: string
   /**
-   * a scheme name from the built-in table, or `{map}`, a color per residue
-   * letter that leaves every other letter uncolored
+   * a scheme name from the built-in table, or `{domain, range}`, a color per
+   * residue letter that leaves every other letter uncolored. The earlier
+   * `{map}` still reads
    */
   colorScheme?: ColorScheme
   height?: number
@@ -103,15 +105,16 @@ export interface MSAViewerProps {
   /** extra fields per row name, such as a lineage or a host (see docs/layers.md) */
   rowData?: RowDataInput
   /**
-   * what the viewer's marks read from a table: `{channel, field, scale?}`,
-   * where `channel` is `tipLabel`, `rowTint` or `branch` over `rowData`, or
-   * `featureFill` or `featureLabel` over the annotations (see docs/layers.md)
+   * what the viewer's marks read from a table:
+   * `{channel, field, range?, domain?, title?}`, where `channel` is
+   * `tipLabel`, `rowTint` or `branch` over `rowData`, or `featureFill` or
+   * `featureLabel` over the annotations (see docs/layers.md)
    */
   encodings?: Encoding[]
   /**
    * panels between the tree and the alignment, one cell per row:
-   * `{kind: 'strip', field, scale?, width?, header?}` colors each row by a
-   * `rowData` field (see docs/layers.md)
+   * `{kind: 'strip', field, range?, domain?, title?, width?, header?}` colors
+   * each row by a `rowData` field (see docs/layers.md)
    */
   rowPanels?: RowPanelSpec[]
   /** draw the phylogenetic tree (default true); false leaves a labels-only gutter */
@@ -357,7 +360,7 @@ const syncedProps = [
       if (typeof scheme === 'string') {
         m.setColorSchemeName(scheme)
       } else if (scheme) {
-        m.setCustomColorScheme(scheme.map)
+        m.setCustomColorScheme(letterColors(scheme))
       }
     },
   ),

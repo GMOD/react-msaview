@@ -68,7 +68,8 @@ test('a value the map leaves out draws grey, not off the accession palette', () 
     {
       channel: 'featureFill',
       field: 'group',
-      scale: { map: { enzyme: '#e41a1c' } },
+      domain: ['enzyme'],
+      range: ['#e41a1c'],
     },
   ])
 
@@ -81,7 +82,8 @@ test('the domain legend lists the values of the field featureFill reads', () => 
     {
       channel: 'featureFill',
       field: 'group',
-      scale: { map: { enzyme: '#e41a1c', binder: '#377eb8' } },
+      domain: ['enzyme', 'binder'],
+      range: ['#e41a1c', '#377eb8'],
     },
   ])
 

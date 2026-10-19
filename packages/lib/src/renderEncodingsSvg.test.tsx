@@ -71,7 +71,8 @@ test('a rowTint encoding washes the row in the tree and the alignment', async ()
     {
       channel: 'rowTint',
       field: 'clade',
-      scale: { map: { bird: '#0000ff' } },
+      domain: ['bird'],
+      range: ['#0000ff'],
     },
   ])
   const { rowHeight, effectiveTreeAreaWidth, totalWidth } = model
@@ -100,7 +101,8 @@ test('a branch encoding strokes the clade edge in the scale color', async () => 
     {
       channel: 'branch',
       field: 'clade',
-      scale: { map: { mammal: '#ff0000' } },
+      domain: ['mammal'],
+      range: ['#ff0000'],
     },
   ])
 

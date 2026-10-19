@@ -1,5 +1,7 @@
 import { createJBrowseTheme } from '@jbrowse/core/ui/theme'
 
+import { letterColors } from './scales.ts'
+
 import type { MSAViewerProps } from './components/MSAViewer.tsx'
 import type { ColorScheme, Highlight } from './types.ts'
 
@@ -7,7 +9,7 @@ export function colorSchemeSnapshot(scheme: ColorScheme | undefined) {
   return typeof scheme === 'string'
     ? { colorSchemeName: scheme }
     : scheme
-      ? { customColorScheme: scheme.map }
+      ? { customColorScheme: letterColors(scheme) }
       : {}
 }
 

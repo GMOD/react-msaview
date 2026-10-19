@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
+import { getSnapshot } from '@jbrowse/mobx-state-tree'
 import { autorun } from 'mobx'
 import { expect, test } from 'vitest'
 
 import MSAModelF from './model.ts'
 
-import type { RowPanelSpec } from './types.ts'
+import type { ResolvedStripPanel, RowPanelSpec } from './types.ts'
 
 const msa = `>duck
 MKAA
@@ -33,7 +34,7 @@ function makeModel(rowPanels: RowPanelSpec[], width = 800) {
 
 test('a strip colors each row by its field', () => {
   const model = makeModel([
-    { kind: 'strip', field: 'HA', scale: { map: { H5: '#e41a1c' } } },
+    { kind: 'strip', field: 'HA', domain: ['H5'], range: ['#e41a1c'] },
   ])
   const [panel] = model.resolvedRowPanels
   expect(panel!.header).toBe('HA')
@@ -82,24 +83,104 @@ test('a strip and an encoding over one field share one legend', () => {
   expect(model.legends[0]!.entries.map(e => e.id)).toEqual(['H5', 'H7'])
 })
 
-test('two strips over one field list it once, and another field follows', () => {
+test('two strips declaring one scale over one field list it once', () => {
   const model = makeModel([
-    { kind: 'strip', field: 'HA' },
-    { kind: 'strip', field: 'HA', scale: { palette: 'set1' } },
+    { kind: 'strip', field: 'HA', range: 'set1' },
+    { kind: 'strip', field: 'HA', range: 'set1' },
     { kind: 'strip', field: 'NA' },
   ])
   expect(model.legends.map(l => l.title)).toEqual(['HA', 'NA'])
 })
 
-test('strips naming one legend list their values under it once', () => {
-  const colors = { map: { H5: '#e41a1c', H7: '#377eb8', N1: '#4daf4a' } }
+test('two scales over one field list two legends', () => {
   const model = makeModel([
-    { kind: 'strip', field: 'HA', scale: colors, legend: 'lineage' },
-    { kind: 'strip', field: 'NA', scale: colors, legend: 'lineage' },
+    { kind: 'strip', field: 'HA' },
+    { kind: 'strip', field: 'HA', range: 'set1' },
+  ])
+  expect(model.legends.map(l => l.title)).toEqual(['HA', 'HA'])
+  expect(new Set(model.legends.map(l => l.id)).size).toBe(2)
+})
+
+test('strips naming one title list their values under it once', () => {
+  const colors = {
+    domain: ['H5', 'H7', 'N1'],
+    range: ['#e41a1c', '#377eb8', '#4daf4a'],
+    title: 'lineage',
+  }
+  const model = makeModel([
+    { kind: 'strip', field: 'HA', ...colors },
+    { kind: 'strip', field: 'NA', ...colors },
   ])
   expect(model.legends.map(l => l.title)).toEqual(['lineage'])
   expect(model.legends[0]!.entries.map(e => e.id)).toEqual(['H5', 'H7', 'N1'])
   expect(model.resolvedRowPanels.map(p => p.header)).toEqual(['HA', 'NA'])
+})
+
+test('two strips over one palette and title color a shared value alike', () => {
+  const model = MSAModelF().create({
+    id: 'shared-value',
+    type: 'MsaView',
+    msaFormat: 'fasta',
+    data: {
+      msa,
+      treeMetadata: JSON.stringify({
+        duck: { PB2: 'am2.2', PB1: 'am4' },
+        chicken: { PB2: 'am4', PB1: 'eu1' },
+      }),
+    },
+    rowPanels: [
+      { kind: 'strip', field: 'PB2', range: 'set1', title: 'segment lineage' },
+      { kind: 'strip', field: 'PB1', range: 'set1', title: 'segment lineage' },
+    ],
+  })
+  const [pb2, pb1] = model.resolvedRowPanels as ResolvedStripPanel[]
+  const am4 = pb2!.colors.get('chicken')
+  expect(pb1!.colors.get('duck')).toBe(am4)
+  const [legend] = model.legends
+  expect(model.legends).toHaveLength(1)
+  expect(legend!.entries).toEqual([
+    { id: 'am2.2', label: 'am2.2', color: pb2!.colors.get('duck') },
+    { id: 'am4', label: 'am4', color: am4 },
+    { id: 'eu1', label: 'eu1', color: pb1!.colors.get('chicken') },
+  ])
+})
+
+test('a snapshot in the earlier spelling reads as the color object', () => {
+  const model = MSAModelF().create({
+    id: 'legacy',
+    type: 'MsaView',
+    msaFormat: 'fasta',
+    data: { msa, treeMetadata: JSON.stringify(rowData) },
+    rowPanels: [
+      {
+        kind: 'strip',
+        field: 'HA',
+        scale: { map: { H7: '#377eb8' } },
+        legend: 'lineage',
+      },
+      {
+        kind: 'features',
+        x: 'column',
+        encoding: { color: { field: 'Name', scale: { palette: 'set1' } } },
+      },
+    ],
+  })
+  expect(getSnapshot(model).rowPanels).toEqual([
+    {
+      kind: 'strip',
+      field: 'HA',
+      domain: ['H7'],
+      range: ['#377eb8'],
+      title: 'lineage',
+    },
+    {
+      kind: 'features',
+      x: 'column',
+      encoding: { color: { field: 'Name', range: 'set1' } },
+    },
+  ])
+  expect(model.legends[0]!.title).toBe('lineage')
+  expect(model.legends[0]!.entries.map(e => e.id)).toEqual(['H7'])
 })
 
 test('setRowPanels replaces the layer', () => {

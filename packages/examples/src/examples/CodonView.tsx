@@ -76,7 +76,7 @@ function codonTracks(
   }
   const bar = {
     kind: 'bar' as const,
-    max: rows.length - 1,
+    scales: { y: { domainMax: rows.length - 1 } },
     height: 30,
     row: reference,
   }
@@ -87,7 +87,7 @@ function codonTracks(
         name: 'Codon',
         kind: 'text',
         data: numbers.join(''),
-        colors: {},
+        encoding: { color: { domain: [], range: [] } },
         row: reference,
       },
     ],
@@ -97,7 +97,7 @@ function codonTracks(
         name: `${reference} protein`,
         kind: 'text',
         data: translation.join(''),
-        colors: { '*': changeColors.stop },
+        encoding: { color: { domain: ['*'], range: [changeColors.stop] } },
         row: reference,
       },
     ],
@@ -206,7 +206,8 @@ export default function CodonView() {
           {
             channel: 'featureFill',
             field: 'change',
-            scale: { map: changeColors },
+            domain: Object.keys(changeColors),
+            range: Object.values(changeColors),
           },
         ]}
       />

@@ -29,7 +29,8 @@ const panels: RowPanelSpec[] = [
   {
     kind: 'strip',
     field: 'HA',
-    scale: { map: { H5: '#e41a1c', H7: '#377eb8' } },
+    domain: ['H5', 'H7'],
+    range: ['#e41a1c', '#377eb8'],
     width: 12,
   },
   { kind: 'strip', field: 'NA', header: 'NA segment', width: 12 },

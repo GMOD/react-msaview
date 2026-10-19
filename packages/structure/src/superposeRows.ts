@@ -202,7 +202,7 @@ export function distanceTrack(
     kind: 'bar',
     row: result.referenceRow,
     values: result.distanceValues,
-    max,
+    scales: { y: { domainMax: max } },
     color: '#d55e00',
     height: 60,
   }

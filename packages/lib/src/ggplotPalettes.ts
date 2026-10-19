@@ -72,10 +72,22 @@ export const namedPalettes: Record<string, readonly string[]> = {
   ],
 }
 
+// the spellings jbrowse-components' `paletteFromSpec` takes for two of them
+const aliases: Record<string, string> = {
+  okabeIto: 'okabeito',
+  tableau10: 'tableau',
+}
+
 /**
  * The colors a palette name asks for. `ggplot`, an unknown name, and no name at
  * all give undefined, which `createPaletteMap` answers with the hue ramp.
  */
 export function paletteNamed(name?: string) {
-  return name === undefined ? undefined : namedPalettes[name]
+  return name === undefined
+    ? undefined
+    : Object.hasOwn(namedPalettes, name)
+      ? namedPalettes[name]
+      : Object.hasOwn(aliases, name)
+        ? namedPalettes[aliases[name]!]
+        : undefined
 }

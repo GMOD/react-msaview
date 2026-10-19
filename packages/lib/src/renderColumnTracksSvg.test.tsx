@@ -82,7 +82,12 @@ test('a text track from data exports its letters and its own colors', async () =
       name: 'Codon frame',
       kind: 'text',
       data: '1231',
-      colors: { 1: '#aaaaaa', 2: '#bbbbbb', 3: '#cccccc' },
+      encoding: {
+        color: {
+          domain: ['1', '2', '3'],
+          range: ['#aaaaaa', '#bbbbbb', '#cccccc'],
+        },
+      },
     },
   ])
   const svg = await exportSvg(model)

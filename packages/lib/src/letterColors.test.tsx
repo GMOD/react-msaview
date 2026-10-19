@@ -88,7 +88,9 @@ test('a text track letter contrasts against its own color, not the alignment sch
       name: 'Codon frame',
       kind: 'text',
       data: '1122',
-      colors: { 1: '#000080', 2: '#ffff00' },
+      encoding: {
+        color: { domain: ['1', '2'], range: ['#000080', '#ffff00'] },
+      },
     },
   ]
   const model = createTestModel({

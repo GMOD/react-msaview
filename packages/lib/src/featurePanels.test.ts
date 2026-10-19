@@ -125,7 +125,7 @@ test('the panel colors its spans by its own field, and lists that scale', () => 
       kind: 'features',
       x: 'position',
       encoding: {
-        color: { field: 'class', scale: { map: { core: '#e41a1c' } } },
+        color: { field: 'class', domain: ['core'], range: ['#e41a1c'] },
         label: 'Name',
       },
     },
@@ -174,7 +174,7 @@ test('the panel falls back to the top-level encoding, sharing its legend', () =>
     msa,
   })
   model.setEncodings([
-    { channel: 'featureFill', field: 'class', scale: { palette: 'set1' } },
+    { channel: 'featureFill', field: 'class', range: 'set1' },
   ])
   const resolved = model.resolvedRowPanels[0] as ResolvedFeaturePanel
   expect(resolved.field).toBe('class')

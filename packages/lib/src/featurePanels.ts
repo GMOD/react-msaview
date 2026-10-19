@@ -1,12 +1,8 @@
-import { notEmpty } from '@jbrowse/core/util'
-
 import { packDomainLanes } from './components/msa/packDomainLanes.ts'
 import { defaultFeaturePanelWidth } from './constants.ts'
 import { featureField } from './featureFields.ts'
-import { resolveScale } from './scales.ts'
 import { outlineColor } from './util.ts'
 
-import type { ScaleSpec } from './scales.ts'
 import type {
   Annotation,
   DomainBand,
@@ -16,7 +12,7 @@ import type {
 } from './types.ts'
 
 // the fill of a span under a scale that gives its value no color, such as a
-// gene a `map` over gene names leaves out
+// gene a `domain` of gene names leaves out
 const UNSCALED_FEATURE = '#d9d9d9'
 
 // the fraction of a span a following one may cover before it takes a lane of
@@ -246,24 +242,4 @@ export function featurePanelSpans({
       })),
     ]),
   )
-}
-
-// a scale over the values a field takes across every feature loaded, so hiding
-// a type in the filter dialog leaves the rest in their colors, and a legend of
-// the values the features drawn carry
-export function resolveFeatureScale(
-  field: string,
-  scale: ScaleSpec | undefined,
-  annotations: Annotation[],
-  drawn: Annotation[],
-) {
-  const valuesOf = (list: Annotation[]) =>
-    list.map(a => featureField(a, field)).filter(notEmpty)
-  const resolved = resolveScale(scale, valuesOf(annotations))
-  const shown = new Set(valuesOf(drawn))
-  return {
-    field,
-    ...resolved,
-    legend: resolved.legend.filter(entry => shown.has(entry.id)),
-  }
 }

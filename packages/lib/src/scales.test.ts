@@ -2,9 +2,21 @@ import { expect, test } from 'vitest'
 
 import { createPaletteMap } from './createPaletteMap.ts'
 import { namedPalettes } from './ggplotPalettes.ts'
-import { resolveScale } from './scales.ts'
+import { compareGroupKeys } from './groupKeys.ts'
+import {
+  declarationKey,
+  letterColors,
+  readColor,
+  readColumnTrack,
+  resolveScale,
+  resolveShared,
+} from './scales.ts'
 
-test('a spec with no palette takes the ggplot colors of its size', () => {
+import type { ColorChannel } from './scales.ts'
+
+const set1 = namedPalettes.set1!
+
+test('a spec with no range takes the ggplot colors of its size', () => {
   const { colorOf, legend, kind } = resolveScale(undefined, ['a', 'b', 'a'])
   expect(kind).toBe('categorical')
   expect(colorOf('a')).toBe('#F8766D')
@@ -15,35 +27,89 @@ test('a spec with no palette takes the ggplot colors of its size', () => {
   ])
 })
 
-test('a named palette colors the domain in its own order', () => {
-  const { colorOf } = resolveScale({ palette: 'set1' }, ['clade B', 'clade A'])
-  expect(colorOf('clade A')).toBe(namedPalettes.set1![0])
-  expect(colorOf('clade B')).toBe(namedPalettes.set1![1])
+test('a named range colors the domain in its own order', () => {
+  const { colorOf } = resolveScale({ range: 'set1' }, ['clade B', 'clade A'])
+  expect(colorOf('clade A')).toBe(set1[0])
+  expect(colorOf('clade B')).toBe(set1[1])
+})
+
+test('okabeIto and tableau10 read as the palettes they alias', () => {
+  expect(resolveScale({ range: 'okabeIto' }, ['a']).colorOf('a')).toBe(
+    namedPalettes.okabeito![0],
+  )
+  expect(resolveScale({ range: 'tableau10' }, ['a']).colorOf('a')).toBe(
+    namedPalettes.tableau![0],
+  )
 })
 
 test('an unknown palette name falls back to the ggplot colors', () => {
-  const { colorOf } = resolveScale({ palette: 'brewer-nine' }, ['a', 'b'])
+  const { colorOf } = resolveScale({ range: 'brewer-nine' }, ['a', 'b'])
   expect(colorOf('a')).toBe('#F8766D')
 })
 
-test('a domain past the palette gets a hue of its own per value', () => {
+test('a domain past a named palette gets a hue of its own per value', () => {
   const values = Array.from({ length: 12 }, (_, i) => `v${i}`)
-  const { colorOf, legend } = resolveScale({ palette: 'dark2' }, values)
-  const colors = values.map(colorOf)
-  expect(new Set(colors).size).toBe(12)
+  const { colorOf, legend } = resolveScale({ range: 'dark2' }, values)
+  expect(new Set(values.map(colorOf)).size).toBe(12)
   expect(legend).toHaveLength(12)
 })
 
-test('a map colors the values it names and no others', () => {
+test('domain and range color the values they name and no others', () => {
   const { colorOf, legend } = resolveScale(
-    { map: { '19B': '#e41a1c', '20A': '#377eb8' } },
+    { domain: ['19B', '20A'], range: ['#e41a1c', '#377eb8'] },
     ['19B', '21K'],
   )
   expect(colorOf('19B')).toBe('#e41a1c')
   expect(colorOf('21K')).toBeUndefined()
-  // 20A is in the map and not in the data, so no legend entry stands for rows
-  // that are not there
+  // 20A is listed and absent from the data, so no legend entry stands for
+  // rows that are not there
   expect(legend).toEqual([{ id: '19B', label: '19B', color: '#e41a1c' }])
+})
+
+test('a range list colors as many values as it holds', () => {
+  const { colorOf } = resolveScale({ range: ['#111111', '#222222'] }, [
+    'c',
+    'a',
+    'b',
+  ])
+  expect(['a', 'b', 'c'].map(colorOf)).toEqual([
+    '#111111',
+    '#222222',
+    undefined,
+  ])
+})
+
+test('a comma-separated range reads as a list of colors', () => {
+  const { colorOf } = resolveScale({ range: '#111111, rgb(0,0,0)' }, ['a', 'b'])
+  expect(colorOf('a')).toBe('#111111')
+  expect(colorOf('b')).toBe('rgb(0,0,0)')
+})
+
+test('domain lists values first in its order, and spends range from there', () => {
+  const { colorOf, legend } = resolveScale(
+    { domain: ['zeta', 'alpha'], range: 'set1' },
+    ['alpha', 'beta', 'zeta'],
+  )
+  expect(legend.map(e => e.id)).toEqual(['zeta', 'alpha', 'beta'])
+  expect(colorOf('zeta')).toBe(set1[0])
+  expect(colorOf('beta')).toBe(set1[2])
+})
+
+test('the domain sorts naturally, so 2 comes before 10', () => {
+  const values = ['chr10', '10', 'H5N8', '2.3.4.4b', 'chr2', '2', 'H5N1']
+  expect(resolveScale(undefined, values).legend.map(e => e.id)).toEqual([
+    '2',
+    '10',
+    '2.3.4.4b',
+    'H5N1',
+    'H5N8',
+    'chr2',
+    'chr10',
+  ])
+  expect(['2.3.4.4b', '2.3.2.1a'].toSorted(compareGroupKeys)).toEqual([
+    '2.3.2.1a',
+    '2.3.4.4b',
+  ])
 })
 
 test('the domain sorts, so row order does not move a color', () => {
@@ -53,9 +119,96 @@ test('the domain sorts, so row order does not move a color', () => {
 })
 
 test('an empty field gives an empty legend and no colors', () => {
-  const { colorOf, legend } = resolveScale({ palette: 'set1' }, [])
+  const { colorOf, legend } = resolveScale({ range: 'set1' }, [])
   expect(legend).toEqual([])
   expect(colorOf('anything')).toBeUndefined()
+  expect(colorOf('constructor')).toBeUndefined()
+})
+
+test('resolving two fields apart colors a shared value two ways', () => {
+  const pb2 = resolveScale({ range: 'set1' }, ['am2.2', 'am4'])
+  const pb1 = resolveScale({ range: 'set1' }, ['am4', 'eu1'])
+  expect(pb2.colorOf('am4')).not.toBe(pb1.colorOf('am4'))
+})
+
+test('one declaration resolves once over both fields', () => {
+  const spec = { range: 'set1', title: 'segment lineage' }
+  const uses = [
+    { spec, field: 'PB2', table: 'rows' as const, values: ['am2.2', 'am4'] },
+    { spec, field: 'PB1', table: 'rows' as const, values: ['am4', 'eu1'] },
+  ]
+  const scales = resolveShared(uses)
+  expect(scales.size).toBe(1)
+  const [scale] = scales.values()
+  expect(scale!.title).toBe('segment lineage')
+  expect(scale!.legend.map(e => [e.id, e.color])).toEqual([
+    ['am2.2', set1[0]],
+    ['am4', set1[1]],
+    ['eu1', set1[2]],
+  ])
+})
+
+test('a title stands in for the field in the declaration', () => {
+  const key = (c: ColorChannel) =>
+    declarationKey({ spec: c, field: c.field, table: 'rows' })
+  expect(key({ field: 'PB2', range: 'set1' })).not.toBe(
+    key({ field: 'PB1', range: 'set1' }),
+  )
+  expect(key({ field: 'PB2', range: 'set1', title: 't' })).toBe(
+    key({ field: 'PB1', range: 'set1', title: 't', scale: 'categorical' }),
+  )
+})
+
+test('palette reads as range, map as domain and range, legend as title', () => {
+  expect(
+    readColor<ColorChannel>({ field: 'f', scale: { palette: 'set1' } }),
+  ).toEqual({
+    field: 'f',
+    range: 'set1',
+  })
+  expect(
+    readColor<ColorChannel>({
+      field: 'f',
+      scale: { map: { a: '#111111', b: '#222222' } },
+    }),
+  ).toEqual({ field: 'f', domain: ['a', 'b'], range: ['#111111', '#222222'] })
+  expect(readColor<ColorChannel>({ field: 'f', legend: 'lineage' })).toEqual({
+    field: 'f',
+    title: 'lineage',
+  })
+  expect(readColor<ColorChannel>({ field: 'f', scale: {} })).toEqual({
+    field: 'f',
+  })
+  const current = { field: 'f', scale: 'categorical' as const, range: 'set1' }
+  expect(readColor(current)).toBe(current)
+})
+
+test('a column track reads colors as encoding.color and max as domainMax', () => {
+  expect(
+    readColumnTrack({
+      id: 't',
+      name: 'T',
+      kind: 'text',
+      data: '12',
+      colors: { 1: '#111111' },
+      max: 2,
+    }),
+  ).toEqual({
+    id: 't',
+    name: 'T',
+    kind: 'text',
+    data: '12',
+    encoding: { color: { domain: ['1'], range: ['#111111'] } },
+    scales: { y: { domainMax: 2 } },
+  })
+})
+
+test('a scheme object reads in either spelling', () => {
+  const table = { K: '#1f77b4', R: '#1f77b4' }
+  expect(letterColors({ map: table })).toEqual(table)
+  expect(
+    letterColors({ domain: ['K', 'R'], range: ['#1f77b4', '#1f77b4'] }),
+  ).toEqual(table)
 })
 
 test('createPaletteMap without a palette keeps the ggplot ramp', () => {

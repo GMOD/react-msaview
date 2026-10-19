@@ -26,7 +26,13 @@ function makeModel(columnTracks: ColumnTrackSpec[]) {
 
 test('column-indexed values normalize by max and clamp to 0..1', () => {
   const model = makeModel([
-    { id: 't', name: 'T', kind: 'bar', values: [1, 2, 4, -1], max: 2 },
+    {
+      id: 't',
+      name: 'T',
+      kind: 'bar',
+      values: [1, 2, 4, -1],
+      scales: { y: { domainMax: 2 } },
+    },
   ])
   expect(model.columnTrackContent.get('t')?.values).toEqual([0.5, 1, 1, 0])
 })
@@ -51,7 +57,13 @@ test('a row-indexed text track spreads its letters the same way', () => {
 
 test('hiding gappy columns drops them from the values and the text', () => {
   const model = makeModel([
-    { id: 't', name: 'T', kind: 'bar', values: [1, 2, 3, 4, 5, 6, 7], max: 7 },
+    {
+      id: 't',
+      name: 'T',
+      kind: 'bar',
+      values: [1, 2, 3, 4, 5, 6, 7],
+      scales: { y: { domainMax: 7 } },
+    },
     { id: 'f', name: 'F', kind: 'text', data: 'abcdefg' },
   ])
   model.setHideGaps(true)
@@ -64,7 +76,13 @@ test('hiding gappy columns drops them from the values and the text', () => {
 test('data tracks join the track list with their own color and height', () => {
   const model = makeModel([
     { id: 't', name: 'dN/dS', kind: 'bar', values: [1], color: 'red' },
-    { id: 'f', name: 'Frame', kind: 'text', data: '1', colors: { 1: 'blue' } },
+    {
+      id: 'f',
+      name: 'Frame',
+      kind: 'text',
+      data: '1',
+      encoding: { color: { domain: ['1'], range: ['blue'] } },
+    },
   ])
   const ids = model.tracks.map(t => t.model.id)
   expect(ids).toContain('t')
