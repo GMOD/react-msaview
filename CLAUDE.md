@@ -111,9 +111,12 @@ the numbers behind it.
 
 ## Architecture decisions
 
-- `packages/lib/src/model.ts` is a large MST model (~2000 lines). Do not attempt
-  to modularize or split it into smaller files. Inline changes within the file
-  are fine.
+- `packages/lib/src/model.ts` is one large MST model. Its properties, views and
+  actions stay in that one file, and an edit to them is inline. A function that
+  never reads `self` goes beside it instead: `treeDisplay.ts` (tree transforms,
+  clade resolution), `featurePanels.ts` (row-panel lanes, colors, spans) and
+  `filehandleLoader.ts` (the latest-wins fetch loop, `createAbortRotation`,
+  after jbrowse-components').
 - The viewer uses MobX-state-tree for state management. Components use
   `observer` from mobx-react to reactively re-render.
 - Canvas rendering uses a tiled block system (`calculateBlocks.ts`) to avoid
