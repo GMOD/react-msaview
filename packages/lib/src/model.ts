@@ -134,7 +134,6 @@ import { takeZoomSnapshot, zoomSnapshotCovers } from './zoomSnapshot.ts'
 
 import type { ColumnStats } from './columnStats.ts'
 import type { ScrollZoomAxis } from './constants.ts'
-import type { FeaturePanelScale, StripPanelScale } from './featurePanels.ts'
 import type { HierarchyNode } from './hierarchy.ts'
 import type { ExportSvgOptions } from './renderToSvg.tsx'
 import type {} from './scales.ts'
@@ -160,6 +159,8 @@ import type {
   ResidueSegment,
   ResolvedClade,
   ResolvedEncoding,
+  ResolvedFeaturePanel,
+  ResolvedStripPanel,
   ResolvedHighlight,
   ResolvedSelection,
   TreeRoot,
@@ -377,6 +378,12 @@ function sharedValue(values: (string | undefined)[]) {
     ? first
     : undefined
 }
+
+type StripPanelScale = Omit<ResolvedStripPanel, 'id' | 'width' | 'offsetX'>
+type FeaturePanelScale = Omit<
+  ResolvedFeaturePanel,
+  'id' | 'width' | 'offsetX' | 'spans'
+>
 
 /**
  * #stateModel MsaView

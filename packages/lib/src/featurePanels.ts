@@ -12,8 +12,6 @@ import type {
   DomainBand,
   RowFeaturesSpec,
   RowPanelSpan,
-  ResolvedFeaturePanel,
-  ResolvedStripPanel,
   RowPanelSpec,
 } from './types.ts'
 
@@ -72,15 +70,6 @@ export function colorByRow(
   }
   return colors
 }
-
-export type StripPanelScale = Omit<
-  ResolvedStripPanel,
-  'id' | 'width' | 'offsetX'
->
-export type FeaturePanelScale = Omit<
-  ResolvedFeaturePanel,
-  'id' | 'width' | 'offsetX' | 'spans'
->
 
 // the fill and outline of every feature in a list: its own GFF `color=` first,
 // then the scale an encoding resolves over one of its fields, then the
