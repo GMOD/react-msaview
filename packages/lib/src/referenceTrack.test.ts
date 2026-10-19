@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { expect, test } from 'vitest'
 
+import { expandSpec } from './expandSpec.ts'
 import { createTestModel } from './svgTestUtil.ts'
 
 const msa = `>seq1
@@ -41,4 +42,15 @@ test('the reference track hides with the gap columns, and toggles off', () => {
 
   model.toggleTrack('reference-row')
   expect(trackIds(model)).not.toContain('reference-row')
+})
+
+test("the shorthand's query pins its row too", () => {
+  const model = createTestModel(
+    expandSpec({ id: 'reference-query', data: { msa }, query: 'seq2' }),
+    800,
+  )
+  expect(model.turnedOnTracks.at(-1)!.model).toMatchObject({
+    id: 'reference-row',
+    name: 'seq2',
+  })
 })

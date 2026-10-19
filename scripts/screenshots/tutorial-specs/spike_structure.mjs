@@ -137,6 +137,8 @@ export const specs = [
     viewportWidth: 1600,
     url: fileSnap({
       ...closeUp(col(insert.start) - 22, 22),
+      // a row taller than the other close-ups, for the pinned reference row
+      height: 522,
       relativeTo: ROW,
       highlights: layers.highlights,
     }),

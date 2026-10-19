@@ -153,8 +153,11 @@ const WIDE = {
 // carries some context, and stops short of the right edge of the alignment,
 // where the columns run out and the frame fills with white.
 const VISIBLE_COLUMNS = 58
+// The pinned reference row adds a track, so a close-up grows by two rows to keep
+// the callouts under the alignment in frame.
 const closeUp = (position, colWidth = 22) => ({
   ...WIDE,
+  height: WIDE.height + 2 * WIDE.rowHeight,
   colWidth,
   scrollX:
     -Math.min(
@@ -240,7 +243,7 @@ export const specs = [
     name: 'tem_alleles-esbl',
     // Ambler 238 and 240 at residue resolution, every row read against TEM-1
     viewportWidth: 1600,
-    viewportHeight: 1060,
+    viewportHeight: 1100,
     url: fileSnap({
       ...closeUp(238),
       ...TABLE,
@@ -276,7 +279,7 @@ export const specs = [
     // the control position at the same resolution: four alleles carry M, and
     // they come from three different phenotypes
     viewportWidth: 1600,
-    viewportHeight: 1060,
+    viewportHeight: 1100,
     url: fileSnap({
       ...closeUp(CONTROL),
       ...TABLE,

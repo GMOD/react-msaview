@@ -531,6 +531,14 @@ export const linkSpecs = [
     }),
   },
   {
+    name: 'layers-relative-to',
+    // the relativeTo section's inline snapshot
+    url: fileSnap({
+      data: { msa: '>human\nMKAANSE\n>mouse\nMKA-NSE\n>chicken\nMKSANSE' },
+      relativeTo: 'human',
+    }),
+  },
+  {
     name: 'layers-rowdata',
     // the rowData section's inline snapshot: two rows and the JSON string
     // data.treeMetadata holds
