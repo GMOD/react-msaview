@@ -128,7 +128,11 @@ drawn as a text track. See docs/layers.md
 
 ```js
 columnTracks: stripDefault(
-    types.array(types.frozen<ColumnTrackSpec>()),
+    types.array(
+      types.snapshotProcessor(types.frozen<ColumnTrackSpec>(), {
+        preProcessor: readColumnTrack,
+      }),
+    ),
     [],
   )
 ```
@@ -181,11 +185,20 @@ embeddedMode: stripDefault(types.boolean, false)
 
 #### property: encodings
 
-what the viewer's own marks read from `rowData`: `{channel, field, scale?}` per
-channel, where `channel` is `tipLabel` or `rowTint`. See docs/layers.md
+what the viewer's own marks read from `rowData` or the feature table:
+`{channel, field, range?, domain?, title?}` per channel. The earlier
+`scale: {palette}` and `scale: {map}` read as `range` and `domain`. See
+docs/layers.md
 
 ```js
-encodings: stripDefault(types.array(types.frozen<Encoding>()), [])
+encodings: stripDefault(
+    types.array(
+      types.snapshotProcessor(types.frozen<Encoding>(), {
+        preProcessor: readEncoding,
+      }),
+    ),
+    [],
+  )
 ```
 
 #### property: features
@@ -308,13 +321,20 @@ rowHeight: stripDefault(types.number, 16)
 #### property: rowPanels
 
 panels drawn between the tree and the alignment:
-`{kind: "strip", field, scale?, width?, header?}` colors one cell per row from a
-`rowData` field, and
+`{kind: "strip", field, range?, domain?, title?, width?, header?}` colors one
+cell per row from a `rowData` field, and
 `{kind: "features", x, encoding?, transform?, width?, header?}` draws the spans
 the GFF carries. See docs/layers.md
 
 ```js
-rowPanels: stripDefault(types.array(types.frozen<RowPanelSpec>()), [])
+rowPanels: stripDefault(
+    types.array(
+      types.snapshotProcessor(types.frozen<RowPanelSpec>(), {
+        preProcessor: readRowPanel,
+      }),
+    ),
+    [],
+  )
 ```
 
 #### property: scrollX
@@ -1161,11 +1181,10 @@ leaves: HierarchyNode < NodeWithIds > []
 
 the categorical color keys drawn for this view, shared by the on-screen legend
 overlay and the SVG export's reserved column. The domain overlay produces the
-first, listing the `featureFill` scale where an encoding names one. Every field
-a row-table encoding or a row panel reads produces one more, so two channels
-over one field, or two strips over it, list that field once. A strip's `legend`
-names the title it lists under, so strips over eight fields with one set of
-colors list one legend between them
+first, listing the `featureFill` scale where an encoding names one. Every scale
+a row-table encoding or a row panel reads produces one more, keyed by its
+declaration, so two channels or two strips declaring one scale list it once, and
+strips over eight fields naming one `title` list one legend between them
 
 ```js
 legends: Legend[]
@@ -1373,6 +1392,19 @@ per change of those inputs, never per block per frame.
 
 ```js
 resolvedRowPanels: ResolvedRowPanel[]
+```
+
+#### getter: resolvedScales
+
+every color object the encodings and the row panels declare, keyed by
+declaration (`declarationKey`) and resolved once over the union of the values
+its records' fields take, so a value two strips share takes one color in both. A
+feature field reads every feature loaded, so hiding a type in the filter dialog
+leaves the rest in their colors, and its legend lists the values of the drawn
+features.
+
+```js
+resolvedScales: Map<string, SharedScale>
 ```
 
 #### getter: resolvedSelection
@@ -1910,6 +1942,14 @@ tool wrote as an underscore, which `rowMap` does not
 rowSequence: (name: string) => string | undefined
 ```
 
+#### method: scaleOf
+
+the shared scale a record's color object resolves to
+
+```js
+scaleOf: (channel: ColorChannel, table: ScaleTable) => SharedScale
+```
+
 #### method: seqEndToGlobalCol
 
 the global column of a span's last residue, clamping a position past the end of
@@ -2251,7 +2291,7 @@ setClades: (clades: Clade[]) => void
 #### action: setColumnTracks
 
 ```js
-setColumnTracks: (tracks: ColumnTrackSpec[]) => void
+setColumnTracks: (tracks: (ColumnTrackSpec | LegacyColumnTrack)[]) => void
 ```
 
 #### action: setColWidth
@@ -2304,7 +2344,7 @@ setEmbeddedMode: (arg: boolean) => void
 replace what the viewer's marks read from the row table
 
 ```js
-setEncodings: (encodings: Encoding[]) => void
+setEncodings: (encodings: (Encoding | LegacyEncoding)[]) => void
 ```
 
 #### action: setError
@@ -2503,7 +2543,7 @@ setRowHeight: (n: number) => void
 replace the panels drawn between the tree and the alignment
 
 ```js
-setRowPanels: (panels: RowPanelSpec[]) => void
+setRowPanels: (panels: (RowPanelSpec | LegacyRowPanel)[]) => void
 ```
 
 #### action: setScrollX
