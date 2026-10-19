@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { expect, test } from 'vitest'
+import { destroy } from '@jbrowse/mobx-state-tree'
+import { afterEach, expect, test } from 'vitest'
 
 import {
   createApp,
@@ -10,16 +11,32 @@ import {
   shareLink,
 } from './model'
 
+import type { AppModel } from './model'
+
 const msa = '>human\nMKAANSE\n>mouse\nMKA-NSE'
 
+// An app writes its link to the address bar a second after it opens, so one
+// left alive can write after jsdom has torn down `window`
+const opened: AppModel[] = []
+async function open(param: string | null) {
+  const app = await createApp(param)
+  opened.push(app)
+  return app
+}
+afterEach(() => {
+  for (const app of opened.splice(0)) {
+    destroy(app)
+  }
+})
+
 test('no ?data= opens the import form without an error', async () => {
-  const app = await createApp(null)
+  const app = await open(null)
   expect(app.msaview.error).toBeUndefined()
   expect(app.msaview.dataInitialized).toBe(false)
 })
 
 test('?data= takes the app snapshot', async () => {
-  const app = await createApp(
+  const app = await open(
     JSON.stringify({ msaview: { type: 'MsaView', data: { msa } } }),
   )
   expect(app.msaview.error).toBeUndefined()
@@ -27,7 +44,7 @@ test('?data= takes the app snapshot', async () => {
 })
 
 test('?data= takes a bare MsaView snapshot, as docs/layers.md writes it', async () => {
-  const app = await createApp(
+  const app = await open(
     JSON.stringify({
       type: 'MsaView',
       data: { msa },
@@ -40,7 +57,7 @@ test('?data= takes a bare MsaView snapshot, as docs/layers.md writes it', async 
 })
 
 test('?data= takes the shorthand expandSpec reads', async () => {
-  const app = await createApp(
+  const app = await open(
     JSON.stringify({
       type: 'MsaView',
       msa,
@@ -61,9 +78,7 @@ test('?data= takes the shorthand expandSpec reads', async () => {
 })
 
 test('a malformed shorthand opens on an error naming it', async () => {
-  const app = await createApp(
-    JSON.stringify({ type: 'MsaView', msa, region: 'x' }),
-  )
+  const app = await open(JSON.stringify({ type: 'MsaView', msa, region: 'x' }))
   expect(String(app.msaview.error)).toMatch(/region "x"/)
 })
 
@@ -76,7 +91,7 @@ test.each([
   ],
   ['a z. value that is not gzip', 'z.bm90IGd6aXA'],
 ])('?data= with %s opens on an error', async (_, param) => {
-  const app = await createApp(param)
+  const app = await open(param)
   expect(String(app.msaview.error)).toMatch(/link's data= parameter/)
 })
 
@@ -94,27 +109,25 @@ test('decodeParam passes plain JSON through', async () => {
 })
 
 test('?data= takes a gzipped snapshot', async () => {
-  const app = await createApp(
-    await encodeParam({ type: 'MsaView', data: { msa } }),
-  )
+  const app = await open(await encodeParam({ type: 'MsaView', data: { msa } }))
   expect(app.msaview.error).toBeUndefined()
   expect(app.msaview.rows.length).toBe(2)
 })
 
 test('shareLink round-trips the view through the gzipped #data=', async () => {
-  const app = await createApp(
+  const app = await open(
     JSON.stringify({ msaview: { type: 'MsaView', data: { msa } } }),
   )
   const link = await shareLink(app, href)
   const url = new URL(link.url!)
   expect(url.hash).toMatch(/^#data=z\./)
-  const reopened = await createApp(linkParam(url))
+  const reopened = await open(linkParam(url))
   expect(reopened.msaview.rows.length).toBe(2)
   expect(reopened.msaview.data.msa).toBe(msa)
 })
 
 test('shareLink moves an old ?data= link into the fragment', async () => {
-  const app = await createApp(
+  const app = await open(
     JSON.stringify({ msaview: { type: 'MsaView', data: { msa } } }),
   )
   const link = await shareLink(app, `${href}?data=old&other=1#stale`)
@@ -153,7 +166,7 @@ function randomProtein(length: number) {
 // random residues compress to about 0.7 link characters each, so two
 // documents each under the inline cap still make a link past maxLinkLength
 test('shareLink refuses a link past maxLinkLength', async () => {
-  const app = await createApp(
+  const app = await open(
     JSON.stringify({
       type: 'MsaView',
       data: {
@@ -171,7 +184,7 @@ test('shareLink refuses a link past maxLinkLength', async () => {
 })
 
 test('shareLink names a document the snapshot dropped', async () => {
-  const app = await createApp(
+  const app = await open(
     JSON.stringify({
       type: 'MsaView',
       data: { msa: `>a\n${randomProtein(maxLinkLength + 1000)}` },
