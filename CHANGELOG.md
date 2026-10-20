@@ -4,6 +4,12 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.7.0](https://github.com/GMOD/JBrowseMSA/compare/v9.6.0...v9.7.0) (2026-10-20)
+
+### Other Changes
+
+- Domains take mid-light fills, so their ends show against unfilled cells ([b233e63](https://github.com/GMOD/JBrowseMSA/commit/b233e63b2e7b37d3bfb4b4c7dcae5950538fc1af))
+
 ## [9.6.0](https://github.com/GMOD/JBrowseMSA/compare/v9.5.0...v9.6.0) (2026-10-20)
 
 ### Other Changes
