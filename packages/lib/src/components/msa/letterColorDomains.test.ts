@@ -9,6 +9,7 @@ import { domainUnderlineHeight } from '../../constants.ts'
 import stateModelFactory from '../../model.ts'
 import { contrastTextFn } from '../../util.ts'
 import { colorSchemeMenuItems } from '../header/colorSchemeMenuItems.ts'
+import { colorSettingsItems } from '../header/menuBarItems.ts'
 import { renderBoxFeatureCanvasBlock } from './renderBoxFeatureCanvasBlock.ts'
 import { renderMSABlock } from './renderMSABlock.ts'
 
@@ -216,6 +217,19 @@ test('picking a scheme while the domains fill the cells hands them back', () => 
     'clustalx_protein',
     'residue',
   ])
+})
+
+test('the settings check Domains or a scheme, never both', () => {
+  const model = makeModel()
+  const checked = () =>
+    colorSettingsItems(model)
+      .filter(item => 'checked' in item && item.checked)
+      .map(item => 'label' in item && item.label)
+  expect(checked()).toEqual(['Domains'])
+  model.setCellFill('residue')
+  expect(checked()).toEqual(['MAEditor'])
+  model.setCellFill('none')
+  expect(checked()).toEqual(['MAEditor', 'Color the letters, not the cells'])
 })
 
 test('sub-row boxes over residue colors sit under the letters', () => {

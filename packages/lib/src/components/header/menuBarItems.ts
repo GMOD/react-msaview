@@ -276,40 +276,22 @@ export function alignmentSettingsItems(model: MsaViewModel): MenuItem[] {
   ]
 }
 
-// who colors the cells comes first, since a scheme picked while the domains
-// fill them would otherwise change nothing on screen
+// the domains sit in the same radio group as the residue schemes, since only
+// one of them can fill the cells
 export function colorSettingsItems(model: MsaViewModel): MenuItem[] {
   const { cellFill, filteredAnnotations } = model
   return [
-    subMenu(
-      'Fill cells with',
-      [
-        radio('Residues', cellFill === 'residue', () => {
-          model.setCellFill('residue')
-        }),
-        ...when(filteredAnnotations.length > 0, [
-          radio('Domains', cellFill === 'domain', () => {
-            model.setShowDomains(true)
-            model.setCellFill('domain')
-          }),
-        ]),
-        {
-          ...radio('Nothing', cellFill === 'none', () => {
-            model.setCellFill('none')
-          }),
-          helpText: 'Color the letters instead',
-        },
-      ],
-      'segmented',
-    ),
-    {
-      type: 'subHeader',
-      label:
-        cellFill === 'domain'
-          ? 'Residue scheme: picking one takes the cells back from the domains'
-          : 'Residue scheme',
-    },
+    { type: 'subHeader', label: 'Color by' },
+    ...when(filteredAnnotations.length > 0, [
+      radio('Domains', cellFill === 'domain', () => {
+        model.setShowDomains(true)
+        model.setCellFill('domain')
+      }),
+    ]),
     ...colorSchemeMenuItems(model),
+    toggle('Color the letters, not the cells', cellFill === 'none', arg => {
+      model.setCellFill(arg ? 'none' : 'residue')
+    }),
   ]
 }
 
