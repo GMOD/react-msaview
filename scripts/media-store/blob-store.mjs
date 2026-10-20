@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto'
 export const storeBucket = 's3://jbrowse.org'
 export const storePrefix = 'msaview-figures'
 const publicBase = 'https://jbrowse.org'
-export const extRe = /\.(png|svg)$/i
+export const extRe = /\.(png|svg|webp)$/i
 
 // aws s3 cp otherwise guesses content-type from the local platform's mime
 // database, which differs by machine: a figure pushed from one laptop and
@@ -19,6 +19,7 @@ export const extRe = /\.(png|svg)$/i
 export const contentTypes = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
 }
 
 // A storeKey embeds the sha256, so a given key's bytes never change once

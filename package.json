@@ -17,6 +17,7 @@
     "check:data": "node scripts/check-data-refs.mjs",
     "check:guide-links": "node scripts/screenshots/genGuideLinks.mjs --check",
     "check:tutorials": "node scripts/check-tutorials.mjs",
+    "sync:ggmsaview": "node scripts/sync-ggmsaview.mjs",
     "media:status": "node scripts/media-store/media.mjs status",
     "media:pull": "node scripts/media-store/media.mjs pull",
     "media:push": "node scripts/media-store/media.mjs push",

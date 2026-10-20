@@ -73,12 +73,20 @@ function usageTabs() {
   }
 }
 
-// Wrap a standalone screenshot (a <p> containing only an <img>, or an <img>
-// wrapped in a single <a> when the figure links to a live demo) together with
-// the descriptive paragraph right after it into a <figure>, so screenshots read
-// as documentation figures rather than looking like a live demo embedded in the
-// page.
+// Wrap a standalone screenshot (a <p> containing only images, each a bare <img>
+// or an <img> in a single <a> when the figure links to a live demo) together
+// with the descriptive paragraph right after it into a <figure>, so screenshots
+// read as documentation figures rather than looking like a live demo embedded
+// in the page. A paragraph of several images, such as the R page's JBrowseMSA
+// and ggplot2 pairs, lays them out side by side.
 function wrapFigures() {
+  const isBlank = n => n?.type === 'text' && /^\s*$/.test(n.value)
+  const isImage = n =>
+    n.type === 'element' &&
+    (n.tagName === 'img' ||
+      (n.tagName === 'a' &&
+        n.children.length === 1 &&
+        n.children[0]?.tagName === 'img'))
   return tree => {
     const visit = node => {
       if (!node.children) {
@@ -86,29 +94,15 @@ function wrapFigures() {
       }
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i]
-        const only =
-          child.type === 'element' &&
-          child.tagName === 'p' &&
-          child.children.length === 1 &&
-          child.children[0]
-        // the figure content is either a bare <img> or an <a><img></a>
-        const img =
-          only &&
-          only.type === 'element' &&
-          (only.tagName === 'img' ||
-            (only.tagName === 'a' &&
-              only.children.length === 1 &&
-              only.children[0]?.tagName === 'img'))
-            ? only
-            : undefined
-        if (img) {
+        const imgs =
+          child.type === 'element' && child.tagName === 'p'
+            ? child.children.filter(n => !isBlank(n))
+            : []
+        if (imgs.length > 0 && imgs.every(isImage)) {
           // skip whitespace-only text nodes that remark-rehype inserts
           // between block elements to mirror blank lines in the source
           let j = i + 1
-          while (
-            node.children[j]?.type === 'text' &&
-            /^\s*$/.test(node.children[j].value)
-          ) {
+          while (isBlank(node.children[j])) {
             j++
           }
           const next = node.children[j]
@@ -118,7 +112,14 @@ function wrapFigures() {
               tagName: 'figure',
               properties: {},
               children: [
-                img,
+                imgs.length > 1
+                  ? {
+                      type: 'element',
+                      tagName: 'div',
+                      properties: { className: ['figure-row'] },
+                      children: imgs,
+                    }
+                  : imgs[0],
                 {
                   type: 'element',
                   tagName: 'figcaption',

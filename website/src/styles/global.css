@@ -170,6 +170,13 @@ body.app-layout .site-footer {
   height: auto;
 }
 
+.prose .figure-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  align-items: center;
+}
+
 .prose figcaption {
   text-align: center;
   font-style: italic;

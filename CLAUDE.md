@@ -59,7 +59,9 @@ them, and follow it in this file too: agents copy the prose here as house voice.
   `tileColorFn`, `viewerSnapshot` and a few helpers. A rename of one of those
   passes every check here and breaks ggmsaview's next build, so grep its bridge
   first. Its `test-props.R` is the R half of the embed-API parity check, and
-  `packages/lib/src/embedApiParity.test.ts` the Python half
+  `packages/lib/src/embedApiParity.test.ts` the Python half. The site's
+  `/r-package` page is `docs/r-package.md`, which `pnpm sync:ggmsaview` writes
+  from ggmsaview's README and gallery, so edit those there and rerun it
 
 - `packages/python`: the `jbrowsemsa` anywidget, named the same on PyPI and in
   `import`. Its traits are the `MSAViewer` props in snake case, and
