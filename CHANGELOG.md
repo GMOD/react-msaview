@@ -4,6 +4,12 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.8.0](https://github.com/GMOD/JBrowseMSA/compare/v9.7.0...v9.8.0) (2026-10-20)
+
+### Other Changes
+
+- A column highlight scrolled out of view draws no label ([f45eeeb](https://github.com/GMOD/JBrowseMSA/commit/f45eeeb3e082328e0378c07500356513cc2fcb6e))
+
 ## [9.7.0](https://github.com/GMOD/JBrowseMSA/compare/v9.6.0...v9.7.0) (2026-10-20)
 
 ### Other Changes
