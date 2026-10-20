@@ -489,6 +489,15 @@ uploads all convert to this flat list
 annotations: [] as Annotation[]
 ```
 
+#### volatile: availableHeight
+
+the height a host that fills its container measures, px. While set it replaces
+`height`, stays out of the snapshot, and hides the drag handle
+
+```js
+availableHeight: undefined as number | undefined
+```
+
 #### volatile: blockSize
 
 size of blocks of content to be drawn, px
@@ -983,6 +992,14 @@ the cells take a fixed color per letter, from the built-in table or from
 
 ```js
 dynamicColorSchemeName: string | undefined
+```
+
+#### getter: effectiveHeight
+
+availableHeight where a host fills its container, height otherwise
+
+```js
+effectiveHeight: number
 ```
 
 #### getter: effectiveTreeAreaWidth
@@ -2278,6 +2295,12 @@ keep a hidden overlay hidden.
 
 ```js
 setAnnotations: (annotations: Annotation[]) => void
+```
+
+#### action: setAvailableHeight
+
+```js
+setAvailableHeight: (height?: number | undefined) => void
 ```
 
 #### action: setCellFill

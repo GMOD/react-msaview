@@ -5,6 +5,16 @@ import stateModelFactory, { defaultTrackHeights } from './model.ts'
 
 const MsaView = stateModelFactory()
 
+test('a measured available height replaces height and stays out of the snapshot', () => {
+  const model = MsaView.create({ type: 'MsaView' })
+  model.setWidth(1000)
+  const areaAt550 = model.msaAreaHeight
+  model.setAvailableHeight(900)
+  expect(model.effectiveHeight).toBe(900)
+  expect(model.msaAreaHeight).toBe(areaAt550 + 350)
+  expect(getSnapshot(model).height).toBeUndefined()
+})
+
 test('default view produces a minimal snapshot (defaults stripped)', () => {
   const model = MsaView.create({ type: 'MsaView' })
   const snap = getSnapshot(model)

@@ -15,7 +15,11 @@ const MSAMouseoverCanvas = observer(function ({
 }: {
   model: MsaViewModel
 }) {
-  const { effectiveHeight: height, msaCanvasWidth: width, highResScaleFactor } = model
+  const {
+    effectiveHeight: height,
+    msaCanvasWidth: width,
+    highResScaleFactor,
+  } = model
   const theme = useCanvasTheme()
   const canvasWidth = width * highResScaleFactor
   const canvasHeight = height * highResScaleFactor
