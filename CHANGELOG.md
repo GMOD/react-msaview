@@ -4,6 +4,13 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.5.0](https://github.com/GMOD/JBrowseMSA/compare/v9.4.0...v9.5.0) (2026-10-20)
+
+### Other Changes
+
+- A phylogram's scale bar always draws: remove showTreeScaleBar ([57e8c17](https://github.com/GMOD/JBrowseMSA/commit/57e8c171d101c021f8fc7c7889aa239892d44344))
+- README figures: regenerate with the tree's scale bar ([e8fd1f7](https://github.com/GMOD/JBrowseMSA/commit/e8fd1f747be72b3a3d4aad2d0a3d57384f2cf999))
+
 ## [9.4.0](https://github.com/GMOD/JBrowseMSA/compare/v9.3.0...v9.4.0) (2026-10-19)
 
 ### Other Changes
