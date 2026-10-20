@@ -4,6 +4,13 @@ Generated from the commit history by [git-cliff](https://git-cliff.org);
 `scripts/release.js` prepends the new section as it tags. Releases up to v3.1.3
 were written by hand and are kept at the bottom.
 
+## [9.6.0](https://github.com/GMOD/JBrowseMSA/compare/v9.5.0...v9.6.0) (2026-10-20)
+
+### Other Changes
+
+- Domains take light fills and sites dark ones, so a site shows on its domain ([c3ad8f4](https://github.com/GMOD/JBrowseMSA/commit/c3ad8f4419e4b10376132d857637e2f8ea8cbab5))
+- Regenerate the MsaView API docs and format for the light-domain, dark-site palette ([5e149e9](https://github.com/GMOD/JBrowseMSA/commit/5e149e96ffd8091d75fcdb099a586bb724ced96d))
+
 ## [9.5.0](https://github.com/GMOD/JBrowseMSA/compare/v9.4.0...v9.5.0) (2026-10-20)
 
 ### Other Changes
