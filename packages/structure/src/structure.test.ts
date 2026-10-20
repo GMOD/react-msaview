@@ -14,6 +14,7 @@ describe('accessionOfRowName', () => {
     ['P04637/1-393', 'P04637'],
     ['AF-P04637-F1', 'P04637'],
     ['Q9Y6K9-2 isoform 2', 'Q9Y6K9-2'],
+    ['Q6YDQ7_9VIRU/46-492', 'Q6YDQ7'],
   ])('%s -> %s', (name, accession) => {
     expect(accessionOfRowName(name)).toBe(accession)
   })

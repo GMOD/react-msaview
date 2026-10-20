@@ -7,12 +7,15 @@ const ACCESSION =
 /**
  * The UniProt accession a row name carries, or undefined. A FASTA header from
  * UniProt (`sp|P04637|P53_HUMAN`), an AlphaFold id (`AF-P04637-F1`) and a bare
- * `P04637/1-393` all name one. An entry name such as `HBA_HUMAN` and a RefSeq
- * id do not, and finding the accession for those takes a lookup.
+ * `P04637/1-393` all name one, as does the Pfam-style `Q6YDQ7_9VIRU/46-492`,
+ * whose entry name is an accession and a species code. An entry name such as
+ * `HBA_HUMAN` and a RefSeq id do not, and finding the accession for those takes
+ * a lookup.
  */
 export function accessionOfRowName(name: string) {
   return rowNameTokens(name)
     .map(token => getUniprotIdFromAlphaFoldTarget(token) ?? token)
+    .map(token => (ACCESSION.test(token) ? token : token.split('_')[0]!))
     .find(token => ACCESSION.test(token))
 }
 
