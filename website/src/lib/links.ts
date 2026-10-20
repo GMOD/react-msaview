@@ -50,6 +50,12 @@ export const docs: DocPage[] = [
     'Highlights, data tracks and structure mappings you compute, carried in the snapshot for the viewer to draw.',
   ),
   doc(
+    'urlparams',
+    'docs/urlparams.md',
+    'URL parameters',
+    'The #data= fragment: its three spellings, the snapshot and shorthand it holds, and the limits on a shared link.',
+  ),
+  doc(
     'embedding',
     'USAGE.md',
     'Embedding',
