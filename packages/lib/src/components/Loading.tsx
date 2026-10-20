@@ -11,6 +11,7 @@ import ImportForm from './import/ImportForm.tsx'
 
 import type { MsaViewModel } from '../model.ts'
 import type { ToolbarSlots } from './header/Header.tsx'
+import type { ImportSlots } from './import/ImportForm.tsx'
 
 const Reset = observer(function ({
   model,
@@ -39,8 +40,9 @@ const Reset = observer(function ({
 
 const Loading = observer(function ({
   model,
+  examples,
   ...slots
-}: { model: MsaViewModel } & ToolbarSlots) {
+}: { model: MsaViewModel } & ToolbarSlots & ImportSlots) {
   const {
     isLoading,
     dataInitialized,
@@ -77,7 +79,7 @@ const Loading = observer(function ({
             {loading ? <StatusMessage model={model} variant="page" /> : null}
             {importForm ? (
               <div style={{ display: loading ? 'none' : undefined }}>
-                <ImportForm model={model} />
+                <ImportForm model={model} examples={examples} />
               </div>
             ) : error ? (
               <ErrorMessage error={error} />

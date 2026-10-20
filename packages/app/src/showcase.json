@@ -1,0 +1,234 @@
+{
+  "domains": {
+    "tutorial": "protein_family",
+    "figure": "protein-family-domains.png",
+    "snapshot": {
+      "type": "MsaView",
+      "treeAreaWidth": 150,
+      "colWidth": 0.7,
+      "colorSchemeName": "clustalx_protein_dynamic",
+      "msaFilehandle": {
+        "uri": "data/nlrp1.aln"
+      },
+      "treeFilehandle": {
+        "uri": "data/nlrp1.nh"
+      },
+      "gffFilehandle": {
+        "uri": "data/nlrp1-domains.gff"
+      }
+    }
+  },
+  "structure": {
+    "tutorial": "spike_structure",
+    "figure": "spike-structure-final.png",
+    "snapshot": {
+      "type": "MsaView",
+      "treeAreaWidth": 170,
+      "colWidth": 0.8,
+      "rowHeight": 22,
+      "colorSchemeName": "clustalx_protein_dynamic",
+      "msaFilehandle": {
+        "uri": "data/spike/spike.afa"
+      },
+      "treeFilehandle": {
+        "uri": "data/spike/spike.nwk"
+      },
+      "gffFilehandle": {
+        "uri": "data/spike/spike-domains.gff"
+      },
+      "showDomainLegend": false,
+      "columnTracks": [
+        {
+          "id": "6vxx-coverage",
+          "name": "6VXX chain A",
+          "kind": "text",
+          "row": "SARS-CoV-2",
+          "data": "NNNNNNNNNNNNNUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUOOOOOOOOUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUOOOOOOOOUUUUUUUOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+          "encoding": {
+            "color": {
+              "domain": ["O", "U", "N"],
+              "range": ["#2e7d32", "#e65100", "#cfd8dc"]
+            }
+          },
+          "height": 16
+        }
+      ],
+      "highlights": [
+        {
+          "row": "SARS-CoV-2",
+          "start": 319,
+          "end": 541,
+          "label": "RBD"
+        },
+        {
+          "row": "SARS-CoV-2",
+          "start": 437,
+          "end": 508,
+          "label": "RBM"
+        },
+        {
+          "row": "SARS-CoV-2",
+          "start": 681,
+          "end": 684,
+          "label": "PRRA insert"
+        },
+        {
+          "row": "SARS-CoV-2",
+          "start": 685,
+          "end": 686,
+          "label": "Furin cleavage"
+        },
+        {
+          "row": "SARS-CoV-2",
+          "start": 816,
+          "end": 837,
+          "label": "Fusion peptide"
+        },
+        {
+          "row": "SARS-CoV-2",
+          "start": 920,
+          "end": 970,
+          "label": "HR1"
+        },
+        {
+          "row": "SARS-CoV-2",
+          "start": 1163,
+          "end": 1202,
+          "label": "HR2"
+        }
+      ],
+      "residueMappings": [
+        {
+          "row": "SARS-CoV-2",
+          "accession": "P0DTC2",
+          "structure": {
+            "id": "6VXX",
+            "kind": "experimental",
+            "asymId": "A",
+            "url": "https://files.rcsb.org/download/6VXX.cif"
+          },
+          "segments": [
+            {
+              "rowStart": 14,
+              "rowEnd": 1211,
+              "structStart": 33,
+              "structEnd": 1230
+            }
+          ],
+          "unobserved": [
+            [33, 45],
+            [89, 98],
+            [163, 183],
+            [192, 204],
+            [265, 281],
+            [464, 465],
+            [474, 480],
+            [488, 507],
+            [521, 521],
+            [640, 659],
+            [696, 707],
+            [847, 872],
+            [1167, 1230]
+          ],
+          "rowLength": 1273,
+          "generated": {
+            "by": "sifts",
+            "date": "2026-10-19"
+          }
+        }
+      ]
+    }
+  },
+  "genes": {
+    "tutorial": "gene_neighborhoods",
+    "figure": "gene_neighborhoods-5.png",
+    "snapshot": {
+      "type": "MsaView",
+      "treeAreaWidth": 250,
+      "rowHeight": 26,
+      "msaFilehandle": {
+        "uri": "data/neighborhoods/trpB.afa"
+      },
+      "treeFilehandle": {
+        "uri": "data/neighborhoods/trpB.nwk"
+      },
+      "gffFilehandle": {
+        "uri": "data/neighborhoods/trp-neighborhoods.gff"
+      },
+      "colWidth": 0.9,
+      "colorSchemeName": "clustalx_protein_dynamic",
+      "showDomains": false,
+      "rowPanels": [
+        {
+          "kind": "features",
+          "x": "position",
+          "width": 760,
+          "header": "trp neighborhood",
+          "encoding": {
+            "color": {
+              "field": "Name",
+              "domain": [
+                "trpL",
+                "trpE",
+                "trpG",
+                "trpD",
+                "trpC",
+                "trpCF",
+                "trpF",
+                "trpB",
+                "trpA",
+                "trpI"
+              ],
+              "range": [
+                "#76b7b2",
+                "#4e79a7",
+                "#a0cbe8",
+                "#f28e2b",
+                "#59a14f",
+                "#8cd17d",
+                "#b6992d",
+                "#e15759",
+                "#b07aa1",
+                "#9c755f"
+              ]
+            },
+            "label": "Name"
+          },
+          "transform": [
+            {
+              "type": "align",
+              "on": "trpE"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "phylogeny": {
+    "tutorial": "phylogeny_at_scale",
+    "figure": "phylogeny_metadata-branch-clade.png",
+    "snapshot": {
+      "type": "MsaView",
+      "treeAreaWidth": 700,
+      "colWidth": 0.3,
+      "rowHeight": 8,
+      "drawLabels": false,
+      "colorSchemeName": "nucleotide",
+      "encodings": [
+        {
+          "channel": "branch",
+          "field": "clade"
+        }
+      ],
+      "msaFilehandle": {
+        "uri": "data/scale/rsv-sample.aln"
+      },
+      "treeFilehandle": {
+        "uri": "data/scale/rsv-sample.nh"
+      },
+      "treeMetadataFilehandle": {
+        "uri": "data/scale/rsv-sample-rowdata.json"
+      }
+    }
+  }
+}

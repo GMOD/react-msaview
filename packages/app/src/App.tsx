@@ -8,6 +8,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { observer } from 'mobx-react'
 import { MSAView } from 'react-msaview'
 
+import ExampleCards from './ExampleCards'
 import { AppActions, SiteNav } from './SiteChrome'
 import { createApp, linkParam } from './model'
 import StructureSection from './structure/StructureSection'
@@ -75,6 +76,7 @@ const App = observer(function ({ model }: { model: AppModel }) {
         <Box ref={ref} data-testid="msaview" sx={{ minHeight: 0 }}>
           <MSAView
             model={msaview}
+            examples={<ExampleCards />}
             toolbarEnd={
               <AppActions
                 model={model}

@@ -12,7 +12,14 @@ import type { FileLocation } from '@jbrowse/core/util/types'
 
 const phone = '@media (max-width: 640px)'
 
-const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
+export interface ImportSlots {
+  examples?: React.ReactNode
+}
+
+const ImportForm = observer(function ({
+  model,
+  examples,
+}: { model: MsaViewModel } & ImportSlots) {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
   const [gffFile, setGffFile] = useState<FileLocation>()
@@ -20,6 +27,7 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
 
   return (
     <Container sx={{ pt: 2, pb: 3 }}>
+      {examples}
       <Box sx={{ width: '50%', mb: 2, [phone]: { width: '100%' } }}>
         {error ? <ErrorMessage error={error} /> : null}
         <Typography>
@@ -89,10 +97,12 @@ const ImportForm = observer(function ({ model }: { model: MsaViewModel }) {
           </Button>
         </div>
 
-        <div>
-          <Typography>Examples</Typography>
-          <ImportFormExamples model={model} />
-        </div>
+        {examples ? null : (
+          <div>
+            <Typography>Examples</Typography>
+            <ImportFormExamples model={model} />
+          </div>
+        )}
       </Box>
     </Container>
   )
