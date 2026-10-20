@@ -1008,7 +1008,7 @@ function stateModelFactory({
       /**
        * #action
        * declare that this host restores the loaded documents itself, which
-       * hides the "Not in the link" warning. See `hostCarriesData`
+       * keeps `unshareableData` empty. See `hostCarriesData`
        */
       setHostCarriesData(arg: boolean) {
         self.hostCarriesData = arg
@@ -1423,7 +1423,7 @@ function stateModelFactory({
        * from disk or pasted in becomes inline text, and DataModel drops an
        * inline document past `maxInlineSnapshotBytes`.
        *
-       * The header lists these, and the standalone app drops `#data=` from
+       * The standalone app drops `#data=` from
        * the address bar while the list is non-empty or the encoded link would
        * pass its `maxLinkLength`, so a copied link never opens an empty viewer
        * unannounced. A document fetched from a URL never appears here, since

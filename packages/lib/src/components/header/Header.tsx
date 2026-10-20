@@ -14,7 +14,6 @@ import MenuBar from './MenuBar.tsx'
 import MultiAlignmentSelector from './MultiAlignmentSelector.tsx'
 import ScrollZoomCheckbox from './ScrollZoomCheckbox.tsx'
 import SelectionMenu from './SelectionMenu.tsx'
-import UnshareableDataWarning from './UnshareableDataWarning.tsx'
 import ZoomControls from './ZoomControls.tsx'
 
 import type { MsaViewModel } from '../../model.ts'
@@ -95,7 +94,6 @@ const Header = observer(function ({
           <HeaderInfoArea model={model} />
         </div>
         <LoadWarnings model={model} />
-        <UnshareableDataWarning model={model} />
         <StatusMessage model={model} variant="header" />
         {toolbarEnd}
       </Toolbar>
