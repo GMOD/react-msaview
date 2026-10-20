@@ -221,9 +221,10 @@ twice in every row, as FIIND and as the UPA-FIIND block beside it.
 
 <!-- usage: r -->
 
-[ggmsaview](https://github.com/GMOD/ggmsaview) takes the same three files as the
-alignment, tree and annotation arguments of `msaview()`. `w` opens the viewer in
-RStudio or a notebook, and `msaview_plot()` draws the view as a ggplot2 figure:
+[ggmsaview](https://gmod.org/JBrowseMSA/r-package) takes the same three files as
+the alignment, tree and annotation arguments of `msaview()`. `w` opens the
+viewer in RStudio or a notebook, and `msaview_plot()` draws the view as a
+ggplot2 figure:
 
 ```r
 library(ggmsaview)

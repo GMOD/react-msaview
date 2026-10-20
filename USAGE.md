@@ -394,7 +394,7 @@ fetches its files and builds its model only when the reader scrolls near it.
 
 ## R package (ggmsaview)
 
-[ggmsaview](https://github.com/GMOD/ggmsaview) wraps MSAViewer as an R
+[ggmsaview](https://gmod.org/JBrowseMSA/r-package) wraps MSAViewer as an R
 htmlwidget that takes ape, Biostrings, ggtree and treeio objects directly, and
 draws the same view as a ggplot2 figure.
 

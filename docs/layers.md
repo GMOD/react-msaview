@@ -894,8 +894,7 @@ and whose furin loop has no coordinates at all.
 chain, or from AlphaFold DB for a predicted model. It checks each row against
 its UniProt sequence first, maps a `/start-end` row as that fragment, and sets
 `rowLength`, `unobserved` and `generated`. The
-[CLI README](https://github.com/GMOD/JBrowseMSA/tree/main/packages/cli#residue-mappings)
-lists its options.
+[CLI page](https://gmod.org/JBrowseMSA/cli#residue-mappings) lists its options.
 
 ```bash
 react-msaview-cli residue-mappings --msa spike.afa --row SARS-CoV-2 \
