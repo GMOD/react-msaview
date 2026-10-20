@@ -14,11 +14,13 @@ const phone = '@media (max-width: 640px)'
 
 export interface ImportSlots {
   examples?: React.ReactNode
+  examplesBelow?: boolean
 }
 
 const ImportForm = observer(function ({
   model,
   examples,
+  examplesBelow,
 }: { model: MsaViewModel } & ImportSlots) {
   const [msaFile, setMsaFile] = useState<FileLocation>()
   const [treeFile, setTreeFile] = useState<FileLocation>()
@@ -27,7 +29,8 @@ const ImportForm = observer(function ({
 
   return (
     <Container sx={{ pt: 2, pb: 3 }}>
-      <Box sx={{ maxWidth: 640, mb: 2 }}>
+      {examplesBelow ? null : examples}
+      <Box sx={{ width: '50%', mb: 2, [phone]: { width: '100%' } }}>
         {error ? <ErrorMessage error={error} /> : null}
         <Typography>
           Open an MSA file (FASTA, Stockholm, Clustal, A3M or EMF format) and/or
@@ -42,7 +45,7 @@ const ImportForm = observer(function ({
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           alignItems: 'center',
           gap: '40px',
           [phone]: {
@@ -103,7 +106,7 @@ const ImportForm = observer(function ({
           </div>
         )}
       </Box>
-      {examples ? <Box sx={{ mt: 5 }}>{examples}</Box> : null}
+      {examplesBelow && examples ? <Box sx={{ mt: 5 }}>{examples}</Box> : null}
     </Container>
   )
 })

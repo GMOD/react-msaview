@@ -77,6 +77,7 @@ const App = observer(function ({ model }: { model: AppModel }) {
           <MSAView
             model={msaview}
             examples={<ExampleCards />}
+            examplesBelow
             toolbarEnd={
               <AppActions
                 model={model}

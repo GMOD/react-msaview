@@ -41,6 +41,7 @@ const Reset = observer(function ({
 const Loading = observer(function ({
   model,
   examples,
+  examplesBelow,
   ...slots
 }: { model: MsaViewModel } & ToolbarSlots & ImportSlots) {
   const {
@@ -79,7 +80,11 @@ const Loading = observer(function ({
             {loading ? <StatusMessage model={model} variant="page" /> : null}
             {importForm ? (
               <div style={{ display: loading ? 'none' : undefined }}>
-                <ImportForm model={model} examples={examples} />
+                <ImportForm
+                  model={model}
+                  examples={examples}
+                  examplesBelow={examplesBelow}
+                />
               </div>
             ) : error ? (
               <ErrorMessage error={error} />
