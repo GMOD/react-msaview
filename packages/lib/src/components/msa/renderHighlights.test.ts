@@ -23,7 +23,12 @@ interface Rect {
 
 function drawBlock(
   model: ReturnType<ReturnType<typeof stateModelFactory>['create']>,
-  { offsetY, height }: { offsetY: number; height: number },
+  {
+    offsetX = 0,
+    offsetY,
+    height,
+  }: { offsetX?: number; offsetY: number; height: number },
+  texts: string[] = [],
 ) {
   const rects: Rect[] = []
   let fillStyle = ''
@@ -40,7 +45,9 @@ function drawBlock(
     font: '12px sans-serif',
     setLineDash() {},
     measureText: (text: string) => ({ width: text.length * 6 }),
-    fillText() {},
+    fillText(text: string) {
+      texts.push(text)
+    },
     strokeRect() {},
     fillRect(x: number, y: number, width: number, height: number) {
       rects.push({ x, y, width, height, fill: fillStyle })
@@ -51,7 +58,7 @@ function drawBlock(
     ctx,
     model,
     theme,
-    offsetX: 0,
+    offsetX,
     offsetY,
     width: 500,
     height,
@@ -125,4 +132,21 @@ test('a tint stops at the last row', () => {
 
   const drawn = drawBlock(model, { offsetY: 600, height: 400 })
   expect(drawn.map(r => r.y)).toEqual([39 * 20 - 600])
+})
+
+test('a column band scrolled out of the block draws neither band nor label', () => {
+  const model = modelWith({
+    highlights: [{ row: 'seq0', start: 2, end: 2, label: 'R175' }],
+  })
+  const onScreenTexts: string[] = []
+  drawBlock(model, { offsetY: 0, height: 200 }, onScreenTexts)
+  const scrolledTexts: string[] = []
+  const scrolled = drawBlock(
+    model,
+    { offsetX: 5 * model.colWidth, offsetY: 0, height: 200 },
+    scrolledTexts,
+  )
+  expect(onScreenTexts).toEqual(['R175'])
+  expect(scrolled).toEqual([])
+  expect(scrolledTexts).toEqual([])
 })

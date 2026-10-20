@@ -157,6 +157,9 @@ export function renderHighlights({
     }
     const x = startCol * colWidth - offsetX
     const spanWidth = (endCol - startCol + 1) * colWidth
+    if (x + spanWidth <= 0 || x >= width) {
+      continue
+    }
     ctx.fillStyle = color ?? highlightFill
     ctx.fillRect(x, 0, spanWidth, height)
     ctx.strokeStyle = color ?? highlightBorder
