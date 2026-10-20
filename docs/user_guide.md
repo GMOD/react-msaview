@@ -198,10 +198,10 @@ Loading a domain file hands the cells to the domains: **Settings → Color → F
 cells with** switches to **Domains**, and each domain fills the cells it covers.
 A domain takes a light color and a site (a CDD `Site`, or any type ending in
 `site`) a dark one, so a binding site's scattered residues stand out on the
-domain around them. **Residues** gives the cells back to the residue scheme and marks each domain
-with a bar under its row, and picking a residue scheme does the same, so a
-scheme picked while domains are shown never goes unseen. **Nothing** colors the
-letters by the scheme and keeps the bars.
+domain around them. **Residues** gives the cells back to the residue scheme and
+marks each domain with a bar under its row, and picking a residue scheme does
+the same, so a scheme picked while domains are shown never goes unseen.
+**Nothing** colors the letters by the scheme and keeps the bars.
 
 [![](media/real-domains.png)][live-real-domains]
 

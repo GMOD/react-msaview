@@ -61,13 +61,7 @@ export const domainFills = [
   '#e5d8bd',
   '#fddaec',
 ]
-export const siteFills = [
-  '#178867',
-  '#c05402',
-  '#7570b3',
-  '#518318',
-  '#906719',
-]
+export const siteFills = ['#178867', '#c05402', '#7570b3', '#518318', '#906719']
 export const defaultDrawMsaLetters = true
 export const defaultScrollZoom = false
 

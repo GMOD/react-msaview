@@ -800,10 +800,7 @@ branchColors: Map<string, string> | undefined
 #### getter: categoricalDomainTypes
 
 categorical feature types (InterPro domains and the like) that each get their
-own color and a legend entry, in palette order: grouped by feature type, types
-in the order they first appear. A GenPept record's CDD Sites follow every
-Region, so the palette spends the colors after the domains' on the sites inside
-them
+own color and a legend entry
 
 ```js
 categoricalDomainTypes: Annotation[]
@@ -1043,6 +1040,15 @@ residue letters do
 
 ```js
 featureLabels: Map<Annotation, string> | undefined
+```
+
+#### getter: fillPalette
+
+accession -> fill: segments alternate two shades, a domain takes a light color
+and a site a dark one, so a site's residues stand out on the domain around them
+
+```js
+fillPalette: { [x: string]: string; }
 ```
 
 #### getter: fittedTreeAreaWidth
