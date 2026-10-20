@@ -14,12 +14,12 @@ const cards: { key: Key; title: string; text: string }[] = [
   {
     key: 'domains',
     title: 'Domains across a protein family',
-    text: 'Twelve NLRP1 orthologs with their InterPro domains drawn on the alignment. The pyrin domain at the left sits on five of the twelve rows, and the mouse protein lacks it.',
+    text: 'Twelve NLRP1 orthologs with their InterPro domains drawn on the alignment.',
   },
   {
     key: 'structure',
     title: 'An alignment beside its structure',
-    text: 'Coronavirus spike proteins next to PDB 6VXX. A track marks which SARS-CoV-2 residues the structure resolved, and hovering a column lights up the residue in 3D.',
+    text: 'Coronavirus spike proteins next to PDB 6VXX; hovering a column lights up the residue in 3D.',
   },
   {
     key: 'genes',
@@ -37,27 +37,17 @@ function href(key: Key) {
   return `#data=${encodeURIComponent(JSON.stringify({ msaview: showcase[key].snapshot }))}`
 }
 
-function ExampleCard({
-  card,
-  featured,
-}: {
-  card: (typeof cards)[number]
-  featured?: boolean
-}) {
+function ExampleCard({ card }: { card: (typeof cards)[number] }) {
   return (
-    <Card
-      variant="outlined"
-      sx={featured ? { gridColumn: '1 / -1' } : undefined}
-    >
+    <Card variant="outlined">
       <CardActionArea
         href={href(card.key)}
         sx={{
           height: '100%',
           display: 'flex',
-          flexDirection: featured ? 'row' : 'column',
+          flexDirection: 'column',
           alignItems: 'stretch',
           justifyContent: 'flex-start',
-          '@media (max-width: 640px)': { flexDirection: 'column' },
         }}
       >
         <Box
@@ -66,31 +56,21 @@ function ExampleCard({
           alt=""
           sx={{
             display: 'block',
-            width: featured ? '60%' : '100%',
-            height: featured ? 260 : 150,
+            width: '100%',
+            height: 110,
             objectFit: 'cover',
             objectPosition: 'left top',
-            borderBottom: featured ? 0 : 1,
-            borderRight: featured ? 1 : 0,
+            borderBottom: 1,
             borderColor: 'divider',
-            '@media (max-width: 640px)': { width: '100%', height: 150 },
           }}
         />
-        <Box sx={{ p: 2, flex: 1 }}>
-          <Typography
-            component="h2"
-            sx={{ fontSize: featured ? 20 : 16, fontWeight: 600, mb: 0.5 }}
-          >
+        <Box sx={{ p: 1.5, flex: 1 }}>
+          <Typography component="h2" sx={{ fontSize: 15, fontWeight: 600 }}>
             {card.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {card.text}
           </Typography>
-          {featured ? (
-            <Typography sx={{ mt: 2, fontWeight: 600 }} color="primary">
-              Open this example →
-            </Typography>
-          ) : null}
         </Box>
       </CardActionArea>
     </Card>
@@ -98,18 +78,22 @@ function ExampleCard({
 }
 
 export default function ExampleCards() {
-  const [first, ...rest] = cards
   return (
-    <Box sx={{ mb: 4 }}>
+    <Box>
+      <Typography
+        component="h2"
+        sx={{ fontSize: 18, fontWeight: 600, mb: 1.5 }}
+      >
+        Or start from an example
+      </Typography>
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: 2,
         }}
       >
-        <ExampleCard card={first!} featured />
-        {rest.map(card => (
+        {cards.map(card => (
           <ExampleCard key={card.key} card={card} />
         ))}
       </Box>
