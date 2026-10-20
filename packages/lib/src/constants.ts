@@ -46,22 +46,22 @@ export function isSiteType(featureType: string | undefined) {
   return !!featureType && /(^|[_ ])site$/i.test(featureType)
 }
 
-// A domain fills a span the residue letters draw over, so it takes a light
-// color, CIELAB L* 80 or more. A site marks a few residues inside a domain, so
-// it takes a dark one, L* 50 or less: a thin mark needs lightness contrast to
-// show on a fill, and hue alone gives none. Neither list holds a grey or a
-// magenta, which a structure view draws for uncolored chains and for the
-// hovered residue
+// A domain fills a span the residue letters draw over, so it takes a mid-light
+// color, CIELAB L* 70 to 80, dark enough that its ends show against unfilled
+// cells. A site marks a few residues inside a domain, so it takes a dark one,
+// L* 45 or less: a thin mark needs lightness contrast to show on a fill, and
+// hue alone gives none. Neither list holds a grey or a magenta, which a
+// structure view draws for uncolored chains and for the hovered residue
 export const domainFills = [
-  '#b3cde3',
-  '#fed9a6',
-  '#ccebc5',
-  '#decbe4',
-  '#fbb4ae',
-  '#e5d8bd',
-  '#fddaec',
+  '#8fb3d9',
+  '#f2b277',
+  '#9fd18f',
+  '#c3a5d9',
+  '#ee9f9f',
+  '#d4c08f',
+  '#8fd1cb',
 ]
-export const siteFills = ['#178867', '#c05402', '#7570b3', '#518318', '#906719']
+export const siteFills = ['#0f6e52', '#a84a00', '#5a54a0', '#3f6b12', '#7a5514']
 export const defaultDrawMsaLetters = true
 export const defaultScrollZoom = false
 

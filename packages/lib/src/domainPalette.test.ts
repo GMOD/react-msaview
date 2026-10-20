@@ -72,8 +72,8 @@ function fills(features: Annotation[]) {
 // structure, and a thin mark shows on a fill only through lightness contrast
 test('every site is darker than every domain', () => {
   const { domains, sites } = fills(annotations)
-  expect(Math.min(...domains)).toBeGreaterThanOrEqual(75)
-  expect(Math.max(...sites)).toBeLessThanOrEqual(50)
+  expect(Math.min(...domains)).toBeGreaterThanOrEqual(68)
+  expect(Math.max(...sites)).toBeLessThanOrEqual(45)
 })
 
 test('past the end of the palettes, sites stay dark and domains light', () => {
@@ -86,6 +86,6 @@ test('past the end of the palettes, sites stay dark and domains light', () => {
     { ...annotations[1]!, accession: `site${i}`, featureType: 'Site' },
   ]).flat()
   const { domains, sites } = fills(many)
-  expect(Math.min(...domains)).toBeGreaterThanOrEqual(75)
-  expect(Math.max(...sites)).toBeLessThanOrEqual(50)
+  expect(Math.min(...domains)).toBeGreaterThanOrEqual(68)
+  expect(Math.max(...sites)).toBeLessThanOrEqual(45)
 })

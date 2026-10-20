@@ -3604,7 +3604,7 @@ function stateModelFactory({
       /**
        * #getter
        * accession -> fill: segments alternate two shades, a domain takes a
-       * light color and a site a dark one, so a site's residues stand out on
+       * mid-light color and a site a dark one, so a site's residues stand out on
        * the domain around them
        */
       get fillPalette() {
@@ -3620,8 +3620,8 @@ function stateModelFactory({
             .map(d => d.accession)
         return {
           ...segments,
-          ...createPaletteMap(accessions(false), domainFills, 85),
-          ...createPaletteMap(accessions(true), siteFills, 45),
+          ...createPaletteMap(accessions(false), domainFills, 75),
+          ...createPaletteMap(accessions(true), siteFills, 40),
         }
       },
       /**

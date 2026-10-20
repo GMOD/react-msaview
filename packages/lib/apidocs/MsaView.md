@@ -1044,8 +1044,9 @@ featureLabels: Map<Annotation, string> | undefined
 
 #### getter: fillPalette
 
-accession -> fill: segments alternate two shades, a domain takes a light color
-and a site a dark one, so a site's residues stand out on the domain around them
+accession -> fill: segments alternate two shades, a domain takes a mid-light
+color and a site a dark one, so a site's residues stand out on the domain around
+them
 
 ```js
 fillPalette: { [x: string]: string; }
