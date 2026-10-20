@@ -16,7 +16,7 @@ const MSACanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const {
     MSA,
     msaFilehandle,
-    height,
+    effectiveHeight: height,
     msaCanvasWidth,
     blocks2d,
     scrollX,

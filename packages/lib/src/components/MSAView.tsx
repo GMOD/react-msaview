@@ -146,7 +146,8 @@ const MSAView = observer(function ({
   ...slots
 }: { model: MsaViewModel } & ToolbarSlots) {
   const {
-    height,
+    effectiveHeight: height,
+    availableHeight,
     headerHeight,
     hideHeader,
     settingsOpen,
@@ -168,7 +169,9 @@ const MSAView = observer(function ({
               ) : null}
             </div>
           </div>
-          <HorizontalResizeHandle model={model} />
+          {availableHeight === undefined ? (
+            <HorizontalResizeHandle model={model} />
+          ) : null}
 
           {DialogComponent ? (
             <Suspense fallback={null}>

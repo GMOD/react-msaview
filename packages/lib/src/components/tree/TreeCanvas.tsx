@@ -14,7 +14,7 @@ import type { MsaViewModel } from '../../model.ts'
 const TreeCanvas = observer(function ({ model }: { model: MsaViewModel }) {
   const ref = useRef<HTMLDivElement>(null)
   const {
-    height,
+    effectiveHeight: height,
     blocksY,
     effectiveTreeAreaWidth,
     scrollY,

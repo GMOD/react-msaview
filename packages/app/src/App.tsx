@@ -34,46 +34,45 @@ declare global {
 }
 window.MSAVIEW_MODEL = mymodel.msaview
 
-// used in ViewContainer files to get the width
-function useWidthSetter(view: { setWidth: (arg: number) => void }) {
-  const [ref, { width }] = useMeasure()
+function useSizeSetter(view: {
+  setWidth: (arg: number) => void
+  setAvailableHeight: (arg?: number) => void
+}) {
+  const [ref, { width, height }] = useMeasure()
   useEffect(() => {
-    if (width && isAlive(view)) {
-      // sets after a requestAnimationFrame
-      // https://stackoverflow.com/a/58701523/2129219 avoids ResizeObserver
-      // loop error being shown during development
+    if (width && height && isAlive(view)) {
+      // a frame's delay keeps the ResizeObserver loop error out of development
+      // https://stackoverflow.com/a/58701523/2129219
       requestAnimationFrame(() => {
         view.setWidth(width)
+        view.setAvailableHeight(height)
       })
     }
-  }, [view, width])
+  }, [view, width, height])
   return ref
 }
 
 const App = observer(function ({ model }: { model: AppModel }) {
   const { msaview } = model
-  const ref = useWidthSetter(msaview)
+  const ref = useSizeSetter(msaview)
   const hasStructure = msaview.mappedStructures.length > 0
   const [openChoice, setOpenChoice] = useState<boolean>()
   const structureOpen = openChoice ?? hasStructure
-  const split = structureOpen && hasStructure
   return (
-    <div>
+    <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
       <SiteNav />
       <Box
         sx={{
+          flex: 1,
+          minHeight: 0,
           display: 'grid',
-          alignItems: 'start',
-          gridTemplateColumns: split
+          gridTemplateRows: 'minmax(0, 1fr)',
+          gridTemplateColumns: structureOpen
             ? 'minmax(0, 1fr) minmax(380px, 42%)'
             : 'minmax(0, 1fr)',
         }}
       >
-        <Box
-          ref={ref}
-          data-testid="msaview"
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
+        <Box ref={ref} data-testid="msaview" sx={{ minHeight: 0 }}>
           <MSAView
             model={msaview}
             toolbarEnd={
@@ -88,15 +87,12 @@ const App = observer(function ({ model }: { model: AppModel }) {
           />
         </Box>
         {structureOpen ? (
-          <StructureSection
-            model={msaview}
-            panelHeight={split ? 520 : 400}
-            sx={split ? { position: 'sticky', top: 8, ml: 0 } : undefined}
-          />
+          <Box sx={{ minHeight: 0, overflowY: 'auto' }}>
+            <StructureSection model={msaview} panelHeight={520} sx={{ m: 1 }} />
+          </Box>
         ) : null}
       </Box>
-      <div style={{ height: 500 }} />
-    </div>
+    </Box>
   )
 })
 

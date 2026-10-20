@@ -41,7 +41,7 @@ export function useMsaSvgFigure(
           ? [
               getSnapshot(model),
               model.width,
-              model.height,
+              model.effectiveHeight,
               model.resolvedHighlights,
               model.highlightedColumnRuns,
             ]

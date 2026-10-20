@@ -748,6 +748,12 @@ function stateModelFactory({
       headerHeight: 0,
       /**
        * #volatile
+       * the height a host that fills its container measures, px. While set it
+       * replaces `height`, stays out of the snapshot, and hides the drag handle
+       */
+      availableHeight: undefined as number | undefined,
+      /**
+       * #volatile
        * whether the settings panel docks beside the alignment, taking
        * `settingsPanelWidth` out of the width the view lays out in
        */
@@ -971,6 +977,13 @@ function stateModelFactory({
        */
       setHeight(height: number) {
         self.height = height
+      },
+
+      /**
+       * #action
+       */
+      setAvailableHeight(height?: number) {
+        self.availableHeight = height
       },
 
       /**
@@ -1674,6 +1687,13 @@ function stateModelFactory({
           : Infinity
         const cap = Math.max(room, chrome + Math.min(tree, minTreeWidth))
         return Math.ceil(Math.min(fit, cap))
+      },
+      /**
+       * #getter
+       * availableHeight where a host fills its container, height otherwise
+       */
+      get effectiveHeight() {
+        return self.availableHeight ?? self.height
       },
       /**
        * #getter
@@ -2968,7 +2988,7 @@ function stateModelFactory({
        */
       get msaAreaHeight() {
         return (
-          self.height -
+          self.effectiveHeight -
           this.topBandHeight -
           self.headerHeight -
           this.totalTrackAreaHeight

@@ -20,7 +20,7 @@ export function renderMouseover({
     mouseCol,
     colWidth,
     msaCanvasWidth: width,
-    height,
+    effectiveHeight: height,
     rowHeight,
     scrollX,
     scrollY,

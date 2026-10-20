@@ -16,7 +16,7 @@ const RowPanel = observer(function ({
   panel: ResolvedRowPanel
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const { height, blocksY, scrollY } = model
+  const { effectiveHeight: height, blocksY, scrollY } = model
   const { onPointerDown, touchAction } = useWheelScroll({
     ref,
     model,
