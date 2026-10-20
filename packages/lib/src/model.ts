@@ -46,6 +46,7 @@ import {
   defaultScrollZoomAxis,
   defaultShowDomainLegend,
   defaultShowDomains,
+  domainFills,
   defaultSubFeatureRows,
   fontSizeFor,
   labelFitFontSize,
@@ -57,6 +58,7 @@ import {
   minColWidth,
   minLetterColWidth,
   minLetterRowHeight,
+  isSiteType,
   minRowHeight,
   minTreeWidth,
   pxPerTreeDepth,
@@ -67,6 +69,7 @@ import {
   segmentFeatureTypes,
   segmentShades,
   settingsPanelWidth,
+  siteFills,
   treeScaleBarHeight,
 } from './constants.ts'
 import { createPaletteMap } from './createPaletteMap.ts'
@@ -3591,21 +3594,19 @@ function stateModelFactory({
       /**
        * #getter
        * categorical feature types (InterPro domains and the like) that each get
-       * their own color and a legend entry, in palette order: grouped by
-       * feature type, types in the order they first appear. A GenPept
-       * record's CDD Sites follow every Region, so the palette spends the
-       * colors after the domains' on the sites inside them
+       * their own color and a legend entry
        */
       get categoricalDomainTypes() {
-        const types = [...self.annotationTypes.values()].filter(
+        return [...self.annotationTypes.values()].filter(
           d => !segmentFeatureTypes.has(d.featureType ?? ''),
         )
-        const typeOrder = [...new Set(types.map(d => d.featureType))]
-        return types.toSorted(
-          (a, b) =>
-            typeOrder.indexOf(a.featureType) - typeOrder.indexOf(b.featureType),
-        )
       },
+      /**
+       * #getter
+       * accession -> fill: segments alternate two shades, a domain takes a
+       * light color and a site a dark one, so a site's residues stand out on
+       * the domain around them
+       */
       get fillPalette() {
         const segments = Object.fromEntries(
           this.segmentDomainTypes.map((d, i) => [
@@ -3613,10 +3614,15 @@ function stateModelFactory({
             segmentShades[i % segmentShades.length]!,
           ]),
         )
-        const categorical = createPaletteMap(
-          this.categoricalDomainTypes.map(d => d.accession),
-        )
-        return { ...segments, ...categorical }
+        const accessions = (site: boolean) =>
+          this.categoricalDomainTypes
+            .filter(d => isSiteType(d.featureType) === site)
+            .map(d => d.accession)
+        return {
+          ...segments,
+          ...createPaletteMap(accessions(false), domainFills, 85),
+          ...createPaletteMap(accessions(true), siteFills, 45),
+        }
       },
       /**
        * #getter

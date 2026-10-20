@@ -50,7 +50,7 @@ const annotations: Annotation[] = records.map(([id, type, cdd, name], i) => ({
   end: i * 30 + 20,
 }))
 
-function siteDomainDistances(features: Annotation[]) {
+function fills(features: Annotation[]) {
   const model = MSAModelF().create({
     id: 'domain-palette-test',
     type: 'MsaView',
@@ -61,19 +61,31 @@ function siteDomainDistances(features: Annotation[]) {
   model.setWidth(800)
   model.setAnnotations(features)
   const { fillPalette } = model
-  return features
-    .filter(s => s.featureType === 'Site')
-    .map(s => {
-      const domain = s.accession.split(':')[0]!
-      return colord(fillPalette[s.accession]!).delta(fillPalette[domain]) * 100
-    })
+  const lightness = (type: string) =>
+    features
+      .filter(f => f.featureType === type)
+      .map(f => colord(fillPalette[f.accession]!).toLab().l)
+  return { domains: lightness('Region'), sites: lightness('Site') }
 }
 
-test('a CDD site reads apart from the domain holding it', () => {
-  expect(Math.min(...siteDomainDistances(annotations))).toBeGreaterThan(35)
+// A site draws as single columns on the alignment and as side chains on a
+// structure, and a thin mark shows on a fill only through lightness contrast
+test('every site is darker than every domain', () => {
+  const { domains, sites } = fills(annotations)
+  expect(Math.min(...domains)).toBeGreaterThanOrEqual(75)
+  expect(Math.max(...sites)).toBeLessThanOrEqual(50)
 })
 
-test('one BRAF record keeps its sites apart from their domains', () => {
-  const human = annotations.filter(a => a.id === 'human')
-  expect(Math.min(...siteDomainDistances(human))).toBeGreaterThan(35)
+test('past the end of the palettes, sites stay dark and domains light', () => {
+  const many = Array.from({ length: 12 }, (_, i) => [
+    {
+      ...annotations[0]!,
+      accession: `domain${i}`,
+      featureType: 'Region',
+    },
+    { ...annotations[1]!, accession: `site${i}`, featureType: 'Site' },
+  ]).flat()
+  const { domains, sites } = fills(many)
+  expect(Math.min(...domains)).toBeGreaterThanOrEqual(75)
+  expect(Math.max(...sites)).toBeLessThanOrEqual(50)
 })

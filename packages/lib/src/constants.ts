@@ -23,8 +23,8 @@ export const subFeatureRowHeight = 4
 export const domainUnderlineHeight = 3
 
 // Feature types that are ordinal segments of one transcript. The overlay
-// alternates two shades across them and labels them by number, where a domain
-// type gets its own hue and legend row.
+// alternates two shades across them and labels them by number, and every other
+// type gets its own color and legend row.
 export const segmentFeatureTypes = new Set([
   'exon',
   'CDS',
@@ -36,6 +36,38 @@ export const segmentFeatureTypes = new Set([
 
 // the two shades alternated across adjacent segments (exons)
 export const segmentShades = ['#9fb6d4', '#d4dcea']
+
+/**
+ * A site's feature type: CDD's GenPept `Site`, a Sequence Ontology `*_site`,
+ * InterPro's `Binding_site`, `Active_site` and `Conserved_site`, and UniProt's
+ * `Binding site`. A site is a set of scattered residues, often single columns
+ */
+export function isSiteType(featureType: string | undefined) {
+  return !!featureType && /(^|[_ ])site$/i.test(featureType)
+}
+
+// A domain fills a span the residue letters draw over, so it takes a light
+// color, CIELAB L* 80 or more. A site marks a few residues inside a domain, so
+// it takes a dark one, L* 50 or less: a thin mark needs lightness contrast to
+// show on a fill, and hue alone gives none. Neither list holds a grey or a
+// magenta, which a structure view draws for uncolored chains and for the
+// hovered residue
+export const domainFills = [
+  '#b3cde3',
+  '#fed9a6',
+  '#ccebc5',
+  '#decbe4',
+  '#fbb4ae',
+  '#e5d8bd',
+  '#fddaec',
+]
+export const siteFills = [
+  '#178867',
+  '#c05402',
+  '#7570b3',
+  '#518318',
+  '#906719',
+]
 export const defaultDrawMsaLetters = true
 export const defaultScrollZoom = false
 
