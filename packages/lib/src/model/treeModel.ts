@@ -10,7 +10,6 @@ import {
   defaultShowBranchLen,
   defaultTreeOrder,
   defaultShowTreeOverview,
-  defaultShowTreeScaleBar,
   treeOrders,
 } from '../constants.ts'
 import { stripDefault } from '../stripDefault.ts'
@@ -96,12 +95,6 @@ export function TreeModelF() {
 
       /**
        * #property
-       * draw the branch-length scale bar above the tree of a phylogram
-       */
-      showTreeScaleBar: stripDefault(types.boolean, defaultShowTreeScaleBar),
-
-      /**
-       * #property
        * height of the tree overview band, px
        */
       overviewHeight: stripDefault(types.number, defaultOverviewHeight),
@@ -169,12 +162,6 @@ export function TreeModelF() {
        */
       setShowTreeOverview(arg: boolean) {
         self.showTreeOverview = arg
-      },
-      /**
-       * #action
-       */
-      setShowTreeScaleBar(arg: boolean) {
-        self.showTreeScaleBar = arg
       },
       /**
        * #action

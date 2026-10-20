@@ -162,7 +162,6 @@ export function treeSubMenu(model: MsaViewModel): MenuItem[] {
     drawLabels,
     treeAreaWidth,
     showTreeOverview,
-    showTreeScaleBar,
     treeOrder,
     treeRoot,
     rotated,
@@ -187,9 +186,6 @@ export function treeSubMenu(model: MsaViewModel): MenuItem[] {
     ),
     toggle('Tree overview', showTreeOverview, arg => {
       model.setShowTreeOverview(arg)
-    }),
-    toggle('Scale bar', showTreeScaleBar, arg => {
-      model.setShowTreeScaleBar(arg)
     }),
     subMenu(
       'Order',

@@ -65,7 +65,6 @@ that declares it.
 [drawNodeBubbles](./Tree.md#property-drawnodebubbles),
 [drawNodeLabels](./Tree.md#property-drawnodelabels),
 [showTreeOverview](./Tree.md#property-showtreeoverview),
-[showTreeScaleBar](./Tree.md#property-showtreescalebar),
 [overviewHeight](./Tree.md#property-overviewheight)
 
 **Actions:** [setTreeAreaWidth](./Tree.md#action-settreeareawidth),
@@ -77,7 +76,6 @@ that declares it.
 [setDrawNodeBubbles](./Tree.md#action-setdrawnodebubbles),
 [setDrawNodeLabels](./Tree.md#action-setdrawnodelabels),
 [setShowTreeOverview](./Tree.md#action-setshowtreeoverview),
-[setShowTreeScaleBar](./Tree.md#action-setshowtreescalebar),
 [setDrawLabels](./Tree.md#action-setdrawlabels)
 
 ### From [MSAModel](./MSAModel.md)
@@ -1754,8 +1752,9 @@ treeOverviewLayout: { root: LaidOutNode<NodeWithIds>; numTips: number; maxDepthT
 
 #### getter: treeScaleBar
 
-the branch-length scale bar over the tree, undefined while `showTreeScaleBar` is
-off, in cladogram mode, or when the tree area is too narrow for one
+the branch-length scale bar over the tree, the guide of its branch-length scale:
+undefined in cladogram mode, with the tree off, or when the tree area is too
+narrow for one
 
 ```js
 treeScaleBar: { step: number; px: number; label: string; } | undefined

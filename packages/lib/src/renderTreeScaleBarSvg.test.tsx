@@ -38,7 +38,7 @@ async function exportWith(
 }
 
 test('the figure carries the bar the screen states the scale with', async () => {
-  const { model, svg } = await exportWith({ showTreeScaleBar: true })
+  const { model, svg } = await exportWith({})
   const bar = model.treeScaleBar!
   expect(bar).toBeDefined()
 
@@ -48,7 +48,7 @@ test('the figure carries the bar the screen states the scale with', async () => 
 })
 
 test('the screen draws the same bar as the figure', async () => {
-  const { model, svg } = await exportWith({ showTreeScaleBar: true })
+  const { model, svg } = await exportWith({})
   const theme = createJBrowseTheme()
   const ruler = svgSafeColors(
     renderToStaticMarkup(
@@ -61,11 +61,8 @@ test('the screen draws the same bar as the figure', async () => {
 })
 
 test('the bar sits under the overview and the band grows for it', async () => {
-  const flat = await exportWith({ showTreeScaleBar: true })
-  const withOverview = await exportWith({
-    showTreeScaleBar: true,
-    showTreeOverview: true,
-  })
+  const flat = await exportWith({})
+  const withOverview = await exportWith({ showTreeOverview: true })
 
   const y = (svg: string) =>
     Number(/<path d="M[\d.]+ ([\d.]+)/.exec(group(svg)!)![1])
@@ -82,17 +79,18 @@ test('the bar sits under the overview and the band grows for it', async () => {
 })
 
 test('a cladogram has no scale to state, so no bar', async () => {
-  const { model, svg } = await exportWith({
-    showTreeScaleBar: true,
-    showBranchLen: false,
-  })
+  const { model, svg } = await exportWith({ showBranchLen: false })
   expect(model.treeScaleBar).toBeUndefined()
   expect(svg).not.toContain('tree-scalebar')
 })
 
-test('the bar is off until asked for', async () => {
-  const { model, svg } = await exportWith({})
-  expect(model.showTreeScaleBar).toBe(false)
+test('a tree drawn without its branches has no bar', async () => {
+  const { model, svg } = await exportWith({ drawTree: false })
   expect(model.treeScaleBar).toBeUndefined()
   expect(svg).not.toContain('tree-scalebar')
+})
+
+test('a snapshot saved while the bar was a setting still opens', async () => {
+  const { model } = await exportWith({ showTreeScaleBar: false } as never)
+  expect(model.treeScaleBar).toBeDefined()
 })

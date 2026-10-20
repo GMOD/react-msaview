@@ -108,7 +108,6 @@ export const defaultDrawTree = true
 export const defaultDrawNodeBubbles = true
 export const defaultDrawNodeLabels = false
 export const defaultShowTreeOverview = false
-export const defaultShowTreeScaleBar = false
 export const defaultOverviewHeight = 120
 
 // Neighbor joining does not run above this many rows. The distance matrix is
