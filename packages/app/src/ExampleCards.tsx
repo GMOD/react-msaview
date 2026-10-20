@@ -1,5 +1,14 @@
 /// <reference types="vite/client" />
-import { Box, Card, CardActionArea, Link, Typography } from '@mui/material'
+import { useState } from 'react'
+
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  Link,
+  Typography,
+} from '@mui/material'
 
 import showcase from './showcase.json'
 
@@ -78,30 +87,39 @@ function ExampleCard({ card }: { card: (typeof cards)[number] }) {
 }
 
 export default function ExampleCards() {
+  const [shown, setShown] = useState(false)
   return (
     <Box>
-      <Typography
-        component="h2"
-        sx={{ fontSize: 18, fontWeight: 600, mb: 1.5 }}
-      >
-        Or start from an example
-      </Typography>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: 2,
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={() => {
+          setShown(!shown)
         }}
       >
-        {cards.map(card => (
-          <ExampleCard key={card.key} card={card} />
-        ))}
-      </Box>
-      <Typography variant="body2" sx={{ mt: 1.5 }}>
-        <Link href="../examples/">All examples</Link>
-        {' · '}
-        <Link href="../tutorials/">Tutorials that build each of these</Link>
-      </Typography>
+        {shown ? 'Hide examples' : 'Show examples'}
+      </Button>
+      {shown ? (
+        <>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: 2,
+              mt: 2,
+            }}
+          >
+            {cards.map(card => (
+              <ExampleCard key={card.key} card={card} />
+            ))}
+          </Box>
+          <Typography variant="body2" sx={{ mt: 1.5 }}>
+            <Link href="../examples/">All examples</Link>
+            {' · '}
+            <Link href="../tutorials/">Tutorials that build each of these</Link>
+          </Typography>
+        </>
+      ) : null}
     </Box>
   )
 }
