@@ -15,7 +15,7 @@ const useStyles = makeStyles()(theme => ({
     margin: 'auto',
     marginLeft: 10,
     whiteSpace: 'nowrap',
-    color: theme.palette.warning.main,
+    color: theme.palette.text.secondary,
     cursor: 'help',
   },
 }))
@@ -41,13 +41,14 @@ const UnshareableDataWarning = observer(function ({
   const what = unshareableData
     .map(({ what, bytes }) => `${what} (${size(bytes)})`)
     .join(' and the ')
+  const names = unshareableData.map(d => d.what).join(' and ')
   return (
     <Tooltip
-      title={`The ${what} came from this computer and is too large to travel in a URL, so a link to this page opens without it. Serve the file over HTTP and open it by URL to share the view.`}
+      title={`The ${what} came from this computer and is too large to travel in a URL, so a link to this page opens without it. This view is unaffected. To share it, serve the file over HTTP and open it by URL.`}
     >
       <Typography component="div" className={classes.warning}>
         <LinkOff fontSize="small" />
-        Not in the link
+        Link omits {names}
       </Typography>
     </Tooltip>
   )
